@@ -1,12 +1,14 @@
 {
-    "name" : "@hms-dbmi-bgm/shared-portal-components",
-    "version" : "0.0.1",
+    "name": "@hms-dbmi-bgm/shared-portal-components",
+    "version": "0.0.1",
     "description": "Shared components for DBMI/BGM portal(s)",
-    "main" : "src/index.js",
-    "scripts" : {
+    "main": "src/index.js",
+    "module": "/dist/shared-components.js",
+    "scripts": {
+        "build": "node --max-old-space-size=2048 ./node_modules/.bin/gulp build",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "author" : "HMS DBMI/BGM",
+    "author": "HMS DBMI/BGM",
     "devDependencies": {
         "@babel/core": "^7.1.2",
         "@babel/plugin-proposal-class-properties": "^7.3.3",
@@ -43,26 +45,37 @@
         "uglifyjs-webpack-plugin": "^2.1.1",
         "webpack": "4.28.4",
         "webpack-bundle-analyzer": "^3.0.4",
-        "webpack-deadcode-plugin": "^0.1.10"
+        "webpack-deadcode-plugin": "^0.1.10",
+        "d3": ">=5.9.0",
+        "react": ">=16.3.0",
+        "react-dom": ">=16.3.0",
+        "react-bootstrap": "*",
+        "memoize-one": ">=5.0.0",
+        "underscore": ">=1.9.1",
+        "react-tooltip": ">=3.10.0",
+        "query-string": ">=4.3.0",
+        "moment": ">=2.24.0",
+        "form-serialize": ">=0.6.0"
     },
     "dependencies": {
         "crypto-js": "^3.1.9-1",
         "js-md5": "^0.4.2",
         "html-react-parser": "^0.4.7",
         "react-sticky": "^6.0.3",
-        "aws-sdk" : "^2.421.0"
+        "aws-sdk": "^2.421.0",
+        "jsonwebtoken": ">=7.4.0",
+        "universal-cookie": ">=4.0.0"
     },
     "peerDependencies": {
         "d3": ">=5.9.0",
-        "react" : ">=16.3.0",
-        "react-dom" : ">=16.3.0",
-        "react-bootstrap" : "*",
-        "memoize-one" : ">=5.0.0",
-        "underscore" : ">=1.9.1",
-        "react-tooltip" : ">=3.10.0",
-        "query-string" : ">=4.3.0",
+        "react": ">=16.3.0",
+        "react-dom": ">=16.3.0",
+        "react-bootstrap": "*",
+        "memoize-one": ">=5.0.0",
+        "underscore": ">=1.9.1",
+        "react-tooltip": ">=3.10.0",
+        "query-string": ">=4.3.0",
         "moment": ">=2.24.0",
         "form-serialize": ">=0.6.0"
     }
-
 }

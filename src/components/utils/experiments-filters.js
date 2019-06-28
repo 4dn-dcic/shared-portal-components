@@ -229,10 +229,8 @@ export function changeFilter(
  * @param {?function} [callback=null]  Callback function.
  * @returns {void}
  */
-export function saveChangedFilters(newExpSetFilters, href=null, callback=null){
-    // eslint-disable-next-line prefer-destructuring
-    if (!store)  store = require('./../../store').store;
-    if (!Alerts) Alerts = require('../alerts').default;
+export function saveChangedFilters(newExpSetFilters, store, href=null, callback=null){
+    if (!Alerts) Alerts = require('../ui/Alerts').Alerts;
 
     var originalReduxState = store.getState();
 
@@ -449,21 +447,12 @@ export const NON_FILTER_URL_PARAMS = [
  * @returns {Object} Object with fields (string, dot-separated-nested) as keys and Sets of terms (string) as values for those keys.
  */
 export function contextFiltersToExpSetFilters(contextFilters = null, browseBaseState = null){
-    if (!contextFilters){ // Grab context.filters from Redux store if not supplied.
-        if (!store) store = require('./../../store').store;
-        var storeState = store.getState();
-        contextFilters = (storeState && storeState.context && storeState.context.filters) || null;
-    }
     if (!Array.isArray(contextFilters)){
         console.warn('No context filters available or supplied. Fine if this message appears outside of a /search/ or /browse/ page.');
         return {};
     }
     if (contextFilters.length === 0) return {};
-
-    var browseBaseParams = navigate.getBrowseBaseParams(browseBaseState);
-
     return _.reduce(contextFilters, function(memo, filterObj){
-        if (typeof browseBaseParams[filterObj.field] !== 'undefined') return memo; // continue/skip.
         if (typeof memo[filterObj.field] === 'undefined'){
             memo[filterObj.field] = new Set([filterObj.term]);
         } else {

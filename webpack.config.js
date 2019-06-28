@@ -8,7 +8,7 @@ const PATHS = {
     "build" : path.resolve(__dirname, 'dist'),
 };
 
-const mode = (env === 'production' ? 'production' : 'development');
+const mode = "development";
 
 const plugins = [];
 
@@ -29,7 +29,7 @@ if (mode === 'production') {
     // add chunkhash to chunk names for production only (it's slower)
     chunkFilename = '[name].[chunkhash].js';
     devTool = 'source-map';
-} else if (env === 'quick') {
+} else if (env === 'quick' || env === "production") {
     devTool = 'eval'; // Fastest
 } else if (env === 'development') {
     devTool = 'inline-source-map';
@@ -126,9 +126,8 @@ module.exports = [
     {
         mode: mode,
         entry: {
-            "shared-components" : "src/index"
+            "shared-components" : path.resolve(__dirname, 'src'),
         },
-        target: "web",
         output: {
             path: PATHS.build,
             publicPath: '/dist/',
