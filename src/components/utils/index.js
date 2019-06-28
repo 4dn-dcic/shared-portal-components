@@ -56,14 +56,14 @@ import * as DateUtilities from './date-utility';
 export const DateUtility = DateUtilities;
 
 
-import * as experimentTransformFunctions from './experiments-transforms';
-export const expFxn = experimentTransformFunctions;
+//import * as experimentTransformFunctions from './experiments-transforms';
+//export const expFxn = experimentTransformFunctions;
 
 
 import * as experimentFilters from './experiments-filters';
 export const Filters = experimentFilters;
 
-export { itemTypeHierarchy } from './itemTypeHierarchy';
+//export { itemTypeHierarchy } from './itemTypeHierarchy';
 
 import * as SchemaUtilities from './Schemas';
 export const Schemas = SchemaUtilities;
@@ -73,5 +73,5 @@ export const Schemas = SchemaUtilities;
 import * as fileUtilities from './file';
 export const fileUtil = fileUtilities;
 
-import * as SearchEngineOptimizationUtilities from './seo';
-export const SEO = SearchEngineOptimizationUtilities;
+//import * as SearchEngineOptimizationUtilities from './seo';
+//export const SEO = SearchEngineOptimizationUtilities;
