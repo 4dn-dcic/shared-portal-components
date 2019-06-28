@@ -8,7 +8,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import { Collapse, Fade } from 'react-bootstrap';
 import { console, Filters, Schemas, layout, analytics, navigate, DateUtility } from './../../util';
-import { PartialList } from './../../item-pages/components/PartialList';
+import { PartialList } from './../../ui/PartialList';
 import ReactTooltip from 'react-tooltip';
 
 /**
