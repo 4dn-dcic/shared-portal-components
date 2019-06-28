@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Collapse } from 'react-bootstrap';
-import { console } from './../../util';
+import { console } from './../util';
 
 
 /**

@@ -530,7 +530,6 @@ export class FacetList extends React.PureComponent {
         );
     }
 
-
     render() {
         const { debug, facets, className, title, showClearFiltersButton, onClearFilters, windowHeight } = this.props;
         if (debug) console.log('render facetlist');
