@@ -60,7 +60,7 @@
         "memoize-one" : ">=5.0.0",
         "underscore" : ">=1.9.1",
         "react-tooltip" : ">=3.10.0",
-        "query-string" : ">=6.8.0",
+        "query-string" : ">=4.3.0",
         "moment": ">=2.24.0",
         "form-serialize": ">=0.6.0"
     }
