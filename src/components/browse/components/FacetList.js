@@ -318,7 +318,7 @@ class Facet extends React.PureComponent {
     }
 
     render() {
-        const { facet, isTermSelected, extraClassname } = this.props;
+        const { facet, isTermSelected, extraClassname, termTransformFxn } = this.props;
         const { filtering } = this.state;
         const { description = null, field, title, terms = [] } = facet;
         const showTitle = title || field;
