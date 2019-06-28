@@ -244,23 +244,19 @@ export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, se
  ** Common React Classes **
  ************************/
 
-export class FileDownloadButton extends React.PureComponent {
-
-    static defaultProps = {
-        'title' : 'Download',
-        'disabled' : false,
-        'size' : null
-    };
-
-    render(){
-        var { href, className, disabled, title, filename, size } = this.props;
-        return (
-            <a href={ href } className={(className || '') + " btn btn-default btn-primary download-button btn-block " + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '')} download data-tip={filename || null}>
-                <i className="icon icon-fw icon-cloud-download"/>{ title ? <span>&nbsp; { title }</span> : null }
-            </a>
-        );
-    }
+export function FileDownloadButton(props){
+    const { href, className, disabled, title, filename, size } = props;
+    return (
+        <a href={ href } className={(className || '') + " btn btn-default btn-primary download-button btn-block " + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '')} download data-tip={filename || null}>
+            <i className="icon icon-fw icon-cloud-download"/>{ title ? <span>&nbsp; { title }</span> : null }
+        </a>
+    );
 }
+FileDownloadButton.defaultProps = {
+    'title' : 'Download',
+    'disabled' : false,
+    'size' : null
+};
 
 export class FileDownloadButtonAuto extends React.PureComponent {
 
@@ -280,24 +276,6 @@ export class FileDownloadButtonAuto extends React.PureComponent {
         return false;
     }
 
-    static propTypes = {
-        'result' : PropTypes.shape({
-            'href' : PropTypes.string.isRequired,
-            'filename' : PropTypes.string.isRequired,
-        }).isRequired
-    };
-
-    static defaultProps = {
-        'canDownloadStatuses' : [
-            'uploaded',
-            'released',
-            'replaced',
-            'submission in progress',
-            'released to project',
-            'archived'
-        ]
-    };
-
     canDownload(){ return FileDownloadButtonAuto.canDownload(this.props.result, this.props.canDownloadStatuses); }
 
     render(){
@@ -312,52 +290,64 @@ export class FileDownloadButtonAuto extends React.PureComponent {
         return <FileDownloadButton {...this.props} {...props} />;
     }
 }
+FileDownloadButtonAuto.propTypes = {
+    'result' : PropTypes.shape({
+        'href' : PropTypes.string.isRequired,
+        'filename' : PropTypes.string.isRequired,
+    }).isRequired
+};
+FileDownloadButtonAuto.defaultProps = {
+    'canDownloadStatuses' : [
+        'uploaded',
+        'released',
+        'replaced',
+        'submission in progress',
+        'released to project',
+        'archived'
+    ]
+};
 
-export class ViewFileButton extends React.Component {
+export const ViewFileButton = React.memo(function ViewFileButton(props) {
+    var { filename, href, target, title, mimeType, size } = props;
+    var action = 'View', extLink = null, preLink = null;
 
-    static defaultProps = {
-        'className' : "text-ellipsis-container mb-1",
-        'target' : "_blank",
-        'bsStyle' : "primary",
-        'href' : null,
-        'disabled' : false,
-        'title' : null,
-        'mimeType' : null,
-        'size' : null
+    preLink = <i className="icon icon-fw icon-cloud-download" />;
+
+    var fileNameLower = (filename && filename.length > 0 && filename.toLowerCase()) || '';
+    var fileNameLowerEnds = {
+        '3' : fileNameLower.slice(-3),
+        '4' : fileNameLower.slice(-4),
+        '5' : fileNameLower.slice(-5)
     };
-
-    render(){
-        var { filename, href, target, title, mimeType, size } = this.props;
-        var action = 'View', extLink = null, preLink = null;
-
-        preLink = <i className="icon icon-fw icon-cloud-download" />;
-
-        var fileNameLower = (filename && filename.length > 0 && filename.toLowerCase()) || '';
-        var fileNameLowerEnds = {
-            '3' : fileNameLower.slice(-3),
-            '4' : fileNameLower.slice(-4),
-            '5' : fileNameLower.slice(-5)
-        };
-        if (isFilenameAnImage(fileNameLowerEnds)){
-            action = 'View';
-            preLink = <i className="icon icon-fw icon-picture-o" />;
-        } else if (fileNameLowerEnds['4'] === '.pdf'){
-            action = 'View';
-            //if (target === '_blank') extLink = <i className="icon icon-fw icon-external-link"/>;
-            preLink = <i className="icon icon-fw icon-file-pdf-o" />;
-        } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx'){
-            action = 'Download';
-        }
-
-        return (
-            <Button bsSize={size} download={action === 'Download' ? true : null} {..._.omit(this.props, 'filename', 'title')} title={filename} data-tip={mimeType}>
-                <span className={title ? null : "text-400"}>
-                    { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
-                </span>
-            </Button>
-        );
+    if (isFilenameAnImage(fileNameLowerEnds)){
+        action = 'View';
+        preLink = <i className="icon icon-fw icon-picture-o" />;
+    } else if (fileNameLowerEnds['4'] === '.pdf'){
+        action = 'View';
+        //if (target === '_blank') extLink = <i className="icon icon-fw icon-external-link"/>;
+        preLink = <i className="icon icon-fw icon-file-pdf-o" />;
+    } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx'){
+        action = 'Download';
     }
-}
+
+    return (
+        <Button bsSize={size} download={action === 'Download' ? true : null} {..._.omit(props, 'filename', 'title')} title={filename} data-tip={mimeType}>
+            <span className={title ? null : "text-400"}>
+                { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
+            </span>
+        </Button>
+    );
+});
+ViewFileButton.defaultProps = {
+    'className' : "text-ellipsis-container mb-1",
+    'target' : "_blank",
+    'bsStyle' : "primary",
+    'href' : null,
+    'disabled' : false,
+    'title' : null,
+    'mimeType' : null,
+    'size' : null
+};
 
 export function isFilenameAnImage(filename, suppressErrors = false){
     var fileNameLower, fileNameLowerEnds;

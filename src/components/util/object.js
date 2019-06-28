@@ -456,45 +456,41 @@ export function TooltipInfoIconContainer(props){
     ));
 }
 
-export class TooltipInfoIconContainerAuto extends React.Component {
-
-    static propTypes = {
-        'property' : PropTypes.string.isRequired,
-        'title' : PropTypes.oneOfType([ PropTypes.string, PropTypes.element ]),
-        'result' : PropTypes.shape({
-            '@type' : PropTypes.array.isRequired
-        }).isRequired,
-        'itemType' : PropTypes.string,
-        'schemas' : PropTypes.object,
-        'elementType' : PropTypes.string
+export function TooltipInfoIconContainerAuto(props) {
+    const { elementType, title, property, result, schemas, tips, fallbackTitle, itemType } = props;
+    let showTitle = title;
+    let schemaProperty = null;
+    let tooltip = null;
+    if (tips){
+        if (typeof tips === 'string'){
+            tooltip = tips;
+        } else {
+            tooltip = (tips && tips[property] && tips[property].description) || null;
+        }
+        if (!showTitle) showTitle = (tips && tips[property] && tips[property].title) || null;
+    }
+    if (!showTitle || !tooltip) {
+        try {
+            schemaProperty = getSchemaProperty(property, schemas, {}, itemType || result['@type'][0]);
+        } catch (e){
+            console.warn('Failed to get schemaProperty', itemType, property);
+        }
+        tooltip = (schemaProperty && schemaProperty.description) || null;
+        if (!showTitle) showTitle = (schemaProperty && schemaProperty.title) || null;
     }
 
-    render(){
-        const { elementType, title, property, result, schemas, tips, fallbackTitle, itemType } = this.props;
-        let showTitle = title;
-        let schemaProperty = null;
-        let tooltip = null;
-        if (tips){
-            if (typeof tips === 'string'){
-                tooltip = tips;
-            } else {
-                tooltip = (tips && tips[property] && tips[property].description) || null;
-            }
-            if (!showTitle) showTitle = (tips && tips[property] && tips[property].title) || null;
-        }
-        if (!showTitle || !tooltip) {
-            try {
-                schemaProperty = getSchemaProperty(property, schemas, {}, itemType || result['@type'][0]);
-            } catch (e){
-                console.warn('Failed to get schemaProperty', itemType, property);
-            }
-            tooltip = (schemaProperty && schemaProperty.description) || null;
-            if (!showTitle) showTitle = (schemaProperty && schemaProperty.title) || null;
-        }
-
-        return <TooltipInfoIconContainer {...this.props} tooltip={tooltip} title={showTitle || fallbackTitle || property} elementType={elementType} />;
-    }
+    return <TooltipInfoIconContainer {...props} tooltip={tooltip} title={showTitle || fallbackTitle || property} elementType={elementType} />;
 }
+TooltipInfoIconContainerAuto.propTypes = {
+    'property' : PropTypes.string.isRequired,
+    'title' : PropTypes.oneOfType([ PropTypes.string, PropTypes.element ]),
+    'result' : PropTypes.shape({
+        '@type' : PropTypes.array.isRequired
+    }).isRequired,
+    'itemType' : PropTypes.string,
+    'schemas' : PropTypes.object,
+    'elementType' : PropTypes.string
+};
 
 /**
  * Use this Component to generate a 'copy' button.
@@ -505,16 +501,6 @@ export class TooltipInfoIconContainerAuto extends React.Component {
  * @prop {string|React.Component} [wrapperElement='div'] - Element type to wrap props.children in, if any.
  */
 export class CopyWrapper extends React.PureComponent {
-
-    static defaultProps = {
-        'wrapperElement' : 'div',
-        'className' : null,
-        'flash' : true,
-        'iconProps' : {},
-        'includeIcon' : true,
-        'flashActiveTransform' : 'scale3d(1.2, 1.2, 1.2) translate3d(0, 0, 0)',
-        'flashInactiveTransform' : 'translate3d(0, 0, 0)'
-    };
 
     static copyToClipboard(value, successCallback = null, failCallback = null){
         var textArea = document.createElement('textarea');
@@ -635,6 +621,15 @@ export class CopyWrapper extends React.PureComponent {
         return React.createElement(wrapperElement, wrapperProps, elemsToWrap);
     }
 }
+CopyWrapper.defaultProps = {
+    'wrapperElement' : 'div',
+    'className' : null,
+    'flash' : true,
+    'iconProps' : {},
+    'includeIcon' : true,
+    'flashActiveTransform' : 'scale3d(1.2, 1.2, 1.2) translate3d(0, 0, 0)',
+    'flashInactiveTransform' : 'translate3d(0, 0, 0)'
+};
 
 
 /**

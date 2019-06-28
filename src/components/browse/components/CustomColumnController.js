@@ -84,12 +84,6 @@ export class CustomColumnController extends React.Component {
 
 export class CustomColumnSelector extends React.PureComponent {
 
-    static propTypes = {
-        'hiddenColumns'         : PropTypes.object.isRequired,
-        'addHiddenColumn'       : PropTypes.func.isRequired,
-        'removeHiddenColumn'    : PropTypes.func.isRequired
-    };
-
     constructor(props){
         super(props);
         this.columnDefinitionsWithHiddenState = this.columnDefinitionsWithHiddenState.bind(this);
@@ -137,6 +131,11 @@ export class CustomColumnSelector extends React.PureComponent {
     }
 
 }
+CustomColumnSelector.propTypes = {
+    'hiddenColumns'         : PropTypes.object.isRequired,
+    'addHiddenColumn'       : PropTypes.func.isRequired,
+    'removeHiddenColumn'    : PropTypes.func.isRequired
+};
 
 const ColumnOption = React.memo(function ColumnOption(props){
     const { hiddenState, allColumns, field, title, description, index, handleOptionVisibilityChange } = props;

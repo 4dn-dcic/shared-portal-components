@@ -91,7 +91,7 @@ class AboveSearchTablePanelStaticContentPane extends React.Component {
 
 }
 
-
+let cachedMapping = null;
 
 export class AboveSearchTablePanel extends React.Component {
 
@@ -107,24 +107,10 @@ export class AboveSearchTablePanel extends React.Component {
         return { searchItemType, abstractType };
     }
 
-    static defaultProps = {
-        "mappingLocation" : "/sysinfos/search-header-mappings/",
-        "cacheMappingGlobally" : true
-    }
-
-    static propTypes = {
-        'href' : PropTypes.string.isRequired,
-        'context' : PropTypes.object.isRequired,
-        'mappingLocation' : PropTypes.any, // String or null
-        'cacheMappingGlobally' : PropTypes.bool
-    }
-
-    static cachedMapping = null;
-
     constructor(props){
         super(props);
         this.state = {
-            'mapping' : AboveSearchTablePanel.cachedMapping || null
+            'mapping' : cachedMapping || null
         };
     }
 
@@ -136,7 +122,7 @@ export class AboveSearchTablePanel extends React.Component {
                         'mapping' : resp.mapping
                     });
                     if (this.props.cacheMappingGlobally) {
-                        AboveSearchTablePanel.cachedMapping = resp.mapping;
+                        cachedMapping = resp.mapping;
                     }
                 }
             });
@@ -175,5 +161,16 @@ export class AboveSearchTablePanel extends React.Component {
             </div>
         );
     }
-
 }
+
+AboveSearchTablePanel.propTypes = {
+    'href' : PropTypes.string.isRequired,
+    'context' : PropTypes.object.isRequired,
+    'mappingLocation' : PropTypes.any, // String or null
+    'cacheMappingGlobally' : PropTypes.bool
+};
+
+AboveSearchTablePanel.defaultProps = {
+    "mappingLocation" : "/sysinfos/search-header-mappings/",
+    "cacheMappingGlobally" : true
+};

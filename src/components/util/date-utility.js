@@ -6,34 +6,7 @@ import moment from 'moment';
 import { isServerSide } from './misc';
 
 
-
-
 export class LocalizedTime extends React.Component {
-
-    static defaultProps = {
-        momentDate : null,
-        timestamp : null,
-        formatType : 'date-md',
-        dateTimeSeparator : ' ',
-        customOutputFormat : null,
-        fallback : "N/A",
-        className : "localized-date-time",
-        localize : true
-    }
-
-    static propTypes = {
-        momentDate : function(props, propName, componentName){
-            if (props[propName] && !moment.isMoment(props[propName])){
-                return new Error("momentDate must be an instance of Moment.");
-            }
-        },
-        timestamp : PropTypes.string,
-        formatType : PropTypes.string,
-        dateTimeSeparator : PropTypes.string,
-        customOutputFormat : PropTypes.string,
-        fallback : PropTypes.string,
-        className : PropTypes.string
-    }
 
     constructor(props){
         super(props);
@@ -64,8 +37,30 @@ export class LocalizedTime extends React.Component {
             );
         }
     }
-
 }
+LocalizedTime.propTypes = {
+    momentDate : function(props, propName, componentName){
+        if (props[propName] && !moment.isMoment(props[propName])){
+            return new Error("momentDate must be an instance of Moment.");
+        }
+    },
+    timestamp : PropTypes.string,
+    formatType : PropTypes.string,
+    dateTimeSeparator : PropTypes.string,
+    customOutputFormat : PropTypes.string,
+    fallback : PropTypes.string,
+    className : PropTypes.string
+};
+LocalizedTime.defaultProps = {
+    momentDate : null,
+    timestamp : null,
+    formatType : 'date-md',
+    dateTimeSeparator : ' ',
+    customOutputFormat : null,
+    fallback : "N/A",
+    className : "localized-date-time",
+    localize : true
+};
 
 export function preset(formatType = 'date-md', dateTimeSeparator = " "){
 

@@ -27,17 +27,6 @@ export class AboveTableControlsBase extends React.PureComponent {
         };
     }
 
-    static defaultProps = {
-        "panelMap" : {
-            // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
-            "customColumns" : {
-                "title" : <span><i className="icon icon-fw icon-gear"/> hello world</span>,
-                "body" : "Hello World",
-                "className" : "visible-columns-selector-panel"
-            }
-        }
-    };
-
     static getDerivedStateFromProps(props, state){
         // Close panel if needed (as told by panelMap 'close' bool field)
         if (state.open && typeof state.open === 'string'){
@@ -151,3 +140,13 @@ export class AboveTableControlsBase extends React.PureComponent {
         );
     }
 }
+AboveTableControlsBase.defaultProps = {
+    "panelMap" : {
+        // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
+        "customColumns" : {
+            "title" : <span><i className="icon icon-fw icon-gear"/> hello world</span>,
+            "body" : "Hello World",
+            "className" : "visible-columns-selector-panel"
+        }
+    }
+};

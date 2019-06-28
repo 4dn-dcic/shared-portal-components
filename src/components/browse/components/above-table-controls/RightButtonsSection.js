@@ -37,17 +37,6 @@ ConfigureVisibleColumnsButton.defaultProps = {
 /** Toggles between regular & full screen views */
 export class ToggleLayoutButton extends React.PureComponent {
 
-    static propTypes = {
-        'windowWidth' : PropTypes.number.isRequired,
-        'isFullscreen' : PropTypes.bool.isRequired,
-        'toggleFullScreen' : PropTypes.func.isRequired,
-        'className' : PropTypes.string
-    };
-
-    static defaultProps = {
-        'className' : "btn btn-outline-primary"
-    };
-
     constructor(props){
         super(props);
         this.handleLayoutToggle = _.throttle(this.handleLayoutToggle.bind(this), 350);
@@ -74,4 +63,13 @@ export class ToggleLayoutButton extends React.PureComponent {
         );
     }
 }
+ToggleLayoutButton.propTypes = {
+    'windowWidth' : PropTypes.number.isRequired,
+    'isFullscreen' : PropTypes.bool.isRequired,
+    'toggleFullScreen' : PropTypes.func.isRequired,
+    'className' : PropTypes.string
+};
+ToggleLayoutButton.defaultProps = {
+    'className' : "btn btn-outline-primary"
+};
 

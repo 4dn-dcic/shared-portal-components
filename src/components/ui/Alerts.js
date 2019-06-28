@@ -97,81 +97,6 @@ export class Alerts extends React.Component {
         });
     }
 
-    /**
-     * Alert definition for person having been logged out.
-     *
-     * @type {AlertObj}
-     * @public
-     * @constant
-     */
-    static LoggedOut = {
-        "title"     : "Logged Out",
-        "message"   : "You have been logged out.",
-        "style"     : 'danger',
-        'navigateDisappearThreshold' : 2
-    };
-
-    /**
-     * Alert definition for 0 results being returned from /browse/ or /search/ endpoint.
-     *
-     * @type {AlertObj}
-     * @public
-     * @constant
-     */
-    static NoFilterResults = {
-        'title'     : "No Results",
-        'message'   : "Selecting this filter returned no results so it was deselected.",
-        'style'     : "warning",
-        'navigateDisappearThreshold' : 3
-    };
-
-    /**
-     * Alert definition for a connection error, e.g. as detected by an AJAX call.
-     *
-     * @type {AlertObj}
-     * @public
-     * @constant
-     */
-    static ConnectionError = {
-        "title" : "Connection Error",
-        "message" : "Check your internet connection",
-        "style" : "danger",
-        'navigateDisappearThreshold' : 1
-    };
-
-    /**
-     * Alert definition for person failing to log in.
-     *
-     * @type {AlertObj}
-     * @public
-     * @constant
-     */
-    static LoginFailed = {
-        "title" : "Login Failed",
-        "message" : "Your attempt to login failed - please check your credentials or try again later.",
-        "style" : "danger",
-        'navigateDisappearThreshold' : 1
-    };
-
-    /**
-     * @ignore
-     * @constant
-     * @type {Object}
-     */
-    static propTypes = {
-        /**
-         * List of Alert objects currently being displayed. Should be passed down from Redux store from App.
-         *
-         * @type {AlertObj[]}
-         */
-        'alerts' : PropTypes.arrayOf(PropTypes.shape({
-            'title' : PropTypes.string.isRequired,
-            'message' : PropTypes.string.isRequired,
-            'style' : PropTypes.string,
-            'navigationDissappearThreshold' : PropTypes.number
-        }))
-    };
-
     /** @ignore */
     constructor(props){
         super(props);
@@ -216,6 +141,54 @@ export class Alerts extends React.Component {
         );
     }
 }
+Alerts.propTypes = {
+    /**
+     * List of Alert objects currently being displayed. Should be passed down from Redux store from App.
+     *
+     * @type {AlertObj[]}
+     */
+    'alerts' : PropTypes.arrayOf(PropTypes.shape({
+        'title' : PropTypes.string.isRequired,
+        'message' : PropTypes.string.isRequired,
+        'style' : PropTypes.string,
+        'navigationDissappearThreshold' : PropTypes.number
+    }))
+};
+
+
+
+/**
+ * Reusable Alert Definitions
+ */
+
+export const LoggedOut = {
+    "title"     : "Logged Out",
+    "message"   : "You have been logged out.",
+    "style"     : 'danger',
+    'navigateDisappearThreshold' : 2
+};
+
+export const NoFilterResults = {
+    'title'     : "No Results",
+    'message'   : "Selecting this filter returned no results so it was deselected.",
+    'style'     : "warning",
+    'navigateDisappearThreshold' : 3
+};
+
+export const ConnectionError = {
+    "title" : "Connection Error",
+    "message" : "Check your internet connection",
+    "style" : "danger",
+    'navigateDisappearThreshold' : 1
+};
+
+export const LoginFailed = {
+    "title" : "Login Failed",
+    "message" : "Your attempt to login failed - please check your credentials or try again later.",
+    "style" : "danger",
+    'navigateDisappearThreshold' : 1
+};
+
 
 /**
  * Component which renders out an individual Alert.
