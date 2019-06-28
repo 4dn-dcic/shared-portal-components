@@ -10,7 +10,7 @@ import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
 import domToReact from 'html-react-parser/lib/dom-to-react';
 import md5 from 'js-md5';
 import patchedConsoleInstance from './patched-console';
-import { Field, Term } from './Schemas';
+import { getSchemaProperty } from './schema-transforms';
 import * as analytics from './analytics';
 import url from 'url';
 
@@ -470,28 +470,29 @@ export class TooltipInfoIconContainerAuto extends React.Component {
     }
 
     render(){
-        var { elementType, title, property, result, schemas, tips, fallbackTitle, itemType } = this.props;
-        var schemaProperty = null;
-        var tooltip = null;
+        const { elementType, title, property, result, schemas, tips, fallbackTitle, itemType } = this.props;
+        let showTitle = title;
+        let schemaProperty = null;
+        let tooltip = null;
         if (tips){
             if (typeof tips === 'string'){
                 tooltip = tips;
             } else {
                 tooltip = (tips && tips[property] && tips[property].description) || null;
             }
-            if (!title) title = (tips && tips[property] && tips[property].title) || null;
+            if (!showTitle) showTitle = (tips && tips[property] && tips[property].title) || null;
         }
-        if (!title || !tooltip) {
+        if (!showTitle || !tooltip) {
             try {
-                schemaProperty = Field.getSchemaProperty(property, schemas, itemType || result['@type'][0]);
+                schemaProperty = getSchemaProperty(property, schemas, {}, itemType || result['@type'][0]);
             } catch (e){
                 console.warn('Failed to get schemaProperty', itemType, property);
             }
             tooltip = (schemaProperty && schemaProperty.description) || null;
-            if (!title) title = (schemaProperty && schemaProperty.title) || null;
+            if (!showTitle) showTitle = (schemaProperty && schemaProperty.title) || null;
         }
 
-        return <TooltipInfoIconContainer {...this.props} tooltip={tooltip} title={title || fallbackTitle || property} elementType={elementType} />;
+        return <TooltipInfoIconContainer {...this.props} tooltip={tooltip} title={showTitle || fallbackTitle || property} elementType={elementType} />;
     }
 }
 

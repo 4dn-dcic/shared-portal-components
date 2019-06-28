@@ -4,10 +4,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Fade } from 'react-bootstrap';
 import _ from 'underscore';
-import { typedefs } from './util';
+import { AlertObj } from './../util/typedefs';
 
-// eslint-disable-next-line no-unused-vars
-const { AlertObj } = typedefs;
 
 const defaultNavigateDisappearThreshold = 1;
 

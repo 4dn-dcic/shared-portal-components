@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const env = process.env.NODE_ENV;
 const TerserPlugin = require('terser-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const fs = require('fs');
 
 const PATHS = {
     "build" : path.resolve(__dirname, 'dist'),
@@ -51,7 +52,7 @@ var rules = [
     {
         test: /\.(js|jsx)$/,
         include: [
-            path.resolve(__dirname, 'src/encoded/static'),
+            path.resolve(__dirname, 'src'),
         ],
         use: [
             {

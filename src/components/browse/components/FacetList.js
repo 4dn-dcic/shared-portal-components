@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import { Collapse, Fade } from 'react-bootstrap';
-import { console, Filters, Schemas, layout, analytics, navigate, DateUtility } from './../../util';
+import { console, Filters, layout, analytics, navigate, DateUtility } from './../../util';
 import { PartialList } from './../../ui/PartialList';
 import ReactTooltip from 'react-tooltip';
 
@@ -67,13 +67,13 @@ class Term extends React.PureComponent {
      * Handle date fields, etc.
      */
     customTitleRender(){
-        const { facet, term } = this.props;
+        const { facet, term, termTransformFxn } = this.props;
 
         if (facet.aggregation_type === 'range'){
             return (
-                (typeof term.from !== 'undefined' ? Schemas.Term.toName(facet.field, term.from, true) : '< ') +
+                (typeof term.from !== 'undefined' ? termTransformFxn(facet.field, term.from, true) : '< ') +
                 (typeof term.from !== 'undefined' && typeof term.to !== 'undefined' ? ' - ' : '') +
-                (typeof term.to !== 'undefined' ? Schemas.Term.toName(facet.field, term.to, true) : ' >')
+                (typeof term.to !== 'undefined' ? termTransformFxn(facet.field, term.to, true) : ' >')
             );
         }
 
@@ -88,10 +88,10 @@ class Term extends React.PureComponent {
     }
 
     render() {
-        const { term, facet, isTermSelected } = this.props;
+        const { term, facet, isTermSelected, termTransformFxn } = this.props;
         const { filtering } = this.state;
         const selected    = isTermSelected(term, facet);
-        let title       = this.customTitleRender() || Schemas.Term.toName(facet.field, term.key) || term.key;
+        let title       = this.customTitleRender() || termTransformFxn(facet.field, term.key) || term.key;
         const count       = (term && term.doc_count) || 0;
 
         if (!title || title === 'null' || title === 'undefined'){
@@ -342,7 +342,7 @@ class Facet extends React.PureComponent {
 
         if (this.isStatic(facet)){
             // Only one term exists.
-            return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, isTermSelected, extraClassname }} />;
+            return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, isTermSelected, extraClassname, termTransformFxn }} />;
         } else {
             return <FacetTermsList {...this.props} onTermClick={this.handleTermClick} tooltip={description} title={showTitle} />;
         }
@@ -351,10 +351,10 @@ class Facet extends React.PureComponent {
 
 }
 
-const StaticSingleTerm = React.memo(function StaticSingleTerm({ term, facet, showTitle, filtering, onClick, isTermSelected, extraClassname }){
+const StaticSingleTerm = React.memo(function StaticSingleTerm({ term, facet, showTitle, filtering, onClick, isTermSelected, extraClassname, termTransformFxn }){
     const { description = null, field } = facet;
     const selected = isTermSelected(term, facet);
-    let termName = Schemas.Term.toName(field, term.key);
+    let termName = termTransformFxn(field, term.key);
 
     if (!termName || termName === 'null' || termName === 'undefined'){
         termName = 'None';
@@ -535,7 +535,10 @@ export class FacetList extends React.PureComponent {
             // Check against responseContext.filters, or expSetFilters in Redux store.
             return false;
         },
-        'itemTypeForSchemas': 'ExperimentSetReplicate'
+        'itemTypeForSchemas': 'ExperimentSetReplicate',
+        'termTransformFxn' : function(field, term, allowJSXOutput = false, addDescriptionTipForLinkTos = true){
+            return term;
+        }
     };
 
 
@@ -559,7 +562,7 @@ export class FacetList extends React.PureComponent {
     }
 
     renderFacets(maxTermsToShow = 12){
-        const { facets, href, onFilter, schemas, isTermSelected, itemTypeForSchemas, windowWidth, persistentCount } = this.props;
+        const { facets, href, onFilter, schemas, isTermSelected, itemTypeForSchemas, windowWidth, persistentCount, termTransformFxn } = this.props;
         const { mounted } = this.state;
 
         // Ensure each facets has an `order` property and default it to 0 if not.
@@ -588,10 +591,8 @@ export class FacetList extends React.PureComponent {
         }, { facetIndex : 0, termCount: 0, end : false }).facetIndex;
 
         return _.map(useFacets, (facet, i) =>
-            <Facet onFilter={onFilter} key={facet.field}
-                facet={facet} href={href} isTermSelected={isTermSelected}
-                schemas={schemas} itemTypeForSchemas={itemTypeForSchemas} mounted={mounted}
-                defaultFacetOpen={!mounted ? false : !!(
+            <Facet {...{ onFilter, facet, href, isTermSelected, schemas, itemTypeForSchemas, mounted, termTransformFxn }}
+                key={facet.field} defaultFacetOpen={!mounted ? false : !!(
                     _.any(facet.terms, (t) => isTermSelected(t, facet)) ||
                     ( layout.responsiveGridState(windowWidth || null) !== 'xs' && i < (facetIndexWherePastXTerms || 1) )
                 )} />

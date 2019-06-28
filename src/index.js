@@ -1,6 +1,6 @@
 /** TODO */
 
-import * as importedUtils from './components/utils';
+import * as importedUtils from './components/util';
 
-export const utils = importedUtils;
+export const util = importedUtils;
 

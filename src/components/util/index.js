@@ -65,8 +65,14 @@ export const Filters = experimentFilters;
 
 //export { itemTypeHierarchy } from './itemTypeHierarchy';
 
-import * as SchemaUtilities from './Schemas';
-export const Schemas = SchemaUtilities;
+//import * as SchemaUtilities from './Schemas';
+//export const Schemas = SchemaUtilities;
+
+import * as schemaTransformsImported from './schema-transforms';
+export const schemaTransforms = schemaTransformsImported;
+
+import * as valueTransformsImported from './value-transforms';
+export const valueTransforms = valueTransformsImported;
 
 
 // Transforms, manipulations, parsers, etc. re: objects.

@@ -1,26 +1,14 @@
 'use strict';
 
 var Alerts = null; //require('./../alerts');
-var store = null;
 
 import _ from 'underscore';
 import url from 'url';
 import queryString from 'query-string';
 import moment from 'moment';
-import * as Schemas from './Schemas';
 import { navigate } from './navigate';
 
-/*
-export let getSchemas = null;
-export let getPage =  function(){ return 1;  };
-export let getLimit = function(){ return 25; };
-*/
 
-export const getters = {
-    'schemas' : null,
-    'page' : function(){ return 1; },
-    'limit' : function(){ return 25; }
-};
 
 
 
@@ -503,7 +491,7 @@ export function compareExpSetFilters(expSetFiltersA, expSetFiltersB){
 }
 
 
-export function filtersToNodes(expSetFilters = {}, orderedFieldNames = null, flatten = false){
+export function filtersToNodes(expSetFilters = {}, orderedFieldNames = null, termTranformFxn = null, flatten = false){
     // Convert orderedFieldNames into object/hash for faster lookups.
     var sortObj = null;
     if (Array.isArray(orderedFieldNames)) sortObj = _.invert(_.object(_.pairs(orderedFieldNames)));
@@ -519,7 +507,7 @@ export function filtersToNodes(expSetFilters = {}, orderedFieldNames = null, fla
                 return {
                     'data' : {
                         'term' : term,
-                        'name' : Schemas.Term.toName(fieldPair[0], term),
+                        'name' : (termTranformFxn && termTranformFxn(fieldPair[0], term)) || term,
                         'field' : fieldPair[0]
                     }
                 };

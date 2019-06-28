@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
 import _ from 'underscore';
-import { console, Schemas, ajax } from './../../util';
+import { console, schemaTransforms, ajax } from './../../util';
 
 /** TODO IMPROVE */
 
@@ -103,7 +103,7 @@ export class AboveSearchTablePanel extends React.Component {
             }
         }
 
-        abstractType = Schemas.getAbstractTypeForType(searchItemType);
+        abstractType = schemaTransforms.getAbstractTypeForType(searchItemType);
         return { searchItemType, abstractType };
     }
 
