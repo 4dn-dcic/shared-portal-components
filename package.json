@@ -1,0 +1,68 @@
+{
+    "name" : "@hms-dbmi-bgm/shared-portal-components",
+    "version" : "0.0.1",
+    "description": "Shared components for DBMI/BGM portal(s)",
+    "main" : "src/index.js",
+    "scripts" : {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author" : "HMS DBMI/BGM",
+    "devDependencies": {
+        "@babel/core": "^7.1.2",
+        "@babel/plugin-proposal-class-properties": "^7.3.3",
+        "@babel/plugin-proposal-object-rest-spread": "^7.3.2",
+        "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+        "@babel/preset-env": "^7.1.0",
+        "@babel/preset-react": "^7.0.0",
+        "@babel/register": "^7.0.0",
+        "babel-eslint": "^10.0.1",
+        "babel-jest": "^24.5.0",
+        "babel-loader": "^8.0.4",
+        "babel-plugin-minify-dead-code-elimination": "^0.5.0",
+        "esdoc": "^1.1.0",
+        "esdoc-ecmascript-proposal-plugin": "^1.0.0",
+        "esdoc-external-nodejs-plugin": "^1.0.0",
+        "esdoc-jsx-plugin": "^1.0.0",
+        "esdoc-lint-plugin": "^1.0.2",
+        "esdoc-react-plugin": "^1.0.1",
+        "esdoc-standard-plugin": "^1.0.0",
+        "esdoc-undocumented-identifier-plugin": "^1.0.0",
+        "esdoc-unexported-identifier-plugin": "^1.0.0",
+        "eslint": "^5.16.0",
+        "eslint-plugin-cypress": "^2.2.1",
+        "eslint-plugin-react": "^7.12.4",
+        "gulp": "^4.0.0",
+        "jest-cli": "^24.5.0",
+        "jsdom": "^13.2.0",
+        "node-sass": "^4.11.0",
+        "plugin-error": "^1.0.1",
+        "sinon": "^1.17.6",
+        "source-map-support": "^0.5.11",
+        "string-replace-loader": "^1.0.0",
+        "terser-webpack-plugin": "^1.2.2",
+        "uglifyjs-webpack-plugin": "^2.1.1",
+        "webpack": "4.28.4",
+        "webpack-bundle-analyzer": "^3.0.4",
+        "webpack-deadcode-plugin": "^0.1.10"
+    },
+    "dependencies": {
+        "crypto-js": "^3.1.9-1",
+        "js-md5": "^0.4.2",
+        "html-react-parser": "^0.4.7",
+        "react-sticky": "^6.0.3",
+        "aws-sdk" : "^2.421.0"
+    },
+    "peerDependencies": {
+        "d3": ">=5.9.0",
+        "react" : ">=16.3.0",
+        "react-dom" : ">=16.3.0",
+        "react-bootstrap" : "*",
+        "memoize-one" : ">=5.0.0",
+        "underscore" : ">=1.9.1",
+        "react-tooltip" : ">=3.10.0",
+        "query-string" : ">=6.8.0",
+        "moment": ">=2.24.0",
+        "form-serialize": ">=0.6.0"
+    }
+
+}
