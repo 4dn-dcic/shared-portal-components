@@ -2,7 +2,7 @@
 
 import _ from 'underscore';
 import * as JWT from './json-web-token';
-var console = require('./patched-console').default;
+import { patchedConsoleInstance as console } from './patched-console';
 
 /**
  * @private

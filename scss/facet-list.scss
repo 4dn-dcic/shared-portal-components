@@ -279,15 +279,16 @@
 
                 > a {
                     border-radius: 3px;
-                    padding: 4px 3px 2px 21px;
+                    padding: 3px 3px 3px 3px;
                     text-decoration: none;
                     display: block;
                     position: relative;
                     color: #888;
+                    display: flex;
 
                     i.icon.icon-circle-o-notch { opacity: 0.33; }
 
-                    &:hover{
+                    &:hover {
                         color: #000000;
                         background-color: #f1f7f9;
                     }
@@ -297,14 +298,13 @@
                     }
 
                     .facet-selector {
-                        margin-left: -19px;
-                        transform: scale(0.9);
+                        padding-right: 3px;
+                        min-width: 20px;
+                        transform: scale(0.9) translate(0, 1px);
                         transform-origin: 50% 0%;
                     }
 
                     .facet-count {
-                        position: absolute;
-                        right: 0;
                         padding-right: inherit;
                         margin-left: 10px;
                         margin-right: 5px;
@@ -332,6 +332,7 @@
                     white-space: nowrap;
                     text-overflow: ellipsis;
                     max-width: 85%;
+                    flex-grow: 1;
                 }
 
             }

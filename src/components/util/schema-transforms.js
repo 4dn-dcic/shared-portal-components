@@ -1,3 +1,4 @@
+import _ from 'underscore';
 
 export function getSchemaProperty(field, schemas, itemTypeHierarchy = {}, startAt = 'ExperimentSet'){
     var baseSchemaProperties = (schemas && schemas[startAt] && schemas[startAt].properties) || null;
@@ -53,13 +54,13 @@ export function getSchemaProperty(field, schemas, itemTypeHierarchy = {}, startA
  * @param {Item} context - Current Item or backend response JSON representation.
  * @returns {string|null} Type most relevant for current search, or `null`.
  */
-export function getSchemaTypeFromSearchContext(context){
+export function getSchemaTypeFromSearchContext(context, schemas){
     var thisType = _.pluck(_.filter(context.filters || [], function(o){
         if (o.field === 'type' && o.term !== 'Item') return true;
         return false;
     }), 'term')[0] || null;
     if (thisType){
-        return getTitleForType(thisType);
+        return getTitleForType(thisType, schemas);
     }
     return null;
 }
@@ -72,7 +73,7 @@ export function getSchemaTypeFromSearchContext(context){
  * @param {number} [depth=0] - Current recursive depth.
  * @returns {Object} Object with period-delimited keys instead of nested value to represent nested schema structure.
  */
-export function flattenSchemaPropertyToColumnDefinition(tips, depth = 0){
+export function flattenSchemaPropertyToColumnDefinition(tips, depth = 0, schemas=null){
     var flattened = (
         _.pairs(tips).filter(function(p){
             if (p[1] && ((p[1].items && p[1].items.properties) || (p[1].properties))) return true;
@@ -84,7 +85,7 @@ export function flattenSchemaPropertyToColumnDefinition(tips, depth = 0){
                     m[p[0]] = _.omit(m[p[0]], 'items', 'properties');
                 }
                 if (!m[p[0] + '.' + childProperty].title && m[p[0] + '.' + childProperty].linkTo){ // If no Title, but yes linkTo, set Title to be Title of linkTo's Schema.
-                    m[p[0] + '.' + childProperty].title = getTitleForType(m[p[0] + '.' + childProperty].linkTo);
+                    m[p[0] + '.' + childProperty].title = getTitleForType(m[p[0] + '.' + childProperty].linkTo, schemas);
                 }
                 //if ( m[p[0] + '.' + childProperty].items && m[p[0] + '.' + childProperty].items.properties )
             });
@@ -99,7 +100,7 @@ export function flattenSchemaPropertyToColumnDefinition(tips, depth = 0){
             if (p[1] && ((p[1].items && p[1].items.properties) || (p[1].properties))) return true;
             return false;
         })
-    ) flattened = flattenSchemaPropertyToColumnDefinition(flattened, depth + 1);
+    ) flattened = flattenSchemaPropertyToColumnDefinition(flattened, depth + 1, schemas);
 
     return flattened;
 }
@@ -169,9 +170,6 @@ export function getBaseItemType(context){
  */
 export function getTitleForType(atType, schemas = null){
     if (!atType) return null;
-
-    // Grab schemas from Filters if we don't have them but they've been cached into there from App.
-    schemas = schemas || (get && get());
 
     if (schemas && schemas[atType] && schemas[atType].title){
         return schemas[atType].title;

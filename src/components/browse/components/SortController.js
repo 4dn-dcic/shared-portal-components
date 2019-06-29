@@ -6,7 +6,7 @@ import url from 'url';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
 import _ from 'underscore';
-import { isServerSide, navigate, object } from './../../util';
+import { navigate } from './../../util/navigate';
 
 
 export class SortController extends React.PureComponent {

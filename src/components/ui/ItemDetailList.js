@@ -463,7 +463,7 @@ class SubItemTable extends React.Component {
         const keyTitleDescriptionMap = _.extend(
             {},
             // We have list of sub-embedded Items or sub-embedded objects which have separate 'get properties from schema' funcs (== tipsFromSchema || parentKeySchemaProperty).
-            flattenSchemaPropertyToColumnDefinition(tipsFromSchema || parentKeySchemaProperty),
+            flattenSchemaPropertyToColumnDefinition(tipsFromSchema || parentKeySchemaProperty, 0, schemas),
             columnDefinitions
         );
 
@@ -846,7 +846,7 @@ export class Detail extends React.PureComponent {
     };
 
     static columnDefinitions = memoize(function(context, schemas, columnDefinitionMap){
-        var colDefsFromSchema = flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {});
+        var colDefsFromSchema = flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
         return _.extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
     });
 

@@ -4,7 +4,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
 import _ from 'underscore';
-import { console, schemaTransforms, ajax } from './../../util';
+import { patchedConsoleInstance as console } from './../../util/patched-console';
+import { load } from './../../util/ajax';
+import { getAbstractTypeForType } from './../../util/schema-transforms';
 
 /** TODO IMPROVE */
 
@@ -64,7 +66,7 @@ class AboveSearchTablePanelStaticContentPane extends React.Component {
 
         }.bind(this);
 
-        ajax.load(targetHref, callback, 'GET', callback);
+        load(targetHref, callback, 'GET', callback);
     }
 
     render(){
@@ -103,7 +105,7 @@ export class AboveSearchTablePanel extends React.Component {
             }
         }
 
-        abstractType = schemaTransforms.getAbstractTypeForType(searchItemType);
+        abstractType = getAbstractTypeForType(searchItemType);
         return { searchItemType, abstractType };
     }
 
@@ -116,7 +118,7 @@ export class AboveSearchTablePanel extends React.Component {
 
     componentDidMount(){
         if (!this.state.mapping && typeof this.props.mappingLocation === 'string'){
-            ajax.load(this.props.mappingLocation, (resp)=>{
+            load(this.props.mappingLocation, (resp)=>{
                 if (resp && resp.mapping && _.keys(resp.mapping).length > 0){
                     this.setState({
                         'mapping' : resp.mapping

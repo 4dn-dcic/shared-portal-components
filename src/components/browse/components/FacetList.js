@@ -98,11 +98,11 @@ class Term extends React.PureComponent {
         return (
             <li className={"facet-list-element" + (selected ? " selected" : '')} key={term.key} data-key={term.key}>
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                    <span className="pull-left facet-selector">
+                    <span className="facet-selector">
                         { filtering ?
-                            <i className="icon icon-circle-o-notch icon-spin icon-fw"></i>
+                            <i className="icon icon-circle-o-notch icon-spin icon-fw"/>
                             : selected ?
-                                <i className="icon icon-times-circle icon-fw"></i>
+                                <i className="icon icon-times-circle icon-fw"/>
                                 : '' }
                     </span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{ title }</span>

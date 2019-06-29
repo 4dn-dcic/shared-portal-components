@@ -7,10 +7,18 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import queryString from 'querystring';
 import Draggable from 'react-draggable';
-import { isServerSide, navigate, object, layout, Schemas, DateUtility, analytics, typedefs, expFxn } from './../../util';
+
+import { LocalizedTime } from './../../ui/LocalizedTime';
+import { navigate } from './../../util/navigate';
+import { getItemType, getTitleForType } from './../../util/schema-transforms';
+import { getNestedProperty, itemUtil } from './../../util/object';
+import { responsiveGridState } from './../../util/layout';
+import { isServerSide } from './../../util/misc';
+import { productClick as trackProductClick } from './../../util/analytics';
 
 // eslint-disable-next-line no-unused-vars
-const { Item, ColumnDefinition } = typedefs;
+import { Item, ColumnDefinition } from './../../util/typedefs';
+
 
 export const DEFAULT_WIDTH_MAP = { 'lg' : 200, 'md' : 180, 'sm' : 120, 'xs' : 120 };
 
@@ -32,7 +40,7 @@ export function defaultColumnBlockRenderFxn(result, columnDefinition, props, wid
         }));
     }
 
-    var value = object.getNestedProperty(result, columnDefinition.field, true);
+    let value = getNestedProperty(result, columnDefinition.field, true);
     if (!value) value = null;
     if (Array.isArray(value)){ // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
         value = filterAndUniq(_.map(value, function(v){
@@ -41,15 +49,115 @@ export function defaultColumnBlockRenderFxn(result, columnDefinition, props, wid
                 if (v.length === 1) v = v[0];
                 if (v.length === 0) v = null;
             }
-            return Schemas.Term.toName(columnDefinition.field, v);
+            return v;//Schemas.Term.toName(columnDefinition.field, v);
         })).join(', ');
-    } else {
-        value = Schemas.Term.toName(columnDefinition.field, value);
     }
     return value;
 }
 
 
+export const basicColumnExtensionMap = {
+    'display_title' : {
+        'title' : "Title",
+        'widthMap' : { 'lg' : 280, 'md' : 250, 'sm' : 200 },
+        'minColumnWidth' : 90,
+        'order' : -100,
+        'render' : function renderDisplayTitleColumn(result, columnDefinition, props, width, popLink = false){
+            const { href, rowNumber, currentAction, navigate: propNavigate, detailOpen, toggleDetailOpen } = props;
+            let title = itemUtil.getTitleStringFromContext(result);
+            const link = itemUtil.atId(result);
+            let tooltip;
+            let hasPhoto = false;
+
+            /** Registers a list click event for Google Analytics then performs navigation. */
+            function handleClick(evt){
+                var tableType = navigate.isBrowseHref(href) ? 'browse' : (navigate.isSearchHref(href) ? 'search' : 'other');
+                if (tableType === 'browse' || tableType === 'search'){
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    trackProductClick(result, {
+                        'list'      : tableType === 'browse' ? 'Browse Results' : (currentAction === 'selection' ? 'Selection Search Results' : 'Search Results'),
+                        'position'  : rowNumber + 1
+                    }, function(){
+                        (propNavigate || navigate)(link);
+                    });
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            if (title && (title.length > 20 || width < 100)) tooltip = title;
+            if (link){ // This should be the case always
+                title = <a key="title" href={link || '#'} onClick={handleClick}>{ title }</a>;
+                if (typeof result.email === 'string' && result.email.indexOf('@') > -1){
+                    // Specific case for User items. May be removed or more cases added, if needed.
+                    hasPhoto = true;
+                    title = (
+                        <span key="title">
+                            { itemUtil.User.gravatar(result.email, 32, { 'className' : 'in-search-table-title-image', 'data-tip' : result.email }, 'mm') }
+                            { title }
+                        </span>
+                    );
+                }
+            }
+
+            return (
+                <React.Fragment>
+                    <TableRowToggleOpenButton open={detailOpen} onClick={toggleDetailOpen} />
+                    <div key="title-container" className={"title-block" + (hasPhoto ? ' has-photo' : " text-ellipsis-container")} data-tip={tooltip}>{ title }</div>
+                </React.Fragment>
+            );
+        }
+    },
+    '@type' : {
+        'noSort' : true,
+        'order' : -80,
+        'render' : function(result, columnDefinition, props, width){
+            if (!Array.isArray(result['@type'])) return null;
+            const leafItemType = getItemType(result);
+            const itemTypeTitle = getTitleForType(leafItemType, props.schemas || null);
+            const onClick = function(e){
+                // Preserve search query, if any, but remove filters (which are usually per-type).
+                if (!props.href || props.href.indexOf('/search/') === -1) return;
+                e.preventDefault();
+                e.stopPropagation();
+                var urlParts = url.parse(props.href, true),
+                    query = { 'type' : leafItemType };
+                if (urlParts.query.q) query.q = urlParts.query.q;
+                var nextHref = '/search/?' + queryString.stringify(query);
+                (props.navigate || navigate)(nextHref);
+            };
+
+            return (
+                <React.Fragment>
+                    <i className="icon icon-fw icon-filter clickable" onClick={onClick} data-tip="Filter down to this item type only."/>&nbsp;&nbsp;
+                    { itemTypeTitle }
+                </React.Fragment>
+            );
+        }
+    },
+    'date_created' : {
+        'title' : 'Date Created',
+        'colTitle' : 'Created',
+        'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
+        'render' : function dateCreatedTitle(result, columnDefinition, props, width){
+            if (!result.date_created) return null;
+            return <LocalizedTime timestamp={result.date_created} formatType="date-sm" />;
+        },
+        'order' : 510
+    },
+    'last_modified.date_modified' : {
+        'title' : 'Date Modified',
+        'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
+        'render' : function lastModifiedDate(result, columnDefinition, props, width){
+            if (!result.last_modified) return null;
+            if (!result.last_modified.date_modified) return null;
+            return <LocalizedTime timestamp={result.last_modified.date_modified} formatType="date-sm" />;
+        },
+        'order' : 515
+    }
+};
 
 /**
  * Ensure we have a valid React element to render.
@@ -63,7 +171,7 @@ export function sanitizeOutputValue(value){
     if (typeof value !== 'string' && !React.isValidElement(value)){
         if (value && typeof value === 'object'){
             if (typeof value.display_title !== 'undefined'){
-                const atId = object.itemUtil.atId(value);
+                const atId = itemUtil.atId(value);
                 if (atId){
                     return <a href={atId}>{ value.display_title }</a>;
                 } else {
@@ -147,8 +255,8 @@ export const columnsToColumnDefinitions = memoize(function(columns, columnDefini
             colDef.widthMap.xs = colDef.widthMap.sm;
         }
         colDef.widthMap = colDef.widthMap || defaultWidthMap;
-        colDef.render   = colDef.render || defaultColumnBlockRenderFxn;
-        colDef.order    = typeof colDef.order === 'number' ? colDef.order : i;
+        colDef.render = colDef.render || null;
+        colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
 
         return colDef;
     });
@@ -180,7 +288,7 @@ export const columnDefinitionsToScaledColumnDefinitions = memoize(function(colum
         var colDef2 = _.clone(colDef);
         colDef2.baseWidth = colDef.widthMap.sm || colDef.widthMap.md || colDef.widthMap.lg || 100;
         if (typeof colDef.render !== 'function'){
-            colDef2.render = defaultColumnBlockRenderFxn;
+            colDef2.render = null;
         }
         return colDef2;
     });
@@ -206,7 +314,7 @@ export function getColumnWidthFromDefinition(columnDefinition, mounted=true, win
     if (widthMap){
         var responsiveGridSize;
         if (!mounted || isServerSide()) responsiveGridSize = 'lg';
-        else responsiveGridSize = layout.responsiveGridState(windowWidth);
+        else responsiveGridSize = responsiveGridState(windowWidth);
         if (responsiveGridSize === 'xs') responsiveGridSize = 'sm';
         return widthMap[responsiveGridSize || 'lg'];
     }
@@ -219,7 +327,8 @@ export class ResultRowColumnBlockValue extends React.Component {
     static defaultProps = {
         'mounted' : false,
         'toggleDetailOpen' : function(evt){ console.warn('Triggered props.toggleDetailOpen() but no toggleDetailOpen prop passed to ResultRowColumnValue Component.'); },
-        'shouldComponentUpdateExt' : null
+        'shouldComponentUpdateExt' : null,
+        'defaultColumnBlockRenderFxn' : defaultColumnBlockRenderFxn
     };
 
     shouldComponentUpdate(nextProps, nextState){
@@ -228,7 +337,7 @@ export class ResultRowColumnBlockValue extends React.Component {
             nextProps.columnNumber === 0 ||
             nextProps.columnDefinition.field !== columnDefinition.field ||
             nextProps.schemas !== schemas ||
-            object.atIdFromObject(nextProps.result) !== object.atIdFromObject(result) ||
+            itemUtil.atId(nextProps.result) !== itemUtil.atId(result) ||
             nextProps.className !== className ||
             (typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state))
         ){
@@ -238,8 +347,8 @@ export class ResultRowColumnBlockValue extends React.Component {
     }
 
     render(){
-        const { result, columnDefinition, tooltip : propTooltip, className } = this.props;
-        const renderFxn = columnDefinition.render || defaultColumnBlockRenderFxn;
+        const { result, columnDefinition, tooltip : propTooltip, className, defaultColumnBlockRenderFxn : propDefaultRenderFxn } = this.props;
+        const renderFxn = columnDefinition.render || propDefaultRenderFxn;
 
         let value = sanitizeOutputValue(
             renderFxn(result, columnDefinition, _.omit(this.props, 'columnDefinition', 'result'))

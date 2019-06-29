@@ -7,14 +7,14 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 
-import Alerts from './../ui/Alerts';
+import { Alerts } from './../ui/Alerts';
 import { navigate } from './../util/navigate';
 import { getAbstractTypeForType } from './../util/schema-transforms';
 import { determineIfTermFacetSelected } from './../util/search-filters';
 import { itemUtil } from './../util/object';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 
-import { defaultColumnExtensionMap, columnsToColumnDefinitions, defaultHiddenColumnMapFromColumns } from './components/table-commons';
+import { basicColumnExtensionMap, columnsToColumnDefinitions, defaultHiddenColumnMapFromColumns } from './components/table-commons';
 import { AboveSearchTablePanel } from './components/AboveSearchTablePanel';
 import { AboveSearchViewTableControls } from './components/above-table-controls/AboveSearchViewTableControls';
 import { CustomColumnController } from './components/CustomColumnController';
@@ -142,6 +142,10 @@ class ControlsAndResults extends React.PureComponent {
         }
 
         columnExtensionMap = _.clone(columnExtensionMap); // Avoid modifying in place
+        const origDisplayTitleRenderFxn = (
+            (columnExtensionMap.display_title && columnExtensionMap.display_title.render) ||
+            basicColumnExtensionMap.display_title.render
+        );
 
         // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
         //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
@@ -150,13 +154,13 @@ class ControlsAndResults extends React.PureComponent {
             // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
             // Also add the popLink/target=_blank functionality to links
             // Remove lab.display_title and type columns on selection
-            columnExtensionMap['display_title'] = _.extend({}, columnExtensionMap['display_title'], {
+            columnExtensionMap.display_title = _.extend({}, columnExtensionMap.display_title, {
                 'minColumnWidth' : 120,
                 'render' : (result, columnDefinition, props, width) => {
-                    var currentTitleBlock = SearchResultTable.defaultColumnExtensionMap.display_title.render(
-                            result, columnDefinition, _.extend({}, props, { currentAction }), width, true
-                        ),
-                        newChildren = currentTitleBlock.props.children.slice(0);
+                    const currentTitleBlock = origDisplayTitleRenderFxn(
+                        result, columnDefinition, _.extend({}, props, { currentAction }), width, true
+                    );
+                    const newChildren = currentTitleBlock.props.children.slice(0);
                     newChildren.unshift(
                         <div className="select-button-container">
                             <button type="button" className="select-button" onClick={this.handleSelectItemClick.bind(this, result)}>
@@ -247,7 +251,7 @@ class ControlsAndResults extends React.PureComponent {
 
 }
 
-export default class SearchView extends React.PureComponent {
+export class SearchView extends React.PureComponent {
 
     static propTypes = {
         'context'       : PropTypes.object.isRequired,
@@ -267,7 +271,7 @@ export default class SearchView extends React.PureComponent {
     static defaultProps = {
         'href'          : null,
         'currentAction' : null,
-        'columnExtensionMap' : defaultColumnExtensionMap
+        'columnExtensionMap' : basicColumnExtensionMap
     };
 
     /**
