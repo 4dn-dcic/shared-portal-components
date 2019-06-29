@@ -434,7 +434,7 @@ export const NON_FILTER_URL_PARAMS = [
  * @param {string} [browseBaseState] - Supply 'only_4dn' or 'all' to control which URI query params are filtered out. If 'search' is supplied, none are excluded.
  * @returns {Object} Object with fields (string, dot-separated-nested) as keys and Sets of terms (string) as values for those keys.
  */
-export function contextFiltersToExpSetFilters(contextFilters = null, browseBaseState = null){
+export function contextFiltersToExpSetFilters(contextFilters){
     if (!Array.isArray(contextFilters)){
         console.warn('No context filters available or supplied. Fine if this message appears outside of a /search/ or /browse/ page.');
         return {};
@@ -543,6 +543,7 @@ export function convertExpSetFiltersTerms(expSetFilters, to = 'array'){
             } else if (to === 'set'){
                 return [pair[0], new Set(pair[1])];
             }
+            throw new Error("Not one of set or array");
         })
         .object()
         .value();
@@ -584,6 +585,7 @@ export function searchQueryStringFromHref(href){
     if (!href) return null;
     if (typeof href !== 'string') return null;
     var searchQueryString = null;
+    // eslint-disable-next-line no-useless-escape
     var searchQueryMatch = href.match(/(\?|&)(q)(=)[\w\s\+\-\%\.\*\!\(\)]+/);
     if (searchQueryMatch){
         searchQueryString = searchQueryMatch[0].replace(searchQueryMatch.slice(1).join(''), '').replace(/\+/g, ' ');
@@ -596,7 +598,7 @@ export function searchQueryStringFromHref(href){
 
 
 /** Check whether expSetFiles exists and is empty. */
-export function filterObjExistsAndNoFiltersSelected(expSetFilters = this.props.expSetFilters){
+export function filterObjExistsAndNoFiltersSelected(expSetFilters){
     return (
         typeof expSetFilters === 'object'
         && expSetFilters !== null

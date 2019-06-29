@@ -6,8 +6,7 @@ import memoize from 'memoize-one';
 import { Button } from 'react-bootstrap';
 import { itemUtil } from './object';
 import { isServerSide } from './misc';
-import patchedConsoleInstance from './patched-console';
-const console = patchedConsoleInstance;
+import { patchedConsoleInstance as console } from './patched-console';
 
 import { File } from './typedefs';
 

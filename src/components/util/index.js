@@ -36,7 +36,7 @@ export const ajax = ajaxMethods;
 
 
 // Patches over browser window's console and disables logging (e.g. console.log) on production. Just import from this module to patch.
-import patchedConsoleInstance from './patched-console';
+import { patchedConsoleInstance } from './patched-console';
 export const console = patchedConsoleInstance;
 
 
@@ -50,18 +50,12 @@ import * as JWTMethods from './json-web-token';
 export const JWT = JWTMethods;
 
 
-// Use momentjs to parse and localize datetime.
-// Has useful React component - DateUtility.LocalizedTime - which shows time in user's timezone after mount.
-import * as DateUtilities from './date-utility';
-export const DateUtility = DateUtilities;
-
-
 //import * as experimentTransformFunctions from './experiments-transforms';
 //export const expFxn = experimentTransformFunctions;
 
 
-import * as experimentFilters from './experiments-filters';
-export const Filters = experimentFilters;
+import * as searchFiltersImported from './search-filters';
+export const searchFilters = searchFiltersImported;
 
 //export { itemTypeHierarchy } from './itemTypeHierarchy';
 

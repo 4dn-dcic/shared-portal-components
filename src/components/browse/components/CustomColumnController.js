@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { Checkbox } from './../../forms/components/Checkbox';
 
-
 /**
  * This component stores an object of `hiddenColumns` in state which contains field names as keys and booleans as values.
  * This, along with functions `addHiddenColumn(field: string)` and `removeHiddenColumn(field: string)`, are passed down to

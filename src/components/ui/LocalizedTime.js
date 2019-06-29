@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { isServerSide } from './misc';
+import { isServerSide } from './../util/misc';
 
 
 export class LocalizedTime extends React.Component {

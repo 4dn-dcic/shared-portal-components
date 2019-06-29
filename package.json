@@ -55,7 +55,8 @@
         "react-tooltip": ">=3.10.0",
         "query-string": ">=4.3.0",
         "moment": ">=2.24.0",
-        "form-serialize": ">=0.6.0"
+        "form-serialize": ">=0.6.0",
+        "react-transition-group": "^2.7.1"
     },
     "dependencies": {
         "crypto-js": "^3.1.9-1",
@@ -64,7 +65,10 @@
         "react-sticky": "^6.0.3",
         "aws-sdk": "^2.421.0",
         "jsonwebtoken": ">=7.4.0",
-        "universal-cookie": ">=4.0.0"
+        "universal-cookie": ">=4.0.0",
+        "dom-helpers": "^3.4.0",
+        "react-infinite": "^0.13.0",
+        "react-draggable": "^3.1.1"
     },
     "peerDependencies": {
         "d3": ">=5.9.0",
@@ -76,6 +80,7 @@
         "react-tooltip": ">=3.10.0",
         "query-string": ">=4.3.0",
         "moment": ">=2.24.0",
-        "form-serialize": ">=0.6.0"
+        "form-serialize": ">=0.6.0",
+        "react-transition-group": ">=2.7.1"
     }
 }

@@ -9,12 +9,10 @@ import memoize from 'memoize-one';
 import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
 import domToReact from 'html-react-parser/lib/dom-to-react';
 import md5 from 'js-md5';
-import patchedConsoleInstance from './patched-console';
+import { patchedConsoleInstance as console } from './patched-console';
 import { getSchemaProperty } from './schema-transforms';
 import * as analytics from './analytics';
 import url from 'url';
-
-var console = patchedConsoleInstance;
 
 /**
  * Get '@id' from param 'object' if it exists

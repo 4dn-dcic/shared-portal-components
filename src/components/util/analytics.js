@@ -4,8 +4,8 @@ import _ from 'underscore';
 import url from 'url';
 import queryString from 'query-string';
 import { isServerSide } from './misc';
-var console = require('./patched-console').default;
-import * as Filters from './experiments-filters';
+import { patchedConsoleInstance as console } from './patched-console';
+import { contextFiltersToExpSetFilters } from './search-filters';
 import { navigate } from './navigate';
 import * as object from './object';
 import * as JWT from './json-web-token';
@@ -61,8 +61,8 @@ export function initializeGoogleAnalytics(trackingID = null, context = {}, optio
     if (!options.isAnalyticsScriptOnPage){
         // If true, we already have <script src="...analytics.js">, e.g. in app.js so should skip this.
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            (i[r].q=i[r].q||[]).push(arguments);},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m);
         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
     }
 
@@ -75,7 +75,7 @@ export function initializeGoogleAnalytics(trackingID = null, context = {}, optio
 
     ga2('create', trackingID, 'auto');
     console.info("Initialized google analytics.");
-    
+
     if (options.enhancedEcommercePlugin){
         ga2('require', 'ec');
         console.info("Initialized google analytics : Enhanced ECommerce Plugin");
@@ -110,16 +110,16 @@ export function registerPageView(href = null, context = {}){
     }
 
     // Options to send with GA pageview event.
-    var parts = url.parse(href, true),
-        pageViewObject = { 'hitType' : 'pageview' },
-        origHref = href; // Store orig href in case we need it later
-        
+    const parts = url.parse(href, true);
+    const pageViewObject = { 'hitType' : 'pageview' };
+    const origHref = href; // Store orig href in case we need it later
+
 
     /**
-     * Convert pathname with a 'UUID', 'Accession', or 'name' to having a 
+     * Convert pathname with a 'UUID', 'Accession', or 'name' to having a
      * literal "uuid", "accession", or "name" and track the display_title, title, or accession as a
      * separate GA dimension.
-     * 
+     *
      * @private
      * @param {string} pathName - Path part of href being navigated to. Use url.parse to get.
      * @return {string} Adjusted pathName.
@@ -175,7 +175,7 @@ export function registerPageView(href = null, context = {}){
      * @returns {boolean|Object|Object[]} Representation of what was tracked, or false if nothing was.
      */
     function registerProductView(){
-        
+
         if (!shouldTrack()) return false;
 
         if (state.enhancedEcommercePlugin !== true){
@@ -187,9 +187,9 @@ export function registerPageView(href = null, context = {}){
             // If browse or search page, get current filters and add to pageview event for 'dimension1'.
             var filtersToRegister = null;
             if (navigate.isBrowseHref(parts)){
-                filtersToRegister = (context && context.filters && Filters.contextFiltersToExpSetFilters(context.filters)) || null;
+                filtersToRegister = (context && context.filters && contextFiltersToExpSetFilters(context.filters)) || null;
             } else if (navigate.isSearchHref(parts)){
-                filtersToRegister = (context && context.filters && Filters.contextFiltersToExpSetFilters(context.filters, 'item_search')) || null;
+                filtersToRegister = (context && context.filters && contextFiltersToExpSetFilters(context.filters, 'item_search')) || null;
             }
             if(filtersToRegister) {
                 pageViewObject[GADimensionMap.currentFilters] = getStringifiedCurrentFilters(filtersToRegister);
@@ -228,7 +228,7 @@ export function registerPageView(href = null, context = {}){
     registerProductView();
     pageViewObject.hitCallback = function(){
         console.info('Successfuly sent pageview event.', href, pageViewObject);
-    }
+    };
     ga2('send', 'pageview', pageViewObject);
     return true;
 }
@@ -273,19 +273,19 @@ export function event(category, action, fields = {}){
     });
 
     // Add current expSetFilters if not present in 'fields' already.
-    if (typeof eventObj[GADimensionMap.currentFilters] === 'undefined'){
-        eventObj[GADimensionMap.currentFilters] = getStringifiedCurrentFilters(Filters.currentExpSetFilters());
-    }
+    //if (typeof eventObj[GADimensionMap.currentFilters] === 'undefined'){
+    //    eventObj[GADimensionMap.currentFilters] = getStringifiedCurrentFilters(Filters.currentExpSetFilters());
+    //}
 
     eventObj.hitCallback = function(){
         console.info('Successfuly sent UI event.', eventObj);
-    }
+    };
 
     setTimeout(function(){ ga2('send', eventObj); }, 0);
 }
 
 
-export function productClick(item, extraData = {}, callback = null){
+export function productClick(item, extraData = {}, callback = null, context = null){
     if (!shouldTrack()) {
         if (typeof callback === 'function') callback();
         return true;
@@ -318,7 +318,7 @@ export function productClick(item, extraData = {}, callback = null){
 
     // Add current filters.
     eventObj[GADimensionMap.currentFilters] = getStringifiedCurrentFilters(
-        Filters.currentExpSetFilters(null, pObj.list.indexOf('Search Results') > -1 ? 'item_search' : null)
+        contextFiltersToExpSetFilters((context && context.filters) || null, pObj.list.indexOf('Search Results') > -1 ? 'item_search' : null)
     );
 
     ga2('send', eventObj);
@@ -336,7 +336,7 @@ export function exception(message, fatal = false){
         'exDescription' : message,
         'exFatal'       : fatal
     };
-    excObj.hitCallback = function(){ console.info('Successfully sent exception', excObj); }
+    excObj.hitCallback = function(){ console.info('Successfully sent exception', excObj); };
     ga2('send', excObj);
     return true;
 }
@@ -371,8 +371,7 @@ export function eventLabelFromChartNodes(nodes){
  * @param {Object} expSetFilters - expSetFilters object.
  * @returns {string} Stringified JSON to be saved to analytics.
  */
-export function getStringifiedCurrentFilters(expSetFilters = null){
-    if (typeof expSetFilters === 'undefined' || !expSetFilters) expSetFilters = Filters.currentExpSetFilters(); // Allow to be blank
+export function getStringifiedCurrentFilters(expSetFilters){
     return JSON.stringify(expSetFilters, _.keys(expSetFilters).sort());
 }
 
@@ -414,7 +413,7 @@ export function getGoogleAnalyticsTrackingData(key = null){
             console.error(e);
             return null;
         }
-    }  
+    }
 }
 
 
@@ -461,10 +460,10 @@ function impressionListOfItems(itemList, href, listName = null, context = null){
     var commonProductObj = {};
     if (navigate.isBrowseHref(href)){
         commonProductObj.list = 'Browse Results';
-        filtersToRegister = (context && context.filters && Filters.contextFiltersToExpSetFilters(context.filters)) || null;
+        filtersToRegister = (context && context.filters && contextFiltersToExpSetFilters(context.filters)) || null;
     } else if (navigate.isSearchHref(href)){
         commonProductObj.list = (href.search && href.search.indexOf('currentAction=selection')) > -1 ? 'Selection Search Results' : 'Search Results';
-        filtersToRegister = (context && context.filters && Filters.contextFiltersToExpSetFilters(context.filters, 'item_search')) || null;
+        filtersToRegister = (context && context.filters && contextFiltersToExpSetFilters(context.filters, 'item_search')) || null;
     } else {
         commonProductObj.list = 'Collection Results';
     }

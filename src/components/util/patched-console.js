@@ -15,7 +15,7 @@ import { isServerSide } from './misc';
  * - or (from same/local directory) -
  * var console = require('./patched-console').default;
  */
-const patchedConsoleInstance = (function(){
+export const patchedConsoleInstance = (function(){
 
     if (!isServerSide() && window.patchedConsole) return window.patchedConsole; // Re-use instance if available.
 
@@ -57,6 +57,7 @@ const patchedConsoleInstance = (function(){
         this._setCustomMethods = function(){
             if (this._enabled && this._available && typeof this._nativeConsole.log !== 'undefined'){
                 this.timeLog = function(){
+                    // eslint-disable-next-line prefer-spread
                     this._nativeConsole.log.apply(
                         this._nativeConsole,
                         ['%c(' + moment().format('h:mm:ss.SSS') + ') %c%s'].concat(
@@ -104,5 +105,3 @@ const patchedConsoleInstance = (function(){
     }
     return patchedConsole;
 })();
-
-export default patchedConsoleInstance;

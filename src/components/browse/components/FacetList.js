@@ -6,10 +6,17 @@ import url from 'url';
 import queryString from 'query-string';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import { Collapse, Fade } from 'react-bootstrap';
-import { console, Filters, layout, analytics, navigate, DateUtility } from './../../util';
-import { PartialList } from './../../ui/PartialList';
 import ReactTooltip from 'react-tooltip';
+import { Fade } from 'react-bootstrap';
+
+import { patchedConsoleInstance as console } from './../../util/patched-console';
+import { getUnselectHrefIfSelectedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters } from './../../util/search-filters'; 
+import { navigate } from './../../util/navigate';
+import * as analytics from './../../util/analytics';
+import { responsiveGridState } from './../../util/layout';
+
+import { Collapse } from './../../ui/Collapse';
+import { PartialList } from './../../ui/PartialList';
 
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
@@ -54,6 +61,7 @@ class Term extends React.PureComponent {
      *   back-end.
      * Handle date fields, etc.
      */
+    /*
     customTitleRender(){
         const { facet, term, termTransformFxn } = this.props;
 
@@ -74,13 +82,14 @@ class Term extends React.PureComponent {
 
         return null;
     }
+    */
 
     render() {
         const { term, facet, isTermSelected, termTransformFxn } = this.props;
         const { filtering } = this.state;
-        const selected    = isTermSelected(term, facet);
-        let title       = this.customTitleRender() || termTransformFxn(facet.field, term.key) || term.key;
-        const count       = (term && term.doc_count) || 0;
+        const selected = isTermSelected(term, facet);
+        let title = termTransformFxn(facet.field, term.key) || term.key;
+        const count = (term && term.doc_count) || 0;
 
         if (!title || title === 'null' || title === 'undefined'){
             title = 'None';
@@ -407,26 +416,26 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
 
     currentHref = currentHref || propHref;
 
-    var unselectHrefIfSelected = Filters.getUnselectHrefIfSelectedFromResponseFilters(term, facet, context.filters),
-        isUnselecting = !!(unselectHrefIfSelected);
+    const unselectHrefIfSelected = getUnselectHrefIfSelectedFromResponseFilters(term, facet, context.filters);
+    const isUnselecting = !!(unselectHrefIfSelected);
 
     if (unselectHrefIfSelected){
         targetSearchHref = unselectHrefIfSelected;
     } else {
-        targetSearchHref = Filters.buildSearchHref(facet.field, term.key, currentHref);
+        targetSearchHref = buildSearchHref(facet.field, term.key, currentHref);
         /*
         var interval, nextHref;
         if (facet.aggregation_type === 'date_histogram'){
             interval = Filters.getDateHistogramIntervalFromFacet(facet) || 'month';
-            nextHref            = Filters.buildSearchHref(facet.field + '.from', term.key, currentHref); //onFilter(facet.field + '.from', term.key, null, true, href);
+            nextHref            = buildSearchHref(facet.field + '.from', term.key, currentHref); //onFilter(facet.field + '.from', term.key, null, true, href);
             var toDate = moment.utc(term.key);
             toDate.add(1, interval + 's');
-            targetSearchHref    = Filters.buildSearchHref(facet.field + '.to', toDate.format().slice(0,10), nextHref); // onFilter(facet.field + '.to', toDate.format().slice(0,10), null, true, nextHref);
+            targetSearchHref    = buildSearchHref(facet.field + '.to', toDate.format().slice(0,10), nextHref); // onFilter(facet.field + '.to', toDate.format().slice(0,10), null, true, nextHref);
         } else if (facet.aggregation_type === 'range') {
-            nextHref            = Filters.buildSearchHref(facet.field + '.from', term.from, currentHref);
-            targetSearchHref    = Filters.buildSearchHref(facet.field + '.to', term.to, nextHref);
+            nextHref            = buildSearchHref(facet.field + '.from', term.from, currentHref);
+            targetSearchHref    = buildSearchHref(facet.field + '.to', term.to, nextHref);
         } else { // Default - regular term matching
-            targetSearchHref    = Filters.buildSearchHref(facet.field, term.key, currentHref);
+            targetSearchHref    = buildSearchHref(facet.field, term.key, currentHref);
         }
         */
     }
@@ -460,7 +469,9 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
         'field'             : facet.field,
         'term'              : term.key,
         'eventLabel'        : analytics.eventLabelFromChartNode({ 'field' : facet.field, 'term' : term.key }),
-        'currentFilters'    : analytics.getStringifiedCurrentFilters(Filters.currentExpSetFilters()), // 'Existing' filters, or filters at time of action, go here.
+        'currentFilters'    : analytics.getStringifiedCurrentFilters(
+            contextFiltersToExpSetFilters(context.filters || null)
+        ), // 'Existing' filters, or filters at time of action, go here.
     });
 
     if (!skipNavigation){
@@ -525,7 +536,7 @@ export class FacetList extends React.PureComponent {
             <Facet {...{ onFilter, facet, href, isTermSelected, schemas, itemTypeForSchemas, mounted, termTransformFxn }}
                 key={facet.field} defaultFacetOpen={!mounted ? false : !!(
                     _.any(facet.terms, (t) => isTermSelected(t, facet)) ||
-                    ( layout.responsiveGridState(windowWidth || null) !== 'xs' && i < (facetIndexWherePastXTerms || 1) )
+                    ( responsiveGridState(windowWidth || null) !== 'xs' && i < (facetIndexWherePastXTerms || 1) )
                 )} />
         );
     }

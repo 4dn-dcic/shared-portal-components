@@ -4,11 +4,10 @@ import _ from 'underscore';
 import Cookies from 'universal-cookie';
 import memoize from 'memoize-one';
 import { isServerSide } from './misc';
-import patchedConsoleInstance from './patched-console';
+import { patchedConsoleInstance as console } from './patched-console';
 import { getNestedProperty } from './object';
 import jwt from 'jsonwebtoken';
 
-const console = patchedConsoleInstance;
 const COOKIE_ID = 'jwtToken';
 
 /** Interface to grab cookies. We can move to own util file later for re-use if necessary. */
