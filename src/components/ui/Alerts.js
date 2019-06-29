@@ -38,9 +38,15 @@ export class Alerts extends React.Component {
      * @returns {void} Nothing
      */
     static queue(alert, callback, currentAlerts = null){
-        if (!Array.isArray(currentAlerts)) currentAlerts = store.getState().alerts;
-        var duplicateTitleAlertIdx = _.findIndex(currentAlerts, { 'title' : alert.title }),
-            newAlerts = currentAlerts.slice(0);
+        if (!store){
+            console.error("no store available. canceling.");
+            return;
+        }
+        if (!Array.isArray(currentAlerts)){
+            currentAlerts = store.getState().alerts;
+        }
+        const duplicateTitleAlertIdx = _.findIndex(currentAlerts, { 'title' : alert.title });
+        const newAlerts = currentAlerts.slice(0);
 
         if (typeof duplicateTitleAlertIdx === 'number' && duplicateTitleAlertIdx > -1){
             // Same alert already set, lets update it instead of adding new one.
@@ -62,6 +68,10 @@ export class Alerts extends React.Component {
      * @returns {void} Nothing
      */
     static deQueue(alert, currentAlerts = null){
+        if (!store){
+            console.error("no store available. canceling.");
+            return;
+        }
         if (!Array.isArray(currentAlerts)) currentAlerts = store.getState().alerts;
         currentAlerts = currentAlerts.filter(function(a){ return a.title != alert.title; });
         store.dispatch({
