@@ -171,34 +171,33 @@ Alerts.propTypes = {
  * Reusable Alert Definitions
  */
 
-export const LoggedOut = {
+export const LoggedOut = Alerts.LoggedOut = {
     "title"     : "Logged Out",
     "message"   : "You have been logged out.",
     "style"     : 'danger',
     'navigateDisappearThreshold' : 2
 };
 
-export const NoFilterResults = {
+export const NoFilterResults = Alerts.NoFilterResults = {
     'title'     : "No Results",
     'message'   : "Selecting this filter returned no results so it was deselected.",
     'style'     : "warning",
     'navigateDisappearThreshold' : 3
 };
 
-export const ConnectionError = {
+export const ConnectionError = Alerts.ConnectionError = {
     "title" : "Connection Error",
     "message" : "Check your internet connection",
     "style" : "danger",
     'navigateDisappearThreshold' : 1
 };
 
-export const LoginFailed = {
+export const LoginFailed = Alerts.LoginFailed = {
     "title" : "Login Failed",
     "message" : "Your attempt to login failed - please check your credentials or try again later.",
     "style" : "danger",
     'navigateDisappearThreshold' : 1
 };
-
 
 /**
  * Component which renders out an individual Alert.

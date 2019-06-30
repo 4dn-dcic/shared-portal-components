@@ -1,5 +1,6 @@
 import _ from 'underscore';
 
+
 export function getSchemaProperty(field, schemas, itemTypeHierarchy = {}, startAt = 'ExperimentSet'){
     var baseSchemaProperties = (schemas && schemas[startAt] && schemas[startAt].properties) || null;
     if (!baseSchemaProperties) return null;
@@ -44,7 +45,16 @@ export function getSchemaProperty(field, schemas, itemTypeHierarchy = {}, startA
     }
 
     return getProperty(baseSchemaProperties, 0);
+}
 
+/** TODO: consider memoizing multiple via _.memoize() */
+export function lookupFieldTitle(field, schemas, itemType = 'ExperimentSet', itemTypeHierarchy={}){
+    const schemaProperty = getSchemaProperty(field, schemas, itemTypeHierarchy, itemType);
+    if (schemaProperty && schemaProperty.title){
+        return schemaProperty.title;
+    } else {
+        return null;
+    }
 }
 
 /**
@@ -168,7 +178,7 @@ export function getBaseItemType(context){
  * @param {Object} [schemas=null] - Entire schemas object, e.g. as stored in App state.
  * @returns {string} Human-readable title.
  */
-export function getTitleForType(atType, schemas = null){
+export function getTitleForType(atType, schemas){
     if (!atType) return null;
 
     if (schemas && schemas[atType] && schemas[atType].title){
@@ -210,7 +220,7 @@ export function getSchemaForItemType(itemType, schemas){
  * @param {Object} [schemas=null] - Schemas object passed down from App.
  * @returns {string} Human-readable Item detailed type title.
  */
-export function getItemTypeTitle(context, schemas = null){
+export function getItemTypeTitle(context, schemas){
     return getTitleForType(getItemType(context), schemas);
 }
 
@@ -222,7 +232,7 @@ export function getItemTypeTitle(context, schemas = null){
  * @param {Object} [schemas=null] - Schemas object passed down from App.
  * @returns {string} Human-readable Item base type title.
  */
-export function getBaseItemTypeTitle(context, schemas = null){
+export function getBaseItemTypeTitle(context, schemas){
     return getTitleForType(getBaseItemType(context), schemas);
 }
 

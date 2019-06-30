@@ -10,6 +10,8 @@ import { patchedConsoleInstance as console } from './patched-console';
 
 import { File } from './typedefs';
 
+/** WE WILL REMOVE MOST FUNCS FROM HERE THAT ARENT REUSABLE & KEEP REST IN PROJ-SPECIFIC REPOS */
+
 
 /**
  * Gets file_format string from a file.
@@ -306,14 +308,16 @@ FileDownloadButtonAuto.defaultProps = {
     ]
 };
 
-export const ViewFileButton = React.memo(function ViewFileButton(props) {
-    var { filename, href, target, title, mimeType, size } = props;
-    var action = 'View', extLink = null, preLink = null;
+export const ViewFileButton = React.memo(function ViewFileButton(props){
+    const { filename, href, target, title, mimeType, size, className } = props;
+    let action = 'View';
+    //let extLink = null;
+    let preLink = null;
 
     preLink = <i className="icon icon-fw icon-cloud-download" />;
 
-    var fileNameLower = (filename && filename.length > 0 && filename.toLowerCase()) || '';
-    var fileNameLowerEnds = {
+    const fileNameLower = (filename && filename.length > 0 && filename.toLowerCase()) || '';
+    const fileNameLowerEnds = {
         '3' : fileNameLower.slice(-3),
         '4' : fileNameLower.slice(-4),
         '5' : fileNameLower.slice(-5)
@@ -329,12 +333,15 @@ export const ViewFileButton = React.memo(function ViewFileButton(props) {
         action = 'Download';
     }
 
+    const cls = ("btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (bsStyle ? " btn-" + bsStyle : ""));
+
     return (
-        <Button bsSize={size} download={action === 'Download' ? true : null} {..._.omit(props, 'filename', 'title')} title={filename} data-tip={mimeType}>
+        <button type="button" className={cls} download={action === 'Download' ? true : null}
+            {..._.omit(props, 'filename', 'title')} title={filename} data-tip={mimeType}>
             <span className={title ? null : "text-400"}>
                 { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
             </span>
-        </Button>
+        </button>
     );
 });
 ViewFileButton.defaultProps = {

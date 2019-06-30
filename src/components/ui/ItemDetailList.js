@@ -458,7 +458,7 @@ class SubItemTable extends React.Component {
         });
 
         // Get property of parent key which has items.properties : { ..these_keys.. }
-        const parentKeySchemaProperty = getSchemaProperty(parentKey, schemas, atType);
+        const parentKeySchemaProperty = getSchemaProperty(parentKey, schemas, {}, atType);
 
         const keyTitleDescriptionMap = _.extend(
             {},
@@ -740,7 +740,7 @@ export class Detail extends React.PureComponent {
                 else return <a key={item} href={item}>{ item }</a>;
             } else if (item.slice(0,4) === 'http') {
                 // Is a URL. Check if we should render it as a link/uri.
-                const schemaProperty = getSchemaProperty(keyPrefix, schemas, atType);
+                const schemaProperty = getSchemaProperty(keyPrefix, schemas, {}, atType);
                 if (
                     schemaProperty &&
                     typeof schemaProperty.format === 'string' &&
