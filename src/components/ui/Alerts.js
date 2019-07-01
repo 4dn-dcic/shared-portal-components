@@ -2,8 +2,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Fade } from 'react-bootstrap';
 import _ from 'underscore';
+import { Fade } from './Fade';
 import { AlertObj } from './../util/typedefs';
 
 

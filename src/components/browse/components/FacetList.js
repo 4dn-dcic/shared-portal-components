@@ -7,15 +7,15 @@ import queryString from 'query-string';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import { Fade } from 'react-bootstrap';
 
 import { patchedConsoleInstance as console } from './../../util/patched-console';
-import { getUnselectHrefIfSelectedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters } from './../../util/search-filters'; 
+import { getUnselectHrefIfSelectedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters } from './../../util/search-filters';
 import { navigate } from './../../util/navigate';
 import * as analytics from './../../util/analytics';
 import { responsiveGridState } from './../../util/layout';
 
 import { Collapse } from './../../ui/Collapse';
+import { Fade } from './../../ui/Fade';
 import { PartialList } from './../../ui/PartialList';
 
 /**

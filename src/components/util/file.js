@@ -1,14 +1,13 @@
 var CryptoJS = require('crypto-js');
-import React from 'react';
-import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import { Button } from 'react-bootstrap';
 import { itemUtil } from './object';
 import { isServerSide } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
 
 import { File } from './typedefs';
+
+
 
 /** WE WILL REMOVE MOST FUNCS FROM HERE THAT ARENT REUSABLE & KEEP REST IN PROJ-SPECIFIC REPOS */
 
@@ -25,7 +24,6 @@ import { File } from './typedefs';
 export function getFileFormatStr(file){
     return (file && file.file_format && (file.file_format.file_format || file.file_format.display_title)) || null;
 }
-
 
 /**
  * Pass a File Item through this function to determine whether to fetch more of it via AJAX or not.
@@ -53,31 +51,6 @@ export function isFileDataComplete(file){
     }
     return true;
 }
-
-/** For FileMicroscropy files. */
-export function getLightSourceCenterMicroscopeSettingFromFile(channel, fileItem){
-    if (typeof channel !== 'string' || channel.slice(0,2) !== 'ch' || !fileItem) return null;
-    return fileItem.microscope_settings && fileItem.microscope_settings[channel + '_light_source_center_wl'];
-}
-
-
-
-/**
- * Extends file (creates a copy) with properties:
- * `{ from_experiment : { from_experiment_set : { accession }, accession }, from_experiment_set : { accession }`
- *
- */
-export function extendFile(file, experiment, experimentSet){
-    return _.extend(
-        {}, file, {
-            'from_experiment' : _.extend(
-                {}, experiment, { 'from_experiment_set' : experimentSet }
-            ),
-            'from_experiment_set' : experimentSet
-        }
-    );
-}
-
 
 
 /**********************************
@@ -180,12 +153,14 @@ export function groupFilesByRelations(files, isBidirectional=true){
     return groups;
 }
 
+
 export function extractSinglyGroupedItems(groups){
     const [ multiFileGroups, singleFileGroups ] = _.partition(groups, function(g){
         return g.length > 1;
     });
     return [ multiFileGroups, _.flatten(singleFileGroups, true) ];
 }
+
 
 
 /**
@@ -217,6 +192,8 @@ export const filterFilesWithQCSummary = memoize(function(files, checkAny=false){
     });
 });
 
+
+
 /**
  * Groups files with a `quality_metric_summary` property by the concatanated
  * unique titles of the summary items/columns.
@@ -228,7 +205,9 @@ export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, se
     return _.pluck(
         Array.from(
             _.reduce(filesWithMetrics, function(m, file, i){
-                const titles = _.pluck(file.quality_metric_summary, 'title');
+                const titles = _.map(file.quality_metric_summary, function(qcMetric){
+                    return qcMetric.title || qcMetric.display_title; // In case becomes an embedded obj at some point.
+                });
                 const titlesAsString = titles.join(sep); // Using Tab as is unlikely character to be used in a title column.
                 if (!m.has(titlesAsString)){
                     m.set(titlesAsString, []);
@@ -241,119 +220,6 @@ export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, se
     );
 });
 
-/**************************
- ** Common React Classes **
- ************************/
-
-export function FileDownloadButton(props){
-    const { href, className, disabled, title, filename, size } = props;
-    return (
-        <a href={ href } className={(className || '') + " btn btn-default btn-primary download-button btn-block " + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '')} download data-tip={filename || null}>
-            <i className="icon icon-fw icon-cloud-download"/>{ title ? <span>&nbsp; { title }</span> : null }
-        </a>
-    );
-}
-FileDownloadButton.defaultProps = {
-    'title' : 'Download',
-    'disabled' : false,
-    'size' : null
-};
-
-export class FileDownloadButtonAuto extends React.PureComponent {
-
-    static canDownload(file, validStatuses = FileDownloadButtonAuto.defaultProps.canDownloadStatuses){
-        if (!file || typeof file !== 'object'){
-            console.error("Incorrect data type");
-            return false;
-        }
-        if (typeof file.status !== 'string'){
-            console.error("No 'status' property on file:", file);
-            return false;
-        }
-
-        if (validStatuses.indexOf(file.status) > -1){
-            return true;
-        }
-        return false;
-    }
-
-    canDownload(){ return FileDownloadButtonAuto.canDownload(this.props.result, this.props.canDownloadStatuses); }
-
-    render(){
-        var file = this.props.result;
-        var isDisabled = !this.canDownload();
-        var props = {
-            'href' : file.href,
-            'filename' : file.filename,
-            'disabled' : isDisabled,
-            'title' : isDisabled ? 'Not ready to download' : FileDownloadButton.defaultProps.title
-        };
-        return <FileDownloadButton {...this.props} {...props} />;
-    }
-}
-FileDownloadButtonAuto.propTypes = {
-    'result' : PropTypes.shape({
-        'href' : PropTypes.string.isRequired,
-        'filename' : PropTypes.string.isRequired,
-    }).isRequired
-};
-FileDownloadButtonAuto.defaultProps = {
-    'canDownloadStatuses' : [
-        'uploaded',
-        'released',
-        'replaced',
-        'submission in progress',
-        'released to project',
-        'archived'
-    ]
-};
-
-export const ViewFileButton = React.memo(function ViewFileButton(props){
-    const { filename, href, target, title, mimeType, size, className } = props;
-    let action = 'View';
-    //let extLink = null;
-    let preLink = null;
-
-    preLink = <i className="icon icon-fw icon-cloud-download" />;
-
-    const fileNameLower = (filename && filename.length > 0 && filename.toLowerCase()) || '';
-    const fileNameLowerEnds = {
-        '3' : fileNameLower.slice(-3),
-        '4' : fileNameLower.slice(-4),
-        '5' : fileNameLower.slice(-5)
-    };
-    if (isFilenameAnImage(fileNameLowerEnds)){
-        action = 'View';
-        preLink = <i className="icon icon-fw icon-picture-o" />;
-    } else if (fileNameLowerEnds['4'] === '.pdf'){
-        action = 'View';
-        //if (target === '_blank') extLink = <i className="icon icon-fw icon-external-link"/>;
-        preLink = <i className="icon icon-fw icon-file-pdf-o" />;
-    } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx'){
-        action = 'Download';
-    }
-
-    const cls = ("btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (bsStyle ? " btn-" + bsStyle : ""));
-
-    return (
-        <button type="button" className={cls} download={action === 'Download' ? true : null}
-            {..._.omit(props, 'filename', 'title')} title={filename} data-tip={mimeType}>
-            <span className={title ? null : "text-400"}>
-                { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
-            </span>
-        </button>
-    );
-});
-ViewFileButton.defaultProps = {
-    'className' : "text-ellipsis-container mb-1",
-    'target' : "_blank",
-    'bsStyle' : "primary",
-    'href' : null,
-    'disabled' : false,
-    'title' : null,
-    'mimeType' : null,
-    'size' : null
-};
 
 export function isFilenameAnImage(filename, suppressErrors = false){
     var fileNameLower, fileNameLowerEnds;
@@ -383,13 +249,15 @@ export function isFilenameAnImage(filename, suppressErrors = false){
 }
 
 
+/*******************/
 /*** MD5 Related ***/
+/*******************/
 
-/*
-Return a cryptojs WordArray given an arrayBuffer (elemtent 0). Also return
-original arraylength contained within buffer (element 1)
-Solution originally: https://groups.google.com/forum/#!msg/crypto-js/TOb92tcJlU0/Eq7VZ5tpi-QJ
-*/
+/**
+ * Return a cryptojs WordArray given an arrayBuffer (elemtent 0). Also return
+ * original arraylength contained within buffer (element 1)
+ * Solution originally: https://groups.google.com/forum/#!msg/crypto-js/TOb92tcJlU0/Eq7VZ5tpi-QJ
+ */
 function arrayBufferToWordArray(ab) {
     var i8a = new Uint8Array(ab);
     var a = [];
@@ -442,7 +310,6 @@ function readChunked(file, chunkCallback, endCallback) {
  * @param {function} cbProgress - Callback function on progress change. Accepts a 0-1 float value.
  * @returns {Promise} AJAX Promise object.
  */
-
 export function getLargeMD5(file, cbProgress) {
     return new Promise((resolve, reject) => {
         // create algorithm for progressive hashing

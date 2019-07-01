@@ -71,7 +71,7 @@ export const valueTransforms = valueTransformsImported;
 
 // Transforms, manipulations, parsers, etc. re: objects.
 import * as fileUtilities from './file';
-export const fileUtil = fileUtilities;
+export const commonFileUtil = fileUtilities;
 
 //import * as SearchEngineOptimizationUtilities from './seo';
 //export const SEO = SearchEngineOptimizationUtilities;

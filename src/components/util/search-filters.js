@@ -7,19 +7,8 @@ import url from 'url';
 import queryString from 'query-string';
 import moment from 'moment';
 import { navigate } from './navigate';
+import { isServerSide } from './misc';
 
-
-
-
-
-/**
- * Get current expSetFilters from store. Utility method to use from other components if don't want to pass expSetFilters down as prop.
- * Keep in mind to only use from functions or callbacks, because if it is not a prop, will not update components visually when changed.
- *
- * @public
- * @static
- */
-export const currentExpSetFilters = contextFiltersToExpSetFilters;
 
 /**
  * If the given term is selected, return the href for the term from context.filters.
@@ -129,10 +118,8 @@ export function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filter
  * @returns {string} href - Search URL.
  */
 export function buildSearchHref(field, term, searchBase){
-    var href;
-
-    var parts = url.parse(searchBase, true),
-        query = _.clone(parts.query);
+    const parts = url.parse(searchBase, true);
+    const query = _.clone(parts.query);
 
     // format multiple filters on the same field
     if (field in query){
@@ -144,11 +131,10 @@ export function buildSearchHref(field, term, searchBase){
     } else {
         query[field] = term;
     }
-    query = queryString.stringify(query);
-    parts.search = query && query.length > 0 ? ('?' + query) : '';
-    href = url.format(parts);
+    const queryStr = queryString.stringify(query);
+    parts.search = queryStr && queryStr.length > 0 ? ('?' + queryStr) : '';
 
-    return href;
+    return url.format(parts);
 }
 
 
@@ -157,31 +143,28 @@ export function buildSearchHref(field, term, searchBase){
  *
  * @param {string} field                        Field, in object dot notation.
  * @param {string} term                         Term to add/remove from active filters.
- * @param {?Object} [expSetFilters=null]        The expSetFilters object that term is being added or removed from; if not provided it grabs state from redux store.
+ * @param {?Object} [filters=null]              The filters object that term is being added or removed from; if not provided it grabs state from redux store.
  * @param {?function} [callback=null]           Callback function to call after updating redux store.
  * @param {boolean} [returnInsteadOfSave=false] Whether to return a new updated expSetFilters object representing would-be changed state INSTEAD of updating redux store. Useful for doing a batched update.
  * @param {?string} [href=null]                 Current or base href to use for AJAX request if using AJAX to update.
- * @returns {?Object} Next expSetFilters object representation, or void if returnInsteadOfSave is false.
+ * @returns {?Object} Next filters object representation, or void if returnInsteadOfSave is false.
  */
 export function changeFilter(
     field,
     term,
-    expSetFilters = null,
+    filters,
     callback = null,
     returnInsteadOfSave = false,
-    href = null
+    href = null,
+    excludedQs = {}
 ){
-    // If no expSetFilters are supplied, grab current ones from Redux store.
-    if (!expSetFilters) expSetFilters = currentExpSetFilters();
-    var browseBaseParams = navigate.getBrowseBaseParams();
-
-    if (typeof browseBaseParams[field] === 'undefined'){
+    if (typeof excludedQs[field] === 'undefined'){
 
         // store currently selected filters as a dict of sets
         var tempObj = {};
         var newObj = {};
 
-        var expSet = expSetFilters[field] ? new Set(expSetFilters[field]) : new Set();
+        var expSet = filters[field] ? new Set(filters[field]) : new Set();
         if (expSet.has(term)) {
             // term is already present, so delete it
             expSet.delete(term);
@@ -190,9 +173,9 @@ export function changeFilter(
         }
         if(expSet.size > 0){
             tempObj[field] = expSet;
-            newObj = _.extend({}, expSetFilters, tempObj);
+            newObj = _.extend({}, filters, tempObj);
         }else{ //remove key if set is empty
-            newObj = _.extend({}, expSetFilters);
+            newObj = _.extend({}, filters);
             delete newObj[field];
         }
 
@@ -203,7 +186,7 @@ export function changeFilter(
             return saveChangedFilters(newObj, href, callback);
         }
     } else {
-        return expSetFilters;
+        return filters;
     }
 }
 
@@ -217,25 +200,29 @@ export function changeFilter(
  * @param {?function} [callback=null]  Callback function.
  * @returns {void}
  */
-export function saveChangedFilters(newExpSetFilters, store, href=null, callback=null){
+export function saveChangedFilters(newExpSetFilters, href=null, callback=null){
     if (!Alerts) Alerts = require('../ui/Alerts').Alerts;
 
-    var originalReduxState = store.getState();
-
     if (!href){
-        console.warn("No HREF (3rd param) supplied, using current href from Redux store. This might be wrong depending on where we should be browsing.");
-        href = originalReduxState.href;
+        if (isServerSide()){
+            throw new Error("No href provided and cannot get from window as none available server-side.");
+        } else {
+            console.warn("No HREF (3rd param) supplied, using window.location.href. This might be wrong depending on where we should be browsing.");
+            href = window.location.href;
+        }
     }
 
     if (typeof href !== 'string') throw new Error("No valid href (3rd arg) supplied to saveChangedFilters: " + href);
 
-    var newHref = filtersToHref(newExpSetFilters, href);
+    const origHref = href;
+    const newHref = filtersToHref(newExpSetFilters, href);
 
     navigate(newHref, { replace : true, skipConfirmCheck: true }, (result)=>{
         if (result && result.total === 0){
+            // Present an alert box informing user that their new selection is now being UNSELECTED because it returned no results.
+            Alerts.queue(Alerts.NoFilterResults);
             // No results, unset new filters.
-            Alerts.queue(Alerts.NoFilterResults); // Present an alert box informing user that their new selection is now being UNSELECTED because it returned no results.
-            navigate(originalReduxState.href, { skipRequest : true });
+            navigate(origHref);
         } else {
             // Success. Remove any no result alerts.
             Alerts.deQueue(Alerts.NoFilterResults);
@@ -341,34 +328,6 @@ export function unsetAllTermsForField(field, expSetFilters, save = true, href = 
 }
 
 
-export function transformExpSetFiltersToExpFilters(expSetFilters){
-    var expSetKeys = _.keys(expSetFilters);
-    var expFilters = {};
-    var i = 0;
-    for (i = 0; i < expSetKeys.length; i++){
-        if (expSetKeys[i].slice(0,19) === 'experiments_in_set.'){
-            expFilters[expSetKeys[i].slice(19)] = expSetFilters[expSetKeys[i]];
-        } else {
-            expFilters['experiment_sets.' + expSetKeys[i]] = expSetFilters[expSetKeys[i]];
-        }
-    }
-    return expFilters;
-}
-
-export function transformExpSetFiltersToFileFilters(expSetFilters){
-    var expSetKeys = _.keys(expSetFilters);
-    var expFilters = {};
-    var i = 0;
-    for (i = 0; i < expSetKeys.length; i++){
-        if (expSetKeys[i].slice(0,19) === 'experiments_in_set.'){
-            expFilters['experiments.' + expSetKeys[i].slice(19)] = expSetFilters[expSetKeys[i]];
-        } else {
-            expFilters['experiments.experiment_sets.' + expSetKeys[i]] = expSetFilters[expSetKeys[i]];
-        }
-    }
-    return expFilters;
-}
-
 
 /**
  * Convert expSetFilters to a URL, given a current URL whose path is used to append arguments
@@ -434,13 +393,23 @@ export const NON_FILTER_URL_PARAMS = [
  * @param {string} [browseBaseState] - Supply 'only_4dn' or 'all' to control which URI query params are filtered out. If 'search' is supplied, none are excluded.
  * @returns {Object} Object with fields (string, dot-separated-nested) as keys and Sets of terms (string) as values for those keys.
  */
-export function contextFiltersToExpSetFilters(contextFilters){
+export function contextFiltersToExpSetFilters(contextFilters, excludedQs = {}){
     if (!Array.isArray(contextFilters)){
         console.warn('No context filters available or supplied. Fine if this message appears outside of a /search/ or /browse/ page.');
         return {};
     }
     if (contextFilters.length === 0) return {};
     return _.reduce(contextFilters, function(memo, filterObj){
+        if (excludedQs && typeof excludedQs[filterObj.field] !== 'undefined'){
+            if (excludedQs[filterObj.field] === true) return memo;
+            if (typeof excludedQs[filterObj.field] === 'string' && excludedQs[filterObj.field] === filterObj.term){
+                return memo;
+            }
+            if (Array.isArray(excludedQs[filterObj.field]) && excludedQs[filterObj.field].indexOf(filterObj.term) > -1){
+                return memo;
+            }
+            return memo;
+        }
         if (typeof memo[filterObj.field] === 'undefined'){
             memo[filterObj.field] = new Set([filterObj.term]);
         } else {
@@ -552,33 +521,20 @@ export function convertExpSetFiltersTerms(expSetFilters, to = 'array'){
 
 /** Return URL without any queries or hash, ending at pathname. Add hardcoded stuff for /browse/ or /search/ endpoints. */
 function getBaseHref(currentHref = '/browse/', hrefPath = null){
-    var urlParts = url.parse(currentHref, true);
+    const urlParts = url.parse(currentHref, true);
     if (!hrefPath){
         hrefPath = urlParts.pathname;
     }
 
-    var baseHref = (urlParts.protocol && urlParts.host) ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
-    var hrefQuery = {};
-    var hrefQueryKeys = [];
-
-    if (navigate.isBrowseHref(hrefPath)){
-        hrefQuery = navigate.getBrowseBaseParams();
-    } else if (hrefPath.indexOf('/search/') > -1){
-        if (typeof urlParts.query.type !== 'string'){
+    const baseHref = (urlParts.protocol && urlParts.host) ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
+    const hrefQuery = _.pick(urlParts.query, 'type', 'q');
+    if (hrefPath.indexOf('/search/') > -1){
+        if (typeof hrefQuery.type !== 'string'){
             hrefQuery.type = 'Item';
-        } else {
-            hrefQuery.type = urlParts.query.type;
         }
     }
 
-    var searchQuery = searchQueryStringFromHref(currentHref);
-    if (searchQuery) {
-        hrefQuery.q = searchQuery;
-    }
-
-    hrefQueryKeys = _.keys(hrefQuery);
-
-    return baseHref + (hrefQueryKeys.length > 0 ? '?' + queryString.stringify(hrefQuery) : '');
+    return baseHref + (_.keys(hrefQuery).length > 0 ? '?' + queryString.stringify(hrefQuery) : '');
 }
 
 export function searchQueryStringFromHref(href){

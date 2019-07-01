@@ -14,7 +14,7 @@ import { getItemType, getTitleForType } from './../../util/schema-transforms';
 import { getNestedProperty, itemUtil } from './../../util/object';
 import { responsiveGridState } from './../../util/layout';
 import { isServerSide } from './../../util/misc';
-import { productClick as trackProductClick } from './../../util/analytics';
+import { productClick as trackProductClick, hrefToListName } from './../../util/analytics';
 
 // eslint-disable-next-line no-unused-vars
 import { Item, ColumnDefinition } from './../../util/typedefs';
@@ -71,20 +71,15 @@ export const basicColumnExtensionMap = {
 
             /** Registers a list click event for Google Analytics then performs navigation. */
             function handleClick(evt){
-                var tableType = navigate.isBrowseHref(href) ? 'browse' : (navigate.isSearchHref(href) ? 'search' : 'other');
-                if (tableType === 'browse' || tableType === 'search'){
-                    evt.preventDefault();
-                    evt.stopPropagation();
-                    trackProductClick(result, {
-                        'list'      : tableType === 'browse' ? 'Browse Results' : (currentAction === 'selection' ? 'Selection Search Results' : 'Search Results'),
-                        'position'  : rowNumber + 1
-                    }, function(){
-                        (propNavigate || navigate)(link);
-                    });
-                    return false;
-                } else {
-                    return true;
-                }
+                evt.preventDefault();
+                evt.stopPropagation();
+                trackProductClick(result, {
+                    'list'      : hrefToListName(href),
+                    'position'  : rowNumber + 1
+                }, function(){
+                    (propNavigate || navigate)(link);
+                });
+                return false;
             }
 
             if (title && (title.length > 20 || width < 100)) tooltip = title;

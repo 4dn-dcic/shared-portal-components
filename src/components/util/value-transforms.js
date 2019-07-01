@@ -8,7 +8,7 @@ export function capitalize(word){
 
 export function capitalizeSentence(sen) {
     if (typeof sen !== 'string') return sen;
-    return sen.split(' ').map(Term.capitalize).join(' ');
+    return sen.split(' ').map(capitalize).join(' ');
 }
 
 export const byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'Petabytes', 'Exabytes'];
@@ -16,19 +16,19 @@ export const byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'Petabytes', 'Exabyt
 export const numberLevels = ['', 'k', 'm', ' billion', ' trillion', ' quadrillion', ' quintillion'];
 
 export function bytesToLargerUnit(bytes, level = 0){
-    if (bytes > 1024 && level < Term.byteLevels.length) {
-        return Term.bytesToLargerUnit(bytes / 1024, level + 1);
+    if (bytes > 1024 && level < byteLevels.length) {
+        return bytesToLargerUnit(bytes / 1024, level + 1);
     } else {
-        return (Math.round(bytes * 100) / 100) + ' ' + Term.byteLevels[level];
+        return (Math.round(bytes * 100) / 100) + ' ' + byteLevels[level];
     }
 }
 
 export function roundLargeNumber(num, decimalPlaces = 2, level = 0){
-    if (num > 1000 && level < Term.numberLevels.length) {
-        return Term.roundLargeNumber(num / 1000, decimalPlaces, level + 1);
+    if (num > 1000 && level < numberLevels.length) {
+        return roundLargeNumber(num / 1000, decimalPlaces, level + 1);
     } else {
         const multiplier = Math.pow(10, decimalPlaces);
-        return (Math.round(num * multiplier) / multiplier) + Term.numberLevels[level];
+        return (Math.round(num * multiplier) / multiplier) + numberLevels[level];
     }
 }
 

@@ -4,13 +4,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-import { Button, Fade, InputGroup, FormGroup, FormControl } from 'react-bootstrap';
+import { InputGroup, FormGroup, FormControl } from 'react-bootstrap';
 
+import { Fade } from './../../ui/Fade';
 import { Checkbox } from './Checkbox';
 import { DropdownItem, DropdownButton } from './DropdownButton';
-import { ajax, console, object, Schemas } from './../../util';
-import Alerts from './../../alerts';
-import { BasicStaticSectionBody } from './../../static-pages/components/BasicStaticSectionBody';
+import { ajax, console, object, valueTransforms } from './../../util';
+import { Alerts } from './../../ui/Alerts';
+import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
 import { Line as ProgressBar } from 'rc-progress';
 import { LinkToSelector } from './LinkToSelector';
 
@@ -337,7 +338,7 @@ export class BuildField extends React.PureComponent {
 
         return wrapFunc(
             <React.Fragment>
-                <div className={'field-column col-xs-' + (excludeRemoveButton ? "12": "10") + extClass}>{ fieldToDisplay }</div>
+                <div className={'field-column col col-xs-' + (excludeRemoveButton ? "12": "10") + extClass}>{ fieldToDisplay }</div>
                 { excludeRemoveButton ? null : <SquareButton show={showDelete} disabled={disableDelete} tip={isArray ? 'Remove Item' : 'Clear Value'} onClick={this.deleteField} /> }
             </React.Fragment>
         );
@@ -347,12 +348,19 @@ export class BuildField extends React.PureComponent {
 
 
 const SquareButton = React.memo(function SquareButton(props){
-    const { show, disabled, onClick, tip, bsStyle, buttonContainerClassName, icon, style } = props;
+    const { show, disabled, onClick, tip, bsStyle, className, buttonContainerClassName, icon, style } = props;
+    const outerCls = "pull-right remove-button-container" + (!show ? ' hidden' : '') + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
+    let btnCls = ("btn" + (className ? " " + className : ""));
+    if (bsStyle){
+        btnCls += " btn-" + bsStyle;
+    }
     return (
         <div className="col-xs-2 remove-button-column" style={style}>
             <Fade in={show}>
-                <div className={"pull-right remove-button-container" + (!show ? ' hidden' : '') + (buttonContainerClassName ? ' ' + buttonContainerClassName : '')}>
-                    <Button tabIndex={2} bsStyle={bsStyle} disabled={disabled} onClick={onClick} data-tip={tip}><i className={"icon icon-fw icon-" + icon}/></Button>
+                <div className={outerCls}>
+                    <button type="button" disabled={disabled} onClick={onClick} data-tip={tip} tabIndex={2} className={btnCls}>
+                        <i className={"icon icon-fw icon-" + icon}/>
+                    </button>
                 </div>
             </Fade>
         </div>
@@ -524,7 +532,7 @@ class LinkedObj extends React.PureComponent {
         return (
             <React.Fragment>
                 <div className="linked-object-text-input-container row flexrow">
-                    <div className="field-column col-xs-10">
+                    <div className="field-column col col-xs-10">
                         <input onChange={this.handleTextInputChange} className={"form-control" + extClass} inputMode="latin" type="text" placeholder="Drag & drop Item from the search view or type in a valid @ID." value={this.state.textInputValue} onDrop={this.handleDrop} />
                     </div>
                     { canShowAcceptTypedInput ?
@@ -542,12 +550,12 @@ class LinkedObj extends React.PureComponent {
     renderEmptyField(){
         return (
             <div className="linked-object-buttons-container">
-                <Button className="select-create-linked-item-button" onClick={this.handleStartSelectItem}>
+                <button type="button" className="btn btn-outline-dark select-create-linked-item-button" onClick={this.handleStartSelectItem}>
                     <i className="icon icon-fw icon-search"/> Select existing
-                </Button>
-                <Button className="select-create-linked-item-button" onClick={this.handleCreateNewItemClick}>
+                </button>
+                <button type="button" className="btn btn-outline-dark select-create-linked-item-button" onClick={this.handleCreateNewItemClick}>
                     <i className="icon icon-fw icon-file-o"/> Create new
-                </Button>
+                </button>
             </div>
         );
     }
@@ -562,12 +570,13 @@ class LinkedObj extends React.PureComponent {
 
         // object chosen or being created
         if (value){
-            var thisDisplay = keyDisplay[value] || value;
+            const thisDisplay = keyDisplay[value] || value;
             if (isNaN(value)) {
+                const tip = "This Item, '" + thisDisplay + "' is already in the database";
                 return(
                     <div className="submitted-linked-object-display-container text-ellipsis-container">
                         <i className="icon icon-fw icon-database" />&nbsp;&nbsp;
-                        <a href={value} target="_blank" data-tip={"This Item, '" + thisDisplay + "' is already in the database"}>{ thisDisplay }</a>
+                        <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip}>{ thisDisplay }</a>
                         &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-external-link ml-05"/>
                     </div>
                 );
@@ -580,7 +589,7 @@ class LinkedObj extends React.PureComponent {
                 if (keyComplete[intKey]){
                     return(
                         <div>
-                            <a href={keyComplete[intKey]} target="_blank" children>{ thisDisplay }</a>
+                            <a href={keyComplete[intKey]} target="_blank" rel="noopener noreferrer">{ thisDisplay }</a>
                             <i className="icon icon-fw icon-external-link ml-05"/>
                         </div>
                     );
@@ -722,10 +731,13 @@ class ArrayField extends React.Component{
     }
 
     generateAddButton(){
-        var values = this.props.value || [];
+        const { value : values = [], pushArrayValue } = this.props;
+
         return (
             <div className="add-array-item-button-container">
-                <Button bsSize={values.length > 0 ? 'small' : null} onClick={this.props.pushArrayValue}><i className="icon icon-fw icon-plus"/> Add</Button>
+                <button type="button" className={"btn btn-outline-dark btn-" + (values.length > 0 ? "sm" : "md")} onClick={pushArrayValue}>
+                    <i className="icon icon-fw icon-plus"/> Add
+                </button>
             </div>
         );
     }
@@ -838,11 +850,13 @@ class AttachmentInput extends React.Component{
 
     constructor(props){
         super(props);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     acceptedTypes(){
+        const { schema } = this.props;
         // hardcoded back-up
-        var types = object.getNestedProperty(this.props.schema, ['properties', 'type', 'enum'], true);
+        let types = object.getNestedProperty(schema, ['properties', 'type', 'enum'], true);
         if(!types){
             // generic backup types
             types = [
@@ -865,7 +879,7 @@ class AttachmentInput extends React.Component{
         return(types.toString());
     }
 
-    handleChange = (e) => {
+    handleChange(e){
         var attachment_props = {};
         var file = e.target.files[0];
         if(!file){
@@ -890,24 +904,27 @@ class AttachmentInput extends React.Component{
     }
 
     render(){
-        var attach_title;
-        if(this.props.value && this.props.value.download){
-            attach_title = this.props.value.download;
-        }else{
+        const { value = {}, field } = this.props;
+        let attach_title;
+        if (value.download){
+            attach_title = value.download;
+        } else {
             attach_title = "No file chosen";
         }
-        var labelStyle = {
+        const labelStyle = {
             'paddingRight':'5px',
             'paddingLeft':'5px'
         };
+
+        // Is type=submit below correct?
         return(
-            <div style={{'display': 'inherit'}}>
-                <input id={"field_for_" + this.props.field} type='file' onChange={this.handleChange} style={{'display':'none'}} accept={this.acceptedTypes()}/>
-                <Button>
-                    <label className="text-400 mb-0" htmlFor={"field_for_" + this.props.field} style={labelStyle}>
+            <div style={{ 'display': 'inherit' }}>
+                <input id={"field_for_" + field} type="file" onChange={this.handleChange} style={{ 'display':'none' }} accept={this.acceptedTypes()}/>
+                <button type="submit" className="btn btn-outline-dark">
+                    <label className="text-400 mb-0" htmlFor={"field_for_" + field} style={labelStyle}>
                         {attach_title}
                     </label>
-                </Button>
+                </button>
             </div>
         );
     }
@@ -924,6 +941,8 @@ class S3FileInput extends React.Component{
 
     constructor(props){
         super(props);
+        _.bindAll(this, 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads',
+            'cancelUpload', 'deleteField');
         this.state = {
             'percentDone': null,
             'sizeUploaded': null,
@@ -932,16 +951,17 @@ class S3FileInput extends React.Component{
         };
     }
 
+    /** TODO: refactor to componentDIdUpdate or getDerivedStateFromProps */
     componentWillReceiveProps(nextProps){
         if(this.props.upload === null && nextProps.upload !== null){
             this.handleAsyncUpload(nextProps.upload);
         }
         if(this.props.uploadStatus !== nextProps.uploadStatus){
-            this.setState({'status': nextProps.uploadStatus});
+            this.setState({ 'status': nextProps.uploadStatus });
         }
     }
 
-    modifyFile = (val) => {
+    modifyFile(val){
         this.props.setSubmissionState('file', val);
         if(val !== null){
             this.setState({
@@ -956,25 +976,25 @@ class S3FileInput extends React.Component{
         }
     }
 
-    /*
-    Handle file selection. Store the file in SubmissionView state and change
-    the filename context using modifyNewContext
-    */
-    handleChange = (e) => {
-        var { modifyNewContext, nestedField, linkType, arrayIdx, currContext } = this.props,
-            file = e.target.files[0];
+    /**
+     * Handle file selection. Store the file in SubmissionView state and change
+     * the filename context using modifyNewContext
+     */
+    handleChange(e){
+        const { modifyNewContext, nestedField, linkType, arrayIdx, currContext } = this.props;
+        const file = e.target.files[0];
 
         if (!file) return; // No file was chosen.
 
-        var filename = file.name ? file.name : "unknown";
+        const filename = file.name ? file.name : "unknown";
 
         // check Extensions
-        var fileFormat = currContext.file_format;
+        let fileFormat = currContext.file_format;
         if(!fileFormat.startsWith('/')){
             fileFormat = '/' + fileFormat;
         }
         var extensions = [];
-        ajax.promise(fileFormat + '?frame=object').then(response => {
+        ajax.promise(fileFormat + '?frame=object').then((response) => {
             if (response['file_format'] && response['@id']){
                 extensions = response.standard_file_extension ? [response.standard_file_extension] : [];
                 if(response.other_allowed_extensions){
@@ -996,11 +1016,11 @@ class S3FileInput extends React.Component{
         });
     }
 
-    /*
-    Handle the async file upload which is coordinated by the file_manager held
-    in this.props.upload. Call this.props.updateUpload on failure or completion.
-    */
-    handleAsyncUpload = (upload_manager) => {
+    /**
+     * Handle the async file upload which is coordinated by the file_manager held
+     * in this.props.upload. Call this.props.updateUpload on failure or completion.
+     */
+    handleAsyncUpload(upload_manager){
         if(upload_manager === null){
             return;
         }
@@ -1025,14 +1045,14 @@ class S3FileInput extends React.Component{
     /*
     Set state to reflect new upload percentage and size complete for the given upload
     */
-    modifyRunningUploads = (percentage, size) => {
+    modifyRunningUploads(percentage, size){
         this.setState({
             'percentDone': percentage,
             'sizeUploaded': size
         });
     }
 
-    cancelUpload = (e) => {
+    cancelUpload(e){
         e.preventDefault();
         if(this.state.percentDone === null || this.props.upload === null){
             return;
@@ -1040,70 +1060,77 @@ class S3FileInput extends React.Component{
         this.props.upload.abort();
     }
 
-    deleteField = (e) => {
+    deleteField(e){
         e.preventDefault();
         this.props.modifyNewContext(this.props.nestedField, null, 'file upload', this.props.linkType, this.props.arrayIdx);
         this.modifyFile(null);
     }
 
     render(){
-        var statusTip = this.state.status;
-        var showDelete = false;
-        var filename_text = "No file chosen";
-        if(this.props.value){
-            if(this.state.newFile){
-                if(this.props.md5Progress === null && this.props.upload === null){
+        const { value, md5Progress, upload, field } = this.props;
+        const { status, newFile, percentDone, sizeUploaded } = this.state;
+        let statusTip = status;
+        let showDelete = false;
+        let filename_text = "No file chosen";
+        if (value){
+            if(newFile){
+                if (md5Progress === null && upload === null){
                     showDelete = true;
                 }
-                filename_text = this.props.value;
-            }else{
-                statusTip = 'Previous file: ' + this.props.value;
+                filename_text = value;
+            } else {
+                statusTip = 'Previous file: ' + value;
             }
         }
-        var disableFile = this.props.md5Progress !== null || this.props.upload !== null;
+        const disableFile = md5Progress !== null || upload !== null;
         return(
             <div>
                 <div>
-                    <input id={"field_for_" + this.props.field} type='file' onChange={this.handleChange} disabled={disableFile} style={{'display':'none'}} />
-                    <Button disabled={disableFile} style={{'padding':'0px'}}>
-                        <label children={filename_text} className="text-400" htmlFor={"field_for_" + this.props.field} style={{'paddingRight':'12px','paddingTop':'6px','paddingBottom':'6px','paddingLeft':'12px','marginBottom':'0px'}}/>
-                    </Button>
+                    <input id={"field_for_" + field} type="file" onChange={this.handleChange} disabled={disableFile} style={{ 'display':'none' }} />
+                    <button type="submit" disabled={disableFile} style={{ 'padding':'0px' }} className="btn btn-outline-dark">
+                        <label className="text-400" htmlFor={"field_for_" + field}
+                            style={{ 'paddingRight':'12px','paddingTop':'6px','paddingBottom':'6px','paddingLeft':'12px','marginBottom':'0px' }}>
+                            { filename_text }
+                        </label>
+                    </button>
                     <Fade in={showDelete}>
                         <div className="pull-right">
-                            <Button tabIndex={2} bsStyle="danger" disabled={!showDelete} onClick={this.deleteField}><i className="icon icon-fw icon-times"/></Button>
+                            <button type="button" className="btn btn-danger" disabled={!showDelete} onClick={this.deleteField} tabIndex={2}>
+                                <i className="icon icon-fw icon-times"/>
+                            </button>
                         </div>
                     </Fade>
                 </div>
                 {statusTip ?
-                    <div style={{'color':'#a94442', 'paddingTop':'10px'}}>
+                    <div style={{ 'color':'#a94442', 'paddingTop':'10px' }}>
                         {statusTip}
                     </div>
                     :
                     null
                 }
-                {this.props.md5Progress ?
-                    <div style={{'paddingTop':'10px'}}>
-                        <i className="icon icon-spin icon-circle-o-notch" style={{'opacity': '0.5' }}></i>
-                        <span style={{'paddingLeft':'10px'}}>
-                            {'Calculating MD5... ' + this.props.md5Progress + '%'}
+                { md5Progress ?
+                    <div style={{ 'paddingTop':'10px' }}>
+                        <i className="icon icon-spin icon-circle-o-notch" style={{ 'opacity': '0.5' }}></i>
+                        <span style={{ 'paddingLeft': '10px' }}>
+                            {'Calculating MD5... ' +  md5Progress + '%'}
                         </span>
                     </div>
                     :
                     null
                 }
-                {this.state.percentDone !== null ?
-                    <div className="row" style={{'paddingTop':'10px'}}>
-                        <div className="col-sm-3" style={{'float':'left'}}>
-                            <a href="" style={{'color':'#a94442','paddingLeft':'10px'}} onClick={this.cancelUpload} title="Cancel">
+                { percentDone !== null ?
+                    <div className="row" style={{ 'paddingTop':'10px' }}>
+                        <div className="col-3 col-sm-3 pull-left">
+                            <a href="" style={{ 'color':'#a94442', 'paddingLeft':'10px' }} onClick={this.cancelUpload} title="Cancel">
                                 {'Cancel upload'}
                             </a>
                         </div>
-                        <div className="col-sm-9" style={{'float':'right'}}>
+                        <div className="col-9 col-sm-9 pull-right">
                             <div>
-                                <div style={{'float':'left'}}>{this.state.percentDone + "% complete"}</div>
-                                <div style={{'float':'right'}}>{"Total size: " + this.state.sizeUploaded}</div>
+                                <div className="pull-left">{ percentDone + "% complete"}</div>
+                                <div className="pull-right">{"Total size: " + sizeUploaded}</div>
                             </div>
-                            <ProgressBar percent={this.state.percentDone} strokeWidth="1" strokeColor="#388a92" />
+                            <ProgressBar percent={percentDone} strokeWidth="1" strokeColor="#388a92" />
                         </div>
                     </div>
                     :
@@ -1228,9 +1255,9 @@ export class AliasInputField extends React.Component {
         if (currentSubmittingUser && Array.isArray(currentSubmittingUser.groups) && currentSubmittingUser.groups.indexOf('admin') > -1){
             // Render an ordinary input box for admins (can specify any lab).
             firstPartSelect = (
-                <FormControl type="text" inputMode="latin" id="firstPartSelect" // Todo append index to id if in array
-                    value={currFirstPartValue || ''} placeholder={"Lab (default: " + initialDefaultFirstPartValue + ")"}
-                    onChange={this.onAliasFirstPartChangeTyped} style={{ 'paddingRight' : 8, 'borderRight' : 'none' }} />
+                <input type="text" inputMode="latin" id="firstPartSelect" value={currFirstPartValue || ''}
+                    placeholder={"Lab (default: " + initialDefaultFirstPartValue + ")"} onChange={this.onAliasFirstPartChangeTyped}
+                    style={{ 'paddingRight' : 8, 'borderRight' : 'none' }} className="form-control" />
             );
         } else if (submits_for_list && submits_for_list.length > 1){
             firstPartSelect = (
@@ -1254,23 +1281,20 @@ export class AliasInputField extends React.Component {
         } else { // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
             firstPartSelect = <InputGroup.Addon className="alias-lab-single-option">{ currFirstPartValue }</InputGroup.Addon>;
         }
+
+        const outerClassName = "mb-0 form-group has-feedback" + (errorMessage? " is-invalid has-error" : "");
         return (
-            <FormGroup className="mb-0" validationState={errorMessage ? 'error' : null}>
-                <InputGroup>
+            <div className={outerClassName}>
+                <div className="input-group">
                     { firstPartSelect }
-                    { firstPartSelect ? <InputGroup.Addon className="colon-separator">:</InputGroup.Addon> : null}
-                    <FormControl
-                        id="aliasInput"
-                        type="text"
-                        inputMode="latin"
-                        value={parts[1] || ''}
-                        autoFocus={withinModal && !parts[1] ? true : false}
-                        placeholder="Type in a new identifier"
-                        onChange={this.onAliasSecondPartChange}
-                    />
-                </InputGroup>
-                <FormControl.Feedback />
-            </FormGroup>
+                    <div className="input-group-prepend input-group-append input-group-addon colon-separator">
+                        <span className="input-group-text">:</span>
+                    </div>
+                    <input type="text" id="aliasInput" inputMode="latin" value={parts[1] || ''}
+                        autoFocus={withinModal && !parts[1] ? true : false} placeholder="Type in a new identifier"
+                        onChange={this.onAliasSecondPartChange} className="form-control" />
+                </div>
+            </div>
         );
     }
 
@@ -1284,7 +1308,7 @@ class InfoIcon extends React.PureComponent {
         const { fieldType, schema } = this.props;
         if (typeof fieldType !== 'string' || fieldType.length === 0) return null;
 
-        let type = Schemas.Term.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
+        let type = valueTransforms.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
         if (fieldType === 'array'){
             type = type + ' <span class="array-indicator">[]</span>';
         }
