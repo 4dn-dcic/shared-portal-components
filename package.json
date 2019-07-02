@@ -2,6 +2,7 @@
     "name": "@hms-dbmi-bgm/shared-portal-components",
     "version": "0.0.1",
     "description": "Shared components for DBMI/BGM portal(s)",
+    "repository": "https://github.com/4dn-dcic/shared-portal-components",
     "main": "src/index.js",
     "module": "/dist/shared-components.js",
     "scripts": {
@@ -36,7 +37,6 @@
         "gulp": "^4.0.0",
         "jest-cli": "^24.5.0",
         "jsdom": "^13.2.0",
-        "markdown-to-jsx": "^6.9.3",
         "node-sass": "^4.11.0",
         "plugin-error": "^1.0.1",
         "sinon": "^1.17.6",
@@ -46,18 +46,7 @@
         "uglifyjs-webpack-plugin": "^2.1.1",
         "webpack": "4.28.4",
         "webpack-bundle-analyzer": "^3.0.4",
-        "webpack-deadcode-plugin": "^0.1.10",
-        "d3": ">=5.9.0",
-        "react": ">=16.3.0",
-        "react-dom": ">=16.3.0",
-        "react-bootstrap": "*",
-        "memoize-one": ">=5.0.0",
-        "underscore": ">=1.9.1",
-        "react-tooltip": ">=3.10.0",
-        "query-string": ">=4.3.0",
-        "moment": ">=2.24.0",
-        "form-serialize": ">=0.6.0",
-        "react-transition-group": "^2.7.1"
+        "webpack-deadcode-plugin": "^0.1.10"
     },
     "dependencies": {
         "auth0-lock": "^11.16.3",
@@ -86,6 +75,6 @@
         "query-string": ">=4.3.0",
         "moment": ">=2.24.0",
         "form-serialize": ">=0.6.0",
-        "react-transition-group": ">=2.7.1"
+        "react-transition-group": ">=3.0.0"
     }
 }

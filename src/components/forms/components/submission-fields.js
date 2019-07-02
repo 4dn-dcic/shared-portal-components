@@ -140,7 +140,8 @@ export class BuildField extends React.PureComponent {
             );
             case 'enum'             : return (
                 <span className="input-wrapper" style={{ 'display':'inline' }}>
-                    <DropdownButton title={value || <span className="text-300">No value</span>} onToggle={this.handleDropdownButtonToggle}>
+                    <DropdownButton title={value || <span className="text-300">No value</span>}
+                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark">
                         {_.map(enumValues, (val) => this.buildEnumEntry(val))}
                     </DropdownButton>
                 </span>

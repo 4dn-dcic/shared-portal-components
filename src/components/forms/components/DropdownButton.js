@@ -7,7 +7,7 @@ import React from 'react';
 
 
 // eslint-disable-next-line prefer-destructuring
-export const DropdownButton = require('react-bootstrap').DropdownButton;
+const DropdownButtonImported = require('react-bootstrap').DropdownButton;
 // eslint-disable-next-line prefer-destructuring
 export const Dropdown = require('react-bootstrap').Dropdown;
 
@@ -16,3 +16,7 @@ const MenuItemV3 = require('react-bootstrap').MenuItem;         // React-Bootstr
 const MenuItemV4 = require('react-bootstrap').DropdownItem;     // React-Bootstrap v1.0.0 (Bootstrap v4)
 export const DropdownItem = MenuItemV4 || MenuItemV3;
 
+export function DropdownButton(props){
+    const variant = props.variant || props.bsStyle;
+    return <DropdownButtonImported {...props} variant={variant} />;
+}

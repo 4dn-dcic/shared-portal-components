@@ -99,8 +99,8 @@ function awaitLinking(){
         // Wait until all linked.
         return;
     }
-    console.log("Linking complete, running `npm install`");
-    childProcess.execSync("npm install");
+    //console.log("Linking complete, running `npm install`");
+    //childProcess.execSync("npm install");
     console.log("Success.");
 }
 
