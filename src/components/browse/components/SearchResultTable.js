@@ -168,7 +168,7 @@ class ResultRow extends React.PureComponent {
         })).isRequired,
         'headerColumnWidths' : PropTypes.array,
         'renderDetailPane'  : PropTypes.func.isRequired,
-        'openDetailPanes' : PropTypes.array.isRequired,
+        'openDetailPanes' : PropTypes.object.isRequired,
         'setDetailHeight' : PropTypes.func.isRequired,
         'id' : PropTypes.string.isRequired
     };
@@ -235,15 +235,20 @@ class ResultRow extends React.PureComponent {
         }, 10);
     }
 
-    renderColumns(detailOpen, isDraggable){
-        const { columnDefinitions, selectedFiles, currentAction } = this.props;
+    renderColumns(){
+        // TODO (?) prop func to do this to control which columns get which props.
+        // to make more reusable re: e.g. `selectedFiles` (= 4DN-specific).
+        const { columnDefinitions, selectedFiles } = this.props;
+        const detailOpen  = this.isOpen();
         return _.map(columnDefinitions, (columnDefinition, columnNumber) => {
-            var passedProps = _.extend(
-                _.pick(this.props, 'result', 'rowNumber', 'href', 'headerColumnWidths', 'mounted', 'windowWidth', 'schemas'),
+            const passedProps = _.extend(
+                // Contains required 'result', 'rowNumber', 'href', 'headerColumnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction
+                _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id'),
                 {
-                    columnDefinition, columnNumber, detailOpen, currentAction,
+                    columnDefinition, columnNumber, detailOpen,
                     'key' : columnDefinition.field,
                     'toggleDetailOpen' : this.toggleDetailOpen,
+                    // Only needed on first column (contains title, checkbox)
                     'selectedFiles' : columnNumber === 0 ? selectedFiles : null
                 }
             );
@@ -252,12 +257,20 @@ class ResultRow extends React.PureComponent {
     }
 
     render(){
-        const {
-            result, rowNumber, mounted, headerColumnWidths, renderDetailPane, columnDefinitions, schemas,
-            tableContainerWidth, tableContainerScrollLeft, openDetailPanes, setDetailHeight, href, currentAction, selectedFiles
-        } = this.props;
+        const { rowNumber, currentAction } = this.props;
         const detailOpen  = this.isOpen();
         const isDraggable = currentAction === 'selection';
+
+        /**
+         * Props passed to ResultDetail include:
+         * `result`, `renderDetailPane`, `rowNumber`, `tableContainerWidth`, `tableContainerScrollLeft`.
+         *
+         * It should also contain selectedFiles if parent passes it down.
+         */
+        const detailProps = _.omit(this.props,
+            'openDetailPanes', 'mounted', 'headerColumnWidths', 'columnDefinitions', 'id',
+            'detailOpen', 'setDetailHeight'
+        );
 
         return (
             <div className={"search-result-row detail-" + (detailOpen ? 'open' : 'closed') + (isDraggable ? ' is-draggable' : '')} data-row-number={rowNumber} /* ref={(r)=>{
@@ -268,10 +281,10 @@ class ResultRow extends React.PureComponent {
                 }
             }}*/>
                 <div className="columns clearfix result-table-row" draggable={isDraggable} onDragStart={isDraggable ? this.handleDragStart : null}>
-                    { this.renderColumns(detailOpen, isDraggable) }
+                    { this.renderColumns() }
                 </div>
-                <ResultDetail {...{ result, renderDetailPane, rowNumber, tableContainerWidth, tableContainerScrollLeft, selectedFiles }}
-                    open={!!(detailOpen)} toggleDetailOpen={this.toggleDetailOpen} setDetailHeight={this.setDetailHeight} />
+                <ResultDetail {...detailProps} open={!!(detailOpen)}
+                    toggleDetailOpen={this.toggleDetailOpen} setDetailHeight={this.setDetailHeight} />
             </div>
         );
     }
