@@ -2,6 +2,8 @@
 *********** Submission & Edit View	****************
 ****************************************************/
 
+@import "common_components_variables";
+@import "mixins";
 
 // FOR REUSE ELSEWHERE LATER - FILLS HEIGHT OF RELATIVE CONTAINER
 @mixin vertically-centered-content-button {
@@ -293,7 +295,7 @@
 				margin: 0 !important;
 				font-weight: 500;
 				padding-top: 18px;
-				@include media-breakpoint-up(md) {
+				@media screen and (min-width: $screen-md-min) {
 					text-align: right;
 				}
 

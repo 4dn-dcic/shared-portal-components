@@ -88,8 +88,17 @@ class Term extends React.PureComponent {
         const { term, facet, isTermSelected, termTransformFxn } = this.props;
         const { filtering } = this.state;
         const selected = isTermSelected(term, facet);
-        let title = termTransformFxn(facet.field, term.key) || term.key;
         const count = (term && term.doc_count) || 0;
+        let title = termTransformFxn(facet.field, term.key) || term.key;
+        let icon = null;
+
+        if (filtering){
+            icon = <i className="icon icon-circle-o-notch icon-spin icon-fw"/>;
+        } else if (selected) {
+            icon = <i className="icon icon-times-circle icon-fw"/>;
+        } else {
+            icon = <i className="icon icon-circle-o icon-fw unselected"/>;
+        }
 
         if (!title || title === 'null' || title === 'undefined'){
             title = 'None';
@@ -98,13 +107,7 @@ class Term extends React.PureComponent {
         return (
             <li className={"facet-list-element" + (selected ? " selected" : '')} key={term.key} data-key={term.key}>
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                    <span className="facet-selector">
-                        { filtering ?
-                            <i className="icon icon-circle-o-notch icon-spin icon-fw"/>
-                            : selected ?
-                                <i className="icon icon-times-circle icon-fw"/>
-                                : '' }
-                    </span>
+                    <span className="facet-selector">{ icon }</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{ title }</span>
                     <span className="facet-count">{ count }</span>
                 </a>

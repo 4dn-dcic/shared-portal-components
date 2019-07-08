@@ -73,6 +73,7 @@ export const basicColumnExtensionMap = {
             function handleClick(evt){
                 evt.preventDefault();
                 evt.stopPropagation();
+                console.log('TTT', href);
                 trackProductClick(result, {
                     'list'      : hrefToListName(href),
                     'position'  : rowNumber + 1

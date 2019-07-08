@@ -209,7 +209,7 @@ export function registerPageView(href = null, context = {}){
             return false;
         } else if (typeof context.accession === 'string'){
             // We got an Item view, lets track some details about it.
-            const productObj = state && state.itemToProductTransform(item);
+            const productObj = state && state.itemToProductTransform(context);
             console.info("Item with an accession. Will track as product:", productObj);
             if (context && context.filters){
                 pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(
@@ -415,7 +415,7 @@ export function hrefToListName(href){
     if (strippedPathName.charAt(strippedPathName.length - 1) === "/"){
         strippedPathName = strippedPathName.slice(0, -1);
     }
-    if (href.search && href.search.indexOf('currentAction=selection')){
+    if (hrefParts.search && hrefParts.search.indexOf('currentAction=selection')){
         strippedPathName += " - Selection Action";
     }
     return strippedPathName;

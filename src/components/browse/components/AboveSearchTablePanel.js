@@ -29,20 +29,23 @@ class AboveSearchTablePanelStaticContentPane extends React.Component {
         }
     }
 
-    loadStaticContent(targetHref = this.props.targetHref){
+    loadStaticContent(){
+        const { targetHref } = this.props;
         if (!AboveSearchTablePanelStaticContentPane.isTargetHrefValid(targetHref)){ return null; }
 
-        var callback = function(resp){
+        const callback = (resp) => {
             if (!resp || (resp.code && (resp.code === 403 || resp.code === 404))){
-                if (this.state.content !== null) {
-                    this.setState({
-                        content : null, title : null
-                    });
-                }
+                this.setState(function({ content }){
+                    if (content !== null){
+                        return { content : null, title : null };
+                    }
+                    return null;
+                });
                 return null;
             }
 
-            var content = null, title = null;
+            let content = null;
+            let title = null;
             // TODO: Likely need to adjust for static block once we have those (once it exists it wont have sections).
 
             if (resp && resp.content){
@@ -63,8 +66,7 @@ class AboveSearchTablePanelStaticContentPane extends React.Component {
             if (content){
                 this.setState({ content, title });
             }
-
-        }.bind(this);
+        };
 
         load(targetHref, callback, 'GET', callback);
     }

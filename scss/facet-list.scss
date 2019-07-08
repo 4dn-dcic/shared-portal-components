@@ -286,7 +286,13 @@
                     color: #888;
                     display: flex;
 
-                    i.icon.icon-circle-o-notch { opacity: 0.33; }
+                    i.icon.icon-circle-o-notch {
+                        opacity: 0.33;
+                    }
+
+                    i.icon.unselected {
+                        opacity: 0.15;
+                    }
 
                     &:hover {
                         color: #000000;
@@ -333,6 +339,7 @@
                     text-overflow: ellipsis;
                     max-width: 85%;
                     flex-grow: 1;
+                    line-height: 1.125rem;
                 }
 
             }

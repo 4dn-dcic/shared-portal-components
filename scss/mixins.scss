@@ -1,0 +1,95 @@
+
+
+// Custom Mixins, originally from ENCODED & 4DN
+// -----------------------------------------------
+
+
+// RADIAL GRADIENT BG (copied from Auth0 Modal BG)
+@mixin gradient-radial-modal-bg($inner-color: #40404b, $outer-color: #111118, $bg-color : rgba(34,34,40,0.94)) {
+    background: -webkit-radial-gradient($inner-color, $outer-color) $bg-color;
+    background: radial-gradient($inner-color, $outer-color) $bg-color;
+}
+
+
+@mixin no-user-select(){
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+    -khtml-user-select: none; /* Konqueror */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+}
+
+// STICKY FOOTER
+// Compass' sticky footer with added top-border variable to allow use of a top border on your footer.
+// @include sticky-footer(54px, "#my-root", "#my-root-footer", "#my-footer")
+@mixin sticky-footer(
+	  $footer-height,
+	  $footer-border-top, 
+	  $root-selector: unquote("#root"), 
+	  $root-footer-selector: unquote("#root_footer"), 
+	  $footer-selector: unquote("#footer")) {
+    html, body {
+        height: 100%; 
+    }
+    #{$root-selector} {
+        clear: both;
+        min-height: 100%;
+        height: auto !important;
+        height: 100%;
+        margin-bottom: (-$footer-height) - $footer-border-top;
+        #{$root-footer-selector} {
+            height: $footer-height; } 
+        }
+    #{$footer-selector} {
+        clear: both;
+        position: relative;
+        height: $footer-height; 
+    } 
+}
+
+// Pass value with CSS units and get just the value back
+@function strip-units($value) {
+    @return $value / ($value * 0 + 1);
+}
+
+// rem font sizing with pre-CSS3 fallback. Pass "true" in 2nd parm to add !important
+// Conversions from px (not exact -- just convenient)
+// 10px: 0.7
+// 11px: 0.8
+// 12px: 0.85
+// 13px: 0.9
+// 14px: 1.0
+// 15px: 1.1
+// 16px: 1.2
+// 18px: 1.3
+// 20px: 1.4
+
+@mixin font-size($size, $important: false) {
+    font-size: round($size * strip-units($font-size-base)) + px + (if($important, ' !important',''));
+    font-size: $size + rem + (if($important, ' !important',''));
+}
+
+// Originally from SubmissionView. Not sure how relevant for re-use
+@mixin vertically-centered-content-button {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	right: 0px;
+	width: 56px;
+	text-align: center;
+	color: #333;
+	transition: background-color .5s;
+	&:hover {
+		cursor: pointer;
+		color: #000;
+	}
+	> i.icon {
+		font-size: 1.25rem;
+		position: absolute;
+		top: 50%;
+		margin-top: -9px;
+		left: 50%;
+		margin-left: -7px;
+	}
+}
