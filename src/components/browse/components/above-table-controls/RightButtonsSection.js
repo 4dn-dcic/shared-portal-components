@@ -22,7 +22,7 @@ export const RightButtonsSection = React.memo(function RightButtonsSection(props
 export const ConfigureVisibleColumnsButton = React.memo(function ConfigureVisibleColumnsButton({ open, onClick, className }){
     return (
         <button type="button" key="toggle-visible-columns" data-tip="Configure visible columns" data-event-off="click"
-            active={open} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
+            active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
             <i className="icon icon-fw icon-table" />
             <i className="icon icon-fw icon-angle-down ml-03"/>
         </button>

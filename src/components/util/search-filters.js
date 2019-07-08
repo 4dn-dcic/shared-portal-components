@@ -424,14 +424,18 @@ export function contextFiltersToExpSetFilters(contextFilters, excludedQs = {}){
 export function expSetFiltersToURLQuery(expSetFilters){
     return _.map(_.pairs(expSetFiltersToJSON(expSetFilters)), function([field, terms]){
         return _.map(terms, function(t){
-            return field + '=' + encodeURIComponent(t).replace(/%20/g, "+");
+            // `t` term already ran thru encodeURIComponent in `expSetFiltersToJSON`
+            return encodeURIComponent(field) + '=' + t.replace(/%20/g, "+");
         }).join('&');
     }).join('&');
 }
 
+/** Normally we have Set objects for Field terms which we convert to arrays */
 export function expSetFiltersToJSON(expSetFilters){
     return _.object(_.map(_.pairs(expSetFilters), function([field, setOfTerms]){
-        return [field, [...setOfTerms]];
+        // Encode to be URI safe -
+        const termsArray = _.map([...setOfTerms], function(term){ return encodeURIComponent(term); });
+        return [field, termsArray];
     }));
 }
 
