@@ -333,7 +333,8 @@ export default class SubmissionView extends React.PureComponent{
      * lookup even if applicable and move right to alias selection.
      */
     initCreateObj(type, newIdx, newLink, init=false, parentField=null){
-        const { itemTypeHierarchy } = this.props;
+        const { schemas } = this.props;
+        const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
         // check to see if we have an ambiguous linkTo type.
         // this means there could be multiple types of linked objects for a
         // given type. let the user choose one.
@@ -1299,7 +1300,7 @@ export default class SubmissionView extends React.PureComponent{
      */
     render(){
         console.log('TOP LEVEL STATE:', this.state);
-        const { schemas, itemTypeHierarchy } = this.props;
+        const { schemas } = this.props;
         const { currKey, keyContext, ambiguousIdx, ambiguousType, creatingType, creatingIdx, keyTypes, fullScreen, keyDisplay, keyHierarchy } = this.state;
 
         // see if initialized
@@ -1318,8 +1319,8 @@ export default class SubmissionView extends React.PureComponent{
         const currObjDisplay = keyDisplay[currKey] || currType;
         return (
             <div className="submission-view-page-container container" id="content">
-                <TypeSelectModal show={showAmbiguousModal} {...{ schemas, itemTypeHierarchy }} {..._.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx')}
-                    {..._.pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject')}
+                <TypeSelectModal show={showAmbiguousModal} {..._.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx')}
+                    {..._.pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject')} schemas={schemas}
                 />
                 <AliasSelectModal
                     show={showAliasModal} {..._.pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser')}
@@ -1332,7 +1333,7 @@ export default class SubmissionView extends React.PureComponent{
                     <SubmitButton {..._.pick(this.state, 'keyValid', 'currKey', 'roundTwo', 'upload', 'processingFetch', 'md5Progress')}
                         realPostNewContext={this.realPostNewContext} />
                 </WarningBanner>
-                <DetailTitleBanner hierarchy={keyHierarchy} setSubmissionState={this.setSubmissionState} itemTypeHierarchy={itemTypeHierarchy}
+                <DetailTitleBanner hierarchy={keyHierarchy} setSubmissionState={this.setSubmissionState} schemas={schemas}
                     {..._.pick(this.state, 'keyContext', 'keyTypes', 'keyDisplay', 'currKey', 'fullScreen')} />
                 <div className="clearfix row">
                     <div className={navCol}>
@@ -1551,7 +1552,7 @@ class DetailTitleBanner extends React.PureComponent {
     }
 
     generateCrumbTitle(numKey, i = 0, hierarchyKeyList = null){
-        const { keyTypes, keyDisplay, hierarchy, schemas, fullScreen, actionButtons, keyContext, itemTypeHierarchy = {} } = this.props;
+        const { keyTypes, keyDisplay, hierarchy, schemas, fullScreen, actionButtons, keyContext } = this.props;
         if (hierarchyKeyList === null){
             hierarchyKeyList = [numKey];
         }
@@ -1562,7 +1563,7 @@ class DetailTitleBanner extends React.PureComponent {
             try {
                 var [ parentPropertyNameUnsanitized, parentPropertyValueIndex ] = DetailTitleBanner.getContextPropertyNameOfNextKey(  keyContext[hierarchyKeyList[i - 1]]  ,  hierarchyKeyList[i]  ,  true  );
                 parentPropertyName = schemaTransforms.lookupFieldTitle(
-                    parentPropertyNameUnsanitized, schemas, keyTypes[hierarchyKeyList[i - 1]], itemTypeHierarchy
+                    parentPropertyNameUnsanitized, schemas, keyTypes[hierarchyKeyList[i - 1]]
                 );
                 if (parentPropertyValueIndex !== null){
                     parentPropertyName += ' (Item #' + (parentPropertyValueIndex + 1) + ')';
@@ -1636,9 +1637,10 @@ class TypeSelectModal extends React.Component {
     }
 
     render(){
-        const { show, ambiguousType, ambiguousSelected, buildAmbiguousEnumEntry, submitAmbiguousType, schemas, itemTypeHierarchy } = this.props;
+        const { show, ambiguousType, ambiguousSelected, buildAmbiguousEnumEntry, submitAmbiguousType, schemas } = this.props;
         if (!show) return null;
 
+        const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
         let ambiguousDescrip = null;
         if (ambiguousSelected !== null && schemas[ambiguousSelected].description){
             ambiguousDescrip = schemas[ambiguousSelected].description;
@@ -1654,7 +1656,7 @@ class TypeSelectModal extends React.Component {
                         <div className="input-wrapper mb-15">
                             <DropdownButton id="dropdown-type-select" title={ambiguousSelected || "No value"}>
                                 { ambiguousType !== null ?
-                                    itemTypeHierarchy[ambiguousType].map((val) => buildAmbiguousEnumEntry(val))
+                                    _.map(_.keys(itemTypeHierarchy[ambiguousType]), (val) => buildAmbiguousEnumEntry(val) )
                                     : null
                                 }
                             </DropdownButton>
