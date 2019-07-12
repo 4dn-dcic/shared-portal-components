@@ -308,10 +308,11 @@ export function getColumnWidthFromDefinition(columnDefinition, mounted=true, win
     }
     var widthMap = columnDefinition.widthMap || null;
     if (widthMap){
-        var responsiveGridSize;
+        let responsiveGridSize;
         if (!mounted || isServerSide()) responsiveGridSize = 'lg';
         else responsiveGridSize = responsiveGridState(windowWidth);
         if (responsiveGridSize === 'xs') responsiveGridSize = 'sm';
+        if (responsiveGridSize === 'xl') responsiveGridSize = 'lg';
         return widthMap[responsiveGridSize || 'lg'];
     }
     return 250; // Fallback.

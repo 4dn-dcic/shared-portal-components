@@ -659,13 +659,13 @@ export class TableOfContents extends React.Component {
                             ( this.props.maxHeight ||
                               this.state.scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 ) :
                             null
-                    : 1000),
+                        : 1000),
                 marginTop : marginTop
             }}>
                 {/* !isEmpty ? <h4 className="toc-title">{ this.props.title }</h4> : null */}
                 { !isEmpty ?
                     <ol className="inner" style={{ 'listStyleType' : listStyleTypes[0], 'paddingLeft' : 0 }}>{ content }</ol>
-                : null }
+                    : null }
                 { includeNextPreviousPages ? <NextPreviousPageSection context={context} windowInnerWidth={windowWidth} /> : null }
             </div>
         );
@@ -676,20 +676,22 @@ export class TableOfContents extends React.Component {
 
 export const NextPreviousPageSection = React.memo(function NextPreviousPageSection(props){
     const { context, className, previousTitle, nextTitle } = props;
-    if (!context.next && !context.previous) return null;
+    const { next, previous } = context;
+    if (!next && !previous) return null;
+    const colSize = previous && next ? 6 : 12;
     return (
         <div className={"next-previous-pages-section" + ((className && ' ' + className) || '')}>
             <div className="row">
-                { context.previous ?
-                    <div className={"previous-section text-right col-xs-6"}>
+                { previous ?
+                    <div className={"previous-section text-right col-" + colSize}>
                         <h6 className="text-400 mb-02 mt-12"><i className="icon icon-fw icon-angle-left"/> { previousTitle }</h6>
-                        <h6 className="text-500 mt-0"><a href={context.previous['@id'] || '/' + context.previous.name}>{ context.previous.display_title }</a></h6>
+                        <h6 className="text-500 mt-0"><a href={previous['@id'] || '/' + previous.name}>{ previous.display_title }</a></h6>
                     </div>
                     : null }
-                { context.next ?
-                    <div className={"next-section col-xs-6 pull-right"}>
+                { next ?
+                    <div className={"next-section col-" + colSize}>
                         <h6 className="text-400 mb-02 mt-12">{ nextTitle } <i className="icon icon-fw icon-angle-right"/></h6>
-                        <h6 className="text-500 mt-0"><a href={context.next['@id'] || '/' + context.next.name}>{ context.next.display_title }</a></h6>
+                        <h6 className="text-500 mt-0"><a href={next['@id'] || '/' + next.name}>{ next.display_title }</a></h6>
                     </div>
                     : null }
             </div>
@@ -709,7 +711,7 @@ export class MarkdownHeading extends React.PureComponent {
         children = Array.isArray(children) ? children : [children];
         var attr = { 'id' : null, 'className' : null, 'matchedString' : null };
 
-        let childrenOuterText = _.filter(children, function(c){ return typeof c === 'string'; }).join(' ');
+        const childrenOuterText = _.filter(children, function(c){ return typeof c === 'string'; }).join(' ');
         let attrMatch = childrenOuterText.match(/({:[.-\w#]+})/g);
 
         if (attrMatch && attrMatch.length){

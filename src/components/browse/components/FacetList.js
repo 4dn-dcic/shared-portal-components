@@ -570,13 +570,13 @@ export class FacetList extends React.PureComponent {
         return (
             <div className={"facets-container facets" + (className ? ' ' + className : '')}>
                 <div className="row facets-header">
-                    <div className="col col-xs-7 facets-title-column text-ellipsis-container">
+                    <div className="col facets-title-column text-ellipsis-container">
                         <i className="icon icon-fw icon-filter"></i>
                         &nbsp;
                         <h4 className="facets-title">{ title }</h4>
                     </div>
-                    <div className={"col col-xs-5 clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
-                        <a href="#" onClick={onClearFilters} className={"btn btn-xs rounded " + clearButtonClassName}>
+                    <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
+                        <a href="#" onClick={onClearFilters} className={"btn btn-xs " + clearButtonClassName}>
                             <i className="icon icon-times"></i> Clear All
                         </a>
                     </div>
@@ -584,7 +584,7 @@ export class FacetList extends React.PureComponent {
                 { selectableFacetElements }
                 { staticFacetElements.length > 0 ?
                     <div className="row facet-list-separator">
-                        <div className="col col-xs-12">
+                        <div className="col-12">
                             { staticFacetElements.length } Common Properties
                         </div>
                     </div>

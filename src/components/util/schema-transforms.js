@@ -119,7 +119,8 @@ export function flattenSchemaPropertyToColumnDefinition(tips, depth = 0, schemas
 }
 
 
-export function getAbstractTypeForType(type, itemTypeHierarchy = {}, returnSelfIfAbstract = true){
+export function getAbstractTypeForType(type, schemas, returnSelfIfAbstract = true){
+    const itemTypeHierarchy = schemasToItemTypeHierarchy(schemas);
     let i;
     let foundObj;
     if (returnSelfIfAbstract){

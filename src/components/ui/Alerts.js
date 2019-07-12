@@ -245,7 +245,7 @@ class AlertItem extends React.PureComponent {
                             <span className="sr-only">Close alert</span>
                         </button>
                         : null }
-                    <h4>{ title }</h4>
+                    <h4 className="alert-heading mt-0 mb-05">{ title }</h4>
                     <div className="mb-0">{ message }</div>
                 </div>
             </Fade>

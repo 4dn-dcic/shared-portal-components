@@ -10,6 +10,11 @@
     background: radial-gradient($inner-color, $outer-color) $bg-color;
 }
 
+// Pass value with CSS units and get just the value back
+@function strip-units($value) {
+    @return $value / ($value * 0 + 1);
+}
+
 
 @mixin no-user-select(){
     -webkit-touch-callout: none; /* iOS Safari */
@@ -92,4 +97,14 @@
 		left: 50%;
 		margin-left: -7px;
 	}
+}
+
+// User select
+// For selecting text on the page
+// Taken from Bootstrap v3
+@mixin user-select($select) {
+    -webkit-user-select: $select;
+    -moz-user-select: $select;
+     -ms-user-select: $select; // IE10+
+         user-select: $select;
 }

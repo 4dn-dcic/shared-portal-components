@@ -26,18 +26,7 @@ FileDownloadButton.defaultProps = {
 };
 
 
-export const FileDownloadButtonAuto = React.memo(function FileDownloadButtonAuto(props){
-    const { result: file, canDownloadStatuses } = props;
-    const isDisabled = !FileDownloadButtonAuto.canDownload(file, canDownloadStatuses);
-    const passProps = {
-        'href' : file.href,
-        'filename' : file.filename,
-        'disabled' : isDisabled,
-        'title' : isDisabled ? 'Not ready to download' : FileDownloadButton.defaultProps.title
-    };
-    return <FileDownloadButton {...props} {...passProps} />;
-});
-FileDownloadButtonAuto.canDownload = memoize(function(file, validStatuses = FileDownloadButtonAuto.defaultProps.canDownloadStatuses){
+const canDownloadFile = memoize(function(file, validStatuses){
     if (!file || typeof file !== 'object'){
         console.error("Incorrect data type");
         return false;
@@ -46,11 +35,22 @@ FileDownloadButtonAuto.canDownload = memoize(function(file, validStatuses = File
         console.error("No 'status' property on file:", file);
         return false;
     }
-
     if (validStatuses.indexOf(file.status) > -1){
         return true;
     }
     return false;
+});
+
+export const FileDownloadButtonAuto = React.memo(function FileDownloadButtonAuto(props){
+    const { result: file, canDownloadStatuses } = props;
+    const isDisabled = !canDownloadFile(file, canDownloadStatuses);
+    const passProps = {
+        'href' : file.href,
+        'filename' : file.filename,
+        'disabled' : isDisabled,
+        'title' : isDisabled ? 'Not ready to download' : FileDownloadButton.defaultProps.title
+    };
+    return <FileDownloadButton {...props} {...passProps} />;
 });
 FileDownloadButtonAuto.propTypes = {
     'result' : PropTypes.shape({

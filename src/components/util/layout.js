@@ -78,17 +78,21 @@ export const shortenString = memoize(function(originalText, maxChars = 28, addEl
  * Keep widths in sync with stylesheet, e.g. $screen-sm-min, $screen-md-min, & $screen-lg-min
  * in src/encoded/static/scss/bootstrap/_variables.scss.
  *
+ * 2019-07-10 -- updated to Bootstrap v4 breakpoints, added 'xl'.
+ *
+ * @param {number} width - Width of the current browser _window_.
  * @return {string} - Abbreviation for column/grid Bootstrap size, e.g. 'lg', 'md', 'sm', or 'xs'.
  */
 export const responsiveGridState = memoize(function(width = null){
     if (typeof width !== 'number') {
         // Assumed to be null or undefined which should mean we are
         // server-side or not yet mounted.
-        return 'lg';
+        return 'xl';
     }
-    if (width >= 1200) return 'lg';
-    if (width >= 992) return 'md';
-    if (width >= 768) return 'sm';
+    if (width >= 1200) return 'xl';
+    if (width >= 992) return 'lg';
+    if (width >= 768) return 'md';
+    if (width >= 576) return 'sm';
     return 'xs';
 });
 
@@ -107,9 +111,10 @@ export const responsiveGridState = memoize(function(width = null){
 export function gridContainerWidth(windowWidth = null){
     // Subtract 20 for padding/margins.
     switch(responsiveGridState(windowWidth)){
-        case 'lg': return 1140;
-        case 'md': return 940;
-        case 'sm': return 720;
+        case 'xl': return 1120;
+        case 'lg': return 940;
+        case 'md': return 700;
+        case 'sm': return 520;
         case 'xs':
             if (isServerSide()) return 400;
             return (windowWidth || window.innerWidth) - 20;

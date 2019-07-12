@@ -1,0 +1,405 @@
+/**
+ **
+ ** This is pretty geared towards ExperimentSets -> Experiments -> Files structure.
+ ** We should maybe refactor parts.
+ **
+ **/
+
+
+
+
+// Column Widths - these are also set & used from JS, but these override.
+// ToDo: Remove and rely exclusively on JS? (Easier testing, no reliance on componentDidMount).
+/*
+$expset-col-biosample : 115px;
+$expset-col-experiment : 145px;
+$expset-col-file-pair : 40px;
+$expset-col-file : 125px;
+$expset-col-file-detail : 100px;
+$expset-full-width : $expset-col-biosample + $expset-col-experiment + $expset-col-file-pair + $expset-col-file + ($expset-col-file-detail * 2);
+*/
+
+
+// Block Colors
+$expset-biosample-bg-odd : #f7f9f8 !default;
+$expset-biosample-bg-even : #f8f9f7 !default;
+$small-label-accession-font-size : 0.75rem !default;
+$font-family-sans-serif : sans-serif !default;
+
+
+@mixin stacked-block-table-multi-size-block($rowCount: 2) {
+    &.s-block {
+        > .name {
+            line-height: 20px;
+            min-height: 34px * $rowCount + 2px;
+            padding-top: (34px * $rowCount + 2px - 20px) / 2;
+            padding-bottom: (34px * $rowCount + 2px - 20px) / 2;
+        }
+    }
+}
+
+
+@mixin stacked-block-table-single-row-block {
+    &.s-block {
+        > .name {
+            line-height: 21px;
+            min-height: 34px;
+            padding-top: 7px;
+            padding-bottom: 7px;
+        }
+        &:first-child {
+            > .name {
+                line-height: 20px;
+            }
+        }
+    }
+}
+
+
+.stacked-block-table {
+
+	position: relative;
+	display: block;
+	//min-width: $expset-full-width;
+	//min-width: 750px;
+	transition: opacity .35s;
+
+	&.fade-in:not(.mounted){
+		opacity: 0;
+    }
+
+	.headers {
+		display: block;
+		text-align: right;
+		height: 42px;
+
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		//background: #f8f8f8;
+
+		> .heading-block {
+			position: relative;
+			text-align: center;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			display: inline-block;
+			vertical-align: middle;
+			height: inherit;
+			padding: 12px 6px;
+			background: inherit;
+			font-weight: 500;
+			font-size: 0.9rem;
+			border-top: 1px solid #e8e8e8;
+
+			.rc-tabs-tabpane & {
+				border-top-color: #ccc;
+			}
+
+			&.text-left 	{
+				text-align: left;
+				padding-left: 0;
+			}
+			&.text-right 	{
+				text-align: right;
+				padding-right: 0;
+			}
+
+			> i.icon {
+				font-size: 1rem;
+			}
+
+			> input[type="checkbox"] {
+				margin: 0;
+			}
+
+			/** Conditionally added in JS to file column headers **/
+			&.has-checkbox {
+				padding-left: 24px; /* default: 12px */
+				padding-right: 24px;
+				> input[type="checkbox"] {
+					position: absolute;
+					top: 50%;
+					left: 6%;
+					margin-top: -6px;
+				}
+			}
+
+		}
+	}
+
+	> .body {
+		font-size: 0.9rem; /* Same as table */
+		//border-top: 2px solid #333;
+		//border-bottom: 2px solid #333;
+		transform: translate3d(0,0,0);
+
+		.s-block-list {
+			//@media screen and (min-width: $screen-md-min){
+				display: inline-block;
+				vertical-align: middle;
+			//}
+
+			.collapsible-s-block-ext {
+				transform: translate3d(0,0,0);
+				&.transition-med {
+					transition: height .5s ease;
+				}
+				&.transition-slow {
+					transition: height 1s ease;
+				}
+			}
+
+			.view-more-button {
+				text-align: left;
+				padding: 1px 12px 0;
+				line-height: 32px;
+				cursor: pointer;
+				border-top: 1px solid #888;
+				border-top-color: rgba(0,0,0,0.5);
+				margin-top: -1px;
+				font-weight: 500;
+				font-size: 0.85rem;
+				position: relative;
+				z-index: 10;
+				> i.icon {
+					margin-right: 10px;
+				}
+				&:hover {
+					//background: rgba(0,0,0,0.05);
+				}
+			}
+		}
+
+		.s-block {
+			display: block;
+			position: relative;
+			/*
+			overflow-y: hidden;
+			overflow-x: hidden;
+			*/
+
+			> .name {
+				display: inline-block;
+				vertical-align: middle;
+				position: relative;
+				padding: 7px 12px;
+				text-align: center;
+				line-height: 20px;
+
+				.mono-text {
+					font-size: 0.85rem;
+				}
+
+			}
+
+			> .name:after,
+			> .name > .label-ext-info {
+				position: absolute;
+				font-family: $font-family-sans-serif;
+				left: 0;
+				top: 2px;
+				font-size: 0.625rem;
+				//font-size: 0.4875rem;
+				text-transform: uppercase;
+				text-align: left;
+			}
+
+			.label-ext-info {
+				text-align: left;
+				line-height: 9px;
+
+				> .ext {
+					font-weight: 400;
+					opacity: 0.1;
+					&.is-accession {
+						font-size: $small-label-accession-font-size;
+						i.icon-copy {
+							opacity : 0;
+							transition: opacity .25s;
+							font-size: 9px;
+							cursor: pointer;
+						}
+					}
+				}
+
+				> span.ext:before {
+					//content: "- ";
+				}
+			}
+
+			&.odd {
+				@include gradient-x(rgba(245, 235, 235, 0), rgba(245, 240, 240, 0.4), 0%, 30%);
+
+				&:hover {
+					@include gradient-x(rgba(245, 235, 235, 0), rgba(255, 252, 250, 1), 0%, 12%);
+				}
+				> .file-groups > .view-more-button {
+					@include gradient-x(rgba(255, 255, 255, 0), rgba(255, 255, 255, 1), 0%, 25%);
+				}
+			}
+
+			&.even {
+				//background-color: rgba(255, 220, 200, 0.5);
+				@include gradient-x(rgba(255, 250, 250, 0), rgba(255, 250, 250, 0.4), 0%, 30%);
+
+				&:hover {
+					@include gradient-x(rgba(255, 250, 250, 0), rgba(255, 252, 250, 1), 0%, 12%);
+				}
+				> .file-groups > .view-more-button {
+					@include gradient-x(rgba(255, 255, 255, 0), rgba(255, 255, 255, 1), 0%, 25%);
+				}
+			}
+
+		}
+
+		/********** Transitions ********/
+
+		.s-block > .name:after,
+		.s-block > .name > .label-ext-info {
+			opacity: 0.4;
+			font-weight: 600;
+			transform: scale3d(0.75,0.75,1) translate3d(0,0,0);
+			transform-origin: 0px 0px;
+			transition: opacity .4s, transform .4s, top .4s, margin-top .4s;
+			/* pointer-events: none; */
+		}
+		.s-block > .name > .label-ext-info > .ext {
+			opacity: 0;
+			transform: translate3d(0,0,0);
+			transition: opacity .4s, transform .4s;
+		}
+		.s-block > .name > .label-ext-info.subtitle-visible {
+			opacity: 0.75;
+		}
+		.s-block > .name > .label-ext-info.subtitle-visible > .ext {
+			opacity: 1;
+		}
+		.s-block > .name > .label-ext-info:not(.subtitle-visible) > div.ext {
+			transform: translate3d(0,-7px,0);
+		}
+		.s-block > .name > .label-ext-info > span.ext {
+			display: inline-block;
+			transform: translate3d(0px,0,0);
+		}
+
+		.s-block.hide-name-on-block-hover > .name > *:not(.label-ext-info) {
+			opacity: 1;
+			transition: opacity .4s;
+		}
+		.s-block.hide-name-on-block-hover:not(.single-item):hover > .name:not(:hover) > *:not(.label-ext-info) {
+			opacity: 0;
+		}
+
+		.s-block:hover .s-block > .name:after,
+		.s-block:hover .s-block > .name > .label-ext-info {
+			opacity: 0.5;
+		}
+		.s-block:hover > .name > .label-ext-info {
+			opacity: 1 !important;
+			color: #000;
+			transform: scale3d(1,1,1) translate3d(0,0,0);
+		}
+		.s-block:hover > .name:not(:hover) > .label-ext-info {
+			transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
+		}
+		.s-block.hide-name-on-block-hover:hover > .name:not(:hover) > .label-ext-info {
+			top: 50%;
+			margin-top: -5px;
+			transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
+		}
+		.s-block.hide-name-on-block-hover:hover > .name:not(:hover) > .label-ext-info.has-subtitle {
+			margin-top: -10px;
+		}
+		.s-block:hover > .name > .label-ext-info > .ext {
+			opacity: 0.75;
+		}
+
+		.s-block:hover > .name > .label-ext-info > div.ext,
+		.s-block:hover .s-block > .name > .label-ext-info > div.ext {
+			transform: translate3d(0px,0px,0);
+		}
+		.s-block:hover > .name > .label-ext-info > span.ext,
+		.s-block:hover .s-block > .name > .label-ext-info > span.ext {
+			transform: translate3d(0px,0,0);
+		}
+		.s-block > .name > .label-ext-info > .label-title {
+			transition: opacity .25s, margin-top .25s;
+		}
+
+		.s-block:hover:not(.keep-label-on-name-hover) > .name:hover > .label-ext-info.has-subtitle > div.label-title {
+			opacity: 0;
+			margin-top: -9px;
+		}
+
+		.s-block:hover > .name:hover > .label-ext-info > .ext {
+			opacity: 1;
+			transform: scale3d(1,1,1);
+			/* transform: scale3d(1.125, 1.125, 1) translate3d(6%, 0, 0) !important; */
+			font-weight: 600;
+			i.icon-copy {
+				opacity: 1;
+				cursor: pointer;
+			}
+		}
+
+        // File detail rows & similar
+		.s-block > .item {
+			padding: 9px 8px;
+			line-height: 16px;
+			display: inline-block;
+			text-align: center;
+			vertical-align: middle;
+			text-overflow: ellipsis;
+			overflow-x: hidden;
+		}
+
+		/****** Rules by depth ******/
+
+		> .stack-depth-0.s-block-list { // Root list, aligned to right.
+			float: right;
+			display: block;
+
+			> .s-block.stack-depth-1,
+			> .collapsible-s-block-ext > .s-block.stack-depth-1 { // e.g .biosample for raw files table
+
+				border-top: 1px solid #606060;
+
+                // TODO change rule to be based on classname since dont know where will need to reset.
+				> .stack-depth-1.s-block-list { // .experiments
+
+					.s-block.stack-depth-2 { // .experiment
+						transform: translate3d(0px,0px,0px);
+
+						&:not(:first-child){
+							border-top: 1px solid #888;
+							border-color: rgba(0,0,0,0.5);
+						}
+
+					}
+				}
+            }
+            
+            > .s-block.stack-depth-1:first-child {
+                border-top: 1px solid #888;
+            }
+
+            .s-block-list.stack-depth-2 {
+                > .s-block.stack-depth-3:not(:first-child),
+                > .collapsible-s-block-ext > .s-block.stack-depth-3 {
+                    border-top: 1px solid #888;
+                    border-color: rgba(0,0,0,0.5);
+                }
+            }
+
+            .s-block-list.stack-depth-3 {
+                > .s-block.stack-depth-4:not(:first-child),
+                > .collapsible-s-block-ext > .s-block.stack-depth-4 {
+                    border-top: 1px solid #ccc;
+                    border-color: rgba(0,0,0,0.2);
+                }
+            }
+
+		}
+	}
+
+}

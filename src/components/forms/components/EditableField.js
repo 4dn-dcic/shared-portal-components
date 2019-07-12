@@ -284,17 +284,17 @@ export class EditableField extends React.Component {
 
         if (required && valid === false && validationMessage){
             // Some validationMessages provided by browser don't give much info, so use it selectively (if at all).
-            return <span className="help-block">{ validationMessage }</span>;
+            return <div className="invalid-feedback">{ validationMessage }</div>;
         }
 
         if (Array.isArray(serverErrors) && serverErrors.length > 0) {
             return (
-                <span className="help-block">
+                <div className="invalid-feedback">
                     { serverErrorsMessage ? <b>{ serverErrorsMessage }</b> : null }
                     { _.map(serverErrors, (err, i) =>
                         <div key={'error-' + i}>{ (serverErrors.length === 1 ? '' : (i + 1) + '. ') + err.description }</div>
                     ) }
-                </span>
+                </div>
             );
         }
 
@@ -302,14 +302,14 @@ export class EditableField extends React.Component {
 
             case 'phone':
                 return (
-                    <span className="help-block">
+                    <div className="invalid-feedback">
                         Only use digits &mdash; no dashes, spaces, or parantheses.
                         Optionally may include leading '+' or extension.<br/>
                         <b>e.g.:</b> <code>+######### x###</code>
-                    </span>
+                    </div>
                 );
             case 'email':
-                return <span className="help-block">Please enter a valid email address.</span>;
+                return <div className="invalid-feedback">Please enter a valid email address.</div>;
             case 'username':
             case 'text':
             default:
@@ -319,6 +319,8 @@ export class EditableField extends React.Component {
 
     save(successCallback = null, errorCallback = null){
         const { labelID, endpoint, context, parent, onSave } = this.props;
+
+        console.log("TTT", onSave);
 
         const errorFallback = (res) => {
             // ToDo display (bigger?) errors
@@ -346,8 +348,10 @@ export class EditableField extends React.Component {
 
                 if (r.status !== 'success') return errorFallback(r);
 
-                var nextContext     = _.clone(context),
-                    extendSuccess   = object.deepExtend(nextContext, patchData);
+                const nextContext = _.clone(context);
+                const extendSuccess = object.deepExtend(nextContext, patchData);
+
+                console.log('TTT2', extendSuccess, nextContext);
 
                 if (extendSuccess){
                     this.setState({ 'savedValue' : value, 'value' : value, 'dispatching' : true }, ()=> {
@@ -358,6 +362,7 @@ export class EditableField extends React.Component {
                             });
                         },0);
                         if (typeof onSave === 'function'){
+                            console.log('TTT3');
                             onSave(nextContext);
                         }
                     });
@@ -486,7 +491,7 @@ export class EditableField extends React.Component {
 
             case 'row':
             case 'minimal':
-                if (this.props.style === 'row') classes.push('col-sm-9');
+                if (this.props.style === 'row') classes.push('col-md-9');
                 return (
                     <div className={classes.join(' ')}>
                         { this.renderActionIcon('edit') }
@@ -517,7 +522,7 @@ export class EditableField extends React.Component {
         if (this.props.style === 'row'){
             return (
                 <div className={"row editable-field-entry " + this.props.labelID}>
-                    <div className="col-sm-3 text-right text-left-xs">
+                    <div className="col-md-3 text-right text-left-xs">
                         <label htmlFor={ this.props.labelID }>{ this.props.label }</label>
                     </div>
                     { this.renderSavedValue() }
@@ -595,17 +600,17 @@ export class EditableField extends React.Component {
     renderEditing(){
         var { inputSize, style, labelID, label, absoluteBox } = this.props,
             { leanTo, leanOffset } = this.state,
-            outerBaseClass = "editable-field-entry editing has-feedback" +
+            outerBaseClass = "editable-field-entry editing has-feedback was-validated" +
                 (!this.isValid(true) ? ' has-error ' : ' has-success ') +
                 ('input-size-' + inputSize + ' ');
 
         if (style == 'row') {
             return (
                 <div className={outerBaseClass + labelID + ' row'}>
-                    <div className="col-sm-3 text-right text-left-xs">
+                    <div className="col-md-3 text-right text-left-xs">
                         <label htmlFor={labelID }>{ label }</label>
                     </div>
-                    <div className="col-sm-9 value editing">
+                    <div className="col-md-9 value editing">
                         { this.renderActionIcon('cancel') }
                         { this.renderActionIcon('save') }
                         { this.inputField() }
@@ -671,6 +676,8 @@ export class EditableField extends React.Component {
  * Can also act as host of state.currentlyEditing (== props.labelID of
  * current EditableField being edited, if any) if props.parent is not supplied.
  *
+ * @todo is not reactful, maybe refactor
+ *
  * @see EditableField
  */
 export class FieldSet extends React.PureComponent {
@@ -681,11 +688,15 @@ export class FieldSet extends React.PureComponent {
         endpoint    : PropTypes.string,     // Override context['@id'] (if doesn't exist, dif endpoint, etc.)
         inputSize   : PropTypes.oneOf(['sm', 'md', 'lg']),
         style       : PropTypes.oneOf(['row', 'minimal', 'inline']),
-        parent      : PropTypes.any,        // Pass a parent React component, i.e. supply 'this' from a parent's render method,
-                                            // to have it act as host of state.currentlyEditing. Use when there are other EditableFields
-                                            // available on view/page which act on same props.context but not all within this FieldSet.
+        /**
+         * Pass a parent React component, i.e. supply 'this' from a parent's render method,
+         * to have it act as host of state.currentlyEditing. Use when there are other EditableFields
+         * available on view/page which act on same props.context but not all within this FieldSet.
+         */
+        parent      : PropTypes.any,
         className   : PropTypes.string,     // Additional className to prepend.
-        schemas     : PropTypes.object      // Schemas to use for validation. If not provided, EditableField attempts to get from context
+        schemas     : PropTypes.object,     // Schemas to use for validation. If not provided, EditableField attempts to get from context
+        onSave      : PropTypes.func
     }
 
     static defaultProps = {
@@ -724,7 +735,7 @@ export class FieldSet extends React.PureComponent {
                 if (!child.props.href && href)                    newProps.href         = href;
                 if (!child.props.objectType && objectType)        newProps.objectType   = objectType;
                 if (!child.props.schemas && schemas)              newProps.schemas      = schemas;
-                if (!child.props.onSave && onSave)                newProps.onSave       = onSave;
+                if (onSave)                                       newProps.onSave       = onSave;
                 if (typeof child.props.disabled === 'undefined' && typeof disabled === 'boolean') newProps.disabled = disabled;
                 if (inputSize)                                    newProps.inputSize    = inputSize; // Overwrite, since EditableField has default props.
                 if (style)                                        newProps.style        = style;

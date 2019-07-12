@@ -72,52 +72,33 @@ export function correctRelativeLinks(elem, context, depth=0){
 
 
 
+const Wrapper = React.memo(function Wrapper(props){
+    const { children, tableOfContents, title, context } = props;
+    const toc = context['table-of-contents'] || (tableOfContents && typeof tableOfContents === 'object' ? tableOfContents : {});
+    const pageTitle = title || (context && context.title) || null;
+    const tocExists = toc && toc.enabled !== false;
 
-class Wrapper extends React.PureComponent {
-
-    static defaultProps = {
-        'contentColSize' : 12,
-        'tableOfContents' : false,
-        'tocListStyles' : ['decimal', 'lower-alpha', 'lower-roman']
-    };
-
-    contentColSize(){
-        const { tableOfContents, contentColSize } = this.props;
-        return Math.min(tableOfContents ? 9 : 12, Math.max(6, contentColSize)); // Min 6.
-    }
-
-    renderToC(){
-        const { context, tableOfContents, title } = this.props;
-
-        if (!tableOfContents || tableOfContents.enabled === false) return null;
-
-        const contentColSize = this.contentColSize();
-        const toc = context['table-of-contents'] || (tableOfContents && typeof tableOfContents === 'object' ? tableOfContents : {});
-        const pageTitle = title || (context && context.title) || null;
-
-        return (
-            <div key="toc-wrapper" className={'pull-right col-xs-12 col-sm-12 col-lg-' + (12 - contentColSize)}>
-                <TableOfContents pageTitle={pageTitle} fixedGridWidth={12 - contentColSize} maxHeaderDepth={toc['header-depth'] || 6}
-                    {..._.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')}
-                    // skipDepth={1} includeTop={toc['include-top-link']} listStyleTypes={['none'].concat((toc && toc['list-styles']) || this.props.tocListStyles)}
-                />
+    return (
+        <div className="container" id="content">
+            <div className="static-page row" key="wrapper">
+                { tocExists ? (
+                    <div key="toc-wrapper" className="col-12 col-xl-3 order-1 order-xl-3">
+                        <TableOfContents pageTitle={pageTitle} fixedGridWidth={3} maxHeaderDepth={toc['header-depth'] || 6}
+                            {..._.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')}
+                            // skipDepth={1} includeTop={toc['include-top-link']} listStyleTypes={['none'].concat((toc && toc['list-styles']) || this.props.tocListStyles)}
+                        />
+                    </div>
+                ) : null }
+                <div key="main-column" className={"order-2 col-12 col-xl-" + (tocExists ? '9': '12')}>{ children }</div>
             </div>
-        );
-    }
-
-    render(){
-        const { children } = this.props;
-        const mainColClassName = "col-xs-12 col-sm-12 col-lg-" + this.contentColSize();
-        return (
-            <div className="container" id="content">
-                <div className="static-page row" key="wrapper">
-                    { this.renderToC() }
-                    <div key="main-column" className={mainColClassName}>{ children }</div>
-                </div>
-            </div>
-        );
-    }
-}
+        </div>
+    );
+});
+Wrapper.defaultProps = {
+    //'contentColSize' : 12,
+    'tableOfContents' : false,
+    'tocListStyles' : ['decimal', 'lower-alpha', 'lower-roman']
+};
 
 
 export class StaticEntry extends React.PureComponent {
@@ -169,6 +150,8 @@ export class StaticEntry extends React.PureComponent {
         const id              = TableOfContents.elementIDFromSectionName(sectionName);
         const options         = (section && section.options) || {};
         let outerClassName  = entryType + "-entry static-section-entry";
+
+        console.log('TTT', childComponent);
 
         const renderedChildComponent = React.createElement(childComponent, this.props);
 

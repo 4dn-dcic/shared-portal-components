@@ -97,9 +97,9 @@ class AboveSearchTablePanelStaticContentPane extends React.Component {
 
 let cachedMapping = null;
 
-export class AboveSearchTablePanel extends React.Component {
+export class AboveSearchTablePanel extends React.PureComponent {
 
-    static currentItemTypesFromHrefParts(urlParts){
+    static currentItemTypesFromHrefParts(urlParts, schemas){
         var searchItemType = 'Item', abstractType;
         if (typeof urlParts.query.type === 'string') { // Non-empty
             if (urlParts.query.type !== 'Item') {
@@ -107,7 +107,7 @@ export class AboveSearchTablePanel extends React.Component {
             }
         }
 
-        abstractType = getAbstractTypeForType(searchItemType);
+        abstractType = getAbstractTypeForType(searchItemType, schemas);
         return { searchItemType, abstractType };
     }
 
@@ -133,13 +133,14 @@ export class AboveSearchTablePanel extends React.Component {
         }
     }
 
-    routeStaticContentHref(contextHref, context){
-        var targetHref = null; // Our return val. Null by default.
+    routeStaticContentHref(){
+        const { href: contextHref, context, schemas } = this.props;
+        const { mapping: lookupMap } = this.state;
+        let targetHref = null; // Our return val. Null by default.
 
         // 1. By Type v. lookup map
-        var urlParts = url.parse(contextHref, true);
-        var { searchItemType, abstractType } = AboveSearchTablePanel.currentItemTypesFromHrefParts(urlParts);
-        var lookupMap = this.state.mapping;
+        const urlParts = url.parse(contextHref, true);
+        const { searchItemType, abstractType } = AboveSearchTablePanel.currentItemTypesFromHrefParts(urlParts, schemas);
         targetHref = (lookupMap && (lookupMap[abstractType] || lookupMap[searchItemType])) || null;
         if (typeof targetHref === 'string'){
             return targetHref;
@@ -161,7 +162,7 @@ export class AboveSearchTablePanel extends React.Component {
 
         return (
             <div className="above-table-panel">
-                <AboveSearchTablePanelStaticContentPane targetHref={this.routeStaticContentHref(this.props.href, this.props.context)} />
+                <AboveSearchTablePanelStaticContentPane targetHref={this.routeStaticContentHref()} />
             </div>
         );
     }

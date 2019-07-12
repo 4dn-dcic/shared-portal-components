@@ -82,7 +82,7 @@ class ControlsAndResults extends React.PureComponent {
      * @returns {{ specificType: string, abstractType: string }} The leaf specific Item type and parent abstract type (before 'Item' in `@type` array) as strings in an object.
      * Ex: `{ abstractType: null, specificType: "Item" }`, `{ abstractType: "Experiment", specificType: "ExperimentHiC" }`
      */
-    static searchItemTypesFromHref = memoize(function(href){
+    static searchItemTypesFromHref = memoize(function(href, schemas){
         let specificType = 'Item';    // Default
         let abstractType = null;      // Will be equal to specificType if no parent type.
         const urlParts = url.parse(href, true);
@@ -95,7 +95,7 @@ class ControlsAndResults extends React.PureComponent {
             }
         }
 
-        abstractType = getAbstractTypeForType(specificType) || null;
+        abstractType = getAbstractTypeForType(specificType, schemas) || null;
         return { specificType, abstractType };
     });
 
@@ -181,7 +181,7 @@ class ControlsAndResults extends React.PureComponent {
         return dimContainer && dimContainer.resetWidths();
     }
 
-    handleClearFilters(evt){
+    handleClearFilters(evt, callback = null){
         evt.preventDefault();
         evt.stopPropagation();
         const { href, context, navigate: propNavigate } = this.props;
@@ -197,7 +197,7 @@ class ControlsAndResults extends React.PureComponent {
             clearFiltersURL += href.slice(hashFragmentIdx);
         }
 
-        propNavigate(clearFiltersURL, {});
+        propNavigate(clearFiltersURL, {}, typeof callback === 'function' ? callback : null);
     }
 
     isClearFiltersBtnVisible(){
@@ -215,18 +215,20 @@ class ControlsAndResults extends React.PureComponent {
     }
 
     render() {
-        const { context, hiddenColumns, columnExtensionMap, currentAction, isFullscreen, href, facets: propFacets } = this.props;
+        const {
+            context, schemas, hiddenColumns, columnExtensionMap, currentAction, isFullscreen, href, facets: propFacets,
+            tableColumnClassName, facetColumnClassName
+        } = this.props;
         const results                         = context['@graph'];
         // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
         const facets                          = propFacets || context.facets;
-        const { specificType, abstractType }  = ControlsAndResults.searchItemTypesFromHref(href);
+        const { specificType, abstractType }  = ControlsAndResults.searchItemTypesFromHref(href, schemas);
         const selfExtendedColumnExtensionMap  = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
         const columnDefinitions               = columnsToColumnDefinitions(context.columns || {}, selfExtendedColumnExtensionMap);
-
         return (
             <div className="row">
                 { facets.length ?
-                    <div className={"col-sm-5 col-md-4 col-lg-" + (isFullscreen ? '2' : '3')}>
+                    <div className={facetColumnClassName}>
                         <div className="above-results-table-row"/>{/* <-- temporary-ish */}
                         <FacetList className="with-header-bg" facets={facets} filters={context.filters}
                             onClearFilters={this.handleClearFilters} itemTypeForSchemas={specificType}
@@ -235,7 +237,7 @@ class ControlsAndResults extends React.PureComponent {
                                 'currentAction', 'windowWidth', 'windowHeight')} />
                     </div>
                     : null }
-                <div className={!facets.length ? "col-sm-12 expset-result-table-fix" : ("expset-result-table-fix col-sm-7 col-md-8 col-lg-" + (isFullscreen ? '10' : '9'))}>
+                <div className={tableColumnClassName}>
                     <AboveSearchViewTableControls showTotalResults={context.total} parentForceUpdate={this.forceUpdateOnSelf}
                         {..._.pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns',
                             'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen')}
@@ -251,6 +253,7 @@ class ControlsAndResults extends React.PureComponent {
 
 }
 
+
 export class SearchView extends React.PureComponent {
 
     static propTypes = {
@@ -258,7 +261,8 @@ export class SearchView extends React.PureComponent {
         'currentAction' : PropTypes.string,
         'href'          : PropTypes.string.isRequired,
         'session'       : PropTypes.bool.isRequired,
-        'navigate'      : PropTypes.func
+        'navigate'      : PropTypes.func,
+        'facets'        : PropTypes.array
     };
 
     /**
@@ -274,95 +278,17 @@ export class SearchView extends React.PureComponent {
         'columnExtensionMap' : basicColumnExtensionMap
     };
 
-    /**
-     * Function which is passed into a `.filter()` call to
-     * filter context.facets down, usually in response to frontend-state.
-     *
-     * Currently is meant to filter out type facet if we're in selection mode,
-     * as well as some fields from embedded 'experiment_set' which might
-     * give unexpected results.
-     *
-     * @todo Potentially get rid of this and do on backend.
-     *
-     * @param {{ field: string }} facet - Object representing a facet.
-     * @returns {boolean} Whether to keep or discard facet.
-     */
-    static filterFacet(facet, currentAction, session){
-        // Set in backend or schema for facets which are under development or similar.
-        if (facet.hide_from_view) return false;
-
-        // Remove the @type facet while in selection mode.
-        if (facet.field === 'type' && currentAction === 'selection') return false;
-
-        // Most of these would only appear if manually entered into browser URL.
-        if (facet.field.indexOf('experiments.experiment_sets.') > -1) return false;
-        if (facet.field === 'experiment_sets.@type') return false;
-        if (facet.field === 'experiment_sets.experimentset_type') return false;
-
-        return true;
-    }
-
-    static transformedFacets = memoize(function(href, context, currentAction, session){
-        var facets,
-            typeFacetIndex,
-            hrefQuery,
-            itemTypesInSearch;
-
-        // Clone/filter list of facets.
-        // We may filter out type facet completely at this step,
-        // in which case we can return out of func early.
-        facets = _.filter(
-            context.facets,
-            function(facet){ return SearchView.filterFacet(facet, currentAction, session); }
-        );
-
-        // Find facet for '@type'
-        typeFacetIndex = _.findIndex(facets, { 'field' : 'type' });
-
-        if (typeFacetIndex === -1) {
-            return facets; // Facet not present, return.
-        }
-
-        hrefQuery = url.parse(href, true).query;
-        if (typeof hrefQuery.type === 'string') hrefQuery.type = [hrefQuery.type];
-        itemTypesInSearch = _.without(hrefQuery.type, 'Item');
-
-        if (itemTypesInSearch.length > 0){
-            // Keep all terms/leaf-types - backend should already filter down to only valid sub-types through
-            // nature of search itself.
-            return facets;
-        }
-
-        // Avoid modifying in place.
-        facets[typeFacetIndex] = _.clone(facets[typeFacetIndex]);
-
-        // Show only base types for when itemTypesInSearch.length === 0 (aka 'type=Item').
-        facets[typeFacetIndex].terms = _.filter(facets[typeFacetIndex].terms, function(itemType){
-            const parentType = getAbstractTypeForType(itemType.key);
-            return !parentType || parentType === itemType.key;
-        });
-
-        return facets;
-    });
-
     componentDidMount(){
         ReactTooltip.rebuild();
     }
 
-    /**
-     * Filter the `@type` facet options down to abstract types only (if none selected) for Search.
-     */
-    transformedFacets(){
-        var { href, context, currentAction, session } = this.props;
-        return SearchView.transformedFacets(href, context, currentAction, session);
-    }
-
     render() {
+        const { facets : propFacets, navigate: propNavigate, context } = this.props;
         return (
             <div className="container" id="content">
                 <div className="search-page-container">
-                    <AboveSearchTablePanel {..._.pick(this.props, 'href', 'context')} />
-                    <SearchControllersContainer {...this.props} facets={this.transformedFacets()} navigate={this.props.navigate || navigate} />
+                    <AboveSearchTablePanel {..._.pick(this.props, 'href', 'context', 'schemas')} />
+                    <SearchControllersContainer {...this.props} facets={propFacets || context.facets} navigate={propNavigate || navigate} />
                 </div>
             </div>
         );

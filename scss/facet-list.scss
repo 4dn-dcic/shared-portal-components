@@ -1,6 +1,10 @@
 
 /************** Styles for FacetList ***************/
 
+// Default vars - may be overridden earlier in import chain.
+$facetlist-term-line-height: 1.075rem !default;
+$facetlist-selected-term-color: blue !default;
+
 .facets-container {
     padding-top: 0;
     padding-bottom: 2px;
@@ -52,16 +56,22 @@
 
 
 .clear-filters-control {
-    margin: 1px 0;
+    margin: 2px 0 0;
     text-align: right;
     font-size: 0.9rem;
     opacity: 1;
     transition: opacity .25s;
     position: relative;
-    > a:not(.btn) {
-        color: #999999;
-        text-decoration: none;
+
+    > a.btn-xs {
+        border-color: #fff;
+        color: #fff;
+        &:hover {
+            background-color: #fff;
+            color: #333;
+        }
     }
+
     &.placeholder {
         opacity : 0;
         visibility: visible !important;
@@ -285,6 +295,7 @@
                     position: relative;
                     color: #888;
                     display: flex;
+                    line-height: $facetlist-term-line-height;
 
                     i.icon.icon-circle-o-notch {
                         opacity: 0.33;
@@ -310,10 +321,16 @@
                         transform-origin: 50% 0%;
                     }
 
+                    .facet-item {
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        flex-grow: 1;
+                    }
+
                     .facet-count {
-                        padding-right: inherit;
-                        margin-left: 10px;
-                        margin-right: 5px;
+                        padding-left: 10px;
+                        padding-right: 5px;
                     }
 
                 }
@@ -328,18 +345,6 @@
                             text-shadow: 0px 0px 0px #fff;
                         }
                     }
-                }
-
-                .facet-item {
-                    display:inline-block;
-                    vertical-align: middle;
-                    overflow: hidden;
-                    margin-right: 30px;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    max-width: 85%;
-                    flex-grow: 1;
-                    line-height: 1.125rem;
                 }
 
             }

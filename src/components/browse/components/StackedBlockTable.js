@@ -60,7 +60,7 @@ export class StackedBlockName extends React.PureComponent {
     static Label = StackedBlockNameLabel
 
     render(){
-        const { children, style, relativePosition, colWidthStyles, columnClass, label } = this.props;
+        const { children, style, relativePosition, colWidthStyles, columnClass, label, className } = this.props;
 
         var useStyle = {};
         const colWidthStyle = colWidthStyles[columnClass];
@@ -70,7 +70,7 @@ export class StackedBlockName extends React.PureComponent {
         if (relativePosition)   useStyle.position = 'relative';
 
         return (
-            <div className={"name col-" + columnClass} style={useStyle}>
+            <div className={"name col-" + columnClass + (className ? " " + className : "")} style={useStyle}>
                 {/* label ? <StackedBlockName.Label {...label} /> : null */}
                 { label }
                 { children }
@@ -138,7 +138,7 @@ export class StackedBlockList extends React.PureComponent {
     }
 
     adjustedChildren(){
-        const { children, stackDepth, colWidthStyles, columnHeaders } = this.props;
+        const { children, stackDepth, colWidthStyles, columnHeaders, columnClass } = this.props;
         return React.Children.map(children, (c)=>{
 
             //if (c.type.displayName !== 'StackedBlock') return c; // Only add props to StackedBlocks
@@ -171,9 +171,9 @@ export class StackedBlockList extends React.PureComponent {
     }
 
     render(){
-        var { collapseLongLists, stackDepth, collapseLimit, collapseShow, className } = this.props,
-            children = this.adjustedChildren(),
-            cls = "s-block-list " + (className || '') + (' stack-depth-' + stackDepth);
+        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, className } = this.props;
+        const children = this.adjustedChildren();
+        const cls = "s-block-list " + (className || '') + (' stack-depth-' + stackDepth);
 
         if (collapseLongLists === false || !Array.isArray(children) || children.length <= collapseLimit) {
             // Don't have enough items for collapsible element, return plain list.
@@ -258,18 +258,18 @@ export class StackedBlock extends React.PureComponent {
 
     render(){
         const { columnClass, className, stackDepth, stripe, hideNameOnHover, keepLabelOnHover } = this.props;
-        let cls = (
-            "s-block stack-depth-" + stackDepth +
-            (columnClass ? ' ' + columnClass : '') +
-            (hideNameOnHover ? ' hide-name-on-block-hover' : '') +
-            (keepLabelOnHover ? ' keep-label-on-name-hover' : '') +
-            (className ? ' ' + className : '')
-        );
-        if (typeof stripe !== 'undefined' && stripe !== null){
-            if (stripe === true || stripe === 'even') cls += ' even';
-            else cls += ' odd';
-        }
-        return <div className={cls}>{ this.adjustedChildren() }</div>;
+        const classNames = [
+            "s-block",
+            "stack-depth-" + stackDepth,
+            columnClass || null,
+            hideNameOnHover ? ' hide-name-on-block-hover' : null,
+            keepLabelOnHover ? ' keep-label-on-name-hover' : null,
+            className || null,
+            typeof stripe !== 'undefined' && stripe !== null ?
+                (stripe === true || stripe === "even") ? "even" : "odd"
+                : null
+        ];
+        return <div className={_.filter(classNames).join(' ')}>{ this.adjustedChildren() }</div>;
     }
 
 }

@@ -937,7 +937,15 @@ class DimensioningContainer extends React.PureComponent {
     stickyHeaderTopOffset(){
         const { windowWidth, stickyHeaderTopOffset } = this.props;
         const rgs = responsiveGridState(windowWidth);
-        return (rgs === 'xs' || rgs === 'sm') ? 0 : stickyHeaderTopOffset || 0;
+        switch (rgs){
+            case 'xs':
+            case 'sm':
+                return 0;
+            case 'md':
+            case 'lg':
+            case 'xl':
+                return stickyHeaderTopOffset || 0;
+        }
     }
 
     renderHeadersRow({ style, isSticky, wasSticky, distanceFromTop, distanceFromBottom, calculatedHeight }){
