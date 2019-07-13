@@ -74,7 +74,7 @@ export function correctRelativeLinks(elem, context, depth=0){
 
 const Wrapper = React.memo(function Wrapper(props){
     const { children, tableOfContents, title, context } = props;
-    const toc = context['table-of-contents'] || (tableOfContents && typeof tableOfContents === 'object' ? tableOfContents : {});
+    const toc = (context && context['table-of-contents']) || (tableOfContents && typeof tableOfContents === 'object' ? tableOfContents : null);
     const pageTitle = title || (context && context.title) || null;
     const tocExists = toc && toc.enabled !== false;
 
@@ -150,8 +150,6 @@ export class StaticEntry extends React.PureComponent {
         const id              = TableOfContents.elementIDFromSectionName(sectionName);
         const options         = (section && section.options) || {};
         let outerClassName  = entryType + "-entry static-section-entry";
-
-        console.log('TTT', childComponent);
 
         const renderedChildComponent = React.createElement(childComponent, this.props);
 
