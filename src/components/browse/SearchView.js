@@ -234,7 +234,7 @@ class ControlsAndResults extends React.PureComponent {
                             onClearFilters={this.handleClearFilters} itemTypeForSchemas={specificType}
                             showClearFiltersButton={this.isClearFiltersBtnVisible()}
                             {..._.pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter',
-                                'currentAction', 'windowWidth', 'windowHeight')} />
+                                'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn')} />
                     </div>
                     : null }
                 <div className={tableColumnClassName}>
