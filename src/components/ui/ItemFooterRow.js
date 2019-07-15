@@ -22,17 +22,14 @@ export const ItemFooterRow = React.memo(function ItemFooterRow({ context, schema
     }
 
     return (
-        <div className="row">
-
+        <React.Fragment>
             <hr className="mb-08 mt-1"/>
-
-            <ExternalReferencesSection context={context} externalReferences={external_references} />
-
-            {/* <AliasesSection context={context} aliases={aliases} actions={actions} /> */}
-
-            <AlternateAccessionSection context={context} alternateAccessions={alternate_accessions} />
-
-        </div>
+            <div className="row">
+                <ExternalReferencesSection context={context} externalReferences={external_references} />
+                {/* <AliasesSection context={context} aliases={aliases} actions={actions} /> */}
+                <AlternateAccessionSection context={context} alternateAccessions={alternate_accessions} />
+            </div>
+        </React.Fragment>
     );
 });
 
