@@ -28,9 +28,9 @@ export function getSchemaProperty(field, schemas, startAt = 'ExperimentSet'){
 
 
     function getProperty(propertiesObj, fieldPartIndex){
-        var property = propertiesObj[fieldParts[fieldPartIndex]];
+        const property = propertiesObj[fieldParts[fieldPartIndex]];
         if (fieldPartIndex >= fieldParts.length - 1) return property;
-        var nextSchemaProperties = null;
+        let nextSchemaProperties = null;
         if (property.type === 'array' && property.items && property.items.linkTo){
             nextSchemaProperties = getNextSchemaProperties(property.items.linkTo);
         } else if (property.type === 'array' && property.items && property.items.linkFrom){

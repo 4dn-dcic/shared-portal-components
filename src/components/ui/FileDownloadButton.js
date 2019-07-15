@@ -72,9 +72,9 @@ FileDownloadButtonAuto.defaultProps = {
 
 
 export const ViewFileButton = React.memo(function ViewFileButton(props){
-    const { filename, href, target, title, mimeType, size, className } = props;
+    const { filename, href, target, title, mimeType, size, className, bsStyle, variant } = props;
     let action = 'View';
-    //let extLink = null;
+    let extLink = null; // Unsure if really used. Maybe should test href for presence of http[s]:// instd of target="_blank"?
     let preLink = null;
 
     preLink = <i className="icon icon-fw icon-cloud-download" />;
@@ -90,31 +90,32 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
         preLink = <i className="icon icon-fw icon-picture-o" />;
     } else if (fileNameLowerEnds['4'] === '.pdf'){
         action = 'View';
-        //if (target === '_blank') extLink = <i className="icon icon-fw icon-external-link"/>;
+        if (target === '_blank'){
+            extLink = <i className="icon icon-fw icon-external-link"/>;
+        }
         preLink = <i className="icon icon-fw icon-file-pdf-o" />;
     } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx'){
         action = 'Download';
     }
 
-    const cls = ("btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (bsStyle ? " btn-" + bsStyle : ""));
+    const useVariant = bsStyle || variant || "primary";
+    const cls = ("btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (" btn-" + useVariant));
+    const passProps = _.omit(props, 'bsStyle', 'variant', 'filename', 'title', 'className', 'data-tip', 'size');
 
     return (
-        <button type="button" className={cls} download={action === 'Download' ? true : null}
-            {..._.omit(props, 'filename', 'title')} title={filename} data-tip={mimeType}>
-            <span className={title ? null : "text-400"}>
-                { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
-            </span>
-        </button>
+        <a {...passProps} className={cls} download={action === 'Download' ? true : null} title={filename} data-tip={mimeType}>
+            { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
+        </a>
     );
 });
 ViewFileButton.defaultProps = {
     'className' : "text-ellipsis-container mb-1",
     'target' : "_blank",
-    'bsStyle' : "primary",
     'href' : null,
     'disabled' : false,
     'title' : null,
     'mimeType' : null,
-    'size' : null
+    'size' : null,
+    'variant' : 'primary'
 };
 
