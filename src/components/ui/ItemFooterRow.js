@@ -37,7 +37,7 @@ export const ItemFooterRow = React.memo(function ItemFooterRow({ context, schema
 });
 
 
-function ExternalReferencesSection({ alternateAccessions }){
+function ExternalReferencesSection({ externalReferences }){
     if (externalReferences.length === 0){
         return null;
     }
@@ -50,11 +50,8 @@ function ExternalReferencesSection({ alternateAccessions }){
                         return (
                             <li key={i}>
                                 { typeof extRef.ref === 'string' ?
-                                    <ExternalReferenceLink uri={extRef.uri || null} children={extRef.ref} />
-                                    :
-                                    extRef
+                                    <ExternalReferenceLink uri={extRef.uri || null}>{ extRef.ref }</ExternalReferenceLink> : extRef
                                 }
-
                             </li>
                         );
                     }) }
@@ -64,7 +61,7 @@ function ExternalReferencesSection({ alternateAccessions }){
     );
 }
 
-function AlternateAccessionSection({ context }){
+function AlternateAccessionSection({ alternateAccessions }){
     if (alternateAccessions.length === 0){
         return null;
     }
@@ -73,9 +70,9 @@ function AlternateAccessionSection({ context }){
             <h4 className="text-300">Alternate Accessions</h4>
             <div>
                 <ul>
-                    { _.map(alternateAccessions, function(alias, i){
+                    { _.map(alternateAccessions, function(altAccession, i){
                         return (
-                            <li key={i}>{ alias }</li>
+                            <li key={i}>{ altAccession }</li>
                         );
                     }) }
                 </ul>
