@@ -524,9 +524,9 @@ export class TableOfContents extends React.Component {
     }
 
     onToggleWidthBound(){
-        this.setState((prevState, prevProps)=>({
-            'widthBound' : !prevState.widthBound
-        }));
+        this.setState(function({ widthBound }){
+            return { 'widthBound' : !widthBound };
+        });
     }
 
     parentLink(windowInnerWidth){
@@ -560,9 +560,10 @@ export class TableOfContents extends React.Component {
     }
 
     render(){
-        const { context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes, windowWidth, windowHeight } = this.props;
-
-        var skipDepth = 0;
+        const { context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes, windowWidth, windowHeight, maxHeight } = this.props;
+        const { mounted, scrollTop, widthBound } = this.state;
+        const contents = [];
+        let skipDepth = 0;
 
         const sectionEntries = () => {
             var lastSection = null;
@@ -581,59 +582,46 @@ export class TableOfContents extends React.Component {
                 .map((s, i, all) => {
                     if (excludeSectionsFromTOC){
                         skipDepth = 1;
-                        var { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(s.content, this.props.maxHeaderDepth, 1);
+                        var { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(s.content, maxHeaderDepth, 1);
                         var opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth }, {
-                            'mounted' : this.state.mounted,
-                            'pageScrollTop' : this.state.scrollTop,
+                            'mounted' : mounted,
+                            'pageScrollTop' : scrollTop,
                             'nextHeader' : s.nextHeader
                         });
                         return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, s.content, opts);
                     }
-                    return (<TableEntry
-                        link={s.link}
-                        title={s['toc-title'] || s.title || _.map(s.link.split('-'), function(w){ return w.charAt(0).toUpperCase() + w.slice(1); } ).join(' ') }
-                        key={s.link}
-                        depth={1}
-                        content={s.content}
-                        listStyleTypes={listStyleTypes}
-                        pageScrollTop={this.state.scrollTop}
-                        mounted={this.state.mounted}
-                        nextHeader={s.nextHeader}
-                        navigate={this.props.navigate}
-                        maxHeaderDepth={maxHeaderDepth}
-                        skipDepth={skipDepth}
-                    />);
+                    return (
+                        <TableEntry link={s.link}
+                            title={s['toc-title'] || s.title || _.map(s.link.split('-'), function(w){ return w.charAt(0).toUpperCase() + w.slice(1); } ).join(' ') }
+                            key={s.link} depth={1} content={s.content} listStyleTypes={listStyleTypes}
+                            pageScrollTop={scrollTop} mounted={mounted} nextHeader={s.nextHeader}
+                            navigate={this.props.navigate} maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth} />
+                    );
                 })
                 .flatten(false)
                 .value();
         };
 
-        var content = [];
-
-        if (context && context.parent && context.parent['@id']) content.push(this.parentLink(windowWidth));
-
-        var children = sectionEntries();
+        if (context && context.parent && context.parent['@id']){
+            contents.push(
+                this.parentLink(windowWidth)
+            );
+        }
 
         content.push(
-            <TableEntry
-                link="top"
+            <TableEntry link="top"
                 title={context['display_title'] || 'Top of Page' || null}
-                key="top"
-                depth={0}
-                listStyleTypes={listStyleTypes}
-                pageScrollTop={this.state.scrollTop}
-                mounted={this.state.mounted}
-                navigate={this.props.navigate}
+                key="top" depth={0} listStyleTypes={listStyleTypes}
+                pageScrollTop={scrollTop} mounted={mounted} navigate={this.props.navigate}
                 nextHeader={(children[0] && children[0].props && children[0].props.link) || null}
-                maxHeaderDepth={maxHeaderDepth}
-                skipDepth={skipDepth || 0}
-                children={children}
-            />
+                maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth || 0}>
+                { sectionEntries() }
+            </TableEntry>
         );
 
-        var marginTop = 0; // Account for test warning
+        let marginTop = 0; // Account for test warning
         if (windowWidth){
-            if (typeof this.state.scrollTop === 'number' && this.state.scrollTop < 80 && windowWidth >= 1200){
+            if (typeof scrollTop === 'number' && scrollTop < 80 && windowWidth >= 1200){
                 var testWarningElem = document.getElementsByClassName('navbar-container test-warning-visible');
                 marginTop = (testWarningElem[0] && testWarningElem[0].offsetHeight) || marginTop;
             } else if (windowWidth < 1200) {
@@ -641,14 +629,14 @@ export class TableOfContents extends React.Component {
             }
         }
 
-        var isEmpty = (Array.isArray(content) && !_.filter(content).length) || !content;
+        const isEmpty = (Array.isArray(content) && !_.filter(content).length) || !content;
 
         function generateFixedWidth(){
             return 1140 * (fixedGridWidth / 12) + (windowWidth - 1140) / 2 - 10;
         }
 
         return (
-            <div key="toc" className={"table-of-contents" + (this.state.widthBound ? ' width-bounded' : '')} style={{
+            <div key="toc" className={"table-of-contents" + (widthBound ? ' width-bounded' : '')} style={{
                 'width' : windowWidth ?
                     windowWidth >= 1200 ? generateFixedWidth() || 'inherit'
                         :'inherit'
@@ -656,9 +644,8 @@ export class TableOfContents extends React.Component {
                 'height' :
                     (windowWidth && windowHeight ?
                         windowWidth >= 1200 ?
-                            ( this.props.maxHeight ||
-                              this.state.scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 ) :
-                            null
+                            ( maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 )
+                            : null
                         : 1000),
                 marginTop : marginTop
             }}>
