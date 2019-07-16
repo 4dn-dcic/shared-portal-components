@@ -89,7 +89,7 @@ for (i = 0; i < peerDependencyNamesLen; i++){
 
 
 console.log(
-    'Will npm-link the following peer dependencies to ' + parentApplicationRootDir + "('" + name + "'):\n" +
+    'Will npm-link the following peer dependencies to ' + parentApplicationRootDir + " ('" + name + "'):\n" +
     "\x1b[33m\x1b[1m" + peerDependencyNames.join('\n'), '\x1b[0m\n'
 );
 
@@ -165,7 +165,7 @@ peerDependencyNames.forEach(function(currDependencyName, idx){
     }
 
     // Perform npm link - async
-    childProcess.exec('npm link "' + targetDependencyPath + '"', function(err, stdout, stderr){
+    childProcess.exec('npm link "' + targetDependencyPath + '" --only=production', function(err, stdout, stderr){
         if (err){
             console.error(err);
         } else {

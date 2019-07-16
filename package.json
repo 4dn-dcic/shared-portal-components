@@ -49,7 +49,7 @@
         "webpack-deadcode-plugin": "^0.1.10"
     },
     "dependencies": {
-        "auth0-lock": "^11.16.3",
+        "auth0-lock": "^11.17.0",
         "aws-sdk": "^2.421.0",
         "crypto-js": "^3.1.9-1",
         "dom-helpers": "^3.4.0",
