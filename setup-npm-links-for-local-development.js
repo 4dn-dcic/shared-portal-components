@@ -12,7 +12,28 @@ const fs = require('fs');
 const childProcess = require('child_process');
 
 const [ , , ...args ] = process.argv;
-const [ parentApplicationRootDirUnParsed ] = args;
+const [ parentApplicationRootDirUnParsed, ...opts ] = args;
+
+// Will be overriden from opts argv.
+const standardizedOpts = {
+    'overwrite' : false
+};
+
+opts.forEach(function(opt){
+    // parse each opt accordingly
+    const lowerCasedOpt = opt.toLowerCase();
+    if (lowerCasedOpt.slice(0,2) === '--'){
+        const boolFlagKey = lowerCasedOpt.slice(2);
+        if (typeof standardizedOpts[boolFlagKey] !== 'boolean'){
+            console.error("\x1b[31mUnrecognized option/flag:\x1b[0m\n" + opt + "");
+            process.exit(1);
+        }
+        // bool flag
+        standardizedOpts[boolFlagKey] = true;
+    } else {
+        // todo when/if needed.
+    }
+});
 
 let parentApplicationRootDir = path.resolve(parentApplicationRootDirUnParsed);
 
@@ -68,8 +89,8 @@ for (i = 0; i < peerDependencyNamesLen; i++){
 
 
 console.log(
-    'Will npm-link the following peer dependencies to ' + parentApplicationRootDir + "('" + name + "'):\n",
-    peerDependencyNames
+    'Will npm-link the following peer dependencies to ' + parentApplicationRootDir + "('" + name + "'):\n" +
+    "\x1b[33m\x1b[1m" + peerDependencyNames.join('\n'), '\x1b[0m\n'
 );
 
 // Remove existing project-local links or folders --
@@ -106,22 +127,42 @@ function awaitLinking(){
 
 peerDependencyNames.forEach(function(currDependencyName, idx){
     const localDependencyPath = path.resolve('./node_modules', currDependencyName);
-    let isLink;
+    const targetDependencyPath = path.resolve(parentApplicationRootDir, 'node_modules', currDependencyName);
+    let isExistingLink;
+    let skipLinkingThisPackage = false;
     try {
         const stats = fs.lstatSync(localDependencyPath);
-        isLink = stats.isSymbolicLink();
+        isExistingLink = stats.isSymbolicLink();
     } catch (e){
         // No local node_modules dir for this dependency exists at all, this is fine.
-        isLink = null;
+        isExistingLink = null;
     }
-    if (isLink === true){
-        console.log(localDependencyPath + " is already linked, will overwrite/update link.");
-    } else if (isLink === false) {
+
+    if (isExistingLink === true){
+        let existingLinkTarget = localDependencyPath;
+        try {
+            for (var i = 0; i < 10; i++){ // Iterate til exception is thrown to get terminal symlink (in case linked multiple times)
+                existingLinkTarget = fs.readlinkSync(existingLinkTarget);
+            }
+        } catch (e){
+            // pass
+        }
+        if (!standardizedOpts.overwrite && existingLinkTarget === targetDependencyPath){
+            console.log(
+                "\x1b[33m\x1b[1m" + currDependencyName + "\x1b[0m is already linked to parent. Call with `--overwrite` to force overwrite."
+            );
+            skipLinkingThisPackage = true;
+        } else {
+            console.log("\x1b[33m\x1b[1m" + currDependencyName + "\x1b[0m is linked to \x1b[31m" + existingLinkTarget + "\x1b[0m, will overwrite/update link.");
+        }
+    } else if (isExistingLink === false) {
         console.log(localDependencyPath + " exists but is not a link, will delete.");
         deleteFolderRecursive(localDependencyPath);
     }
 
-    const targetDependencyPath = path.resolve(parentApplicationRootDir, 'node_modules', currDependencyName);
+    if (skipLinkingThisPackage){
+        return;
+    }
 
     // Perform npm link - async
     childProcess.exec('npm link "' + targetDependencyPath + '"', function(err, stdout, stderr){
