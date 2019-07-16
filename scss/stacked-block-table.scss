@@ -365,16 +365,12 @@ $font-family-sans-serif : sans-serif !default;
 				border-top: 1px solid #606060;
 
                 // TODO change rule to be based on classname since dont know where will need to reset.
-				> .stack-depth-1.s-block-list { // .experiments
+				> .s-block-list.stack-depth-1 { // .experiments
 
-					.s-block.stack-depth-2 { // .experiment
-						transform: translate3d(0px,0px,0px);
-
-						&:not(:first-child){
-							border-top: 1px solid #888;
-							border-color: rgba(0,0,0,0.5);
-						}
-
+					> .s-block.stack-depth-2:not(:first-child),
+					> .collapsible-s-block-ext > .s-block.stack-depth-2 {
+						border-top: 1px solid #888;
+						border-color: rgba(0,0,0,0.5);
 					}
 				}
             }
