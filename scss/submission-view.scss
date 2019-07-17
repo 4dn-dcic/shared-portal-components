@@ -1,8 +1,8 @@
+
 /***************************************************
 *********** Submission & Edit View	****************
 ****************************************************/
 
-@import "common_components_variables";
 @import "mixins";
 
 // FOR REUSE ELSEWHERE LATER - FILLS HEIGHT OF RELATIVE CONTAINER
@@ -74,16 +74,10 @@
 			padding-right: 5px;
 		}
 		.input-group-addon.colon-separator {
+			font-weight: 700;
+			border-left: none;
+			border-right: none;
 			background-color: #fff;
-
-            > .input-group-text {
-                padding-left: 3px;
-                padding-right: 3px;
-                border-left: none;
-                border-right: none;
-                font-weight: 700;
-            }
-
 			& + input{
 				border-left: none;
 				padding-left: 8px;
@@ -96,10 +90,7 @@
 	}
 }
 
-
-/***************************************************
-******************* Modal Forms	********************
-****************************************************/
+// Modal forms
 
 .submission-view-modal {
 	.modal-content {
@@ -109,12 +100,7 @@
 	}
 }
 
-/***************************************************
-*******************    Forms    ********************
-****************************************************/
-
 .submission-view-page-container {
-
 	.warning-banner {
 		border-top: 1px solid #eee;
 		color: #606060;
@@ -245,6 +231,8 @@
 
 	}
 
+	
+
 	// INNER FIELDS AREA
 	.form-fields-container,
 	.round-two-panel {
@@ -295,7 +283,7 @@
 				margin: 0 !important;
 				font-weight: 500;
 				padding-top: 18px;
-				@media screen and (min-width: $screen-md-min) {
+				@include media-breakpoint-up(lg){
 					text-align: right;
 				}
 
@@ -338,9 +326,9 @@
 			}
 
 			.field-column {
-				flex: 1;
 				opacity: 1;
 				transition: opacity 0.33s;
+				overflow: hidden;
 
 				&.last-item-empty:not(:hover):not(.in-selection-field) {
 					opacity: 0.7;
@@ -368,8 +356,9 @@
 
 			.remove-button-column {
 				padding-left: 0;
+				padding-right: 10px;
 				width: 45px;
-				float: right;
+				flex: 0 0 45px;
 				.remove-button-container {
 					width: 100%;
 					> button {
@@ -433,9 +422,6 @@
 								
 								> .field-column {
 									 > div > div > .field-row {
-										.submission-field-title {
-											padding-top: 18px;
-										}
 										.field-container {
 											.linked-object-buttons-container {
 												display: flex;
@@ -669,18 +655,37 @@
 			}
 		}
 		
-    }
-    
-    .submission-hidden-nav {
-        display: none;
-    }
+	}
 }
 
+// SELECT EXISTING LINKTO
 
+.submission-view-modal.select-existing-item-modal {
+	> .modal-dialog {
+		width: auto;
+		margin: 30px;
+	}
+}
 
-/****************************************
-******* LinkToSelector Drop Area ********
-*****************************************/
+// Draggable Cursor Indicator
+div.draggable-item-cursor {
+
+	position: absolute;
+	z-index: -1000;
+	top: -1000px;
+	left: 1000px;
+	background-color: #555;
+	padding: 8px 12px;
+	width: 300px;
+	border-radius: 2px;
+	border: 1px solid #000;
+	color: #ddd;
+
+	> strong {
+		font-weight: 500;
+		color: #fff;
+	}
+}
 
 div.full-window-drop-receiver {
 	position: fixed;
@@ -716,3 +721,23 @@ div.full-window-drop-receiver {
 	  	transform: scale(1);
 	}
 }
+
+// SUBMISSION STUFF
+
+.submission-pop-icon{
+	background-color: #fff;
+	padding: 1px 5px;
+	a:hover, a:active {
+		text-decoration: none !important;
+		color: #000000;
+	}
+	a{
+		padding: 3px 5px 0px 5px;
+	}
+}
+
+
+.submission-hidden-nav{
+	display: none;
+}
+

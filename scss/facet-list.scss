@@ -4,6 +4,8 @@
 // Default vars - may be overridden earlier in import chain.
 $facetlist-term-line-height: 1.075rem !default;
 $facetlist-selected-term-color: blue !default;
+$facetlist-term-font-size: 0.875rem !default;
+$facetlist-facet-font-size: 0.925rem !default;
 
 .facets-container {
     padding-top: 0;
@@ -21,22 +23,49 @@ $facetlist-selected-term-color: blue !default;
     */
 
     .facets-header {
-        padding-top: ($grid-gutter-width / 2);
-        padding-bottom: ($grid-gutter-width / 2);
+        //padding-top: ($grid-gutter-width / 2);
+        //padding-bottom: ($grid-gutter-width / 2);
         border-bottom: 1px solid #eee;
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
         color: #111;
         .facets-title-column {
             top : -1px;
+            display: flex;
+            align-items: center;
+            .facets-title {
+                font-weight: 300;
+                margin: 0;
+                line-height: inherit;
+                color: inherit;
+                display: inline;
+            }
         }
-        .facets-title {
-            font-weight: 300;
-            margin: 0;
-            line-height: inherit;
-            color: inherit;
-            display: inline;
+        .clear-filters-control {
+            text-align: right;
+            font-size: 0.9rem;
+            opacity: 1;
+            transition: opacity .25s;
+            position: relative;
+            display: flex;
+            align-items: center;
+
+            > a.btn-xs {
+                border-color: #fff;
+                color: #fff;
+                &:hover {
+                    background-color: #fff;
+                    color: #333;
+                }
+            }
+
+            &.placeholder {
+                opacity : 0;
+                visibility: visible !important;
+                z-index: -10;
+            }
         }
+        
     }
 
     &.with-header-bg .facets-header {
@@ -55,35 +84,6 @@ $facetlist-selected-term-color: blue !default;
 }
 
 
-.clear-filters-control {
-    margin: 2px 0 0;
-    text-align: right;
-    font-size: 0.9rem;
-    opacity: 1;
-    transition: opacity .25s;
-    position: relative;
-
-    > a.btn-xs {
-        border-color: #fff;
-        color: #fff;
-        &:hover {
-            background-color: #fff;
-            color: #333;
-        }
-    }
-
-    &.placeholder {
-        opacity : 0;
-        visibility: visible !important;
-        z-index: -10;
-    }
-}
-
-.clear-filters-control-matrix {
-    @extend .clear-filters-control;
-    text-align: center;
-    margin-top: 5px;
-}
 
 
 .facets-container {
@@ -126,7 +126,7 @@ $facetlist-selected-term-color: blue !default;
             margin: 0 0 3px;
             font-weight: 500;
             line-height: inherit;
-            @include font-size(0.925);
+            @include font-size($facetlist-facet-font-size);
 
             > i.icon-info-circle {
                 margin-left: 6px;
@@ -221,7 +221,7 @@ $facetlist-selected-term-color: blue !default;
                 vertical-align: top;
                 float: right;
                 text-align: left;
-                @include font-size(0.925);
+                @include font-size($facetlist-facet-font-size);
                 @include no-user-select();
 
                 span {
@@ -272,7 +272,7 @@ $facetlist-selected-term-color: blue !default;
             li {
                 margin-bottom: 1px;
                 position: relative;
-                @include font-size(0.875);
+                @include font-size($facetlist-term-font-size);
                 line-height: 1rem;
 
                 &:first-child {

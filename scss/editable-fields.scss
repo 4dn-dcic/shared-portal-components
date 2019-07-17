@@ -2,7 +2,6 @@
 		Editable Fields & FieldSets (e.g. in User.js)
 ***********************************************************/
 
-@import "common_components_variables";
 
 .fieldset.editable-fields,
 .editable-fields-container {
@@ -24,7 +23,7 @@ div.fieldset.editable-fields {
 
 	padding-bottom: 15px;
 
-    @media screen and (min-width: $screen-md-min) {
+    @include media-breakpoint-up(md) {
 		// Transition is too laggy on (some) mobile
 		transition: padding-bottom .5s linear;
 	}
@@ -37,6 +36,15 @@ div.fieldset.editable-fields {
 
 .editable-field-entry,
 .field-entry {
+
+	// large text inputBorder
+	.input-lg {
+		@include font-size(1.42rem, true);
+		font-weight: normal;
+		height: 36px !important;
+		line-height: 30px !important;
+		padding: 4px 6px !important;
+	}
 
 	label {
 		margin-bottom: 0;
@@ -82,7 +90,7 @@ div.fieldset.editable-fields {
 	opacity: 1;
 	min-height: 30px;
 
-	@media screen and (min-width: $screen-sm-min) {
+	@include media-breakpoint-up(sm) {
 		transition: filter .75s, opacity .5s, min-height .5s linear;
 	}
 
@@ -170,7 +178,7 @@ div.fieldset.editable-fields {
 		.edit-button { visibility: hidden; }
 
 		span.input-wrapper {
-			@media screen and (min-width: $screen-sm-min) {
+			@include media-breakpoint-up(sm) {
 				margin-bottom : -100px; // For min-height transition (prevent jumping).
 			}
 			margin-right: 75px; // Room for action icons/buttons.

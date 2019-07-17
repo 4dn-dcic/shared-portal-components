@@ -1311,8 +1311,8 @@ export default class SubmissionView extends React.PureComponent{
         const showAliasModal = !showAmbiguousModal && creatingIdx !== null && creatingType !== null;
         const currType = keyTypes[currKey];
         const currContext = keyContext[currKey];
-        const navCol = fullScreen ? 'submission-hidden-nav' : 'col-sm-3';
-        const bodyCol = fullScreen ? 'col-sm-12' : 'col-sm-9';
+        const navCol = "mb-4 " + (fullScreen ? 'submission-hidden-nav' : 'col-md-3');
+        const bodyCol = fullScreen ? 'col-sm-12' : 'col-md-9';
 
         // remove context and navigate from this.props
         const { context, navigate, ...propsToPass } = this.props;
@@ -1463,10 +1463,10 @@ const WarningBanner = React.memo(function WarningBanner(props){
     return(
         <div className="mb-2 mt-1 text-400 warning-banner">
             <div className="row">
-                <div className="col-md-7 col-lg-8">
+                <div className="col">
                     Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change.
                 </div>
-                <div className="col-md-5 col-lg-4">
+                <div className="col-md-auto">
                     <div className="action-buttons-container text-right">{ children }</div>
                 </div>
             </div>

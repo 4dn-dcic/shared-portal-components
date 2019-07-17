@@ -8,20 +8,19 @@ import { compiler } from 'markdown-to-jsx';
 
 
 export const BasicStaticSectionBody = React.memo(function BasicStaticSectionBody(props){
-    const { content, filetype, element, markdownCompilerOptions, placeholderReplacementFxn } = props;
-    const passedProps = _.omit(props, 'content', 'filetype', 'children', 'element', 'markdownCompilerOptions');
+    const { content, children, filetype, element, markdownCompilerOptions, placeholderReplacementFxn, ...passProps } = props;
 
     if (filetype === 'md' && typeof content === 'string'){
-        return React.createElement(element, passedProps, compiler(content, markdownCompilerOptions || undefined) );
+        return React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined) );
     } else if (filetype === 'html' && typeof content === 'string'){
-        return React.createElement(element, passedProps, htmlToJSX(content));
+        return React.createElement(element, passProps, htmlToJSX(content));
     } else if (filetype === 'jsx' && typeof content === 'string'){
         return placeholderReplacementFxn(content.trim());
     } else if (filetype === 'txt' && typeof content === 'string' && content.slice(0,12) === 'placeholder:'){
         // Deprecated older method - to be removed once data.4dn uses filetype=jsx everywhere w/ placeholder
         return placeholderReplacementFxn(content.slice(12).trim());
     } else {
-        return React.createElement(element, passedProps, content);
+        return React.createElement(element, passProps, content);
     }
 });
 BasicStaticSectionBody.propTypes = {

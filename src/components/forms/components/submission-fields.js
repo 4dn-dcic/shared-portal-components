@@ -339,7 +339,7 @@ export class BuildField extends React.PureComponent {
 
         return wrapFunc(
             <React.Fragment>
-                <div className={'field-column col col-xs-' + (excludeRemoveButton ? "12": "10") + extClass}>{ fieldToDisplay }</div>
+                <div className={'field-column col' + extClass}>{ fieldToDisplay }</div>
                 { excludeRemoveButton ? null : <SquareButton show={showDelete} disabled={disableDelete} tip={isArray ? 'Remove Item' : 'Clear Value'} onClick={this.deleteField} /> }
             </React.Fragment>
         );
@@ -350,13 +350,13 @@ export class BuildField extends React.PureComponent {
 
 const SquareButton = React.memo(function SquareButton(props){
     const { show, disabled, onClick, tip, bsStyle, className, buttonContainerClassName, icon, style } = props;
-    const outerCls = "pull-right remove-button-container" + (!show ? ' hidden' : '') + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
+    const outerCls = "remove-button-container" + (!show ? ' hidden' : '') + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
     let btnCls = ("btn" + (className ? " " + className : ""));
     if (bsStyle){
         btnCls += " btn-" + bsStyle;
     }
     return (
-        <div className="col-xs-2 remove-button-column" style={style}>
+        <div className="remove-button-column" style={style}>
             <Fade in={show}>
                 <div className={outerCls}>
                     <button type="button" disabled={disabled} onClick={onClick} data-tip={tip} tabIndex={2} className={btnCls}>
@@ -533,7 +533,7 @@ class LinkedObj extends React.PureComponent {
         return (
             <React.Fragment>
                 <div className="linked-object-text-input-container row flexrow">
-                    <div className="field-column col col-xs-10">
+                    <div className="field-column col">
                         <input onChange={this.handleTextInputChange} className={"form-control" + extClass} inputMode="latin" type="text" placeholder="Drag & drop Item from the search view or type in a valid @ID." value={this.state.textInputValue} onDrop={this.handleDrop} />
                     </div>
                     { canShowAcceptTypedInput ?
