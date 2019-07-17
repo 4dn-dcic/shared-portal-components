@@ -608,12 +608,14 @@ export class TableOfContents extends React.Component {
             );
         }
 
-        content.push(
+        const renderedSections = sectionEntries();
+
+        contents.push(
             <TableEntry link="top"
                 title={context['display_title'] || 'Top of Page' || null}
                 key="top" depth={0} listStyleTypes={listStyleTypes}
                 pageScrollTop={scrollTop} mounted={mounted} navigate={this.props.navigate}
-                nextHeader={(children[0] && children[0].props && children[0].props.link) || null}
+                nextHeader={(renderedSections[0] && renderedSections[0].props && renderedSections[0].props.link) || null}
                 maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth || 0}>
                 { sectionEntries() }
             </TableEntry>
@@ -629,7 +631,7 @@ export class TableOfContents extends React.Component {
             }
         }
 
-        const isEmpty = (Array.isArray(content) && !_.filter(content).length) || !content;
+        const isEmpty = (Array.isArray(contents) && !_.filter(contents).length) || !contents;
 
         function generateFixedWidth(){
             return 1140 * (fixedGridWidth / 12) + (windowWidth - 1140) / 2 - 10;
@@ -651,7 +653,7 @@ export class TableOfContents extends React.Component {
             }}>
                 {/* !isEmpty ? <h4 className="toc-title">{ this.props.title }</h4> : null */}
                 { !isEmpty ?
-                    <ol className="inner" style={{ 'listStyleType' : listStyleTypes[0], 'paddingLeft' : 0 }}>{ content }</ol>
+                    <ol className="inner" style={{ 'listStyleType' : listStyleTypes[0], 'paddingLeft' : 0 }}>{ contents }</ol>
                     : null }
                 { includeNextPreviousPages ? <NextPreviousPageSection context={context} windowInnerWidth={windowWidth} /> : null }
             </div>
