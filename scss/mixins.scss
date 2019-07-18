@@ -26,11 +26,10 @@
 }
 
 // STICKY FOOTER
-// Compass' sticky footer with added top-border variable to allow use of a top border on your footer.
+// Compass' sticky footer
 // @include sticky-footer(54px, "#my-root", "#my-root-footer", "#my-footer")
 @mixin sticky-footer(
 	  $footer-height,
-	  $footer-border-top, 
 	  $root-selector: unquote("#root"), 
 	  $root-footer-selector: unquote("#root_footer"), 
 	  $footer-selector: unquote("#footer")) {
@@ -42,7 +41,7 @@
         min-height: 100%;
         height: auto !important;
         height: 100%;
-        margin-bottom: (-$footer-height) - $footer-border-top;
+        margin-bottom: (-$footer-height);
         #{$root-footer-selector} {
             height: $footer-height; } 
         }
