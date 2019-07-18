@@ -332,22 +332,22 @@ export default class SubmissionView extends React.PureComponent{
      * creation (initCreateAlias). If init (bool) is true, skip ambiguous type
      * lookup even if applicable and move right to alias selection.
      */
-    initCreateObj(type, newIdx, newLink, init=false, parentField=null){
+    initCreateObj(ambiguousType, ambiguousIdx, creatingLink, init=false, parentField=null){
         const { schemas } = this.props;
         const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
         // check to see if we have an ambiguous linkTo type.
         // this means there could be multiple types of linked objects for a
         // given type. let the user choose one.
-        if (type in itemTypeHierarchy && !init){
+        if (itemTypeHierarchy[ambiguousType] && !init){
             // ambiguous linkTo type found
             this.setState({
-                'ambiguousIdx': newIdx,
-                'ambiguousType': type,
-                'ambiguousSelected': null,
-                'creatingLink': newLink
+                ambiguousType,
+                ambiguousIdx,
+                creatingLink,
+                ambiguousSelected : null
             });
         } else {
-            this.initCreateAlias(type, newIdx, newLink, parentField);
+            this.initCreateAlias(ambiguousType, ambiguousIdx, creatingLink, parentField);
         }
     }
 
@@ -1398,7 +1398,7 @@ const ValidationButton = React.memo(function ValidationButton(props){
         if (processingFetch) {
             return (
                 <button type="button" className="btn btn-danger" disabled>
-                    <i className="icon icon-spin icon-circle-o-notch"/>
+                    <i className="icon icon-spin icon-circle-o-notch fas"/>
                 </button>
             );
         } else {
@@ -1408,7 +1408,7 @@ const ValidationButton = React.memo(function ValidationButton(props){
         if (processingFetch) {
             return (
                 <button type="button" className="btn btn-info" disabled>
-                    <i className="icon icon-spin icon-circle-o-notch"/>
+                    <i className="icon icon-spin icon-circle-o-notch fas"/>
                 </button>
             );
         } else {
@@ -1434,7 +1434,7 @@ const SubmitButton = React.memo(function(props){
         if (upload !== null || processingFetch || md5Progress !== null) {
             return (
                 <button type="button" disabled className="btn btn-success">
-                    <i className="icon icon-spin icon-circle-o-notch"/>
+                    <i className="icon icon-spin icon-circle-o-notch fas"/>
                 </button>
             );
         } else {
@@ -1444,7 +1444,7 @@ const SubmitButton = React.memo(function(props){
         if (processingFetch){
             return (
                 <button type="button" disabled className="btn btn-success">
-                    <i className="icon icon-spin icon-circle-o-notch"/>
+                    <i className="icon icon-spin icon-circle-o-notch fas"/>
                 </button>
             );
         } else {
@@ -1598,7 +1598,7 @@ class DetailTitleBanner extends React.PureComponent {
             <h3 className="crumbs-title mb-2">
                 <div className="subtitle-heading form-section-heading mb-08">
                     <span className="inline-block clickable" onClick={this.toggleOpen}>
-                        Currently Editing { currKey > 0 ? <i className={"icon icon-fw icon-caret-" + (open ? 'down' : 'right')} /> : null }
+                        Currently Editing { currKey > 0 ? <i className={"icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')} /> : null }
                     </span>
                 </div>
                 { open ? this.generateHierarchicalTitles() : this.generateCrumbTitle(currKey) }
@@ -2096,7 +2096,7 @@ class RoundTwoDetailPanel extends React.PureComponent {
             <div className="current-item-properties round-two-panel">
                 <h4 className="clearfix page-subtitle submission-field-header">
                     <button type="button" className="btn btn-xs icon-container pull-left" onClick={this.handleToggle}>
-                        <i className={"icon " + (open ? "icon-minus" : "icon-plus")}></i>
+                        <i className={"icon fas " + (open ? "icon-minus" : "icon-plus")}></i>
                     </button>
                     <span>Object Attributes</span>
                 </h4>

@@ -126,7 +126,7 @@ export const basicColumnExtensionMap = {
 
             return (
                 <React.Fragment>
-                    <i className="icon icon-fw icon-filter clickable" onClick={onClick} data-tip="Filter down to this item type only."/>&nbsp;&nbsp;
+                    <i className="icon icon-fw fas icon-filter clickable" onClick={onClick} data-tip="Filter down to this item type only."/>&nbsp;&nbsp;
                     { itemTypeTitle }
                 </React.Fragment>
             );
@@ -185,7 +185,7 @@ export const TableRowToggleOpenButton = React.memo(function TableRowToggleOpenBu
         <div className="inline-block toggle-detail-button-container">
             <button type="button" className="toggle-detail-button" onClick={onClick || toggleDetailOpen}>
                 <div className="icon-container">
-                    <i className={"icon icon-fw icon-" + (open ? 'minus' : 'plus') }/>
+                    <i className={"icon icon-fw fas icon-" + (open ? 'minus' : 'plus') }/>
                 </div>
             </button>
         </div>
@@ -372,8 +372,8 @@ export class ResultRowColumnBlockValue extends React.Component {
 export class ColumnSorterIcon extends React.PureComponent {
 
     static icon(style="descend"){
-        if (style === 'descend')        return <i className="icon icon-sort-desc" style={{ transform: 'translateY(-1px)' }}/>;
-        else if (style === 'ascend')    return <i className="icon icon-sort-asc" style={{ transform: 'translateY(4px)' }}/>;
+        if (style === 'descend')        return <i className="icon icon-sort-desc fas" style={{ transform: 'translateY(-1px)' }}/>;
+        else if (style === 'ascend')    return <i className="icon icon-sort-asc fas" style={{ transform: 'translateY(4px)' }}/>;
     }
 
     static propTypes = {

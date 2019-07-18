@@ -125,7 +125,7 @@ class ResultDetail extends React.PureComponent{
                     }}>
                         { renderDetailPane(result, rowNumber, tableContainerWidth, this.setDetailHeightFromPane) }
                         <div className="close-button-container text-center" onClick={toggleDetailOpen} data-tip="Collapse Details">
-                            <i className="icon icon-angle-up"/>
+                            <i className="icon icon-angle-up fas"/>
                         </div>
                     </div>
                     : <div/> }
@@ -531,7 +531,7 @@ class ShadowBorderLayer extends React.Component {
         }
         return (
             <div className={className} onMouseDown={this.handleLeftScrollButtonMouseDown} onMouseUp={this.handleScrollButtonUp} onMouseOut={this.handleScrollButtonUp}>
-                <i className="icon icon-caret-left"/>
+                <i className="icon icon-caret-left fas"/>
             </div>
         );
     }
@@ -544,7 +544,7 @@ class ShadowBorderLayer extends React.Component {
         }
         return (
             <div className={className} onMouseDown={this.handleRightScrollButtonMouseDown} onMouseUp={this.handleScrollButtonUp} onMouseOut={this.handleScrollButtonUp}>
-                <i className="icon icon-caret-right"/>
+                <i className="icon icon-caret-right fas"/>
             </div>
         );
     }

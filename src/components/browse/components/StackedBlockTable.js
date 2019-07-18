@@ -105,7 +105,7 @@ export class StackedBlockListViewMoreButton extends React.PureComponent {
 
         return (
             <div className="view-more-button" onClick={handleCollapseToggle}>
-                <i className={"icon icon-" + (collapsed ? 'plus': 'minus')}/>
+                <i className={"icon fas icon-" + (collapsed ? 'plus': 'minus')}/>
                 { titleStr }
                 { showMoreExtTitle ? <span className="ext text-400">{ showMoreExtTitle }</span> : null }
             </div>
@@ -360,7 +360,7 @@ export class StackedBlockTable extends React.PureComponent {
         'columnHeaders' : [
             { columnClass: 'biosample',     className: 'text-left',     title: 'Biosample',     initialWidth: 115   },
             { columnClass: 'experiment',    className: 'text-left',     title: 'Experiment',    initialWidth: 145   },
-            { columnClass: 'file-group',                                title: 'File Group',     initialWidth: 40,   visibleTitle : <i className="icon icon-download"></i> },
+            { columnClass: 'file-group',                                title: 'File Group',     initialWidth: 40,   visibleTitle : <i className="icon fas icon-download"></i> },
             { columnClass: 'file',                                      title: 'File',          initialWidth: 125   }
         ],
         'width': null,

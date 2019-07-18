@@ -16,6 +16,7 @@ export class SearchResultDetailPane extends React.PureComponent {
             'description' : PropTypes.string
         }),
         'popLink' : PropTypes.bool,
+        'schemas' : PropTypes.object,
         //'windowWidth' : PropTypes.number.isRequired
     };
 
@@ -28,12 +29,12 @@ export class SearchResultDetailPane extends React.PureComponent {
     }
 
     render (){
-        const { result, popLink } = this.props;
+        const { result, popLink, schemas } = this.props;
         return (
             <div>
                 { !result.description ? null : (
                     <div className="flex-description-container">
-                        <h5><i className="icon icon-fw icon-align-left"/>&nbsp; Description</h5>
+                        <h5><i className="icon icon-fw icon-align-left fas"/>&nbsp; Description</h5>
                         <FlexibleDescriptionBox
                             //windowWidth={this.props.windowWidth}
                             description={result.description}
@@ -45,8 +46,8 @@ export class SearchResultDetailPane extends React.PureComponent {
                     </div>
                 )}
                 <div className="item-page-detail">
-                    <h5 className="text-500"><i className="icon icon-fw icon-list"/>&nbsp; Details</h5>
-                    <Detail context={result} open={false} popLink={popLink}/>
+                    <h5 className="text-500"><i className="icon icon-fw icon-list fas"/>&nbsp; Details</h5>
+                    <Detail context={result} open={false} popLink={popLink} schemas={schemas}/>
                 </div>
             </div>
         );

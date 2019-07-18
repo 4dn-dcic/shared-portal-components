@@ -132,7 +132,7 @@ export class BuildField extends React.PureComponent {
             case 'integer'          : return <FormControl type="number" {...inputProps} step={1} />;
             case 'number'           : return <FormControl type="number" {...inputProps} />;
             case 'boolean'          : return (
-                <Checkbox {..._.omit(inputProps, 'value', 'placeholder')} checked={!!(value)} className="mb-07 mt-07">
+                <Checkbox {..._.omit(inputProps, 'value', 'placeholder')} checked={!!(value)}>
                     <span style={{ 'verticalAlign' : 'middle', 'textTransform' : 'capitalize' }}>
                         { typeof value === 'boolean' ? value + '' : null }
                     </span>
@@ -369,7 +369,7 @@ const SquareButton = React.memo(function SquareButton(props){
 });
 SquareButton.defaultProps = {
     'bsStyle' : 'danger',
-    'icon' : 'times',
+    'icon' : 'times fas',
     'style' : null
 };
 
@@ -552,10 +552,10 @@ class LinkedObj extends React.PureComponent {
         return (
             <div className="linked-object-buttons-container">
                 <button type="button" className="btn btn-outline-dark select-create-linked-item-button" onClick={this.handleStartSelectItem}>
-                    <i className="icon icon-fw icon-search"/> Select existing
+                    <i className="icon icon-fw icon-search fas"/> Select existing
                 </button>
                 <button type="button" className="btn btn-outline-dark select-create-linked-item-button" onClick={this.handleCreateNewItemClick}>
-                    <i className="icon icon-fw icon-file-o"/> Create new
+                    <i className="icon icon-fw icon-file far"/> Create new
                 </button>
             </div>
         );
@@ -576,9 +576,9 @@ class LinkedObj extends React.PureComponent {
                 const tip = "This Item, '" + thisDisplay + "' is already in the database";
                 return(
                     <div className="submitted-linked-object-display-container text-ellipsis-container">
-                        <i className="icon icon-fw icon-database" />&nbsp;&nbsp;
+                        <i className="icon icon-fw icon-database fas" />&nbsp;&nbsp;
                         <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip}>{ thisDisplay }</a>
-                        &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-external-link ml-05"/>
+                        &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-external-link ml-05 fas"/>
                     </div>
                 );
             } else {
@@ -591,7 +591,7 @@ class LinkedObj extends React.PureComponent {
                     return(
                         <div>
                             <a href={keyComplete[intKey]} target="_blank" rel="noopener noreferrer">{ thisDisplay }</a>
-                            <i className="icon icon-fw icon-external-link ml-05"/>
+                            <i className="icon icon-fw icon-external-link ml-05 fas"/>
                         </div>
                     );
                 } else {
@@ -599,7 +599,7 @@ class LinkedObj extends React.PureComponent {
                         <div className="incomplete-linked-object-display-container text-ellipsis-container">
                             <i className="icon icon-fw icon-sticky-note-o" />&nbsp;&nbsp;
                             <a href="#" onClick={this.setSubmissionStateToLinkedToItem} data-tip="Continue editing/submitting">{ thisDisplay }</a>
-                            &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-pencil ml-05"/>
+                            &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-pencil ml-05 fas"/>
                         </div>
                     );
                 }
@@ -737,7 +737,7 @@ class ArrayField extends React.Component{
         return (
             <div className="add-array-item-button-container">
                 <button type="button" className={"btn btn-outline-dark btn-" + (values.length > 0 ? "sm" : "md")} onClick={pushArrayValue}>
-                    <i className="icon icon-fw icon-plus"/> Add
+                    <i className="icon icon-fw fas icon-plus"/> Add
                 </button>
             </div>
         );
@@ -905,9 +905,9 @@ class AttachmentInput extends React.Component{
     }
 
     render(){
-        const { value = {}, field } = this.props;
+        const { value, field } = this.props;
         let attach_title;
-        if (value.download){
+        if (value && value.download){
             attach_title = value.download;
         } else {
             attach_title = "No file chosen";
@@ -923,7 +923,7 @@ class AttachmentInput extends React.Component{
                 <input id={"field_for_" + field} type="file" onChange={this.handleChange} style={{ 'display':'none' }} accept={this.acceptedTypes()}/>
                 <button type="submit" className="btn btn-outline-dark">
                     <label className="text-400 mb-0" htmlFor={"field_for_" + field} style={labelStyle}>
-                        {attach_title}
+                        { attach_title }
                     </label>
                 </button>
             </div>
@@ -1097,7 +1097,7 @@ class S3FileInput extends React.Component{
                     <Fade in={showDelete}>
                         <div className="pull-right">
                             <button type="button" className="btn btn-danger" disabled={!showDelete} onClick={this.deleteField} tabIndex={2}>
-                                <i className="icon icon-fw icon-times"/>
+                                <i className="icon icon-fw icon-times fas"/>
                             </button>
                         </div>
                     </Fade>
@@ -1328,7 +1328,7 @@ class InfoIcon extends React.PureComponent {
             tip += '<h6 class="mt-07 text-300">Field Type: <span class="text-400">' + this.fieldTypeDescriptor() + '</span></h6>';
         }
         return (
-            <i className={"icon icon-info-circle" + (className? ' ' + className : '')} data-tip={tip} data-html/>
+            <i className={"icon icon-info-circle fas" + (className? ' ' + className : '')} data-tip={tip} data-html/>
         );
     }
 }

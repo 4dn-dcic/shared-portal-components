@@ -90,7 +90,7 @@ class SubmissionProperty extends React.Component {
         return(
             <div key={bookmark} className={"submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '' )}>
                 <div className={"clearfix inner-title" + (!noChildren ? ' clickable' : '')} onClick={!noChildren ? this.handleToggle : undefined}>
-                    <i className={"icon property-expand-icon icon-" + (open ? 'minus' : 'plus')}/>
+                    <i className={"icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')}/>
                     <span>{ children.length } { bookmark || field }</span>
                 </div>
                 { !noChildren ?
@@ -184,6 +184,7 @@ class SubmissionLeaf extends React.Component{
             placeholders = _.keys(hierarchy[keyIdx]).map(this.generateChild);
         }
 
+        let iconClass;
         var extIcon;
         var titleText = keyDisplay[keyIdx] || keyIdx;
         var statusClass = null;
@@ -209,30 +210,30 @@ class SubmissionLeaf extends React.Component{
                 }
             }.bind(this);
 
-            icon = <i className="icon icon-hdd-o indicator-icon"/>;
+            iconClass = "icon-hdd-o";
             tip = "Successfully submitted or pre-existing item; already exists in the database.<br>Click to view this item/dependency in new tab/window.";
-            extIcon = <i className="icon icon-external-link pull-right" />;
+            extIcon = <i className="icon icon-external-link pull-right fas" />;
 
         }else{
             switch (keyValid[keyIdx]){
                 case 0:
                     statusClass = 'not-complete';
-                    icon = <i className="icon icon-stop-circle-o indicator-icon" />;
+                    iconClass = "icon-stop-circle far";
                     tip = "Has incomplete children, cannot yet be validated.";
                     break;
                 case 1:
                     statusClass = 'complete-not-validated';
-                    icon = <i className="icon icon-circle-o indicator-icon" />;
+                    iconClass = "icon-circle far";
                     tip = "All children are complete, can be validated.";
                     break;
                 case 2:
                     statusClass = 'failed-validation';
-                    icon = <i className="icon icon-times indicator-icon" />;
+                    iconClass = "icon-times fas";
                     tip = "Validation failed. Fix fields and try again.";
                     break;
                 case 3:
                     statusClass = 'validated';
-                    icon = <i className="icon icon-check indicator-icon" />;
+                    iconClass = "icon-check";
                     tip = "Validation passed, ready for submission.";
                     break;
                 default:
@@ -241,18 +242,23 @@ class SubmissionLeaf extends React.Component{
             }
         }
 
-        var icon;
+        const icon = <i className={"icon indicator-icon " + iconClass}/>;
+
         if (keyIdx === currKey){ // We're currently on this Item
             isCurrentlySelected = true;
-            extIcon = <i className="icon icon-pencil pull-right" data-tip="Item which you are currently editing." />;
+            extIcon = <i className="icon icon-pencil pull-right fas" data-tip="Item which you are currently editing." />;
         }
 
         return(
             <div className={"submission-nav-leaf linked-item-title leaf-depth-" + (depth) + (isCurrentlySelected ? ' active' : '')}>
                 <div className={"clearfix inner-title " + statusClass} onClick={clickHandler} data-tip={tip} data-html>
-                    {extIcon}{icon}<span className="title-text">{titleText}</span>
+                    { icon }
+                    <span className="title-text">{titleText}</span>
+                    { extIcon }
                 </div>
-                { placeholders && placeholders.length > 0 ? <div className="list-of-properties" children={placeholders} /> : null }
+                { placeholders && placeholders.length > 0 ?
+                    <div className="list-of-properties">{ placeholders }</div>
+                    : null }
             </div>
         );
     }
@@ -262,7 +268,7 @@ class SubmissionLeaf extends React.Component{
 function InfoIcon({ children, className }){
     if (!children) return null;
     return (
-        <i style={{ "marginLeft":"6px", 'fontSize':'0.8em' }} className={"icon icon-info-circle" + (className ? ' ' + className : '')}
+        <i style={{ "marginLeft":"6px", 'fontSize':'0.8em' }} className={"icon fas icon-info-circle" + (className ? ' ' + className : '')}
             data-place="right" data-html={true} data-tip={children}/>
     );
 }

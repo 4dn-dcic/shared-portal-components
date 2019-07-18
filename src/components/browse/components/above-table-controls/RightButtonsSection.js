@@ -10,7 +10,7 @@ import { SearchResultTable } from './../SearchResultTable';
 export const RightButtonsSection = React.memo(function RightButtonsSection(props){
     const { currentOpenPanel, onColumnsBtnClick } = props;
     return (
-        <div className="pull-right right-buttons">
+        <div className="right-buttons">
             <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} />
             <ToggleLayoutButton {..._.pick(props, 'windowWidth', 'isFullscreen', 'toggleFullScreen')} />
         </div>
@@ -23,8 +23,8 @@ export const ConfigureVisibleColumnsButton = React.memo(function ConfigureVisibl
     return (
         <button type="button" key="toggle-visible-columns" data-tip="Configure visible columns" data-event-off="click"
             active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
-            <i className="icon icon-fw icon-table" />
-            <i className="icon icon-fw icon-angle-down ml-03"/>
+            <i className="icon icon-fw icon-table fas" />
+            <i className="icon icon-fw icon-angle-down ml-03 fas"/>
         </button>
     );
 });
@@ -58,7 +58,7 @@ export class ToggleLayoutButton extends React.PureComponent {
         return (
             <button type="button" className={cls}
                 onClick={this.handleLayoutToggle} data-tip={(!isFullscreen ? 'Expand' : 'Collapse') + " table width"}>
-                <i className={"icon icon-fw icon-" + (!isFullscreen ? 'expand' : 'compress')}></i>
+                <i className={"icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')}></i>
             </button>
         );
     }

@@ -448,7 +448,7 @@ export function TooltipInfoIconContainer(props){
     }, (
         <span>{ title || children }&nbsp;
             { typeof tooltip === 'string' ?
-                <i data-tip={tooltip} className="icon icon-info-circle"/>
+                <i data-tip={tooltip} className="icon fas icon-info-circle"/>
                 : null }
         </span>
     ));
@@ -604,7 +604,7 @@ export class CopyWrapper extends React.PureComponent {
         const elemsToWrap = [];
         if (children)                   elemsToWrap.push(children);
         if (children && isMounted)      elemsToWrap.push(' ');
-        if (isMounted && includeIcon)   elemsToWrap.push(<i {...iconProps} key="copy-icon" className="icon icon-fw icon-copy" title="Copy to clipboard" />);
+        if (isMounted && includeIcon)   elemsToWrap.push(<i {...iconProps} key="copy-icon" className="icon icon-fw icon-copy far" title="Copy to clipboard" />);
 
         const wrapperProps = _.extend(
             {

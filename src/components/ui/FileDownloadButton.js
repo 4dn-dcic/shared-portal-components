@@ -14,7 +14,7 @@ export function FileDownloadButton(props){
     const cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
     return (
         <a href={ href } className={cls} download data-tip={filename || null}>
-            <i className="icon icon-fw icon-cloud-download"/>{ title ? <span>&nbsp; { title }</span> : null }
+            <i className="icon icon-fw icon-cloud-download fas"/>{ title ? <span>&nbsp; { title }</span> : null }
         </a>
     );
 }
@@ -77,7 +77,7 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
     let extLink = null; // Unsure if really used. Maybe should test href for presence of http[s]:// instd of target="_blank"?
     let preLink = null;
 
-    preLink = <i className="icon icon-fw icon-cloud-download" />;
+    preLink = <i className="icon icon-fw icon-cloud-download fas" />;
 
     const fileNameLower = (filename && filename.length > 0 && filename.toLowerCase()) || '';
     const fileNameLowerEnds = {
@@ -87,13 +87,13 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
     };
     if (isFilenameAnImage(fileNameLowerEnds)){
         action = 'View';
-        preLink = <i className="icon icon-fw icon-picture-o" />;
+        preLink = <i className="icon icon-fw icon-image far" />;
     } else if (fileNameLowerEnds['4'] === '.pdf'){
         action = 'View';
         if (target === '_blank'){
-            extLink = <i className="icon icon-fw icon-external-link"/>;
+            extLink = <i className="icon icon-fw icon-external-link fas"/>;
         }
-        preLink = <i className="icon icon-fw icon-file-pdf-o" />;
+        preLink = <i className="icon icon-fw icon-file-pdf far" />;
     } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx'){
         action = 'Download';
     }

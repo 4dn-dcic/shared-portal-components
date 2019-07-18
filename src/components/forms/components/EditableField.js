@@ -459,25 +459,25 @@ export class EditableField extends React.Component {
                     // ToDo info popup or tooltip
                     return (
                         <span className={extClass + " edit-button info disabled"}>
-                            <i className="icon icon-info-circle icon-fw"></i>
+                            <i className="icon icon-info-circle icon-fw fas"/>
                         </span>
                     );
                 }
                 return (
                     <a href={ "#edit-" + this.props.labelID } className={extClass + " edit-button"} onClick={ this.enterEditState } title="Edit">
-                        <i className="icon icon-pencil icon-fw"></i>
+                        <i className="icon icon-pencil icon-fw fas"></i>
                     </a>
                 );
             case 'save' :
                 if (!this.isValid(false)) return null;
                 return (
                     <a href={ "#save-" + this.props.labelID } className={extClass + " save-button"} onClick={this.saveEditState} title="Save">
-                        <i className="icon icon-check icon-fw"></i>
+                        <i className="icon icon-check fas icon-fw"></i>
                     </a>
                 );
             case 'cancel': return (
                 <a href="#" className={extClass + " cancel-button"} onClick={this.cancelEditState} title="Cancel">
-                    <i className="icon icon-times-circle-o icon-fw"></i>
+                    <i className="icon icon-times-circle far icon-fw"></i>
                 </a>
             );
         }

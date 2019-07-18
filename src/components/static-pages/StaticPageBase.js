@@ -159,7 +159,7 @@ export class StaticEntry extends React.PureComponent {
                 <div className={outerClassName} id={id}>
                     { section && section.title ?
                         <HeaderWithLink className={"section-title can-collapse " + (open ? 'open' : 'closed')} link={id} context={context} onClick={this.toggleOpen}>
-                            <i className={"icon icon-fw icon-" + (open ? 'minus' : 'plus')}/>&nbsp;&nbsp;
+                            <i className={"icon icon-fw fas icon-" + (open ? 'minus' : 'plus')}/>&nbsp;&nbsp;
                             { section.title }
                         </HeaderWithLink>
                         : null }

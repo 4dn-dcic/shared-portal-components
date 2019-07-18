@@ -262,9 +262,11 @@
 
 			.field-container {
 				min-height: 50px;
-				padding-top: 8px;
-				padding-bottom: 8px;
+				padding-top: 0;
+				padding-bottom: 0;
 				display: flex;
+				align-items: center;
+				flex-wrap: nowrap;
 
 				.submitted-linked-object-display-container,
 				.incomplete-linked-object-display-container,
@@ -328,7 +330,6 @@
 			.field-column {
 				opacity: 1;
 				transition: opacity 0.33s;
-				overflow: hidden;
 
 				&.last-item-empty:not(:hover):not(.in-selection-field) {
 					opacity: 0.7;
@@ -385,11 +386,10 @@
 				}
 			}
 
-			button:not(.btn-xs):not(.btn-sm):not(.btn-large):not(.btn-xlarge){
-				height: 34px;
-				padding-bottom: 7px;
-			}
-
+			//button:not(.btn-xs):not(.btn-sm):not(.btn-large):not(.btn-xlarge){
+			//	height: 34px;
+			//	padding-bottom: 7px;
+			//}
 			
 
 			// Override array-containing field style to have no padding as it recursively will render field items with their own padding (so don't double-pad).
@@ -423,15 +423,7 @@
 								> .field-column {
 									 > div > div > .field-row {
 										.field-container {
-											.linked-object-buttons-container {
-												display: flex;
-												> button.select-create-linked-item-button {
-													flex: 1;
-													&:last-child {
-														margin-right: 0;
-													}
-												}
-											}
+											// Same as ordinary abv.
 										}
 										
 									}
@@ -481,13 +473,18 @@
 
 			.linked-object-buttons-container {
 				display: flex;
+				align-items: center;
+				// button.btn
 				.select-create-linked-item-button {
-					width: 160px;
 					margin-right: 10px;
+					white-space: nowrap;
+					flex: 1 0 100px;
+					> i.icon {
+						transform: none;
+					}
 					&:last-child {
 						margin-right: 0;
 					}
-					flex: 1;
 				}
 			}
 
@@ -509,35 +506,33 @@
 			}
 		}
 
+		.inner-title {
+			display: flex;
+			align-items: center;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			> i.icon:first-child {
+				padding-left: 7px;
+			}
+			> i.icon:last-child {
+				padding-right: 7px;
+			}
+			> .title-text {
+				flex-grow: 1;
+			}
+		}
+
 		//.....
 		.submission-nav-leaf.linked-item-title {
 
 			> .inner-title { // Item Name
-				overflow: hidden;
-				white-space: nowrap;
-				text-overflow: ellipsis;
 				font-size: 0.925rem;
 				border: 1px solid rgba(0,0,0,0.1);
 				cursor: pointer;
 				vertical-align: middle;
 				font-weight: 500;
 				border-radius: 2px;
-
-				> i.icon {
-					padding-left: 7px;
-					//padding-right: 2px;
-				}
-
-				> i.icon-pencil {
-					padding-top: 3px;
-					padding-right: 4px;
-					font-size: 1.2rem;
-				}
-
-				> i.icon-external-link {
-					padding-right: 5px;
-					padding-top: 7px;
-				}
 
 				> .toggle-icon-button {
 					vertical-align: middle;
@@ -583,12 +578,10 @@
 				> .submission-nav-leaf.linked-item-type-name {
 					> .inner-title { // Item Type
 						opacity: 0.5;
-						overflow: hidden;
-						white-space: nowrap;
-						text-overflow: ellipsis;
 						font-size: 0.8em;
+						min-height: 20px;
 						.property-expand-icon {
-							margin-right: 6px;
+							padding-right: 7px;
 							font-size: 0.625rem;
 						}
 					}

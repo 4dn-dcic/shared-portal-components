@@ -44,7 +44,7 @@ export class FlexibleCharacterCountBox extends React.Component {
                 'onClick' : this.onClick,
                 'expanded' : expanded,
                 'data-expanded' : expanded
-            }) || <i className={"icon icon-" + (expanded ? 'minus' : 'plus')} onClick={this.onClick} />
+            }) || <i className={"icon fas icon-" + (expanded ? 'minus' : 'plus')} onClick={this.onClick} />
         );
 
         return (
@@ -294,7 +294,7 @@ export class FlexibleDescriptionBox extends React.Component {
         if (!descriptionWillFitOneLine && typeof this.props.expanded !== 'boolean'){
             expandButton = (
                 <button type="button" className="description-expand-button right" onClick={this.throttledToggleDescriptionExpand}>
-                    <i className={"icon icon-" + (expanded ? 'minus' : 'plus' )} />
+                    <i className={"icon fas icon-" + (expanded ? 'minus' : 'plus' )} />
                 </button>
             );
         }

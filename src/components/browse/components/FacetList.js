@@ -93,11 +93,11 @@ class Term extends React.PureComponent {
         let icon = null;
 
         if (filtering){
-            icon = <i className="icon icon-circle-o-notch icon-spin icon-fw"/>;
+            icon = <i className="icon fas icon-circle-o-notch icon-spin icon-fw"/>;
         } else if (selected) {
-            icon = <i className="icon icon-times-circle icon-fw"/>;
+            icon = <i className="icon icon-times-circle icon-fw fas"/>;
         } else {
-            icon = <i className="icon icon-circle-o icon-fw unselected"/>;
+            icon = <i className="icon icon-circle icon-fw unselected far"/>;
         }
 
         if (!title || title === 'null' || title === 'undefined'){
@@ -208,13 +208,13 @@ class FacetTermsList extends React.Component {
             if (expanded){
                 expandButtonTitle = (
                     <span>
-                        <i className="icon icon-fw icon-minus"/> Collapse
+                        <i className="icon icon-fw icon-minus fas"/> Collapse
                     </span>
                 );
             } else {
                 expandButtonTitle = (
                     <span>
-                        <i className="icon icon-fw icon-plus"/> View {terms.length - persistentCount} More
+                        <i className="icon icon-fw icon-plus fas"/> View {terms.length - persistentCount} More
                         <span className="pull-right">{ remainingTermsCount }</span>
                     </span>
                 );
@@ -248,7 +248,7 @@ class FacetTermsList extends React.Component {
             <Fade in={facetClosing || !facetOpen}>
                 <span className="pull-right closed-terms-count" data-tip={terms.length + " options"}>
                     { _.range(0, Math.min(Math.ceil(terms.length / 3), 8)).map((c)=>
-                        <i className="icon icon-ellipsis-v" style={{ opacity : ((c + 1) / 5) * (0.67) + 0.33 }} key={c}/>
+                        <i className="icon icon-ellipsis-v fas" style={{ opacity : ((c + 1) / 5) * (0.67) + 0.33 }} key={c}/>
                     )}
                 </span>
             </Fade>
@@ -259,7 +259,7 @@ class FacetTermsList extends React.Component {
             <div className={"facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : '')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle">
-                        <i className={"icon icon-fw " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
+                        <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
                     </span>
                     <span className="inline-block" data-tip={tooltip} data-place="right">{ title }</span>
                     { indicator }
@@ -389,7 +389,7 @@ const StaticSingleTerm = React.memo(function StaticSingleTerm({ term, facet, sho
                     }>
                         <i className={"icon icon-fw " +
                             (filtering ? 'icon-spin icon-circle-o-notch' :
-                                ( selected ? 'icon-times-circle' : 'icon-circle' )
+                                ( selected ? 'icon-times-circle fas' : 'icon-circle fas' )
                             )
                         }/>
                         { termName }
@@ -571,13 +571,13 @@ export class FacetList extends React.PureComponent {
             <div className={"facets-container facets" + (className ? ' ' + className : '')}>
                 <div className="row facets-header">
                     <div className="col facets-title-column text-ellipsis-container">
-                        <i className="icon icon-fw icon-filter"></i>
+                        <i className="icon icon-fw icon-filter fas"></i>
                         &nbsp;
                         <h4 className="facets-title">{ title }</h4>
                     </div>
                     <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
                         <a href="#" onClick={onClearFilters} className={"btn btn-xs " + clearButtonClassName}>
-                            <i className="icon icon-times"></i> Clear All
+                            <i className="icon icon-times fas"/> Clear All
                         </a>
                     </div>
                 </div>

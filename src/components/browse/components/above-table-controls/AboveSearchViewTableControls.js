@@ -34,7 +34,7 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
         if (addAction && typeof addAction.href === 'string'){
             addButton = (
                 <a className={"btn btn-primary btn-xs" + (total ? " ml-1" : "")} href={addAction.href} data-skiprequest="true">
-                    <i className="icon icon-fw icon-plus shift-down-1 mr-03"/>
+                    <i className="icon icon-fw icon-plus fas mr-03 fas"/>
                     Create New
                     &nbsp;
                 </a>
@@ -42,20 +42,18 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
         }
     }
 
-    const aboveTableControlsProps = _.extend(
-        _.pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'parentForceUpdate'),
-        { "panelMap" : AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props) }
-    );
+    console.log("RRR", props.isFullscreen);
 
     return (
-        <AboveTableControlsBase {...aboveTableControlsProps}>
+        <AboveTableControlsBase panelMap={AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)}
+            {..._.pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'parentForceUpdate')}>
             <LeftSectionControls {...{ total, addButton }} />
         </AboveTableControlsBase>
     );
 });
 
 
-function LeftSectionControls({ total, addButton }){
+function LeftSectionControls({ total, addButton, panelToggleFxns, onClosePanel, currentOpenPanel }){
     if (!total && !addButton) return null;
     return (
         <div key="total-count" className="pull-left pt-11 box results-count">

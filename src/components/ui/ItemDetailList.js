@@ -50,7 +50,7 @@ const SubItemTitle = React.memo(function SubItemTitle({ isOpen, title, onToggle,
     return (
         <span className="subitem-toggle">
             <span className="link" onClick={onToggle}>
-                <i style={{ 'color':'black', 'paddingRight': 10, 'paddingLeft' : 5 }} className={"icon " + iconType}/>
+                <i style={{ 'color':'black', 'paddingRight': 10, 'paddingLeft' : 5 }} className={"icon fas " + iconType}/>
                 { showTitle } { subtitle } { countProperties && !isOpen ? <span>({ countProperties })</span> : null }
             </span>
         </span>
@@ -906,9 +906,9 @@ const ToggleJSONButton = React.memo(function ToggleJSONButton({ onClick, showing
     return (
         <button type="button" className="btn btn-block btn-outline-secondary" onClick={onClick}>
             { showingJSON ?
-                <React.Fragment><i className="icon icon-fw icon-list"/> View as List</React.Fragment>
+                <React.Fragment><i className="icon fas icon-fw icon-list"/> View as List</React.Fragment>
                 :
-                <React.Fragment><i className="icon icon-fw icon-code"/> View as JSON</React.Fragment>
+                <React.Fragment><i className="icon fas icon-fw icon-code"/> View as JSON</React.Fragment>
             }
         </button>
     );
@@ -937,7 +937,7 @@ export class ItemDetailList extends React.PureComponent {
 
     static getTabObject(props){
         return {
-            tab : <span><i className="icon icon-list icon-fw"/> Details</span>,
+            tab : <span><i className="icon fas icon-list icon-fw"/> Details</span>,
             key : 'details',
             content : (
                 <div>

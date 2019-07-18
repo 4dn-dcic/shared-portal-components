@@ -20,7 +20,7 @@ export class AboveTableControlsBase extends React.PureComponent {
     static getCustomColumnSelectorPanelMapDefinition(props){
         return {
             "customColumns" : {
-                "title" : <React.Fragment><i className="icon icon-fw icon-gear"/> Configure Visible Columns</React.Fragment>,
+                "title" : <React.Fragment><i className="icon icon-fw icon-gear fas shift-down-1"/> Configure Visible Columns</React.Fragment>,
                 "body" : <CustomColumnSelector {..._.pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')} />,
                 "className" : "visible-columns-selector-panel"
             }
@@ -43,7 +43,6 @@ export class AboveTableControlsBase extends React.PureComponent {
         this.handleOpenToggle = _.throttle(this.handleOpenToggle.bind(this), 350);
         this.handleClose = this.handleOpenToggle.bind(this, false);
         this.handleOpenColumnsSelectionPanel = this.handleOpenToggle.bind(this, 'customColumns');
-        this.renderPanel = this.renderPanel.bind(this);
 
         this.panelToggleFxns = {};
         _.forEach(_.keys(props.panelMap), (key)=>{
@@ -99,43 +98,34 @@ export class AboveTableControlsBase extends React.PureComponent {
         });
     }
 
-    renderPanel(){
-        const { panelMap = {} } = this.props;
-        const { open, reallyOpen } = this.state;
-
-        const panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
-        if (!panelDefinition) return null;
-
-        const { title, body, className } = panelDefinition;
-
-        return (
-            <Collapse in={!!(open)} appear>
-                <AboveTablePanelWrapper className={className} onClose={this.handleClose} title={title}>
-                    { body }
-                </AboveTablePanelWrapper>
-            </Collapse>
-        );
-    }
-
     render(){
-        const { children } = this.props;
+        const { children, panelMap = {} } = this.props;
         const { open, reallyOpen } = this.state;
-        const extendedChildren = React.Children.map(children, (child)=>{
-            const childPropsToAdd = {
+        const extendedChildren = React.Children.map(children, (child) =>
+            React.cloneElement(child, {
                 "panelToggleFxns" : this.panelToggleFxns,
                 "onClosePanel" : this.handleClose,
                 "currentOpenPanel" : open || reallyOpen
-            };
-            return React.cloneElement(child, childPropsToAdd);
-        });
+            })
+        );
+
+        const panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
+        const { title: panelTitle, body: panelBody, className: panelCls } = panelDefinition || {};
+
         return (
             <div className="above-results-table-row">
-                <div className="clearfix">
+                <div className="row">
                     { extendedChildren }
                     <RightButtonsSection {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')}
                         currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} />
                 </div>
-                { this.renderPanel() }
+                { panelDefinition ?
+                    <Collapse in={!!(open)} appear>
+                        <AboveTablePanelWrapper className={panelCls} onClose={this.handleClose} title={panelTitle}>
+                            { panelBody }
+                        </AboveTablePanelWrapper>
+                    </Collapse>
+                    : null }
             </div>
         );
     }
@@ -144,7 +134,7 @@ AboveTableControlsBase.defaultProps = {
     "panelMap" : {
         // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
         "customColumns" : {
-            "title" : <span><i className="icon icon-fw icon-gear"/> hello world</span>,
+            "title" : <span><i className="icon icon-fw icon-gear fas"/> hello world</span>,
             "body" : "Hello World",
             "className" : "visible-columns-selector-panel"
         }

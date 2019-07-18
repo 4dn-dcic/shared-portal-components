@@ -164,7 +164,7 @@ class ControlsAndResults extends React.PureComponent {
                     newChildren.unshift(
                         <div className="select-button-container">
                             <button type="button" className="select-button" onClick={this.handleSelectItemClick.bind(this, result)}>
-                                <i className="icon icon-fw icon-check"/>
+                                <i className="icon icon-fw icon-check fas"/>
                             </button>
                         </div>
                     );
@@ -210,13 +210,13 @@ class ControlsAndResults extends React.PureComponent {
     }
 
     renderSearchDetailPane(result, rowNumber, containerWidth){
-        const { windowWidth } = this.props;
-        return <SearchResultDetailPane {...{ result, rowNumber, containerWidth }} windowWidth={windowWidth} />;
+        const { windowWidth, schemas } = this.props;
+        return <SearchResultDetailPane {...{ result, rowNumber, containerWidth, schemas, windowWidth }} />;
     }
 
     render() {
         const {
-            context, schemas, hiddenColumns, columnExtensionMap, currentAction, isFullscreen, href, facets: propFacets,
+            context, schemas, hiddenColumns, columnExtensionMap, currentAction, href, facets: propFacets,
             tableColumnClassName, facetColumnClassName
         } = this.props;
         const results                         = context['@graph'];
@@ -262,7 +262,9 @@ export class SearchView extends React.PureComponent {
         'href'          : PropTypes.string.isRequired,
         'session'       : PropTypes.bool.isRequired,
         'navigate'      : PropTypes.func,
-        'facets'        : PropTypes.array
+        'facets'        : PropTypes.array,
+        'isFullscreen'  : PropTypes.bool.isRequired,
+        'toggleFullScreen' : PropTypes.func.isRequired
     };
 
     /**

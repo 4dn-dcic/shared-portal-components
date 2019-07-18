@@ -165,7 +165,7 @@ class TableEntry extends React.Component {
         let collapsibleButton;
         if (collapsible && childHeaders.length > 0){
             collapsibleButton = <i
-                className={"inline-block icon icon-fw icon-" + (open ? 'minus' : 'plus')}
+                className={"inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus')}
                 onClick={this.toggleOpen}
             />;
         }
@@ -182,7 +182,7 @@ class TableEntry extends React.Component {
         if (depth === 0){
             title = (
                 <span title="Up to page listing" className="top-of-page visible-lg-block visible-lg">
-                    <i className="icon icon-angle-up"></i>
+                    <i className="icon fas icon-angle-up"></i>
                     { title }
                 </span>
             );
@@ -543,8 +543,8 @@ export class TableOfContents extends React.Component {
                 <div key="expand-btn" className="col col-xs-3 text-right expand-button-container">
                     <button type="button" className="btn btn-xs btn-outline-dark" onClick={this.onToggleWidthBound}>
                         { widthBound ?
-                            <span><i className="icon icon-fw icon-angle-left"/></span> :
-                            <span><i className="icon icon-fw icon-angle-right"/></span>
+                            <span><i className="icon icon-fw fas icon-angle-left"/></span> :
+                            <span><i className="icon icon-fw fas icon-angle-right"/></span>
                         }
                     </button>
                 </div>
@@ -673,13 +673,13 @@ export const NextPreviousPageSection = React.memo(function NextPreviousPageSecti
             <div className="row">
                 { previous ?
                     <div className={"previous-section text-right col-" + colSize}>
-                        <h6 className="text-400 mb-02 mt-12"><i className="icon icon-fw icon-angle-left"/> { previousTitle }</h6>
+                        <h6 className="text-400 mb-02 mt-12"><i className="icon icon-fw fas icon-angle-left"/> { previousTitle }</h6>
                         <h6 className="text-500 mt-0"><a href={previous['@id'] || '/' + previous.name}>{ previous.display_title }</a></h6>
                     </div>
                     : null }
                 { next ?
                     <div className={"next-section col-" + colSize}>
-                        <h6 className="text-400 mb-02 mt-12">{ nextTitle } <i className="icon icon-fw icon-angle-right"/></h6>
+                        <h6 className="text-400 mb-02 mt-12">{ nextTitle } <i className="icon fas icon-fw icon-angle-right"/></h6>
                         <h6 className="text-500 mt-0"><a href={next['@id'] || '/' + next.name}>{ next.display_title }</a></h6>
                     </div>
                     : null }
@@ -794,7 +794,7 @@ export class HeaderWithLink extends React.PureComponent {
         if (!this.props.id && !this.props.link) throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
         return React.createElement(this.props.type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [
             this.props.children,
-            <i key="icon-link" className="icon icon-fw icon-link" onClick={this.handleLinkClick} title="Copy link to clipboard"/>
+            <i key="icon-link" className="icon icon-fw icon-link fas" onClick={this.handleLinkClick} title="Copy link to clipboard"/>
         ]);
     }
 }
