@@ -139,7 +139,7 @@ export class BuildField extends React.PureComponent {
                 </Checkbox>
             );
             case 'enum'             : return (
-                <span className="input-wrapper" style={{ 'display':'inline' }}>
+                <span className="input-wrapper">
                     <DropdownButton title={value || <span className="text-300">No value</span>}
                         onToggle={this.handleDropdownButtonToggle} variant="outline-dark">
                         {_.map(enumValues, (val) => this.buildEnumEntry(val))}
@@ -148,7 +148,7 @@ export class BuildField extends React.PureComponent {
             );
             case 'linked object'    : return <LinkedObj key="linked-item" {...this.props}/>;
             case 'array'            : return <ArrayField {...this.props} pushArrayValue={this.pushArrayValue} value={value || null} roundTwo={roundTwo} />;
-            case 'object'           : return <div style={{ 'display':'inline' }}><ObjectField {...this.props}/></div>;
+            case 'object'           : return <ObjectField {...this.props} />;
             case 'attachment'       : return <div style={{ 'display':'inline' }}><AttachmentInput {...this.props}/></div>;
             case 'file upload'      : return <S3FileInput {...this.props} />;
         }
@@ -331,6 +331,8 @@ export class BuildField extends React.PureComponent {
                 //    showDelete = false;
                 //}
             }
+        } else if (fieldType === 'object') {
+            showDelete = false;
         }
 
         if (fieldType === 'linked object' && LinkedObj.isInSelectionField(this.props)){
@@ -350,16 +352,16 @@ export class BuildField extends React.PureComponent {
 
 const SquareButton = React.memo(function SquareButton(props){
     const { show, disabled, onClick, tip, bsStyle, className, buttonContainerClassName, icon, style } = props;
-    const outerCls = "remove-button-container" + (!show ? ' hidden' : '') + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
+    const outerCls = "remove-button-container" + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
     let btnCls = ("btn" + (className ? " " + className : ""));
     if (bsStyle){
         btnCls += " btn-" + bsStyle;
     }
     return (
-        <div className="remove-button-column" style={style}>
+        <div className={"remove-button-column" + (!show ? ' hidden' : '')} style={style}>
             <Fade in={show}>
                 <div className={outerCls}>
-                    <button type="button" disabled={disabled} onClick={onClick} data-tip={tip} tabIndex={2} className={btnCls}>
+                    <button type="button" disabled={disabled || !show} onClick={onClick} data-tip={tip} tabIndex={2} className={btnCls}>
                         <i className={"icon icon-fw icon-" + icon}/>
                     </button>
                 </div>
@@ -765,12 +767,20 @@ class ArrayField extends React.Component{
  * Builds a field that represents a sub-object. Essentially serves to hold
  * and coordinate BuildFields that correspond to the fields within the subfield.
  */
-class ObjectField extends React.Component {
+class ObjectField extends React.PureComponent {
 
     componentDidMount(){
+        const { value, modifyNewContext, nestedField, linkType, arrayIdx } = this.props;
         // initialize with empty dictionary
-        var initVal = this.props.value || {};
-        this.props.modifyNewContext(this.props.nestedField, initVal, 'object', this.props.linkType, this.props.arrayIdx);
+        const initVal = value || {};
+        modifyNewContext(nestedField, initVal, 'object', linkType, arrayIdx);
+    }
+
+    componentDidUpdate(pastProps){
+        const { value: parentObject } = this.props;
+        if (pastProps.value !== parentObject){
+            console.log('CHANGED', pastProps.value , parentObject);
+        }
     }
 
     includeField = (schema, field) => {
@@ -795,48 +805,47 @@ class ObjectField extends React.Component {
         return schemaVal;
     }
 
-    initiateField = ([ field, fieldSchema ]) => {
-        var fieldTip = fieldSchema.description ? fieldSchema.description : null;
-        if(fieldSchema.comment){
-            fieldTip = fieldTip ? fieldTip + ' ' + fieldSchema.comment : fieldSchema.comment;
-        }
-        var fieldType = BuildField.fieldTypeFromFieldSchema(fieldSchema);
-        var title = fieldSchema.title || field;
-        var fieldValue;
-        if(this.props.value){
-            fieldValue = this.props.value[field];
-        }else{
-            fieldValue = null;
-        }
-        var enumValues = [];
-        // check if this is an enum
-        if(fieldType === 'enum'){
-            enumValues = fieldSchema.enum || fieldSchema.suggested_enum || [];
-        }
-        // format field as <this_field>.<next_field> so top level modification
-        // happens correctly
-        var nestedField = this.props.nestedField + '.' + field;
-        return (
-            <BuildField
-                { ..._.pick(this.props, 'modifyNewContext', 'linkType', 'setSubmissionState',
-                    'selectObj', 'selectComplete', 'selectCancel', 'arrayIdx', 'keyDisplay', 'keyComplete', 'currType',
-                    'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx'
-                )}
-                { ...{ field, fieldType, fieldTip, enumValues, nestedField, title } }
-                value={fieldValue} key={field} schema={fieldSchema}
-                disabled={false} required={false} isArray={false} />
-        );
-    }
-
     render(){
-        var objectSchema = this.props.schema,
-            allFieldsInSchema = objectSchema['properties'] ? _.keys(objectSchema['properties']) : [],
-            fieldsToBuild = _.filter(_.map(allFieldsInSchema, (f)=>{ // List of [field, fieldSchema] pairs.
-                var fieldSchemaToUseOrNull = this.includeField(objectSchema, f);
-                return (fieldSchemaToUseOrNull && [f, fieldSchemaToUseOrNull]) || null;
-            }));
+        const { schema: objectSchema, value: parentObject, nestedField: propNestedField } = this.props;
+        const allFieldsInSchema = objectSchema['properties'] ? _.keys(objectSchema['properties']) : [];
+        const fieldsToBuild = _.filter(_.map(allFieldsInSchema, (f)=>{ // List of [field, fieldSchema] pairs.
+            const fieldSchemaToUseOrNull = this.includeField(objectSchema, f);
+            return (fieldSchemaToUseOrNull && [f, fieldSchemaToUseOrNull]) || null;
+        }));
 
-        return <div className="object-field-container" children={_.map(fieldsToBuild, this.initiateField)} />;
+        const passProps = _.pick(this.props, 'modifyNewContext', 'linkType', 'setSubmissionState',
+            'selectObj', 'selectComplete', 'selectCancel', 'arrayIdx', 'keyDisplay', 'keyComplete', 'currType',
+            'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx'
+        );
+
+        const builtFields = _.map(fieldsToBuild, function([ field, fieldSchema ]){
+            let fieldTip = fieldSchema.description ? fieldSchema.description : null;
+            if (fieldSchema.comment){
+                fieldTip = fieldTip ? fieldTip + ' ' + fieldSchema.comment : fieldSchema.comment;
+            }
+            const fieldType = BuildField.fieldTypeFromFieldSchema(fieldSchema);
+            const title = fieldSchema.title || field;
+            let fieldValue;
+            if (parentObject) {
+                fieldValue = parentObject[field];
+            } else {
+                fieldValue = null;
+            }
+            let enumValues = [];
+            // check if this is an enum
+            if (fieldType === 'enum'){
+                enumValues = fieldSchema.enum || fieldSchema.suggested_enum || [];
+            }
+            // format field as <this_field>.<next_field> so top level modification
+            // happens correctly
+            const nestedField = propNestedField + '.' + field;
+            return (
+                <BuildField { ...passProps} { ...{ field, fieldType, fieldTip, enumValues, nestedField, title } }
+                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={false} isArray={false} />
+            );
+        });
+
+        return <div className="object-field-container">{ builtFields }</div>;
     }
 }
 

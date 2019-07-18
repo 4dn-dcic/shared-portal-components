@@ -111,3 +111,9 @@
      -ms-user-select: $select; // IE10+
          user-select: $select;
 }
+
+@mixin text-ellipsis-container {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

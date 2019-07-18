@@ -1,12 +1,15 @@
 
+@import './mixins';
+
 $search-results-edge-shadow-color : rgba(0,0,0,0.125) !default;
 $search-results-result-row-height: 46px !default;
 $search-results-above-results-row-height: 40px !default;
 $search-results-above-results-row-bottom-padding: 5px !default;
+$search-results-header-text-color: #fff !default;
 
 // Common definitions
 @mixin search-result-column-and-header-block {
-	float: left;
+	//float: left;
 	//transform: translate3d(0,0,0);
 	> .inner {
 		height : $search-results-result-row-height;
@@ -23,6 +26,13 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 
 @mixin search-result-column-block {
     @include search-result-column-and-header-block;
+
+    > .inner > .value {
+        // Default style -- can be overriden
+        @include text-ellipsis-container;
+        flex-grow: 1;
+    }
+
     /** Some Common Styles **/
     &[data-field="display_title"],
     &[data-field="@type"],
@@ -269,8 +279,6 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 							&[data-field="display_title"]{
 								@include search-result-toggle-open-button-container;
 								.select-button-container {
-									float: left;
-									margin-top: -10px;
 									margin-left: -7px;
 									margin-right: 15px;
 									> button {
@@ -489,26 +497,33 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 			}
 
 			> .inner {
-				color: #fff;
+				color: $search-results-header-text-color;
 				font-weight: 500;
-				padding-right: 32px;
+                padding-right: 32px;
+                display: flex;
 
-				.column-sort-icon {
+                > .column-title {
+                    flex-grow: 1;
+                    text-align: center;
+                    @include text-ellipsis-container;
+                }
+
+				> .column-sort-icon {
 					color: rgba(255,255,255,0.5);
 					text-decoration: none !important;
-					margin-left: 10px;
-					margin-right: 5px;
+					padding-left: 0;
+					padding-right: 5px;
 					display: inline-block;
 					/* float: right; */
 					position: absolute;
 					cursor: pointer;
 					right: 9px;
 					&:hover, &:active, &:focus {
-						color: #fff;
+						color: $search-results-header-text-color;
 					}
 					&.active {
-						color: #fff;
-						text-shadow: 0 0 0 #fff;
+						color: $search-results-header-text-color;
+						text-shadow: 0 0 0 $search-results-header-text-color;
 					}
 				}
 
@@ -521,7 +536,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 			}
 			> .width-adjuster {
 				position: absolute;
-				color: #fff;
+				color: $search-results-header-text-color;
 				padding-left: 10px;
 				padding-right: 15px;
 				left: 0;
@@ -532,10 +547,14 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				width: 28px;
 				height: 100%;
 
-				&:after{
+				&:after {
 					content: ' ';
-					border-left: 1px dotted rgba(255,255,255,0.6);
-					border-right: 1px dotted rgba(255,255,255,0.6);
+					border-left-width: 1px;
+                    border-right-width: 1px;
+                    border-left-style: dotted;
+                    border-right-style: dotted;
+                    border-color: $search-results-header-text-color;
+                    opacity: 0.6;
 					width: 3px;
 					left: 10px;
 
@@ -544,7 +563,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					position: absolute;
 				}
 				&:hover:after {
-					border-color: #fff;
+					opacity: 1;
 				}
 			}
 		}

@@ -360,6 +360,9 @@
 				padding-right: 10px;
 				width: 45px;
 				flex: 0 0 45px;
+				&.hidden {
+					display: none;
+				}
 				.remove-button-container {
 					width: 100%;
 					> button {
