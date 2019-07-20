@@ -12,14 +12,14 @@ const fs = require('fs');
 const childProcess = require('child_process');
 
 const [ , , ...args ] = process.argv;
-const [ parentApplicationRootDirUnParsed, ...opts ] = args;
 
 // Will be overriden from opts argv.
+const posArgs = [];
 const standardizedOpts = {
     'overwrite' : false
 };
 
-opts.forEach(function(opt){
+args.forEach(function(opt){
     // parse each opt accordingly
     const lowerCasedOpt = opt.toLowerCase();
     if (lowerCasedOpt.slice(0,2) === '--'){
@@ -31,10 +31,11 @@ opts.forEach(function(opt){
         // bool flag
         standardizedOpts[boolFlagKey] = true;
     } else {
-        // todo when/if needed.
+        posArgs.push(opt);
     }
 });
 
+const [ parentApplicationRootDirUnParsed ] = posArgs;
 let parentApplicationRootDir = path.resolve(parentApplicationRootDirUnParsed);
 
 if (!parentApplicationRootDir) {

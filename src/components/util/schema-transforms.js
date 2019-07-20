@@ -68,10 +68,11 @@ export function lookupFieldTitle(field, schemas, itemType = 'ExperimentSet'){
  * @returns {string|null} Type most relevant for current search, or `null`.
  */
 export function getSchemaTypeFromSearchContext(context, schemas){
-    var thisType = _.pluck(_.filter(context.filters || [], function(o){
-        if (o.field === 'type' && o.term !== 'Item') return true;
+    const thisTypeFilter = _.find(context.filters || [], function({ field, term }){
+        if (field === 'type' && term !== 'Item') return true;
         return false;
-    }), 'term')[0] || null;
+    }) || null;
+    const { term: thisType } = thisTypeFilter;
     if (thisType){
         return getTitleForType(thisType, schemas);
     }
