@@ -123,12 +123,12 @@ export class BuildField extends React.PureComponent {
                         </div>
                     );
                 }
-                return <FormControl type="text" inputMode="latin" {...inputProps} />;
+                return <input {...inputProps} type="text" className="form-control" inputMode="latin"/>;
             case 'textarea':
-                return <FormControl type="text" inputMode="latin" {...inputProps} componentClass="textarea" rows={4} />;
+                return <textarea {...inputProps} type="text" inputMode="latin" rows={4} className="form-control mb-08 mt-08" />;
             case 'html':
             case 'code':
-                return <FormControl type="text" inputMode="latin" {...inputProps} componentClass="textarea" rows={8} wrap="off" style={{ 'fontFamily' : "Source Code Pro, monospace", 'fontSize' : 'small' }} />;
+                return <textarea {...inputProps} type="text" inputMode="latin" rows={8} wrap="off" className="form-control text-small mb-08 mt-08" style={{ 'fontFamily' : "Source Code Pro, monospace", 'fontSize' : 'small' }} />;
             case 'integer'          : return <FormControl type="number" {...inputProps} step={1} />;
             case 'number'           : return <FormControl type="number" {...inputProps} />;
             case 'boolean'          : return (

@@ -72,7 +72,7 @@ export function getSchemaTypeFromSearchContext(context, schemas){
         if (field === 'type' && term !== 'Item') return true;
         return false;
     }) || null;
-    const { term: thisType } = thisTypeFilter;
+    const { term: thisType } = thisTypeFilter || {};
     if (thisType){
         return getTitleForType(thisType, schemas);
     }
