@@ -43,8 +43,9 @@
         height: 100%;
         margin-bottom: (-$footer-height);
         #{$root-footer-selector} {
-            height: $footer-height; } 
+            height: $footer-height;
         }
+    }
     #{$footer-selector} {
         clear: both;
         position: relative;

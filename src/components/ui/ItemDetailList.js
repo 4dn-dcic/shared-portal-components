@@ -880,12 +880,13 @@ export class Detail extends React.PureComponent {
     }
 
     renderDetailRow(key, idx){
-        const { context, popLink, schemas, columnDefinitionMap } = this.props;
+        const { context, popLink, schemas, columnDefinitionMap, termTransformFxn } = this.props;
         const colDefs = Detail.columnDefinitions(context, schemas, columnDefinitionMap);
 
         return (
             <DetailRow key={key} label={Detail.formKey(colDefs, key)} item={context[key]} popLink={popLink}
-                data-key={key} itemType={context['@type'] && context['@type'][0]} columnDefinitions={colDefs}/>
+                data-key={key} itemType={context['@type'] && context['@type'][0]} columnDefinitions={colDefs}
+                termTransformFxn={termTransformFxn} schemas={schemas} />
         );
     }
 
@@ -991,8 +992,8 @@ export class ItemDetailList extends React.PureComponent {
 
     render(){
         const {
-            keyTitleDescriptionMap, columnDefinitionMap, minHeight, context, schemas, popLink,
-            excludedKeys, stickyKeys, collapsed : propCollapsed, hideButtons, showJSONButton
+            keyTitleDescriptionMap, columnDefinitionMap, minHeight, context,
+            collapsed : propCollapsed, hideButtons, showJSONButton
         } = this.props;
         const { showingJSON, collapsed } = this.state;
         let body;
@@ -1042,10 +1043,7 @@ export class ItemDetailList extends React.PureComponent {
 
             body = (
                 <React.Fragment>
-                    <Detail context={context} schemas={schemas} popLink={popLink}
-                        open={!isCollapsed} columnDefinitions={colDefs}
-                        excludedKeys={excludedKeys || Detail.defaultProps.excludedKeys}
-                        stickyKeys={stickyKeys || Detail.defaultProps.stickyKeys} />
+                    <Detail {...this.props} open={!isCollapsed} columnDefinitions={colDefs}/>
                     { buttonsRow }
                 </React.Fragment>
             );
