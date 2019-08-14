@@ -301,11 +301,13 @@ export function animateScrollTo(to, duration = 750, offsetBeforeTarget = 112, ca
 
     function scrollTopTween(scrollTop){
         return function(){
+            // `this` refers to selected DOM element in d3 tween callbacks.
+            // eslint-disable-next-line no-invalid-this
             var interpolate = d3.interpolateNumber(this.scrollTop, scrollTop);
             return function(t){ window.scrollTo(0, interpolate(t)); /*scrollElement.scrollTop = interpolate(t);*/ };
         };
     }
-    var origScrollTop = scrollElement.scrollTop;
+    //var origScrollTop = scrollElement.scrollTop;
     var animation = d3.select(scrollElement)
         .interrupt()
         .transition()
@@ -354,6 +356,20 @@ export function toggleBodyClass(className, toggleTo = null, bodyElement = null){
 
 }
 
+export function isDOMElementChildOfElementWithClass(elem, className, maxDepth=5){
+    let depth = 0;
+    let currElem = elem;
+    while (depth < maxDepth){
+        console.log('E', elem, elemClasses);
+        const elemClasses = (currElem.getAttribute('class') || '').split(' ');
+        if (elemClasses.indexOf(className) > -1){
+            return true;
+        }
+        depth++;
+        currElem = currElem.parentElement;
+    }
+    return false;
+}
 
 /**
  * Handle browser capabilities, a la Modernizr.

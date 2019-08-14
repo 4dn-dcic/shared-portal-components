@@ -126,8 +126,8 @@ export const basicColumnExtensionMap = {
 
             return (
                 <React.Fragment>
-                    <i className="icon icon-fw fas icon-filter clickable" onClick={onClick} data-tip="Filter down to this item type only."/>&nbsp;&nbsp;
-                    { itemTypeTitle }
+                    <i className="icon icon-fw fas icon-filter clickable mr-05" onClick={onClick} data-tip={"Filter down to only " + itemTypeTitle}/>
+                    <span className="item-type-title text-ellipsis-container">{ itemTypeTitle }</span>
                 </React.Fragment>
             );
         }
@@ -351,7 +351,9 @@ export class ResultRowColumnBlockValue extends React.Component {
         );
 
         let tooltip;
-        if (typeof value === 'string') {
+        if (typeof value === 'number'){
+            value = <span className="value">{ value }</span>;
+        } else if (typeof value === 'string') {
             if (propTooltip === true && value.length > 25) tooltip = value;
             value = <span className="value">{ value }</span>;
         } else if (value === null){

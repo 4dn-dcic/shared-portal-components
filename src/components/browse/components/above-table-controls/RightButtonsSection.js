@@ -8,11 +8,12 @@ import { SearchResultTable } from './../SearchResultTable';
 
 
 export const RightButtonsSection = React.memo(function RightButtonsSection(props){
-    const { currentOpenPanel, onColumnsBtnClick } = props;
+    const { currentOpenPanel, onColumnsBtnClick, windowWidth, isFullscreen, toggleFullScreen } = props;
+    const showToggleLayoutBtn = (typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function');
     return (
         <div className="right-buttons">
             <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} />
-            <ToggleLayoutButton {..._.pick(props, 'windowWidth', 'isFullscreen', 'toggleFullScreen')} />
+            { showToggleLayoutBtn ? <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} /> : null }
         </div>
     );
 });
