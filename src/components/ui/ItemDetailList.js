@@ -636,6 +636,39 @@ class DetailRow extends React.PureComponent {
 
 }
 
+/**
+ * DetailRow's label
+ * Formats the correct display for each metadata field
+ *
+ * @class DetailRowLabel
+ * @type {Component}
+ */
+class DetailRowLabel extends React.PureComponent {
+    render() {
+        const { columnDefs, columnKey, includeTooltip } = this.props;
+        let tooltip = null, title = null;
+        //get title and tooltip (if included) from columnDefs
+        if(columnDefs[columnKey]) {
+            const info = columnDefs[columnKey];
+            if(info.title) title = info.title;
+            if(!includeTooltip) return title;
+            if(info.description) tooltip = info.description;
+        }
+​
+        return <TooltipInfoIconContainer title={title || columnKey} tooltip={tooltip} />;
+    }
+    static defaultProps = {
+        'columnDefs': {},
+        'columnKey': '',
+        'includeTooltip': true,
+    };
+}
+​
+class DetailRowValue extends React.PureComponent {
+    render() {
+        return <React.Fragment></React.Fragment>;
+    }
+}
 
 /**
  * The list of properties contained within ItemDetailList.
@@ -654,7 +687,7 @@ export class Detail extends React.PureComponent {
      * @param {boolean} [includeTooltip=false] - If false, skips adding tooltip to output JSX.
      * @returns {JSX.Element} <div> element with a tooltip and info-circle icon.
      */
-    static formKey(tips, key, includeTooltip = true){
+    /*static formKey(tips, key, includeTooltip = true){
         var tooltip = null, title = null;
         if (tips[key]){
             var info = tips[key];
@@ -664,7 +697,7 @@ export class Detail extends React.PureComponent {
         }
 
         return <TooltipInfoIconContainer title={title || key} tooltip={tooltip} />;
-    }
+    }*/
 
     /**
     * Recursively render keys/values included in a provided item.
@@ -882,9 +915,9 @@ export class Detail extends React.PureComponent {
     renderDetailRow(key, idx){
         const { context, popLink, schemas, columnDefinitionMap, termTransformFxn } = this.props;
         const colDefs = Detail.columnDefinitions(context, schemas, columnDefinitionMap);
-
+        const detailRowLabel = (<DetailRowLabel columnDefs={colDefs} columnKey={key} />);
         return (
-            <DetailRow key={key} label={Detail.formKey(colDefs, key)} item={context[key]} popLink={popLink}
+            <DetailRow key={key} label={detailRowLabel} item={context[key]} popLink={popLink}
                 data-key={key} itemType={context['@type'] && context['@type'][0]} columnDefinitions={colDefs}
                 termTransformFxn={termTransformFxn} schemas={schemas} />
         );
@@ -1014,9 +1047,8 @@ export class ItemDetailList extends React.PureComponent {
             );
         } else {
             const colDefs = _.extend({}, keyTitleDescriptionMap || {}, columnDefinitionMap || {});
-            let isCollapsed;
-            if (typeof propCollapsed === 'boolean') isCollapsed = propCollapsed;
-            else isCollapsed = collapsed;
+            const isCollapsed = (typeof propCollapsed === 'boolean') ? propCollapsed : collapsed;
+
             let buttonsRow;
             if (hideButtons) {
                 buttonsRow = null;
