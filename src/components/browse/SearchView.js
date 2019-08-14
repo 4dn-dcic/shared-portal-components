@@ -176,8 +176,8 @@ class ControlsAndResults extends React.PureComponent {
     }
 
     forceUpdateOnSelf(){
-        var searchResultTable   = this.searchResultTableRef.current,
-            dimContainer        = searchResultTable && searchResultTable.getDimensionContainer();
+        const searchResultTable = this.searchResultTableRef.current;
+        const dimContainer = searchResultTable && searchResultTable.getDimensionContainer();
         return dimContainer && dimContainer.resetWidths();
     }
 
@@ -287,11 +287,9 @@ export class SearchView extends React.PureComponent {
     render() {
         const { facets : propFacets, navigate: propNavigate, context } = this.props;
         return (
-            <div className="container" id="content">
-                <div className="search-page-container">
-                    <AboveSearchTablePanel {..._.pick(this.props, 'href', 'context', 'schemas')} />
-                    <SearchControllersContainer {...this.props} facets={propFacets || context.facets} navigate={propNavigate || navigate} />
-                </div>
+            <div className="search-page-container">
+                <AboveSearchTablePanel {..._.pick(this.props, 'href', 'context', 'schemas')} />
+                <SearchControllersContainer {...this.props} facets={propFacets || context.facets} navigate={propNavigate || navigate} />
             </div>
         );
     }
