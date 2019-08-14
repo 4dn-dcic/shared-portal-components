@@ -566,6 +566,52 @@ class SubItemTable extends React.Component {
 
 }
 
+/**
+ * DetailRow's label
+ * Formats the correct display for each metadata field
+ *
+ * @class DetailRowLabel
+ * @type {Component}
+ */
+class DetailRowLabel extends React.PureComponent {
+    render() {
+        const { columnDefs, columnKey, includeTooltip, labelNumber, isOpen } = this.props;
+        let tooltip = null, title = null;
+        //get title and tooltip (if included) from columnDefs
+        if(columnDefs[columnKey]) {
+            const info = columnDefs[columnKey];
+            if(info.title) title = info.title;
+            if(info.description) tooltip = info.description;
+        }
+        let label = includeTooltip ? <TooltipInfoIconContainer title={title || columnKey} tooltip={tooltip} /> : title;
+        if(labelNumber > 0) {
+            label = (
+                <span>
+                    <span className={"label-number right inline-block" + (isOpen ? ' active' : '')}><span className="number-icon text-200">#</span> {labelNumber}</span>
+                    {label}
+                </span>
+            );
+            if(labelNumber > 1) {
+                label = (<span className="dim-duplicate">{label}</span>);
+            }
+        }
+
+        return label;
+    }
+    static defaultProps = {
+        'columnDefs': {},
+        'columnKey': '',
+        'includeTooltip': true,
+        'labelNumber': -1,
+        'isOpen': false
+    };
+}
+
+class DetailRowValue extends React.PureComponent {
+    render() {
+        return <React.Fragment></React.Fragment>;
+    }
+}
 
 class DetailRow extends React.PureComponent {
 
@@ -589,26 +635,19 @@ class DetailRow extends React.PureComponent {
     }
 
     render(){
-        const { label, labelNumber, item, popLink, itemType, columnDefinitions, className, schemas, termTransformFxn } = this.props;
+        const { labelNumber, item, popLink, itemType, columnDefinitions, className, schemas, termTransformFxn } = this.props;
         const { isOpen } = this.state;
-        let value = Detail.formValue(item, popLink, this.props['data-key'], itemType, columnDefinitions, 0, schemas, termTransformFxn);
-        let labelToShow = label;
-        if (labelNumber) {
-            labelToShow = (
-                <span>
-                    <span className={"label-number right inline-block" + (isOpen ? ' active' : '')}><span className="number-icon text-200">#</span> { labelNumber }</span>
-                    { label }
-                </span>
-            );
-        }
+        const columnKey = this.props['data-key'];
+        let value = Detail.formValue(item, popLink, columnKey, itemType, columnDefinitions, 0, schemas, termTransformFxn);
+        const label = (<DetailRowLabel columnDefs={columnDefinitions} columnKey={columnKey} labelNumber={labelNumber || -1} isOpen={isOpen} />);
 
-        if (value.type === SubItemTitle) {
+        if(value.type === SubItemTitle) {
             // What we have here is an embedded object of some sort. Lets override its 'isOpen' & 'onToggle' functions.
-            value = React.cloneElement(value, { 'onToggle' : this.handleToggle, 'isOpen' : isOpen });
+            value = React.cloneElement(value, { 'onToggle': this.handleToggle, 'isOpen': isOpen });
 
             return (
                 <div>
-                    <PartialList.Row label={labelToShow} className={(className || '') + (isOpen ? ' open' : '')}>{ value }</PartialList.Row>
+                    <PartialList.Row label={label} className={(className || '') + (isOpen ? ' open' : '')}>{value}</PartialList.Row>
                     <SubItemListView
                         popLink={popLink} content={item} schemas={schemas} isOpen={isOpen}
                         columnDefinitions={value.props.columnDefinitions || columnDefinitions} // Recursively pass these down
@@ -617,57 +656,23 @@ class DetailRow extends React.PureComponent {
             );
         }
 
-        if (value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" &&
+        if(value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" &&
             value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
             // What we have here is a list of embedded objects. Render them out recursively and adjust some styles.
             return (
                 <div className="array-group" data-length={item.length}>
-                    { React.Children.map(value.props.children, (c, i)=>
+                    {React.Children.map(value.props.children, (c, i) =>
                         <DetailRow
-                            {...this.props} label={i === 0 ? labelToShow : <span className="dim-duplicate">{ labelToShow }</span>} labelNumber={i + 1} item={item[i]}
+                            {...this.props} labelNumber={i + 1} item={item[i]}
                             className={("array-group-row item-index-" + i) + (i === item.length - 1 ? ' last-item' : '') + (i === 0 ? ' first-item' : '')} />
-                    ) }
+                    )}
                 </div>
             );
         }
         // Default / Pass-Thru
-        return <PartialList.Row label={labelToShow} className={(className || '') + (isOpen ? ' open' : '')}>{ value }</PartialList.Row>;
+        return <PartialList.Row label={label} className={(className || '') + (isOpen ? ' open' : '')}>{value}</PartialList.Row>;
     }
 
-}
-
-/**
- * DetailRow's label
- * Formats the correct display for each metadata field
- *
- * @class DetailRowLabel
- * @type {Component}
- */
-class DetailRowLabel extends React.PureComponent {
-    render() {
-        const { columnDefs, columnKey, includeTooltip } = this.props;
-        let tooltip = null, title = null;
-        //get title and tooltip (if included) from columnDefs
-        if(columnDefs[columnKey]) {
-            const info = columnDefs[columnKey];
-            if(info.title) title = info.title;
-            if(!includeTooltip) return title;
-            if(info.description) tooltip = info.description;
-        }
-​
-        return <TooltipInfoIconContainer title={title || columnKey} tooltip={tooltip} />;
-    }
-    static defaultProps = {
-        'columnDefs': {},
-        'columnKey': '',
-        'includeTooltip': true,
-    };
-}
-​
-class DetailRowValue extends React.PureComponent {
-    render() {
-        return <React.Fragment></React.Fragment>;
-    }
 }
 
 /**
@@ -915,9 +920,9 @@ export class Detail extends React.PureComponent {
     renderDetailRow(key, idx){
         const { context, popLink, schemas, columnDefinitionMap, termTransformFxn } = this.props;
         const colDefs = Detail.columnDefinitions(context, schemas, columnDefinitionMap);
-        const detailRowLabel = (<DetailRowLabel columnDefs={colDefs} columnKey={key} />);
+        //const detailRowLabel = (<DetailRowLabel columnDefs={colDefs} columnKey={key} />);
         return (
-            <DetailRow key={key} label={detailRowLabel} item={context[key]} popLink={popLink}
+            <DetailRow key={key} item={context[key]} popLink={popLink}
                 data-key={key} itemType={context['@type'] && context['@type'][0]} columnDefinitions={colDefs}
                 termTransformFxn={termTransformFxn} schemas={schemas} />
         );
