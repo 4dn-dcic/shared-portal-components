@@ -359,9 +359,9 @@ class SubItemTable extends React.Component {
         let columnKeys = SubItemTable.getColumnKeys(items, columnDefinitions, schemas);
 
         // If is an Item, grab properties for it.
-        let tipsFromSchema = null;
+        let tipsFromSchemaRes = null;
         if (items[0] && items[0].display_title){
-            tipsFromSchema = tipsFromSchema(schemas, items[0]);
+            tipsFromSchemaRes = tipsFromSchema(schemas, items[0]);
             columnKeys = columnKeys.filter(function(k){
                 if (k === '@id') return false;
                 return true;
@@ -733,7 +733,7 @@ export class Detail extends React.PureComponent {
         } else if (Array.isArray(item)) {
 
             if (SubItemTable.shouldUseTable(item, schemas)) {
-                return <SubItemTable {...{ popLink, columnDefinitions, schemas, atType }} items={item} parentKey={keyPrefix} />;
+                return <SubItemTable {...{ popLink, columnDefinitions, schemas, atType, termTransformFxn }} items={item} parentKey={keyPrefix} />;
             }
 
             return (
