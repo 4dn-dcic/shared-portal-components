@@ -6,10 +6,12 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import JSONTree from 'react-json-tree';
+import TestRenderer from 'react-test-renderer';
 
 import { isAnItem, itemUtil, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 import { getSchemaForItemType, getItemType, flattenSchemaPropertyToColumnDefinition, getSchemaProperty } from './../util/schema-transforms';
+import { analytics } from '../util';
 import { PartialList } from './PartialList';
 
 // eslint-disable-next-line no-unused-vars
@@ -30,38 +32,42 @@ import { Item } from './../util/typedefs';
 
 
 /** Contains and toggles visibility/mounting of a Subview. Renders title for the Subview. */
-const SubItemTitle = React.memo(function SubItemTitle({ isOpen, title, onToggle, countProperties, content }){
-    const iconType = isOpen ? 'icon-minus' : 'icon-plus';
-    let showTitle = title;
-    let subtitle = null;
-    if (typeof title !== 'string' || title.toLowerCase() === 'no title found'){
-        showTitle = isOpen ? "Collapse" : "Expand";
-    }
-    if (content && _.any([content.title, content.display_title, content.name], function(p){ return typeof p === 'string'; })) {
-        subtitle = (
-            <span className="text-600">
-                {
-                    typeof content.title === 'string' ? content.title :
-                        typeof content.display_title === 'string' ? content.display_title : content.name
-                }
+class SubItemTitle extends React.PureComponent {
+    render() {
+        const { isOpen, title, onToggle, countProperties, content } = this.props;
+
+        const iconType = isOpen ? 'icon-minus' : 'icon-plus';
+        let showTitle = title;
+        let subtitle = null;
+        if(typeof title !== 'string' || title.toLowerCase() === 'no title found') {
+            showTitle = isOpen ? "Collapse" : "Expand";
+        }
+        if(content && _.any([content.title, content.display_title, content.name], function (p) { return typeof p === 'string'; })) {
+            subtitle = (
+                <span className="text-600">
+                    {
+                        typeof content.title === 'string' ? content.title :
+                            typeof content.display_title === 'string' ? content.display_title : content.name
+                    }
+                </span>
+            );
+        }
+        return (
+            <span className="subitem-toggle">
+                <span className="link" onClick={onToggle}>
+                    <i style={{ 'color': 'black', 'paddingRight': 10, 'paddingLeft': 5 }} className={"icon fas " + iconType} />
+                    {showTitle} {subtitle} {countProperties && !isOpen ? <span>({countProperties})</span> : null}
+                </span>
             </span>
         );
     }
-    return (
-        <span className="subitem-toggle">
-            <span className="link" onClick={onToggle}>
-                <i style={{ 'color':'black', 'paddingRight': 10, 'paddingLeft' : 5 }} className={"icon fas " + iconType}/>
-                { showTitle } { subtitle } { countProperties && !isOpen ? <span>({ countProperties })</span> : null }
-            </span>
-        </span>
-    );
-});
-SubItemTitle.propTypes = {
-    'onToggle' : PropTypes.func,
-    'isOpen' : PropTypes.bool,
-    'title' : PropTypes.string,
-    'content' : PropTypes.object
-};
+    static propTypes = {
+        'onToggle': PropTypes.func,
+        'isOpen': PropTypes.bool,
+        'title': PropTypes.string,
+        'content': PropTypes.object
+    };
+}
 
 export const SubItemListView = React.memo(function SubItemListView(props){
     const { isOpen, content : item, schemas, popLink, excludedKeys, columnDefinitions } = props;
@@ -609,7 +615,78 @@ class DetailRowLabel extends React.PureComponent {
 
 class DetailRowValue extends React.PureComponent {
     render() {
-        return <React.Fragment></React.Fragment>;
+        const { item, popLink, keyPrefix, atType, columnDefinitions, depth, schemas, termTransformFxn, onToggle, isOpen } = this.props;
+
+        if(item === null) {
+            return <span>No Value</span>;
+        } else if(Array.isArray(item)) {
+            if(SubItemTable.shouldUseTable(item, schemas)) {
+                return <SubItemTable {...{ popLink, columnDefinitions, schemas, atType, termTransformFxn }} items={item} parentKey={keyPrefix} />;
+            }
+            return (
+                <ol>
+                    {item.length === 0 ? <li><em>None</em></li>
+                        :
+                        item.map(function (it, i) {
+                            return <li key={i}>{<DetailRowValue {...{ item: it, popLink, keyPrefix, atType, columnDefinitions, depth: depth + 1, schemas, termTransformFxn }} />}</li>;
+                        })
+                    }
+                </ol>
+            );
+        } else if(typeof item === 'object' && item !== null) {
+            const linkElement = itemUtil.generateLink(item, true, 'display_title', { 'target': (popLink ? '_blank' : null) }, true);
+
+            // if the following is true, we have an embedded Item. Link to it.
+            if(linkElement) {
+                return linkElement;
+            } else { // it must be an embedded sub-object (not Item)
+                const releventProperties = _.object(
+                    _.map(_.filter(_.pairs(columnDefinitions), function (c) { return c[0].indexOf(keyPrefix + '.') === 0; }), function (c) { c[0] = c[0].replace(keyPrefix + '.', ''); return c; })
+                );
+                return (
+                    <SubItemTitle schemas={schemas} content={item}
+                        key={keyPrefix} countProperties={_.keys(item).length}
+                        popLink={popLink} columnDefinitions={releventProperties} onToggle={onToggle} isOpen={isOpen} />
+                );
+            }
+        } else if(typeof item === 'string') {
+            if(keyPrefix === '@id') {
+                return <a key={item} href={item} target={popLink ? "_blank" : null}>{item}</a>;
+            }
+            if(item.charAt(0) === '/' && item.indexOf('@@download') > -1) {
+                // This is a download link. Format appropriately
+                var split_item = item.split('/');
+                var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
+                return <a key={item} href={item} target="_blank" download rel="noreferrer noopener">{attach_title || item}</a>;
+            } else if(item.charAt(0) === '/') {
+                if(popLink) return <a key={item} href={item} target="_blank" rel="noreferrer noopener">{item}</a>;
+                else return <a key={item} href={item}>{item}</a>;
+            } else if(item.slice(0, 4) === 'http') {
+                // Is a URL. Check if we should render it as a link/uri.
+                const schemaProperty = getSchemaProperty(keyPrefix, schemas, {}, atType);
+                if(
+                    schemaProperty &&
+                    typeof schemaProperty.format === 'string' &&
+                    ['uri', 'url'].indexOf(schemaProperty.format.toLowerCase()) > -1
+                ) return <a key={item} href={item} target="_blank" rel="noreferrer noopener">{item}</a>;
+            } else {
+                return <span>{termTransformFxn(keyPrefix, item)}</span>;
+            }
+        } else if(typeof item === 'number') {
+            return <span>{termTransformFxn(keyPrefix, item)}</span>;
+        } else if(typeof item === 'boolean') {
+            return <span style={{ 'textTransform': 'capitalize' }}>{(item + '')}</span>;
+        }
+        return (<span>{item}</span>); // Fallback
+    }
+    static defaultProps = {
+        'popLink': false,
+        'keyPrefix': '',
+        'atType': 'ExperimentSet',
+        'columnDefinitions': {},
+        'depth': 0,
+        'schemas': null,
+        'termTransformFxn': function(field, term){ return term; }
     }
 }
 
@@ -638,12 +715,13 @@ class DetailRow extends React.PureComponent {
         const { labelNumber, item, popLink, itemType, columnDefinitions, className, schemas, termTransformFxn } = this.props;
         const { isOpen } = this.state;
         const columnKey = this.props['data-key'];
-        let value = Detail.formValue(item, popLink, columnKey, itemType, columnDefinitions, 0, schemas, termTransformFxn);
-        const label = (<DetailRowLabel columnDefs={columnDefinitions} columnKey={columnKey} labelNumber={labelNumber || -1} isOpen={isOpen} />);
+        const label = (<DetailRowLabel {...{ columnDefs: columnDefinitions, columnKey, labelNumber: labelNumber || -1, isOpen }} />);
+        let value = (<DetailRowValue {...{ item, popLink, columnKey, itemType, columnDefinitions, depth: 0, schemas, termTransformFxn }} />);
+        const valueInstance = TestRenderer.create(value).root;
 
-        if(value.type === SubItemTitle) {
+        if(valueInstance.children[0].type === SubItemTitle) {
             // What we have here is an embedded object of some sort. Lets override its 'isOpen' & 'onToggle' functions.
-            value = React.cloneElement(value, { 'onToggle': this.handleToggle, 'isOpen': isOpen });
+            value = React.cloneElement(value, { onToggle: this.handleToggle, isOpen: isOpen });
 
             return (
                 <div>
@@ -656,12 +734,12 @@ class DetailRow extends React.PureComponent {
             );
         }
 
-        if(value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" &&
-            value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
+        if(valueInstance.children[0].type === 'ol' && valueInstance.findAllByType(SubItemTitle).length > 0/*value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" &&
+            value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle*/) {
             // What we have here is a list of embedded objects. Render them out recursively and adjust some styles.
             return (
                 <div className="array-group" data-length={item.length}>
-                    {React.Children.map(value.props.children, (c, i) =>
+                    {_.map(valueInstance.children[0].children, (c, i) =>
                         <DetailRow
                             {...this.props} labelNumber={i + 1} item={item[i]}
                             className={("array-group-row item-index-" + i) + (i === item.length - 1 ? ' last-item' : '') + (i === 0 ? ' first-item' : '')} />
@@ -718,7 +796,7 @@ export class Detail extends React.PureComponent {
     * @param {number} depth - Current recursive depth.
     * @returns {JSX.Element}
     */
-    static formValue(
+    /*static formValue(
         item,
         popLink = false,
         keyPrefix = '', // rename to 'field'?
@@ -793,7 +871,7 @@ export class Detail extends React.PureComponent {
             return <span style={{ 'textTransform' : 'capitalize' }}>{ (item + '') }</span>;
         }
         return(<span>{ item }</span>); // Fallback
-    }
+    }*/
 
     static SubItemTitle = SubItemTitle;
 
@@ -920,7 +998,7 @@ export class Detail extends React.PureComponent {
     renderDetailRow(key, idx){
         const { context, popLink, schemas, columnDefinitionMap, termTransformFxn } = this.props;
         const colDefs = Detail.columnDefinitions(context, schemas, columnDefinitionMap);
-        //const detailRowLabel = (<DetailRowLabel columnDefs={colDefs} columnKey={key} />);
+
         return (
             <DetailRow key={key} item={context[key]} popLink={popLink}
                 data-key={key} itemType={context['@type'] && context['@type'][0]} columnDefinitions={colDefs}
@@ -937,7 +1015,6 @@ export class Detail extends React.PureComponent {
             </div>
         );
     }
-
 }
 
 
@@ -984,7 +1061,9 @@ export class ItemDetailList extends React.PureComponent {
                         <span>Details</span>
                     </h3>
                     <hr className="tab-section-title-horiz-divider mb-05"/>
-                    <ItemDetailList {...props} />
+                    <TabErrorBoundary>
+                        <ItemDetailList {...props} />
+                    </TabErrorBoundary>
                 </div>
             )
         };
@@ -1094,4 +1173,58 @@ export class ItemDetailList extends React.PureComponent {
         );
     }
 
+}
+
+export class TabErrorBoundary extends React.Component {
+
+    static errorNotice() {
+        return (
+            <div className="error-boundary container">
+                <div className="mb-2 mt-2">
+                    <h3 className="text-400">A client-side error has occured, tab content cannot be rendered correctly.</h3>
+                </div>
+            </div>
+        );
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            'hasError': false,
+            'errorInfo': null
+        };
+    }
+
+    componentDidCatch(err, info) {
+        const { href } = this.props;
+        this.setState({ 'hasError': true, 'errorInfo': info }, () => {
+            analytics.exception('Client Error - ' + href + ': ' + err, true);
+        });
+    }
+
+    /**
+     * 
+     */
+    componentDidUpdate(pastProps) {
+        const { canonical } = this.props;
+        if(pastProps.canonical !== canonical) {
+            this.setState(function (currState) {
+                if(currState.hasError) {
+                    return {
+                        'hasError': false,
+                        'errorInfo': null
+                    };
+                }
+                return {};
+            });
+        }
+    }
+
+    render() {
+        const { children } = this.props, { hasError } = this.state;
+        if(hasError) {
+            return TabErrorBoundary.errorNotice();
+        }
+        return children;
+    }
 }
