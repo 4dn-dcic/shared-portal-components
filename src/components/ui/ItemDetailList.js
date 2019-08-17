@@ -31,7 +31,9 @@ import { Item } from './../util/typedefs';
  */
 
 
-/** Contains and toggles visibility/mounting of a Subview. Renders title for the Subview. */
+/**
+ * Contains and toggles visibility/mounting of a Subview. Renders title for the Subview.
+ */
 class SubItemTitle extends React.PureComponent {
     render() {
         const { isOpen, title, onToggle, countProperties, content } = this.props;
@@ -68,36 +70,41 @@ class SubItemTitle extends React.PureComponent {
         'content': PropTypes.object
     };
 }
+/**
+ * Wrapper component to render ItemDetailList or Detail according to item.display_title
+ */
+export class SubItemListView extends React.PureComponent {
+    render() {
+        const { isOpen, content: item, schemas, popLink, excludedKeys, columnDefinitions } = this.props;
 
-export const SubItemListView = React.memo(function SubItemListView(props){
-    const { isOpen, content : item, schemas, popLink, excludedKeys, columnDefinitions } = props;
-    if (!isOpen) return null;
-    const passProps = {
-        schemas, popLink,
-        'context' : item,
-        'alwaysCollapsibleKeys' : [],
-        'excludedKeys' : (
-            excludedKeys || _.without(Detail.defaultProps.excludedKeys,
-                // Remove
-                'lab', 'award', 'description'
-            ).concat([
-            // Add
-                'schema_version', 'uuid'
-            ])
-        ),
-        'columnDefinitions' : columnDefinitions || {},
-        'showJSONButton' : false,
-        'hideButtons': true
-    };
-    return (
-        <div className="sub-panel data-display panel-body-with-header">
-            <div className="key-value sub-descriptions">
-                { React.createElement((typeof item.display_title === 'string' ? ItemDetailList : Detail), passProps) }
+        if(!isOpen) return null;
+
+        const passProps = {
+            schemas, popLink,
+            'context': item,
+            'alwaysCollapsibleKeys': [],
+            'excludedKeys': (
+                excludedKeys || _.without(Detail.defaultProps.excludedKeys,
+                    // Remove
+                    'lab', 'award', 'description'
+                ).concat([
+                    // Add
+                    'schema_version', 'uuid'
+                ])
+            ),
+            'columnDefinitions': columnDefinitions || {},
+            'showJSONButton': false,
+            'hideButtons': true
+        };
+        return (
+            <div className="sub-panel data-display panel-body-with-header">
+                <div className="key-value sub-descriptions">
+                    {React.createElement((typeof item.display_title === 'string' ? ItemDetailList : Detail), passProps)}
+                </div>
             </div>
-        </div>
-    );
-});
-
+        );
+    }
+}
 
 /**
  * Messiness.
@@ -575,9 +582,6 @@ class SubItemTable extends React.Component {
 /**
  * DetailRow's label
  * Formats the correct display for each metadata field
- *
- * @class DetailRowLabel
- * @type {Component}
  */
 class DetailRowLabel extends React.PureComponent {
     render() {
@@ -611,8 +615,24 @@ class DetailRowLabel extends React.PureComponent {
         'labelNumber': -1,
         'isOpen': false
     };
+    static propTypes = {
+        /** List of column definitions */
+        'columnDefs': PropTypes.object,
+        /** Key to get definition/tooltip from columnDefs */
+        'columnKey': PropTypes.string,
+        /** Show tooltip or not */
+        'includeTooltip': PropTypes.bool,
+        /** 0 or more to render number, negatives to hide */
+        'labelNumber': PropTypes.number,
+        /** If true row displays sub details */
+        'isOpen': PropTypes.bool,
+    };
 }
-
+/**
+ * DetailRow's value
+ * Recursively render keys/values included in a provided item.
+ * Wraps URLs/paths in link elements. Sub-panels for objects.
+ */
 class DetailRowValue extends React.PureComponent {
     render() {
         const { item, popLink, keyPrefix, atType, columnDefinitions, depth, schemas, termTransformFxn, onToggle, isOpen } = this.props;
@@ -680,6 +700,7 @@ class DetailRowValue extends React.PureComponent {
         return (<span>{item}</span>); // Fallback
     }
     static defaultProps = {
+        'item': null,
         'popLink': false,
         'keyPrefix': '',
         'atType': 'ExperimentSet',
@@ -687,7 +708,25 @@ class DetailRowValue extends React.PureComponent {
         'depth': 0,
         'schemas': null,
         'termTransformFxn': function(field, term){ return term; }
-    }
+    };
+    static propTypes = {
+        /** JSON of an Item */
+        'item': PropTypes.any,
+        /** Whether to open child links in new window. */
+        'popLink': PropTypes.bool,
+        /** Not sure. Key to use to get value with? */
+        'keyPrefix': PropTypes.string,
+        /** Current type of Item */
+        'atType': PropTypes.string,
+        /** List of column definitions */
+        'columnDefinitions': PropTypes.object,
+        /** Current recursive depth */
+        'depth': PropTypes.number,
+        /** Item schema */
+        'schemas': PropTypes.object,
+        /** Transform functon */
+        'termTransformFxn': PropTypes.func
+    };
 }
 
 class DetailRow extends React.PureComponent {
@@ -734,8 +773,9 @@ class DetailRow extends React.PureComponent {
             );
         }
 
-        if(valueInstance.children[0].type === 'ol' && valueInstance.findAllByType(SubItemTitle).length > 0/*value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" &&
-            value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle*/) {
+        /*if(value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" &&
+            value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle)*/
+        if(valueInstance.children[0].type === 'ol' && valueInstance.findAllByType(SubItemTitle).length > 0) {
             // What we have here is a list of embedded objects. Render them out recursively and adjust some styles.
             return (
                 <div className="array-group" data-length={item.length}>
@@ -750,7 +790,6 @@ class DetailRow extends React.PureComponent {
         // Default / Pass-Thru
         return <PartialList.Row label={label} className={(className || '') + (isOpen ? ' open' : '')}>{value}</PartialList.Row>;
     }
-
 }
 
 /**
@@ -761,125 +800,14 @@ class DetailRow extends React.PureComponent {
  * @type {Component}
  */
 export class Detail extends React.PureComponent {
-
-    /**
-     * Formats the correct display for each metadata field.
-     *
-     * @param {Object} tips - Mapping of field property names (1 level deep) to schema properties.
-     * @param {string} key - Key to use to get 'description' for tooltip from the 'tips' param.
-     * @param {boolean} [includeTooltip=false] - If false, skips adding tooltip to output JSX.
-     * @returns {JSX.Element} <div> element with a tooltip and info-circle icon.
-     */
-    /*static formKey(tips, key, includeTooltip = true){
-        var tooltip = null, title = null;
-        if (tips[key]){
-            var info = tips[key];
-            if (info.title)         title = info.title;
-            if (!includeTooltip)    return title;
-            if (info.description)   tooltip = info.description;
-        }
-
-        return <TooltipInfoIconContainer title={title || key} tooltip={tooltip} />;
-    }*/
-
-    /**
-    * Recursively render keys/values included in a provided item.
-    * Wraps URLs/paths in link elements. Sub-panels for objects.
-    *
-    * @todo cleanup, probably not have as a static func.
-    *
-    * @param {Item} item - JSON of an Item.
-    * @param {boolean} [popLink=false] - Whether to open child links in new window.
-    * @param {string} keyPrefix - Not sure. Key to use to get value with?
-    * @param {string} atType - Current type of Item.
-    * @param {ColumnDefinition[]} columnDefinitions - List of column definitions to use for SubItemTable.
-    * @param {number} depth - Current recursive depth.
-    * @returns {JSX.Element}
-    */
-    /*static formValue(
-        item,
-        popLink = false,
-        keyPrefix = '', // rename to 'field'?
-        atType = 'ExperimentSet',
-        columnDefinitions,
-        depth = 0,
-        schemas = null,
-        termTransformFxn = function(field, term){ return term; }
-    ) {
-        if (item === null){
-            return <span>No Value</span>;
-        } else if (Array.isArray(item)) {
-
-            if (SubItemTable.shouldUseTable(item, schemas)) {
-                return <SubItemTable {...{ popLink, columnDefinitions, schemas, atType, termTransformFxn }} items={item} parentKey={keyPrefix} />;
-            }
-
-            return (
-                <ol>
-                    {   item.length === 0 ? <li><em>None</em></li>
-                        :
-                        item.map(function(it, i){
-                            return <li key={i}>{ Detail.formValue(it, popLink, keyPrefix, atType, columnDefinitions, depth + 1, schemas) }</li>;
-                        })
-                    }
-                </ol>
-            );
-        } else if (typeof item === 'object' && item !== null) {
-            const linkElement = itemUtil.generateLink(item, true, 'display_title', { 'target' : (popLink ? '_blank' : null) }, true);
-
-            // if the following is true, we have an embedded Item. Link to it.
-            if (linkElement){
-                return linkElement;
-            } else { // it must be an embedded sub-object (not Item)
-                const releventProperties = _.object(
-                    _.map(_.filter(_.pairs(columnDefinitions), function(c){ return c[0].indexOf(keyPrefix + '.') === 0; }), function(c){ c[0] = c[0].replace(keyPrefix + '.', ''); return c; })
-                );
-                return (
-                    <SubItemTitle schemas={schemas} content={item}
-                        key={keyPrefix} countProperties={_.keys(item).length}
-                        popLink={popLink} columnDefinitions={releventProperties} />
-                );
-            }
-        } else if (typeof item === 'string'){
-
-            if (keyPrefix === '@id'){
-                return <a key={item} href={item} target={popLink ? "_blank" : null}>{item}</a>;
-            }
-
-            if(item.charAt(0) === '/' && item.indexOf('@@download') > -1){
-                // This is a download link. Format appropriately
-                var split_item = item.split('/');
-                var attach_title = decodeURIComponent(split_item[split_item.length-1]);
-                return <a key={item} href={item} target="_blank" download rel="noreferrer noopener">{ attach_title || item }</a>;
-            } else if (item.charAt(0) === '/') {
-                if (popLink) return <a key={item} href={item} target="_blank" rel="noreferrer noopener">{ item }</a>;
-                else return <a key={item} href={item}>{ item }</a>;
-            } else if (item.slice(0,4) === 'http') {
-                // Is a URL. Check if we should render it as a link/uri.
-                const schemaProperty = getSchemaProperty(keyPrefix, schemas, {}, atType);
-                if (
-                    schemaProperty &&
-                    typeof schemaProperty.format === 'string' &&
-                    ['uri','url'].indexOf(schemaProperty.format.toLowerCase()) > -1
-                ) return <a key={item} href={item} target="_blank" rel="noreferrer noopener">{ item }</a>;
-            } else {
-                return <span>{ termTransformFxn(keyPrefix, item) }</span>;
-            }
-        } else if (typeof item === 'number'){
-            return <span>{ termTransformFxn(keyPrefix, item) }</span>;
-        } else if (typeof item === 'boolean'){
-            return <span style={{ 'textTransform' : 'capitalize' }}>{ (item + '') }</span>;
-        }
-        return(<span>{ item }</span>); // Fallback
-    }*/
-
-    static SubItemTitle = SubItemTitle;
-
+    constructor(props){
+        super(props);
+        this.renderDetailRow = this.renderDetailRow.bind(this);
+    }
     static propTypes = {
         'context' : PropTypes.object.isRequired,
         'columnDefinitions' : PropTypes.object
     };
-
     static defaultProps = {
         'excludedKeys' : [
             '@context', 'actions', 'principals_allowed',
@@ -989,11 +917,6 @@ export class Detail extends React.PureComponent {
             'collapsibleKeys' : collapsibleKeys
         };
     });
-
-    constructor(props){
-        super(props);
-        this.renderDetailRow = this.renderDetailRow.bind(this);
-    }
 
     renderDetailRow(key, idx){
         const { context, popLink, schemas, columnDefinitionMap, termTransformFxn } = this.props;
@@ -1174,7 +1097,10 @@ export class ItemDetailList extends React.PureComponent {
     }
 
 }
-
+/**
+ * Error Boundary component to wrap an individual tab in a page.
+ * TODO: move to a more generic js file instead of ItemDetailList.js
+ */
 export class TabErrorBoundary extends React.Component {
 
     static errorNotice() {
@@ -1202,9 +1128,6 @@ export class TabErrorBoundary extends React.Component {
         });
     }
 
-    /**
-     * 
-     */
     componentDidUpdate(pastProps) {
         const { canonical } = this.props;
         if(pastProps.canonical !== canonical) {
