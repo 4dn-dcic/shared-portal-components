@@ -244,119 +244,6 @@ class SubItemTable extends React.Component {
         return true;
     }
 
-
-    static getColumnKeys(items, columnDefinitions, schemas){
-        const objectWithAllItemKeys = _.reduce(items, function(m, v){
-            return _.extend(m, v);
-        }, {});
-        //var schemas = this.props.schemas || Schemas.get();
-        //var tips = schemas ? tipsFromSchema(schemas, context) : {};
-        //if (typeof this.props.keyTitleDescriptionMap === 'object' && this.props.keyTitleDescriptionMap){
-        //    _.extend(tips, this.props.keyTitleDescriptionMap);
-        //}
-
-        // Property columns to push to front (common across all objects)
-        const rootKeys = _.keys(objectWithAllItemKeys);
-        let columnKeys = [];
-
-        // Use schema columns
-        if (typeof objectWithAllItemKeys.display_title === 'string' && Array.isArray(objectWithAllItemKeys['@type'])){
-
-            var columnKeysFromSchema = _.keys(
-                getSchemaForItemType(
-                    getItemType(objectWithAllItemKeys), schemas
-                ).columns
-            );
-
-            columnKeys = rootKeys.filter(function(k){
-                if (k === 'display_title' || k === '@id' || k === 'accession') return true;
-                if (columnKeysFromSchema.indexOf(k) > -1) return true;
-                return false;
-            }).map(function(k){
-                return { 'key' : k };
-            });
-
-        } else {
-            // Gather, flatten up from Object.
-            for (var i = 0; i < rootKeys.length; i++){
-                if (typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
-                    if (  Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]][0] && typeof objectWithAllItemKeys[rootKeys[i]][0] === 'object' && typeof objectWithAllItemKeys[rootKeys[i]][0].display_title !== 'string' ) {
-                        columnKeys.push({
-                            'key' : rootKeys[i],
-                            'childKeys' : _.keys(
-                                _.reduce(items, function(m1,v1){
-                                    return _.extend(
-                                        m1,
-                                        _.reduce(v1[rootKeys[i]], function(m2,v2) {
-                                            return _.extend(m2, v2);
-                                        }, {})
-                                    );
-                                }, {})
-                            )
-                        });
-                    } else {
-                        columnKeys.push({ 'key' : rootKeys[i] });
-                    }
-                } else if (objectWithAllItemKeys[rootKeys[i]] && typeof objectWithAllItemKeys[rootKeys[i]] === 'object'){
-                    const itemAtID = typeof objectWithAllItemKeys[rootKeys[i]].display_title === 'string' && itemUtil.atId(objectWithAllItemKeys[rootKeys[i]]);
-                    if (itemAtID) {
-                        columnKeys.push({ 'key' : rootKeys[i] }); // Keep single key if is an Item, we'll make it into a link.
-                    } else { // Flatten up, otherwise.
-                        columnKeys = columnKeys.concat(
-                            _.keys(objectWithAllItemKeys[rootKeys[i]]).map(function(embeddedKey){
-                                return { 'key' : rootKeys[i] + '.' + embeddedKey };
-                            })
-                        );
-                    }
-                }
-            }
-
-        }
-
-        return columnKeys.filter((k)=>{
-            if (columnDefinitions){
-                if (columnDefinitions[k.key]){
-                    if (typeof columnDefinitions[k.key].hide === 'boolean' && columnDefinitions[k.key].hide) return false;
-                    if (typeof columnDefinitions[k.key].hide === 'function'){
-                        return !(columnDefinitions[k.key].hide(objectWithAllItemKeys));
-                    }
-                }
-            }
-            return true;
-        }).sort(function(a,b){
-            if (['title', 'display_title', 'accession'].indexOf(a.key) > -1) return -5;
-            if (['title', 'display_title', 'accession'].indexOf(b.key) > -1) return 5;
-            if (['name', 'workflow_argument_name'].indexOf(a.key) > -1) return -4;
-            if (['name', 'workflow_argument_name'].indexOf(b.key) > -1) return 4;
-            if (['step', 'step_argument_name'].indexOf(a.key) > -1) return -3;
-            if (['step', 'step_argument_name'].indexOf(b.key) > -1) return 3;
-            if (['value'].indexOf(a.key) > -1) return -2;
-            if (['value'].indexOf(b.key) > -1) return 2;
-            return 0;
-        }).sort(function(a,b){
-            // Push columns with child/embedded object lists to the end.
-            if (Array.isArray(a.childKeys)) return 1;
-            if (Array.isArray(b.childKeys)) return -1;
-            return 0;
-        });
-    }
-
-
-    static jsonify(val, key){
-        let newVal;
-        try {
-            newVal = JSON.stringify(val);
-            if (_.keys(val).length > 1){
-                console.error("ERROR: Value for table cell is not a string, number, or JSX element.\nKey: " + key + '; Value: ' + newVal);
-            }
-            newVal = <code>{ newVal.length <= 25 ? newVal : newVal.slice(0,25) + '...' }</code>;
-        } catch (e){
-            console.error(e, val);
-            newVal = <em>{'{obj}'}</em>;
-        }
-        return newVal;
-    }
-
     constructor(props){
         super(props);
         this.state = { 'mounted' : false };
@@ -369,7 +256,7 @@ class SubItemTable extends React.Component {
     render(){
         const { items, columnDefinitions, parentKey, atType, schemas, termTransformFxn } = this.props;
         const { mounted } = this.state;
-        let columnKeys = SubItemTable.getColumnKeys(items, columnDefinitions, schemas);
+        let columnKeys = getColumnKeys(items, columnDefinitions, schemas);
 
         // If is an Item, grab properties for it.
         let tipsFromSchemaRes = null;
@@ -555,10 +442,10 @@ class SubItemTable extends React.Component {
                                                         val = val.slice(0,50) + '...';
                                                     }
                                                     if (val && typeof val === 'object' && !React.isValidElement(val) && !Array.isArray(val)) {
-                                                        val = SubItemTable.jsonify(val, columnKeys[j].key);
+                                                        val = jsonify(val, columnKeys[j].key);
                                                     }
                                                     if (Array.isArray(val) && val.length > 0 && !_.all(val, React.isValidElement) ){
-                                                        val = _.map(val, function(v,i){ return SubItemTable.jsonify(v, columnKeys[j].key + ':' + i); });
+                                                        val = _.map(val, function(v,i){ return jsonify(v, columnKeys[j].key + ':' + i); });
                                                     }
                                                     return (
                                                         <td key={("column-for-" + columnKeys[j].key)} className={colVal.className || null}>
@@ -576,7 +463,6 @@ class SubItemTable extends React.Component {
             </div>
         );
     }
-
 }
 
 /**
@@ -889,38 +775,9 @@ export class Detail extends React.PureComponent {
         'termTransformFxn' : function(field, term){ return term; }
     };
 
-    static columnDefinitions = memoize(function(context, schemas, columnDefinitionMap){
-        var colDefsFromSchema = flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
-        return _.extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
-    });
-
-    static generatedKeysLists = memoize(function(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys){
-        const sortKeys = _.difference(_.keys(context).sort(), excludedKeys.sort());
-
-        // Sort applicable persistent keys by original persistent keys sort order.
-        const stickyKeysObj = _.object(
-            _.intersection(sortKeys, stickyKeys.slice(0).sort()).map(function(key){
-                return [key, true];
-            })
-        );
-        var orderedStickyKeys = [];
-        stickyKeys.forEach(function (key) {
-            if (stickyKeysObj[key] === true) orderedStickyKeys.push(key);
-        });
-
-        var extraKeys = _.difference(sortKeys, stickyKeys.slice(0).sort());
-        var collapsibleKeys = _.intersection(extraKeys.sort(), alwaysCollapsibleKeys.slice(0).sort());
-        extraKeys = _.difference(extraKeys, collapsibleKeys);
-
-        return {
-            'persistentKeys' : orderedStickyKeys.concat(extraKeys),
-            'collapsibleKeys' : collapsibleKeys
-        };
-    });
-
     renderDetailRow(key, idx){
         const { context, popLink, schemas, columnDefinitionMap, termTransformFxn } = this.props;
-        const colDefs = Detail.columnDefinitions(context, schemas, columnDefinitionMap);
+        const colDefs = columnDefinitionsFxn(context, schemas, columnDefinitionMap);
 
         return (
             <DetailRow key={key} item={context[key]} popLink={popLink}
@@ -931,7 +788,7 @@ export class Detail extends React.PureComponent {
 
     render(){
         const { context, excludedKeys, stickyKeys, alwaysCollapsibleKeys, open } = this.props;
-        const { persistentKeys, collapsibleKeys } = Detail.generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys);
+        const { persistentKeys, collapsibleKeys } = generatedKeysListsFxn(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys);
         return (
             <div className="overflow-hidden">
                 <PartialList persistent={_.map(persistentKeys, this.renderDetailRow)} collapsible={ _.map(collapsibleKeys, this.renderDetailRow)} open={open} />
@@ -940,6 +797,139 @@ export class Detail extends React.PureComponent {
     }
 }
 
+function getColumnKeys(items, columnDefinitions, schemas) {
+    const objectWithAllItemKeys = _.reduce(items, function (m, v) {
+        return _.extend(m, v);
+    }, {});
+
+    // Property columns to push to front (common across all objects)
+    const rootKeys = _.keys(objectWithAllItemKeys);
+    let columnKeys = [];
+
+    // Use schema columns
+    if(typeof objectWithAllItemKeys.display_title === 'string' && Array.isArray(objectWithAllItemKeys['@type'])) {
+
+        var columnKeysFromSchema = _.keys(
+            getSchemaForItemType(
+                getItemType(objectWithAllItemKeys), schemas
+            ).columns
+        );
+
+        columnKeys = rootKeys.filter(function (k) {
+            if(k === 'display_title' || k === '@id' || k === 'accession') return true;
+            if(columnKeysFromSchema.indexOf(k) > -1) return true;
+            return false;
+        }).map(function (k) {
+            return { 'key': k };
+        });
+
+    } else {
+        // Gather, flatten up from Object.
+        for(var i = 0; i < rootKeys.length; i++) {
+            if(typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
+                if(Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]][0] && typeof objectWithAllItemKeys[rootKeys[i]][0] === 'object' && typeof objectWithAllItemKeys[rootKeys[i]][0].display_title !== 'string') {
+                    columnKeys.push({
+                        'key': rootKeys[i],
+                        'childKeys': _.keys(
+                            _.reduce(items, function (m1, v1) {
+                                return _.extend(
+                                    m1,
+                                    _.reduce(v1[rootKeys[i]], function (m2, v2) {
+                                        return _.extend(m2, v2);
+                                    }, {})
+                                );
+                            }, {})
+                        )
+                    });
+                } else {
+                    columnKeys.push({ 'key': rootKeys[i] });
+                }
+            } else if(objectWithAllItemKeys[rootKeys[i]] && typeof objectWithAllItemKeys[rootKeys[i]] === 'object') {
+                const itemAtID = typeof objectWithAllItemKeys[rootKeys[i]].display_title === 'string' && itemUtil.atId(objectWithAllItemKeys[rootKeys[i]]);
+                if(itemAtID) {
+                    columnKeys.push({ 'key': rootKeys[i] }); // Keep single key if is an Item, we'll make it into a link.
+                } else { // Flatten up, otherwise.
+                    columnKeys = columnKeys.concat(
+                        _.keys(objectWithAllItemKeys[rootKeys[i]]).map(function (embeddedKey) {
+                            return { 'key': rootKeys[i] + '.' + embeddedKey };
+                        })
+                    );
+                }
+            }
+        }
+    }
+
+    return columnKeys.filter((k) => {
+        if(columnDefinitions) {
+            if(columnDefinitions[k.key]) {
+                if(typeof columnDefinitions[k.key].hide === 'boolean' && columnDefinitions[k.key].hide) return false;
+                if(typeof columnDefinitions[k.key].hide === 'function') {
+                    return !(columnDefinitions[k.key].hide(objectWithAllItemKeys));
+                }
+            }
+        }
+        return true;
+    }).sort(function (a, b) {
+        if(['title', 'display_title', 'accession'].indexOf(a.key) > -1) return -5;
+        if(['title', 'display_title', 'accession'].indexOf(b.key) > -1) return 5;
+        if(['name', 'workflow_argument_name'].indexOf(a.key) > -1) return -4;
+        if(['name', 'workflow_argument_name'].indexOf(b.key) > -1) return 4;
+        if(['step', 'step_argument_name'].indexOf(a.key) > -1) return -3;
+        if(['step', 'step_argument_name'].indexOf(b.key) > -1) return 3;
+        if(['value'].indexOf(a.key) > -1) return -2;
+        if(['value'].indexOf(b.key) > -1) return 2;
+        return 0;
+    }).sort(function (a, b) {
+        // Push columns with child/embedded object lists to the end.
+        if(Array.isArray(a.childKeys)) return 1;
+        if(Array.isArray(b.childKeys)) return -1;
+        return 0;
+    });
+}
+
+function jsonify(val, key) {
+    let newVal;
+    try {
+        newVal = JSON.stringify(val);
+        if(_.keys(val).length > 1) {
+            console.error("ERROR: Value for table cell is not a string, number, or JSX element.\nKey: " + key + '; Value: ' + newVal);
+        }
+        newVal = <code>{newVal.length <= 25 ? newVal : newVal.slice(0, 25) + '...'}</code>;
+    } catch(e) {
+        console.error(e, val);
+        newVal = <em>{'{obj}'}</em>;
+    }
+    return newVal;
+}
+
+const columnDefinitionsFxn = memoize(function (context, schemas, columnDefinitionMap) {
+    var colDefsFromSchema = flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
+    return _.extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
+});
+
+const generatedKeysListsFxn = memoize(function(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys) {
+    const sortKeys = _.difference(_.keys(context).sort(), excludedKeys.sort());
+
+    // Sort applicable persistent keys by original persistent keys sort order.
+    const stickyKeysObj = _.object(
+        _.intersection(sortKeys, stickyKeys.slice(0).sort()).map(function(key){
+            return [key, true];
+        })
+    );
+    var orderedStickyKeys = [];
+    stickyKeys.forEach(function (key) {
+        if (stickyKeysObj[key] === true) orderedStickyKeys.push(key);
+    });
+
+    var extraKeys = _.difference(sortKeys, stickyKeys.slice(0).sort());
+    var collapsibleKeys = _.intersection(extraKeys.sort(), alwaysCollapsibleKeys.slice(0).sort());
+    extraKeys = _.difference(extraKeys, collapsibleKeys);
+
+    return {
+        'persistentKeys' : orderedStickyKeys.concat(extraKeys),
+        'collapsibleKeys' : collapsibleKeys
+    };
+});
 
 const ToggleJSONButton = React.memo(function ToggleJSONButton({ onClick, showingJSON, className }){
     return (
