@@ -363,7 +363,7 @@ class SubItemTable extends React.Component {
         const keyTitleDescriptionMap = _.extend(
             {},
             // We have list of sub-embedded Items or sub-embedded objects which have separate 'get properties from schema' funcs (== tipsFromSchema || parentKeySchemaProperty).
-            flattenSchemaPropertyToColumnDefinition(tipsFromSchema || parentKeySchemaProperty, 0, schemas),
+            flattenSchemaPropertyToColumnDefinition(tipsFromSchemaRes || parentKeySchemaProperty, 0, schemas),
             columnDefinitions
         );
 
@@ -977,9 +977,7 @@ export class ItemDetailList extends React.PureComponent {
                         <span>Details</span>
                     </h3>
                     <hr className="tab-section-title-horiz-divider mb-05"/>
-                    <TabErrorBoundary>
-                        <ItemDetailList {...props} />
-                    </TabErrorBoundary>
+                    <ItemDetailList {...props} />
                 </div>
             )
         };
@@ -1089,58 +1087,4 @@ export class ItemDetailList extends React.PureComponent {
         );
     }
 
-}
-/**
- * Error Boundary component to wrap an individual tab in a page.
- * TODO: move to a more generic js file instead of ItemDetailList.js
- */
-export class TabErrorBoundary extends React.Component {
-
-    static errorNotice() {
-        return (
-            <div className="error-boundary container">
-                <div className="mb-2 mt-2">
-                    <h3 className="text-400">A client-side error has occured, tab content cannot be rendered correctly.</h3>
-                </div>
-            </div>
-        );
-    }
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            'hasError': false,
-            'errorInfo': null
-        };
-    }
-
-    componentDidCatch(err, info) {
-        const { href } = this.props;
-        this.setState({ 'hasError': true, 'errorInfo': info }, () => {
-            analytics.exception('Client Error - ' + href + ': ' + err, true);
-        });
-    }
-
-    componentDidUpdate(pastProps) {
-        const { canonical } = this.props;
-        if(pastProps.canonical !== canonical) {
-            this.setState(function (currState) {
-                if(currState.hasError) {
-                    return {
-                        'hasError': false,
-                        'errorInfo': null
-                    };
-                }
-                return {};
-            });
-        }
-    }
-
-    render() {
-        const { children } = this.props, { hasError } = this.state;
-        if(hasError) {
-            return TabErrorBoundary.errorNotice();
-        }
-        return children;
-    }
 }
