@@ -686,14 +686,12 @@ class DetailRow extends React.PureComponent {
  * @type {Component}
  */
 export class Detail extends React.PureComponent {
-    constructor(props){
-        super(props);
-        this.renderDetailRow = this.renderDetailRow.bind(this);
-    }
+
     static propTypes = {
         'context' : PropTypes.object.isRequired,
         'columnDefinitions' : PropTypes.object
     };
+
     static defaultProps = {
         'excludedKeys' : [
             '@context', 'actions', 'principals_allowed',
@@ -774,6 +772,11 @@ export class Detail extends React.PureComponent {
         },
         'termTransformFxn' : function(field, term){ return term; }
     };
+
+    constructor(props){
+        super(props);
+        this.renderDetailRow = this.renderDetailRow.bind(this);
+    }
 
     renderDetailRow(key, idx){
         const { context, popLink, schemas, columnDefinitionMap, termTransformFxn } = this.props;
