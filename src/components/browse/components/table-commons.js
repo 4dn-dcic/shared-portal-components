@@ -127,7 +127,7 @@ export const basicColumnExtensionMap = {
             return (
                 <React.Fragment>
                     <i className="icon icon-fw fas icon-filter clickable mr-05" onClick={onClick} data-tip={"Filter down to only " + itemTypeTitle}/>
-                    <span className="item-type-title text-ellipsis-container">{ itemTypeTitle }</span>
+                    <span className="item-type-title value">{ itemTypeTitle }</span>
                 </React.Fragment>
             );
         }
@@ -138,7 +138,11 @@ export const basicColumnExtensionMap = {
         'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
         'render' : function dateCreatedTitle(result, columnDefinition, props, width){
             if (!result.date_created) return null;
-            return <LocalizedTime timestamp={result.date_created} formatType="date-sm" />;
+            return (
+                <span className="value">
+                    <LocalizedTime timestamp={result.date_created} formatType="date-sm" />
+                </span>
+            );
         },
         'order' : 510
     },
@@ -148,7 +152,11 @@ export const basicColumnExtensionMap = {
         'render' : function lastModifiedDate(result, columnDefinition, props, width){
             if (!result.last_modified) return null;
             if (!result.last_modified.date_modified) return null;
-            return <LocalizedTime timestamp={result.last_modified.date_modified} formatType="date-sm" />;
+            return (
+                <span className="value">
+                    <LocalizedTime timestamp={result.last_modified.date_modified} formatType="date-sm" />
+                </span>
+            );
         },
         'order' : 515
     }

@@ -20,7 +20,8 @@ $search-results-header-text-color: #fff !default;
 		text-overflow: ellipsis;
         white-space: nowrap;
         display: flex;
-        align-items: center;
+		align-items: center;
+		line-height: $line-height-base;
 	}
 }
 
