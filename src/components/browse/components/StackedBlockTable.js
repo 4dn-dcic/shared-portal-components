@@ -457,7 +457,7 @@ function TableHeaders(props){
         const cls = "heading-block col-" + colHeader.columnClass + (colHeader.className ? ' ' + colHeader.className : '');
 
         return (
-            <div className={cls} key={key} style={{ 'width' : colWidth }} data-column-class={colHeader.columnClass}>
+            <div className={cls} key={key} style={{ 'width' : colWidth }} data-column-class={colHeader.columnClass} data-tip={visibleTitle}>
                 { visibleTitle }
             </div>
         );
