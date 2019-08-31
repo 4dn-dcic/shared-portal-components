@@ -4,7 +4,12 @@ import React from 'react';
 
 export const Checkbox = React.memo(function Checkbox(props){
     const { className, children, labelClassName = "mb-0", title, ...passProps } = props;
-    const cls = "checkbox" + (className ? " " + className : "");
+    const { disabled } = passProps;
+    const cls = (
+        "checkbox" +
+        (disabled ? " disabled" : "") +
+        (className ? " " + className : "")
+    );
     return (
         <div className={cls}>
             <label title={title} className={labelClassName}>
