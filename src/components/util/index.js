@@ -8,7 +8,7 @@
 
 
 // Misc functions are top-level
-export { isServerSide } from './misc';
+export { isServerSide, isSelectAction } from './misc';
 
 
 // Transforms, manipulations, parsers, etc. re: objects.

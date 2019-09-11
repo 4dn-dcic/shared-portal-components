@@ -14,7 +14,7 @@ import { Sticky, StickyContainer } from 'react-sticky';
 
 import { Detail } from './../../ui/ItemDetailList';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
-import { isServerSide } from './../../util/misc';
+import { isServerSide, isSelectAction } from './../../util/misc';
 import { navigate } from './../../util/navigate';
 import { itemUtil } from './../../util/object';
 import { load } from './../../util/ajax';
@@ -258,8 +258,8 @@ class ResultRow extends React.PureComponent {
 
     render(){
         const { rowNumber, currentAction } = this.props;
-        const detailOpen  = this.isOpen();
-        const isDraggable = currentAction === 'selection';
+        const detailOpen = this.isOpen();
+        const isDraggable = isSelectAction(currentAction);
 
         /**
          * Props passed to ResultDetail include:
@@ -935,7 +935,8 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     stickyHeaderTopOffset(){
-        const { windowWidth, stickyHeaderTopOffset } = this.props;
+        const { windowWidth, stickyHeaderTopOffset, currentAction, href } = this.props;
+        const displayNavBar = !(href && typeof href === 'string' && (href.indexOf('/search/') >= 0) && (currentAction === 'multiselect'));
         const rgs = responsiveGridState(windowWidth);
         switch (rgs){
             case 'xs':
@@ -944,7 +945,7 @@ class DimensioningContainer extends React.PureComponent {
             case 'md':
             case 'lg':
             case 'xl':
-                return stickyHeaderTopOffset || 0;
+                return displayNavBar ? (stickyHeaderTopOffset || 0) : 0;
         }
     }
 

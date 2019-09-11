@@ -35,8 +35,8 @@ export class LinkToSelector extends React.PureComponent {
     static propTypes = {
         /** Whether component should be listening for Item to be selected */
         'isSelecting'       : PropTypes.bool.isRequired,
-        /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
-        'onSelect'          : PropTypes.func.isRequired,
+        /** Callback called when Items are received. Should accept array of {id:@ID, json:Item context (not guaranteed)} object and endDataPost (bool) as param */
+        'onSelect': PropTypes.func.isRequired,
         /** Search URL to direct child window to */
         'searchURL'         : PropTypes.string.isRequired,
         /** Optional alert to show in child window upon initialization. Not guaranteed to appear in all browsers. */
@@ -55,8 +55,8 @@ export class LinkToSelector extends React.PureComponent {
 
     static defaultProps = {
         'isSelecting'       : false,
-        'onSelect'          : function(itemAtID, itemContext){
-            console.log("Selected", itemAtID, itemContext);
+        'onSelect'          : function(selectedItems, endDataPost){
+            console.log("Selected", selectedItems, endDataPost);
         },
         'onCloseChildWindow': function(){
             console.log("Closed child window");
@@ -177,7 +177,7 @@ export class LinkToSelector extends React.PureComponent {
      * @param {MessageEvent} evt - See https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent.
      */
     handleChildWindowMessage(evt){
-        var eventType = evt && evt.data && evt.data.eventType;
+        const eventType = evt && evt.data && evt.data.eventType;
 
         if (!eventType) {
             // We require an 'eventType' to be present in cross-window messages to help ID what the message is.
@@ -186,7 +186,7 @@ export class LinkToSelector extends React.PureComponent {
         }
 
         // Authenticate message origin to prevent XSS attacks.
-        var eventOriginParts = url.parse(evt.origin);
+        const eventOriginParts = url.parse(evt.origin);
         if (window.location.host !== eventOriginParts.host){
             console.error('Received message from unauthorized host. Canceling.');
             return;
@@ -198,10 +198,15 @@ export class LinkToSelector extends React.PureComponent {
 
         // The meat of this function/handler. This is what we listen to / expect.
         if (eventType === 'fourfrontselectionclick') {
-            // Attempt to grab Item ID & context from custom event
-            var atId    = (evt.data && evt.data.id) || (evt.detail && evt.detail.id) || null,
-                context = evt.data && evt.data.json;
-            return this.receiveData(atId, context);
+            const items = (evt.data && evt.data.items) || (evt.detail && evt.detail.items) || null;
+            if (items && Array.isArray(items) && (items.length > 0) && _.every(items, function (item) { return item.id && typeof item.id === 'string' && item.json; })) {
+                return this.receiveData(items);
+            }
+            return null;
+        }
+        if (eventType === 'fourfrontcancelclick') {
+            this.cleanChildWindow();
+            this.props.onCloseChildWindow();
         }
 
         // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
@@ -234,12 +239,12 @@ export class LinkToSelector extends React.PureComponent {
     }
 
     /**
-     * @param {string} itemAtID - ID of selected Item, if any.
-     * @param {Object} itemContext - JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED).
+     *
+     * @param {Array} items - array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
      */
-    receiveData(itemAtID, itemContext){
+    receiveData(items) {
         this.cleanChildWindow();
-        this.props.onSelect(itemAtID, itemContext);
+        this.props.onSelect(items, true);
     }
 
     /**
@@ -281,8 +286,8 @@ export class WindowDropReceiver extends React.PureComponent {
 
     static defaultProps = {
         'isSelecting'       : false,
-        'onSelect'          : function(itemAtID, itemContext){
-            console.log("Selected", itemAtID, itemContext);
+        'onSelect': function (items, endDataPost) {
+            console.log("Selected", items, endDataPost);
         },
         'dropMessage'       : "Drop Item Here"
     };
@@ -355,10 +360,10 @@ export class WindowDropReceiver extends React.PureComponent {
     handleDrop(evt){
         evt.preventDefault();
         evt.stopPropagation();
-        var draggedContext  = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-json'),
-            draggedURI      = evt.dataTransfer && evt.dataTransfer.getData('text/plain'),
-            draggedID       = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-id'),
-            atId            = draggedID || (draggedContext & itemUtil.atId(draggedContext)) || url.parse(draggedURI).pathname || null;
+        const draggedContext  = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-json');
+        const draggedURI      = evt.dataTransfer && evt.dataTransfer.getData('text/plain');
+        const draggedID       = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-id');
+        const atId            = draggedID || (draggedContext & itemUtil.atId(draggedContext)) || url.parse(draggedURI).pathname || null;
 
         this.receiveData(atId, draggedContext);
     }
@@ -424,7 +429,7 @@ export class WindowDropReceiver extends React.PureComponent {
                 console.error(e);
             }
         }
-        this.props.onSelect(itemAtID, itemContext);
+        this.props.onSelect([{ 'id': itemAtID, 'json': itemContext }], false);
     }
 
     render(){
