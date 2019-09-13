@@ -107,7 +107,7 @@ export class StackedBlockListViewMoreButton extends React.PureComponent {
             <div className="view-more-button" onClick={handleCollapseToggle}>
                 <i className={"icon fas icon-" + (collapsed ? 'plus': 'minus')}/>
                 { titleStr }
-                { showMoreExtTitle ? <span className="ext text-400">{ showMoreExtTitle }</span> : null }
+                { showMoreExtTitle ? <span className="ext text-400"> { showMoreExtTitle }</span> : null }
             </div>
         );
     }

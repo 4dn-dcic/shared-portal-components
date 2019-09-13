@@ -107,6 +107,10 @@ export class Alerts extends React.Component {
         });
     }
 
+    static defaultProps = {
+        "className" : "alerts mt-2"
+    };
+
     /** @ignore */
     constructor(props){
         super(props);
@@ -139,11 +143,11 @@ export class Alerts extends React.Component {
      * @returns {JSX.Element} A `<div>` element containing AlertItems as children.
      */
     render(){
-        const { alerts } = this.props;
+        const { alerts, children, ...passProps } = this.props;
         const { dismissing } = this.state;
         if (alerts.length === 0) return null;
         return (
-            <div className="alerts mt-2" {..._.omit(this.props, 'children', 'alerts')}>
+            <div { ...passProps }>
                 { _.map(alerts, (alert, index, alerts) =>
                     <AlertItem {...{ alert, index, alerts }} setDismissing={this.setDismissing} dismissing={dismissing} key={index} />
                 )}
