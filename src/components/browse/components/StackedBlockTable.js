@@ -450,14 +450,22 @@ function TableHeaders(props){
     const columnWidths = StackedBlockTable.scaledColumnWidths(width, columnHeaders, defaultInitialColumnWidth);
 
     const headers = _.map(columnHeaders, function(colHeader, index){
-        let visibleTitle = colHeader.visibleTitle || colHeader.title;
+        const { field, title, visibleTitle: vTitle, initialWidth, columnClass, className } = colHeader;
+        let visibleTitle = vTitle || title;
         if (typeof visibleTitle === 'function') visibleTitle = visibleTitle(props);
-        const colWidth = columnWidths[index] || colHeader.initialWidth || defaultInitialColumnWidth;
-        const key = colHeader.field || index;
-        const cls = "heading-block col-" + colHeader.columnClass + (colHeader.className ? ' ' + colHeader.className : '');
+        const colWidth = columnWidths[index] || initialWidth || defaultInitialColumnWidth;
+        const key = field || index;
+        const cls = "heading-block col-" + columnClass + (className ? ' ' + className : '');
+
+        let tooltip = typeof visibleTitle === 'string' ? visibleTitle
+            : typeof title === 'string' ? title
+                : null;
+        if (tooltip && tooltip.length < 6){
+            tooltip = null;
+        }
 
         return (
-            <div className={cls} key={key} style={{ 'width' : colWidth }} data-column-class={colHeader.columnClass} data-tip={visibleTitle}>
+            <div className={cls} key={key} style={{ 'width' : colWidth }} data-column-class={columnClass} data-tip={tooltip}>
                 { visibleTitle }
             </div>
         );
