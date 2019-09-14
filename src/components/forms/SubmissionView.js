@@ -1398,7 +1398,7 @@ const ValidationButton = React.memo(function ValidationButton(props){
         if (processingFetch) {
             return (
                 <button type="button" className="btn btn-danger" disabled>
-                    <i className="icon icon-spin icon-circle-o-notch fas"/>
+                    <i className="icon icon-spin icon-circle-notch fas"/>
                 </button>
             );
         } else {
@@ -1408,7 +1408,7 @@ const ValidationButton = React.memo(function ValidationButton(props){
         if (processingFetch) {
             return (
                 <button type="button" className="btn btn-info" disabled>
-                    <i className="icon icon-spin icon-circle-o-notch fas"/>
+                    <i className="icon icon-spin icon-circle-notch fas"/>
                 </button>
             );
         } else {
@@ -1434,7 +1434,7 @@ const SubmitButton = React.memo(function(props){
         if (upload !== null || processingFetch || md5Progress !== null) {
             return (
                 <button type="button" disabled className="btn btn-success">
-                    <i className="icon icon-spin icon-circle-o-notch fas"/>
+                    <i className="icon icon-spin icon-circle-notch fas"/>
                 </button>
             );
         } else {
@@ -1444,7 +1444,7 @@ const SubmitButton = React.memo(function(props){
         if (processingFetch){
             return (
                 <button type="button" disabled className="btn btn-success">
-                    <i className="icon icon-spin icon-circle-o-notch fas"/>
+                    <i className="icon icon-spin icon-circle-notch fas"/>
                 </button>
             );
         } else {

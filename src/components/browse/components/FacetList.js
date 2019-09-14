@@ -93,7 +93,7 @@ class Term extends React.PureComponent {
         let icon = null;
 
         if (filtering){
-            icon = <i className="icon fas icon-circle-o-notch icon-spin icon-fw"/>;
+            icon = <i className="icon fas icon-circle-notch icon-spin icon-fw"/>;
         } else if (selected) {
             icon = <i className="icon icon-times-circle icon-fw fas"/>;
         } else {
@@ -388,7 +388,7 @@ const StaticSingleTerm = React.memo(function StaticSingleTerm({ term, facet, sho
                         )
                     }>
                         <i className={"icon icon-fw " +
-                            (filtering ? 'icon-spin icon-circle-o-notch' :
+                            (filtering ? 'icon-spin icon-circle-notch' :
                                 ( selected ? 'icon-times-circle fas' : 'icon-circle fas' )
                             )
                         }/>

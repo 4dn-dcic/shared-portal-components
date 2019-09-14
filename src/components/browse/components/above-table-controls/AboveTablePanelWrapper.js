@@ -16,7 +16,7 @@ export const AboveTablePanelWrapper = React.memo(function AboveTablePanelWrapper
         <div className={"search-result-config-panel" + (className ? ' ' + className : '')}>
             <div className="inner">
                 <h5 className="panel-title">
-                    <span className="title-contents">{ title }</span>
+                    { title }
                     { closeButton }
                 </h5>
                 { children }

@@ -210,7 +210,7 @@ class SubmissionLeaf extends React.Component{
                 }
             }.bind(this);
 
-            iconClass = "icon-hdd-o";
+            iconClass = "icon-hdd far";
             tip = "Successfully submitted or pre-existing item; already exists in the database.<br>Click to view this item/dependency in new tab/window.";
             extIcon = <i className="icon icon-external-link pull-right fas" />;
 
