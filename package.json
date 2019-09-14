@@ -1,16 +1,17 @@
 {
     "name": "@hms-dbmi-bgm/shared-portal-components",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Shared components for DBMI/BGM portal(s)",
     "repository": "https://github.com/4dn-dcic/shared-portal-components",
     "main": "src/index.js",
-    "module": "/dist/shared-components.js",
+    "module": "es",
     "scripts": {
-        "build": "node --max-old-space-size=2048 ./node_modules/.bin/gulp build",
+        "build": "rm ./es/* && npx babel ./src --out-dir ./es --env-name esm",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "HMS DBMI/BGM",
     "devDependencies": {
+        "@babel/cli": "^7.6.0",
         "@babel/core": "^7.1.2",
         "@babel/plugin-proposal-class-properties": "^7.3.3",
         "@babel/plugin-proposal-object-rest-spread": "^7.3.2",
