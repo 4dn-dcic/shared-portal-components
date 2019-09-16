@@ -624,8 +624,21 @@ var LinkedObj = function (_React$PureComponent2) {
     }
   }, {
     key: "handleFinishSelectItem",
-    value: function handleFinishSelectItem(atId) {
+    value: function handleFinishSelectItem(items) {
       var selectComplete = this.props.selectComplete;
+
+      if (!items || !Array.isArray(items) || items.length === 0 || !_underscore.default.every(items, function (item) {
+        return item.id && typeof item.id === 'string' && item.json;
+      })) {
+        return;
+      }
+
+      var atId = items[0].id;
+      items[0].json;
+
+      if (items.length > 1) {
+        _util.console.warn('Multiple documents selected but we only get a single item, since handler\'s multiple version not implemented yet!');
+      }
 
       var isValidAtId = _util.object.isValidAtIDFormat(atId);
 

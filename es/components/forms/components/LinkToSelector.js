@@ -93,9 +93,9 @@ var LinkToSelector = function (_React$PureComponent) {
 
       var _this$props = this.props,
           searchURL = _this$props.searchURL,
-          onCloseChildWindow = _this$props.onCloseChildWindow,
-          pastInSelection = pastProps.isSelecting,
-          nowInSelection = nextProps.isSelecting;
+          onCloseChildWindow = _this$props.onCloseChildWindow;
+      var pastInSelection = pastProps.isSelecting;
+      var nowInSelection = nextProps.isSelecting;
 
       if (!pastInSelection && nowInSelection) {
         if (linkedObjChildWindow && !linkedObjChildWindow.closed && linkedObjChildWindow.fourfront && typeof linkedObjChildWindow.fourfront.navigate === 'function') {
@@ -182,9 +182,20 @@ var LinkToSelector = function (_React$PureComponent) {
       }
 
       if (eventType === 'fourfrontselectionclick') {
-        var atId = evt.data && evt.data.id || evt.detail && evt.detail.id || null,
-            context = evt.data && evt.data.json;
-        return this.receiveData(atId, context);
+        var items = evt.data && evt.data.items || evt.detail && evt.detail.items || null;
+
+        if (items && Array.isArray(items) && items.length > 0 && _underscore.default.every(items, function (item) {
+          return item.id && typeof item.id === 'string' && item.json;
+        })) {
+          return this.receiveData(items);
+        }
+
+        return null;
+      }
+
+      if (eventType === 'fourfrontcancelclick') {
+        this.cleanChildWindow();
+        this.props.onCloseChildWindow();
       }
 
       if (eventType === 'fourfrontinitialized') {
@@ -222,9 +233,9 @@ var LinkToSelector = function (_React$PureComponent) {
     }
   }, {
     key: "receiveData",
-    value: function receiveData(itemAtID, itemContext) {
+    value: function receiveData(items) {
       this.cleanChildWindow();
-      this.props.onSelect(itemAtID, itemContext);
+      this.props.onSelect(items, true);
     }
   }, {
     key: "showAlertInChildWindow",
@@ -272,8 +283,8 @@ _defineProperty(LinkToSelector, "propTypes", {
 
 _defineProperty(LinkToSelector, "defaultProps", {
   'isSelecting': false,
-  'onSelect': function onSelect(itemAtID, itemContext) {
-    _patchedConsole.patchedConsoleInstance.log("Selected", itemAtID, itemContext);
+  'onSelect': function onSelect(selectedItems, endDataPost) {
+    _patchedConsole.patchedConsoleInstance.log("Selected", selectedItems, endDataPost);
   },
   'onCloseChildWindow': function onCloseChildWindow() {
     _patchedConsole.patchedConsoleInstance.log("Closed child window");
@@ -360,10 +371,10 @@ var WindowDropReceiver = function (_React$PureComponent2) {
     value: function handleDrop(evt) {
       evt.preventDefault();
       evt.stopPropagation();
-      var draggedContext = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-json'),
-          draggedURI = evt.dataTransfer && evt.dataTransfer.getData('text/plain'),
-          draggedID = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-id'),
-          atId = draggedID || draggedContext & _object.itemUtil.atId(draggedContext) || _url.default.parse(draggedURI).pathname || null;
+      var draggedContext = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-json');
+      var draggedURI = evt.dataTransfer && evt.dataTransfer.getData('text/plain');
+      var draggedID = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-id');
+      var atId = draggedID || draggedContext & _object.itemUtil.atId(draggedContext) || _url.default.parse(draggedURI).pathname || null;
       this.receiveData(atId, draggedContext);
     }
   }, {
@@ -433,7 +444,10 @@ var WindowDropReceiver = function (_React$PureComponent2) {
         }
       }
 
-      this.props.onSelect(itemAtID, itemContext);
+      this.props.onSelect([{
+        'id': itemAtID,
+        'json': itemContext
+      }], false);
     }
   }, {
     key: "render",
@@ -455,8 +469,8 @@ _defineProperty(WindowDropReceiver, "propTypes", {
 
 _defineProperty(WindowDropReceiver, "defaultProps", {
   'isSelecting': false,
-  'onSelect': function onSelect(itemAtID, itemContext) {
-    _patchedConsole.patchedConsoleInstance.log("Selected", itemAtID, itemContext);
+  'onSelect': function onSelect(items, endDataPost) {
+    _patchedConsole.patchedConsoleInstance.log("Selected", items, endDataPost);
   },
   'dropMessage': "Drop Item Here"
 });

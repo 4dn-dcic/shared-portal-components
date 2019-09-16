@@ -328,7 +328,7 @@ var ResultRow = function (_React$PureComponent2) {
           rowNumber = _this$props8.rowNumber,
           currentAction = _this$props8.currentAction;
       var detailOpen = this.isOpen();
-      var isDraggable = currentAction === 'selection';
+      var isDraggable = (0, _misc.isSelectAction)(currentAction);
 
       var detailProps = _underscore.default.omit(this.props, 'openDetailPanes', 'mounted', 'headerColumnWidths', 'columnDefinitions', 'id', 'detailOpen', 'setDetailHeight');
 
@@ -1120,7 +1120,10 @@ var DimensioningContainer = function (_React$PureComponent4) {
     value: function () {
       var _this$props13 = this.props,
           windowWidth = _this$props13.windowWidth,
-          stickyHeaderTopOffset = _this$props13.stickyHeaderTopOffset;
+          stickyHeaderTopOffset = _this$props13.stickyHeaderTopOffset,
+          currentAction = _this$props13.currentAction,
+          href = _this$props13.href;
+      var displayNavBar = !(href && typeof href === 'string' && href.indexOf('/search/') >= 0 && currentAction === 'multiselect');
       var rgs = (0, _layout.responsiveGridState)(windowWidth);
 
       switch (rgs) {
@@ -1131,7 +1134,7 @@ var DimensioningContainer = function (_React$PureComponent4) {
         case 'md':
         case 'lg':
         case 'xl':
-          return stickyHeaderTopOffset || 0;
+          return displayNavBar ? stickyHeaderTopOffset || 0 : 0;
       }
     }
   }, {

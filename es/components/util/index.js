@@ -9,6 +9,12 @@ Object.defineProperty(exports, "isServerSide", {
     return _misc.isServerSide;
   }
 });
+Object.defineProperty(exports, "isSelectAction", {
+  enumerable: true,
+  get: function get() {
+    return _misc.isSelectAction;
+  }
+});
 Object.defineProperty(exports, "navigate", {
   enumerable: true,
   get: function get() {

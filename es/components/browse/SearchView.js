@@ -21,6 +21,8 @@ var _Alerts = require("./../ui/Alerts");
 
 var _navigate = require("./../util/navigate");
 
+var _misc = require("./../util/misc");
+
 var _schemaTransforms = require("./../util/schema-transforms");
 
 var _searchFilters = require("./../util/search-filters");
@@ -45,11 +47,21 @@ var _SearchResultDetailPane = require("./components/SearchResultDetailPane");
 
 var _SortController = require("./components/SortController");
 
+var _Checkbox = require("../forms/components/Checkbox");
+
 var _typedefs = require("./../util/typedefs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -133,16 +145,79 @@ var ControlsAndResults = function (_React$PureComponent2) {
     _this2.handleClearFilters = _this2.handleClearFilters.bind(_assertThisInitialized(_this2));
     _this2.columnExtensionMapWithSelectButton = _this2.columnExtensionMapWithSelectButton.bind(_assertThisInitialized(_this2));
     _this2.renderSearchDetailPane = _this2.renderSearchDetailPane.bind(_assertThisInitialized(_this2));
+    _this2.handleMultiSelectItemCompleteClick = _this2.handleMultiSelectItemCompleteClick.bind(_assertThisInitialized(_this2));
+    _this2.handleSelectCancelClick = _this2.handleSelectCancelClick.bind(_assertThisInitialized(_this2));
+    _this2.state = {
+      selectedItems: _this2.props.selectedItems || []
+    };
     _this2.searchResultTableRef = _react.default.createRef();
     return _this2;
   }
 
   _createClass(ControlsAndResults, [{
-    key: "handleSelectItemClick",
-    value: function handleSelectItemClick(result) {
-      var eventJSON = {
-        'json': result,
+    key: "handleSingleSelectItemClick",
+    value: function handleSingleSelectItemClick(result) {
+      this.sendDataToParentWindow([{
         'id': _object.itemUtil.atId(result),
+        'json': result
+      }]);
+    }
+  }, {
+    key: "handleMultiSelectItemClick",
+    value: function handleMultiSelectItemClick(result) {
+      var selectedItems = this.state.selectedItems;
+      selectedItems = _toConsumableArray(selectedItems || []);
+
+      var foundItemIdx = _underscore.default.findIndex(selectedItems, function (sItem) {
+        return sItem['id'] === _object.itemUtil.atId(result);
+      });
+
+      if (foundItemIdx < 0) {
+        selectedItems.push({
+          'id': _object.itemUtil.atId(result),
+          'json': result
+        });
+      } else {
+        selectedItems.splice(foundItemIdx, 1);
+      }
+
+      this.setState(function () {
+        return {
+          selectedItems: selectedItems
+        };
+      });
+    }
+  }, {
+    key: "handleMultiSelectItemCompleteClick",
+    value: function handleMultiSelectItemCompleteClick() {
+      var selectedItems = this.state.selectedItems;
+      this.sendDataToParentWindow(selectedItems);
+    }
+  }, {
+    key: "handleSelectCancelClick",
+    value: function handleSelectCancelClick() {
+      var selectedItems = this.state.selectedItems;
+
+      if (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0) {
+        if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
+          return;
+        }
+      }
+
+      window.dispatchEvent(new Event('fourfrontcancelclick'));
+      if (window.opener) window.opener.postMessage({
+        'eventType': 'fourfrontcancelclick'
+      }, '*');
+    }
+  }, {
+    key: "sendDataToParentWindow",
+    value: function sendDataToParentWindow(selectedItems) {
+      if (!selectedItems || !Array.isArray(selectedItems) || selectedItems.length === 0) {
+        return;
+      }
+
+      var eventJSON = {
+        'items': selectedItems,
         'eventType': 'fourfrontselectionclick'
       };
 
@@ -168,7 +243,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
     value: function columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType) {
       var _this3 = this;
 
-      var inSelectionMode = currentAction === 'selection';
+      var inSelectionMode = (0, _misc.isSelectAction)(currentAction);
 
       if (!inSelectionMode && (!abstractType || abstractType !== specificType)) {
         return columnExtensionMap;
@@ -181,19 +256,35 @@ var ControlsAndResults = function (_React$PureComponent2) {
         columnExtensionMap.display_title = _underscore.default.extend({}, columnExtensionMap.display_title, {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
+            var checkBoxControl;
+
+            if (currentAction === 'multiselect') {
+              var selectedItems = _this3.state.selectedItems;
+              var isChecked = _underscore.default.findIndex(selectedItems || [], function (sItem) {
+                return sItem['id'] === _object.itemUtil.atId(result);
+              }) >= 0;
+              checkBoxControl = _react.default.createElement(_Checkbox.Checkbox, {
+                checked: isChecked,
+                onChange: _this3.handleMultiSelectItemClick.bind(_this3, result),
+                className: "mr-2"
+              });
+            } else {
+              checkBoxControl = _react.default.createElement("div", {
+                className: "select-button-container"
+              }, _react.default.createElement("button", {
+                type: "button",
+                className: "select-button",
+                onClick: _this3.handleSingleSelectItemClick.bind(_this3, result)
+              }, _react.default.createElement("i", {
+                className: "icon icon-fw icon-check fas"
+              })));
+            }
+
             var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore.default.extend({}, props, {
               currentAction: currentAction
             }), width, true);
             var newChildren = currentTitleBlock.props.children.slice(0);
-            newChildren.unshift(_react.default.createElement("div", {
-              className: "select-button-container"
-            }, _react.default.createElement("button", {
-              type: "button",
-              className: "select-button",
-              onClick: _this3.handleSelectItemClick.bind(_this3, result)
-            }, _react.default.createElement("i", {
-              className: "icon icon-fw icon-check fas"
-            }))));
+            newChildren.unshift(checkBoxControl);
             return _react.default.cloneElement(currentTitleBlock, {
               'children': newChildren
             });
@@ -278,6 +369,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
           propFacets = _this$props4.facets,
           tableColumnClassName = _this$props4.tableColumnClassName,
           facetColumnClassName = _this$props4.facetColumnClassName;
+      var selectedItems = this.state.selectedItems;
       var results = context['@graph'];
       var facets = propFacets || context.facets;
 
@@ -287,6 +379,8 @@ var ControlsAndResults = function (_React$PureComponent2) {
 
       var selfExtendedColumnExtensionMap = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
       var columnDefinitions = (0, _tableCommons.columnsToColumnDefinitions)(context.columns || {}, selfExtendedColumnExtensionMap);
+      var isMultiSelectAction = currentAction === 'multiselect';
+      var itemTypeFriendlyName = isMultiSelectAction ? (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas) || 'Item' : null;
       return _react.default.createElement("div", {
         className: "row"
       }, facets.length ? _react.default.createElement("div", {
@@ -316,7 +410,32 @@ var ControlsAndResults = function (_React$PureComponent2) {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions
-      }))));
+      })), isMultiSelectAction ? _react.default.createElement(StickyFooter, null, _react.default.createElement("div", {
+        className: "row"
+      }, _react.default.createElement("div", {
+        className: "col-12 col-md-6 text-md-left col-sm-center"
+      }, _react.default.createElement("h3", {
+        className: "mt-0"
+      }, selectedItems.length, _react.default.createElement("small", {
+        className: "text-muted"
+      }, "\xA0\xA0", itemTypeFriendlyName + (selectedItems.length > 1 ? 's' : ''), " selected"))), _react.default.createElement("div", {
+        className: "col-12 col-md-6 text-md-right col-sm-center"
+      }, _react.default.createElement("button", {
+        type: "button",
+        className: "btn btn-success",
+        onClick: this.handleMultiSelectItemCompleteClick,
+        disabled: selectedItems.length === 0,
+        "data-tip": "Select checked items and close window"
+      }, _react.default.createElement("i", {
+        className: "icon icon-fw icon-check"
+      }), "\xA0 Apply"), _react.default.createElement("button", {
+        type: "button",
+        className: "btn btn-outline-warning ml-1",
+        onClick: this.handleSelectCancelClick,
+        "data-tip": "Cancel selection and close window"
+      }, _react.default.createElement("i", {
+        className: "icon icon-fw icon-times"
+      }), "\xA0 Cancel")))) : null));
     }
   }]);
 
@@ -393,3 +512,20 @@ _defineProperty(SearchView, "defaultProps", {
   'currentAction': null,
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap
 });
+
+var StickyFooter = function (props) {
+  var children = props.children;
+  return _react.default.createElement("div", {
+    style: {
+      padding: '10px',
+      position: 'fixed',
+      left: '0',
+      bottom: '0',
+      width: '100%',
+      zIndex: '99'
+    },
+    className: "page-footer"
+  }, _react.default.createElement("div", {
+    className: "container"
+  }, children));
+};
