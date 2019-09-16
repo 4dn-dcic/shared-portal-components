@@ -126,7 +126,9 @@ export const basicColumnExtensionMap = {
 
             return (
                 <React.Fragment>
-                    <i className="icon icon-fw fas icon-filter clickable mr-05" onClick={onClick} data-tip={"Filter down to only " + itemTypeTitle}/>
+                    <div className="icon-container">
+                        <i className="icon icon-fw fas icon-filter clickable mr-05" onClick={onClick} data-tip={"Filter down to only " + itemTypeTitle}/>
+                    </div>
                     <span className="item-type-title value">{ itemTypeTitle }</span>
                 </React.Fragment>
             );

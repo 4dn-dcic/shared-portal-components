@@ -446,7 +446,7 @@ export class EditableField extends React.Component {
                 case 'save' : return null;
                 case 'cancel' : return (
                     <span className={extClass + " field-loading-icon"}>
-                        <i className="icon icon-spin icon-circle-o-notch icon-fw"></i>
+                        <i className="icon icon-spin icon-circle-notch icon-fw fas"></i>
                     </span>
                 );
             }

@@ -610,7 +610,7 @@ class LinkedObj extends React.PureComponent {
                 } else {
                     return(
                         <div className="incomplete-linked-object-display-container text-ellipsis-container">
-                            <i className="icon icon-fw icon-sticky-note-o" />&nbsp;&nbsp;
+                            <i className="icon icon-fw icon-sticky-note far" />&nbsp;&nbsp;
                             <a href="#" onClick={this.setSubmissionStateToLinkedToItem} data-tip="Continue editing/submitting">{ thisDisplay }</a>
                             &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-pencil ml-05 fas"/>
                         </div>

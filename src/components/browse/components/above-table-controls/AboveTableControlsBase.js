@@ -20,7 +20,12 @@ export class AboveTableControlsBase extends React.PureComponent {
     static getCustomColumnSelectorPanelMapDefinition(props){
         return {
             "customColumns" : {
-                "title" : <React.Fragment><i className="icon icon-fw icon-gear fas shift-down-1"/> Configure Visible Columns</React.Fragment>,
+                "title" : (
+                    <React.Fragment>
+                        <i className="icon icon-fw icon-gear fas"/>
+                        <span className="title-contents">Configure Visible Columns</span>
+                    </React.Fragment>
+                ),
                 "body" : <CustomColumnSelector {..._.pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')} />,
                 "className" : "visible-columns-selector-panel"
             }

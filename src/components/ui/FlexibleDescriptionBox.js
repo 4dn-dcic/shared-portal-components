@@ -218,12 +218,12 @@ export class FlexibleDescriptionBox extends React.Component {
     }
 
     checkWillDescriptionFitOneLineAndUpdateHeight(){
-        var { description, textElement, textClassName, textStyle, windowWidth, linesOfText, lineHeight, fitTo } = this.props;
+        const { description, textElement, textClassName, textStyle, windowWidth, linesOfText, lineHeight, fitTo } = this.props;
 
         if (isServerSide()) return true;
 
-        var dims = this.dimensions(),
-            containerWidth;
+        const dims = this.dimensions();
+        let containerWidth;
 
         if (fitTo === 'grid'){
             containerWidth = gridContainerWidth(windowWidth || null);
@@ -235,14 +235,13 @@ export class FlexibleDescriptionBox extends React.Component {
 
         containerWidth -= dims.paddingWidth; // Account for inner padding & border.
 
-        var tcw = textContentWidth(
+        const tcw = textContentWidth(
             description, textElement, textClassName,
             containerWidth - dims.buttonWidth, // Account for expand button.
             textStyle
         );
 
         if (!tcw) return true;
-
 
         this.descriptionHeight = tcw.containerHeight + dims.paddingHeight; // Account for padding, border.
         this.descriptionWidth = containerWidth;
@@ -257,6 +256,7 @@ export class FlexibleDescriptionBox extends React.Component {
         }
 
         if (tcw.textWidth < containerWidth){
+            this.descriptionHeight = lineHeight + dims.paddingHeight; // unset if calcd higher val above
             return true;
         }
         return false;
@@ -285,13 +285,17 @@ export class FlexibleDescriptionBox extends React.Component {
     }
 
     render(){
-        var { debug, showOnMount, lineHeight, linesOfText, collapsedHeight, className, textElement, textClassName, textStyle, description, fitTo } = this.props,
-            { descriptionWillFitOneLine, descriptionExpanded, mounted, shortContent, descriptionWhiteSpace } = this.state;
+        const {
+            debug, expanded: propExpanded,
+            showOnMount, lineHeight, linesOfText, collapsedHeight, className, textElement, textClassName, textStyle, description, fitTo
+        } = this.props;
+        const { descriptionWillFitOneLine, descriptionExpanded, mounted, shortContent, descriptionWhiteSpace } = this.state;
         if (debug) console.log('render FlexibleDescriptionBox');
-        var expandButton;
-        var expanded = descriptionExpanded || this.props.expanded;
 
-        if (!descriptionWillFitOneLine && typeof this.props.expanded !== 'boolean'){
+        let expandButton;
+        const expanded = descriptionExpanded || propExpanded;
+
+        if (!descriptionWillFitOneLine && typeof propExpanded !== 'boolean'){
             expandButton = (
                 <button type="button" className="description-expand-button right" onClick={this.throttledToggleDescriptionExpand}>
                     <i className={"icon fas icon-" + (expanded ? 'minus' : 'plus' )} />
@@ -299,10 +303,10 @@ export class FlexibleDescriptionBox extends React.Component {
             );
         }
 
-        var containerHeightSet = (expanded ?
+        const containerHeightSet = (expanded ?
             this.descriptionHeight
             :
-            !this.state.mounted && showOnMount ? (
+            !mounted && showOnMount ? (
                 0
             ) : collapsedHeight || Math.min(
                 Math.max(
