@@ -109,7 +109,9 @@ class ControlsAndResults extends React.PureComponent {
         this.renderSearchDetailPane = this.renderSearchDetailPane.bind(this);
         this.handleMultiSelectItemCompleteClick = this.handleMultiSelectItemCompleteClick.bind(this);
         this.handleSelectCancelClick = this.handleSelectCancelClick.bind(this);
-        this.state = { selectedItems: (this.props.selectedItems || []) };
+        this.state = {
+            selectedItems : new Map()
+        };
 
         this.searchResultTableRef = React.createRef();
     }
@@ -125,17 +127,16 @@ class ControlsAndResults extends React.PureComponent {
      * This function add/or removes the selected item into an array in state, if `props.currentAction` is set to "multiselect".
      */
     handleMultiSelectItemClick(result, evt) {
-        let { selectedItems } = this.state;
-        selectedItems = [...(selectedItems || [])];//clone
-        const foundItemIdx = _.findIndex(selectedItems, function (sItem) {
-            return sItem['id'] === itemUtil.atId(result);
+        this.setState(function({ selectedItems: prevItems }){
+            const nextItems = new Map(prevItems);
+            const resultID = itemUtil.atId(result);
+            if (nextItems.has(resultID)){
+                nextItems.delete(resultID);
+            } else {
+                nextItems.set(resultID, result);
+            }
+            return { selectedItems: nextItems };
         });
-        if (foundItemIdx < 0) {
-            selectedItems.push({ 'id': itemUtil.atId(result), 'json': result });
-        } else {
-            selectedItems.splice(foundItemIdx, 1);
-        }
-        this.setState(function (state, props) { return { selectedItems: selectedItems }; });
     }
     /**
      * This function sends selected items to parent window for if `props.currentAction` is set to "multiselect".
@@ -148,8 +149,8 @@ class ControlsAndResults extends React.PureComponent {
      * This function cancels the selection if `props.currentAction` is set to "multiselect".
      */
     handleSelectCancelClick(evt){
-        const { selectedItems } = this.state;
-        if (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0) {
+        const { selectedItems = {} } = this.state;
+        if (selectedItems.size > 0) {
             if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
                 return;
             }
@@ -165,11 +166,16 @@ class ControlsAndResults extends React.PureComponent {
      * set selectedItems as empty array ([]) to close child window
      */
     sendDataToParentWindow(selectedItems) {
-        if (!selectedItems || !Array.isArray(selectedItems) || selectedItems.length === 0) {
+        if (!selectedItems || selectedItems.size === 0) {
             return;
         }
 
-        const eventJSON = { 'items': selectedItems, 'eventType': 'fourfrontselectionclick' };
+        const itemsWrappedWithID = [];
+        for (let [key, value] of selectedItems){
+            itemsWrappedWithID.push({ id: key, json: value });
+        }
+
+        const eventJSON = { 'items': itemsWrappedWithID, 'eventType': 'fourfrontselectionclick' };
 
         // Standard - postMessage
         try {
@@ -192,6 +198,7 @@ class ControlsAndResults extends React.PureComponent {
 
     columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType){
         const inSelectionMode = isSelectAction(currentAction);
+
         if (!inSelectionMode && (!abstractType || abstractType !== specificType)){
             return columnExtensionMap;
         }
@@ -216,11 +223,10 @@ class ControlsAndResults extends React.PureComponent {
                     let checkBoxControl;
                     if (currentAction === 'multiselect') {
                         const { selectedItems } = this.state;
-                        const isChecked = _.findIndex((selectedItems || []), function (sItem) {
-                            return sItem['id'] === itemUtil.atId(result);
-                        }) >= 0;
+                        const isChecked = selectedItems.has(itemUtil.atId(result));
                         checkBoxControl = (
-                            <Checkbox checked={isChecked} onChange={this.handleMultiSelectItemClick.bind(this, result)} className="mr-2" />
+                            <input type="checkbox" checked={isChecked} onChange={this.handleMultiSelectItemClick.bind(this, result)}
+                                className="mr-2" />
                         );
                     }
                     else { //default: currentAction is selection
@@ -229,7 +235,8 @@ class ControlsAndResults extends React.PureComponent {
                                 <button type="button" className="select-button" onClick={this.handleSingleSelectItemClick.bind(this, result)}>
                                     <i className="icon icon-fw icon-check fas" />
                                 </button>
-                            </div>);
+                            </div>
+                        );
                     }
                     const currentTitleBlock = origDisplayTitleRenderFxn(
                         result, columnDefinition, _.extend({}, props, { currentAction }), width, true
@@ -295,7 +302,6 @@ class ControlsAndResults extends React.PureComponent {
         const selfExtendedColumnExtensionMap  = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
         const columnDefinitions               = columnsToColumnDefinitions(context.columns || {}, selfExtendedColumnExtensionMap);
         const isMultiSelectAction = (currentAction === 'multiselect');
-        const itemTypeFriendlyName = isMultiSelectAction ? (getSchemaTypeFromSearchContext(context, schemas) || 'Item') : null;
 
         return (
             <div className="row">
@@ -319,21 +325,8 @@ class ControlsAndResults extends React.PureComponent {
                             'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas')}
                         {...{ hiddenColumns, results, columnDefinitions }} />
                     {isMultiSelectAction ?
-                        <StickyFooter>
-                            <div className="row">
-                                <div className="col-12 col-md-6 text-md-left col-sm-center">
-                                    <h3 className="mt-0">{selectedItems.length}<small className="text-muted">&nbsp;&nbsp;{itemTypeFriendlyName + (selectedItems.length > 1 ? 's' : '')} selected</small></h3>
-                                </div>
-                                <div className="col-12 col-md-6 text-md-right col-sm-center">
-                                    <button type="button" className="btn btn-success" onClick={this.handleMultiSelectItemCompleteClick} disabled={selectedItems.length === 0} data-tip="Select checked items and close window">
-                                        <i className="icon icon-fw icon-check"></i>&nbsp; Apply
-                                    </button>
-                                    <button type="button" className="btn btn-outline-warning ml-1" onClick={this.handleSelectCancelClick} data-tip="Cancel selection and close window">
-                                        <i className="icon icon-fw icon-times"></i>&nbsp; Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </StickyFooter>
+                        <MultiSelectStickyFooter {...{ context, schemas, selectedItems }}
+                            onComplete={this.handleMultiSelectItemCompleteClick} onCancel={this.handleSelectCancelClick} />
                         : null}
                 </div>
             </div>
@@ -384,17 +377,47 @@ export class SearchView extends React.PureComponent {
     }
 }
 
+
+const MultiSelectStickyFooter = React.memo(function MultiSelectStickyFooter(props){
+    const {
+        context, schemas, selectedItems,
+        onComplete, onCancel
+    } = props;
+    const itemTypeFriendlyName = getSchemaTypeFromSearchContext(context, schemas);
+    return (
+        <StickyFooter>
+            <div className="row">
+                <div className="col-12 col-md-6 text-md-left col-sm-center">
+                    <h3 className="mt-0">
+                        { selectedItems.size }
+                        <small className="text-muted ml-08">
+                            {itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's')} selected
+                        </small>
+                    </h3>
+                </div>
+                <div className="col-12 col-md-6 text-md-right col-sm-center">
+                    <button type="button" className="btn btn-success" onClick={onComplete} disabled={selectedItems.size === 0} data-tip="Select checked items and close window">
+                        <i className="icon icon-fw fas icon-check"></i>&nbsp; Apply
+                    </button>
+                    <button type="button" className="btn btn-outline-warning ml-1" onClick={onCancel} data-tip="Cancel selection and close window">
+                        <i className="icon icon-fw fas icon-times"></i>&nbsp; Cancel
+                    </button>
+                </div>
+            </div>
+        </StickyFooter>
+    );
+});
+
 /**
  * General purpose sticky footer component
  * @param {*} props
  * TODO: 1. instead of inline styling, a rule can be added into a scss file, 2. Component can be moved to a separate file.
  */
-const StickyFooter = function (props) {
-    const { children } = props;
+export function StickyFooter(props) {
+    const { children, ...passProps } = props;
     return (
-        <div style={{ padding: '10px', position: 'fixed', left: '0', bottom: '0', width: '100%', zIndex:'99' }} className="page-footer">
-            <div className="container">
-                {children}
-            </div>
-        </div>);
-};
+        <div className="sticky-page-footer" {...passProps}>
+            <div className="container">{ children }</div>
+        </div>
+    );
+}

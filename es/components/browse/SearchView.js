@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.StickyFooter = StickyFooter;
 exports.SearchView = exports.SearchControllersContainer = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -53,15 +54,19 @@ var _typedefs = require("./../util/typedefs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -148,7 +153,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
     _this2.handleMultiSelectItemCompleteClick = _this2.handleMultiSelectItemCompleteClick.bind(_assertThisInitialized(_this2));
     _this2.handleSelectCancelClick = _this2.handleSelectCancelClick.bind(_assertThisInitialized(_this2));
     _this2.state = {
-      selectedItems: _this2.props.selectedItems || []
+      selectedItems: new Map()
     };
     _this2.searchResultTableRef = _react.default.createRef();
     return _this2;
@@ -165,25 +170,20 @@ var ControlsAndResults = function (_React$PureComponent2) {
   }, {
     key: "handleMultiSelectItemClick",
     value: function handleMultiSelectItemClick(result) {
-      var selectedItems = this.state.selectedItems;
-      selectedItems = _toConsumableArray(selectedItems || []);
+      this.setState(function (_ref) {
+        var prevItems = _ref.selectedItems;
+        var nextItems = new Map(prevItems);
 
-      var foundItemIdx = _underscore.default.findIndex(selectedItems, function (sItem) {
-        return sItem['id'] === _object.itemUtil.atId(result);
-      });
+        var resultID = _object.itemUtil.atId(result);
 
-      if (foundItemIdx < 0) {
-        selectedItems.push({
-          'id': _object.itemUtil.atId(result),
-          'json': result
-        });
-      } else {
-        selectedItems.splice(foundItemIdx, 1);
-      }
+        if (nextItems.has(resultID)) {
+          nextItems.delete(resultID);
+        } else {
+          nextItems.set(resultID, result);
+        }
 
-      this.setState(function () {
         return {
-          selectedItems: selectedItems
+          selectedItems: nextItems
         };
       });
     }
@@ -196,9 +196,10 @@ var ControlsAndResults = function (_React$PureComponent2) {
   }, {
     key: "handleSelectCancelClick",
     value: function handleSelectCancelClick() {
-      var selectedItems = this.state.selectedItems;
+      var _this$state$selectedI = this.state.selectedItems,
+          selectedItems = _this$state$selectedI === void 0 ? {} : _this$state$selectedI;
 
-      if (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0) {
+      if (selectedItems.size > 0) {
         if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
           return;
         }
@@ -212,12 +213,43 @@ var ControlsAndResults = function (_React$PureComponent2) {
   }, {
     key: "sendDataToParentWindow",
     value: function sendDataToParentWindow(selectedItems) {
-      if (!selectedItems || !Array.isArray(selectedItems) || selectedItems.length === 0) {
+      if (!selectedItems || selectedItems.size === 0) {
         return;
       }
 
+      var itemsWrappedWithID = [];
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = selectedItems[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var _step$value = _slicedToArray(_step.value, 2),
+              key = _step$value[0],
+              value = _step$value[1];
+
+          itemsWrappedWithID.push({
+            id: key,
+            json: value
+          });
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
       var eventJSON = {
-        'items': selectedItems,
+        'items': itemsWrappedWithID,
         'eventType': 'fourfrontselectionclick'
       };
 
@@ -260,10 +292,9 @@ var ControlsAndResults = function (_React$PureComponent2) {
 
             if (currentAction === 'multiselect') {
               var selectedItems = _this3.state.selectedItems;
-              var isChecked = _underscore.default.findIndex(selectedItems || [], function (sItem) {
-                return sItem['id'] === _object.itemUtil.atId(result);
-              }) >= 0;
-              checkBoxControl = _react.default.createElement(_Checkbox.Checkbox, {
+              var isChecked = selectedItems.has(_object.itemUtil.atId(result));
+              checkBoxControl = _react.default.createElement("input", {
+                type: "checkbox",
                 checked: isChecked,
                 onChange: _this3.handleMultiSelectItemClick.bind(_this3, result),
                 className: "mr-2"
@@ -379,8 +410,6 @@ var ControlsAndResults = function (_React$PureComponent2) {
 
       var selfExtendedColumnExtensionMap = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
       var columnDefinitions = (0, _tableCommons.columnsToColumnDefinitions)(context.columns || {}, selfExtendedColumnExtensionMap);
-      var isMultiSelectAction = currentAction === 'multiselect';
-      var itemTypeFriendlyName = isMultiSelectAction ? (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas) || 'Item' : null;
       return _react.default.createElement("div", {
         className: "row"
       }, facets.length ? _react.default.createElement("div", {
@@ -410,32 +439,14 @@ var ControlsAndResults = function (_React$PureComponent2) {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions
-      })), isMultiSelectAction ? _react.default.createElement(StickyFooter, null, _react.default.createElement("div", {
-        className: "row"
-      }, _react.default.createElement("div", {
-        className: "col-12 col-md-6 text-md-left col-sm-center"
-      }, _react.default.createElement("h3", {
-        className: "mt-0"
-      }, selectedItems.length, _react.default.createElement("small", {
-        className: "text-muted"
-      }, "\xA0\xA0", itemTypeFriendlyName + (selectedItems.length > 1 ? 's' : ''), " selected"))), _react.default.createElement("div", {
-        className: "col-12 col-md-6 text-md-right col-sm-center"
-      }, _react.default.createElement("button", {
-        type: "button",
-        className: "btn btn-success",
-        onClick: this.handleMultiSelectItemCompleteClick,
-        disabled: selectedItems.length === 0,
-        "data-tip": "Select checked items and close window"
-      }, _react.default.createElement("i", {
-        className: "icon icon-fw icon-check"
-      }), "\xA0 Apply"), _react.default.createElement("button", {
-        type: "button",
-        className: "btn btn-outline-warning ml-1",
-        onClick: this.handleSelectCancelClick,
-        "data-tip": "Cancel selection and close window"
-      }, _react.default.createElement("i", {
-        className: "icon icon-fw icon-times"
-      }), "\xA0 Cancel")))) : null));
+      })), currentAction === 'multiselect' ? _react.default.createElement(MultiSelectStickyFooter, _extends({
+        context: context,
+        schemas: schemas,
+        selectedItems: selectedItems
+      }, {
+        onComplete: this.handleMultiSelectItemCompleteClick,
+        onCancel: this.handleSelectCancelClick
+      })) : null));
     }
   }]);
 
@@ -513,19 +524,48 @@ _defineProperty(SearchView, "defaultProps", {
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap
 });
 
-var StickyFooter = function (props) {
-  var children = props.children;
-  return _react.default.createElement("div", {
-    style: {
-      padding: '10px',
-      position: 'fixed',
-      left: '0',
-      bottom: '0',
-      width: '100%',
-      zIndex: '99'
-    },
-    className: "page-footer"
+var MultiSelectStickyFooter = _react.default.memo(function (props) {
+  var context = props.context,
+      schemas = props.schemas,
+      selectedItems = props.selectedItems,
+      onComplete = props.onComplete,
+      onCancel = props.onCancel;
+  var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
+  return _react.default.createElement(StickyFooter, null, _react.default.createElement("div", {
+    className: "row"
   }, _react.default.createElement("div", {
+    className: "col-12 col-md-6 text-md-left col-sm-center"
+  }, _react.default.createElement("h3", {
+    className: "mt-0"
+  }, selectedItems.size, _react.default.createElement("small", {
+    className: "text-muted ml-08"
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected"))), _react.default.createElement("div", {
+    className: "col-12 col-md-6 text-md-right col-sm-center"
+  }, _react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-success",
+    onClick: onComplete,
+    disabled: selectedItems.size === 0,
+    "data-tip": "Select checked items and close window"
+  }, _react.default.createElement("i", {
+    className: "icon icon-fw fas icon-check"
+  }), "\xA0 Apply"), _react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-outline-warning ml-1",
+    onClick: onCancel,
+    "data-tip": "Cancel selection and close window"
+  }, _react.default.createElement("i", {
+    className: "icon icon-fw fas icon-times"
+  }), "\xA0 Cancel"))));
+});
+
+function StickyFooter(props) {
+  var children = props.children,
+      passProps = _objectWithoutProperties(props, ["children"]);
+
+  return _react.default.createElement("div", _extends({
+    className: "sticky-page-footer"
+  }, passProps), _react.default.createElement("div", {
     className: "container"
   }, children));
-};
+}

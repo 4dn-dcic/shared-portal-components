@@ -96,11 +96,11 @@ export class LinkToSelector extends React.PureComponent {
             return;
         }
 
-        var { searchURL, onCloseChildWindow } = this.props,
-            pastInSelection       = pastProps.isSelecting,
-            nowInSelection        = nextProps.isSelecting,
-            hasUnsetInSelection   = pastInSelection && !nowInSelection,
-            hasSetInSelection     = !pastInSelection && nowInSelection;
+        const { searchURL, onCloseChildWindow } = this.props;
+        const { isSelecting: pastInSelection } = pastProps;
+        const { isSelecting: nowInSelection } = nextProps;
+        const hasUnsetInSelection = pastInSelection && !nowInSelection;
+        const hasSetInSelection = !pastInSelection && nowInSelection;
 
         if (hasSetInSelection){
 
