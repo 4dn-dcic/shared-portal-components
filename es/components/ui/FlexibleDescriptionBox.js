@@ -249,8 +249,8 @@ var FlexibleDescriptionBox = function (_React$Component3) {
           lineHeight = _this$props2.lineHeight,
           fitTo = _this$props2.fitTo;
       if ((0, _misc.isServerSide)()) return true;
-      var dims = this.dimensions(),
-          containerWidth;
+      var dims = this.dimensions();
+      var containerWidth;
 
       if (fitTo === 'grid') {
         containerWidth = (0, _layout.gridContainerWidth)(windowWidth || null);
@@ -277,6 +277,7 @@ var FlexibleDescriptionBox = function (_React$Component3) {
       }
 
       if (tcw.textWidth < containerWidth) {
+        this.descriptionHeight = lineHeight + dims.paddingHeight;
         return true;
       }
 
@@ -311,6 +312,7 @@ var FlexibleDescriptionBox = function (_React$Component3) {
     value: function render() {
       var _this$props3 = this.props,
           debug = _this$props3.debug,
+          propExpanded = _this$props3.expanded,
           showOnMount = _this$props3.showOnMount,
           lineHeight = _this$props3.lineHeight,
           linesOfText = _this$props3.linesOfText,
@@ -320,8 +322,8 @@ var FlexibleDescriptionBox = function (_React$Component3) {
           textClassName = _this$props3.textClassName,
           textStyle = _this$props3.textStyle,
           description = _this$props3.description,
-          fitTo = _this$props3.fitTo,
-          _this$state = this.state,
+          fitTo = _this$props3.fitTo;
+      var _this$state = this.state,
           descriptionWillFitOneLine = _this$state.descriptionWillFitOneLine,
           descriptionExpanded = _this$state.descriptionExpanded,
           mounted = _this$state.mounted,
@@ -329,9 +331,9 @@ var FlexibleDescriptionBox = function (_React$Component3) {
           descriptionWhiteSpace = _this$state.descriptionWhiteSpace;
       if (debug) _patchedConsole.patchedConsoleInstance.log('render FlexibleDescriptionBox');
       var expandButton;
-      var expanded = descriptionExpanded || this.props.expanded;
+      var expanded = descriptionExpanded || propExpanded;
 
-      if (!descriptionWillFitOneLine && typeof this.props.expanded !== 'boolean') {
+      if (!descriptionWillFitOneLine && typeof propExpanded !== 'boolean') {
         expandButton = _react.default.createElement("button", {
           type: "button",
           className: "description-expand-button right",
@@ -341,7 +343,7 @@ var FlexibleDescriptionBox = function (_React$Component3) {
         }));
       }
 
-      var containerHeightSet = expanded ? this.descriptionHeight : !this.state.mounted && showOnMount ? 0 : collapsedHeight || Math.min(Math.max(this.dimensions().initialHeight, lineHeight * (linesOfText || 1)), mounted && this.descriptionHeight || 1000);
+      var containerHeightSet = expanded ? this.descriptionHeight : !mounted && showOnMount ? 0 : collapsedHeight || Math.min(Math.max(this.dimensions().initialHeight, lineHeight * (linesOfText || 1)), mounted && this.descriptionHeight || 1000);
 
       if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')) {
         this.boxRef = _react.default.createRef();
