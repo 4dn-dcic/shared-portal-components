@@ -50,9 +50,11 @@ $facetlist-facet-font-size: 0.925rem !default;
             display: flex;
             align-items: center;
 
-            > a.btn-xs {
+            > a.clear-filters-btn {
                 border-color: #fff;
                 color: #fff;
+                display: flex;
+                align-items: center;
                 &:hover {
                     background-color: #fff;
                     color: #333;
@@ -283,10 +285,6 @@ $facetlist-facet-font-size: 0.925rem !default;
                     padding-bottom: 8px;
                 }
 
-                i {
-                    line-height: 14px;
-                }
-
                 > a {
                     border-radius: 3px;
                     padding: 3px 3px 3px 3px;
@@ -321,6 +319,7 @@ $facetlist-facet-font-size: 0.925rem !default;
                         min-width: 20px;
                         transform: scale(0.9) translate(0, 1px);
                         transform-origin: 50% 0%;
+                        line-height: 1;
                     }
 
                     .facet-item {

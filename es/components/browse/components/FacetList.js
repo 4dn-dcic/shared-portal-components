@@ -720,10 +720,10 @@ var FacetList = function (_React$PureComponent3) {
       }, _react.default.createElement("a", {
         href: "#",
         onClick: onClearFilters,
-        className: "btn btn-xs " + clearButtonClassName
+        className: "btn clear-filters-btn btn-xs " + clearButtonClassName
       }, _react.default.createElement("i", {
-        className: "icon icon-times fas"
-      }), " Clear All"))), selectableFacetElements, staticFacetElements.length > 0 ? _react.default.createElement("div", {
+        className: "icon icon-times fas mr-05"
+      }), _react.default.createElement("span", null, "Clear All")))), selectableFacetElements, staticFacetElements.length > 0 ? _react.default.createElement("div", {
         className: "row facet-list-separator"
       }, _react.default.createElement("div", {
         className: "col-12"

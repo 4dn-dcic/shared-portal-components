@@ -536,7 +536,7 @@ var MultiSelectStickyFooter = _react.default.memo(function (props) {
   }, _react.default.createElement("div", {
     className: "col-12 col-md-6 text-md-left col-sm-center"
   }, _react.default.createElement("h3", {
-    className: "mt-0"
+    className: "mt-03 mb-0"
   }, selectedItems.size, _react.default.createElement("small", {
     className: "text-muted ml-08"
   }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected"))), _react.default.createElement("div", {
