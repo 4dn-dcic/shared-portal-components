@@ -576,8 +576,9 @@ export class FacetList extends React.PureComponent {
                         <h4 className="facets-title">{ title }</h4>
                     </div>
                     <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
-                        <a href="#" onClick={onClearFilters} className={"btn btn-xs " + clearButtonClassName}>
-                            <i className="icon icon-times fas"/> Clear All
+                        <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
+                            <i className="icon icon-times fas mr-05"/>
+                            <span>Clear All</span>
                         </a>
                     </div>
                 </div>

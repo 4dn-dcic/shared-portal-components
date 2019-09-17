@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.StickyFooter = StickyFooter;
 exports.SearchView = exports.SearchControllersContainer = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -20,6 +21,8 @@ var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 var _Alerts = require("./../ui/Alerts");
 
 var _navigate = require("./../util/navigate");
+
+var _misc = require("./../util/misc");
 
 var _schemaTransforms = require("./../util/schema-transforms");
 
@@ -45,11 +48,25 @@ var _SearchResultDetailPane = require("./components/SearchResultDetailPane");
 
 var _SortController = require("./components/SortController");
 
+var _Checkbox = require("../forms/components/Checkbox");
+
 var _typedefs = require("./../util/typedefs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -133,16 +150,106 @@ var ControlsAndResults = function (_React$PureComponent2) {
     _this2.handleClearFilters = _this2.handleClearFilters.bind(_assertThisInitialized(_this2));
     _this2.columnExtensionMapWithSelectButton = _this2.columnExtensionMapWithSelectButton.bind(_assertThisInitialized(_this2));
     _this2.renderSearchDetailPane = _this2.renderSearchDetailPane.bind(_assertThisInitialized(_this2));
+    _this2.handleMultiSelectItemCompleteClick = _this2.handleMultiSelectItemCompleteClick.bind(_assertThisInitialized(_this2));
+    _this2.handleSelectCancelClick = _this2.handleSelectCancelClick.bind(_assertThisInitialized(_this2));
+    _this2.state = {
+      selectedItems: new Map()
+    };
     _this2.searchResultTableRef = _react.default.createRef();
     return _this2;
   }
 
   _createClass(ControlsAndResults, [{
-    key: "handleSelectItemClick",
-    value: function handleSelectItemClick(result) {
-      var eventJSON = {
-        'json': result,
+    key: "handleSingleSelectItemClick",
+    value: function handleSingleSelectItemClick(result) {
+      this.sendDataToParentWindow([{
         'id': _object.itemUtil.atId(result),
+        'json': result
+      }]);
+    }
+  }, {
+    key: "handleMultiSelectItemClick",
+    value: function handleMultiSelectItemClick(result) {
+      this.setState(function (_ref) {
+        var prevItems = _ref.selectedItems;
+        var nextItems = new Map(prevItems);
+
+        var resultID = _object.itemUtil.atId(result);
+
+        if (nextItems.has(resultID)) {
+          nextItems.delete(resultID);
+        } else {
+          nextItems.set(resultID, result);
+        }
+
+        return {
+          selectedItems: nextItems
+        };
+      });
+    }
+  }, {
+    key: "handleMultiSelectItemCompleteClick",
+    value: function handleMultiSelectItemCompleteClick() {
+      var selectedItems = this.state.selectedItems;
+      this.sendDataToParentWindow(selectedItems);
+    }
+  }, {
+    key: "handleSelectCancelClick",
+    value: function handleSelectCancelClick() {
+      var _this$state$selectedI = this.state.selectedItems,
+          selectedItems = _this$state$selectedI === void 0 ? {} : _this$state$selectedI;
+
+      if (selectedItems.size > 0) {
+        if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
+          return;
+        }
+      }
+
+      window.dispatchEvent(new Event('fourfrontcancelclick'));
+      if (window.opener) window.opener.postMessage({
+        'eventType': 'fourfrontcancelclick'
+      }, '*');
+    }
+  }, {
+    key: "sendDataToParentWindow",
+    value: function sendDataToParentWindow(selectedItems) {
+      if (!selectedItems || selectedItems.size === 0) {
+        return;
+      }
+
+      var itemsWrappedWithID = [];
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = selectedItems[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var _step$value = _slicedToArray(_step.value, 2),
+              key = _step$value[0],
+              value = _step$value[1];
+
+          itemsWrappedWithID.push({
+            id: key,
+            json: value
+          });
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      var eventJSON = {
+        'items': itemsWrappedWithID,
         'eventType': 'fourfrontselectionclick'
       };
 
@@ -168,7 +275,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
     value: function columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType) {
       var _this3 = this;
 
-      var inSelectionMode = currentAction === 'selection';
+      var inSelectionMode = (0, _misc.isSelectAction)(currentAction);
 
       if (!inSelectionMode && (!abstractType || abstractType !== specificType)) {
         return columnExtensionMap;
@@ -181,19 +288,34 @@ var ControlsAndResults = function (_React$PureComponent2) {
         columnExtensionMap.display_title = _underscore.default.extend({}, columnExtensionMap.display_title, {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
+            var checkBoxControl;
+
+            if (currentAction === 'multiselect') {
+              var selectedItems = _this3.state.selectedItems;
+              var isChecked = selectedItems.has(_object.itemUtil.atId(result));
+              checkBoxControl = _react.default.createElement("input", {
+                type: "checkbox",
+                checked: isChecked,
+                onChange: _this3.handleMultiSelectItemClick.bind(_this3, result),
+                className: "mr-2"
+              });
+            } else {
+              checkBoxControl = _react.default.createElement("div", {
+                className: "select-button-container"
+              }, _react.default.createElement("button", {
+                type: "button",
+                className: "select-button",
+                onClick: _this3.handleSingleSelectItemClick.bind(_this3, result)
+              }, _react.default.createElement("i", {
+                className: "icon icon-fw icon-check fas"
+              })));
+            }
+
             var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore.default.extend({}, props, {
               currentAction: currentAction
             }), width, true);
             var newChildren = currentTitleBlock.props.children.slice(0);
-            newChildren.unshift(_react.default.createElement("div", {
-              className: "select-button-container"
-            }, _react.default.createElement("button", {
-              type: "button",
-              className: "select-button",
-              onClick: _this3.handleSelectItemClick.bind(_this3, result)
-            }, _react.default.createElement("i", {
-              className: "icon icon-fw icon-check fas"
-            }))));
+            newChildren.unshift(checkBoxControl);
             return _react.default.cloneElement(currentTitleBlock, {
               'children': newChildren
             });
@@ -278,6 +400,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
           propFacets = _this$props4.facets,
           tableColumnClassName = _this$props4.tableColumnClassName,
           facetColumnClassName = _this$props4.facetColumnClassName;
+      var selectedItems = this.state.selectedItems;
       var results = context['@graph'];
       var facets = propFacets || context.facets;
 
@@ -316,7 +439,14 @@ var ControlsAndResults = function (_React$PureComponent2) {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions
-      }))));
+      })), currentAction === 'multiselect' ? _react.default.createElement(MultiSelectStickyFooter, _extends({
+        context: context,
+        schemas: schemas,
+        selectedItems: selectedItems
+      }, {
+        onComplete: this.handleMultiSelectItemCompleteClick,
+        onCancel: this.handleSelectCancelClick
+      })) : null));
     }
   }]);
 
@@ -393,3 +523,49 @@ _defineProperty(SearchView, "defaultProps", {
   'currentAction': null,
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap
 });
+
+var MultiSelectStickyFooter = _react.default.memo(function (props) {
+  var context = props.context,
+      schemas = props.schemas,
+      selectedItems = props.selectedItems,
+      onComplete = props.onComplete,
+      onCancel = props.onCancel;
+  var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
+  return _react.default.createElement(StickyFooter, null, _react.default.createElement("div", {
+    className: "row"
+  }, _react.default.createElement("div", {
+    className: "col-12 col-md-6 text-md-left col-sm-center"
+  }, _react.default.createElement("h3", {
+    className: "mt-03 mb-0"
+  }, selectedItems.size, _react.default.createElement("small", {
+    className: "text-muted ml-08"
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected"))), _react.default.createElement("div", {
+    className: "col-12 col-md-6 text-md-right col-sm-center"
+  }, _react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-success",
+    onClick: onComplete,
+    disabled: selectedItems.size === 0,
+    "data-tip": "Select checked items and close window"
+  }, _react.default.createElement("i", {
+    className: "icon icon-fw fas icon-check"
+  }), "\xA0 Apply"), _react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-outline-warning ml-1",
+    onClick: onCancel,
+    "data-tip": "Cancel selection and close window"
+  }, _react.default.createElement("i", {
+    className: "icon icon-fw fas icon-times"
+  }), "\xA0 Cancel"))));
+});
+
+function StickyFooter(props) {
+  var children = props.children,
+      passProps = _objectWithoutProperties(props, ["children"]);
+
+  return _react.default.createElement("div", _extends({
+    className: "sticky-page-footer"
+  }, passProps), _react.default.createElement("div", {
+    className: "container"
+  }, children));
+}

@@ -460,8 +460,19 @@ class LinkedObj extends React.PureComponent {
      * Grabs @ID of Item from evt.dataTransfer, attempting to grab from 'text/4dn-item-id', 'text/4dn-item-json', or 'text/plain'.
      * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
      */
-    handleFinishSelectItem(atId, itemContext){
+    handleFinishSelectItem(items){
         const { selectComplete } = this.props;
+        if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) { return item.id && typeof item.id === 'string' && item.json; })) {
+            return;
+        }
+        //currenly we support single item selection
+        //TODO: implement multi selection functionality
+        const atId = items[0].id;
+        const itemContext = items[0].json;
+        if (items.length > 1) {
+            console.warn('Multiple documents selected but we only get a single item, since handler\'s multiple version not implemented yet!');
+        }
+
         const isValidAtId     = object.isValidAtIDFormat(atId);
         const invalidTitle    = "Invalid Item Selected";
 

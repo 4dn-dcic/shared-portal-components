@@ -415,7 +415,7 @@ export function hrefToListName(href){
     if (strippedPathName.charAt(strippedPathName.length - 1) === "/"){
         strippedPathName = strippedPathName.slice(0, -1);
     }
-    if (hrefParts.search && hrefParts.search.indexOf('currentAction=selection')){
+    if (hrefParts.search && (hrefParts.search.indexOf('currentAction=selection') || hrefParts.search.indexOf('currentAction=multiselect'))){
         strippedPathName += " - Selection Action";
     }
     return strippedPathName;
