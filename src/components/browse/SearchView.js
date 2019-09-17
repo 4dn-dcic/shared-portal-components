@@ -143,13 +143,17 @@ class ControlsAndResults extends React.PureComponent {
      */
     handleMultiSelectItemCompleteClick(evt){
         const { selectedItems } = this.state;
-        this.sendDataToParentWindow(selectedItems);
+        const itemsWrappedWithID = [];
+        for (const [key, value] of selectedItems){
+            itemsWrappedWithID.push({ id: key, json: value });
+        }
+        this.sendDataToParentWindow(itemsWrappedWithID);
     }
     /**
      * This function cancels the selection if `props.currentAction` is set to "multiselect".
      */
     handleSelectCancelClick(evt){
-        const { selectedItems = {} } = this.state;
+        const { selectedItems } = this.state;
         if (selectedItems.size > 0) {
             if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
                 return;
@@ -165,17 +169,12 @@ class ControlsAndResults extends React.PureComponent {
      * @param {Array} selectedItems: array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
      * set selectedItems as empty array ([]) to close child window
      */
-    sendDataToParentWindow(selectedItems) {
-        if (!selectedItems || selectedItems.size === 0) {
+    sendDataToParentWindow(itemsListWrappedWithID) {
+        if (!itemsListWrappedWithID || itemsListWrappedWithID.length === 0) {
             return;
         }
 
-        const itemsWrappedWithID = [];
-        for (let [key, value] of selectedItems){
-            itemsWrappedWithID.push({ id: key, json: value });
-        }
-
-        const eventJSON = { 'items': itemsWrappedWithID, 'eventType': 'fourfrontselectionclick' };
+        const eventJSON = { 'items': itemsListWrappedWithID, 'eventType': 'fourfrontselectionclick' };
 
         // Standard - postMessage
         try {

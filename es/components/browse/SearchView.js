@@ -191,32 +191,6 @@ var ControlsAndResults = function (_React$PureComponent2) {
     key: "handleMultiSelectItemCompleteClick",
     value: function handleMultiSelectItemCompleteClick() {
       var selectedItems = this.state.selectedItems;
-      this.sendDataToParentWindow(selectedItems);
-    }
-  }, {
-    key: "handleSelectCancelClick",
-    value: function handleSelectCancelClick() {
-      var _this$state$selectedI = this.state.selectedItems,
-          selectedItems = _this$state$selectedI === void 0 ? {} : _this$state$selectedI;
-
-      if (selectedItems.size > 0) {
-        if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
-          return;
-        }
-      }
-
-      window.dispatchEvent(new Event('fourfrontcancelclick'));
-      if (window.opener) window.opener.postMessage({
-        'eventType': 'fourfrontcancelclick'
-      }, '*');
-    }
-  }, {
-    key: "sendDataToParentWindow",
-    value: function sendDataToParentWindow(selectedItems) {
-      if (!selectedItems || selectedItems.size === 0) {
-        return;
-      }
-
       var itemsWrappedWithID = [];
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
@@ -248,8 +222,33 @@ var ControlsAndResults = function (_React$PureComponent2) {
         }
       }
 
+      this.sendDataToParentWindow(itemsWrappedWithID);
+    }
+  }, {
+    key: "handleSelectCancelClick",
+    value: function handleSelectCancelClick() {
+      var selectedItems = this.state.selectedItems;
+
+      if (selectedItems.size > 0) {
+        if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
+          return;
+        }
+      }
+
+      window.dispatchEvent(new Event('fourfrontcancelclick'));
+      if (window.opener) window.opener.postMessage({
+        'eventType': 'fourfrontcancelclick'
+      }, '*');
+    }
+  }, {
+    key: "sendDataToParentWindow",
+    value: function sendDataToParentWindow(itemsListWrappedWithID) {
+      if (!itemsListWrappedWithID || itemsListWrappedWithID.length === 0) {
+        return;
+      }
+
       var eventJSON = {
-        'items': itemsWrappedWithID,
+        'items': itemsListWrappedWithID,
         'eventType': 'fourfrontselectionclick'
       };
 
