@@ -722,7 +722,7 @@ var FacetList = function (_React$PureComponent3) {
         onClick: onClearFilters,
         className: "btn clear-filters-btn btn-xs " + clearButtonClassName
       }, _react.default.createElement("i", {
-        className: "icon icon-times fas mr-05"
+        className: "icon icon-fw icon-times fas mr-03"
       }), _react.default.createElement("span", null, "Clear All")))), _react.default.createElement("div", {
         className: "facets-body"
       }, selectableFacetElements, staticFacetElements.length > 0 ? _react.default.createElement("div", {
