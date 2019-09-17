@@ -582,15 +582,17 @@ export class FacetList extends React.PureComponent {
                         </a>
                     </div>
                 </div>
-                { selectableFacetElements }
-                { staticFacetElements.length > 0 ?
-                    <div className="row facet-list-separator">
-                        <div className="col-12">
-                            { staticFacetElements.length } Common Properties
+                <div className="facets-body">
+                    { selectableFacetElements }
+                    { staticFacetElements.length > 0 ?
+                        <div className="row facet-list-separator">
+                            <div className="col-12">
+                                { staticFacetElements.length } Common Properties
+                            </div>
                         </div>
-                    </div>
-                    : null }
-                { staticFacetElements }
+                        : null }
+                    { staticFacetElements }
+                </div>
             </div>
         );
     }

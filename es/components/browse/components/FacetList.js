@@ -723,11 +723,13 @@ var FacetList = function (_React$PureComponent3) {
         className: "btn clear-filters-btn btn-xs " + clearButtonClassName
       }, _react.default.createElement("i", {
         className: "icon icon-times fas mr-05"
-      }), _react.default.createElement("span", null, "Clear All")))), selectableFacetElements, staticFacetElements.length > 0 ? _react.default.createElement("div", {
+      }), _react.default.createElement("span", null, "Clear All")))), _react.default.createElement("div", {
+        className: "facets-body"
+      }, selectableFacetElements, staticFacetElements.length > 0 ? _react.default.createElement("div", {
         className: "row facet-list-separator"
       }, _react.default.createElement("div", {
         className: "col-12"
-      }, staticFacetElements.length, " Common Properties")) : null, staticFacetElements);
+      }, staticFacetElements.length, " Common Properties")) : null, staticFacetElements));
     }
   }]);
 

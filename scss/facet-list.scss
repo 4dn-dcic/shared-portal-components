@@ -10,8 +10,6 @@ $facetlist-facet-font-size: 0.925rem !default;
 .facets-container {
     padding-top: 0;
     padding-bottom: 2px;
-    padding-left: ($grid-gutter-width / 2);
-    padding-right: ($grid-gutter-width / 2);
     border: 1px solid #e8e8e8;
     border-bottom: 1px solid rgba(0, 0, 0, 0.15);
     //border-radius: 3px;
@@ -70,6 +68,11 @@ $facetlist-facet-font-size: 0.925rem !default;
         
     }
 
+    .facets-body {
+        padding-left: ($grid-gutter-width / 2);
+        padding-right: ($grid-gutter-width / 2);
+    }
+
     &.with-header-bg .facets-header {
         background-color: $brand-primary-dark;
         border-bottom: none;
@@ -77,8 +80,8 @@ $facetlist-facet-font-size: 0.925rem !default;
         height: 46px;
 
         &.row {
-            margin-left: ($grid-gutter-width / -2) - 1;
-            margin-right: ($grid-gutter-width / -2) - 1;
+            margin-left: -1px;
+            margin-right: -1px;
             margin-top: -1px;
         }
     }
@@ -166,10 +169,9 @@ $facetlist-facet-font-size: 0.925rem !default;
                     color: #707070;
                     font-size: 0.75rem;
                     line-height : 1.25rem;
-                    margin-right: 5px;
                     > i {
-                        margin-right: 2px;
-                        margin-right: 1.5px;
+                        margin-right: 1px;
+                        margin-right: 0.5px;
                     }
                 }
             }
