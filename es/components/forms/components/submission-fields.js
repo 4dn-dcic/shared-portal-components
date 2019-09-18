@@ -32,7 +32,7 @@ var _rcProgress = require("rc-progress");
 
 var _LinkToSelector = require("./LinkToSelector");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -80,7 +80,7 @@ var BuildField = function (_React$PureComponent) {
         }
       }
 
-      if (fieldSchema.enum || fieldSchema.suggested_enum) {
+      if (fieldSchema["enum"] || fieldSchema.suggested_enum) {
         fieldType = 'enum';
       }
 
@@ -101,19 +101,19 @@ var BuildField = function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(BuildField).call(this, props));
 
-    _underscore.default.bindAll(_assertThisInitialized(_this), 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'buildEnumEntry', 'submitEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
+    _underscore["default"].bindAll(_assertThisInitialized(_this), 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'buildEnumEntry', 'submitEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
 
     _this.state = {
       'dropdownOpen': false
     };
-    _this.inputElementRef = _react.default.createRef();
+    _this.inputElementRef = _react["default"].createRef();
     return _this;
   }
 
   _createClass(BuildField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip.default.rebuild();
+      _reactTooltip["default"].rebuild();
     }
   }, {
     key: "handleDropdownButtonToggle",
@@ -158,7 +158,7 @@ var BuildField = function (_React$PureComponent) {
         var filetype = currContext && currContext.options && currContext.options.filetype;
 
         if (filetype === 'md' || filetype === 'html') {
-          return _react.default.createElement(PreviewField, _extends({}, this.props, {
+          return _react["default"].createElement(PreviewField, _extends({}, this.props, {
             filetype: filetype,
             onChange: this.handleChange
           }));
@@ -168,22 +168,22 @@ var BuildField = function (_React$PureComponent) {
       switch (fieldType) {
         case 'text':
           if (field === 'aliases') {
-            return _react.default.createElement("div", {
+            return _react["default"].createElement("div", {
               className: "input-wrapper"
-            }, _react.default.createElement(AliasInputField, _extends({}, inputProps, {
+            }, _react["default"].createElement(AliasInputField, _extends({}, inputProps, {
               onAliasChange: this.handleAliasChange,
               currentSubmittingUser: currentSubmittingUser
             })));
           }
 
-          return _react.default.createElement("input", _extends({}, inputProps, {
+          return _react["default"].createElement("input", _extends({}, inputProps, {
             type: "text",
             className: "form-control",
             inputMode: "latin"
           }));
 
         case 'textarea':
-          return _react.default.createElement("textarea", _extends({}, inputProps, {
+          return _react["default"].createElement("textarea", _extends({}, inputProps, {
             type: "text",
             inputMode: "latin",
             rows: 4,
@@ -192,7 +192,7 @@ var BuildField = function (_React$PureComponent) {
 
         case 'html':
         case 'code':
-          return _react.default.createElement("textarea", _extends({}, inputProps, {
+          return _react["default"].createElement("textarea", _extends({}, inputProps, {
             type: "text",
             inputMode: "latin",
             rows: 8,
@@ -205,21 +205,21 @@ var BuildField = function (_React$PureComponent) {
           }));
 
         case 'integer':
-          return _react.default.createElement(_reactBootstrap.FormControl, _extends({
+          return _react["default"].createElement(_reactBootstrap.FormControl, _extends({
             type: "number"
           }, inputProps, {
             step: 1
           }));
 
         case 'number':
-          return _react.default.createElement(_reactBootstrap.FormControl, _extends({
+          return _react["default"].createElement(_reactBootstrap.FormControl, _extends({
             type: "number"
           }, inputProps));
 
         case 'boolean':
-          return _react.default.createElement(_Checkbox.Checkbox, _extends({}, _underscore.default.omit(inputProps, 'value', 'placeholder'), {
+          return _react["default"].createElement(_Checkbox.Checkbox, _extends({}, _underscore["default"].omit(inputProps, 'value', 'placeholder'), {
             checked: !!value
-          }), _react.default.createElement("span", {
+          }), _react["default"].createElement("span", {
             style: {
               'verticalAlign': 'middle',
               'textTransform': 'capitalize'
@@ -227,50 +227,50 @@ var BuildField = function (_React$PureComponent) {
           }, typeof value === 'boolean' ? value + '' : null));
 
         case 'enum':
-          return _react.default.createElement("span", {
+          return _react["default"].createElement("span", {
             className: "input-wrapper"
-          }, _react.default.createElement(_DropdownButton.DropdownButton, {
-            title: value || _react.default.createElement("span", {
+          }, _react["default"].createElement(_DropdownButton.DropdownButton, {
+            title: value || _react["default"].createElement("span", {
               className: "text-300"
             }, "No value"),
             onToggle: this.handleDropdownButtonToggle,
             variant: "outline-dark"
-          }, _underscore.default.map(enumValues, function (val) {
+          }, _underscore["default"].map(enumValues, function (val) {
             return _this2.buildEnumEntry(val);
           })));
 
         case 'linked object':
-          return _react.default.createElement(LinkedObj, _extends({
+          return _react["default"].createElement(LinkedObj, _extends({
             key: "linked-item"
           }, this.props));
 
         case 'array':
-          return _react.default.createElement(ArrayField, _extends({}, this.props, {
+          return _react["default"].createElement(ArrayField, _extends({}, this.props, {
             pushArrayValue: this.pushArrayValue,
             value: value || null,
             roundTwo: roundTwo
           }));
 
         case 'object':
-          return _react.default.createElement(ObjectField, this.props);
+          return _react["default"].createElement(ObjectField, this.props);
 
         case 'attachment':
-          return _react.default.createElement("div", {
+          return _react["default"].createElement("div", {
             style: {
               'display': 'inline'
             }
-          }, _react.default.createElement(AttachmentInput, this.props));
+          }, _react["default"].createElement(AttachmentInput, this.props));
 
         case 'file upload':
-          return _react.default.createElement(S3FileInput, this.props);
+          return _react["default"].createElement(S3FileInput, this.props);
       }
 
-      return _react.default.createElement("div", null, "No field for this case yet.");
+      return _react["default"].createElement("div", null, "No field for this case yet.");
     }
   }, {
     key: "buildEnumEntry",
     value: function buildEnumEntry(val) {
-      return _react.default.createElement(_DropdownButton.DropdownItem, {
+      return _react["default"].createElement(_DropdownButton.DropdownItem, {
         key: val,
         title: val || '',
         eventKey: val,
@@ -389,9 +389,9 @@ var BuildField = function (_React$PureComponent) {
     key: "labelTypeDescriptor",
     value: function labelTypeDescriptor() {
       var required = this.props.required;
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "field-descriptor"
-      }, required ? _react.default.createElement("span", {
+      }, required ? _react["default"].createElement("span", {
         style: {
           'color': '#a94442'
         }
@@ -405,27 +405,27 @@ var BuildField = function (_React$PureComponent) {
           title = _this$props8.title,
           fieldType = _this$props8.fieldType,
           schema = _this$props8.schema;
-      return _react.default.createElement("div", this.commonRowProps(), _react.default.createElement("div", {
+      return _react["default"].createElement("div", this.commonRowProps(), _react["default"].createElement("div", {
         className: "row"
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "col-sm-12 col-md-4"
-      }, _react.default.createElement("h5", {
+      }, _react["default"].createElement("h5", {
         className: "submission-field-title text-ellipsis-container"
-      }, this.labelTypeDescriptor(), fieldTip ? _react.default.createElement(InfoIcon, {
+      }, this.labelTypeDescriptor(), fieldTip ? _react["default"].createElement(InfoIcon, {
         className: "mr-07",
         title: title,
         fieldType: fieldType,
         schema: schema
-      }, fieldTip) : null, _react.default.createElement("span", null, title))), _react.default.createElement("div", {
+      }, fieldTip) : null, _react["default"].createElement("span", null, title))), _react["default"].createElement("div", {
         className: "col-sm-12 col-md-8"
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "row field-container"
       }, Array.prototype.slice.call(arguments)))));
     }
   }, {
     key: "wrapWithNoLabel",
     value: function wrapWithNoLabel() {
-      return _react.default.createElement("div", this.commonRowProps(), Array.prototype.slice.call(arguments));
+      return _react["default"].createElement("div", this.commonRowProps(), Array.prototype.slice.call(arguments));
     }
   }, {
     key: "render",
@@ -441,7 +441,7 @@ var BuildField = function (_React$PureComponent) {
       var disableDelete = false;
       var extClass = '';
 
-      if (!_underscore.default.contains(['filename'], field) && fieldType !== 'array') {
+      if (!_underscore["default"].contains(['filename'], field) && fieldType !== 'array') {
         showDelete = true;
       }
 
@@ -474,9 +474,9 @@ var BuildField = function (_React$PureComponent) {
         extClass += ' in-selection-field';
       }
 
-      return wrapFunc(_react.default.createElement(_react.default.Fragment, null, _react.default.createElement("div", {
+      return wrapFunc(_react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         className: 'field-column col' + extClass
-      }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null : _react.default.createElement(SquareButton, {
+      }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null : _react["default"].createElement(SquareButton, {
         show: showDelete,
         disabled: disableDelete,
         tip: isArray ? 'Remove Item' : 'Clear Value',
@@ -486,11 +486,11 @@ var BuildField = function (_React$PureComponent) {
   }]);
 
   return BuildField;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.BuildField = BuildField;
 
-var SquareButton = _react.default.memo(function (props) {
+var SquareButton = _react["default"].memo(function (props) {
   var show = props.show,
       disabled = props.disabled,
       onClick = props.onClick,
@@ -507,21 +507,21 @@ var SquareButton = _react.default.memo(function (props) {
     btnCls += " btn-" + bsStyle;
   }
 
-  return _react.default.createElement("div", {
+  return _react["default"].createElement("div", {
     className: "remove-button-column" + (!show ? ' hidden' : ''),
     style: style
-  }, _react.default.createElement(_Fade.Fade, {
-    in: show
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement(_Fade.Fade, {
+    "in": show
+  }, _react["default"].createElement("div", {
     className: outerCls
-  }, _react.default.createElement("button", {
+  }, _react["default"].createElement("button", {
     type: "button",
     disabled: disabled || !show,
     onClick: onClick,
     "data-tip": tip,
     tabIndex: 2,
     className: btnCls
-  }, _react.default.createElement("i", {
+  }, _react["default"].createElement("i", {
     className: "icon icon-fw icon-" + icon
   })))));
 });
@@ -572,7 +572,7 @@ var LinkedObj = function (_React$PureComponent2) {
     value: function componentDidUpdate() {
       this.updateContext();
 
-      _reactTooltip.default.rebuild();
+      _reactTooltip["default"].rebuild();
     }
   }, {
     key: "updateContext",
@@ -588,7 +588,7 @@ var LinkedObj = function (_React$PureComponent2) {
       if (keyComplete[value] && !isNaN(value)) {
         modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
 
-        _reactTooltip.default.rebuild();
+        _reactTooltip["default"].rebuild();
       }
     }
   }, {
@@ -627,7 +627,7 @@ var LinkedObj = function (_React$PureComponent2) {
     value: function handleFinishSelectItem(items) {
       var selectComplete = this.props.selectComplete;
 
-      if (!items || !Array.isArray(items) || items.length === 0 || !_underscore.default.every(items, function (item) {
+      if (!items || !Array.isArray(items) || items.length === 0 || !_underscore["default"].every(items, function (item) {
         return item.id && typeof item.id === 'string' && item.json;
       })) {
         return;
@@ -716,11 +716,11 @@ var LinkedObj = function (_React$PureComponent2) {
         }
       }
 
-      return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("div", {
+      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         className: "linked-object-text-input-container row flexrow"
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "field-column col"
-      }, _react.default.createElement("input", {
+      }, _react["default"].createElement("input", {
         onChange: this.handleTextInputChange,
         className: "form-control" + extClass,
         inputMode: "latin",
@@ -728,29 +728,29 @@ var LinkedObj = function (_React$PureComponent2) {
         placeholder: "Drag & drop Item from the search view or type in a valid @ID.",
         value: this.state.textInputValue,
         onDrop: this.handleDrop
-      })), canShowAcceptTypedInput ? _react.default.createElement(SquareButton, {
+      })), canShowAcceptTypedInput ? _react["default"].createElement(SquareButton, {
         show: true,
         onClick: this.handleAcceptTypedID,
         icon: "check",
         bsStyle: "success",
         tip: "Accept typed identifier and look it up in database."
-      }) : null, _react.default.createElement(SquareButton, {
+      }) : null, _react["default"].createElement(SquareButton, {
         show: true,
         onClick: selectCancel,
         tip: "Cancel selection",
         style: {
           'marginRight': 9
         }
-      })), _react.default.createElement(_LinkToSelector.LinkToSelector, {
+      })), _react["default"].createElement(_LinkToSelector.LinkToSelector, {
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
         onCloseChildWindow: selectCancel,
         childWindowAlert: function childWindowAlert() {
           return {
             'title': 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
-            'message': _react.default.createElement("div", null, _react.default.createElement("p", {
+            'message': _react["default"].createElement("div", null, _react["default"].createElement("p", {
               className: "mb-0"
-            }, "Please either ", _react.default.createElement("b", null, "drag and drop"), " an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button."), _react.default.createElement("p", {
+            }, "Please either ", _react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button."), _react["default"].createElement("p", {
               className: "mb-0"
             }, "You may also browse around and drag & drop a link into the submissions window as well.")),
             'style': 'info'
@@ -763,19 +763,19 @@ var LinkedObj = function (_React$PureComponent2) {
   }, {
     key: "renderEmptyField",
     value: function renderEmptyField() {
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "linked-object-buttons-container"
-      }, _react.default.createElement("button", {
+      }, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-outline-dark select-create-linked-item-button",
         onClick: this.handleStartSelectItem
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-search fas"
-      }), " Select existing"), _react.default.createElement("button", {
+      }), " Select existing"), _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-outline-dark select-create-linked-item-button",
         onClick: this.handleCreateNewItemClick
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-file far"
       }), " Create new"));
     }
@@ -796,42 +796,39 @@ var LinkedObj = function (_React$PureComponent2) {
         var thisDisplay = keyDisplay[value] || value;
 
         if (isNaN(value)) {
-          return _react.default.createElement("div", {
+          return _react["default"].createElement("div", {
             className: "submitted-linked-object-display-container text-ellipsis-container"
-          }, _react.default.createElement("i", {
-            className: "icon icon-fw icon-database fas"
-          }), "\xA0\xA0", _react.default.createElement("a", {
+          }, _react["default"].createElement("i", {
+            className: "icon icon-fw icon-database fas mr-05"
+          }), _react["default"].createElement("a", {
             href: value,
             target: "_blank",
             rel: "noopener noreferrer",
             "data-tip": "This Item, '" + thisDisplay + "' is already in the database"
-          }, thisDisplay), "\xA0", _react.default.createElement("i", {
-            style: {
-              'fontSize': '0.85rem'
-            },
-            className: "icon icon-fw icon-external-link ml-05 fas"
+          }, thisDisplay), _react["default"].createElement("i", {
+            className: "icon icon-fw icon-external-link ml-05 fas text-smaller"
           }));
         } else {
           var intKey = parseInt(value);
 
           if (keyComplete[intKey]) {
-            return _react.default.createElement("div", null, _react.default.createElement("a", {
+            return _react["default"].createElement("div", null, _react["default"].createElement("a", {
               href: keyComplete[intKey],
               target: "_blank",
               rel: "noopener noreferrer"
-            }, thisDisplay), _react.default.createElement("i", {
+            }, thisDisplay), _react["default"].createElement("i", {
               className: "icon icon-fw icon-external-link ml-05 fas"
             }));
           } else {
-            return _react.default.createElement("div", {
+            return _react["default"].createElement("div", {
               className: "incomplete-linked-object-display-container text-ellipsis-container"
-            }, _react.default.createElement("i", {
+            }, _react["default"].createElement("i", {
               className: "icon icon-fw icon-sticky-note far"
-            }), "\xA0\xA0", _react.default.createElement("a", {
+            }), "\xA0\xA0", _react["default"].createElement("a", {
               href: "#",
               onClick: this.setSubmissionStateToLinkedToItem,
               "data-tip": "Continue editing/submitting"
-            }, thisDisplay), "\xA0", _react.default.createElement("i", {
+            }, thisDisplay), "\xA0", _react["default"].createElement("i", {
               style: {
                 'fontSize': '0.85rem'
               },
@@ -846,26 +843,26 @@ var LinkedObj = function (_React$PureComponent2) {
   }]);
 
   return LinkedObj;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
-var PreviewField = _react.default.memo(function (props) {
+var PreviewField = _react["default"].memo(function (props) {
   var value = props.value,
       filetype = props.filetype,
       field = props.field,
       onChange = props.onChange;
 
-  var preview = value && _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("h6", {
+  var preview = value && _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("h6", {
     className: "mt-1 text-600"
-  }, "Preview:"), _react.default.createElement("hr", {
+  }, "Preview:"), _react["default"].createElement("hr", {
     className: "mb-1 mt-05"
-  }), _react.default.createElement(_BasicStaticSectionBody.BasicStaticSectionBody, {
+  }), _react["default"].createElement(_BasicStaticSectionBody.BasicStaticSectionBody, {
     content: value || '',
     filetype: filetype
   }));
 
-  return _react.default.createElement("div", {
+  return _react["default"].createElement("div", {
     className: "preview-field-container"
-  }, _react.default.createElement(_reactBootstrap.FormControl, {
+  }, _react["default"].createElement(_reactBootstrap.FormControl, {
     onChange: onChange,
     id: "field_for_" + field,
     name: field,
@@ -894,7 +891,7 @@ var ArrayField = function (_React$Component) {
         fieldType = 'text';
       }
 
-      if (itemSchema.enum) {
+      if (itemSchema["enum"]) {
         fieldType = 'enum';
       }
 
@@ -924,7 +921,7 @@ var ArrayField = function (_React$Component) {
 
     _this4 = _possibleConstructorReturn(this, _getPrototypeOf(ArrayField).call(this, props));
 
-    _underscore.default.bindAll(_assertThisInitialized(_this4), 'initiateArrayField', 'generateAddButton');
+    _underscore["default"].bindAll(_assertThisInitialized(_this4), 'initiateArrayField', 'generateAddButton');
 
     return _this4;
   }
@@ -983,7 +980,7 @@ var ArrayField = function (_React$Component) {
 
       var title = fieldSchema.title || 'Item';
       var fieldType = ArrayField.typeOfItems(fieldSchema);
-      var enumValues = fieldSchema.enum ? fieldSchema.enum || [] : [];
+      var enumValues = fieldSchema["enum"] ? fieldSchema["enum"] || [] : [];
       var arrayIdxList;
 
       if (propArrayIdx) {
@@ -994,21 +991,21 @@ var ArrayField = function (_React$Component) {
 
       arrayIdxList.push(arrayIdx);
 
-      var childFieldSchema = _underscore.default.extend({}, fieldSchema, {
+      var childFieldSchema = _underscore["default"].extend({}, fieldSchema, {
         'parentSchema': schema
       });
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         key: arrayIdx,
         className: "array-field-container " + (arrayIdx % 2 === 0 ? 'even' : 'odd'),
         "data-field-type": fieldType
-      }, _react.default.createElement(BuildField, _extends({
+      }, _react["default"].createElement(BuildField, _extends({
         value: inArrValue || null,
         fieldTip: fieldTip,
         fieldType: fieldType,
         title: title,
         enumValues: enumValues
-      }, _underscore.default.pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel', 'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType'), {
+      }, _underscore["default"].pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel', 'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType'), {
         isArray: true,
         isLastItemInArray: allItems.length - 1 === index,
         arrayIdx: arrayIdxList,
@@ -1025,13 +1022,13 @@ var ArrayField = function (_React$Component) {
           _this$props18$value = _this$props18.value,
           values = _this$props18$value === void 0 ? [] : _this$props18$value,
           pushArrayValue = _this$props18.pushArrayValue;
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "add-array-item-button-container"
-      }, _react.default.createElement("button", {
+      }, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-outline-dark btn-" + (values.length > 0 ? "sm" : "md"),
         onClick: pushArrayValue
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-fw fas icon-plus"
       }), " Add"));
     }
@@ -1044,19 +1041,19 @@ var ArrayField = function (_React$Component) {
       var schema = propSchema.items || {};
       var values = propValue || [];
 
-      var valuesToRender = _underscore.default.map(values.length === 0 ? [null] : values, function (v, i) {
+      var valuesToRender = _underscore["default"].map(values.length === 0 ? [null] : values, function (v, i) {
         return [v, schema, i];
       });
 
       var showAddButton = !isValueNull(values[valuesToRender.length - 1]);
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "list-of-array-items"
       }, valuesToRender.map(this.initiateArrayField), showAddButton ? this.generateAddButton() : null);
     }
   }]);
 
   return ArrayField;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 var ObjectField = function (_React$PureComponent3) {
   _inherits(ObjectField, _React$PureComponent3);
@@ -1081,11 +1078,11 @@ var ObjectField = function (_React$PureComponent3) {
 
       if (!schemaVal) return null;
 
-      if (schemaVal.exclude_from && (_underscore.default.contains(schemaVal.exclude_from, 'FFedit-create') || schemaVal.exclude_from == 'FFedit-create')) {
+      if (schemaVal.exclude_from && (_underscore["default"].contains(schemaVal.exclude_from, 'FFedit-create') || schemaVal.exclude_from == 'FFedit-create')) {
         return null;
       }
 
-      if (schemaVal.exclude_from && (_underscore.default.contains(schemaVal.exclude_from, 'FF-calculate') || schemaVal.exclude_from == 'FF-calculate')) {
+      if (schemaVal.exclude_from && (_underscore["default"].contains(schemaVal.exclude_from, 'FF-calculate') || schemaVal.exclude_from == 'FF-calculate')) {
         return null;
       }
 
@@ -1132,17 +1129,17 @@ var ObjectField = function (_React$PureComponent3) {
           objectSchema = _this$props21.schema,
           parentObject = _this$props21.value,
           propNestedField = _this$props21.nestedField;
-      var allFieldsInSchema = objectSchema['properties'] ? _underscore.default.keys(objectSchema['properties']) : [];
+      var allFieldsInSchema = objectSchema['properties'] ? _underscore["default"].keys(objectSchema['properties']) : [];
 
-      var fieldsToBuild = _underscore.default.filter(_underscore.default.map(allFieldsInSchema, function (f) {
+      var fieldsToBuild = _underscore["default"].filter(_underscore["default"].map(allFieldsInSchema, function (f) {
         var fieldSchemaToUseOrNull = _this6.includeField(objectSchema, f);
 
         return fieldSchemaToUseOrNull && [f, fieldSchemaToUseOrNull] || null;
       }));
 
-      var passProps = _underscore.default.pick(this.props, 'modifyNewContext', 'linkType', 'setSubmissionState', 'selectObj', 'selectComplete', 'selectCancel', 'arrayIdx', 'keyDisplay', 'keyComplete', 'currType', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx');
+      var passProps = _underscore["default"].pick(this.props, 'modifyNewContext', 'linkType', 'setSubmissionState', 'selectObj', 'selectComplete', 'selectCancel', 'arrayIdx', 'keyDisplay', 'keyComplete', 'currType', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx');
 
-      var builtFields = _underscore.default.map(fieldsToBuild, function (_ref2) {
+      var builtFields = _underscore["default"].map(fieldsToBuild, function (_ref2) {
         var _ref3 = _slicedToArray(_ref2, 2),
             field = _ref3[0],
             fieldSchema = _ref3[1];
@@ -1166,10 +1163,10 @@ var ObjectField = function (_React$PureComponent3) {
         var enumValues = [];
 
         if (fieldType === 'enum') {
-          enumValues = fieldSchema.enum || fieldSchema.suggested_enum || [];
+          enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum || [];
         }
 
-        return _react.default.createElement(BuildField, _extends({}, passProps, {
+        return _react["default"].createElement(BuildField, _extends({}, passProps, {
           field: field,
           fieldType: fieldType,
           fieldTip: fieldTip,
@@ -1186,14 +1183,14 @@ var ObjectField = function (_React$PureComponent3) {
         }));
       });
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "object-field-container"
       }, builtFields);
     }
   }]);
 
   return ObjectField;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 var AttachmentInput = function (_React$Component2) {
   _inherits(AttachmentInput, _React$Component2);
@@ -1269,11 +1266,11 @@ var AttachmentInput = function (_React$Component2) {
         attach_title = "No file chosen";
       }
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         style: {
           'display': 'inherit'
         }
-      }, _react.default.createElement("input", {
+      }, _react["default"].createElement("input", {
         id: "field_for_" + field,
         type: "file",
         onChange: this.handleChange,
@@ -1281,10 +1278,10 @@ var AttachmentInput = function (_React$Component2) {
           'display': 'none'
         },
         accept: this.acceptedTypes()
-      }), _react.default.createElement("button", {
+      }), _react["default"].createElement("button", {
         type: "submit",
         className: "btn btn-outline-dark"
-      }, _react.default.createElement("label", {
+      }, _react["default"].createElement("label", {
         className: "text-400 mb-0",
         htmlFor: "field_for_" + field,
         style: {
@@ -1296,7 +1293,7 @@ var AttachmentInput = function (_React$Component2) {
   }]);
 
   return AttachmentInput;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 var S3FileInput = function (_React$Component3) {
   _inherits(S3FileInput, _React$Component3);
@@ -1308,7 +1305,7 @@ var S3FileInput = function (_React$Component3) {
 
     _this8 = _possibleConstructorReturn(this, _getPrototypeOf(S3FileInput).call(this, props));
 
-    _underscore.default.bindAll(_assertThisInitialized(_this8), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
+    _underscore["default"].bindAll(_assertThisInitialized(_this8), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
 
     _this8.state = {
       'percentDone': null,
@@ -1379,7 +1376,7 @@ var S3FileInput = function (_React$Component3) {
             extensions = extensions.concat(response.other_allowed_extensions);
           }
 
-          if (extensions.indexOf("other") === -1 && !_underscore.default.any(extensions, function (ext) {
+          if (extensions.indexOf("other") === -1 && !_underscore["default"].any(extensions, function (ext) {
             return filename.endsWith(ext);
           })) {
             alert('File extension error! Please enter a file with one of the following extensions: ' + extensions.join(', '));
@@ -1471,7 +1468,7 @@ var S3FileInput = function (_React$Component3) {
       }
 
       var disableFile = md5Progress !== null || upload !== null;
-      return _react.default.createElement("div", null, _react.default.createElement("div", null, _react.default.createElement("input", {
+      return _react["default"].createElement("div", null, _react["default"].createElement("div", null, _react["default"].createElement("input", {
         id: "field_for_" + field,
         type: "file",
         onChange: this.handleChange,
@@ -1479,14 +1476,14 @@ var S3FileInput = function (_React$Component3) {
         style: {
           'display': 'none'
         }
-      }), _react.default.createElement("button", {
+      }), _react["default"].createElement("button", {
         type: "submit",
         disabled: disableFile,
         style: {
           'padding': '0px'
         },
         className: "btn btn-outline-dark"
-      }, _react.default.createElement("label", {
+      }, _react["default"].createElement("label", {
         className: "text-400",
         htmlFor: "field_for_" + field,
         style: {
@@ -1496,44 +1493,44 @@ var S3FileInput = function (_React$Component3) {
           'paddingLeft': '12px',
           'marginBottom': '0px'
         }
-      }, filename_text)), _react.default.createElement(_Fade.Fade, {
-        in: showDelete
-      }, _react.default.createElement("div", {
+      }, filename_text)), _react["default"].createElement(_Fade.Fade, {
+        "in": showDelete
+      }, _react["default"].createElement("div", {
         className: "pull-right"
-      }, _react.default.createElement("button", {
+      }, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-danger",
         disabled: !showDelete,
         onClick: this.deleteField,
         tabIndex: 2
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-times fas"
-      }))))), statusTip ? _react.default.createElement("div", {
+      }))))), statusTip ? _react["default"].createElement("div", {
         style: {
           'color': '#a94442',
           'paddingTop': '10px'
         }
-      }, statusTip) : null, md5Progress ? _react.default.createElement("div", {
+      }, statusTip) : null, md5Progress ? _react["default"].createElement("div", {
         style: {
           'paddingTop': '10px'
         }
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-spin icon-circle-o-notch",
         style: {
           'opacity': '0.5'
         }
-      }), _react.default.createElement("span", {
+      }), _react["default"].createElement("span", {
         style: {
           'paddingLeft': '10px'
         }
-      }, 'Calculating MD5... ' + md5Progress + '%')) : null, percentDone !== null ? _react.default.createElement("div", {
+      }, 'Calculating MD5... ' + md5Progress + '%')) : null, percentDone !== null ? _react["default"].createElement("div", {
         className: "row",
         style: {
           'paddingTop': '10px'
         }
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "col-3 col-sm-3 pull-left"
-      }, _react.default.createElement("a", {
+      }, _react["default"].createElement("a", {
         href: "",
         style: {
           'color': '#a94442',
@@ -1541,13 +1538,13 @@ var S3FileInput = function (_React$Component3) {
         },
         onClick: this.cancelUpload,
         title: "Cancel"
-      }, 'Cancel upload')), _react.default.createElement("div", {
+      }, 'Cancel upload')), _react["default"].createElement("div", {
         className: "col-9 col-sm-9 pull-right"
-      }, _react.default.createElement("div", null, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", null, _react["default"].createElement("div", {
         className: "pull-left"
-      }, percentDone + "% complete"), _react.default.createElement("div", {
+      }, percentDone + "% complete"), _react["default"].createElement("div", {
         className: "pull-right"
-      }, "Total size: " + sizeUploaded)), _react.default.createElement(_rcProgress.Line, {
+      }, "Total size: " + sizeUploaded)), _react["default"].createElement(_rcProgress.Line, {
         percent: percentDone,
         strokeWidth: "1",
         strokeColor: "#388a92"
@@ -1556,7 +1553,7 @@ var S3FileInput = function (_React$Component3) {
   }]);
 
   return S3FileInput;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 var AliasInputField = function (_React$Component4) {
   _inherits(AliasInputField, _React$Component4);
@@ -1578,7 +1575,7 @@ var AliasInputField = function (_React$Component4) {
         return AliasInputField.emailToString(submitter.email);
       }
 
-      if (primaryLabID && primaryLab.name && _underscore.default.map(submits_for_list, _util.object.itemUtil.atId).indexOf(primaryLabID) > -1) {
+      if (primaryLabID && primaryLab.name && _underscore["default"].map(submits_for_list, _util.object.itemUtil.atId).indexOf(primaryLabID) > -1) {
         return primaryLab.name;
       } else {
         return submits_for_list[0].name;
@@ -1604,7 +1601,7 @@ var AliasInputField = function (_React$Component4) {
 
     _this10 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputField).call(this, props));
 
-    _underscore.default.bindAll(_assertThisInitialized(_this10), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
+    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
 
     return _this10;
   }
@@ -1670,7 +1667,7 @@ var AliasInputField = function (_React$Component4) {
       var firstPartSelect;
 
       if (currentSubmittingUser && Array.isArray(currentSubmittingUser.groups) && currentSubmittingUser.groups.indexOf('admin') > -1) {
-        firstPartSelect = _react.default.createElement("input", {
+        firstPartSelect = _react["default"].createElement("input", {
           type: "text",
           inputMode: "latin",
           id: "firstPartSelect",
@@ -1684,45 +1681,45 @@ var AliasInputField = function (_React$Component4) {
           className: "form-control"
         });
       } else if (submits_for_list && submits_for_list.length > 1) {
-        firstPartSelect = _react.default.createElement(_DropdownButton.DropdownButton, {
+        firstPartSelect = _react["default"].createElement(_DropdownButton.DropdownButton, {
           className: "alias-lab-select form-control alias-first-part-input",
           id: "firstPartSelect",
           onSelect: this.onAliasFirstPartChange,
           componentClass: _reactBootstrap.InputGroup.Button,
-          title: parts.length > 1 && _react.default.createElement("span", {
+          title: parts.length > 1 && _react["default"].createElement("span", {
             className: "text-400"
-          }, _react.default.createElement("small", {
+          }, _react["default"].createElement("small", {
             className: "pull-left"
-          }, "Lab: "), _react.default.createElement("span", {
+          }, "Lab: "), _react["default"].createElement("span", {
             className: "pull-right text-ellipsis-container",
             style: {
               maxWidth: '80%'
             }
           }, parts[0] !== '' && parts[0] || this.getInitialSubmitsForPart())) || 'Select a Lab'
-        }, _underscore.default.map(submits_for_list, function (lab) {
-          return _react.default.createElement(_DropdownButton.DropdownItem, {
+        }, _underscore["default"].map(submits_for_list, function (lab) {
+          return _react["default"].createElement(_DropdownButton.DropdownItem, {
             key: lab.name,
             eventKey: lab.name
-          }, _react.default.createElement("span", {
+          }, _react["default"].createElement("span", {
             className: "text-500"
           }, lab.name), " (", lab.display_title, ")");
         }));
       } else {
-        firstPartSelect = _react.default.createElement(_reactBootstrap.InputGroup.Addon, {
+        firstPartSelect = _react["default"].createElement(_reactBootstrap.InputGroup.Addon, {
           className: "alias-lab-single-option"
         }, currFirstPartValue);
       }
 
       var outerClassName = "mb-0 form-group has-feedback" + (errorMessage ? " is-invalid has-error" : "");
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: outerClassName
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "input-group"
-      }, firstPartSelect, _react.default.createElement("div", {
+      }, firstPartSelect, _react["default"].createElement("div", {
         className: "input-group-prepend input-group-append input-group-addon colon-separator"
-      }, _react.default.createElement("span", {
+      }, _react["default"].createElement("span", {
         className: "input-group-text"
-      }, ":")), _react.default.createElement("input", {
+      }, ":")), _react["default"].createElement("input", {
         type: "text",
         id: "aliasInput",
         inputMode: "latin",
@@ -1736,20 +1733,20 @@ var AliasInputField = function (_React$Component4) {
   }]);
 
   return AliasInputField;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 exports.AliasInputField = AliasInputField;
 
 _defineProperty(AliasInputField, "propTypes", {
-  'value': _propTypes.default.string.isRequired,
-  'onAliasChange': _propTypes.default.func.isRequired,
-  'currentSubmittingUser': _propTypes.default.shape({
-    'submits_for': _propTypes.default.arrayOf(_propTypes.default.shape({
-      'name': _propTypes.default.string,
-      'display_title': _propTypes.default.string
+  'value': _propTypes["default"].string.isRequired,
+  'onAliasChange': _propTypes["default"].func.isRequired,
+  'currentSubmittingUser': _propTypes["default"].shape({
+    'submits_for': _propTypes["default"].arrayOf(_propTypes["default"].shape({
+      'name': _propTypes["default"].string,
+      'display_title': _propTypes["default"].string
     }))
   }).isRequired,
-  'errorMessage': _propTypes.default.string
+  'errorMessage': _propTypes["default"].string
 });
 
 _defineProperty(AliasInputField, "defaultProps", {
@@ -1800,7 +1797,7 @@ var InfoIcon = function (_React$PureComponent4) {
         tip += '<h6 class="mt-07 text-300">Field Type: <span class="text-400">' + this.fieldTypeDescriptor() + '</span></h6>';
       }
 
-      return _react.default.createElement("i", {
+      return _react["default"].createElement("i", {
         className: "icon icon-info-circle fas" + (className ? ' ' + className : ''),
         "data-tip": tip,
         "data-html": true
@@ -1809,7 +1806,7 @@ var InfoIcon = function (_React$PureComponent4) {
   }]);
 
   return InfoIcon;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 function isValueNull(value) {
   if (value === null) return true;
@@ -1818,15 +1815,15 @@ function isValueNull(value) {
   if (value === '') return true;
 
   if (Array.isArray(value)) {
-    if (value.length === 0) return true;else if (_underscore.default.every(value, isValueNull)) {
+    if (value.length === 0) return true;else if (_underscore["default"].every(value, isValueNull)) {
       return true;
     } else return false;
   }
 
   if (_typeof(value) === 'object') {
-    var keys = _underscore.default.keys(value);
+    var keys = _underscore["default"].keys(value);
 
-    if (keys.length === 0) return true;else if (_underscore.default.every(keys, function (k) {
+    if (keys.length === 0) return true;else if (_underscore["default"].every(keys, function (k) {
       return isValueNull(value[k]);
     })) return true;
   }

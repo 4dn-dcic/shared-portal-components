@@ -20,7 +20,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -39,9 +39,9 @@ function getSchemaProperty(field, schemas) {
 
   function getNextSchemaProperties(linkToName) {
     function combineSchemaPropertiesFor(relatedLinkToNames) {
-      return _underscore.default.reduce(_underscore.default.keys(relatedLinkToNames), function (schemaProperties, schemaName) {
+      return _underscore["default"].reduce(_underscore["default"].keys(relatedLinkToNames), function (schemaProperties, schemaName) {
         if (schemas[schemaName]) {
-          return _underscore.default.extend(schemaProperties, schemas[schemaName].properties);
+          return _underscore["default"].extend(schemaProperties, schemas[schemaName].properties);
         } else return schemaProperties;
       }, {});
     }
@@ -89,7 +89,7 @@ function lookupFieldTitle(field, schemas) {
 }
 
 function getSchemaTypeFromSearchContext(context, schemas) {
-  var thisTypeFilter = _underscore.default.find(context.filters || [], function (_ref) {
+  var thisTypeFilter = _underscore["default"].find(context.filters || [], function (_ref) {
     var field = _ref.field,
         term = _ref.term;
     if (field === 'type' && term !== 'Item') return true;
@@ -108,14 +108,14 @@ function flattenSchemaPropertyToColumnDefinition(tips) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var schemas = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-  var flattened = _underscore.default.pairs(tips).filter(function (p) {
+  var flattened = _underscore["default"].pairs(tips).filter(function (p) {
     if (p[1] && (p[1].items && p[1].items.properties || p[1].properties)) return true;
     return false;
   }).reduce(function (m, p) {
-    _underscore.default.keys((p[1].items || p[1]).properties).forEach(function (childProperty) {
+    _underscore["default"].keys((p[1].items || p[1]).properties).forEach(function (childProperty) {
       if (typeof m[p[0] + '.' + childProperty] === 'undefined') {
         m[p[0] + '.' + childProperty] = (p[1].items || p[1]).properties[childProperty];
-        m[p[0]] = _underscore.default.omit(m[p[0]], 'items', 'properties');
+        m[p[0]] = _underscore["default"].omit(m[p[0]], 'items', 'properties');
       }
 
       if (!m[p[0] + '.' + childProperty].title && m[p[0] + '.' + childProperty].linkTo) {
@@ -124,9 +124,9 @@ function flattenSchemaPropertyToColumnDefinition(tips) {
     });
 
     return m;
-  }, _underscore.default.clone(tips));
+  }, _underscore["default"].clone(tips));
 
-  if (depth < 4 && _underscore.default.find(_underscore.default.pairs(flattened), function (p) {
+  if (depth < 4 && _underscore["default"].find(_underscore["default"].pairs(flattened), function (p) {
     if (p[1] && (p[1].items && p[1].items.properties || p[1].properties)) return true;
     return false;
   })) flattened = flattenSchemaPropertyToColumnDefinition(flattened, depth + 1, schemas);
@@ -147,7 +147,7 @@ function getAbstractTypeForType(type, schemas) {
     }
   }
 
-  var possibleParentTypes = _underscore.default.keys(itemTypeHierarchy);
+  var possibleParentTypes = _underscore["default"].keys(itemTypeHierarchy);
 
   for (i = 0; i < possibleParentTypes.length; i++) {
     foundObj = itemTypeHierarchy[possibleParentTypes[i]][type];
@@ -221,12 +221,12 @@ function stripTypeFromProfilesHref(profilesHref) {
   return profilesHref.slice(10, -5);
 }
 
-var schemasToItemTypeHierarchy = (0, _memoizeOne.default)(function (schemas) {
-  var allTypesArray = _underscore.default.keys(schemas);
+var schemasToItemTypeHierarchy = (0, _memoizeOne["default"])(function (schemas) {
+  var allTypesArray = _underscore["default"].keys(schemas);
 
   var resHierarchy = {};
 
-  var _$partition = _underscore.default.partition(allTypesArray, function (typeName) {
+  var _$partition = _underscore["default"].partition(allTypesArray, function (typeName) {
     var typeSchema = schemas[typeName];
 
     if (typeSchema["rdfs:subClassOf"] === "/profiles/Item.json") {
@@ -240,7 +240,7 @@ var schemasToItemTypeHierarchy = (0, _memoizeOne.default)(function (schemas) {
       remainingTypeNames = _$partition2[1];
 
   function addChildrenRecursively(parentHier, parentTypeSchema) {
-    _underscore.default.forEach(parentTypeSchema.children || [], function (childTypeURI) {
+    _underscore["default"].forEach(parentTypeSchema.children || [], function (childTypeURI) {
       var childTypeName = stripTypeFromProfilesHref(childTypeURI);
       parentHier[childTypeName] = {};
       var childTypeSchema = schemas[childTypeName];
@@ -251,7 +251,7 @@ var schemasToItemTypeHierarchy = (0, _memoizeOne.default)(function (schemas) {
     });
   }
 
-  _underscore.default.forEach(rootTypeNames, function (rootTypeName) {
+  _underscore["default"].forEach(rootTypeNames, function (rootTypeName) {
     resHierarchy[rootTypeName] = {};
     var rootTypeSchema = schemas[rootTypeName];
     var rootTypeHasChildren = Array.isArray(rootTypeSchema.children) && rootTypeSchema.children.length > 0;

@@ -14,7 +14,7 @@ exports.numberLevels = exports.byteLevels = void 0;
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function capitalize(word) {
   if (typeof word !== 'string') return word;
@@ -63,9 +63,9 @@ function roundDecimal(num) {
 function decorateNumberWithCommas(num) {
   if (!num || typeof num !== 'number' || num < 1000) return num;
 
-  var chunked = _underscore.default.chunk((num + '').split('').reverse(), 3);
+  var chunked = _underscore["default"].chunk((num + '').split('').reverse(), 3);
 
-  return _underscore.default.map(chunked, function (c) {
+  return _underscore["default"].map(chunked, function (c) {
     return c.reverse().join('');
   }).reverse().join(',');
 }

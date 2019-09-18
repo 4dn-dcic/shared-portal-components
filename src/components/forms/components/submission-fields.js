@@ -589,9 +589,9 @@ class LinkedObj extends React.PureComponent {
                 const tip = "This Item, '" + thisDisplay + "' is already in the database";
                 return(
                     <div className="submitted-linked-object-display-container text-ellipsis-container">
-                        <i className="icon icon-fw icon-database fas" />&nbsp;&nbsp;
+                        <i className="icon icon-fw icon-database fas mr-05" />
                         <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip}>{ thisDisplay }</a>
-                        &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-external-link ml-05 fas"/>
+                        <i className="icon icon-fw icon-external-link ml-05 fas text-smaller"/>
                     </div>
                 );
             } else {

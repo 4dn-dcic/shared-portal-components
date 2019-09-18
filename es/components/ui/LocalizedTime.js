@@ -17,7 +17,7 @@ var _moment = _interopRequireDefault(require("moment"));
 
 var _misc = require("./../util/misc");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -47,7 +47,7 @@ var LocalizedTime = function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(LocalizedTime).call(this, props));
     _this.state = {
-      moment: props.momentDate ? props.momentDate : props.timestamp ? _moment.default.utc(props.timestamp) : _moment.default.utc(),
+      moment: props.momentDate ? props.momentDate : props.timestamp ? _moment["default"].utc(props.timestamp) : _moment["default"].utc(),
       mounted: false
     };
     return _this;
@@ -70,11 +70,11 @@ var LocalizedTime = function (_React$Component) {
           customOutputFormat = _this$props.customOutputFormat;
 
       if (!this.state.mounted || (0, _misc.isServerSide)()) {
-        return _react.default.createElement("span", {
+        return _react["default"].createElement("span", {
           className: this.props.className + ' utc'
         }, display(this.state.moment, formatType, dateTimeSeparator, false, customOutputFormat));
       } else {
-        return _react.default.createElement("span", {
+        return _react["default"].createElement("span", {
           className: this.props.className + (localize ? ' local' : ' utc')
         }, display(this.state.moment, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
@@ -82,21 +82,21 @@ var LocalizedTime = function (_React$Component) {
   }]);
 
   return LocalizedTime;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 exports.LocalizedTime = LocalizedTime;
 LocalizedTime.propTypes = {
   momentDate: function momentDate(props, propName) {
-    if (props[propName] && !_moment.default.isMoment(props[propName])) {
+    if (props[propName] && !_moment["default"].isMoment(props[propName])) {
       return new Error("momentDate must be an instance of Moment.");
     }
   },
-  timestamp: _propTypes.default.string,
-  formatType: _propTypes.default.string,
-  dateTimeSeparator: _propTypes.default.string,
-  customOutputFormat: _propTypes.default.string,
-  fallback: _propTypes.default.string,
-  className: _propTypes.default.string
+  timestamp: _propTypes["default"].string,
+  formatType: _propTypes["default"].string,
+  dateTimeSeparator: _propTypes["default"].string,
+  customOutputFormat: _propTypes["default"].string,
+  fallback: _propTypes["default"].string,
+  className: _propTypes["default"].string
 };
 LocalizedTime.defaultProps = {
   momentDate: null,
@@ -168,7 +168,7 @@ function format(timestamp) {
   var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
   var localize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var customOutputFormat = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-  return display(_moment.default.utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
+  return display(_moment["default"].utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
 }
 
 function display(momentObj) {
@@ -205,12 +205,12 @@ function formatPublicationDate(utcDate) {
   if (includeMonth && utcDate.length >= 7) {
     monthString = utcDate.slice(5, 7);
     monthIndex = parseInt(monthString) - 1;
-    monthString = _moment.default.months()[monthIndex];
+    monthString = _moment["default"].months()[monthIndex];
 
     if (includeDay && utcDate.length >= 10) {
       dayString = utcDate.slice(8, 10);
       dayInteger = parseInt(dayString);
-      dayString = _moment.default.localeData().ordinal(dayInteger);
+      dayString = _moment["default"].localeData().ordinal(dayInteger);
       return monthString + ' ' + dayString + ', ' + yearString;
     }
 

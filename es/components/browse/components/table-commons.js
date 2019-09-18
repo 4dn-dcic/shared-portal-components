@@ -39,7 +39,7 @@ var _analytics = require("./../../util/analytics");
 
 var _typedefs = require("./../../util/typedefs");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -81,7 +81,7 @@ exports.DEFAULT_WIDTH_MAP = DEFAULT_WIDTH_MAP;
 
 function defaultColumnBlockRenderFxn(result, columnDefinition) {
   function filterAndUniq(vals) {
-    return _underscore.default.uniq(_underscore.default.filter(vals, function (v) {
+    return _underscore["default"].uniq(_underscore["default"].filter(vals, function (v) {
       return v !== null && typeof v !== 'undefined';
     }));
   }
@@ -90,7 +90,7 @@ function defaultColumnBlockRenderFxn(result, columnDefinition) {
   if (!value) value = null;
 
   if (Array.isArray(value)) {
-    value = filterAndUniq(_underscore.default.map(value, function (v) {
+    value = filterAndUniq(_underscore["default"].map(value, function (v) {
       if (Array.isArray(v)) {
         v = filterAndUniq(v);
         if (v.length === 1) v = v[0];
@@ -145,7 +145,7 @@ var basicColumnExtensionMap = {
       if (title && (title.length > 20 || width < 100)) tooltip = title;
 
       if (link) {
-        title = _react.default.createElement("a", {
+        title = _react["default"].createElement("a", {
           key: "title",
           href: link || '#',
           onClick: handleClick
@@ -153,7 +153,7 @@ var basicColumnExtensionMap = {
 
         if (typeof result.email === 'string' && result.email.indexOf('@') > -1) {
           hasPhoto = true;
-          title = _react.default.createElement("span", {
+          title = _react["default"].createElement("span", {
             key: "title"
           }, _object.itemUtil.User.gravatar(result.email, 32, {
             'className': 'in-search-table-title-image',
@@ -162,10 +162,10 @@ var basicColumnExtensionMap = {
         }
       }
 
-      return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(TableRowToggleOpenButton, {
+      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(TableRowToggleOpenButton, {
         open: detailOpen,
         onClick: toggleDetailOpen
-      }), _react.default.createElement("div", {
+      }), _react["default"].createElement("div", {
         key: "title-container",
         className: "title-block" + (hasPhoto ? ' has-photo' : " text-ellipsis-container"),
         "data-tip": tooltip
@@ -179,28 +179,28 @@ var basicColumnExtensionMap = {
       if (!Array.isArray(result['@type'])) return null;
       var leafItemType = (0, _schemaTransforms.getItemType)(result);
       var itemTypeTitle = (0, _schemaTransforms.getTitleForType)(leafItemType, props.schemas || null);
-      return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("div", {
+      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         className: "icon-container"
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-fw fas icon-filter clickable mr-05",
         onClick: function onClick(e) {
           if (!props.href || props.href.indexOf('/search/') === -1) return;
           e.preventDefault();
           e.stopPropagation();
 
-          var urlParts = _url.default.parse(props.href, true),
+          var urlParts = _url["default"].parse(props.href, true),
               query = {
             'type': leafItemType
           };
 
           if (urlParts.query.q) query.q = urlParts.query.q;
 
-          var nextHref = '/search/?' + _querystring.default.stringify(query);
+          var nextHref = '/search/?' + _querystring["default"].stringify(query);
 
           (props.navigate || _navigate.navigate)(nextHref);
         },
         "data-tip": "Filter down to only " + itemTypeTitle
-      })), _react.default.createElement("span", {
+      })), _react["default"].createElement("span", {
         className: "item-type-title value"
       }, itemTypeTitle));
     }
@@ -215,9 +215,9 @@ var basicColumnExtensionMap = {
     },
     'render': function (result) {
       if (!result.date_created) return null;
-      return _react.default.createElement("span", {
+      return _react["default"].createElement("span", {
         className: "value"
-      }, _react.default.createElement(_LocalizedTime.LocalizedTime, {
+      }, _react["default"].createElement(_LocalizedTime.LocalizedTime, {
         timestamp: result.date_created,
         formatType: "date-sm"
       }));
@@ -234,9 +234,9 @@ var basicColumnExtensionMap = {
     'render': function (result) {
       if (!result.last_modified) return null;
       if (!result.last_modified.date_modified) return null;
-      return _react.default.createElement("span", {
+      return _react["default"].createElement("span", {
         className: "value"
-      }, _react.default.createElement(_LocalizedTime.LocalizedTime, {
+      }, _react["default"].createElement(_LocalizedTime.LocalizedTime, {
         timestamp: result.last_modified.date_modified,
         formatType: "date-sm"
       }));
@@ -247,13 +247,13 @@ var basicColumnExtensionMap = {
 exports.basicColumnExtensionMap = basicColumnExtensionMap;
 
 function sanitizeOutputValue(value) {
-  if (typeof value !== 'string' && !_react.default.isValidElement(value)) {
+  if (typeof value !== 'string' && !_react["default"].isValidElement(value)) {
     if (value && _typeof(value) === 'object') {
       if (typeof value.display_title !== 'undefined') {
         var atId = _object.itemUtil.atId(value);
 
         if (atId) {
-          return _react.default.createElement("a", {
+          return _react["default"].createElement("a", {
             href: atId
           }, value.display_title);
         } else {
@@ -267,19 +267,19 @@ function sanitizeOutputValue(value) {
   return value;
 }
 
-var TableRowToggleOpenButton = _react.default.memo(function (_ref) {
+var TableRowToggleOpenButton = _react["default"].memo(function (_ref) {
   var onClick = _ref.onClick,
       toggleDetailOpen = _ref.toggleDetailOpen,
       open = _ref.open;
-  return _react.default.createElement("div", {
+  return _react["default"].createElement("div", {
     className: "inline-block toggle-detail-button-container"
-  }, _react.default.createElement("button", {
+  }, _react["default"].createElement("button", {
     type: "button",
     className: "toggle-detail-button",
     onClick: onClick || toggleDetailOpen
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement("div", {
     className: "icon-container"
-  }, _react.default.createElement("i", {
+  }, _react["default"].createElement("i", {
     className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
   }))));
 });
@@ -291,9 +291,9 @@ function haveContextColumnsChanged(cols1, cols2) {
   if (cols1 && !cols2) return true;
   if (!cols1 && cols2) return true;
 
-  var pKeys = _underscore.default.keys(cols1),
+  var pKeys = _underscore["default"].keys(cols1),
       pKeysLen = pKeys.length,
-      nKeys = _underscore.default.keys(cols2),
+      nKeys = _underscore["default"].keys(cols2),
       i;
 
   if (pKeysLen !== nKeys.length) return true;
@@ -305,24 +305,24 @@ function haveContextColumnsChanged(cols1, cols2) {
   return false;
 }
 
-var columnsToColumnDefinitions = (0, _memoizeOne.default)(function (columns, columnDefinitionMap) {
+var columnsToColumnDefinitions = (0, _memoizeOne["default"])(function (columns, columnDefinitionMap) {
   var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_WIDTH_MAP;
 
-  var uninishedColumnDefinitions = _underscore.default.map(_underscore.default.pairs(columns), function (_ref2) {
+  var uninishedColumnDefinitions = _underscore["default"].map(_underscore["default"].pairs(columns), function (_ref2) {
     var _ref3 = _slicedToArray(_ref2, 2),
         field = _ref3[0],
         columnProperties = _ref3[1];
 
-    return _underscore.default.extend({
+    return _underscore["default"].extend({
       field: field
     }, columnProperties);
   });
 
-  var columnDefinitions = _underscore.default.map(uninishedColumnDefinitions, function (colDef, i) {
+  var columnDefinitions = _underscore["default"].map(uninishedColumnDefinitions, function (colDef, i) {
     var colDefOverride = columnDefinitionMap && columnDefinitionMap[colDef.field];
 
     if (colDefOverride) {
-      var colDef2 = _underscore.default.extend({}, colDefOverride, colDef);
+      var colDef2 = _underscore["default"].extend({}, colDefOverride, colDef);
 
       colDef = colDef2;
     }
@@ -337,13 +337,13 @@ var columnsToColumnDefinitions = (0, _memoizeOne.default)(function (columns, col
     return colDef;
   });
 
-  return _underscore.default.sortBy(columnDefinitions, 'order');
+  return _underscore["default"].sortBy(columnDefinitions, 'order');
 });
 exports.columnsToColumnDefinitions = columnsToColumnDefinitions;
-var defaultHiddenColumnMapFromColumns = (0, _memoizeOne.default)(function (columns) {
+var defaultHiddenColumnMapFromColumns = (0, _memoizeOne["default"])(function (columns) {
   var hiddenColMap = {};
 
-  _underscore.default.forEach(_underscore.default.pairs(columns), function (_ref4) {
+  _underscore["default"].forEach(_underscore["default"].pairs(columns), function (_ref4) {
     var _ref5 = _slicedToArray(_ref4, 2),
         field = _ref5[0],
         columnDefinition = _ref5[1];
@@ -360,9 +360,9 @@ var defaultHiddenColumnMapFromColumns = (0, _memoizeOne.default)(function (colum
   return !haveContextColumnsChanged(lastArgs[0], newArgs[0]);
 });
 exports.defaultHiddenColumnMapFromColumns = defaultHiddenColumnMapFromColumns;
-var columnDefinitionsToScaledColumnDefinitions = (0, _memoizeOne.default)(function (columnDefinitions) {
-  return _underscore.default.map(columnDefinitions, function (colDef) {
-    var colDef2 = _underscore.default.clone(colDef);
+var columnDefinitionsToScaledColumnDefinitions = (0, _memoizeOne["default"])(function (columnDefinitions) {
+  return _underscore["default"].map(columnDefinitions, function (colDef) {
+    var colDef2 = _underscore["default"].clone(colDef);
 
     colDef2.baseWidth = colDef.widthMap.sm || colDef.widthMap.md || colDef.widthMap.lg || 100;
 
@@ -431,20 +431,20 @@ var ResultRowColumnBlockValue = function (_React$Component) {
           className = _this$props2.className,
           propDefaultRenderFxn = _this$props2.defaultColumnBlockRenderFxn;
       var renderFxn = columnDefinition.render || propDefaultRenderFxn;
-      var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore.default.omit(this.props, 'columnDefinition', 'result')));
+      var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore["default"].omit(this.props, 'columnDefinition', 'result')));
       var tooltip;
 
       if (typeof value === 'number') {
-        value = _react.default.createElement("span", {
+        value = _react["default"].createElement("span", {
           className: "value"
         }, value);
       } else if (typeof value === 'string') {
         if (propTooltip === true && value.length > 25) tooltip = value;
-        value = _react.default.createElement("span", {
+        value = _react["default"].createElement("span", {
           className: "value"
         }, value);
       } else if (value === null) {
-        value = _react.default.createElement("small", {
+        value = _react["default"].createElement("small", {
           className: "text-300"
         }, "-");
       }
@@ -455,7 +455,7 @@ var ResultRowColumnBlockValue = function (_React$Component) {
         cls += ' ' + className;
       }
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: cls,
         "data-tip": tooltip
       }, value);
@@ -463,7 +463,7 @@ var ResultRowColumnBlockValue = function (_React$Component) {
   }]);
 
   return ResultRowColumnBlockValue;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 exports.ResultRowColumnBlockValue = ResultRowColumnBlockValue;
 
@@ -483,12 +483,12 @@ var ColumnSorterIcon = function (_React$PureComponent) {
     key: "icon",
     value: function icon() {
       var style = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "descend";
-      if (style === 'descend') return _react.default.createElement("i", {
+      if (style === 'descend') return _react["default"].createElement("i", {
         className: "icon icon-sort-desc fas",
         style: {
           transform: 'translateY(-1px)'
         }
-      });else if (style === 'ascend') return _react.default.createElement("i", {
+      });else if (style === 'ascend') return _react["default"].createElement("i", {
         className: "icon icon-sort-asc fas",
         style: {
           transform: 'translateY(4px)'
@@ -532,7 +532,7 @@ var ColumnSorterIcon = function (_React$PureComponent) {
 
       var style = !descend && currentSortColumn === value ? 'ascend' : 'descend';
       var linkClass = (currentSortColumn === value ? 'active ' : '') + 'column-sort-icon';
-      return _react.default.createElement("span", {
+      return _react["default"].createElement("span", {
         className: linkClass,
         onClick: this.sortClickFxn
       }, ColumnSorterIcon.icon(style));
@@ -540,15 +540,15 @@ var ColumnSorterIcon = function (_React$PureComponent) {
   }]);
 
   return ColumnSorterIcon;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.ColumnSorterIcon = ColumnSorterIcon;
 
 _defineProperty(ColumnSorterIcon, "propTypes", {
-  'currentSortColumn': _propTypes.default.string,
-  'descend': _propTypes.default.bool,
-  'value': _propTypes.default.string.isRequired,
-  'sortByFxn': _propTypes.default.func.isRequired
+  'currentSortColumn': _propTypes["default"].string,
+  'descend': _propTypes["default"].bool,
+  'value': _propTypes["default"].string.isRequired,
+  'sortByFxn': _propTypes["default"].func.isRequired
 });
 
 _defineProperty(ColumnSorterIcon, "defaultProps", {
@@ -565,7 +565,7 @@ var HeadersRowColumn = function (_React$PureComponent2) {
 
     _this2 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
 
-    _underscore.default.bindAll(_assertThisInitialized(_this2), 'onDrag', 'onStop');
+    _underscore["default"].bindAll(_assertThisInitialized(_this2), 'onDrag', 'onStop');
 
     return _this2;
   }
@@ -599,7 +599,7 @@ var HeadersRowColumn = function (_React$PureComponent2) {
       var sorterIcon;
 
       if (!colDef.noSort && typeof sortBy === 'function' && width >= 50) {
-        sorterIcon = _react.default.createElement(ColumnSorterIcon, {
+        sorterIcon = _react["default"].createElement(ColumnSorterIcon, {
           sortByFxn: sortBy,
           currentSortColumn: sortColumn,
           descend: sortReverse,
@@ -607,18 +607,18 @@ var HeadersRowColumn = function (_React$PureComponent2) {
         });
       }
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         "data-field": colDef.field,
         key: colDef.field,
         className: "search-headers-column-block" + (colDef.noSort ? " no-sort" : ''),
         style: {
           width: width
         }
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "inner"
-      }, _react.default.createElement("span", {
+      }, _react["default"].createElement("span", {
         className: "column-title"
-      }, colDef.colTitle || colDef.title), sorterIcon), Array.isArray(headerColumnWidths) ? _react.default.createElement(_reactDraggable.default, {
+      }, colDef.colTitle || colDef.title), sorterIcon), Array.isArray(headerColumnWidths) ? _react["default"].createElement(_reactDraggable["default"], {
         position: {
           x: width,
           y: 0
@@ -626,14 +626,14 @@ var HeadersRowColumn = function (_React$PureComponent2) {
         axis: "x",
         onDrag: this.onDrag,
         onStop: this.onStop
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "width-adjuster"
       })) : null);
     }
   }]);
 
   return HeadersRowColumn;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 var HeadersRow = function (_React$Component2) {
   _inherits(HeadersRow, _React$Component2);
@@ -644,7 +644,7 @@ var HeadersRow = function (_React$Component2) {
     _classCallCheck(this, HeadersRow);
 
     _this3 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRow).call(this, props));
-    _this3.throttledSetHeaderWidths = _underscore.default.debounce(_underscore.default.throttle(_this3.setHeaderWidths.bind(_assertThisInitialized(_this3)), 1000), 350);
+    _this3.throttledSetHeaderWidths = _underscore["default"].debounce(_underscore["default"].throttle(_this3.setHeaderWidths.bind(_assertThisInitialized(_this3)), 1000), 350);
     _this3.setHeaderWidths = _this3.setHeaderWidths.bind(_assertThisInitialized(_this3));
     _this3.onAdjusterDrag = _this3.onAdjusterDrag.bind(_assertThisInitialized(_this3));
     _this3.state = {
@@ -719,24 +719,24 @@ var HeadersRow = function (_React$Component2) {
           width = _this$props9.width;
       var widths = this.state.widths;
       var outerClassName = "search-headers-row" + (headerColumnWidths && widths ? '' : ' non-adjustable') + (isSticky ? ' stickied' : '') + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '');
-      var outerStyle = isSticky ? _underscore.default.extend({}, stickyStyle, {
+      var outerStyle = isSticky ? _underscore["default"].extend({}, stickyStyle, {
         'top': -stickyHeaderTopOffset,
         'left': tableLeftOffset,
         'width': tableContainerWidth
       }) : {
         'width': width || null
       };
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: outerClassName,
         style: outerStyle
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "columns clearfix",
         style: {
           'left': isSticky ? (stickyStyle.left || 0) - (tableLeftOffset || 0) : null,
           'width': stickyStyle && stickyStyle.width || null
         }
-      }, _underscore.default.map(columnDefinitions, function (colDef, i) {
-        return _react.default.createElement(HeadersRowColumn, _extends({}, _underscore.default.pick(_this4.props, 'sortColumn', 'sortReverse', 'sortBy', 'headerColumnWidths'), {
+      }, _underscore["default"].map(columnDefinitions, function (colDef, i) {
+        return _react["default"].createElement(HeadersRowColumn, _extends({}, _underscore["default"].pick(_this4.props, 'sortColumn', 'sortReverse', 'sortBy', 'headerColumnWidths'), {
           colDef: colDef,
           index: i,
           onAdjusterDrag: _this4.onAdjusterDrag,
@@ -749,15 +749,15 @@ var HeadersRow = function (_React$Component2) {
   }]);
 
   return HeadersRow;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 exports.HeadersRow = HeadersRow;
 
-_defineProperty(HeadersRow, "fullRowWidth", (0, _memoizeOne.default)(function (columnDefinitions) {
+_defineProperty(HeadersRow, "fullRowWidth", (0, _memoizeOne["default"])(function (columnDefinitions) {
   var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   var dynamicWidths = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var windowWidth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-  return _underscore.default.reduce(columnDefinitions, function (fw, colDef, i) {
+  return _underscore["default"].reduce(columnDefinitions, function (fw, colDef, i) {
     var w;
     if (typeof colDef === 'number') w = colDef;else {
       if (Array.isArray(dynamicWidths) && dynamicWidths[i]) w = dynamicWidths[i];else w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
@@ -768,18 +768,18 @@ _defineProperty(HeadersRow, "fullRowWidth", (0, _memoizeOne.default)(function (c
 }));
 
 _defineProperty(HeadersRow, "propTypes", {
-  'columnDefinitions': _propTypes.default.array.isRequired,
-  'mounted': _propTypes.default.bool.isRequired,
-  'isSticky': _propTypes.default.bool,
-  'stickyStyle': _propTypes.default.object,
-  'tableLeftOffset': _propTypes.default.number,
-  'tableContainerWidth': _propTypes.default.number,
-  'stickyHeaderTopOffset': _propTypes.default.number,
-  'renderDetailPane': _propTypes.default.func,
-  'headerColumnWidths': _propTypes.default.arrayOf(_propTypes.default.number),
-  'setHeaderWidths': _propTypes.default.func,
-  'width': _propTypes.default.number,
-  'defaultMinColumnWidth': _propTypes.default.number
+  'columnDefinitions': _propTypes["default"].array.isRequired,
+  'mounted': _propTypes["default"].bool.isRequired,
+  'isSticky': _propTypes["default"].bool,
+  'stickyStyle': _propTypes["default"].object,
+  'tableLeftOffset': _propTypes["default"].number,
+  'tableContainerWidth': _propTypes["default"].number,
+  'stickyHeaderTopOffset': _propTypes["default"].number,
+  'renderDetailPane': _propTypes["default"].func,
+  'headerColumnWidths': _propTypes["default"].arrayOf(_propTypes["default"].number),
+  'setHeaderWidths': _propTypes["default"].func,
+  'width': _propTypes["default"].number,
+  'defaultMinColumnWidth': _propTypes["default"].number
 });
 
 _defineProperty(HeadersRow, "defaultProps", {

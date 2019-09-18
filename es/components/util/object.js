@@ -53,9 +53,9 @@ var analytics = _interopRequireWildcard(require("./analytics"));
 
 var _url = _interopRequireDefault(require("url"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -119,14 +119,14 @@ function linkFromItem(item) {
 
   if (!href || !title) {
     if (item && _typeof(item) === 'object' && typeof item.error === 'string') {
-      return _react.default.createElement("em", null, item.error);
+      return _react["default"].createElement("em", null, item.error);
     }
 
     if (!suppressErrors) _patchedConsole.patchedConsoleInstance.error("Could not get atId for Item", item);
     return null;
   }
 
-  var propsToInclude = elementProps && _underscore.default.clone(elementProps);
+  var propsToInclude = elementProps && _underscore["default"].clone(elementProps);
 
   if (typeof propsToInclude.key === 'undefined') {
     propsToInclude.key = href;
@@ -137,7 +137,7 @@ function linkFromItem(item) {
     propsToInclude.className = (propsToInclude.className || '') + ' inline-block';
   }
 
-  return _react.default.createElement("a", _extends({
+  return _react["default"].createElement("a", _extends({
     href: href
   }, propsToInclude), title);
 }
@@ -161,8 +161,8 @@ function mapToObject(esMap) {
     _iteratorError = err;
   } finally {
     try {
-      if (!_iteratorNormalCompletion && _iterator.return != null) {
-        _iterator.return();
+      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+        _iterator["return"]();
       }
     } finally {
       if (_didIteratorError) {
@@ -197,8 +197,8 @@ function tipsFromSchemaByType(schemas) {
 }
 
 function listFromTips(tips) {
-  return _underscore.default.map(_underscore.default.pairs(tips), function (p) {
-    return _underscore.default.extend(_underscore.default.omit(p[1], 'key'), {
+  return _underscore["default"].map(_underscore["default"].pairs(tips), function (p) {
+    return _underscore["default"].extend(_underscore["default"].omit(p[1], 'key'), {
       'key': p[0]
     });
   });
@@ -240,7 +240,7 @@ function getNestedProperty(object, propertyName) {
         return arrayVals;
       } else {
         if (typeof object === 'undefined' || !object) {
-          if (!suppressNotFoundError) throw new Error('Field ' + _underscore.default.clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
+          if (!suppressNotFoundError) throw new Error('Field ' + _underscore["default"].clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
           return;
         }
 
@@ -309,15 +309,15 @@ function extendChildren() {
       argsLen = args.length;
   if (args.length < 2) return args[0];
   var hostObj = args[0] || {},
-      allKeys = Array.from(_underscore.default.reduce(args.slice(1), function (m, obj) {
-    _underscore.default.forEach(_underscore.default.keys(obj), function (k) {
+      allKeys = Array.from(_underscore["default"].reduce(args.slice(1), function (m, obj) {
+    _underscore["default"].forEach(_underscore["default"].keys(obj), function (k) {
       m.add(k);
     });
 
     return m;
   }, new Set()));
 
-  _underscore.default.forEach(allKeys, function (childProperty) {
+  _underscore["default"].forEach(allKeys, function (childProperty) {
     for (var objIndex = 0; objIndex < argsLen; objIndex++) {
       var currObjToCopyFrom = args[objIndex];
 
@@ -326,7 +326,7 @@ function extendChildren() {
           hostObj[childProperty] = {};
         }
 
-        _underscore.default.extend(hostObj[childProperty], currObjToCopyFrom[childProperty]);
+        _underscore["default"].extend(hostObj[childProperty], currObjToCopyFrom[childProperty]);
       }
     }
   });
@@ -344,20 +344,20 @@ function htmlToJSX(htmlString) {
       someTags = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 
   try {
-    nodes = (0, _htmlToDomServer.default)(htmlString, {
+    nodes = (0, _htmlToDomServer["default"])(htmlString, {
       decodeEntities: true,
       lowerCaseAttributeNames: false
     });
   } catch (e) {
     _patchedConsole.patchedConsoleInstance.error('HTML parsing error', e);
 
-    return _react.default.createElement("div", {
+    return _react["default"].createElement("div", {
       className: "error"
     }, "Parsing Error. Check your markup.");
   }
 
   function filterNodes(nodeList) {
-    return _underscore.default.filter(_underscore.default.map(nodeList, function (n) {
+    return _underscore["default"].filter(_underscore["default"].map(nodeList, function (n) {
       if (n.type === 'tag') {
         if (someTags.has(n.name)) return n;
         if (n.name === 'script') return null;
@@ -368,7 +368,7 @@ function htmlToJSX(htmlString) {
         }
 
         if (Array.isArray(n.children)) {
-          n = _underscore.default.extend({}, n, {
+          n = _underscore["default"].extend({}, n, {
             'children': filterNodes(n.children)
           });
         }
@@ -379,11 +379,11 @@ function htmlToJSX(htmlString) {
   }
 
   try {
-    result = (0, _domToReact.default)(filterNodes(nodes));
+    result = (0, _domToReact["default"])(filterNodes(nodes));
   } catch (e) {
     _patchedConsole.patchedConsoleInstance.error('HTML parsing error', e);
 
-    return _react.default.createElement("div", {
+    return _react["default"].createElement("div", {
       className: "error"
     }, "Parsing Error. Check your markup.");
   }
@@ -456,9 +456,9 @@ function TooltipInfoIconContainer(props) {
       tooltip = props.tooltip,
       className = props.className,
       children = props.children;
-  return _react.default.createElement(elementType || 'div', {
+  return _react["default"].createElement(elementType || 'div', {
     'className': "tooltip-info-container" + (typeof className === 'string' ? ' ' + className : '')
-  }, _react.default.createElement("span", null, title || children, "\xA0", typeof tooltip === 'string' ? _react.default.createElement("i", {
+  }, _react["default"].createElement("span", null, title || children, "\xA0", typeof tooltip === 'string' ? _react["default"].createElement("i", {
     "data-tip": tooltip,
     className: "icon fas icon-info-circle"
   }) : null));
@@ -498,7 +498,7 @@ function TooltipInfoIconContainerAuto(props) {
     if (!showTitle) showTitle = schemaProperty && schemaProperty.title || null;
   }
 
-  return _react.default.createElement(TooltipInfoIconContainer, _extends({}, props, {
+  return _react["default"].createElement(TooltipInfoIconContainer, _extends({}, props, {
     tooltip: tooltip,
     title: showTitle || fallbackTitle || property,
     elementType: elementType
@@ -506,14 +506,14 @@ function TooltipInfoIconContainerAuto(props) {
 }
 
 TooltipInfoIconContainerAuto.propTypes = {
-  'property': _propTypes.default.string.isRequired,
-  'title': _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.element]),
-  'result': _propTypes.default.shape({
-    '@type': _propTypes.default.array.isRequired
+  'property': _propTypes["default"].string.isRequired,
+  'title': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element]),
+  'result': _propTypes["default"].shape({
+    '@type': _propTypes["default"].array.isRequired
   }).isRequired,
-  'itemType': _propTypes.default.string,
-  'schemas': _propTypes.default.object,
-  'elementType': _propTypes.default.string
+  'itemType': _propTypes["default"].string,
+  'schemas': _propTypes["default"].object,
+  'elementType': _propTypes["default"].string
 };
 
 var CopyWrapper = function (_React$PureComponent) {
@@ -576,7 +576,7 @@ var CopyWrapper = function (_React$PureComponent) {
       };
     }
 
-    _this.wrapperRef = _react.default.createRef();
+    _this.wrapperRef = _react["default"].createRef();
     return _this;
   }
 
@@ -588,12 +588,12 @@ var CopyWrapper = function (_React$PureComponent) {
         'mounted': true
       });
 
-      _reactTooltip.default.rebuild();
+      _reactTooltip["default"].rebuild();
     }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
-      _reactTooltip.default.rebuild();
+      _reactTooltip["default"].rebuild();
     }
   }, {
     key: "flashEffect",
@@ -607,7 +607,7 @@ var CopyWrapper = function (_React$PureComponent) {
       if (!flash || !wrapper) return null;
 
       if (typeof wrapperElement === 'function') {
-        wrapper = _reactDom.default.findDOMNode(wrapper);
+        wrapper = _reactDom["default"].findDOMNode(wrapper);
       }
 
       if (!wrapper) return null;
@@ -641,13 +641,13 @@ var CopyWrapper = function (_React$PureComponent) {
       var elemsToWrap = [];
       if (children) elemsToWrap.push(children);
       if (children && isMounted) elemsToWrap.push(' ');
-      if (isMounted && includeIcon) elemsToWrap.push(_react.default.createElement("i", _extends({}, iconProps, {
+      if (isMounted && includeIcon) elemsToWrap.push(_react["default"].createElement("i", _extends({}, iconProps, {
         key: "copy-icon",
         className: "icon icon-fw icon-copy far",
         title: "Copy to clipboard"
       })));
 
-      var wrapperProps = _underscore.default.extend({
+      var wrapperProps = _underscore["default"].extend({
         'ref': this.wrapperRef,
         'style': {
           'transition': 'transform .4s',
@@ -669,14 +669,14 @@ var CopyWrapper = function (_React$PureComponent) {
             });
           });
         }
-      }, _underscore.default.omit.apply(_underscore.default, [this.props, 'children', 'style', 'value', 'onCopy', 'mounted'].concat(_toConsumableArray(_underscore.default.keys(CopyWrapper.defaultProps)))));
+      }, _underscore["default"].omit.apply(_underscore["default"], [this.props, 'children', 'style', 'value', 'onCopy', 'mounted'].concat(_toConsumableArray(_underscore["default"].keys(CopyWrapper.defaultProps)))));
 
-      return _react.default.createElement(wrapperElement, wrapperProps, elemsToWrap);
+      return _react["default"].createElement(wrapperElement, wrapperProps, elemsToWrap);
     }
   }]);
 
   return CopyWrapper;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.CopyWrapper = CopyWrapper;
 CopyWrapper.defaultProps = {
@@ -688,9 +688,9 @@ CopyWrapper.defaultProps = {
   'flashActiveTransform': 'scale3d(1.2, 1.2, 1.2) translate3d(0, 0, 0)',
   'flashInactiveTransform': 'translate3d(0, 0, 0)'
 };
-var saferMD5 = (0, _memoizeOne.default)(function (val) {
+var saferMD5 = (0, _memoizeOne["default"])(function (val) {
   try {
-    return (0, _jsMd.default)(val);
+    return (0, _jsMd["default"])(val);
   } catch (e) {
     _patchedConsole.patchedConsoleInstance.error(e);
 
@@ -706,7 +706,7 @@ var itemUtil = {
     var title = itemUtil.getTitleStringFromContext(props.context || {});
 
     if (!title && props.href) {
-      title = _url.default.parse(props.href).path;
+      title = _url["default"].parse(props.href).path;
     }
 
     return title || null;
@@ -733,7 +733,7 @@ var itemUtil = {
     return true;
   },
   uniq: function uniq(items) {
-    return _underscore.default.uniq(items, false, function (o) {
+    return _underscore["default"].uniq(items, false, function (o) {
       return atIdFromObject(o);
     });
   },
@@ -750,7 +750,7 @@ var itemUtil = {
       var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var props = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       var defaultImg = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'retro';
-      return _react.default.createElement("img", _extends({
+      return _react["default"].createElement("img", _extends({
         title: "Obtained via Gravatar"
       }, props, {
         src: itemUtil.User.buildGravatarURL(email, size, defaultImg),
