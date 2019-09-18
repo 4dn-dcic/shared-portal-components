@@ -55,7 +55,7 @@ function ExternalReferencesSection(_ref3) {
   }
 
   return _react["default"].createElement("div", {
-    className: "col col-xs-12 col-md-6"
+    className: "col col-12 col-md-6"
   }, _react["default"].createElement("h4", {
     className: "text-300"
   }, "External References"), _react["default"].createElement("div", null, _react["default"].createElement("ul", null, _underscore["default"].map(externalReferences, function (extRef, i) {
@@ -75,7 +75,7 @@ function AlternateAccessionSection(_ref4) {
   }
 
   return _react["default"].createElement("div", {
-    className: "col col-xs-12 col-md-6"
+    className: "col col-12 col-md-6"
   }, _react["default"].createElement("h4", {
     className: "text-300"
   }, "Alternate Accessions"), _react["default"].createElement("div", null, _react["default"].createElement("ul", null, _underscore["default"].map(alternateAccessions, function (altAccession, i) {

@@ -330,12 +330,12 @@ class Facet extends React.PureComponent {
     }
 
     render() {
-        const { facet, isTermSelected, extraClassname, termTransformFxn } = this.props;
+        const { facet, isTermSelected, extraClassname, termTransformFxn, separateSingleTermFacets } = this.props;
         const { filtering } = this.state;
         const { description = null, field, title, terms = [] } = facet;
         const showTitle = title || field;
 
-        if (this.isStatic(facet)){
+        if (separateSingleTermFacets && this.isStatic(facet)){
             // Only one term exists.
             return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, isTermSelected, extraClassname, termTransformFxn }} />;
         } else {
@@ -507,7 +507,10 @@ export class FacetList extends React.PureComponent {
     }
 
     renderFacets(maxTermsToShow = 12){
-        const { facets, href, onFilter, schemas, isTermSelected, itemTypeForSchemas, windowWidth, persistentCount, termTransformFxn } = this.props;
+        const {
+            facets, href, onFilter, schemas, isTermSelected,
+            itemTypeForSchemas, windowWidth, persistentCount, termTransformFxn, separateSingleTermFacets
+        } = this.props;
         const { mounted } = this.state;
 
         // Ensure each facets has an `order` property and default it to 0 if not.
@@ -536,7 +539,7 @@ export class FacetList extends React.PureComponent {
         }, { facetIndex : 0, termCount: 0, end : false }).facetIndex;
 
         return _.map(useFacets, (facet, i) =>
-            <Facet {...{ onFilter, facet, href, isTermSelected, schemas, itemTypeForSchemas, mounted, termTransformFxn }}
+            <Facet {...{ onFilter, facet, href, isTermSelected, schemas, itemTypeForSchemas, mounted, termTransformFxn, separateSingleTermFacets }}
                 key={facet.field} defaultFacetOpen={!mounted ? false : !!(
                     _.any(facet.terms, (t) => isTermSelected(t, facet)) ||
                     ( responsiveGridState(windowWidth || null) !== 'xs' && i < (facetIndexWherePastXTerms || 1) )
@@ -545,7 +548,7 @@ export class FacetList extends React.PureComponent {
     }
 
     render() {
-        const { debug, facets, className, title, showClearFiltersButton, onClearFilters, windowHeight } = this.props;
+        const { debug, facets, className, title, showClearFiltersButton, onClearFilters, windowHeight, separateSingleTermFacets } = this.props;
         if (debug) console.log('render facetlist');
 
         if (!facets || !Array.isArray(facets) || facets.length === 0) {
@@ -562,10 +565,20 @@ export class FacetList extends React.PureComponent {
         );
         const maxTermsToShow = typeof windowHeight === 'number' && !isNaN(windowHeight) ? Math.floor(windowHeight / 60) : 12;
         const allFacetElements = this.renderFacets(maxTermsToShow);
-        const staticFacetElements = _.filter(allFacetElements, function(f){
-            return Facet.isStatic(f.props.facet);
-        });
-        const selectableFacetElements = _.difference(allFacetElements, staticFacetElements);
+
+        const staticFacetElements = [];
+        let selectableFacetElements = [];
+        if (separateSingleTermFacets){
+            allFacetElements.forEach(function(renderedFacet){
+                if (Facet.isStatic(renderedFacet.props.facet)){
+                    staticFacetElements.push(renderedFacet);
+                } else {
+                    selectableFacetElements.push(renderedFacet);
+                }
+            });
+        } else {
+            selectableFacetElements = allFacetElements;
+        }
 
         return (
             <div className={"facets-container facets" + (className ? ' ' + className : '')}>
@@ -617,13 +630,15 @@ FacetList.propTypes = {
     'className' : PropTypes.string,     // Extra class
     'href' : PropTypes.string,
     'onFilter' : PropTypes.func,        // What happens when Term is clicked.
-    'context' : PropTypes.object,       // Unused -ish
+    'context' : PropTypes.object,       // Unused -ish,
+    'separateSingleTermFacets' : PropTypes.bool.isRequired
 };
 FacetList.defaultProps = {
     'facets'            : null,
     'title'             : "Properties",
     'debug'             : false,
     'showClearFiltersButton' : false,
+    'separateSingleTermFacets' : false,
 
     /**
      * These 'default' functions don't do anything except show parameters passed.

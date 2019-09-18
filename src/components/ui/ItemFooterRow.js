@@ -39,7 +39,7 @@ function ExternalReferencesSection({ externalReferences }){
         return null;
     }
     return (
-        <div className="col col-xs-12 col-md-6">
+        <div className="col col-12 col-md-6">
             <h4 className="text-300">External References</h4>
             <div>
                 <ul>
@@ -63,7 +63,7 @@ function AlternateAccessionSection({ alternateAccessions }){
         return null;
     }
     return (
-        <div className="col col-xs-12 col-md-6">
+        <div className="col col-12 col-md-6">
             <h4 className="text-300">Alternate Accessions</h4>
             <div>
                 <ul>

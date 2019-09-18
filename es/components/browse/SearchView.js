@@ -422,7 +422,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
         onClearFilters: this.handleClearFilters,
         itemTypeForSchemas: specificType,
         showClearFiltersButton: this.isClearFiltersBtnVisible()
-      }, _underscore["default"].pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn')))) : null, _react["default"].createElement("div", {
+      }, _underscore["default"].pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react["default"].createElement("div", {
         className: tableColumnClassName
       }, _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
         showTotalResults: context.total,
@@ -514,13 +514,15 @@ _defineProperty(SearchView, "propTypes", {
   'navigate': _propTypes["default"].func,
   'facets': _propTypes["default"].array,
   'isFullscreen': _propTypes["default"].bool.isRequired,
-  'toggleFullScreen': _propTypes["default"].func.isRequired
+  'toggleFullScreen': _propTypes["default"].func.isRequired,
+  'separateSingleTermFacets': _propTypes["default"].bool.isRequired
 });
 
 _defineProperty(SearchView, "defaultProps", {
   'href': null,
   'currentAction': null,
-  'columnExtensionMap': _tableCommons.basicColumnExtensionMap
+  'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
+  'separateSingleTermFacets': true
 });
 
 var MultiSelectStickyFooter = _react["default"].memo(function (props) {

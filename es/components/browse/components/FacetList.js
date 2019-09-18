@@ -429,7 +429,8 @@ var Facet = function (_React$PureComponent2) {
           facet = _this$props7.facet,
           isTermSelected = _this$props7.isTermSelected,
           extraClassname = _this$props7.extraClassname,
-          termTransformFxn = _this$props7.termTransformFxn;
+          termTransformFxn = _this$props7.termTransformFxn,
+          separateSingleTermFacets = _this$props7.separateSingleTermFacets;
       var filtering = this.state.filtering;
       var _facet$description = facet.description,
           description = _facet$description === void 0 ? null : _facet$description,
@@ -439,7 +440,7 @@ var Facet = function (_React$PureComponent2) {
           terms = _facet$terms === void 0 ? [] : _facet$terms;
       var showTitle = title || field;
 
-      if (this.isStatic(facet)) {
+      if (separateSingleTermFacets && this.isStatic(facet)) {
         return _react["default"].createElement(StaticSingleTerm, {
           facet: facet,
           term: terms[0],
@@ -628,7 +629,8 @@ var FacetList = function (_React$PureComponent3) {
           itemTypeForSchemas = _this$props9.itemTypeForSchemas,
           windowWidth = _this$props9.windowWidth,
           persistentCount = _this$props9.persistentCount,
-          termTransformFxn = _this$props9.termTransformFxn;
+          termTransformFxn = _this$props9.termTransformFxn,
+          separateSingleTermFacets = _this$props9.separateSingleTermFacets;
       var mounted = this.state.mounted;
 
       var useFacets = _underscore["default"].sortBy(_underscore["default"].map(_underscore["default"].uniq(facets, false, function (f) {
@@ -664,7 +666,8 @@ var FacetList = function (_React$PureComponent3) {
           schemas: schemas,
           itemTypeForSchemas: itemTypeForSchemas,
           mounted: mounted,
-          termTransformFxn: termTransformFxn
+          termTransformFxn: termTransformFxn,
+          separateSingleTermFacets: separateSingleTermFacets
         }, {
           key: facet.field,
           defaultFacetOpen: !mounted ? false : !!(_underscore["default"].any(facet.terms, function (t) {
@@ -683,7 +686,8 @@ var FacetList = function (_React$PureComponent3) {
           title = _this$props10.title,
           showClearFiltersButton = _this$props10.showClearFiltersButton,
           onClearFilters = _this$props10.onClearFilters,
-          windowHeight = _this$props10.windowHeight;
+          windowHeight = _this$props10.windowHeight,
+          separateSingleTermFacets = _this$props10.separateSingleTermFacets;
       if (debug) _patchedConsole.patchedConsoleInstance.log('render facetlist');
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
@@ -698,12 +702,20 @@ var FacetList = function (_React$PureComponent3) {
       var clearButtonClassName = className && className.indexOf('with-header-bg') > -1 ? "btn-outline-white" : "btn-outline-default";
       var maxTermsToShow = typeof windowHeight === 'number' && !isNaN(windowHeight) ? Math.floor(windowHeight / 60) : 12;
       var allFacetElements = this.renderFacets(maxTermsToShow);
+      var staticFacetElements = [];
+      var selectableFacetElements = [];
 
-      var staticFacetElements = _underscore["default"].filter(allFacetElements, function (f) {
-        return Facet.isStatic(f.props.facet);
-      });
-
-      var selectableFacetElements = _underscore["default"].difference(allFacetElements, staticFacetElements);
+      if (separateSingleTermFacets) {
+        allFacetElements.forEach(function (renderedFacet) {
+          if (Facet.isStatic(renderedFacet.props.facet)) {
+            staticFacetElements.push(renderedFacet);
+          } else {
+            selectableFacetElements.push(renderedFacet);
+          }
+        });
+      } else {
+        selectableFacetElements = allFacetElements;
+      }
 
       return _react["default"].createElement("div", {
         className: "facets-container facets" + (className ? ' ' + className : '')
@@ -752,13 +764,15 @@ FacetList.propTypes = {
   'className': _propTypes["default"].string,
   'href': _propTypes["default"].string,
   'onFilter': _propTypes["default"].func,
-  'context': _propTypes["default"].object
+  'context': _propTypes["default"].object,
+  'separateSingleTermFacets': _propTypes["default"].bool.isRequired
 };
 FacetList.defaultProps = {
   'facets': null,
   'title': "Properties",
   'debug': false,
   'showClearFiltersButton': false,
+  'separateSingleTermFacets': false,
   'onFilter': function onFilter(facet, term, callback) {
     _patchedConsole.patchedConsoleInstance.log('FacetList: props.onFilter(' + facet.field + ', ' + term.key + ', callback)');
 

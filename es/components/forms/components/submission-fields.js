@@ -408,7 +408,7 @@ var BuildField = function (_React$PureComponent) {
       return _react["default"].createElement("div", this.commonRowProps(), _react["default"].createElement("div", {
         className: "row"
       }, _react["default"].createElement("div", {
-        className: "col-sm-12 col-md-4"
+        className: "col-12 col-md-4"
       }, _react["default"].createElement("h5", {
         className: "submission-field-title text-ellipsis-container"
       }, this.labelTypeDescriptor(), fieldTip ? _react["default"].createElement(InfoIcon, {
@@ -417,7 +417,7 @@ var BuildField = function (_React$PureComponent) {
         fieldType: fieldType,
         schema: schema
       }, fieldTip) : null, _react["default"].createElement("span", null, title))), _react["default"].createElement("div", {
-        className: "col-sm-12 col-md-8"
+        className: "col-12 col-md-8"
       }, _react["default"].createElement("div", {
         className: "row field-container"
       }, Array.prototype.slice.call(arguments)))));

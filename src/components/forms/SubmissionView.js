@@ -1311,8 +1311,8 @@ export default class SubmissionView extends React.PureComponent{
         const showAliasModal = !showAmbiguousModal && creatingIdx !== null && creatingType !== null;
         const currType = keyTypes[currKey];
         const currContext = keyContext[currKey];
-        const navCol = "mb-4 " + (fullScreen ? 'submission-hidden-nav' : 'col-md-3');
-        const bodyCol = fullScreen ? 'col-sm-12' : 'col-md-9';
+        const navCol = "mb-4 " + (fullScreen ? 'submission-hidden-nav' : 'col-12 col-md-3');
+        const bodyCol = fullScreen ? 'col-12' : 'col-12 col-md-9';
 
         // remove context and navigate from this.props
         const { context, navigate, ...propsToPass } = this.props;
@@ -1963,10 +1963,10 @@ class IndividualObjectView extends React.Component {
             // return a placeholder informing user that this field is for roundTwo
             return(
                 <div key={fieldTitle} className="row field-row" required={false} title={fieldTitle} style={{ 'overflow':'visible' }}>
-                    <div className="col-sm-12 col-md-4">
+                    <div className="col-12 col-md-4">
                         <h5 className="facet-title submission-field-title">{ fieldTitle }</h5>
                     </div>
-                    <div className="col-sm-12 col-md-8">
+                    <div className="col-12 col-md-8">
                         <div className="field-container">
                             <div className="notice-message">This field is available after finishing initial submission.</div>
                         </div>

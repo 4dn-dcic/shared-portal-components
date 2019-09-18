@@ -1116,7 +1116,7 @@ var ItemDetailList = function (_React$PureComponent3) {
         })), _react["default"].createElement("br", null), _react["default"].createElement("div", {
           className: "row"
         }, _react["default"].createElement("div", {
-          className: "col-xs-12 col-sm-6 pull-right"
+          className: "col-12 col-sm-6"
         }, _react["default"].createElement(ToggleJSONButton, {
           onClick: this.handleToggleJSON,
           showingJSON: showingJSON
@@ -1134,7 +1134,7 @@ var ItemDetailList = function (_React$PureComponent3) {
           buttonsRow = _react["default"].createElement("div", {
             className: "row"
           }, _react["default"].createElement("div", {
-            className: "col-xs-12 col-12"
+            className: "col-12"
           }, _react["default"].createElement(SeeMoreRowsButton, {
             onClick: this.handleToggleCollapsed,
             collapsed: collapsed
@@ -1143,12 +1143,12 @@ var ItemDetailList = function (_React$PureComponent3) {
           buttonsRow = _react["default"].createElement("div", {
             className: "row"
           }, _react["default"].createElement("div", {
-            className: "col-xs-6 col-6"
+            className: "col-6"
           }, _react["default"].createElement(SeeMoreRowsButton, {
             onClick: this.handleToggleCollapsed,
             collapsed: collapsed
           })), _react["default"].createElement("div", {
-            className: "col-xs-6 col-6"
+            className: "col-6"
           }, _react["default"].createElement(ToggleJSONButton, {
             onClick: this.handleToggleJSON,
             showingJSON: showingJSON

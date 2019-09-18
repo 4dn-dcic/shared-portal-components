@@ -152,7 +152,7 @@ const ColumnOption = React.memo(function ColumnOption(props){
     }
 
     return (
-        <div className="col-sm-6 col-lg-3 column-option" key={field} data-tip={showDescription} data-html={true}>
+        <div className="col-12 col-sm-6 col-lg-3 column-option" key={field} data-tip={showDescription} data-html={true}>
             <Checkbox checked={isChecked} onChange={(e) => handleOptionVisibilityChange(field,e)}
                 value={field} className={cls}>
                 { title }

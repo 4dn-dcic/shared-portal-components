@@ -1336,8 +1336,8 @@ var SubmissionView = function (_React$PureComponent) {
       var showAmbiguousModal = ambiguousIdx !== null && ambiguousType !== null;
       var currType = keyTypes[currKey];
       var currContext = keyContext[currKey];
-      var navCol = "mb-4 " + (fullScreen ? 'submission-hidden-nav' : 'col-md-3');
-      var bodyCol = fullScreen ? 'col-sm-12' : 'col-md-9';
+      var navCol = "mb-4 " + (fullScreen ? 'submission-hidden-nav' : 'col-12 col-md-3');
+      var bodyCol = fullScreen ? 'col-12' : 'col-12 col-md-9';
 
       var _this$props5 = this.props,
           context = _this$props5.context,
@@ -2109,11 +2109,11 @@ var IndividualObjectView = function (_React$Component2) {
             'overflow': 'visible'
           }
         }, _react["default"].createElement("div", {
-          className: "col-sm-12 col-md-4"
+          className: "col-12 col-md-4"
         }, _react["default"].createElement("h5", {
           className: "facet-title submission-field-title"
         }, fieldTitle)), _react["default"].createElement("div", {
-          className: "col-sm-12 col-md-8"
+          className: "col-12 col-md-8"
         }, _react["default"].createElement("div", {
           className: "field-container"
         }, _react["default"].createElement("div", {

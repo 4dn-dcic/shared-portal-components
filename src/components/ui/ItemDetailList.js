@@ -1007,7 +1007,7 @@ export class ItemDetailList extends React.PureComponent {
                     </div>
                     <br/>
                     <div className="row">
-                        <div className="col-xs-12 col-sm-6 pull-right">
+                        <div className="col-12 col-sm-6">
                             <ToggleJSONButton onClick={this.handleToggleJSON} showingJSON={showingJSON} />
                         </div>
                     </div>
@@ -1024,7 +1024,7 @@ export class ItemDetailList extends React.PureComponent {
             } else if (!showJSONButton){
                 buttonsRow = (
                     <div className="row">
-                        <div className="col-xs-12 col-12">
+                        <div className="col-12">
                             <SeeMoreRowsButton onClick={this.handleToggleCollapsed} collapsed={collapsed}/>
                         </div>
                     </div>
@@ -1032,10 +1032,10 @@ export class ItemDetailList extends React.PureComponent {
             } else {
                 buttonsRow = (
                     <div className="row">
-                        <div className="col-xs-6 col-6">
+                        <div className="col-6">
                             <SeeMoreRowsButton onClick={this.handleToggleCollapsed} collapsed={collapsed}/>
                         </div>
-                        <div className="col-xs-6 col-6">
+                        <div className="col-6">
                             <ToggleJSONButton onClick={this.handleToggleJSON} showingJSON={showingJSON} />
                         </div>
                     </div>

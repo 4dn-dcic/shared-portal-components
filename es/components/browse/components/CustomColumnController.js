@@ -223,7 +223,7 @@ var ColumnOption = _react["default"].memo(function (props) {
   }
 
   return _react["default"].createElement("div", {
-    className: "col-sm-6 col-lg-3 column-option",
+    className: "col-12 col-sm-6 col-lg-3 column-option",
     key: field,
     "data-tip": showDescription,
     "data-html": true

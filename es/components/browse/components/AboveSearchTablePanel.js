@@ -147,7 +147,7 @@ var AboveSearchTablePanelStaticContentPane = function (_React$Component) {
       return _react["default"].createElement("div", {
         className: "row mt-1"
       }, _react["default"].createElement("div", {
-        className: "col-sm-12 col-lg-9 pull-right"
+        className: "col-12 col-lg-9 pull-right"
       }, title, _react["default"].createElement("div", {
         dangerouslySetInnerHTML: {
           __html: this.state.content

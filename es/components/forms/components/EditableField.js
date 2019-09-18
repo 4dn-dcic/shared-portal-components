@@ -550,7 +550,7 @@ var EditableField = function (_React$Component) {
         return _react["default"].createElement("div", {
           className: "row editable-field-entry " + this.props.labelID
         }, _react["default"].createElement("div", {
-          className: "col-md-3 text-right text-left-xs"
+          className: "col col-md-3 text-right text-left-xs"
         }, _react["default"].createElement("label", {
           htmlFor: this.props.labelID
         }, this.props.label)), this.renderSavedValue());
@@ -644,11 +644,11 @@ var EditableField = function (_React$Component) {
         return _react["default"].createElement("div", {
           className: outerBaseClass + labelID + ' row'
         }, _react["default"].createElement("div", {
-          className: "col-md-3 text-right text-left-xs"
+          className: "col col-md-3 text-right text-left-xs"
         }, _react["default"].createElement("label", {
           htmlFor: labelID
         }, label)), _react["default"].createElement("div", {
-          className: "col-md-9 value editing"
+          className: "col col-md-9 value editing"
         }, this.renderActionIcon('cancel'), this.renderActionIcon('save'), this.inputField()));
       }
 

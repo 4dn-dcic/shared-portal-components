@@ -522,7 +522,7 @@ export class EditableField extends React.Component {
         if (this.props.style === 'row'){
             return (
                 <div className={"row editable-field-entry " + this.props.labelID}>
-                    <div className="col-md-3 text-right text-left-xs">
+                    <div className="col col-md-3 text-right text-left-xs">
                         <label htmlFor={ this.props.labelID }>{ this.props.label }</label>
                     </div>
                     { this.renderSavedValue() }
@@ -607,10 +607,10 @@ export class EditableField extends React.Component {
         if (style == 'row') {
             return (
                 <div className={outerBaseClass + labelID + ' row'}>
-                    <div className="col-md-3 text-right text-left-xs">
+                    <div className="col col-md-3 text-right text-left-xs">
                         <label htmlFor={labelID }>{ label }</label>
                     </div>
-                    <div className="col-md-9 value editing">
+                    <div className="col col-md-9 value editing">
                         { this.renderActionIcon('cancel') }
                         { this.renderActionIcon('save') }
                         { this.inputField() }

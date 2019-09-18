@@ -164,6 +164,7 @@ class ControlsAndResults extends React.PureComponent {
         // CURRENT: If we have parent window, post a message to it as well.
         if (window.opener) window.opener.postMessage({ 'eventType': 'fourfrontcancelclick' }, '*');
     }
+
     /**
      * Utility function to post message to parent window
      * @param {Array} selectedItems: array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
@@ -311,7 +312,7 @@ class ControlsAndResults extends React.PureComponent {
                             onClearFilters={this.handleClearFilters} itemTypeForSchemas={specificType}
                             showClearFiltersButton={this.isClearFiltersBtnVisible()}
                             {..._.pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter',
-                                'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn')} />
+                                'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')} />
                     </div>
                     : null }
                 <div className={tableColumnClassName}>
@@ -345,20 +346,21 @@ export class SearchView extends React.PureComponent {
         'navigate'      : PropTypes.func,
         'facets'        : PropTypes.array,
         'isFullscreen'  : PropTypes.bool.isRequired,
-        'toggleFullScreen' : PropTypes.func.isRequired
+        'toggleFullScreen' : PropTypes.func.isRequired,
+        'separateSingleTermFacets' : PropTypes.bool.isRequired
     };
 
     /**
-     * @public
-     * @type {Object}
      * @property {string} href - Current URI.
-     * @property {string} [currentAction=null] - Current action, if any.
+     * @property {!string} [currentAction=null] - Current action, if any.
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
+     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      */
     static defaultProps = {
         'href'          : null,
         'currentAction' : null,
-        'columnExtensionMap' : basicColumnExtensionMap
+        'columnExtensionMap' : basicColumnExtensionMap,
+        'separateSingleTermFacets' : true
     };
 
     componentDidMount(){

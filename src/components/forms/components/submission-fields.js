@@ -255,7 +255,7 @@ export class BuildField extends React.PureComponent {
         return(
             <div {...this.commonRowProps()}>
                 <div className="row">
-                    <div className="col-sm-12 col-md-4">
+                    <div className="col-12 col-md-4">
                         <h5 className="submission-field-title text-ellipsis-container">
                             { this.labelTypeDescriptor() }
                             { fieldTip ?
@@ -264,7 +264,7 @@ export class BuildField extends React.PureComponent {
                             <span>{ title }</span>
                         </h5>
                     </div>
-                    <div className="col-sm-12 col-md-8">
+                    <div className="col-12 col-md-8">
                         <div className="row field-container">
                             { Array.prototype.slice.call(arguments) }
                         </div>
