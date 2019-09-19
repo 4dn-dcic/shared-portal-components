@@ -76,7 +76,7 @@ var SubmissionTree = function (_React$PureComponent) {
 
       return _react["default"].createElement("div", {
         className: "submission-view-navigation-tree"
-      }, _react["default"].createElement("h3", {
+      }, _react["default"].createElement("h4", {
         className: "form-section-heading mb-08"
       }, "Navigation ", _react["default"].createElement(InfoIcon, null, '<h5>This panel is for navigating between objects in the creation process</h5> Click on Item/dependency titles to navigate around and edit each individually. Dependencies must be submitted before their parent can be.')), _react["default"].createElement(SubmissionLeaf, _extends({}, others, {
         keyIdx: 0,

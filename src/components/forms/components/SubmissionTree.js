@@ -33,7 +33,7 @@ export class SubmissionTree extends React.PureComponent {
         const { keyIdx, ...others } = this.props;
         return(
             <div className="submission-view-navigation-tree">
-                <h3 className="form-section-heading mb-08">Navigation <InfoIcon>{infoTip}</InfoIcon></h3>
+                <h4 className="form-section-heading mb-08">Navigation <InfoIcon>{infoTip}</InfoIcon></h4>
                 <SubmissionLeaf {...others} keyIdx={0} open />
             </div>
         );
