@@ -122,7 +122,7 @@ var LinkToSelector = function (_React$PureComponent) {
           windowFeaturesStr += ',width=' + childWindowWidth + ',height=' + childWindowHeight;
           this.windowObjectReference = linkedObjChildWindow = window.open("about:blank", "selection-search", windowFeaturesStr);
           setTimeout(function () {
-            _this3.windowObjectReference.location.assign(searchURL);
+            _this3.windowObjectReference && _this3.windowObjectReference.location.assign(searchURL);
           }, 100);
         }
 

@@ -288,7 +288,7 @@ export class BuildField extends React.PureComponent {
      * @returns {JSX.Element} Appropriate element/markup for this field.
      */
     render(){
-        const { value, isArray, field, fieldType, arrayIdx, isLastItemInArray } = this.props;
+        const { value, isArray, field, fieldType, arrayIdx, isLastItemInArray, fieldBeingSelected, nestedField, fieldBeingSelectedArrayIdx } = this.props;
         const cannot_delete       = ['filename']; // hardcoded fields you can't delete
         let showDelete          = false;
         let disableDelete       = false;
@@ -335,7 +335,7 @@ export class BuildField extends React.PureComponent {
             showDelete = false;
         }
 
-        if (fieldType === 'linked object' && LinkedObj.isInSelectionField(this.props)){
+        if (fieldType === 'linked object' && LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx)){
             extClass += ' in-selection-field';
         }
 
@@ -390,12 +390,25 @@ class LinkedObj extends React.PureComponent {
      * @param {number[]|null} props.fieldBeingSelectedArrayIdx - Array index (if any) of currently selected for linkedTo item selection.
      * @returns {boolean} Whether is currently selected field/item or not.
      */
-    static isInSelectionField(props){
-        if (!props) return false;
-        return props.fieldBeingSelected && props.fieldBeingSelected === props.nestedField && ( // & check if array indices match, if any
-            (props.arrayIdx === null && props.fieldBeingSelectedArrayIdx === null) ||
-            (Array.isArray(props.arrayIdx) && Array.isArray(props.fieldBeingSelectedArrayIdx) && props.fieldBeingSelectedArrayIdx[0] === props.arrayIdx[0])
-        );
+    static isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx){
+        //if (!props) return false;
+        //const { fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = props;
+
+        if (!fieldBeingSelected || fieldBeingSelected !== nestedField){
+            return false;
+        }
+
+        if (arrayIdx === null && fieldBeingSelectedArrayIdx === null){
+            return true;
+        }
+
+        if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)){
+            return _.every(arrayIdx, function(arrIdx, arrIdxIdx){
+                return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
+            });
+        }
+
+        return false;
     }
 
     constructor(props){
@@ -408,7 +421,6 @@ class LinkedObj extends React.PureComponent {
         this.handleTextInputChange = this.handleTextInputChange.bind(this);
         this.handleAcceptTypedID = this.handleAcceptTypedID.bind(this);
         this.childWindowAlert = this.childWindowAlert.bind(this);
-
 
         this.state = {
             'textInputValue' : (typeof props.value === 'string' && props.value) || ''
@@ -444,8 +456,6 @@ class LinkedObj extends React.PureComponent {
         if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
         this.props.setSubmissionState('currKey', intKey);
     }
-
-    isInSelectionField(props = this.props){ return LinkedObj.isInSelectionField(props); }
 
     handleStartSelectItem(e){
         e.preventDefault();
@@ -553,7 +563,7 @@ class LinkedObj extends React.PureComponent {
                         <input onChange={this.handleTextInputChange} className={"form-control" + extClass} inputMode="latin" type="text" placeholder="Drag & drop Item from the search view or type in a valid @ID." value={this.state.textInputValue} onDrop={this.handleDrop} />
                     </div>
                     { canShowAcceptTypedInput ?
-                        <SquareButton show onClick={this.handleAcceptTypedID} icon="check"
+                        <SquareButton show onClick={this.handleAcceptTypedID} icon="check fas"
                             bsStyle="success" tip="Accept typed identifier and look it up in database." />
                         : null }
                     <SquareButton show onClick={selectCancel} tip="Cancel selection" style={{ 'marginRight' : 9 }} />
@@ -578,8 +588,8 @@ class LinkedObj extends React.PureComponent {
     }
 
     render(){
-        const { value, keyDisplay, keyComplete } = this.props;
-        const isSelecting = this.isInSelectionField();
+        const { value, keyDisplay, keyComplete, fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = this.props;
+        const isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
 
         if (isSelecting){
             return this.renderSelectInputField();

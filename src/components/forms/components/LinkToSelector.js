@@ -132,7 +132,7 @@ export class LinkToSelector extends React.PureComponent {
 
                 this.windowObjectReference = linkedObjChildWindow = window.open("about:blank", "selection-search", windowFeaturesStr);
                 setTimeout(()=>{
-                    this.windowObjectReference.location.assign(searchURL);
+                    this.windowObjectReference && this.windowObjectReference.location.assign(searchURL);
                 }, 100);
             }
 

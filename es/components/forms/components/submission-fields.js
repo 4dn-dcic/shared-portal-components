@@ -436,7 +436,10 @@ var BuildField = function (_React$PureComponent) {
           field = _this$props9.field,
           fieldType = _this$props9.fieldType,
           arrayIdx = _this$props9.arrayIdx,
-          isLastItemInArray = _this$props9.isLastItemInArray;
+          isLastItemInArray = _this$props9.isLastItemInArray,
+          fieldBeingSelected = _this$props9.fieldBeingSelected,
+          nestedField = _this$props9.nestedField,
+          fieldBeingSelectedArrayIdx = _this$props9.fieldBeingSelectedArrayIdx;
       var showDelete = false;
       var disableDelete = false;
       var extClass = '';
@@ -470,7 +473,7 @@ var BuildField = function (_React$PureComponent) {
         showDelete = false;
       }
 
-      if (fieldType === 'linked object' && LinkedObj.isInSelectionField(this.props)) {
+      if (fieldType === 'linked object' && LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx)) {
         extClass += ' in-selection-field';
       }
 
@@ -537,9 +540,22 @@ var LinkedObj = function (_React$PureComponent2) {
 
   _createClass(LinkedObj, null, [{
     key: "isInSelectionField",
-    value: function isInSelectionField(props) {
-      if (!props) return false;
-      return props.fieldBeingSelected && props.fieldBeingSelected === props.nestedField && (props.arrayIdx === null && props.fieldBeingSelectedArrayIdx === null || Array.isArray(props.arrayIdx) && Array.isArray(props.fieldBeingSelectedArrayIdx) && props.fieldBeingSelectedArrayIdx[0] === props.arrayIdx[0]);
+    value: function isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx) {
+      if (!fieldBeingSelected || fieldBeingSelected !== nestedField) {
+        return false;
+      }
+
+      if (arrayIdx === null && fieldBeingSelectedArrayIdx === null) {
+        return true;
+      }
+
+      if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
+        return _underscore["default"].every(arrayIdx, function (arrIdx, arrIdxIdx) {
+          return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
+        });
+      }
+
+      return false;
     }
   }]);
 
@@ -600,12 +616,6 @@ var LinkedObj = function (_React$PureComponent2) {
       var intKey = parseInt(this.props.value);
       if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
       this.props.setSubmissionState('currKey', intKey);
-    }
-  }, {
-    key: "isInSelectionField",
-    value: function isInSelectionField() {
-      var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
-      return LinkedObj.isInSelectionField(props);
     }
   }, {
     key: "handleStartSelectItem",
@@ -752,7 +762,7 @@ var LinkedObj = function (_React$PureComponent2) {
       })), canShowAcceptTypedInput ? _react["default"].createElement(SquareButton, {
         show: true,
         onClick: this.handleAcceptTypedID,
-        icon: "check",
+        icon: "check fas",
         bsStyle: "success",
         tip: "Accept typed identifier and look it up in database."
       }) : null, _react["default"].createElement(SquareButton, {
@@ -796,8 +806,12 @@ var LinkedObj = function (_React$PureComponent2) {
       var _this$props15 = this.props,
           value = _this$props15.value,
           keyDisplay = _this$props15.keyDisplay,
-          keyComplete = _this$props15.keyComplete;
-      var isSelecting = this.isInSelectionField();
+          keyComplete = _this$props15.keyComplete,
+          fieldBeingSelected = _this$props15.fieldBeingSelected,
+          nestedField = _this$props15.nestedField,
+          arrayIdx = _this$props15.arrayIdx,
+          fieldBeingSelectedArrayIdx = _this$props15.fieldBeingSelectedArrayIdx;
+      var isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
 
       if (isSelecting) {
         return this.renderSelectInputField();
