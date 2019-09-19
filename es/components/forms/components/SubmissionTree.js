@@ -198,8 +198,8 @@ var SubmissionProperty = function (_React$Component) {
   return SubmissionProperty;
 }(_react["default"].Component);
 
-var SubmissionLeaf = function (_React$Component2) {
-  _inherits(SubmissionLeaf, _React$Component2);
+var SubmissionLeaf = function (_React$PureComponent2) {
+  _inherits(SubmissionLeaf, _React$PureComponent2);
 
   function SubmissionLeaf(props) {
     var _this2;
@@ -287,8 +287,23 @@ var SubmissionLeaf = function (_React$Component2) {
     value: function handleClick(e) {
       var _this$props7 = this.props,
           setSubmissionState = _this$props7.setSubmissionState,
-          keyIdx = _this$props7.keyIdx;
+          keyIdx = _this$props7.keyIdx,
+          keyValid = _this$props7.keyValid,
+          keyComplete = _this$props7.keyComplete;
       e.preventDefault();
+
+      if (isNaN(keyIdx) || keyValid[keyIdx] === 4 && keyComplete[keyIdx]) {
+        var win = window.open(isNaN(keyIdx) ? keyIdx : keyComplete[keyIdx], '_blank');
+
+        if (win) {
+          win.focus();
+        } else {
+          alert('Object page popup blocked!');
+        }
+
+        return;
+      }
+
       setSubmissionState('currKey', keyIdx);
     }
   }, {
@@ -297,10 +312,8 @@ var SubmissionLeaf = function (_React$Component2) {
       var _this$props8 = this.props,
           keyValid = _this$props8.keyValid,
           keyIdx = _this$props8.keyIdx,
-          keyTypes = _this$props8.keyTypes,
           keyDisplay = _this$props8.keyDisplay,
           keyComplete = _this$props8.keyComplete,
-          schemas = _this$props8.schemas,
           hierarchy = _this$props8.hierarchy,
           currKey = _this$props8.currKey,
           depth = _this$props8.depth;
@@ -312,32 +325,20 @@ var SubmissionLeaf = function (_React$Component2) {
         placeholders = _underscore["default"].keys(hierarchy[keyIdx]).map(this.generateChild);
       }
 
+      console.log('TITLE', keyDisplay, keyDisplay[keyIdx], keyIdx);
+      var titleText = keyDisplay[keyIdx] || keyIdx;
       var iconClass;
       var extIcon;
-      var titleText = keyDisplay[keyIdx] || keyIdx;
       var statusClass = null;
       var isCurrentlySelected = false;
       var tip = null;
-      var clickHandler = this.handleClick;
 
       if (isNaN(keyIdx) || keyValid[keyIdx] === 4 && keyComplete[keyIdx]) {
         statusClass = 'existing-item';
-
-        clickHandler = function (e) {
-          e.preventDefault();
-          var win = window.open(isNaN(keyIdx) ? keyIdx : keyComplete[keyIdx], '_blank');
-
-          if (win) {
-            win.focus();
-          } else {
-            alert('Object page popup blocked!');
-          }
-        }.bind(this);
-
         iconClass = "icon-hdd far";
         tip = "Successfully submitted or pre-existing item; already exists in the database.<br>Click to view this item/dependency in new tab/window.";
         extIcon = _react["default"].createElement("i", {
-          className: "icon icon-external-link pull-right fas"
+          className: "icon icon-external-link-alt fas"
         });
       } else {
         switch (keyValid[keyIdx]) {
@@ -361,7 +362,7 @@ var SubmissionLeaf = function (_React$Component2) {
 
           case 3:
             statusClass = 'validated';
-            iconClass = "icon-check";
+            iconClass = "icon-check fas";
             tip = "Validation passed, ready for submission.";
             break;
 
@@ -387,7 +388,7 @@ var SubmissionLeaf = function (_React$Component2) {
         className: "submission-nav-leaf linked-item-title leaf-depth-" + depth + (isCurrentlySelected ? ' active' : '')
       }, _react["default"].createElement("div", {
         className: "clearfix inner-title " + statusClass,
-        onClick: clickHandler,
+        onClick: this.handleClick,
         "data-tip": tip,
         "data-html": true
       }, icon, _react["default"].createElement("span", {
@@ -399,7 +400,7 @@ var SubmissionLeaf = function (_React$Component2) {
   }]);
 
   return SubmissionLeaf;
-}(_react["default"].Component);
+}(_react["default"].PureComponent);
 
 _defineProperty(SubmissionLeaf, "defaultProps", {
   'depth': 0

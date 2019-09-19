@@ -230,9 +230,10 @@ export default class SubmissionView extends React.PureComponent{
     initializePrincipal(){
         const { context, schemas, href, setIsSubmitting } = this.props;
         const { edit, create } = this.state;
-        const initContext = {};
+
+        const keyContext = {};
         const contextID = object.itemUtil.atId(context) || null;
-        var principalTypes = context['@type'];
+        let principalTypes = context['@type'];
         if (principalTypes[0] === 'Search' || principalTypes[0] === 'Browse'){
             // If we're creating from search or browse page, use type from href.
             let typeFromHref = url.parse(href, true).query.type || 'Item';
@@ -241,17 +242,21 @@ export default class SubmissionView extends React.PureComponent{
             }
             if (typeFromHref && typeFromHref !== 'Item') principalTypes = [ typeFromHref ]; // e.g. ['ExperimentSetReplicate']
         }
-        var initType = { 0 : principalTypes[0] };
-        var initValid = { 0 : 1 };
-        var initDisplay = { 0 : SubmissionView.principalTitle(context, edit, create, principalTypes[0]) };
-        var initBookmarks = {};
-        var bookmarksList = [];
-        var schema = schemas[principalTypes[0]];
-        var existingAlias = false;
+
+        const keyTypes = { "0" : principalTypes[0] };
+        const keyValid = { "0" : 1 };
+        const keyDisplay = {
+            ...gatherLinkToTitlesFromContextEmbedded(context),
+            "0" : SubmissionView.principalTitle(context, edit, create, principalTypes[0]),
+        };
+        const keyLinkBookmarks = {};
+        const bookmarksList = [];
+        const schema = schemas[principalTypes[0]];
+        let existingAlias = false;
 
         // Step A : Get labs from User, in order to autogenerate alias.
-        var userInfo = JWT.getUserInfo(); // Should always succeed, else no edit permission..
-        var userHref = null;
+        const userInfo = JWT.getUserInfo(); // Should always succeed, else no edit permission..
+        let userHref = null;
         if (userInfo && Array.isArray(userInfo.user_actions)){
             userHref = _.findWhere(userInfo.user_actions, { 'id' : 'profile' }).href;
         } else {
@@ -263,15 +268,11 @@ export default class SubmissionView extends React.PureComponent{
             // if @id cannot be found or we are creating from scratch, start with empty fields
             if (!contextID || create){
                 // We may not have schema (if Abstract type). If so, leave empty and allow initCreateObj ... -> createObj() to create it.
-                if (schema) initContext[0] = buildContext({}, schema, bookmarksList, edit, create);
-                initBookmarks[0] = bookmarksList;
+                if (schema) keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
+                keyLinkBookmarks["0"] = bookmarksList;
                 this.setState({
-                    'keyContext': initContext,
-                    'keyValid': initValid,
-                    'keyTypes': initType, // Gets updated in submitAmbiguousType
-                    'keyDisplay': initDisplay,
-                    'currKey': 0,
-                    'keyLinkBookmarks': initBookmarks
+                    keyContext, keyValid, keyTypes, // Gets updated in submitAmbiguousType
+                    keyDisplay, keyLinkBookmarks, currKey: 0
                 }, () => {
                     this.initCreateObj(principalTypes[0], 0, 'Primary Object');
                 });
@@ -282,29 +283,29 @@ export default class SubmissionView extends React.PureComponent{
                     const initObjs = []; // Gets modified/added-to in-place by buildContext.
 
                     if (reponseAtID && reponseAtID === contextID){
-                        initContext[0] = buildContext(response, schema, bookmarksList, edit, create, initObjs);
-                        initBookmarks[0] = bookmarksList;
+                        keyContext["0"] = buildContext(response, schema, bookmarksList, edit, create, initObjs);
+                        keyLinkBookmarks["0"] = bookmarksList;
                         if (edit && response.aliases && response.aliases.length > 0){
                             // we already have an alias for editing, so use it for title
                             // setting creatingIdx and creatingType to null prevents alias creation
-                            initDisplay[0] = response.aliases[0];
+                            keyDisplay["0"] = response.aliases[0];
                             existingAlias = true;
                         }
                     } else {
                         // something went wrong with fetching context. Just use an empty object
-                        initContext[0] = buildContext({}, schema, bookmarksList, edit, create);
-                        initBookmarks[0] = bookmarksList;
+                        keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
+                        keyLinkBookmarks["0"] = bookmarksList;
                     }
 
                     this.setState({
-                        'keyContext': initContext,
-                        'keyValid': initValid,
-                        'keyTypes': initType,
-                        'keyDisplay': initDisplay,
-                        'currKey': 0,
-                        'keyLinkBookmarks': initBookmarks
-                    }, ()=>{
-                        _.forEach(initObjs, (initObj, idx) => this.initExistingObj(initObj));
+                        keyContext, keyValid, keyTypes,
+                        keyDisplay, keyLinkBookmarks, currKey: 0
+                    }, () => {
+                        _.forEach(initObjs, (initObj, idx) => {
+                            // We get 'path' as display in buildContext->delveExistingObj.. so override here.
+                            initObj.display = keyDisplay[initObj.path] || initObj.display;
+                            this.initExistingObj(initObj);
+                        });
                         // if we are cloning and there is not an existing alias
                         // never prompt alias creation on edit
                         // do not initiate ambiguous type lookup on edit or create
@@ -705,6 +706,7 @@ export default class SubmissionView extends React.PureComponent{
             const keyTypes = _.clone(prevKeyTypes);
             const keyLinks = _.clone(prevKeyLinks);
             const keyHierarchy = modifyHierarchy(_.clone(prevKeyHierarchy), path, parentKeyIdx);
+
             keyDisplay[path] = display;
             keyTypes[path] = type;
             keyLinks[path] = field;
@@ -1337,10 +1339,8 @@ export default class SubmissionView extends React.PureComponent{
                     {..._.pick(this.state, 'keyContext', 'keyTypes', 'keyDisplay', 'currKey', 'fullScreen')} />
                 <div className="clearfix row">
                     <div className={navCol}>
-                        <SubmissionTree
-                            setSubmissionState={this.setSubmissionState}
-                            hierarchy={keyHierarchy}
-                            schemas={schemas}
+                        <SubmissionTree setSubmissionState={this.setSubmissionState}
+                            hierarchy={keyHierarchy} schemas={schemas}
                             {..._.pick(this.state, 'keyValid', 'keyTypes', 'keyDisplay', 'keyComplete', 'currKey', 'keyLinkBookmarks', 'keyLinks', 'keyHierarchy')}
                         />
                     </div>
@@ -2230,6 +2230,7 @@ function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm){
     }
 }
 
+
 /** Sort a list of BuildFields first by required status, then by schema lookup order, then by title */
 function sortPropFields(fields){
     var reqFields = [];
@@ -2274,6 +2275,32 @@ function sortPropFields(fields){
     optFields.sort(sortSchemaLookupFunc);
 
     return reqFields.concat(optFields);
+}
+
+
+
+
+function gatherLinkToTitlesFromContextEmbedded(context, idsToTitles = {}){
+    if (context['@id'] && context.display_title) {
+        if (typeof idsToTitles[context['@id']] !== 'undefined'){
+            // Seen already
+            return;
+        }
+        idsToTitles[context['@id']] = context.display_title;
+    }
+    _.keys(context).forEach(function(key){
+        const value = context[key];
+        if (Array.isArray(value)){
+            value.forEach(function(arrItem){
+                if (!Array.isArray(arrItem) && arrItem && typeof arrItem === 'object'){
+                    gatherLinkToTitlesFromContextEmbedded(arrItem, idsToTitles);
+                }
+            });
+        } else if (value && typeof value === 'object'){
+            gatherLinkToTitlesFromContextEmbedded(value, idsToTitles);
+        }
+    });
+    return idsToTitles;
 }
 
 

@@ -540,7 +540,7 @@ var LoadMoreAsYouScroll = function (_React$PureComponent3) {
             'transform': _utilities.style.translate3d(tableContainerScrollLeft)
           }
         }, _react["default"].createElement("i", {
-          className: "icon icon-circle-o-notch icon-spin"
+          className: "icon icon-circle-notch icon-spin fas"
         }), "\xA0 Loading..."),
         infiniteLoadBeginEdgeOffset: canLoad ? 200 : undefined,
         preloadAdditionalHeight: _reactInfinite["default"].containerHeightScaleFactor(1.5),

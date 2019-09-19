@@ -107,7 +107,7 @@ Generate an entry in SubmissionTree that corresponds to an object. When clicked
 on, either change the currKey to that object's key if a custom object, or
 open that object's page in a new tab if a pre-existing or submitted object.
 */
-class SubmissionLeaf extends React.Component{
+class SubmissionLeaf extends React.PureComponent {
 
     static defaultProps = {
         'depth' : 0
@@ -166,15 +166,29 @@ class SubmissionLeaf extends React.Component{
         return _.map(fieldsWithLinkTosToShow, (field) => <SubmissionProperty {...this.props} field={field} key={field} /> );
     }
 
-    /** Change the currKey of submissionView to that of props.keyIdx */
+    /** Open a new tab on click or change the currKey of submissionView to that of props.keyIdx */
     handleClick(e){
-        const { setSubmissionState, keyIdx } = this.props;
+        const { setSubmissionState, keyIdx, keyValid, keyComplete } = this.props;
         e.preventDefault();
+
+        // if key is not a number (i.e. path), the object is not a custom one.
+        // format the leaf as the following if pre-existing obj or submitted
+        // custom object.
+        if (isNaN(keyIdx) || (keyValid[keyIdx] === 4 && keyComplete[keyIdx])){
+            const win = window.open(isNaN(keyIdx) ? keyIdx : keyComplete[keyIdx], '_blank');
+            if (win){
+                win.focus();
+            } else {
+                alert('Object page popup blocked!');
+            }
+            return;
+        }
+
         setSubmissionState('currKey', keyIdx);
     }
 
     render() {
-        const { keyValid, keyIdx, keyTypes, keyDisplay, keyComplete, schemas, hierarchy, currKey, depth } = this.props;
+        const { keyValid, keyIdx, keyDisplay, keyComplete, hierarchy, currKey, depth } = this.props;
 
         let placeholders;
         if (!isNaN(keyIdx)) {
@@ -184,37 +198,25 @@ class SubmissionLeaf extends React.Component{
             placeholders = _.keys(hierarchy[keyIdx]).map(this.generateChild);
         }
 
-        let iconClass;
-        var extIcon;
-        var titleText = keyDisplay[keyIdx] || keyIdx;
-        var statusClass = null;
-        var isCurrentlySelected = false;
-        var tip = null;
+        console.log('TITLE', keyDisplay, keyDisplay[keyIdx], keyIdx);
 
-        var clickHandler = this.handleClick;
+        const titleText = keyDisplay[keyIdx] || keyIdx;
+        let iconClass;
+        let extIcon;
+        let statusClass = null;
+        let isCurrentlySelected = false;
+        let tip = null;
 
         // if key is not a number (i.e. path), the object is not a custom one.
         // format the leaf as the following if pre-existing obj or submitted
         // custom object.
         if (isNaN(keyIdx) || (keyValid[keyIdx] === 4 && keyComplete[keyIdx])){
-
             statusClass = 'existing-item';
-            /** Open a new tab on click */
-            clickHandler = function(e){
-                e.preventDefault();
-                var win = window.open(isNaN(keyIdx) ? keyIdx : keyComplete[keyIdx], '_blank');
-                if(win){
-                    win.focus();
-                }else{
-                    alert('Object page popup blocked!');
-                }
-            }.bind(this);
-
             iconClass = "icon-hdd far";
             tip = "Successfully submitted or pre-existing item; already exists in the database.<br>Click to view this item/dependency in new tab/window.";
-            extIcon = <i className="icon icon-external-link pull-right fas" />;
+            extIcon = <i className="icon icon-external-link-alt fas" />;
 
-        }else{
+        } else {
             switch (keyValid[keyIdx]){
                 case 0:
                     statusClass = 'not-complete';
@@ -233,7 +235,7 @@ class SubmissionLeaf extends React.Component{
                     break;
                 case 3:
                     statusClass = 'validated';
-                    iconClass = "icon-check";
+                    iconClass = "icon-check fas";
                     tip = "Validation passed, ready for submission.";
                     break;
                 default:
@@ -249,9 +251,9 @@ class SubmissionLeaf extends React.Component{
             extIcon = <i className="icon icon-pencil pull-right fas" data-tip="Item which you are currently editing." />;
         }
 
-        return(
+        return (
             <div className={"submission-nav-leaf linked-item-title leaf-depth-" + (depth) + (isCurrentlySelected ? ' active' : '')}>
-                <div className={"clearfix inner-title " + statusClass} onClick={clickHandler} data-tip={tip} data-html>
+                <div className={"clearfix inner-title " + statusClass} onClick={this.handleClick} data-tip={tip} data-html>
                     { icon }
                     <span className="title-text">{titleText}</span>
                     { extIcon }

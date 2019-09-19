@@ -523,6 +523,10 @@
 			}
 			> i.icon:last-child {
 				padding-right: 7px;
+				&.icon-external-link-alt {
+					color: #999;
+					font-size: 0.7rem;
+				}
 			}
 			> .title-text {
 				flex-grow: 1;
@@ -571,18 +575,17 @@
 
 				> span.title-text {
 					display: inline-block;
-					padding: 3px 7px;
+					padding: 3px 3px 3px 7px;
 				}
 			}
 			
 			> .list-of-properties {
 				padding-left: 15px;
 				border-left: 1px dotted transparent;
-				border-right: 1px dotted transparent;
 				border-bottom: 1px dotted transparent;
-				//margin-bottom: 5px;
 				padding-top: 2px;
-				padding-bottom: 2px;
+				padding-bottom: 5px;
+
 				> .submission-nav-leaf.linked-item-type-name {
 					> .inner-title { // Item Type
 						opacity: 0.5;
@@ -651,7 +654,6 @@
 			&.leaf-depth-0 {
 				> .inner-title {
 					margin-left: 0;
-					padding-top: 1px;
 				}
 			}
 		}

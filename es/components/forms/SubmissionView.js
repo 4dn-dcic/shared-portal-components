@@ -44,6 +44,10 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
+function _objectSpread2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -221,7 +225,7 @@ var SubmissionView = function (_React$PureComponent) {
       var _this$state = this.state,
           edit = _this$state.edit,
           create = _this$state.create;
-      var initContext = {};
+      var keyContext = {};
       var contextID = _util.object.itemUtil.atId(context) || null;
       var principalTypes = context['@type'];
 
@@ -239,16 +243,18 @@ var SubmissionView = function (_React$PureComponent) {
         if (typeFromHref && typeFromHref !== 'Item') principalTypes = [typeFromHref];
       }
 
-      var initType = {
-        0: principalTypes[0]
+      var keyTypes = {
+        "0": principalTypes[0]
       };
-      var initValid = {
-        0: 1
+      var keyValid = {
+        "0": 1
       };
-      var initDisplay = {
-        0: SubmissionView.principalTitle(context, edit, create, principalTypes[0])
-      };
-      var initBookmarks = {};
+
+      var keyDisplay = _objectSpread2({}, gatherLinkToTitlesFromContextEmbedded(context), {
+        "0": SubmissionView.principalTitle(context, edit, create, principalTypes[0])
+      });
+
+      var keyLinkBookmarks = {};
       var bookmarksList = [];
       var schema = schemas[principalTypes[0]];
       var existingAlias = false;
@@ -267,16 +273,16 @@ var SubmissionView = function (_React$PureComponent) {
 
       var continueInitProcess = function () {
         if (!contextID || create) {
-          if (schema) initContext[0] = buildContext({}, schema, bookmarksList, edit, create);
-          initBookmarks[0] = bookmarksList;
+          if (schema) keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
+          keyLinkBookmarks["0"] = bookmarksList;
 
           _this2.setState({
-            'keyContext': initContext,
-            'keyValid': initValid,
-            'keyTypes': initType,
-            'keyDisplay': initDisplay,
-            'currKey': 0,
-            'keyLinkBookmarks': initBookmarks
+            keyContext: keyContext,
+            keyValid: keyValid,
+            keyTypes: keyTypes,
+            keyDisplay: keyDisplay,
+            keyLinkBookmarks: keyLinkBookmarks,
+            currKey: 0
           }, function () {
             _this2.initCreateObj(principalTypes[0], 0, 'Primary Object');
           });
@@ -287,28 +293,30 @@ var SubmissionView = function (_React$PureComponent) {
             var initObjs = [];
 
             if (reponseAtID && reponseAtID === contextID) {
-              initContext[0] = buildContext(response, schema, bookmarksList, edit, create, initObjs);
-              initBookmarks[0] = bookmarksList;
+              keyContext["0"] = buildContext(response, schema, bookmarksList, edit, create, initObjs);
+              keyLinkBookmarks["0"] = bookmarksList;
 
               if (edit && response.aliases && response.aliases.length > 0) {
-                initDisplay[0] = response.aliases[0];
+                keyDisplay["0"] = response.aliases[0];
                 existingAlias = true;
               }
             } else {
-              initContext[0] = buildContext({}, schema, bookmarksList, edit, create);
-              initBookmarks[0] = bookmarksList;
+              keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
+              keyLinkBookmarks["0"] = bookmarksList;
             }
 
             _this2.setState({
-              'keyContext': initContext,
-              'keyValid': initValid,
-              'keyTypes': initType,
-              'keyDisplay': initDisplay,
-              'currKey': 0,
-              'keyLinkBookmarks': initBookmarks
+              keyContext: keyContext,
+              keyValid: keyValid,
+              keyTypes: keyTypes,
+              keyDisplay: keyDisplay,
+              keyLinkBookmarks: keyLinkBookmarks,
+              currKey: 0
             }, function () {
               _underscore["default"].forEach(initObjs, function (initObj) {
-                return _this2.initExistingObj(initObj);
+                initObj.display = keyDisplay[initObj.path] || initObj.display;
+
+                _this2.initExistingObj(initObj);
               });
 
               if (!edit && !existingAlias) {
@@ -2435,6 +2443,34 @@ function sortPropFields(fields) {
   reqFields.sort(sortSchemaLookupFunc);
   optFields.sort(sortSchemaLookupFunc);
   return reqFields.concat(optFields);
+}
+
+function gatherLinkToTitlesFromContextEmbedded(context) {
+  var idsToTitles = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  if (context['@id'] && context.display_title) {
+    if (typeof idsToTitles[context['@id']] !== 'undefined') {
+      return;
+    }
+
+    idsToTitles[context['@id']] = context.display_title;
+  }
+
+  _underscore["default"].keys(context).forEach(function (key) {
+    var value = context[key];
+
+    if (Array.isArray(value)) {
+      value.forEach(function (arrItem) {
+        if (!Array.isArray(arrItem) && arrItem && _typeof(arrItem) === 'object') {
+          gatherLinkToTitlesFromContextEmbedded(arrItem, idsToTitles);
+        }
+      });
+    } else if (value && _typeof(value) === 'object') {
+      gatherLinkToTitlesFromContextEmbedded(value, idsToTitles);
+    }
+  });
+
+  return idsToTitles;
 }
 
 var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {

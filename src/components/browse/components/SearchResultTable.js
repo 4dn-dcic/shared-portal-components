@@ -414,7 +414,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                         'maxWidth' : tableContainerWidth,
                         'transform' : style.translate3d(tableContainerScrollLeft)
                     }}>
-                        <i className="icon icon-circle-o-notch icon-spin" />&nbsp; Loading...
+                        <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
                     </div>
                 )}
                 infiniteLoadBeginEdgeOffset={canLoad ? 200 : undefined}

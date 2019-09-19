@@ -407,6 +407,8 @@ class LinkedObj extends React.PureComponent {
         this.handleCreateNewItemClick = this.handleCreateNewItemClick.bind(this);
         this.handleTextInputChange = this.handleTextInputChange.bind(this);
         this.handleAcceptTypedID = this.handleAcceptTypedID.bind(this);
+        this.childWindowAlert = this.childWindowAlert.bind(this);
+
 
         this.state = {
             'textInputValue' : (typeof props.value === 'string' && props.value) || ''
@@ -467,14 +469,13 @@ class LinkedObj extends React.PureComponent {
         }
         //currenly we support single item selection
         //TODO: implement multi selection functionality
-        const atId = items[0].id;
-        const itemContext = items[0].json;
+        const [ { id: atId, json: itemContext } ] = items;
         if (items.length > 1) {
             console.warn('Multiple documents selected but we only get a single item, since handler\'s multiple version not implemented yet!');
         }
 
-        const isValidAtId     = object.isValidAtIDFormat(atId);
-        const invalidTitle    = "Invalid Item Selected";
+        const isValidAtId = object.isValidAtIDFormat(atId);
+        const invalidTitle = "Invalid Item Selected";
 
         if (!atId || !isValidAtId) {
             Alerts.queue({
@@ -509,31 +510,33 @@ class LinkedObj extends React.PureComponent {
         this.setState({ 'textInputValue' : evt.target.value });
     }
 
+    childWindowAlert(){
+        const { schema, nestedField } = this.props;
+        const itemType = schema && schema.linkTo;
+        const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
+        return {
+            'title' : 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
+            'message' : (
+                <div>
+                    <p className="mb-0">
+                        Please either <b>drag and drop</b> an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button.
+                    </p>
+                    <p className="mb-0">You may also browse around and drag & drop a link into the submissions window as well.</p>
+                </div>
+            ),
+            'style' : 'info'
+        };
+    }
+
     renderSelectInputField(){
-        var { value, selectCancel, selectComplete, schema, currType, nestedField } = this.props,
-            textInputValue              = this.state.textInputValue,
-            canShowAcceptTypedInput     = typeof textInputValue === 'string' && textInputValue.length > 3,
-            extClass                    = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '',
-            itemType                    = schema.linkTo,
-            prettyTitle                 = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title),
-            dropMessage                 = "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'",
-            searchURL                   = '/search/?currentAction=selection&type=' + itemType,
-            childWindowAlert            = function(){
-                // We have this inside a function instead of passing JSX element(s) because
-                // as JSX elements they might gain non-serializable properties when being passed down thru props.
-                return {
-                    'title' : 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
-                    'message' : (
-                        <div>
-                            <p className="mb-0">
-                                Please either <b>drag and drop</b> an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button.
-                            </p>
-                            <p className="mb-0">You may also browse around and drag & drop a link into the submissions window as well.</p>
-                        </div>
-                    ),
-                    'style' : 'info'
-                };
-            };
+        const { value, selectCancel, selectComplete, schema, currType, nestedField } = this.props;
+        const { textInputValue } = this.state;
+        const canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
+        const extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
+        const itemType = schema.linkTo;
+        const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
+        const dropMessage = "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'";
+        let searchURL = '/search/?currentAction=selection&type=' + itemType;
 
         // check if we have any schema flags that will affect the searchUrl
         if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
@@ -556,7 +559,7 @@ class LinkedObj extends React.PureComponent {
                     <SquareButton show onClick={selectCancel} tip="Cancel selection" style={{ 'marginRight' : 9 }} />
                 </div>
                 <LinkToSelector isSelecting onSelect={this.handleFinishSelectItem} onCloseChildWindow={selectCancel}
-                    childWindowAlert={childWindowAlert} dropMessage={dropMessage} searchURL={searchURL} />
+                    childWindowAlert={this.childWindowAlert} dropMessage={dropMessage} searchURL={searchURL} />
             </React.Fragment>
         );
     }
@@ -591,7 +594,7 @@ class LinkedObj extends React.PureComponent {
                     <div className="submitted-linked-object-display-container text-ellipsis-container">
                         <i className="icon icon-fw icon-database fas mr-05" />
                         <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip}>{ thisDisplay }</a>
-                        <i className="icon icon-fw icon-external-link ml-05 fas text-smaller"/>
+                        <i className="icon icon-fw icon-external-link-alt ml-05 fas text-smaller align-text-bottom"/>
                     </div>
                 );
             } else {
@@ -604,7 +607,7 @@ class LinkedObj extends React.PureComponent {
                     return(
                         <div>
                             <a href={keyComplete[intKey]} target="_blank" rel="noopener noreferrer">{ thisDisplay }</a>
-                            <i className="icon icon-fw icon-external-link ml-05 fas"/>
+                            <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
                         </div>
                     );
                 } else {
@@ -623,6 +626,7 @@ class LinkedObj extends React.PureComponent {
         }
     }
 }
+
 
 
 const PreviewField = React.memo(function PreviewField(props){
@@ -972,13 +976,14 @@ class S3FileInput extends React.Component{
         };
     }
 
-    /** TODO: refactor to componentDIdUpdate or getDerivedStateFromProps */
-    componentWillReceiveProps(nextProps){
-        if(this.props.upload === null && nextProps.upload !== null){
-            this.handleAsyncUpload(nextProps.upload);
+    componentDidUpdate(pastProps){
+        const { upload, uploadStatus } = this.props; // todo: rename upload to uploadManager?
+        const { upload: pastUpload, uploadStatus: pastUploadStatus } = pastProps;
+        if (upload !== null && pastUpload === null){
+            this.handleAsyncUpload(upload);
         }
-        if(this.props.uploadStatus !== nextProps.uploadStatus){
-            this.setState({ 'status': nextProps.uploadStatus });
+        if (uploadStatus !== pastUploadStatus){
+            this.setState({ 'status': uploadStatus });
         }
     }
 
@@ -1042,25 +1047,25 @@ class S3FileInput extends React.Component{
      * in this.props.upload. Call this.props.updateUpload on failure or completion.
      */
     handleAsyncUpload(upload_manager){
-        if(upload_manager === null){
+        if (upload_manager === null){
             return;
         }
         upload_manager.on('httpUploadProgress',
-            function(evt) {
-                var percentage = Math.round((evt.loaded * 100) / evt.total);
+            (evt) => {
+                const percentage = Math.round((evt.loaded * 100) / evt.total);
                 this.modifyRunningUploads(percentage, evt.total);
-            }.bind(this))
-            .send(function(err, data) {
-                if(err){
+            })
+            .send((err, data) => {
+                if (err){
                     this.modifyRunningUploads(null, null);
                     this.props.updateUpload(null, false, true);
                     alert("File upload failed!");
-                }else{
+                } else {
                     this.modifyRunningUploads(null, null);
                     // this will finish roundTwo for the file
                     this.props.updateUpload(null, true);
                 }
-            }.bind(this));
+            });
     }
 
     /*
@@ -1089,7 +1094,7 @@ class S3FileInput extends React.Component{
 
     render(){
         const { value, md5Progress, upload, field } = this.props;
-        const { status, newFile, percentDone, sizeUploaded } = this.state;
+        const { newFile, percentDone, sizeUploaded, status } = this.state;
         let statusTip = status;
         let showDelete = false;
         let filename_text = "No file chosen";

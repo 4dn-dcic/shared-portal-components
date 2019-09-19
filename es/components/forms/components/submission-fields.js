@@ -556,6 +556,7 @@ var LinkedObj = function (_React$PureComponent2) {
     _this3.handleCreateNewItemClick = _this3.handleCreateNewItemClick.bind(_assertThisInitialized(_this3));
     _this3.handleTextInputChange = _this3.handleTextInputChange.bind(_assertThisInitialized(_this3));
     _this3.handleAcceptTypedID = _this3.handleAcceptTypedID.bind(_assertThisInitialized(_this3));
+    _this3.childWindowAlert = _this3.childWindowAlert.bind(_assertThisInitialized(_this3));
     _this3.state = {
       'textInputValue': typeof props.value === 'string' && props.value || ''
     };
@@ -633,8 +634,10 @@ var LinkedObj = function (_React$PureComponent2) {
         return;
       }
 
-      var atId = items[0].id;
-      items[0].json;
+      var _items = _slicedToArray(items, 1),
+          _items$ = _items[0],
+          atId = _items$.id,
+          itemContext = _items$.json;
 
       if (items.length > 1) {
         _util.console.warn('Multiple documents selected but we only get a single item, since handler\'s multiple version not implemented yet!');
@@ -694,21 +697,39 @@ var LinkedObj = function (_React$PureComponent2) {
       });
     }
   }, {
+    key: "childWindowAlert",
+    value: function childWindowAlert() {
+      var _this$props13 = this.props,
+          schema = _this$props13.schema,
+          nestedField = _this$props13.nestedField;
+      var itemType = schema && schema.linkTo;
+      var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
+      return {
+        'title': 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
+        'message': _react["default"].createElement("div", null, _react["default"].createElement("p", {
+          className: "mb-0"
+        }, "Please either ", _react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button."), _react["default"].createElement("p", {
+          className: "mb-0"
+        }, "You may also browse around and drag & drop a link into the submissions window as well.")),
+        'style': 'info'
+      };
+    }
+  }, {
     key: "renderSelectInputField",
     value: function renderSelectInputField() {
-      var _this$props13 = this.props,
-          value = _this$props13.value,
-          selectCancel = _this$props13.selectCancel,
-          selectComplete = _this$props13.selectComplete,
-          schema = _this$props13.schema,
-          currType = _this$props13.currType,
-          nestedField = _this$props13.nestedField,
-          textInputValue = this.state.textInputValue,
-          canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3,
-          extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '',
-          itemType = schema.linkTo,
-          prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title),
-          searchURL = '/search/?currentAction=selection&type=' + itemType;
+      var _this$props14 = this.props,
+          value = _this$props14.value,
+          selectCancel = _this$props14.selectCancel,
+          selectComplete = _this$props14.selectComplete,
+          schema = _this$props14.schema,
+          currType = _this$props14.currType,
+          nestedField = _this$props14.nestedField;
+      var textInputValue = this.state.textInputValue;
+      var canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
+      var extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
+      var itemType = schema.linkTo;
+      var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
+      var searchURL = '/search/?currentAction=selection&type=' + itemType;
 
       if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
         if (schema.ff_flag == "filter:valid_item_types") {
@@ -745,17 +766,7 @@ var LinkedObj = function (_React$PureComponent2) {
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
         onCloseChildWindow: selectCancel,
-        childWindowAlert: function childWindowAlert() {
-          return {
-            'title': 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
-            'message': _react["default"].createElement("div", null, _react["default"].createElement("p", {
-              className: "mb-0"
-            }, "Please either ", _react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button."), _react["default"].createElement("p", {
-              className: "mb-0"
-            }, "You may also browse around and drag & drop a link into the submissions window as well.")),
-            'style': 'info'
-          };
-        },
+        childWindowAlert: this.childWindowAlert,
         dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
         searchURL: searchURL
       }));
@@ -782,10 +793,10 @@ var LinkedObj = function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props14 = this.props,
-          value = _this$props14.value,
-          keyDisplay = _this$props14.keyDisplay,
-          keyComplete = _this$props14.keyComplete;
+      var _this$props15 = this.props,
+          value = _this$props15.value,
+          keyDisplay = _this$props15.keyDisplay,
+          keyComplete = _this$props15.keyComplete;
       var isSelecting = this.isInSelectionField();
 
       if (isSelecting) {
@@ -806,7 +817,7 @@ var LinkedObj = function (_React$PureComponent2) {
             rel: "noopener noreferrer",
             "data-tip": "This Item, '" + thisDisplay + "' is already in the database"
           }, thisDisplay), _react["default"].createElement("i", {
-            className: "icon icon-fw icon-external-link ml-05 fas text-smaller"
+            className: "icon icon-fw icon-external-link-alt ml-05 fas text-smaller align-text-bottom"
           }));
         } else {
           var intKey = parseInt(value);
@@ -817,7 +828,7 @@ var LinkedObj = function (_React$PureComponent2) {
               target: "_blank",
               rel: "noopener noreferrer"
             }, thisDisplay), _react["default"].createElement("i", {
-              className: "icon icon-fw icon-external-link ml-05 fas"
+              className: "icon icon-fw icon-external-link-alt ml-05 fas"
             }));
           } else {
             return _react["default"].createElement("div", {
@@ -929,10 +940,10 @@ var ArrayField = function (_React$Component) {
   _createClass(ArrayField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props15 = this.props,
-          value = _this$props15.value,
-          field = _this$props15.field,
-          pushArrayValue = _this$props15.pushArrayValue;
+      var _this$props16 = this.props,
+          value = _this$props16.value,
+          field = _this$props16.field,
+          pushArrayValue = _this$props16.pushArrayValue;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -941,14 +952,14 @@ var ArrayField = function (_React$Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
-      var _this$props16 = this.props,
-          value = _this$props16.value,
-          field = _this$props16.field,
-          pushArrayValue = _this$props16.pushArrayValue,
-          modifyNewContext = _this$props16.modifyNewContext,
-          nestedField = _this$props16.nestedField,
-          schema = _this$props16.schema,
-          linkType = _this$props16.linkType;
+      var _this$props17 = this.props,
+          value = _this$props17.value,
+          field = _this$props17.field,
+          pushArrayValue = _this$props17.pushArrayValue,
+          modifyNewContext = _this$props17.modifyNewContext,
+          nestedField = _this$props17.nestedField,
+          schema = _this$props17.schema,
+          linkType = _this$props17.linkType;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -963,9 +974,9 @@ var ArrayField = function (_React$Component) {
   }, {
     key: "initiateArrayField",
     value: function initiateArrayField(arrayInfo, index, allItems) {
-      var _this$props17 = this.props,
-          propArrayIdx = _this$props17.arrayIdx,
-          schema = _this$props17.schema;
+      var _this$props18 = this.props,
+          propArrayIdx = _this$props18.arrayIdx,
+          schema = _this$props18.schema;
 
       var _arrayInfo = _slicedToArray(arrayInfo, 3),
           inArrValue = _arrayInfo[0],
@@ -1018,10 +1029,10 @@ var ArrayField = function (_React$Component) {
   }, {
     key: "generateAddButton",
     value: function generateAddButton() {
-      var _this$props18 = this.props,
-          _this$props18$value = _this$props18.value,
-          values = _this$props18$value === void 0 ? [] : _this$props18$value,
-          pushArrayValue = _this$props18.pushArrayValue;
+      var _this$props19 = this.props,
+          _this$props19$value = _this$props19.value,
+          values = _this$props19$value === void 0 ? [] : _this$props19$value,
+          pushArrayValue = _this$props19.pushArrayValue;
       return _react["default"].createElement("div", {
         className: "add-array-item-button-container"
       }, _react["default"].createElement("button", {
@@ -1035,9 +1046,9 @@ var ArrayField = function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props19 = this.props,
-          propSchema = _this$props19.schema,
-          propValue = _this$props19.value;
+      var _this$props20 = this.props,
+          propSchema = _this$props20.schema,
+          propValue = _this$props20.value;
       var schema = propSchema.items || {};
       var values = propValue || [];
 
@@ -1103,12 +1114,12 @@ var ObjectField = function (_React$PureComponent3) {
   _createClass(ObjectField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props20 = this.props,
-          value = _this$props20.value,
-          modifyNewContext = _this$props20.modifyNewContext,
-          nestedField = _this$props20.nestedField,
-          linkType = _this$props20.linkType,
-          arrayIdx = _this$props20.arrayIdx;
+      var _this$props21 = this.props,
+          value = _this$props21.value,
+          modifyNewContext = _this$props21.modifyNewContext,
+          nestedField = _this$props21.nestedField,
+          linkType = _this$props21.linkType,
+          arrayIdx = _this$props21.arrayIdx;
       modifyNewContext(nestedField, value || {}, 'object', linkType, arrayIdx);
     }
   }, {
@@ -1125,10 +1136,10 @@ var ObjectField = function (_React$PureComponent3) {
     value: function render() {
       var _this6 = this;
 
-      var _this$props21 = this.props,
-          objectSchema = _this$props21.schema,
-          parentObject = _this$props21.value,
-          propNestedField = _this$props21.nestedField;
+      var _this$props22 = this.props,
+          objectSchema = _this$props22.schema,
+          parentObject = _this$props22.value,
+          propNestedField = _this$props22.nestedField;
       var allFieldsInSchema = objectSchema['properties'] ? _underscore["default"].keys(objectSchema['properties']) : [];
 
       var fieldsToBuild = _underscore["default"].filter(_underscore["default"].map(allFieldsInSchema, function (f) {
@@ -1255,9 +1266,9 @@ var AttachmentInput = function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props22 = this.props,
-          value = _this$props22.value,
-          field = _this$props22.field;
+      var _this$props23 = this.props,
+          value = _this$props23.value,
+          field = _this$props23.field;
       var attach_title;
 
       if (value && value.download) {
@@ -1317,15 +1328,21 @@ var S3FileInput = function (_React$Component3) {
   }
 
   _createClass(S3FileInput, [{
-    key: "componentWillReceiveProps",
-    value: function componentWillReceiveProps(nextProps) {
-      if (this.props.upload === null && nextProps.upload !== null) {
-        this.handleAsyncUpload(nextProps.upload);
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(pastProps) {
+      var _this$props24 = this.props,
+          upload = _this$props24.upload,
+          uploadStatus = _this$props24.uploadStatus;
+      var pastUpload = pastProps.upload,
+          pastUploadStatus = pastProps.uploadStatus;
+
+      if (upload !== null && pastUpload === null) {
+        this.handleAsyncUpload(upload);
       }
 
-      if (this.props.uploadStatus !== nextProps.uploadStatus) {
+      if (uploadStatus !== pastUploadStatus) {
         this.setState({
-          'status': nextProps.uploadStatus
+          'status': uploadStatus
         });
       }
     }
@@ -1351,12 +1368,12 @@ var S3FileInput = function (_React$Component3) {
     value: function handleChange(e) {
       var _this9 = this;
 
-      var _this$props23 = this.props,
-          modifyNewContext = _this$props23.modifyNewContext,
-          nestedField = _this$props23.nestedField,
-          linkType = _this$props23.linkType,
-          arrayIdx = _this$props23.arrayIdx,
-          currContext = _this$props23.currContext;
+      var _this$props25 = this.props,
+          modifyNewContext = _this$props25.modifyNewContext,
+          nestedField = _this$props25.nestedField,
+          linkType = _this$props25.linkType,
+          arrayIdx = _this$props25.arrayIdx,
+          currContext = _this$props25.currContext;
       var file = e.target.files[0];
       if (!file) return;
       var filename = file.name ? file.name : "unknown";
@@ -1394,23 +1411,29 @@ var S3FileInput = function (_React$Component3) {
   }, {
     key: "handleAsyncUpload",
     value: function handleAsyncUpload(upload_manager) {
+      var _this10 = this;
+
       if (upload_manager === null) {
         return;
       }
 
       upload_manager.on('httpUploadProgress', function (evt) {
         var percentage = Math.round(evt.loaded * 100 / evt.total);
-        this.modifyRunningUploads(percentage, evt.total);
-      }.bind(this)).send(function (err) {
+
+        _this10.modifyRunningUploads(percentage, evt.total);
+      }).send(function (err) {
         if (err) {
-          this.modifyRunningUploads(null, null);
-          this.props.updateUpload(null, false, true);
+          _this10.modifyRunningUploads(null, null);
+
+          _this10.props.updateUpload(null, false, true);
+
           alert("File upload failed!");
         } else {
-          this.modifyRunningUploads(null, null);
-          this.props.updateUpload(null, true);
+          _this10.modifyRunningUploads(null, null);
+
+          _this10.props.updateUpload(null, true);
         }
-      }.bind(this));
+      });
     }
   }, {
     key: "modifyRunningUploads",
@@ -1441,16 +1464,16 @@ var S3FileInput = function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props24 = this.props,
-          value = _this$props24.value,
-          md5Progress = _this$props24.md5Progress,
-          upload = _this$props24.upload,
-          field = _this$props24.field;
+      var _this$props26 = this.props,
+          value = _this$props26.value,
+          md5Progress = _this$props26.md5Progress,
+          upload = _this$props26.upload,
+          field = _this$props26.field;
       var _this$state = this.state,
-          status = _this$state.status,
           newFile = _this$state.newFile,
           percentDone = _this$state.percentDone,
-          sizeUploaded = _this$state.sizeUploaded;
+          sizeUploaded = _this$state.sizeUploaded,
+          status = _this$state.status;
       var statusTip = status;
       var showDelete = false;
       var filename_text = "No file chosen";
@@ -1595,15 +1618,15 @@ var AliasInputField = function (_React$Component4) {
   }]);
 
   function AliasInputField(props) {
-    var _this10;
+    var _this11;
 
     _classCallCheck(this, AliasInputField);
 
-    _this10 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputField).call(this, props));
+    _this11 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputField).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
+    _underscore["default"].bindAll(_assertThisInitialized(_this11), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
 
-    return _this10;
+    return _this11;
   }
 
   _createClass(AliasInputField, [{
@@ -1655,11 +1678,11 @@ var AliasInputField = function (_React$Component4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props25 = this.props,
-          currentSubmittingUser = _this$props25.currentSubmittingUser,
-          errorMessage = _this$props25.errorMessage,
-          withinModal = _this$props25.withinModal,
-          value = _this$props25.value;
+      var _this$props27 = this.props,
+          currentSubmittingUser = _this$props27.currentSubmittingUser,
+          errorMessage = _this$props27.errorMessage,
+          withinModal = _this$props27.withinModal,
+          value = _this$props27.value;
       var parts = AliasInputField.splitInTwo(value);
       var submits_for_list = currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for || null;
       var initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
@@ -1765,9 +1788,9 @@ var InfoIcon = function (_React$PureComponent4) {
   _createClass(InfoIcon, [{
     key: "fieldTypeDescriptor",
     value: function fieldTypeDescriptor() {
-      var _this$props26 = this.props,
-          fieldType = _this$props26.fieldType,
-          schema = _this$props26.schema;
+      var _this$props28 = this.props,
+          fieldType = _this$props28.fieldType,
+          schema = _this$props28.schema;
       if (typeof fieldType !== 'string' || fieldType.length === 0) return null;
 
       var type = _util.valueTransforms.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
@@ -1781,11 +1804,11 @@ var InfoIcon = function (_React$PureComponent4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props27 = this.props,
-          children = _this$props27.children,
-          title = _this$props27.title,
-          fieldType = _this$props27.fieldType,
-          className = _this$props27.className;
+      var _this$props29 = this.props,
+          children = _this$props29.children,
+          title = _this$props29.title,
+          fieldType = _this$props29.fieldType,
+          className = _this$props29.className;
       if (!children || typeof children !== 'string') return null;
       var tip = children;
 
