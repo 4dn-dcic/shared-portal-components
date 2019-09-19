@@ -156,7 +156,8 @@ var SubmissionView = function (_React$PureComponent) {
       'uploadStatus': null,
       'currentSubmittingUser': null,
       'edit': props.currentAction === 'edit',
-      'create': props.currentAction === 'create' || props.currentAction === 'add'
+      'create': props.currentAction === 'create' || props.currentAction === 'add',
+      'callbackHref': null
     };
     return _this;
   }
@@ -227,10 +228,13 @@ var SubmissionView = function (_React$PureComponent) {
           create = _this$state.create;
       var keyContext = {};
       var contextID = _util.object.itemUtil.atId(context) || null;
+
+      var parsedHref = _url["default"].parse(href, true);
+
       var principalTypes = context['@type'];
 
       if (principalTypes[0] === 'Search' || principalTypes[0] === 'Browse') {
-        var typeFromHref = _url["default"].parse(href, true).query.type || 'Item';
+        var typeFromHref = parsedHref.query && parsedHref.query.type || 'Item';
 
         if (Array.isArray(typeFromHref)) {
           var _$without = _underscore["default"].without(typeFromHref, 'Item');
@@ -240,9 +244,12 @@ var SubmissionView = function (_React$PureComponent) {
           typeFromHref = _$without2[0];
         }
 
-        if (typeFromHref && typeFromHref !== 'Item') principalTypes = [typeFromHref];
+        if (typeFromHref && typeFromHref !== 'Item') {
+          principalTypes = [typeFromHref];
+        }
       }
 
+      var callbackHref = create ? null : parsedHref.query && typeof parsedHref.query.callbackHref === 'string' && parsedHref.query.callbackHref || contextID;
       var keyTypes = {
         "0": principalTypes[0]
       };
@@ -282,7 +289,8 @@ var SubmissionView = function (_React$PureComponent) {
             keyTypes: keyTypes,
             keyDisplay: keyDisplay,
             keyLinkBookmarks: keyLinkBookmarks,
-            currKey: 0
+            currKey: 0,
+            callbackHref: callbackHref
           }, function () {
             _this2.initCreateObj(principalTypes[0], 0, 'Primary Object');
           });
@@ -311,7 +319,8 @@ var SubmissionView = function (_React$PureComponent) {
               keyTypes: keyTypes,
               keyDisplay: keyDisplay,
               keyLinkBookmarks: keyLinkBookmarks,
-              currKey: 0
+              currKey: 0,
+              callbackHref: callbackHref
             }, function () {
               _underscore["default"].forEach(initObjs, function (initObj) {
                 initObj.display = keyDisplay[initObj.path] || initObj.display;
@@ -963,7 +972,7 @@ var SubmissionView = function (_React$PureComponent) {
           context = _this$props3.context,
           schemas = _this$props3.schemas,
           setIsSubmitting = _this$props3.setIsSubmitting,
-          navigate = _this$props3.navigate;
+          propNavigate = _this$props3.navigate;
       var _this$state5 = this.state,
           keyValid = _this$state5.keyValid,
           keyTypes = _this$state5.keyTypes,
@@ -977,7 +986,8 @@ var SubmissionView = function (_React$PureComponent) {
           file = _this$state5.file,
           keyHierarchy = _this$state5.keyHierarchy,
           keyLinks = _this$state5.keyLinks,
-          roundTwoKeys = _this$state5.roundTwoKeys;
+          roundTwoKeys = _this$state5.roundTwoKeys,
+          callbackHref = _this$state5.callbackHref;
       var stateToSet = {};
       var currType = keyTypes[inKey];
       var currSchema = schemas[currType];
@@ -1177,7 +1187,7 @@ var SubmissionView = function (_React$PureComponent) {
               if (inKey === 0) {
                 if (roundTwoCopy.length === 0) {
                   setIsSubmitting(false, function () {
-                    navigate(submitted_at_id);
+                    propNavigate(callbackHref || submitted_at_id);
                   });
                 } else {
                   stateToSet.roundTwo = true;
@@ -1217,50 +1227,66 @@ var SubmissionView = function (_React$PureComponent) {
     value: function finishRoundTwo() {
       var _this7 = this;
 
-      var stateToSet = {};
-      var currKey = this.state.currKey;
-      var validationCopy = this.state.keyValid;
-      var roundTwoCopy = this.state.roundTwoKeys.slice();
-      validationCopy[currKey] = 4;
+      this.setState(function (_ref6) {
+        var currKey = _ref6.currKey,
+            keyValid = _ref6.keyValid,
+            _ref6$roundTwoKeys = _ref6.roundTwoKeys,
+            roundTwoKeys = _ref6$roundTwoKeys === void 0 ? [] : _ref6$roundTwoKeys;
 
-      if (_underscore["default"].contains(roundTwoCopy, currKey)) {
-        var rmIdx = roundTwoCopy.indexOf(currKey);
+        var validationCopy = _underscore["default"].clone(keyValid);
 
-        if (rmIdx > -1) {
-          roundTwoCopy.splice(rmIdx, 1);
+        var roundTwoCopy = roundTwoKeys.slice();
+        validationCopy[currKey] = 4;
+
+        if (_underscore["default"].contains(roundTwoCopy, currKey)) {
+          var rmIdx = roundTwoCopy.indexOf(currKey);
+
+          if (rmIdx > -1) {
+            roundTwoCopy.splice(rmIdx, 1);
+          }
         }
-      }
 
-      if (roundTwoCopy.length > 0) stateToSet.currKey = roundTwoCopy[0];
-      stateToSet.uploadStatus = null;
-      stateToSet.keyValid = validationCopy;
-      stateToSet.roundTwoKeys = roundTwoCopy;
-      this.setState(stateToSet);
+        return {
+          currKey: roundTwoCopy.length > 0 ? roundTwoCopy[0] : currKey,
+          uploadStatus: null,
+          keyValid: validationCopy,
+          roundTwoKeys: roundTwoCopy
+        };
+      }, function () {
+        var _this7$props = _this7.props,
+            setIsSubmitting = _this7$props.setIsSubmitting,
+            propNavigate = _this7$props.navigate;
+        var _this7$state = _this7.state,
+            keyComplete = _this7$state.keyComplete,
+            _this7$state$roundTwo = _this7$state.roundTwoKeys,
+            roundTwoKeys = _this7$state$roundTwo === void 0 ? [] : _this7$state$roundTwo,
+            callbackHref = _this7$state.callbackHref;
 
-      if (roundTwoCopy.length == 0) {
-        this.props.setIsSubmitting(false, function () {
-          _this7.props.navigate(_this7.state.keyComplete[0]);
-        });
-      }
+        if (roundTwoKeys.length === 0) {
+          setIsSubmitting(false, function () {
+            propNavigate(callbackHref || keyComplete[0]);
+          });
+        }
+      });
     }
   }, {
     key: "cancelCreateNewObject",
     value: function cancelCreateNewObject() {
-      this.setState(function (_ref6) {
-        var creatingIdx = _ref6.creatingIdx,
-            keyContext = _ref6.keyContext,
-            currKey = _ref6.currKey,
-            creatingLinkForField = _ref6.creatingLinkForField;
+      this.setState(function (_ref7) {
+        var creatingIdx = _ref7.creatingIdx,
+            keyContext = _ref7.keyContext,
+            currKey = _ref7.currKey,
+            creatingLinkForField = _ref7.creatingLinkForField;
         if (!creatingIdx) return null;
 
         var nextKeyContext = _underscore["default"].clone(keyContext);
 
         var currentContextPointer = nextKeyContext[currKey];
 
-        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref7) {
-          var _ref8 = _slicedToArray(_ref7, 2),
-              field = _ref8[0],
-              idx = _ref8[1];
+        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref8) {
+          var _ref9 = _slicedToArray(_ref8, 2),
+              field = _ref9[0],
+              idx = _ref9[1];
 
           if (field === (typeof creatingLinkForField === 'string' && creatingLinkForField)) {
             if (idx === creatingIdx) {
@@ -1294,23 +1320,32 @@ var SubmissionView = function (_React$PureComponent) {
     key: "cancelCreatePrimaryObject",
     value: function cancelCreatePrimaryObject() {
       var skipAskToLeave = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var callbackHref = this.state.callbackHref;
       var _this$props4 = this.props,
           href = _this$props4.href,
           navigate = _this$props4.navigate,
           setIsSubmitting = _this$props4.setIsSubmitting;
 
       var leaveFunc = function () {
-        var parts = _url["default"].parse(href, true),
-            modifiedQuery = _underscore["default"].omit(parts.query, 'currentAction'),
-            modifiedSearch = _queryString["default"].stringify(modifiedQuery),
-            nextURI;
+        var nextURI;
+        var navOpts = {};
 
-        parts.query = modifiedQuery;
-        parts.search = (modifiedSearch.length > 0 ? '?' : '') + modifiedSearch;
-        nextURI = _url["default"].format(parts);
-        navigate(nextURI, {
-          skipRequest: true
-        });
+        if (callbackHref) {
+          nextURI = callbackHref;
+        } else {
+          var parts = _url["default"].parse(href, true);
+
+          var modifiedQuery = _underscore["default"].omit(parts.query, 'currentAction');
+
+          var modifiedSearch = _queryString["default"].stringify(modifiedQuery);
+
+          parts.query = modifiedQuery;
+          parts.search = (modifiedSearch.length > 0 ? '?' : '') + modifiedSearch;
+          nextURI = _url["default"].format(parts);
+          navOpts.skipRequest = true;
+        }
+
+        navigate(nextURI, navOpts);
       };
 
       if (skipAskToLeave === true) {
@@ -1639,8 +1674,8 @@ var DetailTitleBanner = function (_React$PureComponent2) {
     key: "toggleOpen",
     value: function toggleOpen(e) {
       e.preventDefault();
-      this.setState(function (_ref9) {
-        var open = _ref9.open;
+      this.setState(function (_ref10) {
+        var open = _ref10.open;
         return {
           'open': !open
         };
@@ -2259,8 +2294,8 @@ var RoundTwoDetailPanel = function (_React$PureComponent3) {
     key: "handleToggle",
     value: function handleToggle(e) {
       e.preventDefault();
-      this.setState(function (_ref10) {
-        var open = _ref10.open;
+      this.setState(function (_ref11) {
+        var open = _ref11.open;
         return {
           'open': !open
         };

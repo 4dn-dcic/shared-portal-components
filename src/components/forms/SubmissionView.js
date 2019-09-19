@@ -162,7 +162,8 @@ export default class SubmissionView extends React.PureComponent{
             'uploadStatus'          : null,
             'currentSubmittingUser' : null,
             'edit'                  : props.currentAction === 'edit',
-            'create'                : (props.currentAction === 'create' || props.currentAction === 'add')
+            'create'                : (props.currentAction === 'create' || props.currentAction === 'add'),
+            'callbackHref'          : null   // Where we navigate to after submission
         };
     }
 
@@ -233,15 +234,25 @@ export default class SubmissionView extends React.PureComponent{
 
         const keyContext = {};
         const contextID = object.itemUtil.atId(context) || null;
+        const parsedHref = url.parse(href, true);
         let principalTypes = context['@type'];
         if (principalTypes[0] === 'Search' || principalTypes[0] === 'Browse'){
             // If we're creating from search or browse page, use type from href.
-            let typeFromHref = url.parse(href, true).query.type || 'Item';
+            let typeFromHref = (parsedHref.query && parsedHref.query.type) || 'Item';
             if (Array.isArray(typeFromHref)) {
                 [ typeFromHref ] = _.without(typeFromHref, 'Item');
             }
-            if (typeFromHref && typeFromHref !== 'Item') principalTypes = [ typeFromHref ]; // e.g. ['ExperimentSetReplicate']
+            if (typeFromHref && typeFromHref !== 'Item'){
+                principalTypes = [ typeFromHref ]; // e.g. ['ExperimentSetReplicate']
+            }
         }
+
+        // Where we navigate to after submission.
+        const callbackHref = create ? null : (
+            parsedHref.query &&
+            typeof parsedHref.query.callbackHref === 'string' &&
+            parsedHref.query.callbackHref
+        ) || contextID;
 
         const keyTypes = { "0" : principalTypes[0] };
         const keyValid = { "0" : 1 };
@@ -272,7 +283,8 @@ export default class SubmissionView extends React.PureComponent{
                 keyLinkBookmarks["0"] = bookmarksList;
                 this.setState({
                     keyContext, keyValid, keyTypes, // Gets updated in submitAmbiguousType
-                    keyDisplay, keyLinkBookmarks, currKey: 0
+                    keyDisplay, keyLinkBookmarks, currKey: 0,
+                    callbackHref
                 }, () => {
                     this.initCreateObj(principalTypes[0], 0, 'Primary Object');
                 });
@@ -299,7 +311,8 @@ export default class SubmissionView extends React.PureComponent{
 
                     this.setState({
                         keyContext, keyValid, keyTypes,
-                        keyDisplay, keyLinkBookmarks, currKey: 0
+                        keyDisplay, keyLinkBookmarks, currKey: 0,
+                        callbackHref
                     }, () => {
                         _.forEach(initObjs, (initObj, idx) => {
                             // We get 'path' as display in buildContext->delveExistingObj.. so override here.
@@ -955,9 +968,9 @@ export default class SubmissionView extends React.PureComponent{
     submitObject(inKey, test=false, suppressWarnings=false){
         // function to test a POST of the data or actually POST it.
         // validates if test=true, POSTs if test=false.
-        const { context, schemas, setIsSubmitting, navigate } = this.props;
+        const { context, schemas, setIsSubmitting, navigate: propNavigate } = this.props;
         const { keyValid, keyTypes, errorCount, currentSubmittingUser, edit, roundTwo, keyComplete,
-            keyContext, keyDisplay, file, keyHierarchy, keyLinks, roundTwoKeys } = this.state;
+            keyContext, keyDisplay, file, keyHierarchy, keyLinks, roundTwoKeys, callbackHref } = this.state;
         const stateToSet = {}; // hold next state
         const currType = keyTypes[inKey];
         const currSchema = schemas[currType];
@@ -1165,8 +1178,8 @@ export default class SubmissionView extends React.PureComponent{
                             // see if we need to go into round two submission
                             if (roundTwoCopy.length === 0){
                                 // we're done!
-                                setIsSubmitting(false, ()=>{
-                                    navigate(submitted_at_id);
+                                setIsSubmitting(false, () => {
+                                    propNavigate(callbackHref || submitted_at_id);
                                 });
                             } else {
                                 // break this out into another fxn?
@@ -1209,31 +1222,33 @@ export default class SubmissionView extends React.PureComponent{
      * principal object we created.
      */
     finishRoundTwo(){
-        var stateToSet = {};
-        var currKey = this.state.currKey;
-        var validationCopy = this.state.keyValid;
-        var roundTwoCopy = this.state.roundTwoKeys.slice();
-        validationCopy[currKey] = 4;
-        if(_.contains(roundTwoCopy, currKey)){
-            var rmIdx = roundTwoCopy.indexOf(currKey);
-            if(rmIdx > -1){
-                roundTwoCopy.splice(rmIdx,1);
+        this.setState(function({ currKey, keyValid, roundTwoKeys = [] }){
+            const validationCopy = _.clone(keyValid);
+            const roundTwoCopy = roundTwoKeys.slice();
+            validationCopy[currKey] = 4;
+            if ( _.contains(roundTwoCopy, currKey)){
+                const rmIdx = roundTwoCopy.indexOf(currKey);
+                if (rmIdx > -1){
+                    roundTwoCopy.splice(rmIdx, 1);
+                }
             }
-        }
-        // navigate to next key in roundTwoKeys
-        if(roundTwoCopy.length > 0) stateToSet.currKey = roundTwoCopy[0];
-        stateToSet.uploadStatus = null;
-        stateToSet.keyValid = validationCopy;
-        stateToSet.roundTwoKeys = roundTwoCopy;
-        this.setState(stateToSet);
-        if(roundTwoCopy.length == 0){
-            // we're done!
-            //alert('Success! Navigating to your new object.');
-            this.props.setIsSubmitting(false, ()=>{
-                this.props.navigate(this.state.keyComplete[0]);
-            });
-
-        }
+            return {
+                // navigate to next key in roundTwoKeys
+                currKey: roundTwoCopy.length > 0 ? roundTwoCopy[0] : currKey,
+                uploadStatus: null,
+                keyValid: validationCopy,
+                roundTwoKeys: roundTwoCopy
+            };
+        }, ()=>{
+            const { setIsSubmitting, navigate: propNavigate } = this.props;
+            const { keyComplete, roundTwoKeys = [], callbackHref } = this.state;
+            if (roundTwoKeys.length === 0){
+                // we're done!
+                setIsSubmitting(false, ()=>{
+                    propNavigate(callbackHref || keyComplete[0]);
+                });
+            }
+        });
     }
 
     cancelCreateNewObject(){
@@ -1273,19 +1288,25 @@ export default class SubmissionView extends React.PureComponent{
 
     /** Navigate to version of same page we're on, minus the `currentAction` URI parameter. */
     cancelCreatePrimaryObject(skipAskToLeave = false){
+        const { callbackHref } = this.state;
         const { href, navigate, setIsSubmitting } = this.props;
-        var leaveFunc = () =>{
-            // Navigate out.
-            var parts = url.parse(href, true),
-                modifiedQuery = _.omit(parts.query, 'currentAction'),
-                modifiedSearch = queryString.stringify(modifiedQuery),
-                nextURI;
+        const leaveFunc = () => { // Navigate out.
+            let nextURI;
+            const navOpts = {};
+            if (callbackHref) {
+                nextURI = callbackHref;
+            } else {
+                const parts = url.parse(href, true);
+                const modifiedQuery = _.omit(parts.query, 'currentAction');
+                const modifiedSearch = queryString.stringify(modifiedQuery);
 
-            parts.query = modifiedQuery;
-            parts.search = (modifiedSearch.length > 0 ? '?' : '') + modifiedSearch;
-            nextURI = url.format(parts);
+                parts.query = modifiedQuery;
+                parts.search = (modifiedSearch.length > 0 ? '?' : '') + modifiedSearch;
+                nextURI = url.format(parts);
+                navOpts.skipRequest = true;
+            }
 
-            navigate(nextURI, { skipRequest : true });
+            navigate(nextURI, navOpts);
         };
 
         if (skipAskToLeave === true){
