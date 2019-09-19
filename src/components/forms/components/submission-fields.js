@@ -587,14 +587,17 @@ class LinkedObj extends React.PureComponent {
 
         // object chosen or being created
         if (value){
-            const thisDisplay = keyDisplay[value] || value;
+            const thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)"
+                : "<code>" + value + "</code>";
             if (isNaN(value)) {
-                const tip = "This Item, '" + thisDisplay + "' is already in the database";
+                const tip = thisDisplay + " is already in the database";
                 return(
                     <div className="submitted-linked-object-display-container text-ellipsis-container">
-                        <i className="icon icon-fw icon-database fas mr-05" />
-                        <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip}>{ thisDisplay }</a>
-                        <i className="icon icon-fw icon-external-link-alt ml-05 fas text-smaller align-text-bottom"/>
+                        <i className="icon icon-fw icon-hdd far mr-05" />
+                        <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip} data-html>
+                            { keyDisplay[value] || value }
+                        </a>
+                        <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
                     </div>
                 );
             } else {

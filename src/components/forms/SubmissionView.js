@@ -2288,8 +2288,7 @@ function gatherLinkToTitlesFromContextEmbedded(context, idsToTitles = {}){
         }
         idsToTitles[context['@id']] = context.display_title;
     }
-    _.keys(context).forEach(function(key){
-        const value = context[key];
+    _.values(context).forEach(function(value){
         if (Array.isArray(value)){
             value.forEach(function(arrItem){
                 if (!Array.isArray(arrItem) && arrItem && typeof arrItem === 'object'){

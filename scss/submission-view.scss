@@ -273,6 +273,13 @@
 				.notice-message {
 					padding-top: 8px;
 					padding-bottom: 8px;
+
+					i.icon-external-link-alt {
+						color: #999;
+						font-size: 0.7rem;
+						vertical-align: text-top;
+					}
+
 				}
 
 				.notice-message {
@@ -503,6 +510,7 @@
 
 		.submission-nav-leaf {
 			width: 100%;
+			padding-bottom: 2px;
 			> div > button {
 				border: none;
 				border-radius: 0px;
@@ -580,7 +588,7 @@
 			}
 			
 			> .list-of-properties {
-				padding-left: 15px;
+				padding-left: 0px;
 				border-left: 1px dotted transparent;
 				border-bottom: 1px dotted transparent;
 				padding-top: 2px;
@@ -592,8 +600,10 @@
 						font-size: 0.8em;
 						min-height: 20px;
 						.property-expand-icon {
-							padding-right: 7px;
+							padding: 0px;
 							font-size: 0.625rem;
+							width: 30px;
+							text-align: center;
 						}
 					}
 					&.is-required,
@@ -610,14 +620,9 @@
 						//}
 					}
 					> .children-container {
-						padding-left: 18px;
+						padding-left: 30px;
 						padding-bottom: 4px;
 						padding-top: 2px;
-						//......
-						> .submission-nav-leaf.linked-item-title {
-							margin: 1px 0;
-						}
-						//.....
 					}
 				}
 			}

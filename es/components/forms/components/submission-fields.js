@@ -804,20 +804,21 @@ var LinkedObj = function (_React$PureComponent2) {
       }
 
       if (value) {
-        var thisDisplay = keyDisplay[value] || value;
+        var thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)" : "<code>" + value + "</code>";
 
         if (isNaN(value)) {
           return _react["default"].createElement("div", {
             className: "submitted-linked-object-display-container text-ellipsis-container"
           }, _react["default"].createElement("i", {
-            className: "icon icon-fw icon-database fas mr-05"
+            className: "icon icon-fw icon-hdd far mr-05"
           }), _react["default"].createElement("a", {
             href: value,
             target: "_blank",
             rel: "noopener noreferrer",
-            "data-tip": "This Item, '" + thisDisplay + "' is already in the database"
-          }, thisDisplay), _react["default"].createElement("i", {
-            className: "icon icon-fw icon-external-link-alt ml-05 fas text-smaller align-text-bottom"
+            "data-tip": thisDisplay + " is already in the database",
+            "data-html": true
+          }, keyDisplay[value] || value), _react["default"].createElement("i", {
+            className: "icon icon-fw icon-external-link-alt ml-05 fas"
           }));
         } else {
           var intKey = parseInt(value);
