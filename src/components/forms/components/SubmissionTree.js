@@ -198,8 +198,6 @@ class SubmissionLeaf extends React.PureComponent {
             placeholders = _.keys(hierarchy[keyIdx]).map(this.generateChild);
         }
 
-        console.log('TITLE', keyDisplay, keyDisplay[keyIdx], keyIdx);
-
         const titleText = keyDisplay[keyIdx] || keyIdx;
         let iconClass;
         let extIcon;

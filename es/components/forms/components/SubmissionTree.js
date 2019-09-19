@@ -325,7 +325,6 @@ var SubmissionLeaf = function (_React$PureComponent2) {
         placeholders = _underscore["default"].keys(hierarchy[keyIdx]).map(this.generateChild);
       }
 
-      console.log('TITLE', keyDisplay, keyDisplay[keyIdx], keyIdx);
       var titleText = keyDisplay[keyIdx] || keyIdx;
       var iconClass;
       var extIcon;
