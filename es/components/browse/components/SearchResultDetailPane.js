@@ -15,7 +15,7 @@ var _ItemDetailList = require("./../../ui/ItemDetailList");
 
 var _FlexibleDescriptionBox = require("./../../ui/FlexibleDescriptionBox");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -49,12 +49,12 @@ var SearchResultDetailPane = function (_React$PureComponent) {
   _createClass(SearchResultDetailPane, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip["default"].rebuild();
+      _reactTooltip.default.rebuild();
     }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      if (this.props.open && !pastProps.open) _reactTooltip["default"].rebuild();
+      if (this.props.open && !pastProps.open) _reactTooltip.default.rebuild();
     }
   }, {
     key: "render",
@@ -63,25 +63,25 @@ var SearchResultDetailPane = function (_React$PureComponent) {
           result = _this$props.result,
           popLink = _this$props.popLink,
           schemas = _this$props.schemas;
-      return _react["default"].createElement("div", null, !result.description ? null : _react["default"].createElement("div", {
+      return _react.default.createElement("div", null, !result.description ? null : _react.default.createElement("div", {
         className: "flex-description-container"
-      }, _react["default"].createElement("h5", null, _react["default"].createElement("i", {
+      }, _react.default.createElement("h5", null, _react.default.createElement("i", {
         className: "icon icon-fw icon-align-left fas"
-      }), "\xA0 Description"), _react["default"].createElement(_FlexibleDescriptionBox.FlexibleDescriptionBox, {
+      }), "\xA0 Description"), _react.default.createElement(_FlexibleDescriptionBox.FlexibleDescriptionBox, {
         description: result.description,
         fitTo: "self",
         textClassName: "text-normal",
         collapsedHeight: "auto",
         linesOfText: 2
-      }), _react["default"].createElement("hr", {
+      }), _react.default.createElement("hr", {
         className: "desc-separator"
-      })), _react["default"].createElement("div", {
+      })), _react.default.createElement("div", {
         className: "item-page-detail"
-      }, _react["default"].createElement("h5", {
+      }, _react.default.createElement("h5", {
         className: "text-500"
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-fw icon-list fas"
-      }), "\xA0 Details"), _react["default"].createElement(_ItemDetailList.Detail, {
+      }), "\xA0 Details"), _react.default.createElement(_ItemDetailList.Detail, {
         context: result,
         open: false,
         popLink: popLink,
@@ -91,16 +91,16 @@ var SearchResultDetailPane = function (_React$PureComponent) {
   }]);
 
   return SearchResultDetailPane;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.SearchResultDetailPane = SearchResultDetailPane;
 
 _defineProperty(SearchResultDetailPane, "propTypes", {
-  'result': _propTypes["default"].shape({
-    '@id': _propTypes["default"].string,
-    'display_title': _propTypes["default"].string,
-    'description': _propTypes["default"].string
+  'result': _propTypes.default.shape({
+    '@id': _propTypes.default.string,
+    'display_title': _propTypes.default.string,
+    'description': _propTypes.default.string
   }),
-  'popLink': _propTypes["default"].bool,
-  'schemas': _propTypes["default"].object
+  'popLink': _propTypes.default.bool,
+  'schemas': _propTypes.default.object
 });

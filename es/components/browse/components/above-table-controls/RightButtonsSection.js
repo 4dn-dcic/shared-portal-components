@@ -13,7 +13,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _SearchResultTable = require("./../SearchResultTable");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -33,18 +33,18 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var RightButtonsSection = _react["default"].memo(function (props) {
+var RightButtonsSection = _react.default.memo(function (props) {
   var currentOpenPanel = props.currentOpenPanel,
       onColumnsBtnClick = props.onColumnsBtnClick,
       windowWidth = props.windowWidth,
       isFullscreen = props.isFullscreen,
       toggleFullScreen = props.toggleFullScreen;
-  return _react["default"].createElement("div", {
+  return _react.default.createElement("div", {
     className: "right-buttons"
-  }, _react["default"].createElement(ConfigureVisibleColumnsButton, {
+  }, _react.default.createElement(ConfigureVisibleColumnsButton, {
     onClick: onColumnsBtnClick,
     open: currentOpenPanel === "customColumns"
-  }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ? _react["default"].createElement(ToggleLayoutButton, {
+  }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ? _react.default.createElement(ToggleLayoutButton, {
     windowWidth: windowWidth,
     isFullscreen: isFullscreen,
     toggleFullScreen: toggleFullScreen
@@ -53,11 +53,11 @@ var RightButtonsSection = _react["default"].memo(function (props) {
 
 exports.RightButtonsSection = RightButtonsSection;
 
-var ConfigureVisibleColumnsButton = _react["default"].memo(function (_ref) {
+var ConfigureVisibleColumnsButton = _react.default.memo(function (_ref) {
   var open = _ref.open,
       onClick = _ref.onClick,
       className = _ref.className;
-  return _react["default"].createElement("button", {
+  return _react.default.createElement("button", {
     type: "button",
     key: "toggle-visible-columns",
     "data-tip": "Configure visible columns",
@@ -65,9 +65,9 @@ var ConfigureVisibleColumnsButton = _react["default"].memo(function (_ref) {
     active: open.toString(),
     onClick: onClick,
     className: (className || "") + (open ? " active" : "")
-  }, _react["default"].createElement("i", {
+  }, _react.default.createElement("i", {
     className: "icon icon-fw icon-table fas"
-  }), _react["default"].createElement("i", {
+  }), _react.default.createElement("i", {
     className: "icon icon-fw icon-angle-down ml-03 fas"
   }));
 });
@@ -86,7 +86,7 @@ var ToggleLayoutButton = function (_React$PureComponent) {
     _classCallCheck(this, ToggleLayoutButton);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ToggleLayoutButton).call(this, props));
-    _this.handleLayoutToggle = _underscore["default"].throttle(_this.handleLayoutToggle.bind(_assertThisInitialized(_this)), 350);
+    _this.handleLayoutToggle = _underscore.default.throttle(_this.handleLayoutToggle.bind(_assertThisInitialized(_this)), 350);
     return _this;
   }
 
@@ -113,26 +113,26 @@ var ToggleLayoutButton = function (_React$PureComponent) {
           isFullscreen = _this$props2.isFullscreen,
           className = _this$props2.className;
       var cls = className + " expand-layout-button" + (!isFullscreen ? '' : ' expanded');
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: cls,
         onClick: this.handleLayoutToggle,
         "data-tip": (!isFullscreen ? 'Expand' : 'Collapse') + " table width"
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')
       }));
     }
   }]);
 
   return ToggleLayoutButton;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.ToggleLayoutButton = ToggleLayoutButton;
 ToggleLayoutButton.propTypes = {
-  'windowWidth': _propTypes["default"].number.isRequired,
-  'isFullscreen': _propTypes["default"].bool.isRequired,
-  'toggleFullScreen': _propTypes["default"].func.isRequired,
-  'className': _propTypes["default"].string
+  'windowWidth': _propTypes.default.number.isRequired,
+  'isFullscreen': _propTypes.default.bool.isRequired,
+  'toggleFullScreen': _propTypes.default.func.isRequired,
+  'className': _propTypes.default.string
 };
 ToggleLayoutButton.defaultProps = {
   'className': "btn btn-outline-primary"

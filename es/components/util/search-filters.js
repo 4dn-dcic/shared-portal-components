@@ -34,7 +34,7 @@ var _navigate = require("./navigate");
 
 var _misc = require("./misc");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -69,22 +69,22 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
     var toFilter, fromFilter;
 
     if (facet.aggregation_type === 'range') {
-      toFilter = _underscore["default"].findWhere(filters, {
+      toFilter = _underscore.default.findWhere(filters, {
         'field': field + '.to',
         'term': term.to
-      }), fromFilter = _underscore["default"].findWhere(filters, {
+      }), fromFilter = _underscore.default.findWhere(filters, {
         'field': field + '.from',
         'term': term.from
       });
     } else if (facet.aggregation_type === 'date_histogram') {
       var interval = getDateHistogramIntervalFromFacet(facet) || 'month',
-          toDate = _moment["default"].utc(term.key);
+          toDate = _moment.default.utc(term.key);
 
       toDate.add(1, interval + 's');
-      toFilter = _underscore["default"].findWhere(filters, {
+      toFilter = _underscore.default.findWhere(filters, {
         'field': field + '.to',
         'term': toDate.format().slice(0, 10)
-      }), fromFilter = _underscore["default"].findWhere(filters, {
+      }), fromFilter = _underscore.default.findWhere(filters, {
         'field': field + '.from',
         'term': term.key
       });
@@ -93,7 +93,7 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
     }
 
     if (toFilter && !fromFilter) {
-      parts = _url["default"].parse(toFilter['remove']);
+      parts = _url.default.parse(toFilter['remove']);
 
       if (includePathName) {
         retHref += parts.pathname;
@@ -102,7 +102,7 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
       retHref += parts.search;
       return retHref;
     } else if (!toFilter && fromFilter) {
-      parts = _url["default"].parse(fromFilter['remove']);
+      parts = _url.default.parse(fromFilter['remove']);
 
       if (includePathName) {
         retHref += parts.pathname;
@@ -111,13 +111,13 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
       retHref += parts.search;
       return retHref;
     } else if (toFilter && fromFilter) {
-      var partsFrom = _url["default"].parse(fromFilter['remove'], true),
-          partsTo = _url["default"].parse(toFilter['remove'], true),
+      var partsFrom = _url.default.parse(fromFilter['remove'], true),
+          partsTo = _url.default.parse(toFilter['remove'], true),
           partsFromQ = partsFrom.query,
           partsToQ = partsTo.query,
           commonQs = {};
 
-      _underscore["default"].forEach(_underscore["default"].keys(partsFromQ), function (qk) {
+      _underscore.default.forEach(_underscore.default.keys(partsFromQ), function (qk) {
         if (typeof partsToQ[qk] !== 'undefined') {
           if (Array.isArray(partsToQ[qk]) || Array.isArray(partsFromQ[qk])) {
             var a1, a2;
@@ -134,14 +134,14 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
               a2 = [partsFromQ[qk]];
             }
 
-            commonQs[qk] = _underscore["default"].intersection(a1, a2);
+            commonQs[qk] = _underscore.default.intersection(a1, a2);
           } else {
             commonQs[qk] = partsToQ[qk];
           }
         }
       });
 
-      retHref = '?' + _queryString["default"].stringify(commonQs);
+      retHref = '?' + _queryString.default.stringify(commonQs);
 
       if (includePathName) {
         retHref += partsFrom.pathname;
@@ -154,7 +154,7 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
       filter = filters[i];
 
       if (filter.field == field && filter.term == term.key) {
-        parts = _url["default"].parse(filter.remove);
+        parts = _url.default.parse(filter.remove);
 
         if (includePathName) {
           retHref += parts.pathname;
@@ -170,9 +170,9 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
 }
 
 function buildSearchHref(field, term, searchBase) {
-  var parts = _url["default"].parse(searchBase, true);
+  var parts = _url.default.parse(searchBase, true);
 
-  var query = _underscore["default"].clone(parts.query);
+  var query = _underscore.default.clone(parts.query);
 
   if (field in query) {
     if (Array.isArray(query[field])) {
@@ -184,10 +184,10 @@ function buildSearchHref(field, term, searchBase) {
     query[field] = term;
   }
 
-  var queryStr = _queryString["default"].stringify(query);
+  var queryStr = _queryString.default.stringify(query);
 
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
-  return _url["default"].format(parts);
+  return _url.default.format(parts);
 }
 
 function changeFilter(field, term, filters) {
@@ -202,16 +202,16 @@ function changeFilter(field, term, filters) {
     var expSet = filters[field] ? new Set(filters[field]) : new Set();
 
     if (expSet.has(term)) {
-      expSet["delete"](term);
+      expSet.delete(term);
     } else {
       expSet.add(term);
     }
 
     if (expSet.size > 0) {
       tempObj[field] = expSet;
-      newObj = _underscore["default"].extend({}, filters, tempObj);
+      newObj = _underscore.default.extend({}, filters, tempObj);
     } else {
-      newObj = _underscore["default"].extend({}, filters);
+      newObj = _underscore.default.extend({}, filters);
       delete newObj[field];
     }
 
@@ -280,7 +280,7 @@ function unsetAllTermsForField(field, expSetFilters) {
   var save = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
   var href = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
-  var esf = _underscore["default"].clone(expSetFilters);
+  var esf = _underscore.default.clone(expSetFilters);
 
   delete esf[field];
   if (save && href) return saveChangedFilters(esf, href);else return esf;
@@ -297,7 +297,7 @@ function filtersToHref(expSetFilters, currentHref) {
       urlString = baseHref + (filterQuery.length > 0 ? sep + filterQuery : '');
 
   if (!sortColumn) {
-    var parts = _url["default"].parse(currentHref, true);
+    var parts = _url.default.parse(currentHref, true);
 
     if (parts.query && typeof parts.query.sort === 'string') {
       if (parts.query.sort.charAt(0) === '-') {
@@ -332,7 +332,7 @@ function contextFiltersToExpSetFilters(contextFilters) {
   }
 
   if (contextFilters.length === 0) return {};
-  return _underscore["default"].reduce(contextFilters, function (memo, filterObj) {
+  return _underscore.default.reduce(contextFilters, function (memo, filterObj) {
     if (excludedQs && typeof excludedQs[filterObj.field] !== 'undefined') {
       if (excludedQs[filterObj.field] === true) return memo;
 
@@ -358,24 +358,24 @@ function contextFiltersToExpSetFilters(contextFilters) {
 }
 
 function expSetFiltersToURLQuery(expSetFilters) {
-  return _underscore["default"].map(_underscore["default"].pairs(expSetFiltersToJSON(expSetFilters)), function (_ref) {
+  return _underscore.default.map(_underscore.default.pairs(expSetFiltersToJSON(expSetFilters)), function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         field = _ref2[0],
         terms = _ref2[1];
 
-    return _underscore["default"].map(terms, function (t) {
+    return _underscore.default.map(terms, function (t) {
       return encodeURIComponent(field) + '=' + t.replace(/%20/g, "+");
     }).join('&');
   }).join('&');
 }
 
 function expSetFiltersToJSON(expSetFilters) {
-  return _underscore["default"].object(_underscore["default"].map(_underscore["default"].pairs(expSetFilters), function (_ref3) {
+  return _underscore.default.object(_underscore.default.map(_underscore.default.pairs(expSetFilters), function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
         field = _ref4[0],
         setOfTerms = _ref4[1];
 
-    var termsArray = _underscore["default"].map(_toConsumableArray(setOfTerms), function (term) {
+    var termsArray = _underscore.default.map(_toConsumableArray(setOfTerms), function (term) {
       return encodeURIComponent(term);
     });
 
@@ -386,9 +386,9 @@ function expSetFiltersToJSON(expSetFilters) {
 function compareExpSetFilters(expSetFiltersA, expSetFiltersB) {
   if (expSetFiltersA && !expSetFiltersB || !expSetFiltersA && expSetFiltersB) return false;
 
-  var keysA = _underscore["default"].keys(expSetFiltersA);
+  var keysA = _underscore.default.keys(expSetFiltersA);
 
-  if (keysA.length !== _underscore["default"].keys(expSetFiltersB).length) return false;
+  if (keysA.length !== _underscore.default.keys(expSetFiltersB).length) return false;
 
   for (var i = 0; i < keysA.length; i++) {
     if (typeof expSetFiltersB[keysA[i]] === 'undefined') return false;
@@ -409,8 +409,8 @@ function compareExpSetFilters(expSetFiltersA, expSetFiltersB) {
         _iteratorError = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
           }
         } finally {
           if (_didIteratorError) {
@@ -430,8 +430,8 @@ function filtersToNodes() {
   var termTranformFxn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var flatten = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var sortObj = null;
-  if (Array.isArray(orderedFieldNames)) sortObj = _underscore["default"].invert(_underscore["default"].object(_underscore["default"].pairs(orderedFieldNames)));
-  return (0, _underscore["default"])(expSetFilters).chain().pairs().sortBy(function (fieldPair) {
+  if (Array.isArray(orderedFieldNames)) sortObj = _underscore.default.invert(_underscore.default.object(_underscore.default.pairs(orderedFieldNames)));
+  return (0, _underscore.default)(expSetFilters).chain().pairs().sortBy(function (fieldPair) {
     if (sortObj && typeof sortObj[fieldPair[0]] !== 'undefined') return parseInt(sortObj[fieldPair[0]]);else return fieldPair[0];
   }).reduce(function (m, fieldPair) {
     var termNodes = _toConsumableArray(fieldPair[1]).map(function (term) {
@@ -456,7 +456,7 @@ function filtersToNodes() {
 
 function convertExpSetFiltersTerms(expSetFilters) {
   var to = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'array';
-  return (0, _underscore["default"])(expSetFilters).chain().pairs().map(function (pair) {
+  return (0, _underscore.default)(expSetFilters).chain().pairs().map(function (pair) {
     if (to === 'array') {
       return [pair[0], _toConsumableArray(pair[1])];
     } else if (to === 'set') {
@@ -471,7 +471,7 @@ function getBaseHref() {
   var currentHref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '/browse/';
   var hrefPath = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
-  var urlParts = _url["default"].parse(currentHref, true);
+  var urlParts = _url.default.parse(currentHref, true);
 
   if (!hrefPath) {
     hrefPath = urlParts.pathname;
@@ -479,7 +479,7 @@ function getBaseHref() {
 
   var baseHref = urlParts.protocol && urlParts.host ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
 
-  var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'q');
+  var hrefQuery = _underscore.default.pick(urlParts.query, 'type', 'q');
 
   if (hrefPath.indexOf('/search/') > -1) {
     if (typeof hrefQuery.type !== 'string') {
@@ -487,7 +487,7 @@ function getBaseHref() {
     }
   }
 
-  return baseHref + (_underscore["default"].keys(hrefQuery).length > 0 ? '?' + _queryString["default"].stringify(hrefQuery) : '');
+  return baseHref + (_underscore.default.keys(hrefQuery).length > 0 ? '?' + _queryString.default.stringify(hrefQuery) : '');
 }
 
 function searchQueryStringFromHref(href) {
@@ -508,5 +508,5 @@ function searchQueryStringFromHref(href) {
 }
 
 function filterObjExistsAndNoFiltersSelected(expSetFilters) {
-  return _typeof(expSetFilters) === 'object' && expSetFilters !== null && _underscore["default"].keys(expSetFilters).length === 0;
+  return _typeof(expSetFilters) === 'object' && expSetFilters !== null && _underscore.default.keys(expSetFilters).length === 0;
 }

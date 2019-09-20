@@ -9,7 +9,7 @@ var _moment = _interopRequireDefault(require("moment"));
 
 var _misc = require("./misc");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var patchedConsoleInstance = function () {
   if (!(0, _misc.isServerSide)() && window.patchedConsole) return window.patchedConsole;
@@ -49,7 +49,7 @@ var patchedConsoleInstance = function () {
     this._setCustomMethods = function () {
       if (this._enabled && this._available && typeof this._nativeConsole.log !== 'undefined') {
         this.timeLog = function () {
-          this._nativeConsole.log.apply(this._nativeConsole, ['%c(' + (0, _moment["default"])().format('h:mm:ss.SSS') + ') %c%s'].concat('color: darkcyan', 'color: black', Array.prototype.slice.apply(arguments)));
+          this._nativeConsole.log.apply(this._nativeConsole, ['%c(' + (0, _moment.default)().format('h:mm:ss.SSS') + ') %c%s'].concat('color: darkcyan', 'color: black', Array.prototype.slice.apply(arguments)));
         }.bind(this);
       } else {
         this.timeLog = this._dummyFunc;

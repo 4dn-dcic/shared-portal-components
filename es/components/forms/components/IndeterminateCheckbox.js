@@ -9,7 +9,7 @@ var _react = _interopRequireDefault(require("react"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -41,7 +41,7 @@ var IndeterminateCheckbox = function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(IndeterminateCheckbox).call(this, props));
     _this.setIndeterminateOnRef = _this.setIndeterminateOnRef.bind(_assertThisInitialized(_this));
-    _this.checkboxRef = _react["default"].createRef();
+    _this.checkboxRef = _react.default.createRef();
     return _this;
   }
 
@@ -69,15 +69,15 @@ var IndeterminateCheckbox = function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      return _react["default"].createElement("input", _extends({
+      return _react.default.createElement("input", _extends({
         type: "checkbox"
-      }, _underscore["default"].omit(this.props, 'indeterminate'), {
+      }, _underscore.default.omit(this.props, 'indeterminate'), {
         ref: this.checkboxRef
       }));
     }
   }]);
 
   return IndeterminateCheckbox;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.IndeterminateCheckbox = IndeterminateCheckbox;

@@ -19,7 +19,7 @@ var _layout = require("./../util/layout");
 
 var _utilities = require("./../viz/utilities");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -51,7 +51,7 @@ var FlexibleCharacterCountBox = function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(FlexibleCharacterCountBox).call(this, props));
     _this.render = _this.render.bind(_assertThisInitialized(_this));
-    _this.onClick = _underscore["default"].debounce(_this.onClick.bind(_assertThisInitialized(_this)), 300, true);
+    _this.onClick = _underscore.default.debounce(_this.onClick.bind(_assertThisInitialized(_this)), 300, true);
     _this.state = {
       'expanded': props.defaultExpanded || false
     };
@@ -80,19 +80,19 @@ var FlexibleCharacterCountBox = function (_React$Component) {
       var expandable = string.length > (characters || expandCharacters);
 
       if (!expandable) {
-        return _react["default"].createElement("span", null, string);
+        return _react.default.createElement("span", null, string);
       }
 
-      var visibleIcon = icon && _react["default"].cloneElement(icon, {
+      var visibleIcon = icon && _react.default.cloneElement(icon, {
         'onClick': this.onClick,
         'expanded': expanded,
         'data-expanded': expanded
-      }) || _react["default"].createElement("i", {
+      }) || _react.default.createElement("i", {
         className: "icon fas icon-" + (expanded ? 'minus' : 'plus'),
         onClick: this.onClick
       });
 
-      return _react["default"].createElement("span", null, _react["default"].createElement(FlexibleCharacterCountString, {
+      return _react.default.createElement("span", null, _react.default.createElement(FlexibleCharacterCountString, {
         string: string,
         expanded: expanded,
         expandCharacters: characters || expandCharacters
@@ -101,14 +101,14 @@ var FlexibleCharacterCountBox = function (_React$Component) {
   }]);
 
   return FlexibleCharacterCountBox;
-}(_react["default"].Component);
+}(_react.default.Component);
 
 exports.FlexibleCharacterCountBox = FlexibleCharacterCountBox;
 
 _defineProperty(FlexibleCharacterCountBox, "propTypes", {
-  'characters': _propTypes["default"].number.isRequired,
-  'string': _propTypes["default"].string.isRequired,
-  'icon': _propTypes["default"].element
+  'characters': _propTypes.default.number.isRequired,
+  'string': _propTypes.default.string.isRequired,
+  'icon': _propTypes.default.element
 });
 
 var FlexibleCharacterCountString = function (_React$Component2) {
@@ -142,12 +142,12 @@ var FlexibleCharacterCountString = function (_React$Component2) {
   }]);
 
   return FlexibleCharacterCountString;
-}(_react["default"].Component);
+}(_react.default.Component);
 
 _defineProperty(FlexibleCharacterCountString, "propTypes", {
-  'string': _propTypes["default"].string,
-  'expanded': _propTypes["default"].oneOfType([_propTypes["default"].bool, _propTypes["default"].func]),
-  'expandCharacters': _propTypes["default"].oneOfType([_propTypes["default"].number, _propTypes["default"].func])
+  'string': _propTypes.default.string,
+  'expanded': _propTypes.default.oneOfType([_propTypes.default.bool, _propTypes.default.func]),
+  'expandCharacters': _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.func])
 });
 
 _defineProperty(FlexibleCharacterCountString, "defaultProps", {
@@ -206,7 +206,7 @@ var FlexibleDescriptionBox = function (_React$Component3) {
       if (this.props.debug) _patchedConsole.patchedConsoleInstance.info("Mounted FlexibleDescriptionBox");
 
       if (!(0, _misc.isServerSide)()) {
-        this.throttledToggleDescriptionExpand = _underscore["default"].throttle(this.toggleDescriptionExpand, 350);
+        this.throttledToggleDescriptionExpand = _underscore.default.throttle(this.toggleDescriptionExpand, 350);
         (0, _utilities.requestAnimationFrame)(function () {
           var willDescriptionFitAtCurrentSize = _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
 
@@ -234,7 +234,7 @@ var FlexibleDescriptionBox = function (_React$Component3) {
   }, {
     key: "dimensions",
     value: function dimensions() {
-      if (this.props.dimensions) return _underscore["default"].extend({}, FlexibleDescriptionBox.defaultDimensions, this.props.dimensions);else return _underscore["default"].clone(FlexibleDescriptionBox.defaultDimensions);
+      if (this.props.dimensions) return _underscore.default.extend({}, FlexibleDescriptionBox.defaultDimensions, this.props.dimensions);else return _underscore.default.clone(FlexibleDescriptionBox.defaultDimensions);
     }
   }, {
     key: "checkWillDescriptionFitOneLineAndUpdateHeight",
@@ -334,11 +334,11 @@ var FlexibleDescriptionBox = function (_React$Component3) {
       var expanded = descriptionExpanded || propExpanded;
 
       if (!descriptionWillFitOneLine && typeof propExpanded !== 'boolean') {
-        expandButton = _react["default"].createElement("button", {
+        expandButton = _react.default.createElement("button", {
           type: "button",
           className: "description-expand-button right",
           onClick: this.throttledToggleDescriptionExpand
-        }, _react["default"].createElement("i", {
+        }, _react.default.createElement("i", {
           className: "icon fas icon-" + (expanded ? 'minus' : 'plus')
         }));
       }
@@ -346,10 +346,10 @@ var FlexibleDescriptionBox = function (_React$Component3) {
       var containerHeightSet = expanded ? this.descriptionHeight : !mounted && showOnMount ? 0 : collapsedHeight || Math.min(Math.max(this.dimensions().initialHeight, lineHeight * (linesOfText || 1)), mounted && this.descriptionHeight || 1000);
 
       if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')) {
-        this.boxRef = _react["default"].createRef();
+        this.boxRef = _react.default.createRef();
       }
 
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         ref: this.boxRef || null,
         className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
         style: {
@@ -357,7 +357,7 @@ var FlexibleDescriptionBox = function (_React$Component3) {
           'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
           'visibility': !mounted && showOnMount ? 'hidden' : null
         }
-      }, expandButton, _react["default"].createElement(textElement, {
+      }, expandButton, _react.default.createElement(textElement, {
         'className': textClassName,
         'style': textStyle
       }, expanded ? description : shortContent || description));
@@ -365,7 +365,7 @@ var FlexibleDescriptionBox = function (_React$Component3) {
   }]);
 
   return FlexibleDescriptionBox;
-}(_react["default"].Component);
+}(_react.default.Component);
 
 exports.FlexibleDescriptionBox = FlexibleDescriptionBox;
 
@@ -377,21 +377,21 @@ _defineProperty(FlexibleDescriptionBox, "defaultDimensions", {
 });
 
 _defineProperty(FlexibleDescriptionBox, "propTypes", {
-  'description': _propTypes["default"].any.isRequired,
-  'dimensions': _propTypes["default"].shape({
-    'paddingWidth': _propTypes["default"].number,
-    'paddingHeight': _propTypes["default"].number,
-    'buttonWidth': _propTypes["default"].number,
-    'initialHeight': _propTypes["default"].number
+  'description': _propTypes.default.any.isRequired,
+  'dimensions': _propTypes.default.shape({
+    'paddingWidth': _propTypes.default.number,
+    'paddingHeight': _propTypes.default.number,
+    'buttonWidth': _propTypes.default.number,
+    'initialHeight': _propTypes.default.number
   }),
-  'fitTo': _propTypes["default"].oneOf(['grid', 'parent', 'self']),
-  'includeButton': _propTypes["default"].bool,
-  'className': _propTypes["default"].string,
-  'textClassName': _propTypes["default"].string,
-  'textElement': _propTypes["default"].oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
-  'textStyle': _propTypes["default"].object,
-  'expanded': _propTypes["default"].bool,
-  'windowWidth': _propTypes["default"].number.isRequired
+  'fitTo': _propTypes.default.oneOf(['grid', 'parent', 'self']),
+  'includeButton': _propTypes.default.bool,
+  'className': _propTypes.default.string,
+  'textClassName': _propTypes.default.string,
+  'textElement': _propTypes.default.oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
+  'textStyle': _propTypes.default.object,
+  'expanded': _propTypes.default.bool,
+  'windowWidth': _propTypes.default.number.isRequired
 });
 
 _defineProperty(FlexibleDescriptionBox, "defaultProps", {

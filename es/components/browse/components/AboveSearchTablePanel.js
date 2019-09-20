@@ -19,7 +19,7 @@ var _ajax = require("./../../util/ajax");
 
 var _schemaTransforms = require("./../../util/schema-transforms");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -107,10 +107,10 @@ var AboveSearchTablePanelStaticContentPane = function (_React$Component) {
 
         if (resp && resp.content) {
           if (resp.content && typeof resp.content !== 'string' && resp['@type'].indexOf('StaticPage') > -1) {
-            var contentSectionKeys = _underscore["default"].keys(resp.content);
+            var contentSectionKeys = _underscore.default.keys(resp.content);
 
             if (contentSectionKeys.length > 0) {
-              var contentSectionToUse = _underscore["default"].find(resp.content, function (c) {
+              var contentSectionToUse = _underscore.default.find(resp.content, function (c) {
                 return c.order === 0;
               }) || resp.content[contentSectionKeys[0]];
               content = contentSectionToUse.content;
@@ -139,16 +139,16 @@ var AboveSearchTablePanelStaticContentPane = function (_React$Component) {
       var title = null;
 
       if (this.state.title) {
-        title = _react["default"].createElement("h4", {
+        title = _react.default.createElement("h4", {
           className: "text-300"
         }, this.state.title);
       }
 
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: "row mt-1"
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: "col-12 col-lg-9 pull-right"
-      }, title, _react["default"].createElement("div", {
+      }, title, _react.default.createElement("div", {
         dangerouslySetInnerHTML: {
           __html: this.state.content
         }
@@ -157,7 +157,7 @@ var AboveSearchTablePanelStaticContentPane = function (_React$Component) {
   }]);
 
   return AboveSearchTablePanelStaticContentPane;
-}(_react["default"].Component);
+}(_react.default.Component);
 
 var cachedMapping = null;
 
@@ -203,7 +203,7 @@ var AboveSearchTablePanel = function (_React$PureComponent) {
 
       if (!this.state.mapping && typeof this.props.mappingLocation === 'string') {
         (0, _ajax.load)(this.props.mappingLocation, function (resp) {
-          if (resp && resp.mapping && _underscore["default"].keys(resp.mapping).length > 0) {
+          if (resp && resp.mapping && _underscore.default.keys(resp.mapping).length > 0) {
             _this4.setState({
               'mapping': resp.mapping
             });
@@ -225,7 +225,7 @@ var AboveSearchTablePanel = function (_React$PureComponent) {
       var lookupMap = this.state.mapping;
       var targetHref = null;
 
-      var urlParts = _url["default"].parse(contextHref, true);
+      var urlParts = _url.default.parse(contextHref, true);
 
       var _AboveSearchTablePane = AboveSearchTablePanel.currentItemTypesFromHrefParts(urlParts, schemas),
           searchItemType = _AboveSearchTablePane.searchItemType,
@@ -242,23 +242,23 @@ var AboveSearchTablePanel = function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: "above-table-panel"
-      }, _react["default"].createElement(AboveSearchTablePanelStaticContentPane, {
+      }, _react.default.createElement(AboveSearchTablePanelStaticContentPane, {
         targetHref: this.routeStaticContentHref()
       }));
     }
   }]);
 
   return AboveSearchTablePanel;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.AboveSearchTablePanel = AboveSearchTablePanel;
 AboveSearchTablePanel.propTypes = {
-  'href': _propTypes["default"].string.isRequired,
-  'context': _propTypes["default"].object.isRequired,
-  'mappingLocation': _propTypes["default"].any,
-  'cacheMappingGlobally': _propTypes["default"].bool
+  'href': _propTypes.default.string.isRequired,
+  'context': _propTypes.default.object.isRequired,
+  'mappingLocation': _propTypes.default.any,
+  'cacheMappingGlobally': _propTypes.default.bool
 };
 AboveSearchTablePanel.defaultProps = {
   "mappingLocation": "/sysinfos/search-header-mappings/",

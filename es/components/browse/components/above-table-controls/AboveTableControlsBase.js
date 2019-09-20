@@ -21,7 +21,7 @@ var _RightButtonsSection = require("./RightButtonsSection");
 
 var _CustomColumnController = require("./../CustomColumnController");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -51,12 +51,12 @@ var AboveTableControlsBase = function (_React$PureComponent) {
     value: function getCustomColumnSelectorPanelMapDefinition(props) {
       return {
         "customColumns": {
-          "title": _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("i", {
+          "title": _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("i", {
             className: "icon icon-fw icon-gear fas"
-          }), _react["default"].createElement("span", {
+          }), _react.default.createElement("span", {
             className: "title-contents"
           }, "Configure Visible Columns")),
-          "body": _react["default"].createElement(_CustomColumnController.CustomColumnSelector, _underscore["default"].pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')),
+          "body": _react.default.createElement(_CustomColumnController.CustomColumnSelector, _underscore.default.pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')),
           "className": "visible-columns-selector-panel"
         }
       };
@@ -85,12 +85,12 @@ var AboveTableControlsBase = function (_React$PureComponent) {
     _classCallCheck(this, AboveTableControlsBase);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(AboveTableControlsBase).call(this, props));
-    _this.handleOpenToggle = _underscore["default"].throttle(_this.handleOpenToggle.bind(_assertThisInitialized(_this)), 350);
+    _this.handleOpenToggle = _underscore.default.throttle(_this.handleOpenToggle.bind(_assertThisInitialized(_this)), 350);
     _this.handleClose = _this.handleOpenToggle.bind(_assertThisInitialized(_this), false);
     _this.handleOpenColumnsSelectionPanel = _this.handleOpenToggle.bind(_assertThisInitialized(_this), 'customColumns');
     _this.panelToggleFxns = {};
 
-    _underscore["default"].forEach(_underscore["default"].keys(props.panelMap), function (key) {
+    _underscore.default.forEach(_underscore.default.keys(props.panelMap), function (key) {
       _this.panelToggleFxns[key] = _this.handleOpenToggle.bind(_assertThisInitialized(_this), key);
     });
 
@@ -110,7 +110,7 @@ var AboveTableControlsBase = function (_React$PureComponent) {
       var open = this.state.open;
 
       if (open && prevState.open !== open) {
-        _reactTooltip["default"].rebuild();
+        _reactTooltip.default.rebuild();
       }
 
       if (prevProps.isFullscreen !== isFullscreen && typeof parentForceUpdate === 'function') {
@@ -146,7 +146,7 @@ var AboveTableControlsBase = function (_React$PureComponent) {
         var _this2$state = _this2.state,
             open = _this2$state.open,
             reallyOpen = _this2$state.reallyOpen;
-        setTimeout(_reactTooltip["default"].rebuild, 100);
+        setTimeout(_reactTooltip.default.rebuild, 100);
 
         if (!open && reallyOpen) {
           _this2.timeout = setTimeout(function () {
@@ -170,8 +170,8 @@ var AboveTableControlsBase = function (_React$PureComponent) {
           open = _this$state.open,
           reallyOpen = _this$state.reallyOpen;
 
-      var extendedChildren = _react["default"].Children.map(children, function (child) {
-        return _react["default"].cloneElement(child, {
+      var extendedChildren = _react.default.Children.map(children, function (child) {
+        return _react.default.cloneElement(child, {
           "panelToggleFxns": _this3.panelToggleFxns,
           "onClosePanel": _this3.handleClose,
           "currentOpenPanel": open || reallyOpen
@@ -185,17 +185,17 @@ var AboveTableControlsBase = function (_React$PureComponent) {
           panelBody = _ref2.body,
           panelCls = _ref2.className;
 
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: "above-results-table-row"
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: "row"
-      }, extendedChildren, _react["default"].createElement(_RightButtonsSection.RightButtonsSection, _extends({}, _underscore["default"].pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
+      }, extendedChildren, _react.default.createElement(_RightButtonsSection.RightButtonsSection, _extends({}, _underscore.default.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
         currentOpenPanel: open || reallyOpen,
         onColumnsBtnClick: this.panelToggleFxns.customColumns
-      }))), panelDefinition ? _react["default"].createElement(_Collapse.Collapse, {
-        "in": !!open,
+      }))), panelDefinition ? _react.default.createElement(_Collapse.Collapse, {
+        in: !!open,
         appear: true
-      }, _react["default"].createElement(_AboveTablePanelWrapper.AboveTablePanelWrapper, {
+      }, _react.default.createElement(_AboveTablePanelWrapper.AboveTablePanelWrapper, {
         className: panelCls,
         onClose: this.handleClose,
         title: panelTitle
@@ -204,13 +204,13 @@ var AboveTableControlsBase = function (_React$PureComponent) {
   }]);
 
   return AboveTableControlsBase;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.AboveTableControlsBase = AboveTableControlsBase;
 AboveTableControlsBase.defaultProps = {
   "panelMap": {
     "customColumns": {
-      "title": _react["default"].createElement("span", null, _react["default"].createElement("i", {
+      "title": _react.default.createElement("span", null, _react.default.createElement("i", {
         className: "icon icon-fw icon-gear fas"
       }), " hello world"),
       "body": "Hello World",

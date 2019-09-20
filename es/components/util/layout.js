@@ -26,9 +26,9 @@ var _misc = require("./misc");
 
 var d3 = _interopRequireWildcard(require("d3"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function getElementTop(el) {
   if (!(typeof window !== 'undefined' && window && document && document.body)) return null;
@@ -65,7 +65,7 @@ function getElementOffsetFine(el) {
   };
 }
 
-var shortenString = (0, _memoizeOne["default"])(function (originalText) {
+var shortenString = (0, _memoizeOne.default)(function (originalText) {
   var maxChars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 28;
   var addEllipsis = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
   var splitOn = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ' ';
@@ -87,7 +87,7 @@ var shortenString = (0, _memoizeOne["default"])(function (originalText) {
   return returnArr.join(splitOn) + (addEllipsis ? '...' : '');
 });
 exports.shortenString = shortenString;
-var responsiveGridState = (0, _memoizeOne["default"])(function () {
+var responsiveGridState = (0, _memoizeOne.default)(function () {
   var width = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
   if (typeof width !== 'number') {
@@ -124,7 +124,7 @@ function gridContainerWidth() {
   }
 }
 
-var textWidth = (0, _memoizeOne["default"])(function (textContent) {
+var textWidth = (0, _memoizeOne.default)(function (textContent) {
   var font = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "1rem 'Work Sans'";
   var roundToPixel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   var canvas, context, width;
@@ -149,7 +149,7 @@ var textWidth = (0, _memoizeOne["default"])(function (textContent) {
   }
 });
 exports.textWidth = textWidth;
-var textHeight = (0, _memoizeOne["default"])(function () {
+var textHeight = (0, _memoizeOne.default)(function () {
   var textContent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "Some String";
   var width = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 200;
   var containerClassName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -167,7 +167,7 @@ var textHeight = (0, _memoizeOne["default"])(function () {
   contElem.innerHTML = textContent;
 
   if (style) {
-    _underscore["default"].extend(contElem.style, style);
+    _underscore.default.extend(contElem.style, style);
   }
 
   contElem.style.display = "block";
@@ -186,7 +186,7 @@ var textHeight = (0, _memoizeOne["default"])(function () {
   return height;
 });
 exports.textHeight = textHeight;
-var textContentWidth = (0, _memoizeOne["default"])(function (textContent) {
+var textContentWidth = (0, _memoizeOne.default)(function (textContent) {
   var containerElementType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'div';
   var containerClassName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var widthForHeightCheck = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -293,7 +293,7 @@ function toggleBodyClass(className) {
   if (bodyElement) {
     var bodyClasses = bodyElement.className.split(' ');
 
-    _underscore["default"].forEach(allClasses, function (classToToggle, i) {
+    _underscore.default.forEach(allClasses, function (classToToggle, i) {
       var willSet;
 
       if (typeof toggleTo === 'boolean') {
@@ -306,12 +306,12 @@ function toggleBodyClass(className) {
 
       if (willSet) {
         bodyClasses.push(classToToggle);
-        bodyClasses = _underscore["default"].uniq(bodyClasses);
+        bodyClasses = _underscore.default.uniq(bodyClasses);
       } else {
         var indexToRemove = bodyClasses.indexOf(classToToggle);
 
         if (indexToRemove > -1) {
-          bodyClasses = _underscore["default"].uniq(bodyClasses.slice(0, indexToRemove).concat(bodyClasses.slice(indexToRemove + 1)));
+          bodyClasses = _underscore.default.uniq(bodyClasses.slice(0, indexToRemove).concat(bodyClasses.slice(indexToRemove + 1)));
         }
       }
     });

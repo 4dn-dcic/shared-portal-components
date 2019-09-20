@@ -15,7 +15,7 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _util = require("./../../util");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -88,8 +88,8 @@ var EditableField = function (_React$Component) {
       'leanTo': null,
       'leanOffset': 0
     };
-    _this.fieldRef = _react["default"].createRef();
-    _this.inputElementRef = _react["default"].createRef();
+    _this.fieldRef = _react.default.createRef();
+    _this.inputElementRef = _react.default.createRef();
     return _this;
   }
 
@@ -142,7 +142,7 @@ var EditableField = function (_React$Component) {
         }
       }
 
-      if (_underscore["default"].keys(newState).length > 0) this.setState(newState, stateChangeCallback);
+      if (_underscore.default.keys(newState).length > 0) this.setState(newState, stateChangeCallback);
     }
   }, {
     key: "componentDidUpdate",
@@ -180,7 +180,7 @@ var EditableField = function (_React$Component) {
     value: function isSet() {
       var context = this.props.context,
           savedValue = this.state.savedValue;
-      return _typeof(context) === 'object' && !_underscore["default"].isEmpty(context) && typeof savedValue !== 'undefined' && savedValue !== null && savedValue !== '';
+      return _typeof(context) === 'object' && !_underscore.default.isEmpty(context) && typeof savedValue !== 'undefined' && savedValue !== null && savedValue !== '';
     }
   }, {
     key: "isRequired",
@@ -254,16 +254,16 @@ var EditableField = function (_React$Component) {
           serverErrorsMessage = _this$state.serverErrorsMessage;
 
       if (required && valid === false && validationMessage) {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: "invalid-feedback"
         }, validationMessage);
       }
 
       if (Array.isArray(serverErrors) && serverErrors.length > 0) {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: "invalid-feedback"
-        }, serverErrorsMessage ? _react["default"].createElement("b", null, serverErrorsMessage) : null, _underscore["default"].map(serverErrors, function (err, i) {
-          return _react["default"].createElement("div", {
+        }, serverErrorsMessage ? _react.default.createElement("b", null, serverErrorsMessage) : null, _underscore.default.map(serverErrors, function (err, i) {
+          return _react.default.createElement("div", {
             key: 'error-' + i
           }, (serverErrors.length === 1 ? '' : i + 1 + '. ') + err.description);
         }));
@@ -271,12 +271,12 @@ var EditableField = function (_React$Component) {
 
       switch (fieldType) {
         case 'phone':
-          return _react["default"].createElement("div", {
+          return _react.default.createElement("div", {
             className: "invalid-feedback"
-          }, "Only use digits \u2014 no dashes, spaces, or parantheses. Optionally may include leading '+' or extension.", _react["default"].createElement("br", null), _react["default"].createElement("b", null, "e.g.:"), " ", _react["default"].createElement("code", null, "+######### x###"));
+          }, "Only use digits \u2014 no dashes, spaces, or parantheses. Optionally may include leading '+' or extension.", _react.default.createElement("br", null), _react.default.createElement("b", null, "e.g.:"), " ", _react.default.createElement("code", null, "+######### x###"));
 
         case 'email':
-          return _react["default"].createElement("div", {
+          return _react.default.createElement("div", {
             className: "invalid-feedback"
           }, "Please enter a valid email address.");
 
@@ -332,7 +332,7 @@ var EditableField = function (_React$Component) {
 
           if (r.status !== 'success') return errorFallback(r);
 
-          var nextContext = _underscore["default"].clone(context);
+          var nextContext = _underscore.default.clone(context);
 
           var extendSuccess = _util.object.deepExtend(nextContext, patchData);
 
@@ -461,9 +461,9 @@ var EditableField = function (_React$Component) {
             return null;
 
           case 'cancel':
-            return _react["default"].createElement("span", {
+            return _react.default.createElement("span", {
               className: extClass + " field-loading-icon"
-            }, _react["default"].createElement("i", {
+            }, _react.default.createElement("i", {
               className: "icon icon-spin icon-circle-notch icon-fw fas"
             }));
         }
@@ -473,40 +473,40 @@ var EditableField = function (_React$Component) {
         case 'edit':
           if (this.props.disabled) {
             if (!this.props.info) return null;
-            return _react["default"].createElement("span", {
+            return _react.default.createElement("span", {
               className: extClass + " edit-button info disabled"
-            }, _react["default"].createElement("i", {
+            }, _react.default.createElement("i", {
               className: "icon icon-info-circle icon-fw fas"
             }));
           }
 
-          return _react["default"].createElement("a", {
+          return _react.default.createElement("a", {
             href: "#edit-" + this.props.labelID,
             className: extClass + " edit-button",
             onClick: this.enterEditState,
             title: "Edit"
-          }, _react["default"].createElement("i", {
+          }, _react.default.createElement("i", {
             className: "icon icon-pencil icon-fw fas"
           }));
 
         case 'save':
           if (!this.isValid(false)) return null;
-          return _react["default"].createElement("a", {
+          return _react.default.createElement("a", {
             href: "#save-" + this.props.labelID,
             className: extClass + " save-button",
             onClick: this.saveEditState,
             title: "Save"
-          }, _react["default"].createElement("i", {
+          }, _react.default.createElement("i", {
             className: "icon icon-check fas icon-fw"
           }));
 
         case 'cancel':
-          return _react["default"].createElement("a", {
+          return _react.default.createElement("a", {
             href: "#",
             className: extClass + " cancel-button",
             onClick: this.cancelEditState,
             title: "Cancel"
-          }, _react["default"].createElement("i", {
+          }, _react.default.createElement("i", {
             className: "icon icon-times-circle far icon-fw"
           }));
       }
@@ -521,22 +521,22 @@ var EditableField = function (_React$Component) {
         case 'row':
         case 'minimal':
           if (this.props.style === 'row') classes.push('col-md-9');
-          return _react["default"].createElement("div", {
+          return _react.default.createElement("div", {
             className: classes.join(' ')
-          }, this.renderActionIcon('edit'), this.isSet() ? _react["default"].createElement("span", {
+          }, this.renderActionIcon('edit'), this.isSet() ? _react.default.createElement("span", {
             id: this.props.labelID,
             className: "set"
-          }, renderedValue) : _react["default"].createElement("span", {
+          }, renderedValue) : _react.default.createElement("span", {
             className: "not-set"
           }, this.props.fallbackText || 'No ' + this.props.labelID));
 
         case 'inline':
-          return _react["default"].createElement("span", {
+          return _react.default.createElement("span", {
             className: classes.join(' ')
-          }, this.isSet() ? _react["default"].createElement("span", {
+          }, this.isSet() ? _react.default.createElement("span", {
             id: this.props.labelID,
             className: "set"
-          }, renderedValue) : _react["default"].createElement("span", {
+          }, renderedValue) : _react.default.createElement("span", {
             className: "not-set"
           }, this.props.fallbackText || 'No ' + this.props.labelID), this.renderActionIcon('edit'));
       }
@@ -547,23 +547,23 @@ var EditableField = function (_React$Component) {
     key: "renderSaved",
     value: function renderSaved() {
       if (this.props.style === 'row') {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: "row editable-field-entry " + this.props.labelID
-        }, _react["default"].createElement("div", {
+        }, _react.default.createElement("div", {
           className: "col col-md-3 text-right text-left-xs"
-        }, _react["default"].createElement("label", {
+        }, _react.default.createElement("label", {
           htmlFor: this.props.labelID
         }, this.props.label)), this.renderSavedValue());
       }
 
       if (this.props.style === 'minimal') {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: "editable-field-entry " + this.props.labelID
         }, this.renderSavedValue());
       }
 
       if (this.props.style === 'inline') {
-        return _react["default"].createElement("span", {
+        return _react.default.createElement("span", {
           className: "editable-field-entry inline " + this.props.labelID
         }, this.renderSavedValue());
       }
@@ -578,7 +578,7 @@ var EditableField = function (_React$Component) {
         'ref': this.inputElementRef
       };
 
-      var commonPropsTextInput = _underscore["default"].extend({
+      var commonPropsTextInput = _underscore.default.extend({
         'className': 'form-control input-' + this.props.inputSize,
         'value': this.state.value || '',
         'onChange': this.handleChange,
@@ -590,41 +590,41 @@ var EditableField = function (_React$Component) {
 
       switch (this.props.fieldType) {
         case 'phone':
-          return _react["default"].createElement("span", {
+          return _react.default.createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement("input", _extends({
+          }, _react.default.createElement("input", _extends({
             type: "text",
             inputMode: "tel",
             autoComplete: "tel"
           }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'email':
-          return _react["default"].createElement("span", {
+          return _react.default.createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement("input", _extends({
+          }, _react.default.createElement("input", _extends({
             type: "email",
             autoComplete: "email"
           }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'username':
-          return _react["default"].createElement("span", {
+          return _react.default.createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement("input", _extends({
+          }, _react.default.createElement("input", _extends({
             type: "text",
             inputMode: "latin-name",
             autoComplete: "username"
           }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'text':
-          return _react["default"].createElement("span", {
+          return _react.default.createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement("input", _extends({
+          }, _react.default.createElement("input", _extends({
             type: "text",
             inputMode: "latin"
           }, commonPropsTextInput)), this.validationFeedbackMessage());
       }
 
-      return _react["default"].createElement("span", null, "No edit field created yet.");
+      return _react.default.createElement("span", null, "No edit field created yet.");
     }
   }, {
     key: "renderEditing",
@@ -641,21 +641,21 @@ var EditableField = function (_React$Component) {
           outerBaseClass = "editable-field-entry editing has-feedback was-validated" + (!this.isValid(true) ? ' has-error ' : ' has-success ') + ('input-size-' + inputSize + ' ');
 
       if (style == 'row') {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: outerBaseClass + labelID + ' row'
-        }, _react["default"].createElement("div", {
+        }, _react.default.createElement("div", {
           className: "col col-md-3 text-right text-left-xs"
-        }, _react["default"].createElement("label", {
+        }, _react.default.createElement("label", {
           htmlFor: labelID
-        }, label)), _react["default"].createElement("div", {
+        }, label)), _react.default.createElement("div", {
           className: "col col-md-9 value editing"
         }, this.renderActionIcon('cancel'), this.renderActionIcon('save'), this.inputField()));
       }
 
       if (style == 'minimal') {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: outerBaseClass + labelID
-        }, _react["default"].createElement("div", {
+        }, _react.default.createElement("div", {
           className: "value editing"
         }, this.renderActionIcon('cancel'), this.renderActionIcon('save'), this.inputField()));
       }
@@ -671,10 +671,10 @@ var EditableField = function (_React$Component) {
           }
         }
 
-        return _react["default"].createElement("span", {
+        return _react.default.createElement("span", {
           ref: absoluteBox ? this.fieldRef : null,
           className: outerBaseClass + labelID + ' inline' + (absoluteBox ? ' block-style' : '')
-        }, absoluteBox ? this.renderSavedValue() : null, _react["default"].createElement("span", {
+        }, absoluteBox ? this.renderSavedValue() : null, _react.default.createElement("span", {
           className: "value editing clearfix",
           style: valStyle
         }, this.inputField(), this.renderActionIcon('cancel'), this.renderActionIcon('save')));
@@ -696,29 +696,29 @@ var EditableField = function (_React$Component) {
   }]);
 
   return EditableField;
-}(_react["default"].Component);
+}(_react.default.Component);
 
 exports.EditableField = EditableField;
 
 _defineProperty(EditableField, "displayName", 'EditableField');
 
 _defineProperty(EditableField, "propTypes", {
-  label: _propTypes["default"].string,
-  labelID: _propTypes["default"].string,
-  parent: _propTypes["default"].any,
-  fallbackText: _propTypes["default"].string,
-  context: _propTypes["default"].object,
-  endpoint: _propTypes["default"].string,
-  fieldType: _propTypes["default"].string,
-  style: _propTypes["default"].string,
-  inputSize: _propTypes["default"].oneOf(['sm', 'md', 'lg']),
-  children: _propTypes["default"].any,
-  placeholder: _propTypes["default"].string,
-  objectType: _propTypes["default"].string,
-  pattern: _propTypes["default"].any,
-  required: _propTypes["default"].bool,
-  schemas: _propTypes["default"].object.isRequired,
-  debug: _propTypes["default"].bool
+  label: _propTypes.default.string,
+  labelID: _propTypes.default.string,
+  parent: _propTypes.default.any,
+  fallbackText: _propTypes.default.string,
+  context: _propTypes.default.object,
+  endpoint: _propTypes.default.string,
+  fieldType: _propTypes.default.string,
+  style: _propTypes.default.string,
+  inputSize: _propTypes.default.oneOf(['sm', 'md', 'lg']),
+  children: _propTypes.default.any,
+  placeholder: _propTypes.default.string,
+  objectType: _propTypes.default.string,
+  pattern: _propTypes.default.any,
+  required: _propTypes.default.bool,
+  schemas: _propTypes.default.object.isRequired,
+  debug: _propTypes.default.bool
 });
 
 _defineProperty(EditableField, "defaultProps", {
@@ -770,10 +770,10 @@ var FieldSet = function (_React$PureComponent) {
           parent = _this$props4.parent,
           windowWidth = _this$props4.windowWidth,
           onSave = _this$props4.onSave;
-      return _react["default"].Children.map(children, function (child) {
+      return _react.default.Children.map(children, function (child) {
         if (child.type && child.type.displayName === 'EditableField') {
           var newProps = {};
-          if (!child.props.context || _underscore["default"].isEmpty(child.props.context)) newProps.context = context;
+          if (!child.props.context || _underscore.default.isEmpty(child.props.context)) newProps.context = context;
           if (!child.props.parent) newProps.parent = parent || _this6;
           if (!child.props.endpoint && endpoint) newProps.endpoint = endpoint;
           if (!child.props.href && href) newProps.href = href;
@@ -785,7 +785,7 @@ var FieldSet = function (_React$PureComponent) {
           if (style) newProps.style = style;
           if (absoluteBox) newProps.absoluteBox = absoluteBox;
           if (windowWidth) newProps.windowWidth = windowWidth;
-          return _react["default"].cloneElement(child, newProps);
+          return _react.default.cloneElement(child, newProps);
         }
 
         return child;
@@ -808,32 +808,32 @@ var FieldSet = function (_React$PureComponent) {
     key: "render",
     value: function render() {
       if (this.props.style === 'inline') {
-        return _react["default"].createElement("span", {
+        return _react.default.createElement("span", {
           className: this.fullClassName()
         }, this.adjustedChildren());
       }
 
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: this.fullClassName()
       }, this.adjustedChildren());
     }
   }]);
 
   return FieldSet;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.FieldSet = FieldSet;
 
 _defineProperty(FieldSet, "propTypes", {
-  children: _propTypes["default"].node,
-  context: _propTypes["default"].object,
-  endpoint: _propTypes["default"].string,
-  inputSize: _propTypes["default"].oneOf(['sm', 'md', 'lg']),
-  style: _propTypes["default"].oneOf(['row', 'minimal', 'inline']),
-  parent: _propTypes["default"].any,
-  className: _propTypes["default"].string,
-  schemas: _propTypes["default"].object,
-  onSave: _propTypes["default"].func
+  children: _propTypes.default.node,
+  context: _propTypes.default.object,
+  endpoint: _propTypes.default.string,
+  inputSize: _propTypes.default.oneOf(['sm', 'md', 'lg']),
+  style: _propTypes.default.oneOf(['row', 'minimal', 'inline']),
+  parent: _propTypes.default.any,
+  className: _propTypes.default.string,
+  schemas: _propTypes.default.object,
+  onSave: _propTypes.default.func
 });
 
 _defineProperty(FieldSet, "defaultProps", {
@@ -844,10 +844,10 @@ _defineProperty(FieldSet, "defaultProps", {
   'onSave': EditableField.defaultProps.onSave
 });
 
-_defineProperty(FieldSet, "extractChildrenIds", (0, _memoizeOne["default"])(function (children) {
+_defineProperty(FieldSet, "extractChildrenIds", (0, _memoizeOne.default)(function (children) {
   var childIDs = [];
 
-  _react["default"].Children.map(children, function (child) {
+  _react.default.Children.map(children, function (child) {
     if (child.props && child.props.labelID) {
       childIDs.push(child.props.labelID);
     }

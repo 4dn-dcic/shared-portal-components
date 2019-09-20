@@ -384,8 +384,8 @@ export class ResultRowColumnBlockValue extends React.Component {
 export class ColumnSorterIcon extends React.PureComponent {
 
     static icon(style="descend"){
-        if (style === 'descend')        return <i className="icon icon-sort-desc fas" style={{ transform: 'translateY(-1px)' }}/>;
-        else if (style === 'ascend')    return <i className="icon icon-sort-asc fas" style={{ transform: 'translateY(4px)' }}/>;
+        if (style === 'descend')        return <i className="icon icon-sort-down fas align-text-top"/>;
+        else if (style === 'ascend')    return <i className="icon icon-sort-up fas align-bottom"/>;
     }
 
     static propTypes = {

@@ -13,7 +13,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _typedefs = require("./typedefs");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var cachedNavFunction = null;
 var callbackFunctions = [];
@@ -26,7 +26,7 @@ var navigate = function (href) {
   if (typeof cachedNavFunction !== 'function') throw new Error('No navigate function cached.');
 
   var callbackFxn = function (jsonResponse) {
-    if (callbackFunctions.length > 0) _underscore["default"].forEach(callbackFunctions, function (cb) {
+    if (callbackFunctions.length > 0) _underscore.default.forEach(callbackFunctions, function (cb) {
       cb(jsonResponse);
     });
     if (typeof callback === 'function') callback(jsonResponse);
@@ -47,7 +47,7 @@ navigate.determineSeparatorChar = function (href) {
 };
 
 navigate.isSearchHref = function (href) {
-  if (typeof href === 'string') href = _url["default"].parse(href);
+  if (typeof href === 'string') href = _url.default.parse(href);
   if (href.pathname.slice(0, 8) === '/search/') return true;
   return false;
 };
@@ -57,7 +57,7 @@ navigate.registerCallbackFunction = function (fxn) {
 };
 
 navigate.deregisterCallbackFunction = function (fxn) {
-  callbackFunctions = _underscore["default"].without(callbackFunctions, fxn);
+  callbackFunctions = _underscore.default.without(callbackFunctions, fxn);
 };
 
 navigate.mergeObjectsOfLists = function () {
@@ -65,13 +65,13 @@ navigate.mergeObjectsOfLists = function () {
   var targetObj = arguments[0];
   var sourceObjs = Array.prototype.slice.call(arguments, 1);
 
-  _underscore["default"].forEach(sourceObjs, function (o) {
-    _underscore["default"].forEach(_underscore["default"].keys(o), function (oKey) {
+  _underscore.default.forEach(sourceObjs, function (o) {
+    _underscore.default.forEach(_underscore.default.keys(o), function (oKey) {
       if (typeof targetObj[oKey] === 'undefined') targetObj[oKey] = [];
       if (typeof targetObj[oKey] === 'string') targetObj[oKey] = [targetObj[oKey]];
 
       if (Array.isArray(o[oKey])) {
-        if (!_underscore["default"].every(o[oKey], function (v) {
+        if (!_underscore.default.every(o[oKey], function (v) {
           return typeof v === 'string';
         })) throw new Error('Must have list of strings as object vals.');
         targetObj[oKey] = targetObj[oKey].concat(o[oKey]);
@@ -83,9 +83,9 @@ navigate.mergeObjectsOfLists = function () {
     });
   });
 
-  _underscore["default"].forEach(_underscore["default"].keys(targetObj), function (tKey) {
+  _underscore.default.forEach(_underscore.default.keys(targetObj), function (tKey) {
     if (typeof targetObj[tKey] === 'string') targetObj[tKey] = [targetObj[tKey]];
-    targetObj[tKey] = _underscore["default"].uniq(_underscore["default"].filter(targetObj[tKey]));
+    targetObj[tKey] = _underscore.default.uniq(_underscore.default.filter(targetObj[tKey]));
     if (targetObj[tKey].length === 0) delete targetObj[tKey];
   });
 
@@ -98,8 +98,8 @@ navigate.sameOrigin = function (from, to) {
     from = document.location.href;
   }
 
-  if (typeof from === 'string') from = _url["default"].parse(from);
-  if (typeof to === 'string') to = _url["default"].parse(_url["default"].resolve(from.href, to));
+  if (typeof from === 'string') from = _url.default.parse(from);
+  if (typeof to === 'string') to = _url.default.parse(_url.default.resolve(from.href, to));
   if (to.protocol === 'data:' || to.protocol === 'javascript:') return true;
   if (from.protocol !== to.protocol) return false;
   if (from.protocol === 'file:') return from.pathname === to.pathname;

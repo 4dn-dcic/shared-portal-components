@@ -25,13 +25,13 @@ var _object = require("./../../util/object");
 
 var _analytics = require("./../../util/analytics");
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _objectSpread2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
@@ -74,7 +74,7 @@ var LoginController = function (_React$PureComponent) {
     _classCallCheck(this, LoginController);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(LoginController).call(this, props));
-    _this.showLock = _underscore["default"].throttle(_this.showLock.bind(_assertThisInitialized(_this)), 1000, {
+    _this.showLock = _underscore.default.throttle(_this.showLock.bind(_assertThisInitialized(_this)), 1000, {
       trailing: false
     });
     _this.loginCallback = _this.loginCallback.bind(_assertThisInitialized(_this));
@@ -99,7 +99,7 @@ var LoginController = function (_React$PureComponent) {
           auth0Options = _this$props.auth0Options;
 
       require.ensure(["auth0-lock"], function (require) {
-        Auth0Lock = require("auth0-lock")["default"];
+        Auth0Lock = require("auth0-lock").default;
         _this2.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
 
         _this2.lock.on("authenticated", _this2.loginCallback);
@@ -151,7 +151,7 @@ var LoginController = function (_React$PureComponent) {
           _Alerts.Alerts.deQueue(_Alerts.Alerts.LoggedOut);
 
           console.info('Login completed');
-          var profileURL = (_underscore["default"].findWhere(r.user_actions || [], {
+          var profileURL = (_underscore.default.findWhere(r.user_actions || [], {
             'id': 'profile'
           }) || {}).href;
 
@@ -174,7 +174,7 @@ var LoginController = function (_React$PureComponent) {
           } else {
             throw new Error('No profile URL found in user_actions.');
           }
-        })["catch"](function (error) {
+        }).catch(function (error) {
           console.error("Error during login: ", error.description);
           console.log(error);
 
@@ -218,11 +218,11 @@ var LoginController = function (_React$PureComponent) {
 
         var userFullName = userDetails.first_name && userDetails.last_name && userDetails.first_name + ' ' + userDetails.last_name || null;
 
-        var msg = _react["default"].createElement("ul", {
+        var msg = _react.default.createElement("ul", {
           className: "mb-0"
-        }, _react["default"].createElement("li", null, "You are now logged in as ", _react["default"].createElement("span", {
+        }, _react.default.createElement("li", null, "You are now logged in as ", _react.default.createElement("span", {
           className: "text-500"
-        }, userFullName, userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email), "."), _react["default"].createElement("li", null, "Please visit ", _react["default"].createElement("b", null, _react["default"].createElement("a", {
+        }, userFullName, userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email), "."), _react.default.createElement("li", null, "Please visit ", _react.default.createElement("b", null, _react.default.createElement("a", {
           href: userProfileURL
         }, "your profile")), " to edit your account settings or information."));
 
@@ -266,7 +266,7 @@ var LoginController = function (_React$PureComponent) {
       var showLock = this.showLock,
           onRegistrationCancel = this.onRegistrationCancel,
           onRegistrationComplete = this.onRegistrationComplete;
-      return _react["default"].cloneElement(children, _objectSpread2({
+      return _react.default.cloneElement(children, _objectSpread({
         isLoading: isLoading,
         isRegistrationModalVisible: isRegistrationModalVisible,
         showLock: showLock,
@@ -277,21 +277,21 @@ var LoginController = function (_React$PureComponent) {
   }]);
 
   return LoginController;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.LoginController = LoginController;
 
 _defineProperty(LoginController, "propTypes", {
-  'updateUserInfo': _propTypes["default"].func.isRequired,
-  'session': _propTypes["default"].bool.isRequired,
-  'href': _propTypes["default"].string.isRequired,
-  'id': _propTypes["default"].string,
-  'windowWidth': _propTypes["default"].number,
-  'schemas': _propTypes["default"].object,
-  'auth0ClientID': _propTypes["default"].string.isRequired,
-  'auth0Domain': _propTypes["default"].string.isRequired,
-  'auth0Options': _propTypes["default"].object,
-  'children': _propTypes["default"].node.isRequired
+  'updateUserInfo': _propTypes.default.func.isRequired,
+  'session': _propTypes.default.bool.isRequired,
+  'href': _propTypes.default.string.isRequired,
+  'id': _propTypes.default.string,
+  'windowWidth': _propTypes.default.number,
+  'schemas': _propTypes.default.object,
+  'auth0ClientID': _propTypes.default.string.isRequired,
+  'auth0Domain': _propTypes.default.string.isRequired,
+  'auth0Options': _propTypes.default.object,
+  'children': _propTypes.default.node.isRequired
 });
 
 _defineProperty(LoginController, "defaultProps", {
@@ -363,13 +363,13 @@ var LogoutController = function (_React$PureComponent2) {
           children = _this$props3.children,
           passProps = _objectWithoutProperties(_this$props3, ["children"]);
 
-      return _react["default"].cloneElement(children, _objectSpread2({
+      return _react.default.cloneElement(children, _objectSpread({
         performLogout: this.performLogout
       }, passProps));
     }
   }]);
 
   return LogoutController;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.LogoutController = LogoutController;

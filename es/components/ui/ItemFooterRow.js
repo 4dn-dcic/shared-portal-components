@@ -12,9 +12,9 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _util = require("./../util");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var ItemFooterRow = _react["default"].memo(function (_ref) {
+var ItemFooterRow = _react.default.memo(function (_ref) {
   var context = _ref.context,
       schemas = _ref.schemas;
 
@@ -32,14 +32,14 @@ var ItemFooterRow = _react["default"].memo(function (_ref) {
     return null;
   }
 
-  return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("hr", {
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("hr", {
     className: "mb-08 mt-1"
-  }), _react["default"].createElement("div", {
+  }), _react.default.createElement("div", {
     className: "row"
-  }, _react["default"].createElement(ExternalReferencesSection, {
+  }, _react.default.createElement(ExternalReferencesSection, {
     context: context,
     externalReferences: external_references
-  }), _react["default"].createElement(AlternateAccessionSection, {
+  }), _react.default.createElement(AlternateAccessionSection, {
     context: context,
     alternateAccessions: alternate_accessions
   })));
@@ -54,14 +54,14 @@ function ExternalReferencesSection(_ref3) {
     return null;
   }
 
-  return _react["default"].createElement("div", {
+  return _react.default.createElement("div", {
     className: "col col-12 col-md-6"
-  }, _react["default"].createElement("h4", {
+  }, _react.default.createElement("h4", {
     className: "text-300"
-  }, "External References"), _react["default"].createElement("div", null, _react["default"].createElement("ul", null, _underscore["default"].map(externalReferences, function (extRef, i) {
-    return _react["default"].createElement("li", {
+  }, "External References"), _react.default.createElement("div", null, _react.default.createElement("ul", null, _underscore.default.map(externalReferences, function (extRef, i) {
+    return _react.default.createElement("li", {
       key: i
-    }, typeof extRef.ref === 'string' ? _react["default"].createElement(ExternalReferenceLink, {
+    }, typeof extRef.ref === 'string' ? _react.default.createElement(ExternalReferenceLink, {
       uri: extRef.uri || null
     }, extRef.ref) : extRef);
   }))));
@@ -74,12 +74,12 @@ function AlternateAccessionSection(_ref4) {
     return null;
   }
 
-  return _react["default"].createElement("div", {
+  return _react.default.createElement("div", {
     className: "col col-12 col-md-6"
-  }, _react["default"].createElement("h4", {
+  }, _react.default.createElement("h4", {
     className: "text-300"
-  }, "Alternate Accessions"), _react["default"].createElement("div", null, _react["default"].createElement("ul", null, _underscore["default"].map(alternateAccessions, function (altAccession, i) {
-    return _react["default"].createElement("li", {
+  }, "Alternate Accessions"), _react.default.createElement("div", null, _react.default.createElement("ul", null, _underscore.default.map(alternateAccessions, function (altAccession, i) {
+    return _react.default.createElement("li", {
       key: i
     }, altAccession);
   }))));
@@ -89,13 +89,13 @@ function AliasesSection(_ref5) {
   var aliases = _ref5.aliases,
       actions = _ref5.actions;
   if (aliases.length === 0) return null;
-  if (!_underscore["default"].find(actions, {
+  if (!_underscore.default.find(actions, {
     'name': 'edit'
   })) return null;
-  return _react["default"].createElement("div", null, _react["default"].createElement("h4", {
+  return _react.default.createElement("div", null, _react.default.createElement("h4", {
     className: "text-500"
-  }, "Aliases"), _react["default"].createElement("div", null, _react["default"].createElement("ul", null, _underscore["default"].map(aliases, function (alias, i) {
-    return _react["default"].createElement("li", {
+  }, "Aliases"), _react.default.createElement("div", null, _react.default.createElement("ul", null, _underscore.default.map(aliases, function (alias, i) {
+    return _react.default.createElement("li", {
       key: i
     }, alias);
   }))));
@@ -106,12 +106,12 @@ function ExternalReferenceLink(_ref6) {
       children = _ref6.children;
 
   if (!uri || typeof uri === 'string' && uri.length < 8) {
-    return _react["default"].createElement("span", {
+    return _react.default.createElement("span", {
       className: "external-reference"
     }, children);
   }
 
-  return _react["default"].createElement("a", {
+  return _react.default.createElement("a", {
     href: uri,
     target: "_blank",
     rel: "noopener noreferrer",

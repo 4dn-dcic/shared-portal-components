@@ -11,7 +11,7 @@ var _Collapse = require("./Collapse");
 
 var _util = require("./../util");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -33,7 +33,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var Row = _react["default"].memo(function (props) {
+var Row = _react.default.memo(function (props) {
   var colSm = props.colSm,
       colMd = props.colMd,
       colLg = props.colLg,
@@ -49,15 +49,15 @@ var Row = _react["default"].memo(function (props) {
   if (valSm < 3) valSm = 12;
   if (valMd < 3) valMd = 12;
   if (valLg < 3) valLg = 12;
-  return _react["default"].createElement("div", {
+  return _react.default.createElement("div", {
     className: "row list-item " + className
-  }, _react["default"].createElement("div", {
+  }, _react.default.createElement("div", {
     className: "item-label col-sm-" + colSm + " col-md-" + colMd + " col-lg-" + colLg
-  }, _react["default"].createElement("div", {
+  }, _react.default.createElement("div", {
     className: "inner"
-  }, label || title || "Label")), _react["default"].createElement("div", {
+  }, label || title || "Label")), _react.default.createElement("div", {
     className: "item-value col-sm-" + valSm + " col-md-" + valMd + " col-lg-" + valLg
-  }, _react["default"].createElement("div", {
+  }, _react.default.createElement("div", {
     className: "inner"
   }, value || val || children || "Value")));
 });
@@ -108,20 +108,20 @@ var PartialList = function (_React$Component) {
           persistent = _this$props.persistent,
           children = _this$props.children;
       var open = this.state.open;
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: "expandable-list " + (className || '')
-      }, _react["default"].createElement(containerType, {
+      }, _react.default.createElement(containerType, {
         'className': containerClassName
-      }, persistent || children), collapsible.length > 0 ? _react["default"].createElement(_Collapse.Collapse, {
-        "in": open
-      }, _react["default"].createElement("div", null, _react["default"].createElement(containerType, {
+      }, persistent || children), collapsible.length > 0 ? _react.default.createElement(_Collapse.Collapse, {
+        in: open
+      }, _react.default.createElement("div", null, _react.default.createElement(containerType, {
         'className': containerClassName
       }, collapsible))) : null);
     }
   }]);
 
   return PartialList;
-}(_react["default"].Component);
+}(_react.default.Component);
 
 exports.PartialList = PartialList;
 

@@ -14,9 +14,9 @@ var JWT = _interopRequireWildcard(require("./json-web-token"));
 
 var _patchedConsole = require("./patched-console");
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var defaultHeaders = {
   "Content-Type": "application/json; charset=UTF-8",
@@ -27,9 +27,9 @@ var defaultHeaders = {
 function setHeaders(xhr) {
   var headers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var deleteHeaders = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-  headers = JWT.addToHeaders(_underscore["default"].extend({}, defaultHeaders, headers));
+  headers = JWT.addToHeaders(_underscore.default.extend({}, defaultHeaders, headers));
 
-  var headerKeys = _underscore["default"].keys(headers);
+  var headerKeys = _underscore.default.keys(headers);
 
   for (var i = 0; i < headerKeys.length; i++) {
     if (deleteHeaders.indexOf(headerKeys[i]) > -1) {
@@ -142,12 +142,12 @@ function promise(url) {
 }
 
 function fetch(targetURL, options) {
-  options = _underscore["default"].extend({
+  options = _underscore.default.extend({
     'credentials': 'same-origin'
   }, options);
   var http_method = options.method || 'GET';
 
-  var headers = options.headers = _underscore["default"].extend({}, options.headers || {});
+  var headers = options.headers = _underscore.default.extend({}, options.headers || {});
 
   var hashIndex = targetURL.indexOf('#');
 

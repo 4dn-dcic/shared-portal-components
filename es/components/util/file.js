@@ -23,7 +23,7 @@ var _patchedConsole = require("./patched-console");
 
 var _typedefs = require("./typedefs");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -90,7 +90,7 @@ function groupFilesByRelations(files) {
       continue;
     }
 
-    _underscore["default"].forEach(currFile.related_files || [], function (relatedFileEmbeddedObject) {
+    _underscore.default.forEach(currFile.related_files || [], function (relatedFileEmbeddedObject) {
       var relatedFileID = _object.itemUtil.atId(relatedFileEmbeddedObject.file);
 
       relatedFileEmbeddedObject.relationship_type;
@@ -103,7 +103,7 @@ function groupFilesByRelations(files) {
         return;
       }
 
-      var relatedFileIndex = _underscore["default"].findIndex(ungroupedFiles, function (ungroupedFile) {
+      var relatedFileIndex = _underscore.default.findIndex(ungroupedFiles, function (ungroupedFile) {
         return relatedFileID === _object.itemUtil.atId(ungroupedFile);
       });
 
@@ -122,7 +122,7 @@ function groupFilesByRelations(files) {
       for (ungroupedIter = 0; ungroupedIter < ungroupedFiles.length; ungroupedIter++) {
         anotherUngroupedFile = ungroupedFiles[ungroupedIter];
 
-        _underscore["default"].forEach(anotherUngroupedFile.related_files || [], function (relatedFileEmbeddedObject) {
+        _underscore.default.forEach(anotherUngroupedFile.related_files || [], function (relatedFileEmbeddedObject) {
           var relatedFileID = _object.itemUtil.atId(relatedFileEmbeddedObject.file);
 
           if (!relatedFileID) {
@@ -151,36 +151,36 @@ function groupFilesByRelations(files) {
 }
 
 function extractSinglyGroupedItems(groups) {
-  var _$partition = _underscore["default"].partition(groups, function (g) {
+  var _$partition = _underscore.default.partition(groups, function (g) {
     return g.length > 1;
   }),
       _$partition2 = _slicedToArray(_$partition, 2),
       multiFileGroups = _$partition2[0],
       singleFileGroups = _$partition2[1];
 
-  return [multiFileGroups, _underscore["default"].flatten(singleFileGroups, true)];
+  return [multiFileGroups, _underscore.default.flatten(singleFileGroups, true)];
 }
 
-var filterFilesWithEmbeddedMetricItem = (0, _memoizeOne["default"])(function (files) {
+var filterFilesWithEmbeddedMetricItem = (0, _memoizeOne.default)(function (files) {
   var checkAny = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  var func = checkAny ? _underscore["default"].any : _underscore["default"].filter;
+  var func = checkAny ? _underscore.default.any : _underscore.default.filter;
   return func(files, function (f) {
     return f.quality_metric && f.quality_metric.overall_quality_status;
   });
 });
 exports.filterFilesWithEmbeddedMetricItem = filterFilesWithEmbeddedMetricItem;
-var filterFilesWithQCSummary = (0, _memoizeOne["default"])(function (files) {
+var filterFilesWithQCSummary = (0, _memoizeOne.default)(function (files) {
   var checkAny = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  var func = checkAny ? _underscore["default"].any : _underscore["default"].filter;
+  var func = checkAny ? _underscore.default.any : _underscore.default.filter;
   return func(files, function (f) {
-    return Array.isArray(f.quality_metric_summary) && f.quality_metric_summary.length > 0 && f.quality_metric_summary.length === Array.from(new Set(_underscore["default"].pluck(f.quality_metric_summary, 'title'))).length;
+    return Array.isArray(f.quality_metric_summary) && f.quality_metric_summary.length > 0 && f.quality_metric_summary.length === Array.from(new Set(_underscore.default.pluck(f.quality_metric_summary, 'title'))).length;
   });
 });
 exports.filterFilesWithQCSummary = filterFilesWithQCSummary;
-var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWithMetrics) {
+var groupFilesByQCSummaryTitles = (0, _memoizeOne.default)(function (filesWithMetrics) {
   var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "\t";
-  return _underscore["default"].pluck(Array.from(_underscore["default"].reduce(filesWithMetrics, function (m, file) {
-    var titles = _underscore["default"].map(file.quality_metric_summary, function (qcMetric) {
+  return _underscore.default.pluck(Array.from(_underscore.default.reduce(filesWithMetrics, function (m, file) {
+    var titles = _underscore.default.map(file.quality_metric_summary, function (qcMetric) {
       return qcMetric.title || qcMetric.display_title;
     });
 
