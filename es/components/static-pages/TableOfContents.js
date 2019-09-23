@@ -23,9 +23,9 @@ var _misc = require("./../util/misc");
 
 var _object = require("./../util/object");
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -61,7 +61,7 @@ var TableEntry = function (_React$Component) {
     _this.shouldComponentUpdate = _this.shouldComponentUpdate.bind(_assertThisInitialized(_this));
     _this.getTargetElement = _this.getTargetElement.bind(_assertThisInitialized(_this));
     _this.getNextHeaderElement = _this.getNextHeaderElement.bind(_assertThisInitialized(_this));
-    _this.handleClick = _underscore.default.throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 300);
+    _this.handleClick = _underscore["default"].throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 300);
     _this.determineIfActive = _this.determineIfActive.bind(_assertThisInitialized(_this));
     _this.toggleOpen = _this.toggleOpen.bind(_assertThisInitialized(_this));
     _this.targetElement = null;
@@ -201,16 +201,16 @@ var TableEntry = function (_React$Component) {
       var collapsibleButton;
 
       if (collapsible && childHeaders.length > 0) {
-        collapsibleButton = _react.default.createElement("i", {
+        collapsibleButton = _react["default"].createElement("i", {
           className: "inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus'),
           onClick: this.toggleOpen
         });
       }
 
       if (typeof link === 'string' && link.length > 0) {
-        title = _react.default.createElement("div", {
+        title = _react["default"].createElement("div", {
           className: "title-link-wrapper"
-        }, collapsibleButton, _react.default.createElement("a", {
+        }, collapsibleButton, _react["default"].createElement("a", {
           className: depth === 0 ? 'text-500' : 'text-400',
           href: (link.charAt(0) === '/' ? '' : '#') + link,
           onClick: function onClick(e) {
@@ -222,21 +222,21 @@ var TableEntry = function (_React$Component) {
       }
 
       if (depth === 0) {
-        title = _react.default.createElement("span", {
+        title = _react["default"].createElement("span", {
           title: "Up to page listing",
           className: "top-of-page visible-lg-block visible-lg"
-        }, _react.default.createElement("i", {
+        }, _react["default"].createElement("i", {
           className: "icon fas icon-angle-up"
         }), title);
       }
 
-      return _react.default.createElement("li", {
+      return _react["default"].createElement("li", {
         className: "table-content-entry" + (className ? ' ' + className : '') + (depth === 0 ? ' top' : '') + (active ? ' active' : ''),
         "data-depth": depth,
         "data-recursion-depth": recurDepth
-      }, title, _react.default.createElement(_Collapse.Collapse, {
-        in: !this.state || open && mounted
-      }, _react.default.createElement("div", null, _react.default.createElement(TableEntryChildren, _extends({
+      }, title, _react["default"].createElement(_Collapse.Collapse, {
+        "in": !this.state || open && mounted
+      }, _react["default"].createElement("div", null, _react["default"].createElement(TableEntryChildren, _extends({
         navigate: propNavigate,
         parentClosed: this.state && !open
       }, {
@@ -258,11 +258,11 @@ var TableEntry = function (_React$Component) {
   }]);
 
   return TableEntry;
-}(_react.default.Component);
+}(_react["default"].Component);
 
-_defineProperty(TableEntry, "getChildHeaders", (0, _memoizeOne.default)(function (content, maxHeaderDepth, currentDepth) {
+_defineProperty(TableEntry, "getChildHeaders", (0, _memoizeOne["default"])(function (content, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
-  return _underscore.default.filter(content.props.children, function (child) {
+  return _underscore["default"].filter(content.props.children, function (child) {
     return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (currentDepth + 1);
   });
 }));
@@ -301,11 +301,11 @@ var TableEntryChildren = function (_React$Component2) {
           recurDepth = opts.recurDepth;
 
       if (Array.isArray(childHeaders) && childHeaders.length > 0) {
-        return _underscore.default.map(childHeaders, function (h) {
+        return _underscore["default"].map(childHeaders, function (h) {
           var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
 
           if (skipDepth > currentDepth) {
-            return TableEntryChildren.renderChildrenElements(childHeaders, currentDepth + 1, childContent.content, _underscore.default.extend({}, opts, {
+            return TableEntryChildren.renderChildrenElements(childHeaders, currentDepth + 1, childContent.content, _underscore["default"].extend({}, opts, {
               'nextHeader': childContent.nextMajorHeader || nextHeader || null
             }));
           }
@@ -319,7 +319,7 @@ var TableEntryChildren = function (_React$Component2) {
           }
 
           if (!link) link = TableOfContents.slugify(linkTitle);
-          return _react.default.createElement(TableEntry, {
+          return _react["default"].createElement(TableEntry, {
             link: link,
             title: linkTitle,
             key: link,
@@ -378,7 +378,7 @@ var TableEntryChildren = function (_React$Component2) {
           childDepth = _this$getHeadersFromC.childDepth;
 
       if (childHeaders && childHeaders.length) {
-        var opts = _underscore.default.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
+        var opts = _underscore["default"].pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
 
         var _this$props2 = this.props,
             content = _this$props2.content,
@@ -393,7 +393,7 @@ var TableEntryChildren = function (_React$Component2) {
     value: function render() {
       var children = this.children();
       if (!children) return null;
-      return _react.default.createElement("ol", {
+      return _react["default"].createElement("ol", {
         className: "inner",
         style: {
           'listStyleType': this.props.listStyleTypes[(this.props.depth || 0) + 1]
@@ -404,15 +404,15 @@ var TableEntryChildren = function (_React$Component2) {
   }]);
 
   return TableEntryChildren;
-}(_react.default.Component);
+}(_react["default"].Component);
 
-_defineProperty(TableEntryChildren, "getHeadersFromContent", (0, _memoizeOne.default)(function (jsxContent, maxHeaderDepth, currentDepth) {
+_defineProperty(TableEntryChildren, "getHeadersFromContent", (0, _memoizeOne["default"])(function (jsxContent, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(jsxContent)) return [];
   var depthToFind = currentDepth;
   var childrenForDepth = [];
 
   while (depthToFind <= Math.min(maxHeaderDepth, 5) && childrenForDepth.length === 0) {
-    childrenForDepth = _underscore.default.filter(jsxContent.props.children, function (child) {
+    childrenForDepth = _underscore["default"].filter(jsxContent.props.children, function (child) {
       return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (depthToFind + 1);
     });
 
@@ -427,12 +427,12 @@ _defineProperty(TableEntryChildren, "getHeadersFromContent", (0, _memoizeOne.def
   };
 }));
 
-_defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne.default)(function (header, jsxContent, maxHeaderDepth, currentDepth) {
+_defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne["default"])(function (header, jsxContent, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(jsxContent)) return null;
   var getNext = null;
   var nextMajorHeader = null;
 
-  var nextHeaderComponents = _underscore.default.reduce(jsxContent.props.children, function (m, child) {
+  var nextHeaderComponents = _underscore["default"].reduce(jsxContent.props.children, function (m, child) {
     if (getNext === null && child === header) {
       getNext = true;
       return m;
@@ -451,7 +451,7 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne
   }, []);
 
   return {
-    'content': _react.default.cloneElement(jsxContent, {}, nextHeaderComponents),
+    'content': _react["default"].cloneElement(jsxContent, {}, nextHeaderComponents),
     'nextMajorHeader': nextMajorHeader
   };
 }));
@@ -476,18 +476,18 @@ var TableOfContents = function (_React$Component3) {
       if (children && _typeof(children) === 'object' && children.props && children.props.children) return TableOfContents.textFromReactChildren(children.props.children);
 
       if (Array.isArray(children) && children.length > 0) {
-        var childrenWithChildren = _underscore.default.filter(children, function (c) {
+        var childrenWithChildren = _underscore["default"].filter(children, function (c) {
           return typeof c === 'string' || c && c.props && c.props.children;
         });
 
-        var childPrimaryElemIfAny = _underscore.default.find(childrenWithChildren, function (c) {
+        var childPrimaryElemIfAny = _underscore["default"].find(childrenWithChildren, function (c) {
           return c && _typeof(c) === 'object' && c.props && (c.type === 'code' || c.type === 'strong' || c.type === 'b');
         });
 
         if (childPrimaryElemIfAny) {
           return TableOfContents.textFromReactChildren(childPrimaryElemIfAny);
         } else {
-          return _underscore.default.map(children, TableOfContents.textFromReactChildren).join('');
+          return _underscore["default"].map(children, TableOfContents.textFromReactChildren).join('');
         }
       }
 
@@ -497,14 +497,14 @@ var TableOfContents = function (_React$Component3) {
     key: "isHeaderComponent",
     value: function isHeaderComponent(c) {
       var maxHeaderDepth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
-      return c && c.props && typeof c.props.type === 'string' && c.props.type.charAt(0).toLowerCase() === 'h' && _underscore.default.range(1, maxHeaderDepth + 1).indexOf(parseInt(c.props.type.charAt(1))) > -1;
+      return c && c.props && typeof c.props.type === 'string' && c.props.type.charAt(0).toLowerCase() === 'h' && _underscore["default"].range(1, maxHeaderDepth + 1).indexOf(parseInt(c.props.type.charAt(1))) > -1;
     }
   }, {
     key: "isContentJSX",
     value: function isContentJSX(content) {
       if (!content || _typeof(content) !== 'object') return false;
       var proto = Object.getPrototypeOf(content);
-      return proto && proto.isPrototypeOf(_react.default.Component.prototype);
+      return proto && proto.isPrototypeOf(_react["default"].Component.prototype);
     }
   }, {
     key: "elementIDFromSectionName",
@@ -642,37 +642,37 @@ var TableOfContents = function (_React$Component3) {
       var context = this.props.context;
       var widthBound = this.state.widthBound;
       var cols = [];
-      cols.push(_react.default.createElement("div", {
+      cols.push(_react["default"].createElement("div", {
         key: "parent-link",
         className: "col col-xs-" + (windowInnerWidth && windowInnerWidth >= 1600 ? '9' : '12')
-      }, _react.default.createElement("a", {
+      }, _react["default"].createElement("a", {
         className: "text-500",
         href: context.parent['@id']
       }, context.parent['display_title'])));
 
       if (windowInnerWidth && windowInnerWidth >= 1600) {
-        cols.push(_react.default.createElement("div", {
+        cols.push(_react["default"].createElement("div", {
           key: "expand-btn",
           className: "col col-xs-3 text-right expand-button-container"
-        }, _react.default.createElement("button", {
+        }, _react["default"].createElement("button", {
           type: "button",
           className: "btn btn-xs btn-outline-dark",
           onClick: this.onToggleWidthBound
-        }, widthBound ? _react.default.createElement("span", null, _react.default.createElement("i", {
+        }, widthBound ? _react["default"].createElement("span", null, _react["default"].createElement("i", {
           className: "icon icon-fw fas icon-angle-left"
-        })) : _react.default.createElement("span", null, _react.default.createElement("i", {
+        })) : _react["default"].createElement("span", null, _react["default"].createElement("i", {
           className: "icon icon-fw fas icon-angle-right"
         })))));
       }
 
-      return _react.default.createElement("li", {
+      return _react["default"].createElement("li", {
         className: "table-content-entry parent-entry",
         "data-depth": "0",
         key: "parent-link"
-      }, _react.default.createElement("span", {
+      }, _react["default"].createElement("span", {
         title: "Up to page listing",
         className: "top-of-page with-border-bottom visible-lg-block visible-lg"
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "row"
       }, cols)));
     }
@@ -700,10 +700,10 @@ var TableOfContents = function (_React$Component3) {
 
       var sectionEntries = function () {
         var lastSection = null;
-        var excludeSectionsFromTOC = _underscore.default.filter(context.content, function (section) {
+        var excludeSectionsFromTOC = _underscore["default"].filter(context.content, function (section) {
           return section.title || section['toc-title'];
         }).length < 2;
-        return (0, _underscore.default)(context.content).chain().sortBy(function (s) {
+        return (0, _underscore["default"])(context.content).chain().sortBy(function (s) {
           return s.order || 99;
         }).map(function (s, i, all) {
           s.link = TableOfContents.elementIDFromSectionName(s.name);
@@ -719,7 +719,7 @@ var TableOfContents = function (_React$Component3) {
                 childHeaders = _TableEntryChildren$g.childHeaders,
                 childDepth = _TableEntryChildren$g.childDepth;
 
-            var opts = _underscore.default.extend({
+            var opts = _underscore["default"].extend({
               childHeaders: childHeaders,
               maxHeaderDepth: maxHeaderDepth,
               listStyleTypes: listStyleTypes,
@@ -733,9 +733,9 @@ var TableOfContents = function (_React$Component3) {
             return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, s.content, opts);
           }
 
-          return _react.default.createElement(TableEntry, {
+          return _react["default"].createElement(TableEntry, {
             link: s.link,
-            title: s['toc-title'] || s.title || _underscore.default.map(s.link.split('-'), function (w) {
+            title: s['toc-title'] || s.title || _underscore["default"].map(s.link.split('-'), function (w) {
               return w.charAt(0).toUpperCase() + w.slice(1);
             }).join(' '),
             key: s.link,
@@ -757,7 +757,7 @@ var TableOfContents = function (_React$Component3) {
       }
 
       var renderedSections = sectionEntries();
-      contents.push(_react.default.createElement(TableEntry, {
+      contents.push(_react["default"].createElement(TableEntry, {
         link: "top",
         title: context['display_title'] || 'Top of Page' || null,
         key: "top",
@@ -781,8 +781,8 @@ var TableOfContents = function (_React$Component3) {
         }
       }
 
-      var isEmpty = Array.isArray(contents) && !_underscore.default.filter(contents).length || !contents;
-      return _react.default.createElement("div", {
+      var isEmpty = Array.isArray(contents) && !_underscore["default"].filter(contents).length || !contents;
+      return _react["default"].createElement("div", {
         key: "toc",
         className: "table-of-contents" + (widthBound ? ' width-bounded' : ''),
         style: {
@@ -792,13 +792,13 @@ var TableOfContents = function (_React$Component3) {
           'height': windowWidth && windowHeight ? windowWidth >= 1200 ? maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 : null : 1000,
           marginTop: marginTop
         }
-      }, !isEmpty ? _react.default.createElement("ol", {
+      }, !isEmpty ? _react["default"].createElement("ol", {
         className: "inner",
         style: {
           'listStyleType': listStyleTypes[0],
           'paddingLeft': 0
         }
-      }, contents) : null, includeNextPreviousPages ? _react.default.createElement(NextPreviousPageSection, {
+      }, contents) : null, includeNextPreviousPages ? _react["default"].createElement(NextPreviousPageSection, {
         context: context,
         windowInnerWidth: windowWidth
       }) : null);
@@ -806,7 +806,7 @@ var TableOfContents = function (_React$Component3) {
   }]);
 
   return TableOfContents;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 exports.TableOfContents = TableOfContents;
 
@@ -837,7 +837,7 @@ _defineProperty(TableOfContents, "defaultProps", {
   'maxHeaderDepth': 3
 });
 
-var NextPreviousPageSection = _react.default.memo(function (props) {
+var NextPreviousPageSection = _react["default"].memo(function (props) {
   var context = props.context,
       className = props.className,
       previousTitle = props.previousTitle,
@@ -846,29 +846,29 @@ var NextPreviousPageSection = _react.default.memo(function (props) {
       previous = context.previous;
   if (!next && !previous) return null;
   var colSize = previous && next ? 6 : 12;
-  return _react.default.createElement("div", {
+  return _react["default"].createElement("div", {
     className: "next-previous-pages-section" + (className && ' ' + className || '')
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement("div", {
     className: "row"
-  }, previous ? _react.default.createElement("div", {
+  }, previous ? _react["default"].createElement("div", {
     className: "previous-section text-right col-" + colSize
-  }, _react.default.createElement("h6", {
+  }, _react["default"].createElement("h6", {
     className: "text-400 mb-02 mt-12"
-  }, _react.default.createElement("i", {
+  }, _react["default"].createElement("i", {
     className: "icon icon-fw fas icon-angle-left"
-  }), " ", previousTitle), _react.default.createElement("h6", {
+  }), " ", previousTitle), _react["default"].createElement("h6", {
     className: "text-500 mt-0"
-  }, _react.default.createElement("a", {
+  }, _react["default"].createElement("a", {
     href: previous['@id'] || '/' + previous.name
-  }, previous.display_title))) : null, next ? _react.default.createElement("div", {
+  }, previous.display_title))) : null, next ? _react["default"].createElement("div", {
     className: "next-section col-" + colSize
-  }, _react.default.createElement("h6", {
+  }, _react["default"].createElement("h6", {
     className: "text-400 mb-02 mt-12"
-  }, nextTitle, " ", _react.default.createElement("i", {
+  }, nextTitle, " ", _react["default"].createElement("i", {
     className: "icon fas icon-fw icon-angle-right"
-  })), _react.default.createElement("h6", {
+  })), _react["default"].createElement("h6", {
     className: "text-500 mt-0"
-  }, _react.default.createElement("a", {
+  }, _react["default"].createElement("a", {
     href: next['@id'] || '/' + next.name
   }, next.display_title))) : null));
 });
@@ -892,7 +892,7 @@ var MarkdownHeading = function (_React$PureComponent) {
         'matchedString': null
       };
 
-      var childrenOuterText = _underscore.default.filter(children, function (c) {
+      var childrenOuterText = _underscore["default"].filter(children, function (c) {
         return typeof c === 'string';
       }).join(' ');
 
@@ -960,7 +960,7 @@ var MarkdownHeading = function (_React$PureComponent) {
       var attributes = MarkdownHeading.getAttributes(children);
 
       if (attributes && attributes.matchedString) {
-        propsToPass.children = _underscore.default.map(children, function (c) {
+        propsToPass.children = _underscore["default"].map(children, function (c) {
           if (typeof c === 'string') return c.replace(attributes.matchedString, '');
           return c;
         });
@@ -975,12 +975,12 @@ var MarkdownHeading = function (_React$PureComponent) {
       }
 
       if (!propsToPass.id) propsToPass.id = this.getID(true);
-      return _react.default.createElement(HeaderWithLink, propsToPass);
+      return _react["default"].createElement(HeaderWithLink, propsToPass);
     }
   }]);
 
   return MarkdownHeading;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.MarkdownHeading = MarkdownHeading;
 
@@ -1023,7 +1023,7 @@ var HeaderWithLink = function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       if (!this.props.id && !this.props.link) throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
-      return _react.default.createElement(this.props.type || 'h2', _underscore.default.omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children, _react.default.createElement("i", {
+      return _react["default"].createElement(this.props.type || 'h2', _underscore["default"].omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children, _react["default"].createElement("i", {
         key: "icon-link",
         className: "icon icon-fw icon-link fas",
         onClick: this.handleLinkClick,
@@ -1033,6 +1033,6 @@ var HeaderWithLink = function (_React$PureComponent2) {
   }]);
 
   return HeaderWithLink;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.HeaderWithLink = HeaderWithLink;

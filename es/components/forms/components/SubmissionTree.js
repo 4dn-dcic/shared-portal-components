@@ -17,7 +17,7 @@ var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _Collapse = require("./../../ui/Collapse");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -65,7 +65,7 @@ var SubmissionTree = function (_React$PureComponent) {
   _createClass(SubmissionTree, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip.default.rebuild();
+      _reactTooltip["default"].rebuild();
     }
   }, {
     key: "render",
@@ -74,11 +74,11 @@ var SubmissionTree = function (_React$PureComponent) {
           keyIdx = _this$props.keyIdx,
           others = _objectWithoutProperties(_this$props, ["keyIdx"]);
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "submission-view-navigation-tree"
-      }, _react.default.createElement("h4", {
+      }, _react["default"].createElement("h4", {
         className: "form-section-heading mb-08"
-      }, "Navigation ", _react.default.createElement(InfoIcon, null, '<h5>This panel is for navigating between objects in the creation process</h5> Click on Item/dependency titles to navigate around and edit each individually. Dependencies must be submitted before their parent can be.')), _react.default.createElement(SubmissionLeaf, _extends({}, others, {
+      }, "Navigation ", _react["default"].createElement(InfoIcon, null, '<h5>This panel is for navigating between objects in the creation process</h5> Click on Item/dependency titles to navigate around and edit each individually. Dependencies must be submitted before their parent can be.')), _react["default"].createElement(SubmissionLeaf, _extends({}, others, {
         keyIdx: 0,
         open: true
       })));
@@ -86,21 +86,21 @@ var SubmissionTree = function (_React$PureComponent) {
   }]);
 
   return SubmissionTree;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.SubmissionTree = SubmissionTree;
 
 _defineProperty(SubmissionTree, "propTypes", {
-  'keyHierarchy': _propTypes.default.object.isRequired,
-  'keyValid': _propTypes.default.object.isRequired,
-  'keyTypes': _propTypes.default.object.isRequired,
-  'keyDisplay': _propTypes.default.object.isRequired,
-  'keyComplete': _propTypes.default.object.isRequired,
-  'currKey': _propTypes.default.number.isRequired,
-  'keyLinkBookmarks': _propTypes.default.object.isRequired,
-  'keyLinks': _propTypes.default.object.isRequired,
-  'setSubmissionState': _propTypes.default.func.isRequired,
-  'schemas': _propTypes.default.object
+  'keyHierarchy': _propTypes["default"].object.isRequired,
+  'keyValid': _propTypes["default"].object.isRequired,
+  'keyTypes': _propTypes["default"].object.isRequired,
+  'keyDisplay': _propTypes["default"].object.isRequired,
+  'keyComplete': _propTypes["default"].object.isRequired,
+  'currKey': _propTypes["default"].number.isRequired,
+  'keyLinkBookmarks': _propTypes["default"].object.isRequired,
+  'keyLinks': _propTypes["default"].object.isRequired,
+  'setSubmissionState': _propTypes["default"].func.isRequired,
+  'schemas': _propTypes["default"].object
 });
 
 var SubmissionProperty = function (_React$Component) {
@@ -112,7 +112,7 @@ var SubmissionProperty = function (_React$Component) {
     _classCallCheck(this, SubmissionProperty);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionProperty).call(this, props));
-    _this.handleToggle = _underscore.default.throttle(_this.handleToggle.bind(_assertThisInitialized(_this)), 500, {
+    _this.handleToggle = _underscore["default"].throttle(_this.handleToggle.bind(_assertThisInitialized(_this)), 500, {
       'trailing': false
     });
     _this.generateChild = _this.generateChild.bind(_assertThisInitialized(_this));
@@ -142,7 +142,7 @@ var SubmissionProperty = function (_React$Component) {
           depth = _this$props2.depth,
           hierarchy = _this$props2.hierarchy;
       if (!isNaN(childKey)) childKey = parseInt(childKey);
-      return _react.default.createElement(SubmissionLeaf, _extends({}, this.props, {
+      return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
         key: childKey,
         keyIdx: childKey,
         hierarchy: hierarchy[keyIdx],
@@ -165,7 +165,7 @@ var SubmissionProperty = function (_React$Component) {
       var itemSchema = schemas[keyTypes[keyIdx]];
       if (!itemSchema) return null;
 
-      var isRequired = Array.isArray(itemSchema.required) && _underscore.default.contains(itemSchema.required, field);
+      var isRequired = Array.isArray(itemSchema.required) && _underscore["default"].contains(itemSchema.required, field);
 
       var _field$split = field.split('.'),
           _field$split2 = _slicedToArray(_field$split, 1),
@@ -174,29 +174,29 @@ var SubmissionProperty = function (_React$Component) {
       var fieldSchema = itemSchema.properties[fieldBase];
       var bookmark = fieldSchema && fieldSchema.title || fieldSchemaLinkToType(fieldSchema);
 
-      var children = _underscore.default.map(_underscore.default.filter(_underscore.default.keys(hierarchy[keyIdx]), function (childKey) {
+      var children = _underscore["default"].map(_underscore["default"].filter(_underscore["default"].keys(hierarchy[keyIdx]), function (childKey) {
         return keyLinks[childKey] === field;
       }), this.generateChild);
 
       var noChildren = children.length === 0;
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         key: bookmark,
         className: "submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '')
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "clearfix inner-title" + (!noChildren ? ' clickable' : ''),
         onClick: !noChildren ? this.handleToggle : undefined
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')
-      }), _react.default.createElement("span", null, children.length, " ", bookmark || field)), !noChildren ? _react.default.createElement(_Collapse.Collapse, {
-        in: open
-      }, _react.default.createElement("div", {
+      }), _react["default"].createElement("span", null, children.length, " ", bookmark || field)), !noChildren ? _react["default"].createElement(_Collapse.Collapse, {
+        "in": open
+      }, _react["default"].createElement("div", {
         className: "children-container"
       }, children)) : null);
     }
   }]);
 
   return SubmissionProperty;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 var SubmissionLeaf = function (_React$PureComponent2) {
   _inherits(SubmissionLeaf, _React$PureComponent2);
@@ -207,7 +207,7 @@ var SubmissionLeaf = function (_React$PureComponent2) {
     _classCallCheck(this, SubmissionLeaf);
 
     _this2 = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionLeaf).call(this, props));
-    _this2.handleClick = _underscore.default.throttle(_this2.handleClick.bind(_assertThisInitialized(_this2)), 500, {
+    _this2.handleClick = _underscore["default"].throttle(_this2.handleClick.bind(_assertThisInitialized(_this2)), 500, {
       'trailing': false
     });
     _this2.generateAllPlaceholders = _this2.generateAllPlaceholders.bind(_assertThisInitialized(_this2));
@@ -227,7 +227,7 @@ var SubmissionLeaf = function (_React$PureComponent2) {
           hierarchy = _this$props4.hierarchy,
           keyIdx = _this$props4.keyIdx,
           depth = _this$props4.depth;
-      return _react.default.createElement(SubmissionLeaf, _extends({}, this.props, {
+      return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
         key: childKey,
         keyIdx: childKey,
         hierarchy: hierarchy[keyIdx],
@@ -254,10 +254,10 @@ var SubmissionLeaf = function (_React$PureComponent2) {
           fieldBBase = _fieldB$split2[0];
 
       if (Array.isArray(itemSchema.required)) {
-        if (_underscore.default.contains(itemSchema.required, fieldA)) return -1;
-        if (_underscore.default.contains(itemSchema.required, fieldB)) return 1;
-        if (_underscore.default.contains(itemSchema.required, fieldABase)) return -1;
-        if (_underscore.default.contains(itemSchema.required, fieldBBase)) return -1;
+        if (_underscore["default"].contains(itemSchema.required, fieldA)) return -1;
+        if (_underscore["default"].contains(itemSchema.required, fieldB)) return 1;
+        if (_underscore["default"].contains(itemSchema.required, fieldABase)) return -1;
+        if (_underscore["default"].contains(itemSchema.required, fieldBBase)) return -1;
       }
 
       var fieldASchema = itemSchema.properties[fieldABase];
@@ -275,8 +275,8 @@ var SubmissionLeaf = function (_React$PureComponent2) {
           keyIdx = _this$props6.keyIdx,
           keyLinkBookmarks = _this$props6.keyLinkBookmarks;
       var fieldsWithLinkTosToShow = keyLinkBookmarks[keyIdx].sort(this.placeholderSortFxn);
-      return _underscore.default.map(fieldsWithLinkTosToShow, function (field) {
-        return _react.default.createElement(SubmissionProperty, _extends({}, _this3.props, {
+      return _underscore["default"].map(fieldsWithLinkTosToShow, function (field) {
+        return _react["default"].createElement(SubmissionProperty, _extends({}, _this3.props, {
           field: field,
           key: field
         }));
@@ -322,7 +322,7 @@ var SubmissionLeaf = function (_React$PureComponent2) {
       if (!isNaN(keyIdx)) {
         placeholders = this.generateAllPlaceholders();
       } else {
-        placeholders = _underscore.default.keys(hierarchy[keyIdx]).map(this.generateChild);
+        placeholders = _underscore["default"].keys(hierarchy[keyIdx]).map(this.generateChild);
       }
 
       var titleText = keyDisplay[keyIdx] || keyIdx;
@@ -336,7 +336,7 @@ var SubmissionLeaf = function (_React$PureComponent2) {
         statusClass = 'existing-item';
         iconClass = "icon-hdd far";
         tip = "Successfully submitted or pre-existing item; already exists in the database.<br>Click to view this item/dependency in new tab/window.";
-        extIcon = _react.default.createElement("i", {
+        extIcon = _react["default"].createElement("i", {
           className: "icon icon-external-link-alt fas"
         });
       } else {
@@ -371,35 +371,35 @@ var SubmissionLeaf = function (_React$PureComponent2) {
         }
       }
 
-      var icon = _react.default.createElement("i", {
+      var icon = _react["default"].createElement("i", {
         className: "icon indicator-icon " + iconClass
       });
 
       if (keyIdx === currKey) {
         isCurrentlySelected = true;
-        extIcon = _react.default.createElement("i", {
+        extIcon = _react["default"].createElement("i", {
           className: "icon icon-pencil pull-right fas",
           "data-tip": "Item which you are currently editing."
         });
       }
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "submission-nav-leaf linked-item-title leaf-depth-" + depth + (isCurrentlySelected ? ' active' : '')
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "clearfix inner-title " + statusClass,
         onClick: this.handleClick,
         "data-tip": tip,
         "data-html": true
-      }, icon, _react.default.createElement("span", {
+      }, icon, _react["default"].createElement("span", {
         className: "title-text"
-      }, titleText), extIcon), placeholders && placeholders.length > 0 ? _react.default.createElement("div", {
+      }, titleText), extIcon), placeholders && placeholders.length > 0 ? _react["default"].createElement("div", {
         className: "list-of-properties"
       }, placeholders) : null);
     }
   }]);
 
   return SubmissionLeaf;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 _defineProperty(SubmissionLeaf, "defaultProps", {
   'depth': 0
@@ -409,7 +409,7 @@ function InfoIcon(_ref2) {
   var children = _ref2.children,
       className = _ref2.className;
   if (!children) return null;
-  return _react.default.createElement("i", {
+  return _react["default"].createElement("i", {
     style: {
       "marginLeft": "6px",
       'fontSize': '0.8em'
@@ -424,7 +424,7 @@ function InfoIcon(_ref2) {
 function fieldSchemaLinkToType(json) {
   arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-  var currKeys = _underscore.default.keys(json),
+  var currKeys = _underscore["default"].keys(json),
       key,
       value;
 
@@ -445,7 +445,7 @@ function fieldSchemaLinkToType(json) {
 }
 
 function fieldSchemaLinkToPath(json) {
-  var jsonKeys = _underscore.default.keys(json),
+  var jsonKeys = _underscore["default"].keys(json),
       key;
 
   for (var i = 0; i < jsonKeys.length; i++) {

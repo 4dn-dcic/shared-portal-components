@@ -1220,7 +1220,8 @@ export class AliasInputField extends React.Component {
                 'display_title' : PropTypes.string
             }))
         }).isRequired,
-        'errorMessage' : PropTypes.string // String or null
+        'errorMessage' : PropTypes.string, // String or null
+        'isValid': PropTypes.bool
     };
 
     static defaultProps = {
@@ -1283,7 +1284,7 @@ export class AliasInputField extends React.Component {
     }
 
     render(){
-        const { currentSubmittingUser, errorMessage, withinModal, value } = this.props;
+        const { currentSubmittingUser, errorMessage, withinModal, value, isValid, showErrorMsg } = this.props;
         const parts = AliasInputField.splitInTwo(value);
         const submits_for_list = (currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for) || null;
         const initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
@@ -1296,11 +1297,13 @@ export class AliasInputField extends React.Component {
             firstPartSelect = (
                 <input type="text" inputMode="latin" id="firstPartSelect" value={currFirstPartValue || ''}
                     placeholder={"Lab (default: " + initialDefaultFirstPartValue + ")"} onChange={this.onAliasFirstPartChangeTyped}
-                    style={{ 'paddingRight' : 8, 'borderRight' : 'none' }} className="form-control" />
+                    style={{ 'paddingRight' : 8, 'borderRight' : 'none' }}
+                    className={"form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")} />
             );
         } else if (submits_for_list && submits_for_list.length > 1){
             firstPartSelect = (
-                <DropdownButton className="alias-lab-select form-control alias-first-part-input" id="firstPartSelect"
+                <DropdownButton className={"alias-lab-select form-control alias-first-part-input" + (errorMessage ? " is-invalid" : "") }
+                    id="firstPartSelect"
                     onSelect={this.onAliasFirstPartChange} componentClass={InputGroup.Button}
                     title={(parts.length > 1 && (
                         <span className="text-400">
@@ -1321,7 +1324,7 @@ export class AliasInputField extends React.Component {
             firstPartSelect = <InputGroup.Addon className="alias-lab-single-option">{ currFirstPartValue }</InputGroup.Addon>;
         }
 
-        const outerClassName = "mb-0 form-group has-feedback" + (errorMessage? " is-invalid has-error" : "");
+        const outerClassName = "mb-0 alias-input-field form-group has-feedback" + (errorMessage? " is-invalid has-error" : isValid ? " is-valid" : "");
         return (
             <div className={outerClassName}>
                 <div className="input-group">
@@ -1331,12 +1334,84 @@ export class AliasInputField extends React.Component {
                     </div>
                     <input type="text" id="aliasInput" inputMode="latin" value={parts[1] || ''}
                         autoFocus={withinModal && !parts[1] ? true : false} placeholder="Type in a new identifier"
-                        onChange={this.onAliasSecondPartChange} className="form-control" />
+                        onChange={this.onAliasSecondPartChange} className={"form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")} />
                 </div>
+                { showErrorMsg && errorMessage ? <div className="invalid-feedback d-block text-right">{ errorMessage }</div> : null }
             </div>
         );
     }
 
+}
+
+
+export class AliasInputFieldValidated extends React.PureComponent {
+
+    constructor(props){
+        super(props);
+        this.doValidateAlias = _.debounce(this.doValidateAlias.bind(this), 1000);
+        this.onAliasChange = this.onAliasChange.bind(this);
+        this.request = null;
+        this.state = {
+            value: props.value || AliasInputField.defaultProps.value,
+            isValid: null,
+            errorMessage: null
+        };
+    }
+
+    doValidateAlias(alias){
+        const { onAliasChange } = this.props;
+        let currReq = null;
+        const cb = (res) => {
+            if (this.request !== currReq) {
+                // A newer request has been launched, cancel this
+                // to prevent accidental overwrites or something.
+                return;
+            }
+            this.request = null;
+            if (res.code !== 404){
+                // Not valid - something exists already.
+                this.setState({ errorMessage: "Alias " + alias + " already exists", isValid: false });
+                return;
+            }
+            this.setState({ isValid: true, errorMessage: null }, ()=>{
+                onAliasChange(alias);
+            });
+        };
+
+        if (this.request && this.request.abort){
+            this.request.abort();
+        }
+
+        currReq = this.request = ajax.load("/" + alias, cb, 'GET', cb);
+    }
+
+    onAliasChange(nextAlias){
+        const { onAliasChange } = this.props;
+
+        this.request && this.request.abort();
+        this.request = null;
+
+        this.setState({ value: nextAlias }, ()=>{
+            const { value } = this.state;
+            const [ firstPart, secondPart ] = value.split(':');
+            if (!firstPart || !secondPart){
+                this.setState({ errorMessage: "Part of alias is blank" }, ()=>{
+                    onAliasChange(null);
+                });
+                return;
+            }
+            const passedRegex = (new RegExp('^\\S+:\\S+$')).test(value);
+            if (!passedRegex){
+                this.setState({ errorMessage: "Aliases must be formatted as: <text>:<text> (e.g. dcic-lab:42)." });
+                return;
+            }
+            this.doValidateAlias(value);
+        });
+    }
+
+    render(){
+        return <AliasInputField {...this.props} {...this.state} onAliasChange={this.onAliasChange} />;
+    }
 }
 
 

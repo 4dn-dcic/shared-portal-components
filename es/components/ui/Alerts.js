@@ -15,7 +15,7 @@ var _Fade = require("./Fade");
 
 var _typedefs = require("./../util/typedefs");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -69,7 +69,7 @@ var Alerts = function (_React$Component) {
         currentAlerts = store.getState().alerts;
       }
 
-      var duplicateTitleAlertIdx = _underscore.default.findIndex(currentAlerts, {
+      var duplicateTitleAlertIdx = _underscore["default"].findIndex(currentAlerts, {
         'title': alert.title
       });
 
@@ -113,9 +113,9 @@ var Alerts = function (_React$Component) {
       var currentAlerts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       if (!Array.isArray(currentAlerts)) currentAlerts = store.getState().alerts;
 
-      var titles = _underscore.default.pluck(currentAlerts, 'title').sort();
+      var titles = _underscore["default"].pluck(currentAlerts, 'title').sort();
 
-      var removedTitles = _underscore.default.difference(_underscore.default.keys(alertNavigatationCountMap).sort(), titles);
+      var removedTitles = _underscore["default"].difference(_underscore["default"].keys(alertNavigatationCountMap).sort(), titles);
 
       removedTitles.forEach(function (rt) {
         delete alertNavigatationCountMap[rt];
@@ -166,8 +166,8 @@ var Alerts = function (_React$Component) {
 
       var dismissing = this.state.dismissing;
       if (alerts.length === 0) return null;
-      return _react.default.createElement("div", passProps, _underscore.default.map(alerts, function (alert, index, alerts) {
-        return _react.default.createElement(AlertItem, _extends({
+      return _react["default"].createElement("div", passProps, _underscore["default"].map(alerts, function (alert, index, alerts) {
+        return _react["default"].createElement(AlertItem, _extends({
           alert: alert,
           index: index,
           alerts: alerts
@@ -181,7 +181,7 @@ var Alerts = function (_React$Component) {
   }]);
 
   return Alerts;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 exports.Alerts = Alerts;
 
@@ -190,11 +190,11 @@ _defineProperty(Alerts, "defaultProps", {
 });
 
 Alerts.propTypes = {
-  'alerts': _propTypes.default.arrayOf(_propTypes.default.shape({
-    'title': _propTypes.default.string.isRequired,
-    'message': _propTypes.default.string.isRequired,
-    'style': _propTypes.default.string,
-    'navigationDissappearThreshold': _propTypes.default.number
+  'alerts': _propTypes["default"].arrayOf(_propTypes["default"].shape({
+    'title': _propTypes["default"].string.isRequired,
+    'message': _propTypes["default"].string.isRequired,
+    'style': _propTypes["default"].string,
+    'navigationDissappearThreshold': _propTypes["default"].number
   }))
 };
 var LoggedOut = Alerts.LoggedOut = {
@@ -251,7 +251,7 @@ var AlertItem = function (_React$PureComponent) {
           setDismissing = _this$props2.setDismissing;
       var nextDismissing = dismissing.slice(0);
 
-      if (_underscore.default.findIndex(nextDismissing, alert) === -1) {
+      if (_underscore["default"].findIndex(nextDismissing, alert) === -1) {
         nextDismissing.push(alert);
       }
 
@@ -265,10 +265,10 @@ var AlertItem = function (_React$PureComponent) {
           dismissing = _this$props3.dismissing,
           setDismissing = _this$props3.setDismissing,
           alerts = _this$props3.alerts;
-      setDismissing(_underscore.default.without(dismissing, alert));
+      setDismissing(_underscore["default"].without(dismissing, alert));
       store.dispatch({
         type: {
-          'alerts': _underscore.default.without(alerts, alert)
+          'alerts': _underscore["default"].without(alerts, alert)
         }
       });
     }
@@ -282,28 +282,28 @@ var AlertItem = function (_React$PureComponent) {
           noCloseButton = alert.noCloseButton,
           title = alert.title,
           message = alert.message;
-      return _react.default.createElement(_Fade.Fade, {
+      return _react["default"].createElement(_Fade.Fade, {
         timeout: 500,
-        in: _underscore.default.findIndex(dismissing, alert) === -1,
+        "in": _underscore["default"].findIndex(dismissing, alert) === -1,
         onExited: this.finishDismiss,
         unmountOnExit: true
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')
-      }, noCloseButton !== true ? _react.default.createElement("button", {
+      }, noCloseButton !== true ? _react["default"].createElement("button", {
         type: "button",
         className: "close",
         onClick: this.dismiss
-      }, _react.default.createElement("span", {
+      }, _react["default"].createElement("span", {
         "aria-hidden": "true"
-      }, "\xD7"), _react.default.createElement("span", {
+      }, "\xD7"), _react["default"].createElement("span", {
         className: "sr-only"
-      }, "Close alert")) : null, _react.default.createElement("h4", {
+      }, "Close alert")) : null, _react["default"].createElement("h4", {
         className: "alert-heading mt-0 mb-05"
-      }, title), _react.default.createElement("div", {
+      }, title), _react["default"].createElement("div", {
         className: "mb-0"
       }, message)));
     }
   }]);
 
   return AlertItem;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);

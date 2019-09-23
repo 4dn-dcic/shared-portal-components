@@ -68,6 +68,11 @@
 				}
 			}
 		}
+		input[type="text"]{
+			// Keeep same padding regardless if showing icon to preserve
+			// consistent widths
+			padding-right: calc(1.475em + 0.75rem);
+		}
 		.input-group-addon.alias-lab-single-option {
 			background: #fff;
 			padding-left: 24px;
@@ -88,6 +93,10 @@
 			}
 		}
 	}
+}
+
+div.alias-input-field {
+	@include alias-input-fields;
 }
 
 // Modal forms

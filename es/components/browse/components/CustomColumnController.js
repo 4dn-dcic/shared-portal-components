@@ -13,7 +13,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _Checkbox = require("./../../forms/components/Checkbox");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -48,7 +48,7 @@ var CustomColumnController = function (_React$Component) {
     _this.addHiddenColumn = _this.addHiddenColumn.bind(_assertThisInitialized(_this));
     _this.removeHiddenColumn = _this.removeHiddenColumn.bind(_assertThisInitialized(_this));
     _this.state = {
-      'hiddenColumns': _underscore.default.clone(props.defaultHiddenColumns || {})
+      'hiddenColumns': _underscore["default"].clone(props.defaultHiddenColumns || {})
     };
     return _this;
   }
@@ -60,7 +60,7 @@ var CustomColumnController = function (_React$Component) {
 
       if (pastProps.defaultHiddenColumns !== defaultHiddenColumns) {
         this.setState({
-          'hiddenColumns': _underscore.default.clone(defaultHiddenColumns || {})
+          'hiddenColumns': _underscore["default"].clone(defaultHiddenColumns || {})
         });
       }
     }
@@ -70,7 +70,7 @@ var CustomColumnController = function (_React$Component) {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
 
       if (Array.isArray(props.hiddenColumns)) {
-        return _underscore.default.extend(_underscore.default.object(_underscore.default.map(props.hiddenColumns, function (field) {
+        return _underscore["default"].extend(_underscore["default"].object(_underscore["default"].map(props.hiddenColumns, function (field) {
           return [field, true];
         })), this.state.hiddenColumns);
       } else return this.state.hiddenColumns;
@@ -83,7 +83,7 @@ var CustomColumnController = function (_React$Component) {
           return null;
         }
 
-        var hiddenColumns = _underscore.default.clone(currState.hiddenColumns);
+        var hiddenColumns = _underscore["default"].clone(currState.hiddenColumns);
 
         hiddenColumns[field] = true;
         return {
@@ -99,7 +99,7 @@ var CustomColumnController = function (_React$Component) {
           return null;
         }
 
-        var hiddenColumns = _underscore.default.clone(currState.hiddenColumns);
+        var hiddenColumns = _underscore["default"].clone(currState.hiddenColumns);
 
         hiddenColumns[field] = false;
         return {
@@ -110,20 +110,20 @@ var CustomColumnController = function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      if (!_react.default.isValidElement(this.props.children)) throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
+      if (!_react["default"].isValidElement(this.props.children)) throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
 
-      var propsToPass = _underscore.default.extend(_underscore.default.omit(this.props, 'children'), {
+      var propsToPass = _underscore["default"].extend(_underscore["default"].omit(this.props, 'children'), {
         'hiddenColumns': this.getAllHiddenColumns(),
         'addHiddenColumn': this.addHiddenColumn,
         'removeHiddenColumn': this.removeHiddenColumn
       });
 
-      return _react.default.cloneElement(this.props.children, propsToPass);
+      return _react["default"].cloneElement(this.props.children, propsToPass);
     }
   }]);
 
   return CustomColumnController;
-}(_react.default.Component);
+}(_react["default"].Component);
 
 exports.CustomColumnController = CustomColumnController;
 
@@ -137,7 +137,7 @@ var CustomColumnSelector = function (_React$PureComponent) {
 
     _this2 = _possibleConstructorReturn(this, _getPrototypeOf(CustomColumnSelector).call(this, props));
     _this2.columnDefinitionsWithHiddenState = _this2.columnDefinitionsWithHiddenState.bind(_assertThisInitialized(_this2));
-    _this2.handleOptionVisibilityChange = _underscore.default.throttle(_this2.handleOptionVisibilityChange.bind(_assertThisInitialized(_this2)), 300);
+    _this2.handleOptionVisibilityChange = _underscore["default"].throttle(_this2.handleOptionVisibilityChange.bind(_assertThisInitialized(_this2)), 300);
     return _this2;
   }
 
@@ -147,10 +147,10 @@ var CustomColumnSelector = function (_React$PureComponent) {
       var _this$props = this.props,
           columnDefinitions = _this$props.columnDefinitions,
           hiddenColumns = _this$props.hiddenColumns;
-      return _underscore.default.map(_underscore.default.sortBy(_underscore.default.filter(columnDefinitions, function (c) {
+      return _underscore["default"].map(_underscore["default"].sortBy(_underscore["default"].filter(columnDefinitions, function (c) {
         return c.field !== 'display_title';
       }), 'order'), function (colDef) {
-        return _underscore.default.extend({}, colDef, {
+        return _underscore["default"].extend({}, colDef, {
           'hiddenState': hiddenColumns[colDef.field] === true
         });
       });
@@ -174,10 +174,10 @@ var CustomColumnSelector = function (_React$PureComponent) {
     value: function render() {
       var _this3 = this;
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "row clearfix"
-      }, _underscore.default.map(this.columnDefinitionsWithHiddenState(), function (colDef, idx, all) {
-        return _react.default.createElement(ColumnOption, _extends({}, colDef, {
+      }, _underscore["default"].map(this.columnDefinitionsWithHiddenState(), function (colDef, idx, all) {
+        return _react["default"].createElement(ColumnOption, _extends({}, colDef, {
           key: colDef.field || idx,
           allColumns: all,
           index: idx,
@@ -188,16 +188,16 @@ var CustomColumnSelector = function (_React$PureComponent) {
   }]);
 
   return CustomColumnSelector;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.CustomColumnSelector = CustomColumnSelector;
 CustomColumnSelector.propTypes = {
-  'hiddenColumns': _propTypes.default.object.isRequired,
-  'addHiddenColumn': _propTypes.default.func.isRequired,
-  'removeHiddenColumn': _propTypes.default.func.isRequired
+  'hiddenColumns': _propTypes["default"].object.isRequired,
+  'addHiddenColumn': _propTypes["default"].func.isRequired,
+  'removeHiddenColumn': _propTypes["default"].func.isRequired
 };
 
-var ColumnOption = _react.default.memo(function (props) {
+var ColumnOption = _react["default"].memo(function (props) {
   var hiddenState = props.hiddenState,
       allColumns = props.allColumns,
       field = props.field,
@@ -207,7 +207,7 @@ var ColumnOption = _react.default.memo(function (props) {
       handleOptionVisibilityChange = props.handleOptionVisibilityChange;
   var isChecked = !hiddenState;
 
-  var sameTitleColExists = _underscore.default.any(allColumns.slice(0, index).concat(allColumns.slice(index + 1)), {
+  var sameTitleColExists = _underscore["default"].any(allColumns.slice(0, index).concat(allColumns.slice(index + 1)), {
     title: title
   });
 
@@ -222,12 +222,12 @@ var ColumnOption = _react.default.memo(function (props) {
     }
   }
 
-  return _react.default.createElement("div", {
+  return _react["default"].createElement("div", {
     className: "col-12 col-sm-6 col-lg-3 column-option",
     key: field,
     "data-tip": showDescription,
     "data-html": true
-  }, _react.default.createElement(_Checkbox.Checkbox, {
+  }, _react["default"].createElement(_Checkbox.Checkbox, {
     checked: isChecked,
     onChange: function onChange(e) {
       return handleOptionVisibilityChange(field, e);

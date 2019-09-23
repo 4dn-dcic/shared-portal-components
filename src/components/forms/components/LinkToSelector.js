@@ -61,8 +61,19 @@ export class LinkToSelector extends React.PureComponent {
         'onCloseChildWindow': function(){
             console.log("Closed child window");
         },
-        'searchURL'         : '/search/?type=Item',
-        'childWindowAlert'  : null,
+        'searchURL'         : '/search/?currentAction=selection&type=Item',
+        'childWindowAlert'  : {
+            'title' : "Selecting Item...",
+            'message' : (
+                <div>
+                    <p className="mb-0">
+                        Please either <b>drag and drop</b> an Item (row) from this window into the parent window or click its corresponding select (checkbox) button.
+                    </p>
+                    <p className="mb-0">You may also browse around and drag & drop a link into the parent window as well.</p>
+                </div>
+            ),
+            'style' : "info"
+        },
         'dropMessage'       : "Drop Item Here",
         'enableWindowDrop'  : true
     };

@@ -24,7 +24,7 @@ var _TableOfContents = require("./TableOfContents");
 
 var _util = require("./../util");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -65,7 +65,7 @@ function correctRelativeLinks(elem, context) {
       } else {
         var filenameWithoutExtension = href.split('.').slice(0, -1).join('.');
 
-        if (typeof _underscore.default.find(context.content, {
+        if (typeof _underscore["default"].find(context.content, {
           'name': filenameWithoutExtension
         }) !== 'undefined') {
           href = '#' + filenameWithoutExtension;
@@ -74,7 +74,7 @@ function correctRelativeLinks(elem, context) {
     }
 
     if (href !== elem.props.href || href.charAt(0) === '#') {
-      return _react.default.cloneElement(elem, _underscore.default.extend(_underscore.default.omit(elem.props, 'children'), {
+      return _react["default"].cloneElement(elem, _underscore["default"].extend(_underscore["default"].omit(elem.props, 'children'), {
         'href': href,
         'onClick': href.charAt(0) !== '#' ? null : function (e) {
           e.preventDefault();
@@ -84,13 +84,13 @@ function correctRelativeLinks(elem, context) {
       }), elem.props.children || null);
     } else return elem;
   } else if (elem.props.children && typeof elem.type === 'string') {
-    return _react.default.cloneElement(elem, _underscore.default.omit(elem.props, 'children'), _react.default.Children.map(elem.props.children, function (child) {
+    return _react["default"].cloneElement(elem, _underscore["default"].omit(elem.props, 'children'), _react["default"].Children.map(elem.props.children, function (child) {
       return correctRelativeLinks(child, context, depth + 1);
     }));
   } else return elem;
 }
 
-var Wrapper = _react.default.memo(function (props) {
+var Wrapper = _react["default"].memo(function (props) {
   var children = props.children,
       tableOfContents = props.tableOfContents,
       title = props.title,
@@ -98,20 +98,20 @@ var Wrapper = _react.default.memo(function (props) {
   var toc = context && context['table-of-contents'] || (tableOfContents && _typeof(tableOfContents) === 'object' ? tableOfContents : null);
   var pageTitle = title || context && context.title || null;
   var tocExists = toc && toc.enabled !== false;
-  return _react.default.createElement("div", {
+  return _react["default"].createElement("div", {
     className: "container",
     id: "content"
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement("div", {
     className: "static-page row",
     key: "wrapper"
-  }, tocExists ? _react.default.createElement("div", {
+  }, tocExists ? _react["default"].createElement("div", {
     key: "toc-wrapper",
     className: "col-12 col-xl-3 order-1 order-xl-3"
-  }, _react.default.createElement(_TableOfContents.TableOfContents, _extends({
+  }, _react["default"].createElement(_TableOfContents.TableOfContents, _extends({
     pageTitle: pageTitle,
     fixedGridWidth: 3,
     maxHeaderDepth: toc['header-depth'] || 6
-  }, _underscore.default.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')))) : null, _react.default.createElement("div", {
+  }, _underscore["default"].pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')))) : null, _react["default"].createElement("div", {
     key: "main-column",
     className: "order-2 col-12 col-xl-" + (tocExists ? '9' : '12')
   }, children)));
@@ -131,7 +131,7 @@ var StaticEntry = function (_React$PureComponent) {
     _classCallCheck(this, StaticEntry);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(StaticEntry).call(this, props));
-    _this.toggleOpen = _underscore.default.throttle(_this.toggleOpen.bind(_assertThisInitialized(_this)), 1000);
+    _this.toggleOpen = _underscore["default"].throttle(_this.toggleOpen.bind(_assertThisInitialized(_this)), 1000);
     var options = props.section && props.section.options || {};
     _this.state = {
       'open': options.default_open,
@@ -188,31 +188,31 @@ var StaticEntry = function (_React$PureComponent) {
       var options = section && section.options || {};
       var outerClassName = entryType + "-entry static-section-entry";
 
-      var renderedChildComponent = _react.default.createElement(childComponent, this.props);
+      var renderedChildComponent = _react["default"].createElement(childComponent, this.props);
 
       if (options.collapsible) {
         outerClassName += ' can-collapse ' + (open ? 'open' : 'closed');
-        return _react.default.createElement("div", {
+        return _react["default"].createElement("div", {
           className: outerClassName,
           id: id
-        }, section && section.title ? _react.default.createElement(_TableOfContents.HeaderWithLink, {
+        }, section && section.title ? _react["default"].createElement(_TableOfContents.HeaderWithLink, {
           className: "section-title can-collapse " + (open ? 'open' : 'closed'),
           link: id,
           context: context,
           onClick: this.toggleOpen
-        }, _react.default.createElement("i", {
+        }, _react["default"].createElement("i", {
           className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
-        }), "\xA0\xA0", section.title) : null, _react.default.createElement(_Collapse.Collapse, {
-          in: open
-        }, _react.default.createElement("div", {
+        }), "\xA0\xA0", section.title) : null, _react["default"].createElement(_Collapse.Collapse, {
+          "in": open
+        }, _react["default"].createElement("div", {
           className: "inner"
         }, open || closing ? renderedChildComponent : null)));
       }
 
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: outerClassName,
         id: id
-      }, section && section.title ? _react.default.createElement(_TableOfContents.HeaderWithLink, {
+      }, section && section.title ? _react["default"].createElement(_TableOfContents.HeaderWithLink, {
         className: "section-title",
         link: id,
         context: context
@@ -221,7 +221,7 @@ var StaticEntry = function (_React$PureComponent) {
   }]);
 
   return StaticEntry;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.StaticEntry = StaticEntry;
 
@@ -233,7 +233,7 @@ _defineProperty(StaticEntry, "defaultProps", {
 });
 
 _defineProperty(StaticEntry, "propTypes", {
-  'childComponent': _propTypes.default.elementType
+  'childComponent': _propTypes["default"].elementType
 });
 
 var StaticPageBase = function (_React$PureComponent2) {
@@ -248,7 +248,7 @@ var StaticPageBase = function (_React$PureComponent2) {
         return null;
       }
 
-      return _underscore.default.map(parsedContent.content, function (section) {
+      return _underscore["default"].map(parsedContent.content, function (section) {
         return renderMethod(section.id || section.name, section, props);
       });
     }
@@ -275,7 +275,7 @@ var StaticPageBase = function (_React$PureComponent2) {
       var href = this.props.href;
       if (!href) return;
 
-      var hrefParts = _url.default.parse(href, true);
+      var hrefParts = _url["default"].parse(href, true);
 
       var redirected_from = hrefParts.query && hrefParts.query.redirected_from;
 
@@ -283,9 +283,9 @@ var StaticPageBase = function (_React$PureComponent2) {
         setTimeout(function () {
           _Alerts.Alerts.queue({
             'title': "Redirected",
-            'message': _react.default.createElement("span", null, "You have been redirected from old page ", _react.default.createElement("span", {
+            'message': _react["default"].createElement("span", null, "You have been redirected from old page ", _react["default"].createElement("span", {
               className: "text-500"
-            }, redirected_from), " to ", _react.default.createElement("span", {
+            }, redirected_from), " to ", _react["default"].createElement("span", {
               className: "text-500"
             }, hrefParts.pathname), ". Please update your bookmarks."),
             'style': 'warning'
@@ -307,7 +307,7 @@ var StaticPageBase = function (_React$PureComponent2) {
       } catch (e) {
         _util.console.dir(e);
 
-        parsedContent = _underscore.default.extend({}, context, {
+        parsedContent = _underscore["default"].extend({}, context, {
           'content': [{
             'content': '<h4>Error - ' + e.message + '</h4>Check Page content/sections.',
             'name': 'error'
@@ -316,7 +316,7 @@ var StaticPageBase = function (_React$PureComponent2) {
       }
 
       var tableOfContents = parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled ? parsedContent['table-of-contents'] : false;
-      return _react.default.createElement(Wrapper, _extends({}, _underscore.default.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href'), {
+      return _react["default"].createElement(Wrapper, _extends({}, _underscore["default"].pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href'), {
         key: "page-wrapper",
         title: parsedContent.title,
         tableOfContents: tableOfContents,
@@ -326,7 +326,7 @@ var StaticPageBase = function (_React$PureComponent2) {
   }]);
 
   return StaticPageBase;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.StaticPageBase = StaticPageBase;
 
@@ -350,8 +350,8 @@ _defineProperty(StaticPageBase, "defaultProps", {
       }
     }
   },
-  'entryRenderFxn': (0, _memoizeOne.default)(function (sectionName, section, props) {
-    return _react.default.createElement(StaticEntry, _extends({}, props, {
+  'entryRenderFxn': (0, _memoizeOne["default"])(function (sectionName, section, props) {
+    return _react["default"].createElement(StaticEntry, _extends({}, props, {
       key: sectionName,
       sectionName: sectionName,
       section: section
@@ -360,12 +360,12 @@ _defineProperty(StaticPageBase, "defaultProps", {
 });
 
 _defineProperty(StaticPageBase, "propTypes", {
-  'context': _propTypes.default.shape({
-    "title": _propTypes.default.string,
-    "content": _propTypes.default.any.isRequired,
-    "table-of-contents": _propTypes.default.object
+  'context': _propTypes["default"].shape({
+    "title": _propTypes["default"].string,
+    "content": _propTypes["default"].any.isRequired,
+    "table-of-contents": _propTypes["default"].object
   }).isRequired,
-  'entryRenderFxn': _propTypes.default.func.isRequired,
-  'contentParseFxn': _propTypes.default.func.isRequired,
-  'href': _propTypes.default.string
+  'entryRenderFxn': _propTypes["default"].func.isRequired,
+  'contentParseFxn': _propTypes["default"].func.isRequired,
+  'href': _propTypes["default"].string
 });

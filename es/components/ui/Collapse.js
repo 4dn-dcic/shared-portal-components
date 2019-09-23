@@ -21,15 +21,15 @@ var _Transition = _interopRequireWildcard(require("react-transition-group/Transi
 
 var _collapseStyles;
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+function _objectSpread2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
@@ -62,7 +62,7 @@ function getDimensionValue(dimension, elem) {
   var offset = "offset".concat(dimension[0].toUpperCase()).concat(dimension.slice(1));
   var value = elem[offset];
   var margins = MARGINS[dimension];
-  return value + parseInt((0, _style.default)(elem, margins[0]), 10) + parseInt((0, _style.default)(elem, margins[1]), 10);
+  return value + parseInt((0, _style["default"])(elem, margins[0]), 10) + parseInt((0, _style["default"])(elem, margins[1]), 10);
 }
 
 var collapseStyles = (_collapseStyles = {}, _defineProperty(_collapseStyles, _Transition.EXITED, 'collapse'), _defineProperty(_collapseStyles, _Transition.EXITING, 'collapsing'), _defineProperty(_collapseStyles, _Transition.ENTERING, 'collapsing'), _defineProperty(_collapseStyles, _Transition.ENTERED, 'collapse show in'), _collapseStyles);
@@ -77,7 +77,7 @@ var Collapse = function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Collapse).call(this, props));
 
-    _underscore.default.bindAll(_assertThisInitialized(_this), 'getDimension', 'handleEnter', 'handleEntering', 'handleEntered', 'handleExit', 'handleExiting');
+    _underscore["default"].bindAll(_assertThisInitialized(_this), 'getDimension', 'handleEnter', 'handleEntering', 'handleEntered', 'handleExit', 'handleExiting');
 
     return _this;
   }
@@ -145,19 +145,19 @@ var Collapse = function (_React$PureComponent) {
       var handleEntered = (0, _bootstrapUtils.createChainedFunction)(this.handleEntered, onEntered);
       var handleExit = (0, _bootstrapUtils.createChainedFunction)(this.handleExit, onExit);
       var handleExiting = (0, _bootstrapUtils.createChainedFunction)(this.handleExiting, onExiting);
-      return _react.default.createElement(_Transition.default, _extends({
-        addEndListener: _end.default
+      return _react["default"].createElement(_Transition["default"], _extends({
+        addEndListener: _end["default"]
       }, props, {
-        "aria-expanded": props.role ? props.in : null,
+        "aria-expanded": props.role ? props["in"] : null,
         onEnter: handleEnter,
         onEntering: handleEntering,
         onEntered: handleEntered,
         onExit: handleExit,
         onExiting: handleExiting
       }), function (state, innerProps) {
-        var cls = _underscore.default.filter([className, children.props.className, collapseStyles[state], _this2.getDimension() === 'width' && 'width']).join(' ');
+        var cls = _underscore["default"].filter([className, children.props.className, collapseStyles[state], _this2.getDimension() === 'width' && 'width']).join(' ');
 
-        return _react.default.cloneElement(children, _objectSpread({}, innerProps, {
+        return _react["default"].cloneElement(children, _objectSpread2({}, innerProps, {
           className: cls
         }));
       });
@@ -165,11 +165,11 @@ var Collapse = function (_React$PureComponent) {
   }]);
 
   return Collapse;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.Collapse = Collapse;
 Collapse.defaultProps = {
-  in: false,
+  "in": false,
   timeout: 300,
   mountOnEnter: false,
   unmountOnExit: false,

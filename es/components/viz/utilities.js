@@ -19,7 +19,7 @@ var _misc = require("./../util/misc");
 
 var _patchedConsole = require("./../util/patched-console");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -53,11 +53,11 @@ function requestAnimationFrame(cb) {
 function extendStyleOptions(styleOptsToExtendFrom, styleOptsToExtend) {
   if (!styleOptsToExtend) throw new Error("No default style options provided.");
   if (!styleOptsToExtendFrom) return styleOptsToExtend;else {
-    _underscore.default.keys(styleOptsToExtend).forEach(function (styleProp) {
+    _underscore["default"].keys(styleOptsToExtend).forEach(function (styleProp) {
       if (typeof styleOptsToExtendFrom[styleProp] === 'undefined') return;
 
       if (_typeof(styleOptsToExtendFrom[styleProp]) === 'object' && styleOptsToExtendFrom[styleProp]) {
-        _underscore.default.extend(styleOptsToExtend[styleProp], styleOptsToExtendFrom[styleProp]);
+        _underscore["default"].extend(styleOptsToExtend[styleProp], styleOptsToExtendFrom[styleProp]);
       } else {
         styleOptsToExtend[styleProp] = styleOptsToExtendFrom[styleProp];
       }
@@ -71,7 +71,7 @@ function transformBarPlotAggregationsToD3CompatibleHierarchy(rootField) {
   var aggregateType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'experiment_sets';
 
   function genChildren(currField) {
-    return _underscore.default.map(_underscore.default.pairs(currField.terms), function (term_pair) {
+    return _underscore["default"].map(_underscore["default"].pairs(currField.terms), function (term_pair) {
       var termName = term_pair[0];
       var termObj = term_pair[1];
       var isLeafTerm = typeof termObj.experiment_sets === 'number' && typeof termObj.field === 'undefined';
@@ -122,11 +122,11 @@ var style = {
     if (typeof axes === 'string') axes = axes.split(',').map(function (axis) {
       return axis.trim();
     });
-    if (Array.isArray(axes)) axes = _underscore.default.extend({
+    if (Array.isArray(axes)) axes = _underscore["default"].extend({
       'x': 0,
       'y': 0,
       'z': 0
-    }, _underscore.default.object(axes.map(function (axis) {
+    }, _underscore["default"].object(axes.map(function (axis) {
       return [axis, 1];
     })));
     return 'rotate3d(' + axes.x + ',' + axes.y + ',' + axes.z + ',' + rotation + 'deg)';
@@ -142,7 +142,7 @@ var style = {
 };
 exports.style = style;
 
-var highlightTermFxn = _underscore.default.debounce(function () {
+var highlightTermFxn = _underscore["default"].debounce(function () {
   var field = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'experiments_in_set.biosample.biosource.individual.organism.name';
   var term = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'human';
   var color = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
@@ -179,17 +179,17 @@ var highlightTermFxn = _underscore.default.debounce(function () {
   requestAnimationFrame(function () {
     var colorIsSet = color === null || color === false ? false : typeof color === 'string' ? color.length > 0 : _typeof(color) === 'object' ? true : false;
 
-    _underscore.default.each(document.querySelectorAll('[data-field]:not(.no-highlight)'), function (fieldContainerElement) {
+    _underscore["default"].each(document.querySelectorAll('[data-field]:not(.no-highlight)'), function (fieldContainerElement) {
       setHighlightClass(fieldContainerElement, true);
     });
 
     if (colorIsSet) {
-      _underscore.default.each(document.querySelectorAll('[data-field' + (field ? '="' + field + '"' : '') + ']:not(.no-highlight)'), function (fieldContainerElement) {
+      _underscore["default"].each(document.querySelectorAll('[data-field' + (field ? '="' + field + '"' : '') + ']:not(.no-highlight)'), function (fieldContainerElement) {
         setHighlightClass(fieldContainerElement, false);
       });
     }
 
-    _underscore.default.each(document.querySelectorAll('[data-term]:not(.no-highlight)'), function (termElement) {
+    _underscore["default"].each(document.querySelectorAll('[data-term]:not(.no-highlight)'), function (termElement) {
       var dataField = termElement.getAttribute('data-field');
       if (field && dataField && dataField === field) return;
       var isSVG = setHighlightClass(termElement, true);
@@ -197,7 +197,7 @@ var highlightTermFxn = _underscore.default.debounce(function () {
     });
 
     if (colorIsSet) {
-      _underscore.default.each(document.querySelectorAll('[data-term="' + term + '"]:not(.no-highlight)'), function (termElement) {
+      _underscore["default"].each(document.querySelectorAll('[data-term="' + term + '"]:not(.no-highlight)'), function (termElement) {
         var isSVG = setHighlightClass(termElement, false);
         if (!isSVG && termElement.className.indexOf('no-highlight-color') === -1) termElement.style.backgroundColor = color;
       });

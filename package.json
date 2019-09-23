@@ -67,15 +67,15 @@
     },
     "peerDependencies": {
         "d3": ">=5.9.0",
+        "form-serialize": ">=0.6.0",
+        "markdown-to-jsx": ">=6.9.3",
+        "moment": ">=2.24.0",
+        "query-string": ">=4.3.0",
         "react": ">=16.3.0",
         "react-dom": ">=16.3.0",
         "react-bootstrap": "*",
-        "markdown-to-jsx": ">=6.9.3",
-        "underscore": ">=1.9.1",
         "react-tooltip": ">=3.10.0",
-        "query-string": ">=4.3.0",
-        "moment": ">=2.24.0",
-        "form-serialize": ">=0.6.0",
-        "react-transition-group": ">=3.0.0"
+        "react-transition-group": ">=3.0.0",
+        "underscore": ">=1.9.1"
     }
 }

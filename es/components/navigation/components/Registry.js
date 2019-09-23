@@ -3,11 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports["default"] = void 0;
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -21,7 +21,7 @@ var Registry = function () {
 
     this.views = {};
 
-    _underscore.default.extend(this, options);
+    _underscore["default"].extend(this, options);
   }
 
   _createClass(Registry, [{
@@ -87,4 +87,4 @@ var Registry = function () {
   return Registry;
 }();
 
-exports.default = Registry;
+exports["default"] = Registry;

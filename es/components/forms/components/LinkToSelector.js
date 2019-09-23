@@ -17,7 +17,7 @@ var _patchedConsole = require("./../../util/patched-console");
 
 var _object = require("./../../util/object");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -167,7 +167,7 @@ var LinkToSelector = function (_React$PureComponent) {
         return;
       }
 
-      var eventOriginParts = _url.default.parse(evt.origin);
+      var eventOriginParts = _url["default"].parse(evt.origin);
 
       if (window.location.host !== eventOriginParts.host) {
         _patchedConsole.patchedConsoleInstance.error('Received message from unauthorized host. Canceling.');
@@ -184,7 +184,7 @@ var LinkToSelector = function (_React$PureComponent) {
       if (eventType === 'fourfrontselectionclick') {
         var items = evt.data && evt.data.items || evt.detail && evt.detail.items || null;
 
-        if (items && Array.isArray(items) && items.length > 0 && _underscore.default.every(items, function (item) {
+        if (items && Array.isArray(items) && items.length > 0 && _underscore["default"].every(items, function (item) {
           return item.id && typeof item.id === 'string' && item.json;
         })) {
           return this.receiveData(items);
@@ -255,7 +255,7 @@ var LinkToSelector = function (_React$PureComponent) {
     key: "render",
     value: function render() {
       if (this.props.enableWindowDrop) {
-        return _react.default.createElement(WindowDropReceiver, this.props);
+        return _react["default"].createElement(WindowDropReceiver, this.props);
       }
 
       return null;
@@ -263,22 +263,22 @@ var LinkToSelector = function (_React$PureComponent) {
   }]);
 
   return LinkToSelector;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.LinkToSelector = LinkToSelector;
 
 _defineProperty(LinkToSelector, "propTypes", {
-  'isSelecting': _propTypes.default.bool.isRequired,
-  'onSelect': _propTypes.default.func.isRequired,
-  'searchURL': _propTypes.default.string.isRequired,
-  'childWindowAlert': _propTypes.default.shape({
-    'title': _propTypes.default.string.isRequired,
-    'message': _propTypes.default.any.isRequired,
-    'style': _propTypes.default.string
+  'isSelecting': _propTypes["default"].bool.isRequired,
+  'onSelect': _propTypes["default"].func.isRequired,
+  'searchURL': _propTypes["default"].string.isRequired,
+  'childWindowAlert': _propTypes["default"].shape({
+    'title': _propTypes["default"].string.isRequired,
+    'message': _propTypes["default"].any.isRequired,
+    'style': _propTypes["default"].string
   }),
-  'onCloseChildWindow': _propTypes.default.func,
-  'enableWindowDrop': _propTypes.default.bool.isRequired,
-  'dropMessage': _propTypes.default.string.isRequired
+  'onCloseChildWindow': _propTypes["default"].func,
+  'enableWindowDrop': _propTypes["default"].bool.isRequired,
+  'dropMessage': _propTypes["default"].string.isRequired
 });
 
 _defineProperty(LinkToSelector, "defaultProps", {
@@ -289,8 +289,16 @@ _defineProperty(LinkToSelector, "defaultProps", {
   'onCloseChildWindow': function onCloseChildWindow() {
     _patchedConsole.patchedConsoleInstance.log("Closed child window");
   },
-  'searchURL': '/search/?type=Item',
-  'childWindowAlert': null,
+  'searchURL': '/search/?currentAction=selection&type=Item',
+  'childWindowAlert': {
+    'title': "Selecting Item...",
+    'message': _react["default"].createElement("div", null, _react["default"].createElement("p", {
+      className: "mb-0"
+    }, "Please either ", _react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the parent window or click its corresponding select (checkbox) button."), _react["default"].createElement("p", {
+      className: "mb-0"
+    }, "You may also browse around and drag & drop a link into the parent window as well.")),
+    'style': "info"
+  },
   'dropMessage': "Drop Item Here",
   'enableWindowDrop': true
 });
@@ -305,7 +313,7 @@ var WindowDropReceiver = function (_React$PureComponent2) {
 
     _this5 = _possibleConstructorReturn(this, _getPrototypeOf(WindowDropReceiver).call(this, props));
     _this5.handleWindowDragOver = _this5.handleWindowDragOver.bind(_assertThisInitialized(_this5));
-    _this5.refreshWindowDropReceiver = _underscore.default.throttle(_this5.refreshWindowDropReceiver.bind(_assertThisInitialized(_this5)), 300);
+    _this5.refreshWindowDropReceiver = _underscore["default"].throttle(_this5.refreshWindowDropReceiver.bind(_assertThisInitialized(_this5)), 300);
     _this5.closeWindowDropReceiver = _this5.closeWindowDropReceiver.bind(_assertThisInitialized(_this5));
     _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
     _this5.receiveData = _this5.receiveData.bind(_assertThisInitialized(_this5));
@@ -374,7 +382,7 @@ var WindowDropReceiver = function (_React$PureComponent2) {
       var draggedContext = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-json');
       var draggedURI = evt.dataTransfer && evt.dataTransfer.getData('text/plain');
       var draggedID = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-id');
-      var atId = draggedID || draggedContext & _object.itemUtil.atId(draggedContext) || _url.default.parse(draggedURI).pathname || null;
+      var atId = draggedID || draggedContext & _object.itemUtil.atId(draggedContext) || _url["default"].parse(draggedURI).pathname || null;
       this.receiveData(atId, draggedContext);
     }
   }, {
@@ -457,14 +465,14 @@ var WindowDropReceiver = function (_React$PureComponent2) {
   }]);
 
   return WindowDropReceiver;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.WindowDropReceiver = WindowDropReceiver;
 
 _defineProperty(WindowDropReceiver, "propTypes", {
-  'isSelecting': _propTypes.default.bool.isRequired,
-  'onSelect': _propTypes.default.func.isRequired,
-  'dropMessage': _propTypes.default.string.isRequired
+  'isSelecting': _propTypes["default"].bool.isRequired,
+  'onSelect': _propTypes["default"].func.isRequired,
+  'dropMessage': _propTypes["default"].string.isRequired
 });
 
 _defineProperty(WindowDropReceiver, "defaultProps", {

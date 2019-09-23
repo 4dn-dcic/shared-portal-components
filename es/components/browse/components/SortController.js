@@ -19,7 +19,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _navigate2 = require("./../../util/navigate");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -72,7 +72,7 @@ var SortController = function (_React$PureComponent) {
       if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
       if (typeof href !== 'string') throw new Error("Browse doesn't have props.href.");
 
-      var _url$parse = _url.default.parse(href, true),
+      var _url$parse = _url["default"].parse(href, true),
           query = _url$parse.query,
           urlParts = _objectWithoutProperties(_url$parse, ["query"]);
 
@@ -82,9 +82,9 @@ var SortController = function (_React$PureComponent) {
         delete query.sort;
       }
 
-      urlParts.search = '?' + _querystring.default.stringify(query);
+      urlParts.search = '?' + _querystring["default"].stringify(query);
 
-      var newHref = _url.default.format(urlParts);
+      var newHref = _url["default"].format(urlParts);
 
       this.setState({
         'changingPage': true
@@ -114,7 +114,7 @@ var SortController = function (_React$PureComponent) {
           page = _SortController$getPa.page,
           limit = _SortController$getPa.limit;
 
-      var propsToPass = _underscore.default.extend(_underscore.default.omit(this.props, 'children'), {
+      var propsToPass = _underscore["default"].extend(_underscore["default"].omit(this.props, 'children'), {
         'sortBy': this.sortBy
       }, {
         sortColumn: sortColumn,
@@ -123,22 +123,22 @@ var SortController = function (_React$PureComponent) {
         limit: limit
       });
 
-      return _react.default.createElement("div", null, _react.default.Children.map(children, function (c) {
-        return _react.default.cloneElement(c, propsToPass);
+      return _react["default"].createElement("div", null, _react["default"].Children.map(children, function (c) {
+        return _react["default"].cloneElement(c, propsToPass);
       }));
     }
   }]);
 
   return SortController;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.SortController = SortController;
 
 _defineProperty(SortController, "propTypes", {
-  'href': _propTypes.default.string.isRequired,
-  'context': _propTypes.default.object.isRequired,
-  'navigate': _propTypes.default.func,
-  'children': _propTypes.default.node.isRequired
+  'href': _propTypes["default"].string.isRequired,
+  'context': _propTypes["default"].object.isRequired,
+  'navigate': _propTypes["default"].func,
+  'children': _propTypes["default"].node.isRequired
 });
 
 _defineProperty(SortController, "defaultProps", {
@@ -148,8 +148,8 @@ _defineProperty(SortController, "defaultProps", {
   }
 });
 
-_defineProperty(SortController, "getPageAndLimitFromURL", (0, _memoizeOne.default)(function (href) {
-  var _url$parse2 = _url.default.parse(href, true),
+_defineProperty(SortController, "getPageAndLimitFromURL", (0, _memoizeOne["default"])(function (href) {
+  var _url$parse2 = _url["default"].parse(href, true),
       query = _url$parse2.query;
 
   var limit = parseInt(query.limit || 25);
@@ -162,14 +162,14 @@ _defineProperty(SortController, "getPageAndLimitFromURL", (0, _memoizeOne.defaul
   };
 }));
 
-_defineProperty(SortController, "getSortColumnAndReverseFromContext", (0, _memoizeOne.default)(function (context) {
+_defineProperty(SortController, "getSortColumnAndReverseFromContext", (0, _memoizeOne["default"])(function (context) {
   var defaults = {
     'sortColumn': null,
     'sortReverse': false
   };
   if (!context || !context.sort) return defaults;
 
-  var sortKey = _underscore.default.keys(context.sort);
+  var sortKey = _underscore["default"].keys(context.sort);
 
   if (sortKey.length > 0) {
     sortKey = sortKey[0];

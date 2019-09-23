@@ -30,9 +30,9 @@ var object = _interopRequireWildcard(require("./object"));
 
 var JWT = _interopRequireWildcard(require("./json-web-token"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -83,7 +83,7 @@ function initializeGoogleAnalytics() {
   }
 
   if ((0, _misc.isServerSide)()) return false;
-  options = _underscore.default.extend({}, defaultOptions, options);
+  options = _underscore["default"].extend({}, defaultOptions, options);
 
   if (!options.isAnalyticsScriptOnPage) {
     (function (i, s, o, g, r, a, m) {
@@ -104,7 +104,7 @@ function initializeGoogleAnalytics() {
     return false;
   }
 
-  state = _underscore.default.clone(options);
+  state = _underscore["default"].clone(options);
   ga2('create', trackingID, 'auto');
 
   _patchedConsole.patchedConsoleInstance.info("Initialized google analytics.");
@@ -131,7 +131,7 @@ function registerPageView() {
     _patchedConsole.patchedConsoleInstance.error("No HREF defined, check.. something. Will still send pageview event.");
   }
 
-  var parts = _url.default.parse(href, true);
+  var parts = _url["default"].parse(href, true);
 
   var pageViewObject = {
     'hitType': 'pageview'
@@ -168,7 +168,7 @@ function registerPageView() {
     }
 
     if (parts.query && (parts.query.q || parts.query.type)) {
-      var qs = _queryString.default.stringify({
+      var qs = _queryString["default"].stringify({
         'q': parts.query.q,
         'type': parts.query.type
       });
@@ -239,13 +239,13 @@ function event(category, action) {
   var fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   if (!shouldTrack()) return false;
 
-  var eventObj = _underscore.default.extend({}, fields, {
+  var eventObj = _underscore["default"].extend({}, fields, {
     'hitType': 'event',
     'eventCategory': category,
     'eventAction': action
   });
 
-  _underscore.default.forEach(_underscore.default.pairs(eventObj), function (_ref) {
+  _underscore["default"].forEach(_underscore["default"].pairs(eventObj), function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         key = _ref2[0],
         value = _ref2[1];
@@ -275,7 +275,7 @@ function productClick(item) {
     return true;
   }
 
-  var pObj = _underscore.default.extend(state.itemToProductTransform(item), extraData);
+  var pObj = _underscore["default"].extend(state.itemToProductTransform(item), extraData);
 
   var href = extraData.href || window.location.href;
   var eventObj = {
@@ -292,10 +292,10 @@ function productClick(item) {
     },
     'name': pObj.name || pObj.id
   };
-  ga2('ec:addProduct', _underscore.default.omit(pObj, 'list'));
-  ga2('ec:setAction', 'click', _underscore.default.pick(pObj, 'list'));
+  ga2('ec:addProduct', _underscore["default"].omit(pObj, 'list'));
+  ga2('ec:setAction', 'click', _underscore["default"].pick(pObj, 'list'));
 
-  _underscore.default.forEach(_underscore.default.pairs(eventObj), function (_ref3) {
+  _underscore["default"].forEach(_underscore["default"].pairs(eventObj), function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
         key = _ref4[0],
         value = _ref4[1];
@@ -343,7 +343,7 @@ function eventLabelFromChartNodes(nodes) {
 }
 
 function getStringifiedCurrentFilters(expSetFilters) {
-  return JSON.stringify(expSetFilters, _underscore.default.keys(expSetFilters).sort());
+  return JSON.stringify(expSetFilters, _underscore["default"].keys(expSetFilters).sort());
 }
 
 function getGoogleAnalyticsTrackingData() {
@@ -372,7 +372,7 @@ function getGoogleAnalyticsTrackingData() {
 }
 
 function hrefToListName(href) {
-  var hrefParts = _url.default.parse(href, false);
+  var hrefParts = _url["default"].parse(href, false);
 
   var strippedPathName = hrefParts.pathname;
 
@@ -401,7 +401,7 @@ function shouldTrack() {
   var userDetails = JWT.getUserDetails();
 
   if (userDetails && Array.isArray(userDetails.groups) && userDetails.groups.indexOf('admin') > -1) {
-    var urlParts = _url.default.parse(window.location.href);
+    var urlParts = _url["default"].parse(window.location.href);
 
     if (urlParts.host.indexOf('4dnucleome.org') > -1) {
       _patchedConsole.patchedConsoleInstance.warn("Logged in as admin on 4dnucleome.org - will NOT track.");
@@ -419,7 +419,7 @@ function impressionListOfItems(itemList, href) {
   var from = 0;
 
   if (typeof href === 'string') {
-    href = _url.default.parse(href, true);
+    href = _url["default"].parse(href, true);
     if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
   }
 
@@ -434,8 +434,8 @@ function impressionListOfItems(itemList, href) {
 
   _patchedConsole.patchedConsoleInstance.info("Will impression " + itemList.length + ' items.');
 
-  return _underscore.default.map(itemList, function (item, i) {
-    var pObj = _underscore.default.extend(state.itemToProductTransform(item), commonProductObj, {
+  return _underscore["default"].map(itemList, function (item, i) {
+    var pObj = _underscore["default"].extend(state.itemToProductTransform(item), commonProductObj, {
       'position': from + i + 1
     });
 

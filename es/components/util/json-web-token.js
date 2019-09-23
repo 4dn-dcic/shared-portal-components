@@ -31,10 +31,10 @@ var _object = require("./object");
 
 var _jsonwebtoken = _interopRequireDefault(require("jsonwebtoken"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var COOKIE_ID = 'jwtToken';
-var cookieStore = new _universalCookie.default();
+var cookieStore = new _universalCookie["default"]();
 exports.cookieStore = cookieStore;
 var dummyStorage = {};
 
@@ -170,7 +170,7 @@ function isLoggedInAsAdmin() {
   return false;
 }
 
-var decode = (0, _memoizeOne.default)(function (jwtToken) {
-  return jwtToken && _jsonwebtoken.default.decode(jwtToken);
+var decode = (0, _memoizeOne["default"])(function (jwtToken) {
+  return jwtToken && _jsonwebtoken["default"].decode(jwtToken);
 });
 exports.decode = decode;
