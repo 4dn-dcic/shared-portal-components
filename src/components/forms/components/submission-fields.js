@@ -1346,9 +1346,15 @@ export class AliasInputField extends React.Component {
 
 export class AliasInputFieldValidated extends React.PureComponent {
 
+    static defaultProps = {
+        errorValue: "ERROR",
+        skipValidateAliases: [],
+        rejectAliases: []
+    };
+
     constructor(props){
         super(props);
-        this.doValidateAlias = _.debounce(this.doValidateAlias.bind(this), 1000);
+        this.doValidateAlias = this.doValidateAlias.bind(this);
         this.onAliasChange = this.onAliasChange.bind(this);
         this.request = null;
         this.state = {
@@ -1359,10 +1365,14 @@ export class AliasInputFieldValidated extends React.PureComponent {
     }
 
     doValidateAlias(alias){
-        const { onAliasChange } = this.props;
+        const { onAliasChange, errorValue } = this.props;
+        if (this.request){
+            this.request.abort();
+            this.request = null;
+        }
         let currReq = null;
         const cb = (res) => {
-            if (this.request !== currReq) {
+            if (!this.request || (this.request && this.request !== currReq)) {
                 // A newer request has been launched, cancel this
                 // to prevent accidental overwrites or something.
                 return;
@@ -1370,23 +1380,19 @@ export class AliasInputFieldValidated extends React.PureComponent {
             this.request = null;
             if (res.code !== 404){
                 // Not valid - something exists already.
+                onAliasChange(errorValue);
                 this.setState({ errorMessage: "Alias " + alias + " already exists", isValid: false });
                 return;
             }
-            this.setState({ isValid: true, errorMessage: null }, ()=>{
-                onAliasChange(alias);
-            });
+            onAliasChange(alias);
+            this.setState({ isValid: true, errorMessage: null });
         };
-
-        if (this.request && this.request.abort){
-            this.request.abort();
-        }
 
         currReq = this.request = ajax.load("/" + alias, cb, 'GET', cb);
     }
 
     onAliasChange(nextAlias){
-        const { onAliasChange } = this.props;
+        const { onAliasChange, errorValue, skipValidateAliases = [], rejectAliases = [] } = this.props;
 
         this.request && this.request.abort();
         this.request = null;
@@ -1395,14 +1401,26 @@ export class AliasInputFieldValidated extends React.PureComponent {
             const { value } = this.state;
             const [ firstPart, secondPart ] = value.split(':');
             if (!firstPart || !secondPart){
-                this.setState({ errorMessage: "Part of alias is blank" }, ()=>{
-                    onAliasChange(null);
-                });
+                onAliasChange(null);
+                this.setState({ errorMessage: "Part of alias is blank. Will be excluded." });
                 return;
             }
             const passedRegex = (new RegExp('^\\S+:\\S+$')).test(value);
             if (!passedRegex){
+                onAliasChange(errorValue);
                 this.setState({ errorMessage: "Aliases must be formatted as: <text>:<text> (e.g. dcic-lab:42)." });
+                return;
+            }
+            if (rejectAliases.length > 0 && rejectAliases.indexOf(nextAlias) > -1){
+                // Presume is saved in database as this, skip validation.
+                onAliasChange("ERROR");
+                this.setState({ errorMessage: "Alias rejected, make sure is not used already." });
+                return;
+            }
+            if (skipValidateAliases.length > 0 && skipValidateAliases.indexOf(nextAlias) > -1){
+                // Presume is saved in database as this, skip validation.
+                onAliasChange(nextAlias);
+                this.setState({ errorMessage: null });
                 return;
             }
             this.doValidateAlias(value);

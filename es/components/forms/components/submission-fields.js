@@ -42,7 +42,7 @@ function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArra
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -1805,7 +1805,7 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
     _classCallCheck(this, AliasInputFieldValidated);
 
     _this12 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputFieldValidated).call(this, props));
-    _this12.doValidateAlias = _underscore["default"].debounce(_this12.doValidateAlias.bind(_assertThisInitialized(_this12)), 1000);
+    _this12.doValidateAlias = _this12.doValidateAlias.bind(_assertThisInitialized(_this12));
     _this12.onAliasChange = _this12.onAliasChange.bind(_assertThisInitialized(_this12));
     _this12.request = null;
     _this12.state = {
@@ -1821,17 +1821,27 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
     value: function doValidateAlias(alias) {
       var _this13 = this;
 
-      var onAliasChange = this.props.onAliasChange;
+      var _this$props28 = this.props,
+          onAliasChange = _this$props28.onAliasChange,
+          errorValue = _this$props28.errorValue;
+
+      if (this.request) {
+        this.request.abort();
+        this.request = null;
+      }
+
       var currReq = null;
 
       var cb = function (res) {
-        if (_this13.request !== currReq) {
+        if (!_this13.request || _this13.request && _this13.request !== currReq) {
           return;
         }
 
         _this13.request = null;
 
         if (res.code !== 404) {
+          onAliasChange(errorValue);
+
           _this13.setState({
             errorMessage: "Alias " + alias + " already exists",
             isValid: false
@@ -1840,17 +1850,13 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
           return;
         }
 
+        onAliasChange(alias);
+
         _this13.setState({
           isValid: true,
           errorMessage: null
-        }, function () {
-          onAliasChange(alias);
         });
       };
-
-      if (this.request && this.request.abort) {
-        this.request.abort();
-      }
 
       currReq = this.request = _util.ajax.load("/" + alias, cb, 'GET', cb);
     }
@@ -1859,7 +1865,13 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
     value: function (nextAlias) {
       var _this14 = this;
 
-      var onAliasChange = this.props.onAliasChange;
+      var _this$props29 = this.props,
+          onAliasChange = _this$props29.onAliasChange,
+          errorValue = _this$props29.errorValue,
+          _this$props29$skipVal = _this$props29.skipValidateAliases,
+          skipValidateAliases = _this$props29$skipVal === void 0 ? [] : _this$props29$skipVal,
+          _this$props29$rejectA = _this$props29.rejectAliases,
+          rejectAliases = _this$props29$rejectA === void 0 ? [] : _this$props29$rejectA;
       this.request && this.request.abort();
       this.request = null;
       this.setState({
@@ -1873,10 +1885,10 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
             secondPart = _value$split2[1];
 
         if (!firstPart || !secondPart) {
+          onAliasChange(null);
+
           _this14.setState({
-            errorMessage: "Part of alias is blank"
-          }, function () {
-            onAliasChange(null);
+            errorMessage: "Part of alias is blank. Will be excluded."
           });
 
           return;
@@ -1885,8 +1897,30 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
         var passedRegex = new RegExp('^\\S+:\\S+$').test(value);
 
         if (!passedRegex) {
+          onAliasChange(errorValue);
+
           _this14.setState({
             errorMessage: "Aliases must be formatted as: <text>:<text> (e.g. dcic-lab:42)."
+          });
+
+          return;
+        }
+
+        if (rejectAliases.length > 0 && rejectAliases.indexOf(nextAlias) > -1) {
+          onAliasChange("ERROR");
+
+          _this14.setState({
+            errorMessage: "Alias rejected, make sure is not used already."
+          });
+
+          return;
+        }
+
+        if (skipValidateAliases.length > 0 && skipValidateAliases.indexOf(nextAlias) > -1) {
+          onAliasChange(nextAlias);
+
+          _this14.setState({
+            errorMessage: null
           });
 
           return;
@@ -1909,6 +1943,12 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
 
 exports.AliasInputFieldValidated = AliasInputFieldValidated;
 
+_defineProperty(AliasInputFieldValidated, "defaultProps", {
+  errorValue: "ERROR",
+  skipValidateAliases: [],
+  rejectAliases: []
+});
+
 var InfoIcon = function (_React$PureComponent5) {
   _inherits(InfoIcon, _React$PureComponent5);
 
@@ -1921,9 +1961,9 @@ var InfoIcon = function (_React$PureComponent5) {
   _createClass(InfoIcon, [{
     key: "fieldTypeDescriptor",
     value: function fieldTypeDescriptor() {
-      var _this$props28 = this.props,
-          fieldType = _this$props28.fieldType,
-          schema = _this$props28.schema;
+      var _this$props30 = this.props,
+          fieldType = _this$props30.fieldType,
+          schema = _this$props30.schema;
       if (typeof fieldType !== 'string' || fieldType.length === 0) return null;
 
       var type = _util.valueTransforms.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
@@ -1937,11 +1977,11 @@ var InfoIcon = function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props29 = this.props,
-          children = _this$props29.children,
-          title = _this$props29.title,
-          fieldType = _this$props29.fieldType,
-          className = _this$props29.className;
+      var _this$props31 = this.props,
+          children = _this$props31.children,
+          title = _this$props31.title,
+          fieldType = _this$props31.fieldType,
+          className = _this$props31.className;
       if (!children || typeof children !== 'string') return null;
       var tip = children;
 
