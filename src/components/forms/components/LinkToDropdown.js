@@ -85,7 +85,6 @@ export class LinkToDropdown extends React.PureComponent {
         const { optionResults = [] } = this.state;
         const optionsLen = optionResults.length;
         let selectedItem = null;
-        console.log('SELL', itemID);
 
         for (let i = 0; i < optionsLen; i++){
             if (optionResults[i]['@id'] === itemID){
@@ -115,7 +114,7 @@ export class LinkToDropdown extends React.PureComponent {
         } = this.props;
         const { error, optionResults, loading, typedSearchQuery } = this.state;
 
-        const searchAsYouType = true;//optionResults && optionResults.length > 10;
+        const searchAsYouType = optionResults && optionResults.length > 8;
 
         let title;
         let disabled = false;

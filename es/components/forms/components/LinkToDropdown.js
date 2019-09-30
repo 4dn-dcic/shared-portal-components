@@ -121,8 +121,6 @@ var LinkToDropdown = function (_React$PureComponent) {
       var optionsLen = optionResults.length;
       var selectedItem = null;
 
-      _util.console.log('SELL', itemID);
-
       for (var i = 0; i < optionsLen; i++) {
         if (optionResults[i]['@id'] === itemID) {
           selectedItem = optionResults[i];
@@ -161,7 +159,7 @@ var LinkToDropdown = function (_React$PureComponent) {
           optionResults = _this$state.optionResults,
           loading = _this$state.loading,
           typedSearchQuery = _this$state.typedSearchQuery;
-      var searchAsYouType = true;
+      var searchAsYouType = optionResults && optionResults.length > 8;
       var title;
       var disabled = false;
       var filteredOptions = optionResults;
@@ -258,7 +256,7 @@ var LinkToDropdown = function (_React$PureComponent) {
         className: className
       }, {
         onSelect: this.handleSelect
-      }), _react["default"].createElement("div", {
+      }), searchAsYouType ? _react["default"].createElement("div", {
         className: "search-as-you-type-container"
       }, _react["default"].createElement("input", {
         type: "text",
@@ -266,7 +264,7 @@ var LinkToDropdown = function (_React$PureComponent) {
         value: typedSearchQuery,
         onChange: this.handleSearchTextChange,
         placeholder: "Search..."
-      })), renderedOptions);
+      })) : null, renderedOptions);
     }
   }]);
 

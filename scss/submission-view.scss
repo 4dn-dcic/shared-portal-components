@@ -781,6 +781,8 @@ div.dropdown.linkto-dropdown {
 		max-width: 40vw;
 
 		.selectable-item-option {
+			// Top & Bottom padding increased from 0.25rem default
+			padding: 0.4rem 1.5rem;
 			> .row {
 				> .col:first-child {
 					/* min-width: 50px; */
@@ -791,6 +793,14 @@ div.dropdown.linkto-dropdown {
 						width: 100%;
 					}
 				}
+				> .col-auto:last-child {
+					overflow-x: hidden;
+    				text-overflow: ellipsis;
+				}
+			}
+
+			&:not(:last-child){
+				border-bottom: 1px solid #eee;
 			}
 		}
 
