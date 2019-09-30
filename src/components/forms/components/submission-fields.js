@@ -473,32 +473,38 @@ class LinkedObj extends React.PureComponent {
      * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
      */
     handleFinishSelectItem(items){
-        const { selectComplete } = this.props;
+        const { selectComplete, isMultiSelect } = this.props;
         if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) { return item.id && typeof item.id === 'string' && item.json; })) {
             return;
         }
-        //currenly we support single item selection
-        //TODO: implement multi selection functionality
-        const [ { id: atId, json: itemContext } ] = items;
-        if (items.length > 1) {
-            console.warn('Multiple documents selected but we only get a single item, since handler\'s multiple version not implemented yet!');
+
+        let atIds;
+        if (!(isMultiSelect || false)) {
+            if (items.length > 1) {
+                console.warn('Multiple items selected but we only get a single item, since handler\'s not supporting multiple items!');
+            }
+            const [{ id: atId, json: itemContext }] = items;
+            atIds = [atId];
+        }
+        else {
+            atIds = _.pluck(items, "id");
         }
 
-        const isValidAtId = object.isValidAtIDFormat(atId);
         const invalidTitle = "Invalid Item Selected";
-
-        if (!atId || !isValidAtId) {
+        if (_.every(atIds, function (atId) {
+            const isValidAtId = object.isValidAtIDFormat(atId);
+            return atId && isValidAtId;
+        })) {
+            Alerts.deQueue({ 'title': invalidTitle });
+            selectComplete(atIds);
+        } else {
             Alerts.queue({
-                'title' : invalidTitle,
-                'message': "You have dragged & dropped an item or link which doesn't have a valid 4DN ID or URL associated with it. Please try again.",
+                'title': invalidTitle,
+                'message': "You have selected an item or link which doesn't have a valid 4DN ID or URL associated with it. Please try again.",
                 'style': 'danger'
             });
             throw new Error('No valid @id available.');
-        } else {
-            Alerts.deQueue({ 'title' : invalidTitle });
         }
-
-        selectComplete(atId);
     }
 
     handleCreateNewItemClick(e){
@@ -513,7 +519,8 @@ class LinkedObj extends React.PureComponent {
         if (!this || !this.state || !this.state.textInputValue){
             throw new Error('Invalid @id format.');
         }
-        this.props.selectComplete(this.state.textInputValue);
+        const atIds = [this.state.textInputValue];
+        this.props.selectComplete(atIds);
     }
 
     handleTextInputChange(evt){
@@ -521,32 +528,33 @@ class LinkedObj extends React.PureComponent {
     }
 
     childWindowAlert(){
-        const { schema, nestedField } = this.props;
-        const itemType = schema && schema.linkTo;
-        const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
-        return {
-            'title' : 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
-            'message' : (
-                <div>
-                    <p className="mb-0">
-                        Please either <b>drag and drop</b> an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button.
-                    </p>
-                    <p className="mb-0">You may also browse around and drag & drop a link into the submissions window as well.</p>
-                </div>
-            ),
-            'style' : 'info'
-        };
+        return null;
+        // const { schema, nestedField } = this.props;
+        // const itemType = schema && schema.linkTo;
+        // const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
+        // return {
+        //     'title' : 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
+        //     'message' : (
+        //         <div>
+        //             <p className="mb-0">
+        //                 Please either <b>drag and drop</b> an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button.
+        //             </p>
+        //             <p className="mb-0">You may also browse around and drag & drop a link into the submissions window as well.</p>
+        //         </div>
+        //     ),
+        //     'style' : 'info'
+        // };
     }
 
     renderSelectInputField(){
-        const { value, selectCancel, selectComplete, schema, currType, nestedField } = this.props;
+        const { value, selectCancel, schema, currType, nestedField, isMultiSelect } = this.props;
         const { textInputValue } = this.state;
         const canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
         const extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
         const itemType = schema.linkTo;
         const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
         const dropMessage = "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'";
-        let searchURL = '/search/?currentAction=selection&type=' + itemType;
+        let searchURL = '/search/?currentAction=' + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
 
         // check if we have any schema flags that will affect the searchUrl
         if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
@@ -756,7 +764,7 @@ class ArrayField extends React.Component{
                         'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx',
                         'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType' ) }
                     isArray={true} isLastItemInArray={allItems.length - 1 === index} arrayIdx={arrayIdxList}
-                    schema={childFieldSchema} disabled={false} required={false} key={arrayIdx} />
+                    schema={childFieldSchema} disabled={false} required={false} key={arrayIdx} isMultiSelect={true} />
             </div>
         );
     }
@@ -834,7 +842,7 @@ class ObjectField extends React.PureComponent {
     }
 
     render(){
-        const { schema: objectSchema, value: parentObject, nestedField: propNestedField } = this.props;
+        const { schema: objectSchema, value: parentObject, nestedField: propNestedField, isMultiSelect } = this.props;
         const allFieldsInSchema = objectSchema['properties'] ? _.keys(objectSchema['properties']) : [];
         const fieldsToBuild = _.filter(_.map(allFieldsInSchema, (f)=>{ // List of [field, fieldSchema] pairs.
             const fieldSchemaToUseOrNull = this.includeField(objectSchema, f);
@@ -869,7 +877,7 @@ class ObjectField extends React.PureComponent {
             const nestedField = propNestedField + '.' + field;
             return (
                 <BuildField { ...passProps} { ...{ field, fieldType, fieldTip, enumValues, nestedField, title } }
-                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={false} isArray={false} />
+                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={false} isArray={false} isMultiSelect={isMultiSelect || false} />
             );
         });
 

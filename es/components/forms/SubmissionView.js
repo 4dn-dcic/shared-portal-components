@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.buildContext = buildContext;
-exports["default"] = void 0;
+exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -34,7 +34,15 @@ var _SubmissionTree = require("./components/SubmissionTree");
 
 var _submissionFields = require("./components/submission-fields");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -44,9 +52,7 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -86,7 +92,7 @@ var SubmissionView = function (_React$PureComponent) {
       if (keyHierarchy === null) return 0;
       var validationReturn = 1;
 
-      _underscore["default"].keys(keyHierarchy).forEach(function (key) {
+      _underscore.default.keys(keyHierarchy).forEach(function (key) {
         if (!isNaN(key)) {
           if (!keyComplete[key] && keyContext[key]) {
             validationReturn = 0;
@@ -123,7 +129,7 @@ var SubmissionView = function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionView).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this), 'modifyKeyContext', 'initializePrincipal', 'initCreateObj', 'initCreateAlias', 'submitAmbiguousType', 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'handleAliasChange', 'handleAliasLabChange', 'submitAlias', 'modifyAlias', 'createObj', 'removeObj', 'initExistingObj', 'addExistingObj', 'setSubmissionState', 'updateUpload', 'testPostNewContext', 'realPostNewContext', 'removeNullsFromContext', 'checkRoundTwo', 'buildDeleteFields', 'modifyMD5Progess', 'submitObject', 'finishRoundTwo', 'cancelCreateNewObject', 'cancelCreatePrimaryObject');
+    _underscore.default.bindAll(_assertThisInitialized(_this), 'modifyKeyContext', 'initializePrincipal', 'initCreateObj', 'initCreateAlias', 'submitAmbiguousType', 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'handleAliasChange', 'handleAliasLabChange', 'submitAlias', 'modifyAlias', 'createObj', 'removeObj', 'initExistingObj', 'addExistingObj', 'setSubmissionState', 'updateUpload', 'testPostNewContext', 'realPostNewContext', 'removeNullsFromContext', 'checkRoundTwo', 'buildDeleteFields', 'modifyMD5Progess', 'submitObject', 'finishRoundTwo', 'cancelCreateNewObject', 'cancelCreatePrimaryObject');
 
     _this.state = {
       'keyContext': null,
@@ -169,7 +175,7 @@ var SubmissionView = function (_React$PureComponent) {
     value: function componentDidMount() {
       var schemas = this.props.schemas;
 
-      if (schemas && _underscore["default"].keys(schemas).length > 0) {
+      if (schemas && _underscore.default.keys(schemas).length > 0) {
         this.initializePrincipal();
       }
     }
@@ -213,7 +219,7 @@ var SubmissionView = function (_React$PureComponent) {
           'keyContext': contextCopy,
           'keyValid': validCopy
         };
-      }, _reactTooltip["default"].rebuild);
+      }, _reactTooltip.default.rebuild);
     }
   }, {
     key: "initializePrincipal",
@@ -231,7 +237,7 @@ var SubmissionView = function (_React$PureComponent) {
       var keyContext = {};
       var contextID = _util.object.itemUtil.atId(context) || null;
 
-      var parsedHref = _url["default"].parse(href, true);
+      var parsedHref = _url.default.parse(href, true);
 
       var principalTypes = context['@type'];
 
@@ -239,7 +245,7 @@ var SubmissionView = function (_React$PureComponent) {
         var typeFromHref = parsedHref.query && parsedHref.query.type || 'Item';
 
         if (Array.isArray(typeFromHref)) {
-          var _$without = _underscore["default"].without(typeFromHref, 'Item');
+          var _$without = _underscore.default.without(typeFromHref, 'Item');
 
           var _$without2 = _slicedToArray(_$without, 1);
 
@@ -273,7 +279,7 @@ var SubmissionView = function (_React$PureComponent) {
       var userHref = null;
 
       if (userInfo && Array.isArray(userInfo.user_actions)) {
-        userHref = _underscore["default"].findWhere(userInfo.user_actions, {
+        userHref = _underscore.default.findWhere(userInfo.user_actions, {
           'id': 'profile'
         }).href;
       } else {
@@ -324,7 +330,7 @@ var SubmissionView = function (_React$PureComponent) {
               currKey: 0,
               callbackHref: callbackHref
             }, function () {
-              _underscore["default"].forEach(initObjs, function (initObj) {
+              _underscore.default.forEach(initObjs, function (initObj) {
                 initObj.display = keyDisplay[initObj.path] || initObj.display;
 
                 _this2.initExistingObj(initObj);
@@ -381,7 +387,7 @@ var SubmissionView = function (_React$PureComponent) {
       }
 
       if (schema && schema.properties.aliases) {
-        this.setState(_underscore["default"].extend({
+        this.setState(_underscore.default.extend({
           'creatingAlias': autoSuggestedAlias,
           'creatingIdx': newIdx,
           'creatingType': type,
@@ -417,7 +423,7 @@ var SubmissionView = function (_React$PureComponent) {
   }, {
     key: "buildAmbiguousEnumEntry",
     value: function buildAmbiguousEnumEntry(val) {
-      return _react["default"].createElement(_DropdownButton.DropdownItem, {
+      return _react.default.createElement(_DropdownButton.DropdownItem, {
         key: val,
         title: val || '',
         eventKey: val,
@@ -525,7 +531,7 @@ var SubmissionView = function (_React$PureComponent) {
         var aliases = keyContext[currKey].aliases || null;
         var name = Array.isArray(aliases) && aliases.length > 1 && aliases[aliases.length - 2] || keyContext[currKey].name || keyContext[currKey].title || null;
 
-        var nextKeyDisplay = _underscore["default"].clone(keyDisplay);
+        var nextKeyDisplay = _underscore.default.clone(keyDisplay);
 
         if (name) {
           nextKeyDisplay[currKey] = name;
@@ -565,19 +571,19 @@ var SubmissionView = function (_React$PureComponent) {
             keyLinks = currState.keyLinks,
             prevKeyDisplay = currState.keyDisplay;
 
-        var contextCopy = _underscore["default"].clone(keyContext);
+        var contextCopy = _underscore.default.clone(keyContext);
 
-        var validCopy = _underscore["default"].clone(keyValid);
+        var validCopy = _underscore.default.clone(keyValid);
 
-        var typesCopy = _underscore["default"].clone(keyTypes);
+        var typesCopy = _underscore.default.clone(keyTypes);
 
         var parentKeyIdx = currKey;
 
-        var bookmarksCopy = _underscore["default"].clone(keyLinkBookmarks);
+        var bookmarksCopy = _underscore.default.clone(keyLinkBookmarks);
 
         var linksCopy = _util.object.deepClone(keyLinks);
 
-        var keyDisplay = _underscore["default"].clone(prevKeyDisplay);
+        var keyDisplay = _underscore.default.clone(prevKeyDisplay);
 
         var bookmarksList = [];
         var keyIdx;
@@ -585,7 +591,7 @@ var SubmissionView = function (_React$PureComponent) {
 
         if (newIdx === 0) {
           keyIdx = 0;
-          newHierarchy = _underscore["default"].clone(keyHierarchy);
+          newHierarchy = _underscore.default.clone(keyHierarchy);
         } else {
           keyIdx = keyIter + 1;
 
@@ -595,7 +601,7 @@ var SubmissionView = function (_React$PureComponent) {
             return;
           }
 
-          newHierarchy = modifyHierarchy(_underscore["default"].clone(keyHierarchy), keyIdx, parentKeyIdx);
+          newHierarchy = modifyHierarchy(_underscore.default.clone(keyHierarchy), keyIdx, parentKeyIdx);
           validCopy[keyIdx] = 1;
           validCopy[parentKeyIdx] = 0;
         }
@@ -604,7 +610,7 @@ var SubmissionView = function (_React$PureComponent) {
         var contextWithAlias = contextCopy && contextCopy[keyIdx] ? contextCopy[keyIdx] : {};
 
         if (Array.isArray(contextWithAlias.aliases)) {
-          contextWithAlias.aliases = _underscore["default"].uniq(_underscore["default"].filter(contextWithAlias.aliases.slice(0)).concat([alias]));
+          contextWithAlias.aliases = _underscore.default.uniq(_underscore.default.filter(contextWithAlias.aliases.slice(0)).concat([alias]));
         } else {
           contextWithAlias.aliases = [alias];
         }
@@ -613,7 +619,7 @@ var SubmissionView = function (_React$PureComponent) {
         bookmarksCopy[keyIdx] = bookmarksList;
         linksCopy[keyIdx] = newLink;
         keyDisplay[keyIdx] = alias;
-        return _underscore["default"].extend({
+        return _underscore.default.extend({
           'keyContext': contextCopy,
           'keyValid': validCopy,
           'keyTypes': typesCopy,
@@ -649,19 +655,19 @@ var SubmissionView = function (_React$PureComponent) {
 
         var keyCompleteCopy = _util.object.deepClone(keyComplete);
 
-        var bookmarksCopy = _underscore["default"].clone(keyLinkBookmarks);
+        var bookmarksCopy = _underscore.default.clone(keyLinkBookmarks);
 
-        var linksCopy = _underscore["default"].clone(keyLinks);
+        var linksCopy = _underscore.default.clone(keyLinks);
 
         var roundTwoCopy = roundTwoKeys.slice();
 
-        var hierarchy = _underscore["default"].clone(keyHierarchy);
+        var hierarchy = _underscore.default.clone(keyHierarchy);
 
         var dummyHierarchy = _util.object.deepClone(hierarchy);
 
         var hierKey = key;
 
-        _underscore["default"].keys(keyCompleteCopy).forEach(function (compKey) {
+        _underscore.default.keys(keyCompleteCopy).forEach(function (compKey) {
           if (keyCompleteCopy[compKey] === key) {
             hierKey = compKey;
           }
@@ -677,10 +683,10 @@ var SubmissionView = function (_React$PureComponent) {
         toDelete.push(key);
         var newHierarchy = trimHierarchy(hierarchy, hierKey);
 
-        _underscore["default"].forEach(toDelete, function (keyToDelete) {
+        _underscore.default.forEach(toDelete, function (keyToDelete) {
           if (isNaN(keyToDelete)) return;
 
-          if (_underscore["default"].contains(roundTwoCopy, keyToDelete)) {
+          if (_underscore.default.contains(roundTwoCopy, keyToDelete)) {
             var rmIdx = roundTwoCopy.indexOf(keyToDelete);
 
             if (rmIdx > -1) {
@@ -729,13 +735,13 @@ var SubmissionView = function (_React$PureComponent) {
             prevKeyLinks = _ref5.keyLinks;
         var parentKeyIdx = init ? 0 : currKey;
 
-        var keyDisplay = _underscore["default"].clone(prevKeyDisplay);
+        var keyDisplay = _underscore.default.clone(prevKeyDisplay);
 
-        var keyTypes = _underscore["default"].clone(prevKeyTypes);
+        var keyTypes = _underscore.default.clone(prevKeyTypes);
 
-        var keyLinks = _underscore["default"].clone(prevKeyLinks);
+        var keyLinks = _underscore.default.clone(prevKeyLinks);
 
-        var keyHierarchy = modifyHierarchy(_underscore["default"].clone(prevKeyHierarchy), path, parentKeyIdx);
+        var keyHierarchy = modifyHierarchy(_underscore.default.clone(prevKeyHierarchy), path, parentKeyIdx);
         keyDisplay[path] = display;
         keyTypes[path] = type;
         keyLinks[path] = field;
@@ -786,7 +792,7 @@ var SubmissionView = function (_React$PureComponent) {
               var validState = SubmissionView.findValidationState(value, keyHierarchy, keyContext, keyComplete);
 
               if (validState === 1) {
-                var nextKeyValid = _underscore["default"].clone(keyValid);
+                var nextKeyValid = _underscore.default.clone(keyValid);
 
                 nextKeyValid[value] = 1;
                 stateToSet['keyValid'] = nextKeyValid;
@@ -859,7 +865,7 @@ var SubmissionView = function (_React$PureComponent) {
               _this4.setState(stateToSet);
             }
           });
-        })["catch"](function () {
+        }).catch(function () {
           stateToSet.uploadStatus = 'MD5 calculation error';
           stateToSet.file = null;
           stateToSet.md5Progress = null;
@@ -889,7 +895,7 @@ var SubmissionView = function (_React$PureComponent) {
   }, {
     key: "checkRoundTwo",
     value: function checkRoundTwo(schema) {
-      var fields = schema.properties ? _underscore["default"].keys(schema.properties) : [];
+      var fields = schema.properties ? _underscore.default.keys(schema.properties) : [];
 
       for (var i = 0; i < fields.length; i++) {
         if (schema.properties[fields[i]]) {
@@ -920,7 +926,7 @@ var SubmissionView = function (_React$PureComponent) {
 
       var userGroups = _util.JWT.getUserGroups();
 
-      _underscore["default"].keys(origCopy).forEach(function (field) {
+      _underscore.default.keys(origCopy).forEach(function (field) {
         if (!(0, _submissionFields.isValueNull)(patchContext[field])) {
           return;
         }
@@ -936,12 +942,12 @@ var SubmissionView = function (_React$PureComponent) {
             return;
           }
 
-          if (fieldSchema.exclude_from && (_underscore["default"].contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from == 'FFedit-create')) {
+          if (fieldSchema.exclude_from && (_underscore.default.contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from == 'FFedit-create')) {
             return;
           }
 
           if (fieldSchema.permission && fieldSchema.permission == "import_items") {
-            if (_underscore["default"].contains(userGroups, 'admin')) deleteFields.push(field);
+            if (_underscore.default.contains(userGroups, 'admin')) deleteFields.push(field);
             return;
           }
 
@@ -994,7 +1000,7 @@ var SubmissionView = function (_React$PureComponent) {
       var currType = keyTypes[inKey];
       var currSchema = schemas[currType];
       stateToSet.processingFetch = false;
-      stateToSet.keyValid = _underscore["default"].clone(keyValid);
+      stateToSet.keyValid = _underscore.default.clone(keyValid);
       var finalizedContext = this.removeNullsFromContext(inKey);
       var i;
 
@@ -1031,7 +1037,7 @@ var SubmissionView = function (_React$PureComponent) {
             finalizedContext.lab = _util.object.itemUtil.atId(context.lab);
           }
 
-          if (currentSubmittingUser.groups && _underscore["default"].contains(currentSubmittingUser.groups, 'admin')) {
+          if (currentSubmittingUser.groups && _underscore.default.contains(currentSubmittingUser.groups, 'admin')) {
             if (context.submitted_by) {
               finalizedContext.submitted_by = _util.object.itemUtil.atId(context.submitted_by);
             } else {
@@ -1156,15 +1162,15 @@ var SubmissionView = function (_React$PureComponent) {
               var parentKey = parseInt(findParentFromHierarchy(keyHierarchy, inKey));
               stateToSet.currKey = parentKey !== null && !isNaN(parentKey) ? parentKey : 0;
 
-              var typesCopy = _underscore["default"].clone(keyTypes);
+              var typesCopy = _underscore.default.clone(keyTypes);
 
-              var keyCompleteCopy = _underscore["default"].clone(keyComplete);
+              var keyCompleteCopy = _underscore.default.clone(keyComplete);
 
-              var linksCopy = _underscore["default"].clone(keyLinks);
+              var linksCopy = _underscore.default.clone(keyLinks);
 
-              var displayCopy = _underscore["default"].clone(keyDisplay);
+              var displayCopy = _underscore.default.clone(keyDisplay);
 
-              var contextCopy = _underscore["default"].clone(keyContext);
+              var contextCopy = _underscore.default.clone(keyContext);
 
               var roundTwoCopy = roundTwoKeys.slice();
               keyCompleteCopy[inKey] = submitted_at_id;
@@ -1181,7 +1187,7 @@ var SubmissionView = function (_React$PureComponent) {
 
               var needsRoundTwo = _this6.checkRoundTwo(currSchema);
 
-              if (needsRoundTwo && !_underscore["default"].contains(roundTwoCopy, inKey)) {
+              if (needsRoundTwo && !_underscore.default.contains(roundTwoCopy, inKey)) {
                 roundTwoCopy.push(parseInt(inKey));
                 stateToSet.roundTwoKeys = roundTwoCopy;
               }
@@ -1210,7 +1216,7 @@ var SubmissionView = function (_React$PureComponent) {
               }
             }
 
-            _reactTooltip["default"].rebuild();
+            _reactTooltip.default.rebuild();
           }
         });
       };
@@ -1235,12 +1241,12 @@ var SubmissionView = function (_React$PureComponent) {
             _ref6$roundTwoKeys = _ref6.roundTwoKeys,
             roundTwoKeys = _ref6$roundTwoKeys === void 0 ? [] : _ref6$roundTwoKeys;
 
-        var validationCopy = _underscore["default"].clone(keyValid);
+        var validationCopy = _underscore.default.clone(keyValid);
 
         var roundTwoCopy = roundTwoKeys.slice();
         validationCopy[currKey] = 4;
 
-        if (_underscore["default"].contains(roundTwoCopy, currKey)) {
+        if (_underscore.default.contains(roundTwoCopy, currKey)) {
           var rmIdx = roundTwoCopy.indexOf(currKey);
 
           if (rmIdx > -1) {
@@ -1281,11 +1287,11 @@ var SubmissionView = function (_React$PureComponent) {
             creatingLinkForField = _ref7.creatingLinkForField;
         if (!creatingIdx) return null;
 
-        var nextKeyContext = _underscore["default"].clone(keyContext);
+        var nextKeyContext = _underscore.default.clone(keyContext);
 
         var currentContextPointer = nextKeyContext[currKey];
 
-        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref8) {
+        _underscore.default.pairs(currentContextPointer).forEach(function (_ref8) {
           var _ref9 = _slicedToArray(_ref8, 2),
               field = _ref9[0],
               idx = _ref9[1];
@@ -1335,15 +1341,15 @@ var SubmissionView = function (_React$PureComponent) {
         if (callbackHref) {
           nextURI = callbackHref;
         } else {
-          var parts = _url["default"].parse(href, true);
+          var parts = _url.default.parse(href, true);
 
-          var modifiedQuery = _underscore["default"].omit(parts.query, 'currentAction');
+          var modifiedQuery = _underscore.default.omit(parts.query, 'currentAction');
 
-          var modifiedSearch = _queryString["default"].stringify(modifiedQuery);
+          var modifiedSearch = _queryString.default.stringify(modifiedQuery);
 
           parts.query = modifiedQuery;
           parts.search = (modifiedSearch.length > 0 ? '?' : '') + modifiedSearch;
-          nextURI = _url["default"].format(parts);
+          nextURI = _url.default.format(parts);
           navOpts.skipRequest = true;
         }
 
@@ -1390,46 +1396,46 @@ var SubmissionView = function (_React$PureComponent) {
           propsToPass = _objectWithoutProperties(_this$props5, ["context", "navigate"]);
 
       keyDisplay[currKey] || currType;
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: "submission-view-page-container container",
         id: "content"
-      }, _react["default"].createElement(TypeSelectModal, _extends({
+      }, _react.default.createElement(TypeSelectModal, _extends({
         show: showAmbiguousModal
-      }, _underscore["default"].pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _underscore["default"].pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
+      }, _underscore.default.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _underscore.default.pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
         schemas: schemas
-      })), _react["default"].createElement(AliasSelectModal, _extends({
+      })), _react.default.createElement(AliasSelectModal, _extends({
         show: !showAmbiguousModal && creatingIdx !== null && creatingType !== null
-      }, _underscore["default"].pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser'), {
+      }, _underscore.default.pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser'), {
         handleAliasChange: this.handleAliasChange,
         submitAlias: this.submitAlias,
         cancelCreateNewObject: this.cancelCreateNewObject,
         cancelCreatePrimaryObject: this.cancelCreatePrimaryObject
-      })), _react["default"].createElement(WarningBanner, {
+      })), _react.default.createElement(WarningBanner, {
         cancelCreatePrimaryObject: this.cancelCreatePrimaryObject
-      }, _react["default"].createElement("button", {
+      }, _react.default.createElement("button", {
         type: "button",
         className: "btn btn-danger",
         onClick: this.cancelCreatePrimaryObject
-      }, "Cancel / Exit"), _react["default"].createElement(ValidationButton, _extends({}, _underscore["default"].pick(this.state, 'currKey', 'keyValid', 'md5Progress', 'upload', 'roundTwo', 'processingFetch'), {
+      }, "Cancel / Exit"), _react.default.createElement(ValidationButton, _extends({}, _underscore.default.pick(this.state, 'currKey', 'keyValid', 'md5Progress', 'upload', 'roundTwo', 'processingFetch'), {
         testPostNewContext: this.testPostNewContext,
         finishRoundTwo: this.finishRoundTwo
-      })), _react["default"].createElement(SubmitButton, _extends({}, _underscore["default"].pick(this.state, 'keyValid', 'currKey', 'roundTwo', 'upload', 'processingFetch', 'md5Progress'), {
+      })), _react.default.createElement(SubmitButton, _extends({}, _underscore.default.pick(this.state, 'keyValid', 'currKey', 'roundTwo', 'upload', 'processingFetch', 'md5Progress'), {
         realPostNewContext: this.realPostNewContext
-      }))), _react["default"].createElement(DetailTitleBanner, _extends({
+      }))), _react.default.createElement(DetailTitleBanner, _extends({
         hierarchy: keyHierarchy,
         setSubmissionState: this.setSubmissionState,
         schemas: schemas
-      }, _underscore["default"].pick(this.state, 'keyContext', 'keyTypes', 'keyDisplay', 'currKey', 'fullScreen'))), _react["default"].createElement("div", {
+      }, _underscore.default.pick(this.state, 'keyContext', 'keyTypes', 'keyDisplay', 'currKey', 'fullScreen'))), _react.default.createElement("div", {
         className: "clearfix row"
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: navCol
-      }, _react["default"].createElement(_SubmissionTree.SubmissionTree, _extends({
+      }, _react.default.createElement(_SubmissionTree.SubmissionTree, _extends({
         setSubmissionState: this.setSubmissionState,
         hierarchy: keyHierarchy,
         schemas: schemas
-      }, _underscore["default"].pick(this.state, 'keyValid', 'keyTypes', 'keyDisplay', 'keyComplete', 'currKey', 'keyLinkBookmarks', 'keyLinks', 'keyHierarchy')))), _react["default"].createElement("div", {
+      }, _underscore.default.pick(this.state, 'keyValid', 'keyTypes', 'keyDisplay', 'keyComplete', 'currKey', 'keyLinkBookmarks', 'keyLinks', 'keyHierarchy')))), _react.default.createElement("div", {
         className: bodyCol
-      }, _react["default"].createElement(IndividualObjectView, _extends({}, propsToPass, {
+      }, _react.default.createElement(IndividualObjectView, _extends({}, propsToPass, {
         schemas: schemas,
         currType: currType,
         currContext: currContext,
@@ -1441,16 +1447,16 @@ var SubmissionView = function (_React$PureComponent) {
         modifyAlias: this.modifyAlias,
         updateUpload: this.updateUpload,
         hierarchy: keyHierarchy
-      }, _underscore["default"].pick(this.state, 'keyDisplay', 'keyComplete', 'keyIter', 'currKey', 'keyContext', 'upload', 'uploadStatus', 'md5Progress', 'roundTwo', 'currentSubmittingUser'))))));
+      }, _underscore.default.pick(this.state, 'keyDisplay', 'keyComplete', 'keyIter', 'currKey', 'keyContext', 'upload', 'uploadStatus', 'md5Progress', 'roundTwo', 'currentSubmittingUser'))))));
     }
   }]);
 
   return SubmissionView;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
-exports["default"] = SubmissionView;
+exports.default = SubmissionView;
 
-var ValidationButton = _react["default"].memo(function (props) {
+var ValidationButton = _react.default.memo(function (props) {
   var currKey = props.currKey,
       keyValid = props.keyValid,
       md5Progress = props.md5Progress,
@@ -1463,35 +1469,35 @@ var ValidationButton = _react["default"].memo(function (props) {
 
   if (roundTwo) {
     if (upload === null && md5Progress === null) {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: "btn btn-warning",
         onClick: finishRoundTwo
       }, "Skip");
     } else {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: "btn btn-warning",
         disabled: true
       }, "Skip");
     }
   } else if (validity === 3 || validity === 4) {
-    return _react["default"].createElement("button", {
+    return _react.default.createElement("button", {
       type: "button",
       className: "btn btn-info",
       disabled: true
     }, "Validated");
   } else if (validity === 2) {
     if (processingFetch) {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: "btn btn-danger",
         disabled: true
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       }));
     } else {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: "btn btn-danger",
         onClick: testPostNewContext
@@ -1499,22 +1505,22 @@ var ValidationButton = _react["default"].memo(function (props) {
     }
   } else if (validity === 1) {
     if (processingFetch) {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: "btn btn-info",
         disabled: true
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       }));
     } else {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: "btn btn-info",
         onClick: testPostNewContext
       }, "Validate");
     }
   } else {
-    return _react["default"].createElement("button", {
+    return _react.default.createElement("button", {
       type: "button",
       className: "btn btn-info",
       disabled: true
@@ -1522,7 +1528,7 @@ var ValidationButton = _react["default"].memo(function (props) {
   }
 });
 
-var SubmitButton = _react["default"].memo(function (props) {
+var SubmitButton = _react.default.memo(function (props) {
   var keyValid = props.keyValid,
       currKey = props.currKey,
       roundTwo = props.roundTwo,
@@ -1534,15 +1540,15 @@ var SubmitButton = _react["default"].memo(function (props) {
 
   if (roundTwo) {
     if (upload !== null || processingFetch || md5Progress !== null) {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         disabled: true,
         className: "btn btn-success"
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       }));
     } else {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: "btn btn-success",
         onClick: realPostNewContext
@@ -1550,28 +1556,28 @@ var SubmitButton = _react["default"].memo(function (props) {
     }
   } else if (validity == 3) {
     if (processingFetch) {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         disabled: true,
         className: "btn btn-success"
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       }));
     } else {
-      return _react["default"].createElement("button", {
+      return _react.default.createElement("button", {
         type: "button",
         className: "btn btn-success",
         onClick: realPostNewContext
       }, "Submit");
     }
   } else if (validity == 4) {
-    return _react["default"].createElement("button", {
+    return _react.default.createElement("button", {
       type: "button",
       className: "btn btn-success",
       disabled: true
     }, "Submitted");
   } else {
-    return _react["default"].createElement("button", {
+    return _react.default.createElement("button", {
       type: "button",
       className: "btn btn-success",
       disabled: true
@@ -1579,17 +1585,17 @@ var SubmitButton = _react["default"].memo(function (props) {
   }
 });
 
-var WarningBanner = _react["default"].memo(function (props) {
+var WarningBanner = _react.default.memo(function (props) {
   var children = props.children;
-  return _react["default"].createElement("div", {
+  return _react.default.createElement("div", {
     className: "mb-2 mt-1 text-400 warning-banner"
-  }, _react["default"].createElement("div", {
+  }, _react.default.createElement("div", {
     className: "row"
-  }, _react["default"].createElement("div", {
+  }, _react.default.createElement("div", {
     className: "col"
-  }, "Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change."), _react["default"].createElement("div", {
+  }, "Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change."), _react.default.createElement("div", {
     className: "col-md-auto"
-  }, _react["default"].createElement("div", {
+  }, _react.default.createElement("div", {
     className: "action-buttons-container text-right"
   }, children))));
 });
@@ -1604,7 +1610,7 @@ var DetailTitleBanner = function (_React$PureComponent2) {
         if (typeof obj[currKey] !== 'undefined') {
           return [currKey];
         } else {
-          var nestedFound = _underscore["default"].find(_underscore["default"].map(_underscore["default"].pairs(obj), function (p) {
+          var nestedFound = _underscore.default.find(_underscore.default.map(_underscore.default.pairs(obj), function (p) {
             return [p[0], findNestedKey(p[1])];
           }), function (p) {
             return typeof p[1] !== 'undefined' && p[1] !== null;
@@ -1625,7 +1631,7 @@ var DetailTitleBanner = function (_React$PureComponent2) {
       var foundPropertyName = null;
       var arrayIdx = null;
 
-      _underscore["default"].pairs(context).forEach(function (p) {
+      _underscore.default.pairs(context).forEach(function (p) {
         if (foundPropertyName) return;
 
         if (p[1] === nextKey) {
@@ -1658,7 +1664,7 @@ var DetailTitleBanner = function (_React$PureComponent2) {
 
     _this8 = _possibleConstructorReturn(this, _getPrototypeOf(DetailTitleBanner).call(this, props));
     _this8.generateCrumbTitle = _this8.generateCrumbTitle.bind(_assertThisInitialized(_this8));
-    _this8.toggleOpen = _underscore["default"].throttle(_this8.toggleOpen.bind(_assertThisInitialized(_this8)), 500);
+    _this8.toggleOpen = _underscore.default.throttle(_this8.toggleOpen.bind(_assertThisInitialized(_this8)), 500);
     _this8.generateHierarchicalTitles = _this8.generateHierarchicalTitles.bind(_assertThisInitialized(_this8));
     _this8.state = {
       'open': true
@@ -1701,7 +1707,7 @@ var DetailTitleBanner = function (_React$PureComponent2) {
         hierarchyKeyList = [numKey];
       }
 
-      var icon = i === 0 ? null : _react["default"].createElement("i", {
+      var icon = i === 0 ? null : _react.default.createElement("i", {
         className: "icon icon-fw"
       }, "\u21B5");
       var isLast = i + 1 === hierarchyKeyList.length;
@@ -1724,21 +1730,21 @@ var DetailTitleBanner = function (_React$PureComponent2) {
         }
       }
 
-      return _react["default"].createElement(_Collapse.Collapse, {
-        "in": true,
+      return _react.default.createElement(_Collapse.Collapse, {
+        in: true,
         appear: hierarchyKeyList.length !== 1,
         key: i
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: "title-crumb depth-level-" + i + (isLast ? ' last-title' : ' mid-title')
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: "submission-working-title"
-      }, _react["default"].createElement("span", {
+      }, _react.default.createElement("span", {
         onClick: this.handleClick.bind(this, numKey)
-      }, icon, parentPropertyName ? _react["default"].createElement("span", {
+      }, icon, parentPropertyName ? _react.default.createElement("span", {
         className: "next-property-name"
-      }, parentPropertyName, ": ") : null, _react["default"].createElement("span", {
+      }, parentPropertyName, ": ") : null, _react.default.createElement("span", {
         className: "working-subtitle"
-      }, _util.schemaTransforms.getTitleForType(keyTypes[numKey], schemas)), " ", _react["default"].createElement("span", null, keyDisplay[numKey])))));
+      }, _util.schemaTransforms.getTitleForType(keyTypes[numKey], schemas)), " ", _react.default.createElement("span", null, keyDisplay[numKey])))));
     }
   }, {
     key: "generateHierarchicalTitles",
@@ -1746,7 +1752,7 @@ var DetailTitleBanner = function (_React$PureComponent2) {
       var _this$props7 = this.props,
           hierarchy = _this$props7.hierarchy,
           currKey = _this$props7.currKey;
-      return _underscore["default"].map(DetailTitleBanner.getListOfKeysInPath(hierarchy, currKey), this.generateCrumbTitle);
+      return _underscore.default.map(DetailTitleBanner.getListOfKeysInPath(hierarchy, currKey), this.generateCrumbTitle);
     }
   }, {
     key: "render",
@@ -1756,21 +1762,21 @@ var DetailTitleBanner = function (_React$PureComponent2) {
           currKey = _this$props8.currKey;
       var open = this.state.open;
       if (fullScreen) return null;
-      return _react["default"].createElement("h3", {
+      return _react.default.createElement("h3", {
         className: "crumbs-title mb-2"
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: "subtitle-heading form-section-heading mb-08"
-      }, _react["default"].createElement("span", {
+      }, _react.default.createElement("span", {
         className: "inline-block clickable",
         onClick: this.toggleOpen
-      }, "Currently Editing ", currKey > 0 ? _react["default"].createElement("i", {
+      }, "Currently Editing ", currKey > 0 ? _react.default.createElement("i", {
         className: "icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')
       }) : null)), open ? this.generateHierarchicalTitles() : this.generateCrumbTitle(currKey));
     }
   }]);
 
   return DetailTitleBanner;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 var TypeSelectModal = function (_React$Component) {
   _inherits(TypeSelectModal, _React$Component);
@@ -1830,24 +1836,24 @@ var TypeSelectModal = function (_React$Component) {
         ambiguousDescrip = schemas[ambiguousSelected].description;
       }
 
-      return _react["default"].createElement(_reactBootstrap.Modal, {
+      return _react.default.createElement(_reactBootstrap.Modal, {
         show: true,
         onHide: this.onHide,
         className: "submission-view-modal"
-      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, null, 'Multiple object types found for your new ' + ambiguousType)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
+      }, _react.default.createElement(_reactBootstrap.Modal.Header, null, _react.default.createElement(_reactBootstrap.Modal.Title, null, 'Multiple object types found for your new ' + ambiguousType)), _react.default.createElement(_reactBootstrap.Modal.Body, null, _react.default.createElement("div", {
         onKeyDown: this.onContainerKeyDown.bind(this, submitAmbiguousType)
-      }, _react["default"].createElement("p", null, "Please select a specific object type from the menu below."), _react["default"].createElement("div", {
+      }, _react.default.createElement("p", null, "Please select a specific object type from the menu below."), _react.default.createElement("div", {
         className: "input-wrapper mb-15"
-      }, _react["default"].createElement(_DropdownButton.DropdownButton, {
+      }, _react.default.createElement(_DropdownButton.DropdownButton, {
         id: "dropdown-type-select",
         title: ambiguousSelected || "No value"
-      }, ambiguousType !== null ? _underscore["default"].map(_underscore["default"].keys(itemTypeHierarchy[ambiguousType]), function (val) {
+      }, ambiguousType !== null ? _underscore.default.map(_underscore.default.keys(itemTypeHierarchy[ambiguousType]), function (val) {
         return buildAmbiguousEnumEntry(val);
-      }) : null)), ambiguousDescrip ? _react["default"].createElement("div", {
+      }) : null)), ambiguousDescrip ? _react.default.createElement("div", {
         className: "mb-15 mt-15"
-      }, _react["default"].createElement("h5", {
+      }, _react.default.createElement("h5", {
         className: "text-500 mb-02"
-      }, "Description"), ambiguousDescrip) : null, _react["default"].createElement("button", {
+      }, "Description"), ambiguousDescrip) : null, _react.default.createElement("button", {
         type: "button",
         className: "btn btn-primary",
         disabled: ambiguousSelected === null,
@@ -1857,7 +1863,7 @@ var TypeSelectModal = function (_React$Component) {
   }]);
 
   return TypeSelectModal;
-}(_react["default"].Component);
+}(_react.default.Component);
 
 var AliasSelectModal = function (_TypeSelectModal) {
   _inherits(AliasSelectModal, _TypeSelectModal);
@@ -1881,33 +1887,33 @@ var AliasSelectModal = function (_TypeSelectModal) {
           currentSubmittingUser = _this$props11.currentSubmittingUser;
       if (!show) return null;
       var disabledBtn = creatingAlias.indexOf(':') < 0 || creatingAlias.indexOf(':') + 1 === creatingAlias.length;
-      return _react["default"].createElement(_reactBootstrap.Modal, {
+      return _react.default.createElement(_reactBootstrap.Modal, {
         show: true,
         onHide: this.onHide,
         className: "submission-view-modal"
-      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, null, "Give your new ", creatingType, " an alias")), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
+      }, _react.default.createElement(_reactBootstrap.Modal.Header, null, _react.default.createElement(_reactBootstrap.Modal.Title, null, "Give your new ", creatingType, " an alias")), _react.default.createElement(_reactBootstrap.Modal.Body, null, _react.default.createElement("div", {
         onKeyDown: this.onContainerKeyDown.bind(this, submitAlias)
-      }, _react["default"].createElement("p", {
+      }, _react.default.createElement("p", {
         className: "mt-0 mb-1"
-      }, "Aliases are lab specific identifiers to reference an object. The format is ", _react["default"].createElement("code", null, '<lab-name>:<identifier>'), " - a lab name and an identifier separated by a colon, e.g. ", _react["default"].createElement("code", null, "dcic-lab:42"), "."), _react["default"].createElement("p", {
+      }, "Aliases are lab specific identifiers to reference an object. The format is ", _react.default.createElement("code", null, '<lab-name>:<identifier>'), " - a lab name and an identifier separated by a colon, e.g. ", _react.default.createElement("code", null, "dcic-lab:42"), "."), _react.default.createElement("p", {
         className: "mt-0 mb-1"
-      }, "Please create your own alias to help you to refer to this Item later."), _react["default"].createElement("div", {
+      }, "Please create your own alias to help you to refer to this Item later."), _react.default.createElement("div", {
         className: "input-wrapper mt-2 mb-2"
-      }, _react["default"].createElement(_submissionFields.AliasInputField, {
+      }, _react.default.createElement(_submissionFields.AliasInputField, {
         value: creatingAlias,
         errorMessage: creatingAliasMessage,
         onAliasChange: handleAliasChange,
         currentSubmittingUser: currentSubmittingUser,
         withinModal: true
-      })), creatingAliasMessage ? _react["default"].createElement("div", {
+      })), creatingAliasMessage ? _react.default.createElement("div", {
         style: {
           'marginBottom': '15px',
           'color': '#7e4544',
           'fontSize': '1.2em'
         }
-      }, creatingAliasMessage) : null, _react["default"].createElement("div", {
+      }, creatingAliasMessage) : null, _react.default.createElement("div", {
         className: "text-right"
-      }, _react["default"].createElement("button", {
+      }, _react.default.createElement("button", {
         type: "button",
         className: "btn btn-primary",
         disabled: disabledBtn,
@@ -1929,7 +1935,7 @@ var IndividualObjectView = function (_React$Component2) {
 
     _this10 = _possibleConstructorReturn(this, _getPrototypeOf(IndividualObjectView).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'checkObjectRemoval', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
+    _underscore.default.bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'checkObjectRemoval', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
 
     _this10.state = {
       'selectType': null,
@@ -2086,21 +2092,49 @@ var IndividualObjectView = function (_React$Component2) {
     }
   }, {
     key: "selectComplete",
-    value: function selectComplete(value) {
+    value: function selectComplete(atIds) {
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
           selectField = _this$state7.selectField,
           selectArrayIdx = _this$state7.selectArrayIdx,
           selectType = _this$state7.selectType;
       if (!selectField) throw new Error('No field being selected for');
-      var current = selectField && currContext[selectField];
+      var isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
+      var cloneSelectArrayIdx = isMultiSelect ? _toConsumableArray(selectArrayIdx) : null;
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
 
-      var isRepeat = Array.isArray(current) && _underscore["default"].contains(current, value);
+      try {
+        for (var _iterator = atIds[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var atId = _step.value;
+          var current = selectField && currContext[selectField];
 
-      if (!isRepeat) {
-        this.fetchAndValidateItem(value, selectField, selectType, selectArrayIdx, null);
-      } else {
-        this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+          var isRepeat = Array.isArray(current) && _underscore.default.contains(current, atId);
+
+          if (!isRepeat) {
+            this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
+
+            if (isMultiSelect) {
+              cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
+            }
+          } else {
+            this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx);
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
       }
 
       this.setState({
@@ -2145,7 +2179,7 @@ var IndividualObjectView = function (_React$Component2) {
       if (roundTwo && !secondRoundField) {
         return null;
       } else if (!roundTwo && secondRoundField) {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           key: fieldTitle,
           className: "row field-row",
           required: false,
@@ -2153,15 +2187,15 @@ var IndividualObjectView = function (_React$Component2) {
           style: {
             'overflow': 'visible'
           }
-        }, _react["default"].createElement("div", {
+        }, _react.default.createElement("div", {
           className: "col-12 col-md-4"
-        }, _react["default"].createElement("h5", {
+        }, _react.default.createElement("h5", {
           className: "facet-title submission-field-title"
-        }, fieldTitle)), _react["default"].createElement("div", {
+        }, fieldTitle)), _react.default.createElement("div", {
           className: "col-12 col-md-8"
-        }, _react["default"].createElement("div", {
+        }, _react.default.createElement("div", {
           className: "field-container"
-        }, _react["default"].createElement("div", {
+        }, _react.default.createElement("div", {
           className: "notice-message"
         }, "This field is available after finishing initial submission."))));
       }
@@ -2179,7 +2213,7 @@ var IndividualObjectView = function (_React$Component2) {
           linked = (0, _SubmissionTree.fieldSchemaLinkToType)(fieldSchema);
 
       if (fieldType === 'enum') {
-        enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum;
+        enumValues = fieldSchema.enum || fieldSchema.suggested_enum;
       }
 
       if (linked !== null) {
@@ -2203,7 +2237,7 @@ var IndividualObjectView = function (_React$Component2) {
         }
       }
 
-      return _react["default"].createElement(_submissionFields.BuildField, _extends({
+      return _react.default.createElement(_submissionFields.BuildField, _extends({
         field: field,
         fieldType: fieldType,
         fieldTip: fieldTip,
@@ -2211,7 +2245,7 @@ var IndividualObjectView = function (_React$Component2) {
         isLinked: isLinked,
         currType: currType,
         currContext: currContext
-      }, _underscore["default"].pick(this.props, 'md5Progress', 'edit', 'create', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'upload', 'uploadStatus', 'updateUpload', 'currentSubmittingUser', 'roundTwo'), {
+      }, _underscore.default.pick(this.props, 'md5Progress', 'edit', 'create', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'upload', 'uploadStatus', 'updateUpload', 'currentSubmittingUser', 'roundTwo'), {
         value: fieldValue,
         key: field,
         schema: fieldSchema,
@@ -2221,7 +2255,7 @@ var IndividualObjectView = function (_React$Component2) {
         linkType: linked,
         disabled: false,
         arrayIdx: null,
-        required: _underscore["default"].contains(currSchema.required, field),
+        required: _underscore.default.contains(currSchema.required, field),
         modifyNewContext: this.modifyNewContext,
         selectObj: this.selectObj,
         selectComplete: this.selectComplete,
@@ -2240,14 +2274,14 @@ var IndividualObjectView = function (_React$Component2) {
           currKey = _this$props13.currKey,
           schemas = _this$props13.schemas,
           roundTwo = _this$props13.roundTwo;
-      var fields = currContext ? _underscore["default"].keys(currContext) : [];
-      var fieldJSXComponents = sortPropFields(_underscore["default"].filter(_underscore["default"].map(fields, this.initiateField), function (f) {
+      var fields = currContext ? _underscore.default.keys(currContext) : [];
+      var fieldJSXComponents = sortPropFields(_underscore.default.filter(_underscore.default.map(fields, this.initiateField), function (f) {
         return !!f;
       }));
       var roundTwoDetailContext = roundTwo && keyComplete[currKey] && keyContext[keyComplete[currKey]];
-      return _react["default"].createElement("div", null, _react["default"].createElement(FormFieldsContainer, {
+      return _react.default.createElement("div", null, _react.default.createElement(FormFieldsContainer, {
         currKey: currKey
-      }, fieldJSXComponents), roundTwo ? _react["default"].createElement(RoundTwoDetailPanel, {
+      }, fieldJSXComponents), roundTwo ? _react.default.createElement(RoundTwoDetailPanel, {
         schemas: schemas,
         context: roundTwoDetailContext,
         open: true
@@ -2256,17 +2290,17 @@ var IndividualObjectView = function (_React$Component2) {
   }]);
 
   return IndividualObjectView;
-}(_react["default"].Component);
+}(_react.default.Component);
 
-var FormFieldsContainer = _react["default"].memo(function (props) {
+var FormFieldsContainer = _react.default.memo(function (props) {
   var children = props.children,
       title = props.title;
-  if (_react["default"].Children.count(children) === 0) return null;
-  return _react["default"].createElement("div", {
+  if (_react.default.Children.count(children) === 0) return null;
+  return _react.default.createElement("div", {
     className: "form-fields-container"
-  }, _react["default"].createElement("h4", {
+  }, _react.default.createElement("h4", {
     className: "clearfix page-subtitle form-section-heading submission-field-header"
-  }, title), _react["default"].createElement("div", {
+  }, title), _react.default.createElement("div", {
     className: "form-section-body"
   }, children));
 });
@@ -2310,21 +2344,21 @@ var RoundTwoDetailPanel = function (_React$PureComponent3) {
           context = _this$props14.context,
           schemas = _this$props14.schemas;
       var open = this.state.open;
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: "current-item-properties round-two-panel"
-      }, _react["default"].createElement("h4", {
+      }, _react.default.createElement("h4", {
         className: "clearfix page-subtitle submission-field-header"
-      }, _react["default"].createElement("button", {
+      }, _react.default.createElement("button", {
         type: "button",
         className: "btn btn-xs icon-container pull-left",
         onClick: this.handleToggle
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon fas " + (open ? "icon-minus" : "icon-plus")
-      })), _react["default"].createElement("span", null, "Object Attributes")), _react["default"].createElement(_Collapse.Collapse, {
-        "in": open
-      }, _react["default"].createElement("div", {
+      })), _react.default.createElement("span", null, "Object Attributes")), _react.default.createElement(_Collapse.Collapse, {
+        in: open
+      }, _react.default.createElement("div", {
         className: "item-page-detail"
-      }, _react["default"].createElement(_ItemDetailList.Detail, {
+      }, _react.default.createElement(_ItemDetailList.Detail, {
         excludedKeys: _ItemDetailList.Detail.defaultProps.excludedKeys.concat('upload_credentials'),
         context: context,
         schemas: schemas,
@@ -2335,7 +2369,7 @@ var RoundTwoDetailPanel = function (_React$PureComponent3) {
   }]);
 
   return RoundTwoDetailPanel;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 function buildContext(context, itemSchema) {
   var objList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -2346,16 +2380,16 @@ function buildContext(context, itemSchema) {
 
   var userGroups = _util.JWT.getUserGroups();
 
-  var fields = itemSchema.properties ? _underscore["default"].keys(itemSchema.properties) : [];
+  var fields = itemSchema.properties ? _underscore.default.keys(itemSchema.properties) : [];
 
-  _underscore["default"].forEach(fields, function (field) {
+  _underscore.default.forEach(fields, function (field) {
     var fieldSchema = _util.object.getNestedProperty(itemSchema, ['properties', field], true);
 
     if (!fieldSchema) {
       return;
     }
 
-    if (fieldSchema.exclude_from && (Array.isArray(fieldSchema.exclude_from) && _underscore["default"].contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from === 'FFedit-create')) {
+    if (fieldSchema.exclude_from && (Array.isArray(fieldSchema.exclude_from) && _underscore.default.contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from === 'FFedit-create')) {
       return;
     }
 
@@ -2364,7 +2398,7 @@ function buildContext(context, itemSchema) {
     }
 
     if (fieldSchema.permission && fieldSchema.permission == "import_items") {
-      if (!_underscore["default"].contains(userGroups, 'admin')) {
+      if (!_underscore.default.contains(userGroups, 'admin')) {
         return;
       }
     }
@@ -2391,7 +2425,7 @@ function buildContext(context, itemSchema) {
 
       if (linkedProperty !== null && typeof linkedProperty !== 'undefined' && !roundTwoExclude) {
         var fieldToStore = field;
-        linkedProperty = _underscore["default"].reject(linkedProperty, function (p) {
+        linkedProperty = _underscore.default.reject(linkedProperty, function (p) {
           return p === 'items' || p === 'properties';
         });
 
@@ -2399,7 +2433,7 @@ function buildContext(context, itemSchema) {
           fieldToStore += '.' + linkedProperty.join('.');
         }
 
-        if (!_underscore["default"].contains(objList, fieldToStore)) {
+        if (!_underscore.default.contains(objList, fieldToStore)) {
           objList.push(fieldToStore);
         }
 
@@ -2424,13 +2458,13 @@ function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
     }
   } else if (json instanceof Object && json) {
     if (fieldSchema.properties) {
-      _underscore["default"].keys(json).forEach(function (key) {
+      _underscore.default.keys(json).forEach(function (key) {
         if (fieldSchema.properties[key]) {
           delvePreExistingObjects(initObjs, json[key], fieldSchema.properties[key], listTerm);
         }
       });
     }
-  } else if (_underscore["default"].contains(_underscore["default"].keys(fieldSchema), 'linkTo')) {
+  } else if (_underscore.default.contains(_underscore.default.keys(fieldSchema), 'linkTo')) {
     initObjs.push({
       'path': json,
       'display': json,
@@ -2467,7 +2501,7 @@ function sortPropFields(fields) {
     return 0;
   }
 
-  _underscore["default"].forEach(fields, function (field) {
+  _underscore.default.forEach(fields, function (field) {
     if (!field) return;
 
     if (field.props.required) {
@@ -2493,7 +2527,7 @@ function gatherLinkToTitlesFromContextEmbedded(context) {
     idsToTitles[context['@id']] = context.display_title;
   }
 
-  _underscore["default"].values(context).forEach(function (value) {
+  _underscore.default.values(context).forEach(function (value) {
     if (Array.isArray(value)) {
       value.forEach(function (arrItem) {
         if (!Array.isArray(arrItem) && arrItem && _typeof(arrItem) === 'object') {
@@ -2509,7 +2543,7 @@ function gatherLinkToTitlesFromContextEmbedded(context) {
 }
 
 var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _underscore.default.keys(hierarchy).forEach(function (key) {
     if (key == parentKeyIdx) {
       hierarchy[parentKeyIdx][keyIdx] = {};
     } else {
@@ -2524,7 +2558,7 @@ var trimHierarchy = function myself(hierarchy, keyIdx) {
   if (hierarchy[keyIdx]) {
     delete hierarchy[keyIdx];
   } else {
-    _underscore["default"].keys(hierarchy).forEach(function (key) {
+    _underscore.default.keys(hierarchy).forEach(function (key) {
       hierarchy[key] = myself(hierarchy[key], keyIdx);
     });
   }
@@ -2536,7 +2570,7 @@ var searchHierarchy = function myself(hierarchy, keyIdx) {
   if (!hierarchy) return null;
   var found_hierarchy = null;
 
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _underscore.default.keys(hierarchy).forEach(function (key) {
     if (key == keyIdx) {
       found_hierarchy = hierarchy[key];
     } else {
@@ -2555,7 +2589,7 @@ var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
   if (isNaN(keyIdx) || !hierarchy) return null;
   var found_parent = null;
 
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _underscore.default.keys(hierarchy).forEach(function (key) {
     if (keyIdx in hierarchy[key]) {
       found_parent = key;
     } else {
@@ -2570,7 +2604,7 @@ var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
 var replaceInHierarchy = function myself(hierarchy, current, toReplace) {
   if (typeof current === 'number') current = current + '';
 
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _underscore.default.keys(hierarchy).forEach(function (key) {
     if (key === current) {
       var downstream = hierarchy[key];
       hierarchy[toReplace] = downstream;
@@ -2586,24 +2620,24 @@ var replaceInHierarchy = function myself(hierarchy, current, toReplace) {
 var flattenHierarchy = function myself(hierarchy) {
   var found_keys = [];
 
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _underscore.default.keys(hierarchy).forEach(function (key) {
     if (!isNaN(key)) key = parseInt(key);
     var sub_keys = myself(hierarchy[key]);
-    found_keys = _underscore["default"].union(found_keys, sub_keys, [key]);
+    found_keys = _underscore.default.union(found_keys, sub_keys, [key]);
   });
 
   return found_keys;
 };
 
 function removeNulls(context) {
-  _underscore["default"].keys(context).forEach(function (key) {
+  _underscore.default.keys(context).forEach(function (key) {
     if ((0, _submissionFields.isValueNull)(context[key])) {
       delete context[key];
     } else if (Array.isArray(context[key])) {
-      context[key] = _underscore["default"].filter(context[key], function (v) {
+      context[key] = _underscore.default.filter(context[key], function (v) {
         return !(0, _submissionFields.isValueNull)(v);
       });
-      context[key] = _underscore["default"].map(context[key], function (v) {
+      context[key] = _underscore.default.map(context[key], function (v) {
         return v && _typeof(v) === 'object' ? removeNulls(v) : v;
       });
     } else if (context[key] instanceof Object) {
