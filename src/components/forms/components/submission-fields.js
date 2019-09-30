@@ -528,22 +528,22 @@ class LinkedObj extends React.PureComponent {
     }
 
     childWindowAlert(){
-        return null;
-        // const { schema, nestedField } = this.props;
-        // const itemType = schema && schema.linkTo;
-        // const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
-        // return {
-        //     'title' : 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
-        //     'message' : (
-        //         <div>
-        //             <p className="mb-0">
-        //                 Please either <b>drag and drop</b> an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button.
-        //             </p>
-        //             <p className="mb-0">You may also browse around and drag & drop a link into the submissions window as well.</p>
-        //         </div>
-        //     ),
-        //     'style' : 'info'
-        // };
+        const { schema, nestedField } = this.props;
+        const itemType = schema && schema.linkTo;
+        const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
+        return {
+            'title': 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
+            'message': null,
+            // 'message' : (
+            //     <div>
+            //         <p className="mb-0">
+            //             Please either <b>drag and drop</b> an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button.
+            //         </p>
+            //         <p className="mb-0">You may also browse around and drag & drop a link into the submissions window as well.</p>
+            //     </div>
+            // ),
+            'style': 'info'
+        };
     }
 
     renderSelectInputField(){

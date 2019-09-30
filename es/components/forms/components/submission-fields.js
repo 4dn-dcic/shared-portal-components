@@ -722,18 +722,27 @@ var LinkedObj = function (_React$PureComponent2) {
   }, {
     key: "childWindowAlert",
     value: function childWindowAlert() {
-      return null;
+      var _this$props14 = this.props,
+          schema = _this$props14.schema,
+          nestedField = _this$props14.nestedField;
+      var itemType = schema && schema.linkTo;
+      var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
+      return {
+        'title': 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
+        'message': null,
+        'style': 'info'
+      };
     }
   }, {
     key: "renderSelectInputField",
     value: function renderSelectInputField() {
-      var _this$props14 = this.props,
-          value = _this$props14.value,
-          selectCancel = _this$props14.selectCancel,
-          schema = _this$props14.schema,
-          currType = _this$props14.currType,
-          nestedField = _this$props14.nestedField,
-          isMultiSelect = _this$props14.isMultiSelect;
+      var _this$props15 = this.props,
+          value = _this$props15.value,
+          selectCancel = _this$props15.selectCancel,
+          schema = _this$props15.schema,
+          currType = _this$props15.currType,
+          nestedField = _this$props15.nestedField,
+          isMultiSelect = _this$props15.isMultiSelect;
       var textInputValue = this.state.textInputValue;
       var canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
       var extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
@@ -803,14 +812,14 @@ var LinkedObj = function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-          value = _this$props15.value,
-          keyDisplay = _this$props15.keyDisplay,
-          keyComplete = _this$props15.keyComplete,
-          fieldBeingSelected = _this$props15.fieldBeingSelected,
-          nestedField = _this$props15.nestedField,
-          arrayIdx = _this$props15.arrayIdx,
-          fieldBeingSelectedArrayIdx = _this$props15.fieldBeingSelectedArrayIdx;
+      var _this$props16 = this.props,
+          value = _this$props16.value,
+          keyDisplay = _this$props16.keyDisplay,
+          keyComplete = _this$props16.keyComplete,
+          fieldBeingSelected = _this$props16.fieldBeingSelected,
+          nestedField = _this$props16.nestedField,
+          arrayIdx = _this$props16.arrayIdx,
+          fieldBeingSelectedArrayIdx = _this$props16.fieldBeingSelectedArrayIdx;
       var isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
 
       if (isSelecting) {
@@ -955,10 +964,10 @@ var ArrayField = function (_React$Component) {
   _createClass(ArrayField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props16 = this.props,
-          value = _this$props16.value,
-          field = _this$props16.field,
-          pushArrayValue = _this$props16.pushArrayValue;
+      var _this$props17 = this.props,
+          value = _this$props17.value,
+          field = _this$props17.field,
+          pushArrayValue = _this$props17.pushArrayValue;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -967,14 +976,14 @@ var ArrayField = function (_React$Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
-      var _this$props17 = this.props,
-          value = _this$props17.value,
-          field = _this$props17.field,
-          pushArrayValue = _this$props17.pushArrayValue,
-          modifyNewContext = _this$props17.modifyNewContext,
-          nestedField = _this$props17.nestedField,
-          schema = _this$props17.schema,
-          linkType = _this$props17.linkType;
+      var _this$props18 = this.props,
+          value = _this$props18.value,
+          field = _this$props18.field,
+          pushArrayValue = _this$props18.pushArrayValue,
+          modifyNewContext = _this$props18.modifyNewContext,
+          nestedField = _this$props18.nestedField,
+          schema = _this$props18.schema,
+          linkType = _this$props18.linkType;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -989,9 +998,9 @@ var ArrayField = function (_React$Component) {
   }, {
     key: "initiateArrayField",
     value: function initiateArrayField(arrayInfo, index, allItems) {
-      var _this$props18 = this.props,
-          propArrayIdx = _this$props18.arrayIdx,
-          schema = _this$props18.schema;
+      var _this$props19 = this.props,
+          propArrayIdx = _this$props19.arrayIdx,
+          schema = _this$props19.schema;
 
       var _arrayInfo = _slicedToArray(arrayInfo, 3),
           inArrValue = _arrayInfo[0],
@@ -1045,10 +1054,10 @@ var ArrayField = function (_React$Component) {
   }, {
     key: "generateAddButton",
     value: function generateAddButton() {
-      var _this$props19 = this.props,
-          _this$props19$value = _this$props19.value,
-          values = _this$props19$value === void 0 ? [] : _this$props19$value,
-          pushArrayValue = _this$props19.pushArrayValue;
+      var _this$props20 = this.props,
+          _this$props20$value = _this$props20.value,
+          values = _this$props20$value === void 0 ? [] : _this$props20$value,
+          pushArrayValue = _this$props20.pushArrayValue;
       return _react.default.createElement("div", {
         className: "add-array-item-button-container"
       }, _react.default.createElement("button", {
@@ -1062,9 +1071,9 @@ var ArrayField = function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props20 = this.props,
-          propSchema = _this$props20.schema,
-          propValue = _this$props20.value;
+      var _this$props21 = this.props,
+          propSchema = _this$props21.schema,
+          propValue = _this$props21.value;
       var schema = propSchema.items || {};
       var values = propValue || [];
 
@@ -1130,12 +1139,12 @@ var ObjectField = function (_React$PureComponent3) {
   _createClass(ObjectField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props21 = this.props,
-          value = _this$props21.value,
-          modifyNewContext = _this$props21.modifyNewContext,
-          nestedField = _this$props21.nestedField,
-          linkType = _this$props21.linkType,
-          arrayIdx = _this$props21.arrayIdx;
+      var _this$props22 = this.props,
+          value = _this$props22.value,
+          modifyNewContext = _this$props22.modifyNewContext,
+          nestedField = _this$props22.nestedField,
+          linkType = _this$props22.linkType,
+          arrayIdx = _this$props22.arrayIdx;
       modifyNewContext(nestedField, value || {}, 'object', linkType, arrayIdx);
     }
   }, {
@@ -1152,11 +1161,11 @@ var ObjectField = function (_React$PureComponent3) {
     value: function render() {
       var _this6 = this;
 
-      var _this$props22 = this.props,
-          objectSchema = _this$props22.schema,
-          parentObject = _this$props22.value,
-          propNestedField = _this$props22.nestedField,
-          isMultiSelect = _this$props22.isMultiSelect;
+      var _this$props23 = this.props,
+          objectSchema = _this$props23.schema,
+          parentObject = _this$props23.value,
+          propNestedField = _this$props23.nestedField,
+          isMultiSelect = _this$props23.isMultiSelect;
       var allFieldsInSchema = objectSchema['properties'] ? _underscore.default.keys(objectSchema['properties']) : [];
 
       var fieldsToBuild = _underscore.default.filter(_underscore.default.map(allFieldsInSchema, function (f) {
@@ -1284,9 +1293,9 @@ var AttachmentInput = function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props23 = this.props,
-          value = _this$props23.value,
-          field = _this$props23.field;
+      var _this$props24 = this.props,
+          value = _this$props24.value,
+          field = _this$props24.field;
       var attach_title;
 
       if (value && value.download) {
@@ -1348,9 +1357,9 @@ var S3FileInput = function (_React$Component3) {
   _createClass(S3FileInput, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      var _this$props24 = this.props,
-          upload = _this$props24.upload,
-          uploadStatus = _this$props24.uploadStatus;
+      var _this$props25 = this.props,
+          upload = _this$props25.upload,
+          uploadStatus = _this$props25.uploadStatus;
       var pastUpload = pastProps.upload,
           pastUploadStatus = pastProps.uploadStatus;
 
@@ -1386,12 +1395,12 @@ var S3FileInput = function (_React$Component3) {
     value: function handleChange(e) {
       var _this9 = this;
 
-      var _this$props25 = this.props,
-          modifyNewContext = _this$props25.modifyNewContext,
-          nestedField = _this$props25.nestedField,
-          linkType = _this$props25.linkType,
-          arrayIdx = _this$props25.arrayIdx,
-          currContext = _this$props25.currContext;
+      var _this$props26 = this.props,
+          modifyNewContext = _this$props26.modifyNewContext,
+          nestedField = _this$props26.nestedField,
+          linkType = _this$props26.linkType,
+          arrayIdx = _this$props26.arrayIdx,
+          currContext = _this$props26.currContext;
       var file = e.target.files[0];
       if (!file) return;
       var filename = file.name ? file.name : "unknown";
@@ -1482,11 +1491,11 @@ var S3FileInput = function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props26 = this.props,
-          value = _this$props26.value,
-          md5Progress = _this$props26.md5Progress,
-          upload = _this$props26.upload,
-          field = _this$props26.field;
+      var _this$props27 = this.props,
+          value = _this$props27.value,
+          md5Progress = _this$props27.md5Progress,
+          upload = _this$props27.upload,
+          field = _this$props27.field;
       var _this$state = this.state,
           newFile = _this$state.newFile,
           percentDone = _this$state.percentDone,
@@ -1696,13 +1705,13 @@ var AliasInputField = function (_React$Component4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props27 = this.props,
-          currentSubmittingUser = _this$props27.currentSubmittingUser,
-          errorMessage = _this$props27.errorMessage,
-          withinModal = _this$props27.withinModal,
-          value = _this$props27.value,
-          isValid = _this$props27.isValid,
-          showErrorMsg = _this$props27.showErrorMsg;
+      var _this$props28 = this.props,
+          currentSubmittingUser = _this$props28.currentSubmittingUser,
+          errorMessage = _this$props28.errorMessage,
+          withinModal = _this$props28.withinModal,
+          value = _this$props28.value,
+          isValid = _this$props28.isValid,
+          showErrorMsg = _this$props28.showErrorMsg;
       var parts = AliasInputField.splitInTwo(value);
       var submits_for_list = currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for || null;
       var initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
@@ -1824,9 +1833,9 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
     value: function doValidateAlias(alias) {
       var _this13 = this;
 
-      var _this$props28 = this.props,
-          onAliasChange = _this$props28.onAliasChange,
-          errorValue = _this$props28.errorValue;
+      var _this$props29 = this.props,
+          onAliasChange = _this$props29.onAliasChange,
+          errorValue = _this$props29.errorValue;
 
       if (this.request) {
         this.request.abort();
@@ -1868,13 +1877,13 @@ var AliasInputFieldValidated = function (_React$PureComponent4) {
     value: function (nextAlias) {
       var _this14 = this;
 
-      var _this$props29 = this.props,
-          onAliasChange = _this$props29.onAliasChange,
-          errorValue = _this$props29.errorValue,
-          _this$props29$skipVal = _this$props29.skipValidateAliases,
-          skipValidateAliases = _this$props29$skipVal === void 0 ? [] : _this$props29$skipVal,
-          _this$props29$rejectA = _this$props29.rejectAliases,
-          rejectAliases = _this$props29$rejectA === void 0 ? [] : _this$props29$rejectA;
+      var _this$props30 = this.props,
+          onAliasChange = _this$props30.onAliasChange,
+          errorValue = _this$props30.errorValue,
+          _this$props30$skipVal = _this$props30.skipValidateAliases,
+          skipValidateAliases = _this$props30$skipVal === void 0 ? [] : _this$props30$skipVal,
+          _this$props30$rejectA = _this$props30.rejectAliases,
+          rejectAliases = _this$props30$rejectA === void 0 ? [] : _this$props30$rejectA;
       this.request && this.request.abort();
       this.request = null;
       this.setState({
@@ -1964,9 +1973,9 @@ var InfoIcon = function (_React$PureComponent5) {
   _createClass(InfoIcon, [{
     key: "fieldTypeDescriptor",
     value: function fieldTypeDescriptor() {
-      var _this$props30 = this.props,
-          fieldType = _this$props30.fieldType,
-          schema = _this$props30.schema;
+      var _this$props31 = this.props,
+          fieldType = _this$props31.fieldType,
+          schema = _this$props31.schema;
       if (typeof fieldType !== 'string' || fieldType.length === 0) return null;
 
       var type = _util.valueTransforms.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
@@ -1980,11 +1989,11 @@ var InfoIcon = function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props31 = this.props,
-          children = _this$props31.children,
-          title = _this$props31.title,
-          fieldType = _this$props31.fieldType,
-          className = _this$props31.className;
+      var _this$props32 = this.props,
+          children = _this$props32.children,
+          title = _this$props32.title,
+          fieldType = _this$props32.fieldType,
+          className = _this$props32.className;
       if (!children || typeof children !== 'string') return null;
       var tip = children;
 
