@@ -128,43 +128,48 @@ export class LinkToDropdown extends React.PureComponent {
             disabled = true;
         } else {
 
-            if (searchAsYouType && typedSearchQuery){
-                const cachedResults = this.searchCache.get(typedSearchQuery);
-                if (cachedResults){
-                    filteredOptions = cachedResults;
-                } else {
-                    const regexTest = new RegExp(typedSearchQuery);
-                    filteredOptions = optionResults.filter(function(selectableItem){
-                        const { display_title, '@id' : itemID } = selectableItem;
-                        return regexTest.test(display_title) || regexTest.test(itemID);
-                    });
-                    if (this.searchCache.size >= 100) {
-                        for (const [ key, val ] of this.searchCache){
-                            this.searchCache.delete(key);
-                            break; // Just need to delete first (oldest) val.
+            if (optionResults.length === 1 && selectedID === optionResults[0]['@id']){
+                disabled = true;
+            } else {
+                if (searchAsYouType && typedSearchQuery){
+                    const cachedResults = this.searchCache.get(typedSearchQuery);
+                    if (cachedResults){
+                        filteredOptions = cachedResults;
+                    } else {
+                        const regexTest = new RegExp(typedSearchQuery);
+                        filteredOptions = optionResults.filter(function(selectableItem){
+                            const { display_title, '@id' : itemID } = selectableItem;
+                            return regexTest.test(display_title) || regexTest.test(itemID);
+                        });
+                        if (this.searchCache.size >= 100) {
+                            for (const [ key, val ] of this.searchCache){
+                                this.searchCache.delete(key);
+                                break; // Just need to delete first (oldest) val.
+                            }
                         }
+                        this.searchCache.set(typedSearchQuery, filteredOptions);
                     }
-                    this.searchCache.set(typedSearchQuery, filteredOptions);
                 }
+
+                renderedOptions = filteredOptions.map(function(selectableItem){
+                    const { display_title, '@id' : itemID } = selectableItem;
+                    return (
+                        <DropdownItem className="selectable-item-option" key={itemID} eventKey={itemID}
+                            active={selectedID === itemID}>
+                            <div className="row">
+                                <div className="col">
+                                    <span className="text-600 d-block">{ display_title }</span>
+                                </div>
+                                <div className="col-auto d-none d-md-inline-block">
+                                    <i className="icon icon-fw icon-link fas small mr-05"/>
+                                    <span className="text-monospace small">{ itemID }</span>
+                                </div>
+                            </div>
+                        </DropdownItem>
+                    );
+                });
             }
 
-            renderedOptions = filteredOptions.map(function(selectableItem){
-                const { display_title, '@id' : itemID } = selectableItem;
-                return (
-                    <DropdownItem className="selectable-item-option" key={itemID} eventKey={itemID}
-                        active={selectedID === itemID}>
-                        <div className="row">
-                            <div className="col">
-                                <span className="text-600 d-block">{ display_title }</span>
-                            </div>
-                            <div className="col-auto d-none d-md-inline-block">
-                                <i className="icon icon-fw icon-link fas small mr-05"/>
-                                <span className="text-monospace small">{ itemID }</span>
-                            </div>
-                        </div>
-                    </DropdownItem>
-                );
-            });
             title = selectedTitle || "Select...";
         }
 

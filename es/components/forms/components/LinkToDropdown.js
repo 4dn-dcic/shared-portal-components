@@ -176,75 +176,80 @@ var LinkToDropdown = function (_React$PureComponent) {
         }, error);
         disabled = true;
       } else {
-        if (searchAsYouType && typedSearchQuery) {
-          var cachedResults = this.searchCache.get(typedSearchQuery);
+        if (optionResults.length === 1 && selectedID === optionResults[0]['@id']) {
+          disabled = true;
+        } else {
+          if (searchAsYouType && typedSearchQuery) {
+            var cachedResults = this.searchCache.get(typedSearchQuery);
 
-          if (cachedResults) {
-            filteredOptions = cachedResults;
-          } else {
-            var regexTest = new RegExp(typedSearchQuery);
-            filteredOptions = optionResults.filter(function (selectableItem) {
-              var display_title = selectableItem.display_title,
-                  itemID = selectableItem['@id'];
-              return regexTest.test(display_title) || regexTest.test(itemID);
-            });
+            if (cachedResults) {
+              filteredOptions = cachedResults;
+            } else {
+              var regexTest = new RegExp(typedSearchQuery);
+              filteredOptions = optionResults.filter(function (selectableItem) {
+                var display_title = selectableItem.display_title,
+                    itemID = selectableItem['@id'];
+                return regexTest.test(display_title) || regexTest.test(itemID);
+              });
 
-            if (this.searchCache.size >= 100) {
-              var _iteratorNormalCompletion = true;
-              var _didIteratorError = false;
-              var _iteratorError = undefined;
+              if (this.searchCache.size >= 100) {
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
 
-              try {
-                for (var _iterator = this.searchCache[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                  var _step$value = _slicedToArray(_step.value, 2),
-                      key = _step$value[0],
-                      val = _step$value[1];
-
-                  this.searchCache["delete"](key);
-                  break;
-                }
-              } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-              } finally {
                 try {
-                  if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-                    _iterator["return"]();
+                  for (var _iterator = this.searchCache[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var _step$value = _slicedToArray(_step.value, 2),
+                        key = _step$value[0],
+                        val = _step$value[1];
+
+                    this.searchCache["delete"](key);
+                    break;
                   }
+                } catch (err) {
+                  _didIteratorError = true;
+                  _iteratorError = err;
                 } finally {
-                  if (_didIteratorError) {
-                    throw _iteratorError;
+                  try {
+                    if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+                      _iterator["return"]();
+                    }
+                  } finally {
+                    if (_didIteratorError) {
+                      throw _iteratorError;
+                    }
                   }
                 }
               }
-            }
 
-            this.searchCache.set(typedSearchQuery, filteredOptions);
+              this.searchCache.set(typedSearchQuery, filteredOptions);
+            }
           }
+
+          renderedOptions = filteredOptions.map(function (selectableItem) {
+            var display_title = selectableItem.display_title,
+                itemID = selectableItem['@id'];
+            return _react["default"].createElement(_reactBootstrap.DropdownItem, {
+              className: "selectable-item-option",
+              key: itemID,
+              eventKey: itemID,
+              active: selectedID === itemID
+            }, _react["default"].createElement("div", {
+              className: "row"
+            }, _react["default"].createElement("div", {
+              className: "col"
+            }, _react["default"].createElement("span", {
+              className: "text-600 d-block"
+            }, display_title)), _react["default"].createElement("div", {
+              className: "col-auto d-none d-md-inline-block"
+            }, _react["default"].createElement("i", {
+              className: "icon icon-fw icon-link fas small mr-05"
+            }), _react["default"].createElement("span", {
+              className: "text-monospace small"
+            }, itemID))));
+          });
         }
 
-        renderedOptions = filteredOptions.map(function (selectableItem) {
-          var display_title = selectableItem.display_title,
-              itemID = selectableItem['@id'];
-          return _react["default"].createElement(_reactBootstrap.DropdownItem, {
-            className: "selectable-item-option",
-            key: itemID,
-            eventKey: itemID,
-            active: selectedID === itemID
-          }, _react["default"].createElement("div", {
-            className: "row"
-          }, _react["default"].createElement("div", {
-            className: "col"
-          }, _react["default"].createElement("span", {
-            className: "text-600 d-block"
-          }, display_title)), _react["default"].createElement("div", {
-            className: "col-auto d-none d-md-inline-block"
-          }, _react["default"].createElement("i", {
-            className: "icon icon-fw icon-link fas small mr-05"
-          }), _react["default"].createElement("span", {
-            className: "text-monospace small"
-          }, itemID))));
-        });
         title = selectedTitle || "Select...";
       }
 
