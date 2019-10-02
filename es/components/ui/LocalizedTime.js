@@ -37,7 +37,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var LocalizedTime = function (_React$Component) {
+var LocalizedTime =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(LocalizedTime, _React$Component);
 
   function LocalizedTime(props) {
@@ -119,18 +121,23 @@ function preset() {
         return "YYYY-MM-DD";
 
       case 'date-xs':
+        // 11/03/2016
         return "MM/DD/YYYY";
 
       case 'date-sm':
+        // Nov 3rd, 2016
         return "MMM Do, YYYY";
 
       case 'date-md':
+        // November 3rd, 2016   (default)
         return "MMMM Do, YYYY";
 
       case 'date-lg':
+        // Thursday, November 3rd, 2016
         return "dddd, MMMM Do, YYYY";
 
       case 'date-month':
+        // November 2016
         return "MMMM YYYY";
     }
   }
@@ -141,13 +148,16 @@ function preset() {
         return "HH[h]-mm[m]";
 
       case 'time-xs':
+        // 12pm
         return "ha";
 
       case 'time-sm':
       case 'time-md':
+        // 12:27pm
         return "h:mma";
 
       case 'time-lg':
+        // 12:27:34 pm
         return "h:mm:ss a";
     }
   }
@@ -162,6 +172,17 @@ function preset() {
 
   return null;
 }
+/**
+ * Presets for date/time output formats for 4DN.
+ * Uses bootstrap grid sizing name convention, so may utilize with responsiveGridState
+ * to set responsively according to screen size, e.g. in a (debounced/delayed) window
+ * resize event listener.
+ *
+ * @see responsiveGridState
+ * @param {string} [formatType] - Key for date/time format to display. Defaults to 'date-md'.
+ * @param {string} [dateTimeSeparator] - Separator between date and time if formatting a date-time. Defaults to ' '.
+ */
+
 
 function format(timestamp) {
   var formatType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'date-md';
@@ -190,6 +211,17 @@ function display(momentObj) {
 
   return momentObj.format(outputFormat);
 }
+/**
+ * This function is meant to accept a UTC/GMT date string
+ * and return a formatted version of it _without_ performing
+ * any timezone conversion. Only returns year and (optionally)
+ * month.
+ *
+ * @param {string} utcDate - UTC/system-formatted date string.
+ * @param {boolean} [includeMonth] - If false, only year will be returned.
+ * @return {string} Formatted year and possibly month.
+ */
+
 
 function formatPublicationDate(utcDate) {
   var includeMonth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -204,12 +236,15 @@ function formatPublicationDate(utcDate) {
 
   if (includeMonth && utcDate.length >= 7) {
     monthString = utcDate.slice(5, 7);
-    monthIndex = parseInt(monthString) - 1;
+    monthIndex = parseInt(monthString) - 1; // 0-based.
+    // @see https://momentjs.com/docs/#/i18n/listing-months-weekdays/
+
     monthString = _moment["default"].months()[monthIndex];
 
     if (includeDay && utcDate.length >= 10) {
       dayString = utcDate.slice(8, 10);
-      dayInteger = parseInt(dayString);
+      dayInteger = parseInt(dayString); // @see https://momentjs.com/docs/#/i18n/locale-data/
+
       dayString = _moment["default"].localeData().ordinal(dayInteger);
       return monthString + ' ' + dayString + ', ' + yearString;
     }

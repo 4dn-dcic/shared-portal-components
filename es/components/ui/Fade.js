@@ -55,7 +55,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var fadeStyles = (_fadeStyles = {}, _defineProperty(_fadeStyles, _Transition.ENTERING, 'show'), _defineProperty(_fadeStyles, _Transition.ENTERED, 'show in'), _fadeStyles);
 
-var Fade = function (_React$Component) {
+var Fade =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(Fade, _React$Component);
 
   function Fade(props) {

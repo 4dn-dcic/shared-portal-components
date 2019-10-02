@@ -59,7 +59,8 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var Auth0Lock = null;
+/** Imported in componentDidMount. */
+var Auth0Lock = null; // Manual polyfill for NPM tests, @see https://github.com/facebook/create-react-app/issues/1064
 
 if (!require.ensure) {
   console.error("No require.ensure present - \nFine if within an NPM test, error if in browser/webpack context.");
@@ -68,8 +69,12 @@ if (!require.ensure) {
     return cb(require);
   };
 }
+/** Controls Login process, also shows Registration Modal */
 
-var LoginController = function (_React$PureComponent) {
+
+var LoginController =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(LoginController, _React$PureComponent);
 
   function LoginController(props) {
@@ -87,7 +92,8 @@ var LoginController = function (_React$PureComponent) {
     _this.onRegistrationCancel = _this.onRegistrationCancel.bind(_assertThisInitialized(_this));
     _this.state = {
       "isRegistrationModalVisible": false,
-      "isLoading": false
+      "isLoading": false // Whether are currently performing login/registration request.
+
     };
     return _this;
   }
@@ -103,6 +109,8 @@ var LoginController = function (_React$PureComponent) {
           auth0Options = _this$props.auth0Options;
 
       require.ensure(["auth0-lock"], function (require) {
+        // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+        // We import it here in separate bundle instead to avoid issues during server-side render.
         Auth0Lock = require("auth0-lock")["default"];
         _this2.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
 
@@ -112,7 +120,8 @@ var LoginController = function (_React$PureComponent) {
   }, {
     key: "showLock",
     value: function showLock() {
-      if (!this.lock || !this.lock.show) return;
+      if (!this.lock || !this.lock.show) return; // Not yet mounted
+
       this.lock.show();
     }
   }, {
@@ -120,14 +129,19 @@ var LoginController = function (_React$PureComponent) {
     value: function loginCallback(authResult, successCallback, errorCallback) {
       var _this3 = this;
 
-      var updateUserInfo = this.props.updateUserInfo;
-      var idToken = authResult.idToken;
+      var updateUserInfo = this.props.updateUserInfo; // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
+      // to see if this is a valid user account or some random person who just logged into their Google account.
+
+      var idToken = authResult.idToken; //JWT
+
       if (!idToken) return;
-      JWT.save(idToken);
+      JWT.save(idToken); // We just got token from Auth0 so probably isn't outdated.
+
       this.setState({
         "isLoading": true
       }, function () {
-        _this3.lock.hide();
+        _this3.lock.hide(); // Second stage: get this valid OAuth account (Google or w/e) auth'd from our end.
+
 
         Promise.race([(0, _ajax.fetch)('/login', {
           method: 'POST',
@@ -144,7 +158,9 @@ var LoginController = function (_React$PureComponent) {
               'type': 'timed-out'
             });
           }, 90000);
+          /* 90 seconds */
         })]).then(function (response) {
+          // Add'l Error Check (will throw to be caught)
           if (response.code || response.status) throw response;
           return response;
         }).then(function (r) {
@@ -154,7 +170,8 @@ var LoginController = function (_React$PureComponent) {
 
           _Alerts.Alerts.deQueue(_Alerts.Alerts.LoggedOut);
 
-          console.info('Login completed');
+          console.info('Login completed'); // Fetch user profile and use their primary lab as the eventLabel.
+
           var profileURL = (_underscore["default"].findWhere(r.user_actions || [], {
             'id': 'profile'
           }) || {}).href;
@@ -162,12 +179,16 @@ var LoginController = function (_React$PureComponent) {
           if (profileURL) {
             _this3.setState({
               "isLoading": false
-            });
+            }); // Register an analytics event for UI login.
+            // This is used to segment public vs internal audience in Analytics dashboards.
+
 
             (0, _ajax.load)(profileURL, function (profile) {
               if (typeof successCallback === 'function') {
                 successCallback(profile);
-              }
+              } // Refresh the content/context of our page now that we have a JWT stored as a cookie!
+              // It will return same page but with any auth'd page actions.
+
 
               (0, _navigate.navigate)('', {
                 "inPlace": true
@@ -179,6 +200,7 @@ var LoginController = function (_React$PureComponent) {
             throw new Error('No profile URL found in user_actions.');
           }
         })["catch"](function (error) {
+          // Handle Errors
           console.error("Error during login: ", error.description);
           console.log(error);
 
@@ -186,7 +208,8 @@ var LoginController = function (_React$PureComponent) {
             "isLoading": false
           });
 
-          _Alerts.Alerts.deQueue(_Alerts.Alerts.LoggedOut);
+          _Alerts.Alerts.deQueue(_Alerts.Alerts.LoggedOut); // If is programatically called with error CB, let error CB handle everything.
+
 
           var errorCallbackFxn = typeof errorCallback === 'function' ? errorCallback : _this3.loginErrorCallback;
           errorCallbackFxn(error);
@@ -197,8 +220,11 @@ var LoginController = function (_React$PureComponent) {
     key: "loginErrorCallback",
     value: function loginErrorCallback(error) {
       if (!error.code && error.type === 'timed-out') {
+        // Server or network error of some sort most likely.
         _Alerts.Alerts.queue(_Alerts.Alerts.LoginFailed);
       } else if (error.code === 401) {
+        // Present a registration form
+        //navigate('/error/login-failed');
         this.setState({
           'isRegistrationModalVisible': true
         });
@@ -215,8 +241,9 @@ var LoginController = function (_React$PureComponent) {
       var decodedToken = JWT.decode(token);
       this.loginCallback({
         'idToken': token
-      }, function (userProfile) {
-        var userDetails = JWT.getUserDetails();
+      }, // Success callback -- shows "Success" Alert msg.
+      function (userProfile) {
+        var userDetails = JWT.getUserDetails(); // We should have this after /login
 
         var userProfileURL = userProfile && _object.itemUtil.atId(userProfile);
 
@@ -232,7 +259,9 @@ var LoginController = function (_React$PureComponent) {
 
         _this4.setState({
           'isRegistrationModalVisible': false
-        });
+        }); // Moved out of setState callback because no guarantee that setState callback is fired
+        // if component becomes unmounted (which occurs after login).
+
 
         _Alerts.Alerts.queue({
           "title": "Registered & Logged In",
@@ -245,7 +274,7 @@ var LoginController = function (_React$PureComponent) {
           'isRegistrationModalVisible': false
         });
 
-        JWT.remove();
+        JWT.remove(); // Cleanup any remaining JWT, just in case.
 
         _Alerts.Alerts.queue(_Alerts.Alerts.LoginFailed);
       });
@@ -253,6 +282,7 @@ var LoginController = function (_React$PureComponent) {
   }, {
     key: "onRegistrationCancel",
     value: function onRegistrationCancel() {
+      // TODO:
       this.setState({
         'isRegistrationModalVisible': false
       });
@@ -299,6 +329,8 @@ _defineProperty(LoginController, "propTypes", {
 });
 
 _defineProperty(LoginController, "defaultProps", {
+  // Login / logout actions must be deferred until Auth0 is ready.
+  // TODO: these (maybe) should be read in from base and production.ini
   'auth0ClientID': 'DPxEwsZRnKDpk0VfVAxrStRKukN14ILB',
   'auth0Domain': 'hms-dbmi.auth0.com',
   'auth0Options': {
@@ -326,6 +358,7 @@ _defineProperty(LoginController, "defaultProps", {
     var isAdmin = Array.isArray(profile.groups) && profile.groups.indexOf('admin') > -1;
 
     if (!isAdmin) {
+      // Exclude admins from analytics tracking
       (0, _analytics.event)('Authentication', 'UILogin', {
         'eventLabel': profile.lab && _object.itemUtil.atId(profile.lab) || 'No Lab'
       });
@@ -333,7 +366,9 @@ _defineProperty(LoginController, "defaultProps", {
   }
 });
 
-var LogoutController = function (_React$PureComponent2) {
+var LogoutController =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(LogoutController, _React$PureComponent2);
 
   function LogoutController(props) {
@@ -345,18 +380,29 @@ var LogoutController = function (_React$PureComponent2) {
     _this5.performLogout = _this5.performLogout.bind(_assertThisInitialized(_this5));
     return _this5;
   }
+  /**
+   * Removes JWT from cookies, as well as userInfo from localStorage
+   * and then refreshes current view/href via navigate fxn.
+   *
+   * @param {string} eventKey - Not needed.
+   * @param {Event} eventObject - Not needed.
+   */
+
 
   _createClass(LogoutController, [{
     key: "performLogout",
     value: function performLogout() {
-      var updateUserInfo = this.props.updateUserInfo;
-      JWT.remove();
+      var updateUserInfo = this.props.updateUserInfo; // Removes both idToken (cookie) and userInfo (localStorage)
+
+      JWT.remove(); // Refetch page context without our old JWT to hide any forbidden content.
+
       updateUserInfo();
       (0, _navigate.navigate)('', {
         'inPlace': true
       });
 
       if (typeof document !== 'undefined') {
+        // Dummy click event to close dropdown menu, bypasses document.body.onClick handler (app.js -> App.prototype.handeClick)
         document.dispatchEvent(new MouseEvent('click'));
       }
     }

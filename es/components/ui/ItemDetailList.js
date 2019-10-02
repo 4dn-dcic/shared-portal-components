@@ -51,6 +51,17 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+/**
+ * This file/component is kind of a mess.
+ *
+ * @module
+ * @todo
+ * For any major-ish future work, we should replace this with an
+ * off-the-shelf NPM JSON-LD renderer (if any) and just wrap it with
+ * our own simple 'prop-feeder' component.
+ */
+
+/** Contains and toggles visibility/mounting of a Subview. Renders title for the Subview. */
 var SubItemTitle = _react["default"].memo(function (_ref) {
   var isOpen = _ref.isOpen,
       title = _ref.title,
@@ -108,7 +119,9 @@ var SubItemListView = _react["default"].memo(function (props) {
     popLink: popLink,
     'context': item,
     'alwaysCollapsibleKeys': [],
-    'excludedKeys': excludedKeys || _underscore["default"].without(Detail.defaultProps.excludedKeys, 'lab', 'award', 'description').concat(['schema_version', 'uuid']),
+    'excludedKeys': excludedKeys || _underscore["default"].without(Detail.defaultProps.excludedKeys, // Remove
+    'lab', 'award', 'description').concat([// Add
+    'schema_version', 'uuid']),
     'columnDefinitions': columnDefinitions || {},
     'showJSONButton': false,
     'hideButtons': true
@@ -119,14 +132,29 @@ var SubItemListView = _react["default"].memo(function (props) {
     className: "key-value sub-descriptions"
   }, _react["default"].createElement(typeof item.display_title === 'string' ? ItemDetailList : Detail, passProps)));
 });
+/**
+ * Messiness.
+ * @todo refactor or get rid of.
+ */
+
 
 exports.SubItemListView = SubItemListView;
 
-var SubItemTable = function (_React$Component) {
+var SubItemTable =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(SubItemTable, _React$Component);
 
   _createClass(SubItemTable, null, [{
     key: "shouldUseTable",
+
+    /**
+     * This code could look better.
+     * Essentially, checks each property in first object of param 'list' and if no values fail a rough validation wherein there must be no too-deeply nested objects or lists, returns true.
+     *
+     * @param {Object[]} list - List of objects
+     * @returns {boolean} True if a table would be good for showing these items.
+     */
     value: function shouldUseTable(list, schemas) {
       if (!Array.isArray(list)) return false;
       if (list.length < 1) return false;
@@ -140,17 +168,18 @@ var SubItemTable = function (_React$Component) {
       })) return false;
       if (_underscore["default"].any(list, function (x) {
         if (!Array.isArray(x['@type'])) {
-          return true;
+          return true; // No @type so we can't get 'columns' from schemas.
         } else {
           schemaForType = (0, _schemaTransforms.getSchemaForItemType)(x['@type'][0], schemas);
-          if (!schemaForType || !schemaForType.columns) return true;
+          if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
         }
       })) return false;
 
       var objectWithAllItemKeys = _underscore["default"].reduce(list, function (m, v) {
         var v2 = _underscore["default"].clone(v);
 
-        var valKeys = _underscore["default"].keys(v2);
+        var valKeys = _underscore["default"].keys(v2); // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
+
 
         for (var i = 0; i < valKeys.length; i++) {
           if (Array.isArray(v2[valKeys[i]])) {
@@ -176,13 +205,14 @@ var SubItemTable = function (_React$Component) {
             return false;
           });
 
-          if (listObjects.length === 0) continue;
+          if (listObjects.length === 0) continue; // List of strings or values only. Continue.
 
           var listNotItems = _underscore["default"].filter(listObjects, function (v) {
             return !(0, _object.isAnItem)(v);
           });
 
-          if (listNotItems.length === 0) continue;
+          if (listNotItems.length === 0) continue; // List of Items that can be rendered as links. Continue.
+          // Else, we have list of Objects. Assert that each sub-object has only strings, numbers, or Item (object with link), or list of such -- no other sub-objects.
 
           for (k = 0; k < listNotItems.length; k++) {
             embeddedListItem = listNotItems[k];
@@ -210,15 +240,19 @@ var SubItemTable = function (_React$Component) {
         }
 
         if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]] && _typeof(objectWithAllItemKeys[rootKeys[i]]) === 'object') {
+          // Embedded object 1 level deep. Will flatten upwards if passes checks:
+          // example: (sub-object) {..., 'stringProp' : 'stringVal', 'meta' : {'argument_name' : 'x', 'argument_type' : 'y'}, ...} ===> (columns) 'stringProp', 'meta.argument_name', 'meta.argument_type'
           if ((0, _object.isAnItem)(objectWithAllItemKeys[rootKeys[i]])) {
+            // This embedded object is an.... ITEM! Skip rest of checks for this property, we're ok with just drawing link to Item.
             continue;
           }
 
           embeddedKeys = _underscore["default"].keys(objectWithAllItemKeys[rootKeys[i]]);
-          if (embeddedKeys.length > 5) return false;
+          if (embeddedKeys.length > 5) return false; // 5 properties to flatten up feels like a good limit. Lets render objects with more than that as lists or own table (not flattened up to another 1).
+          // Run some checks against the embedded object's properties. Ensure all nested lists contain plain strings or numbers, as will flatten to simple comma-delimited list.
 
           for (j = 0; j < embeddedKeys.length; j++) {
-            if (typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'number') continue;
+            if (typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'number') continue; // Ensure if property on embedded object's is an array, that is a simple array of strings or numbers - no objects. Will be converted to comma-delimited list.
 
             if (Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) {
               if (objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length < 4 && _underscore["default"].filter(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]], function (v) {
@@ -229,14 +263,17 @@ var SubItemTable = function (_React$Component) {
                 } else {
                   return true;
                 }
-              }).length === 0) {
+              }).length === 0 //(typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]][0] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]][0] === 'number')
+              ) {
                   continue;
                 } else {
                 return false;
               }
-            }
+            } // Ensure that if is not an array, it is a simple string or number (not another embedded object).
+
 
             if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) && objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] && _typeof(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) === 'object') {
+              // Embedded object 2 levels deep. No thx we don't want any 'meta.argument_mapping.argument_type' -length column names. Unless it's an Item for which we can just render link for.
               if ((0, _object.isAnItem)(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) continue;
               return false;
             }
@@ -251,11 +288,17 @@ var SubItemTable = function (_React$Component) {
     value: function getColumnKeys(items, columnDefinitions, schemas) {
       var objectWithAllItemKeys = _underscore["default"].reduce(items, function (m, v) {
         return _underscore["default"].extend(m, v);
-      }, {});
+      }, {}); //var schemas = this.props.schemas || Schemas.get();
+      //var tips = schemas ? tipsFromSchema(schemas, context) : {};
+      //if (typeof this.props.keyTitleDescriptionMap === 'object' && this.props.keyTitleDescriptionMap){
+      //    _.extend(tips, this.props.keyTitleDescriptionMap);
+      //}
+      // Property columns to push to front (common across all objects)
+
 
       var rootKeys = _underscore["default"].keys(objectWithAllItemKeys);
 
-      var columnKeys = [];
+      var columnKeys = []; // Use schema columns
 
       if (typeof objectWithAllItemKeys.display_title === 'string' && Array.isArray(objectWithAllItemKeys['@type'])) {
         var columnKeysFromSchema = _underscore["default"].keys((0, _schemaTransforms.getSchemaForItemType)((0, _schemaTransforms.getItemType)(objectWithAllItemKeys), schemas).columns);
@@ -270,6 +313,7 @@ var SubItemTable = function (_React$Component) {
           };
         });
       } else {
+        // Gather, flatten up from Object.
         for (var i = 0; i < rootKeys.length; i++) {
           if (typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
             if (Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]][0] && _typeof(objectWithAllItemKeys[rootKeys[i]][0]) === 'object' && typeof objectWithAllItemKeys[rootKeys[i]][0].display_title !== 'string') {
@@ -292,8 +336,9 @@ var SubItemTable = function (_React$Component) {
             if (itemAtID) {
               columnKeys.push({
                 'key': rootKeys[i]
-              });
+              }); // Keep single key if is an Item, we'll make it into a link.
             } else {
+              // Flatten up, otherwise.
               columnKeys = columnKeys.concat(_underscore["default"].keys(objectWithAllItemKeys[rootKeys[i]]).map(function (embeddedKey) {
                 return {
                   'key': rootKeys[i] + '.' + embeddedKey
@@ -327,6 +372,7 @@ var SubItemTable = function (_React$Component) {
         if (['value'].indexOf(b.key) > -1) return 2;
         return 0;
       }).sort(function (a, b) {
+        // Push columns with child/embedded object lists to the end.
         if (Array.isArray(a.childKeys)) return 1;
         if (Array.isArray(b.childKeys)) return -1;
         return 0;
@@ -385,7 +431,7 @@ var SubItemTable = function (_React$Component) {
           schemas = _this$props.schemas,
           termTransformFxn = _this$props.termTransformFxn;
       var mounted = this.state.mounted;
-      var columnKeys = SubItemTable.getColumnKeys(items, columnDefinitions, schemas);
+      var columnKeys = SubItemTable.getColumnKeys(items, columnDefinitions, schemas); // If is an Item, grab properties for it.
 
       if (items[0] && items[0].display_title) {
         (0, _object.tipsFromSchema)(schemas, items[0]);
@@ -393,7 +439,8 @@ var SubItemTable = function (_React$Component) {
           if (k === '@id') return false;
           return true;
         });
-      }
+      } // TODO: Get rid of this.
+
 
       var subListKeyWidths = this.subListKeyWidths;
 
@@ -405,11 +452,14 @@ var SubItemTable = function (_React$Component) {
 
           for (var i = 0; i < keys.length; i++) {
             widthObj[keys[i]] = _underscore["default"].object(_underscore["default"].pairs(refObj[keys[i]]).map(function (refSet) {
+              //var colKey = refSet[1].getAttribute('data-key');
               var colRows = Array.from(document.getElementsByClassName('child-column-' + keys[i] + '.' + refSet[0]));
               var maxWidth = Math.max(_underscore["default"].reduce(colRows, function (m, v) {
                 return Math.max(m, v.offsetWidth);
               }, 0), refSet[1].offsetWidth + 10);
-              return [refSet[0], maxWidth];
+              return [refSet[0], maxWidth
+              /*refSet[1].offsetWidth*/
+              ];
             }));
           }
 
@@ -450,7 +500,9 @@ var SubItemTable = function (_React$Component) {
             if (_underscore["default"].any(value, function (v) {
               return _typeof(v) === 'object' && v;
             }) && Array.isArray(colKeyContainer.childKeys)) {
-              var allKeys = colKeyContainer.childKeys;
+              // Embedded list of objects.
+              var allKeys = colKeyContainer.childKeys; //_.keys(  _.reduce(value, function(m,v){ return _.extend(m,v); }, {})   );
+
               return {
                 'value': _underscore["default"].map(value, function (embeddedRow, i) {
                   return _react["default"].createElement("div", {
@@ -462,7 +514,7 @@ var SubItemTable = function (_React$Component) {
                   }, _react["default"].createElement("div", {
                     className: "inline-block child-list-row-number"
                   }, i + 1, "."), allKeys.map(function (k) {
-                    var renderedSubVal;
+                    var renderedSubVal; // = Schemas.Term.toName(k, embeddedRow[k]);
 
                     if (typeof columnDefinitions[parentKey + '.' + colKey + '.' + k] !== 'undefined') {
                       if (typeof columnDefinitions[parentKey + '.' + colKey + '.' + k].render === 'function') {
@@ -517,11 +569,13 @@ var SubItemTable = function (_React$Component) {
             'key': colKey
           };
         });
-      });
+      }); // Get property of parent key which has items.properties : { ..these_keys.. }
+
 
       var parentKeySchemaProperty = (0, _schemaTransforms.getSchemaProperty)(parentKey, schemas, {}, atType);
 
-      var keyTitleDescriptionMap = _underscore["default"].extend({}, (0, _schemaTransforms.flattenSchemaPropertyToColumnDefinition)(_object.tipsFromSchema || parentKeySchemaProperty, 0, schemas), columnDefinitions);
+      var keyTitleDescriptionMap = _underscore["default"].extend({}, // We have list of sub-embedded Items or sub-embedded objects which have separate 'get properties from schema' funcs (== tipsFromSchema || parentKeySchemaProperty).
+      (0, _schemaTransforms.flattenSchemaPropertyToColumnDefinition)(_object.tipsFromSchema || parentKeySchemaProperty, 0, schemas), columnDefinitions);
 
       var subListKeyRefs = this.subListKeyRefs = {};
       return _react["default"].createElement("div", {
@@ -536,6 +590,7 @@ var SubItemTable = function (_React$Component) {
           width: 36
         }
       }, "#")].concat(columnKeys.map(function (colKeyContainer) {
+        //var tips = tipsFromSchema(Schemas.get(), context) || {};
         var colKey = colKeyContainer.key;
         var title = keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].title || keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].title || colKey;
         var tooltip = keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].description || keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].description || null;
@@ -547,6 +602,8 @@ var SubItemTable = function (_React$Component) {
           title: title,
           tooltip: tooltip
         }), hasChildren ? function () {
+          //var subKeyTitleDescriptionMap = (((this.props.keyTitleDescriptionMap || {})[this.props.parentKey] || {}).items || {}).properties || {};
+          //var subKeyTitleDescriptionMap = keyTitleDescriptionMap[this.props.parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {};
           var subKeyTitleDescriptionMap = ((keyTitleDescriptionMap[parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {}).items || {}).properties || {};
           subListKeyRefs[colKey] = {};
           return _react["default"].createElement("div", {
@@ -618,7 +675,9 @@ var SubItemTable = function (_React$Component) {
   return SubItemTable;
 }(_react["default"].Component);
 
-var DetailRow = function (_React$PureComponent) {
+var DetailRow =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(DetailRow, _React$PureComponent);
 
   function DetailRow(props) {
@@ -633,6 +692,13 @@ var DetailRow = function (_React$PureComponent) {
     };
     return _this2;
   }
+  /**
+   * Handler for rendered title element. Toggles visiblity of Subview.
+   *
+   * @param {React.SyntheticEvent} e - Mouse click event. Its preventDefault() method is called.
+   * @returns {void}
+   */
+
 
   _createClass(DetailRow, [{
     key: "handleToggle",
@@ -673,6 +739,7 @@ var DetailRow = function (_React$PureComponent) {
       }
 
       if (value.type === SubItemTitle) {
+        // What we have here is an embedded object of some sort. Lets override its 'isOpen' & 'onToggle' functions.
         value = _react["default"].cloneElement(value, {
           'onToggle': this.handleToggle,
           'isOpen': isOpen
@@ -685,11 +752,13 @@ var DetailRow = function (_React$PureComponent) {
           content: item,
           schemas: schemas,
           isOpen: isOpen,
-          columnDefinitions: value.props.columnDefinitions || columnDefinitions
+          columnDefinitions: value.props.columnDefinitions || columnDefinitions // Recursively pass these down
+
         }));
       }
 
       if (value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" && value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
+        // What we have here is a list of embedded objects. Render them out recursively and adjust some styles.
         return _react["default"].createElement("div", {
           className: "array-group",
           "data-length": item.length
@@ -703,7 +772,8 @@ var DetailRow = function (_React$PureComponent) {
             className: "array-group-row item-index-" + i + (i === item.length - 1 ? ' last-item' : '') + (i === 0 ? ' first-item' : '')
           }));
         }));
-      }
+      } // Default / Pass-Thru
+
 
       return _react["default"].createElement(_PartialList.PartialList.Row, {
         label: labelToShow,
@@ -714,12 +784,31 @@ var DetailRow = function (_React$PureComponent) {
 
   return DetailRow;
 }(_react["default"].PureComponent);
+/**
+ * The list of properties contained within ItemDetailList.
+ * Isolated to allow use without existing in ItemDetailList parent.
+ *
+ * @class Detail
+ * @type {Component}
+ */
 
-var Detail = function (_React$PureComponent2) {
+
+var Detail =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(Detail, _React$PureComponent2);
 
   _createClass(Detail, null, [{
     key: "formKey",
+
+    /**
+     * Formats the correct display for each metadata field.
+     *
+     * @param {Object} tips - Mapping of field property names (1 level deep) to schema properties.
+     * @param {string} key - Key to use to get 'description' for tooltip from the 'tips' param.
+     * @param {boolean} [includeTooltip=false] - If false, skips adding tooltip to output JSX.
+     * @returns {JSX.Element} <div> element with a tooltip and info-circle icon.
+     */
     value: function formKey(tips, key) {
       var includeTooltip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
       var tooltip = null,
@@ -737,6 +826,21 @@ var Detail = function (_React$PureComponent2) {
         tooltip: tooltip
       });
     }
+    /**
+    * Recursively render keys/values included in a provided item.
+    * Wraps URLs/paths in link elements. Sub-panels for objects.
+    *
+    * @todo cleanup, probably not have as a static func.
+    *
+    * @param {Item} item - JSON of an Item.
+    * @param {boolean} [popLink=false] - Whether to open child links in new window.
+    * @param {string} keyPrefix - Not sure. Key to use to get value with?
+    * @param {string} atType - Current type of Item.
+    * @param {ColumnDefinition[]} columnDefinitions - List of column definitions to use for SubItemTable.
+    * @param {number} depth - Current recursive depth.
+    * @returns {JSX.Element}
+    */
+
   }, {
     key: "formValue",
     value: function formValue(item) {
@@ -774,11 +878,13 @@ var Detail = function (_React$PureComponent2) {
       } else if (_typeof(item) === 'object' && item !== null) {
         var linkElement = _object.itemUtil.generateLink(item, true, 'display_title', {
           'target': popLink ? '_blank' : null
-        }, true);
+        }, true); // if the following is true, we have an embedded Item. Link to it.
+
 
         if (linkElement) {
           return linkElement;
         } else {
+          // it must be an embedded sub-object (not Item)
           var releventProperties = _underscore["default"].object(_underscore["default"].map(_underscore["default"].filter(_underscore["default"].pairs(columnDefinitions), function (c) {
             return c[0].indexOf(keyPrefix + '.') === 0;
           }), function (c) {
@@ -805,6 +911,7 @@ var Detail = function (_React$PureComponent2) {
         }
 
         if (item.charAt(0) === '/' && item.indexOf('@@download') > -1) {
+          // This is a download link. Format appropriately
           var split_item = item.split('/');
           var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
           return _react["default"].createElement("a", {
@@ -825,6 +932,8 @@ var Detail = function (_React$PureComponent2) {
             href: item
           }, item);
         } else if (item.slice(0, 4) === 'http') {
+          // TODO: more comprehensive regexp url validator needed, look at: https://stackoverflow.com/a/5717133
+          // Is a URL. Check if we should render it as a link/uri.
           var schemaProperty = (0, _schemaTransforms.getSchemaProperty)(keyPrefix, schemas || {}, atType);
           if (schemaProperty && typeof schemaProperty.format === 'string' && ['uri', 'url'].indexOf(schemaProperty.format.toLowerCase()) > -1) return _react["default"].createElement("a", {
             key: item,
@@ -845,7 +954,7 @@ var Detail = function (_React$PureComponent2) {
         }, item + '');
       }
 
-      return _react["default"].createElement("span", null, item);
+      return _react["default"].createElement("span", null, item); // Fallback
     }
   }]);
 
@@ -918,9 +1027,19 @@ _defineProperty(Detail, "propTypes", {
 });
 
 _defineProperty(Detail, "defaultProps", {
-  'excludedKeys': ['@context', 'actions', 'principals_allowed', 'lab', 'award', 'description', '@id', 'display_title'],
-  'stickyKeys': ['display_title', 'title', 'experimentset_type', 'date_released', 'experiment_type', 'experiment_summary', 'experiment_sets', 'files', 'filesets', 'protocol', 'biosample', 'digestion_enzyme', 'digestion_temperature', 'digestion_time', 'ligation_temperature', 'ligation_time', 'ligation_volume', 'tagging_method', 'experiment_category', 'assay_classification', 'assay_subclassification', 'assay_subclass_short', 'sop', 'reference_pubs', 'raw_file_types', 'controlled_term', 'other_protocols', 'other_tags', 'biosource', 'biosource_summary', 'biosample_protocols', 'modifications_summary', 'treatments_summary', 'filename', 'file_type', 'file_format', 'href', 'notes', 'flowcell_details', 'awards', 'address1', 'address2', 'city', 'country', 'institute_name', 'state', 'end_date', 'project', 'uri', 'ID', 'attachment', 'aliases'],
-  'alwaysCollapsibleKeys': ['@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'dbxrefs', 'status', 'external_references', 'date_created'],
+  'excludedKeys': ['@context', 'actions', 'principals_allowed', // Visible elsewhere on page
+  'lab', 'award', 'description', '@id', 'display_title', 'aggregated-items'],
+  'stickyKeys': ['display_title', 'title', // Experiment Set
+  'experimentset_type', 'date_released', // Experiment
+  'experiment_type', 'experiment_summary', 'experiment_sets', 'files', 'filesets', 'protocol', 'biosample', 'digestion_enzyme', 'digestion_temperature', 'digestion_time', 'ligation_temperature', 'ligation_time', 'ligation_volume', 'tagging_method', // Experiment Type
+  'experiment_category', 'assay_classification', 'assay_subclassification', 'assay_subclass_short', 'sop', 'reference_pubs', 'raw_file_types', 'controlled_term', 'other_protocols', 'other_tags', // Biosample
+  'biosource', 'biosource_summary', 'biosample_protocols', 'modifications_summary', 'treatments_summary', // File
+  'filename', 'file_type', 'file_format', 'href', 'notes', 'flowcell_details', // Lab
+  'awards', 'address1', 'address2', 'city', 'country', 'institute_name', 'state', // Award
+  'end_date', 'project', 'uri', 'ID', // Document
+  'attachment', // Things to go at bottom consistently
+  'aliases'],
+  'alwaysCollapsibleKeys': ['@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'dbxrefs', 'status', 'external_references', 'date_created', 'validation-errors'],
   'open': null,
   'columnDefinitionMap': {
     '@id': {
@@ -973,11 +1092,12 @@ _defineProperty(Detail, "defaultProps", {
 
 _defineProperty(Detail, "columnDefinitions", (0, _memoizeOne["default"])(function (context, schemas, columnDefinitionMap) {
   var colDefsFromSchema = (0, _schemaTransforms.flattenSchemaPropertyToColumnDefinition)(schemas ? (0, _object.tipsFromSchema)(schemas, context) : {}, 0, schemas);
-  return _underscore["default"].extend(colDefsFromSchema, columnDefinitionMap || {});
+  return _underscore["default"].extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
 }));
 
 _defineProperty(Detail, "generatedKeysLists", (0, _memoizeOne["default"])(function (context, excludedKeys, stickyKeys, alwaysCollapsibleKeys) {
-  var sortKeys = _underscore["default"].difference(_underscore["default"].keys(context).sort(), excludedKeys.sort());
+  var sortKeys = _underscore["default"].difference(_underscore["default"].keys(context).sort(), excludedKeys.sort()); // Sort applicable persistent keys by original persistent keys sort order.
+
 
   var stickyKeysObj = _underscore["default"].object(_underscore["default"].intersection(sortKeys, stickyKeys.slice(0).sort()).map(function (key) {
     return [key, true];
@@ -1024,8 +1144,19 @@ var SeeMoreRowsButton = _react["default"].memo(function (_ref4) {
     onClick: onClick
   }, collapsed ? "See advanced information" : "Hide");
 });
+/**
+ * A list of properties which belong to Item shown by ItemView.
+ * Shows 'persistentKeys' fields & values stickied near top of list,
+ * 'excludedKeys' never, and 'hiddenKeys' only when "See More Info" button is clicked.
+ *
+ * @class
+ * @type {Component}
+ */
 
-var ItemDetailList = function (_React$PureComponent3) {
+
+var ItemDetailList =
+/*#__PURE__*/
+function (_React$PureComponent3) {
   _inherits(ItemDetailList, _React$PureComponent3);
 
   _createClass(ItemDetailList, null, [{

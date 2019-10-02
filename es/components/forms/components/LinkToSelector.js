@@ -39,9 +39,32 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+/**
+ * Global variable which holds reference to child window, if any.
+ * Is re-used if one is open to prevent additional windows being created.
+ */
 var linkedObjChildWindow = null;
+/**
+ * Use to help select Items from a second/child window's SearchView.
+ *
+ * While `props.isSelecting` is true, this component will keep window event listeners active to
+ * listen for ondrag/ondrop events as well as for 'message' events (e.g. from other window(s)).
+ *
+ * Upon receiving a drop or message of an Item, `props.onSelect` is called with the Item's @ID and
+ * its context (if available) as parameters. `props.onSelect` is expected to handle setting `props.isSelecting`
+ * to false and/or unmounting this component.
+ *
+ * Upon `props.isSelecting` becoming true (or component mounted with
+ * that value), component will initialize/open a child window which will be
+ * kept open until is closed or `props.isSelecting` becomes false (or this component becomes
+ * unmounted).
+ *
+ * This component does not render any of its own JSX/HTML, but will render children if any are passed in.
+ */
 
-var LinkToSelector = function (_React$PureComponent) {
+var LinkToSelector =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(LinkToSelector, _React$PureComponent);
 
   function LinkToSelector(props) {
@@ -99,15 +122,20 @@ var LinkToSelector = function (_React$PureComponent) {
 
       if (!pastInSelection && nowInSelection) {
         if (linkedObjChildWindow && !linkedObjChildWindow.closed && linkedObjChildWindow.fourfront && typeof linkedObjChildWindow.fourfront.navigate === 'function') {
+          // We have access to the JS of our child window.
+          // Call app.navigate(URL) directly instead of reloading entire HTML.
+          // MAY NOT WORK FOR SOME BROWSERS --- if so, should be caught by if check
           this.windowObjectReference = linkedObjChildWindow;
           this.windowObjectReference.fourfront.navigate(searchURL, {}, this.showAlertInChildWindow);
           this.windowObjectReference.focus();
         } else {
           var windowFeaturesStr = "menubar=0,toolbar=1,location=0,resizable=1,scrollbars=1,status=1,navigation=1",
               desktopScreenWidth = window && window.screen && (window.screen.availWidth || window.screen.width),
-              desktopScreenHeight = window && window.screen && (window.screen.availHeight || window.screen.height),
+              // Screen dimensions, not window dimensions.
+          desktopScreenHeight = window && window.screen && (window.screen.availHeight || window.screen.height),
               childWindowHeight = 600,
-              childWindowWidth = 1010;
+              // Defaults if can't get screen dimensions
+          childWindowWidth = 1010;
 
           if (typeof desktopScreenWidth === 'number' && !isNaN(desktopScreenWidth)) {
             childWindowWidth = Math.max(Math.min(1200, desktopScreenWidth - 200), 800);
@@ -128,6 +156,8 @@ var LinkToSelector = function (_React$PureComponent) {
 
         this.setChildWindowMessageHandler();
         this.childWindowClosedInterval = setInterval(function () {
+          // Check every 1s if our child window is still open.
+          // If not, stop checking & cleanup event handlers.
           if (!_this3 || !_this3.windowObjectReference || _this3.windowObjectReference.closed) {
             clearInterval(_this3.childWindowClosedInterval);
             delete _this3.childWindowClosedInterval;
@@ -156,16 +186,25 @@ var LinkToSelector = function (_React$PureComponent) {
         }
       }
     }
+    /**
+     * This functioned is used as a listener/handler for messages received to this window.
+     * Messages might be sent from child window directly to this parent window via e.g. `window.opener.postMessage(message, origin, ...)`
+     *
+     * @param {MessageEvent} evt - See https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent.
+     */
+
   }, {
     key: "handleChildWindowMessage",
     value: function handleChildWindowMessage(evt) {
       var eventType = evt && evt.data && evt.data.eventType;
 
       if (!eventType) {
+        // We require an 'eventType' to be present in cross-window messages to help ID what the message is.
         _patchedConsole.patchedConsoleInstance.error("No eventType specified in message. Canceling.");
 
         return;
-      }
+      } // Authenticate message origin to prevent XSS attacks.
+
 
       var eventOriginParts = _url["default"].parse(evt.origin);
 
@@ -179,7 +218,8 @@ var LinkToSelector = function (_React$PureComponent) {
         _patchedConsole.patchedConsoleInstance.error('Received message from unauthorized protocol. Canceling.');
 
         return;
-      }
+      } // The meat of this function/handler. This is what we listen to / expect.
+
 
       if (eventType === 'fourfrontselectionclick') {
         var items = evt.data && evt.data.items || evt.detail && evt.detail.items || null;
@@ -196,7 +236,8 @@ var LinkToSelector = function (_React$PureComponent) {
       if (eventType === 'fourfrontcancelclick') {
         this.cleanChildWindow();
         this.props.onCloseChildWindow();
-      }
+      } // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
+
 
       if (eventType === 'fourfrontinitialized') {
         return this.showAlertInChildWindow();
@@ -231,12 +272,21 @@ var LinkToSelector = function (_React$PureComponent) {
         this.windowObjectReference = linkedObjChildWindow = null;
       }
     }
+    /**
+     *
+     * @param {Array} items - array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
+     */
+
   }, {
     key: "receiveData",
     value: function receiveData(items) {
       this.cleanChildWindow();
       this.props.onSelect(items, true);
     }
+    /**
+     * THIS MAY NOT WORK FOR ALL BROWSERS
+     */
+
   }, {
     key: "showAlertInChildWindow",
     value: function showAlertInChildWindow() {
@@ -268,16 +318,29 @@ var LinkToSelector = function (_React$PureComponent) {
 exports.LinkToSelector = LinkToSelector;
 
 _defineProperty(LinkToSelector, "propTypes", {
+  /** Whether component should be listening for Item to be selected */
   'isSelecting': _propTypes["default"].bool.isRequired,
+
+  /** Callback called when Items are received. Should accept array of {id:@ID, json:Item context (not guaranteed)} object and endDataPost (bool) as param */
   'onSelect': _propTypes["default"].func.isRequired,
+
+  /** Search URL to direct child window to */
   'searchURL': _propTypes["default"].string.isRequired,
+
+  /** Optional alert to show in child window upon initialization. Not guaranteed to appear in all browsers. */
   'childWindowAlert': _propTypes["default"].shape({
     'title': _propTypes["default"].string.isRequired,
     'message': _propTypes["default"].any.isRequired,
     'style': _propTypes["default"].string
   }),
+
+  /** Optional callback called with no params when child window is closed. Could/should unset `props.isSelecting`. */
   'onCloseChildWindow': _propTypes["default"].func,
+
+  /** If true, then allows to drag & drop Item to window */
   'enableWindowDrop': _propTypes["default"].bool.isRequired,
+
+  /** Text content of message filling window when being dragged over */
   'dropMessage': _propTypes["default"].string.isRequired
 });
 
@@ -303,7 +366,9 @@ _defineProperty(LinkToSelector, "defaultProps", {
   'enableWindowDrop': true
 });
 
-var WindowDropReceiver = function (_React$PureComponent2) {
+var WindowDropReceiver =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(WindowDropReceiver, _React$PureComponent2);
 
   function WindowDropReceiver(props) {
@@ -365,7 +430,8 @@ var WindowDropReceiver = function (_React$PureComponent2) {
         var _this = this;
 
         setTimeout(function () {
-          if (!_this || !_this.props.isSelecting) return false;
+          if (!_this || !_this.props.isSelecting) return false; //if (!_this || !_this.isInSelectionField(_this.props)) return false;
+
           window.addEventListener('dragenter', _this.handleWindowDragEnter);
           window.addEventListener('dragover', _this.handleWindowDragOver);
           window.addEventListener('drop', _this.handleDrop);
@@ -374,6 +440,14 @@ var WindowDropReceiver = function (_React$PureComponent2) {
         }, 250);
       }
     }
+    /**
+     * Handles drop event for the (temporarily-existing-while-dragging-over) window drop receiver element.
+     * Grabs @ID of Item from evt.dataTransfer, attempting to grab from 'text/4dn-item-id', 'text/4dn-item-json', or 'text/plain'.
+     *
+     * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
+     * @param {DragEvent} Drag event.
+     */
+
   }, {
     key: "handleDrop",
     value: function handleDrop(evt) {
@@ -428,7 +502,8 @@ var WindowDropReceiver = function (_React$PureComponent2) {
       var dropMessage = this.props.dropMessage,
           element = document.createElement('div');
       element.className = "full-window-drop-receiver";
-      var innerBoldElem = document.createElement('h2');
+      var //"Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'",
+      innerBoldElem = document.createElement('h2');
       innerBoldElem.appendChild(document.createTextNode(dropMessage));
       element.appendChild(innerBoldElem);
       element.appendChild(document.createElement('br'));
@@ -470,8 +545,13 @@ var WindowDropReceiver = function (_React$PureComponent2) {
 exports.WindowDropReceiver = WindowDropReceiver;
 
 _defineProperty(WindowDropReceiver, "propTypes", {
+  /** Whether component should be listening for Item to be selected */
   'isSelecting': _propTypes["default"].bool.isRequired,
+
+  /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
   'onSelect': _propTypes["default"].func.isRequired,
+
+  /** Text content of message filling window when being dragged over */
   'dropMessage': _propTypes["default"].string.isRequired
 });
 

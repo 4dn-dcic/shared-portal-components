@@ -1,4 +1,10 @@
 'use strict';
+/**
+ * Check if JS is processing on serverside, vs in browser (clientside).
+ * Adapted from react/node_modules/fbjs/lib/ExecutionEnvironment.canUseDOM()
+ *
+ * @return {boolean} - True if processing on serverside.
+ */
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -9,7 +15,8 @@ exports.isSelectAction = isSelectAction;
 function isServerSide() {
   if (typeof SERVERSIDE === 'boolean') {
     return SERVERSIDE;
-  }
+  } // Fallback
+
 
   if (typeof window === 'undefined' || !window || !window.document || !window.document.createElement) {
     return true;
@@ -17,6 +24,11 @@ function isServerSide() {
 
   return false;
 }
+/**
+ * Check if actionType is one of the select (selection/multiselect) action types
+ * @param {string} actionType - current action type
+ */
+
 
 function isSelectAction(actionType) {
   if (actionType && typeof actionType === 'string') {

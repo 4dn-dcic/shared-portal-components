@@ -48,21 +48,32 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+/**
+ * Converts links to other files into links to sections from a React element and its children (recursively).
+ *
+ * @param {*} elem                                      A high-level React element representation of some content which might have relative links.
+ * @param {{ content: { name: string }}} context        Backend-provided data.
+ * @param {number} [depth=0]                            Current depth.
+ * @returns {JSX.Element} Copy of original 'elem' param with corrected links.
+ */
 function correctRelativeLinks(elem, context) {
   var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-  if (_typeof(elem) !== 'object' || !elem) return elem;
+  if (_typeof(elem) !== 'object' || !elem) return elem; // Could be a string, or null.
 
   if (elem.type === 'a') {
     var href = elem.props.href;
 
     if (typeof href === 'string' && href.charAt(0) !== '#' && href.charAt(0) !== '/' && href.slice(0, 4) !== 'http' && href.slice(0, 7) !== 'mailto:') {
+      // We have a relative href link.
       if (href.indexOf('#') > -1) {
+        // It references a title on some other page or section. Likely, this is section is on same page, so we can just use that.
         var parts = href.split('#');
 
         if (parts.length > 1) {
           href = '#' + parts[1];
         }
       } else {
+        // Check if is name of a section, and if so, correct.
         var filenameWithoutExtension = href.split('.').slice(0, -1).join('.');
 
         if (typeof _underscore["default"].find(context.content, {
@@ -118,11 +129,14 @@ var Wrapper = _react["default"].memo(function (props) {
 });
 
 Wrapper.defaultProps = {
+  //'contentColSize' : 12,
   'tableOfContents': false,
   'tocListStyles': ['decimal', 'lower-alpha', 'lower-roman']
 };
 
-var StaticEntry = function (_React$PureComponent) {
+var StaticEntry =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(StaticEntry, _React$PureComponent);
 
   function StaticEntry(props) {
@@ -222,6 +236,12 @@ var StaticEntry = function (_React$PureComponent) {
 
   return StaticEntry;
 }(_react["default"].PureComponent);
+/**
+ * This component shows an alert on mount if have been redirected from a different page, and
+ * then renders out a list of StaticEntry components within a Wrapper in its render() method.
+ * May be used by extending and then overriding the render() method.
+ */
+
 
 exports.StaticEntry = StaticEntry;
 
@@ -236,7 +256,9 @@ _defineProperty(StaticEntry, "propTypes", {
   'childComponent': _propTypes["default"].elementType
 });
 
-var StaticPageBase = function (_React$PureComponent2) {
+var StaticPageBase =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(StaticPageBase, _React$PureComponent2);
 
   _createClass(StaticPageBase, null, [{
@@ -269,6 +291,10 @@ var StaticPageBase = function (_React$PureComponent2) {
     value: function componentDidMount() {
       this.maybeSetRedirectedAlert();
     }
+    /**
+     * A simpler form (minus AJAX request) of DefaultItemView's similar method.
+     */
+
   }, {
     key: "maybeSetRedirectedAlert",
     value: function maybeSetRedirectedAlert() {
@@ -350,6 +376,14 @@ _defineProperty(StaticPageBase, "defaultProps", {
       }
     }
   },
+
+  /**
+   * Default function for rendering out parsed section(s) content.
+   *
+   * @param {string} sectionName - Unique identifier of the section. Use to navigate to via '#<sectionName>' in URL.
+   * @param {{ content : string|JSX.Element }} section - Object with parsed content, title, etc.
+   * @param {Object} props - Collection of props passed down from BodyElement.
+   */
   'entryRenderFxn': (0, _memoizeOne["default"])(function (sectionName, section, props) {
     return _react["default"].createElement(StaticEntry, _extends({}, props, {
       key: sectionName,

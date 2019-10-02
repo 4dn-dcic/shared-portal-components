@@ -39,7 +39,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var AboveSearchTablePanelStaticContentPane = function (_React$Component) {
+/** TODO IMPROVE */
+var AboveSearchTablePanelStaticContentPane =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(AboveSearchTablePanelStaticContentPane, _React$Component);
 
   _createClass(AboveSearchTablePanelStaticContentPane, null, [{
@@ -103,13 +106,15 @@ var AboveSearchTablePanelStaticContentPane = function (_React$Component) {
         }
 
         var content = null;
-        var title = null;
+        var title = null; // TODO: Likely need to adjust for static block once we have those (once it exists it wont have sections).
 
         if (resp && resp.content) {
           if (resp.content && typeof resp.content !== 'string' && resp['@type'].indexOf('StaticPage') > -1) {
+            // Case: Static Page
             var contentSectionKeys = _underscore["default"].keys(resp.content);
 
             if (contentSectionKeys.length > 0) {
+              // Use first section only, at moment.
               var contentSectionToUse = _underscore["default"].find(resp.content, function (c) {
                 return c.order === 0;
               }) || resp.content[contentSectionKeys[0]];
@@ -117,6 +122,7 @@ var AboveSearchTablePanelStaticContentPane = function (_React$Component) {
               title = contentSectionToUse.title || resp.title || resp.display_title;
             }
           } else if (typeof resp.content === 'string') {
+            // Case: Static Block
             content = resp.content;
             title = resp.display_title || resp.title;
           }
@@ -161,7 +167,9 @@ var AboveSearchTablePanelStaticContentPane = function (_React$Component) {
 
 var cachedMapping = null;
 
-var AboveSearchTablePanel = function (_React$PureComponent) {
+var AboveSearchTablePanel =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(AboveSearchTablePanel, _React$PureComponent);
 
   _createClass(AboveSearchTablePanel, null, [{
@@ -171,6 +179,7 @@ var AboveSearchTablePanel = function (_React$PureComponent) {
           abstractType;
 
       if (typeof urlParts.query.type === 'string') {
+        // Non-empty
         if (urlParts.query.type !== 'Item') {
           searchItemType = urlParts.query.type;
         }
@@ -223,7 +232,8 @@ var AboveSearchTablePanel = function (_React$PureComponent) {
           context = _this$props.context,
           schemas = _this$props.schemas;
       var lookupMap = this.state.mapping;
-      var targetHref = null;
+      var targetHref = null; // Our return val. Null by default.
+      // 1. By Type v. lookup map
 
       var urlParts = _url["default"].parse(contextHref, true);
 
@@ -235,13 +245,18 @@ var AboveSearchTablePanel = function (_React$PureComponent) {
 
       if (typeof targetHref === 'string') {
         return targetHref;
-      }
+      } // 2. TBD. By URL or other parameters or something.
+      // 3. Fallback/default/null
+
 
       return null;
     }
   }, {
     key: "render",
     value: function render() {
+      // TODO: Add in custom front-end controls if/when applicable.
+      // If we migrate 'full screen', 'select x for download' etc buttons/controls here (desireable) we need to make sure it communicates with external state container for the SearchResultTable.
+      // SearchResultTable would likely need to expose some functions which would be accessible via instance reference to SearchResultTable and passed up as callback props into this one.
       return _react["default"].createElement("div", {
         className: "above-table-panel"
       }, _react["default"].createElement(AboveSearchTablePanelStaticContentPane, {
@@ -258,6 +273,7 @@ AboveSearchTablePanel.propTypes = {
   'href': _propTypes["default"].string.isRequired,
   'context': _propTypes["default"].object.isRequired,
   'mappingLocation': _propTypes["default"].any,
+  // String or null
   'cacheMappingGlobally': _propTypes["default"].bool
 };
 AboveSearchTablePanel.defaultProps = {

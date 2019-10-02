@@ -50,6 +50,7 @@ var defaultOptions = {
   'isAnalyticsScriptOnPage': true,
   'enhancedEcommercePlugin': true,
   'itemToProductTransform': function itemToProductTransform(item) {
+    // 4DN-specific, override from own data model.
     return {
       'id': item.accession || object.atIdFromObject(item) || item.uuid,
       'name': item.display_title || item.title || null,
@@ -58,6 +59,8 @@ var defaultOptions = {
       'price': item && item.file_size || null
     };
   },
+  // Google Analytics allows custom dimensions to be sent along w/ events, however they are named incrementally w/o customization.
+  // Here we track own keywords/keys and transform to Google-Analytics incremented keys.
   'dimensionMap': {
     'currentFilters': 'dimension1',
     'name': 'dimension2',
@@ -66,6 +69,7 @@ var defaultOptions = {
   }
 };
 var state = null;
+/** Calls `ga`, ensuring it is present on window. */
 
 function ga2() {
   try {
@@ -74,6 +78,16 @@ function ga2() {
     _patchedConsole.patchedConsoleInstance.error('Could not track event. Fine if this is a test.', e, Array.from(arguments));
   }
 }
+/**
+ * Initialize Google Analytics tracking. Call this from app.js on initial mount perhaps.
+ *
+ * @export
+ * @param {string} [trackingID] - Google Analytics ID.
+ * @param {Object} [context] - Current page content / JSON, to get details about Item, etc.
+ * @param {Object} [options] - Extra options.
+ * @returns {boolean} true if initialized.
+ */
+
 
 function initializeGoogleAnalytics() {
   var trackingID = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -88,6 +102,7 @@ function initializeGoogleAnalytics() {
   options = _underscore["default"].extend({}, defaultOptions, options);
 
   if (!options.isAnalyticsScriptOnPage) {
+    // If true, we already have <script src="...analytics.js">, e.g. in app.js so should skip this.
     (function (i, s, o, g, r, a, m) {
       i['GoogleAnalyticsObject'] = r;
       i[r] = i[r] || function () {
@@ -122,16 +137,27 @@ function initializeGoogleAnalytics() {
 }
 
 var lastRegisteredPageViewRealPathNameAndSearch = null;
+/**
+ * Register a pageview.
+ * Used in app.js in App.componentDidUpdate(pastProps, ...).
+ *
+ * @export
+ * @param {string} [href=null] - Page href, defaults to window.location.href.
+ * @param {Object} [context={}] - The context prop; JSON representation of page.
+ * @returns {boolean} True if success.
+ */
 
 function registerPageView() {
   var href = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
   var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack()) return false;
-  if (!href) href = window.location && window.location.href;
+  if (!shouldTrack()) return false; // Set href from window if not provided. Safe to use because we're not server-side.
+
+  if (!href) href = window.location && window.location.href; // Take heed of this notice if it is visible somewhere.
 
   if (!href) {
     _patchedConsole.patchedConsoleInstance.error("No HREF defined, check.. something. Will still send pageview event.");
-  }
+  } // Options to send with GA pageview event.
+
 
   var parts = _url["default"].parse(href, true);
 
@@ -139,18 +165,34 @@ function registerPageView() {
     'hitType': 'pageview'
   };
 
+  // Store orig href in case we need it later
+
+  /**
+   * Convert pathname with a 'UUID', 'Accession', or 'name' to having a
+   * literal "uuid", "accession", or "name" and track the display_title, title, or accession as a
+   * separate GA dimension.
+   *
+   * @private
+   * @param {string} pathName - Path part of href being navigated to. Use url.parse to get.
+   * @return {string} Adjusted pathName.
+   */
   function adjustPageViewPath(pathName) {
     var pathParts = pathName.split('/').filter(function (pathPart) {
+      // Gen path array to adjust href further if needed.
       return pathPart.length > 0;
     });
     var newPathName = null;
 
     if (pathParts[1] && typeof pathParts[1] === 'string') {
+      // Remove Accession, UUID, and Name from URL and save it to 'name' dimension instead.
       if (typeof context.accession === 'string' && pathParts[1] === context.accession || object.isAccessionRegex(pathParts[1])) {
+        // We gots an accessionable Item. Lets remove its Accession from the path to get nicer Behavior Flows in GA.
+        // And let product tracking / Shopping Behavior handle Item details.
         pathParts[1] = 'accession';
         newPathName = '/' + pathParts.join('/') + '/';
         pageViewObject[state.dimensionMap.name] = context.accession || pathParts[1];
       } else if (context.last_name && context.first_name || context['@type'] && context['@type'].indexOf('User') > -1 && pathParts[0] === 'users' && context.uuid && pathParts[1] === context.uuid) {
+        // Save User name.
         pathParts[1] = 'uuid';
         newPathName = '/' + pathParts.join('/') + '/';
         pageViewObject[state.dimensionMap.name] = context.title || context.uuid;
@@ -167,7 +209,8 @@ function registerPageView() {
       }
     } else {
       newPathName = pathName;
-    }
+    } // Add 'q' and 'type' params back to pathname; they'll be parsed and filtered out by Google Analytics to be used for 'search query' and 'search category' analytics.
+
 
     if (parts.query && (parts.query.q || parts.query.type)) {
       var qs = _queryString["default"].stringify({
@@ -180,6 +223,14 @@ function registerPageView() {
 
     return newPathName;
   }
+  /**
+   * Check for Items (aka Products) - either a results graph on /browse/, /search/, or collections pages, or an Item page.
+   * If any are present, impression list views or detail view accordingly.
+   *
+   * @private
+   * @returns {boolean|Object|Object[]} Representation of what was tracked, or false if nothing was.
+   */
+
 
   function registerProductView() {
     if (!shouldTrack()) return false;
@@ -191,6 +242,8 @@ function registerPageView() {
     }
 
     if (Array.isArray(context['@graph'])) {
+      // We have a results page of some kind. Likely, browse, search, or collection.
+      // If browse or search page, get current filters and add to pageview event for 'dimension1'.
       var filtersToRegister = context && context.filters && (0, _searchFilters.contextFiltersToExpSetFilters)(context.filters) || null;
 
       if (filtersToRegister) {
@@ -198,11 +251,13 @@ function registerPageView() {
       }
 
       if (context['@graph'].length > 0) {
+        // We have some results, lets impression them as product list views.
         return impressionListOfItems(context['@graph'], parts, context);
       }
 
       return false;
     } else if (typeof context.accession === 'string') {
+      // We got an Item view, lets track some details about it.
       var productObj = state && state.itemToProductTransform(context);
 
       _patchedConsole.patchedConsoleInstance.info("Item with an accession. Will track as product:", productObj);
@@ -215,9 +270,10 @@ function registerPageView() {
       ga2('ec:setAction', 'detail', productObj);
       return productObj;
     }
-  }
+  } // Clear query & hostname from HREF & convert accessions, uuids, and certain names to literals.
 
-  href = adjustPageViewPath(parts.pathname);
+
+  href = adjustPageViewPath(parts.pathname); // Ensure is not the same page but with a new hash or something (RARE - should only happen for Help page table of contents navigation).
 
   if (lastRegisteredPageViewRealPathNameAndSearch === parts.pathname + parts.search) {
     _patchedConsole.patchedConsoleInstance.warn('Page did not change, canceling PageView tracking for this navigation.');
@@ -226,7 +282,8 @@ function registerPageView() {
   }
 
   lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
-  ga2('set', 'page', href);
+  ga2('set', 'page', href); // Set it as current page
+
   registerProductView();
 
   pageViewObject.hitCallback = function () {
@@ -236,6 +293,29 @@ function registerPageView() {
   ga2('send', 'pageview', pageViewObject);
   return true;
 }
+/**
+ * Primarily for UI interaction events.
+ *
+ * Rough Guidelines:
+ * - For category, try to use name of React Component by which are grouping events by.
+ * - For action, try to standardize name to existing ones (search through files for instances of `analytics.event(`).
+ *   - For example, "Set Filter", "Unset Filter" for UI interactions which change one or more filters (even if multiple, use '.. Filter')
+ * - For fields.eventLabel, try to standardize similarly to action.
+ * - For fields.eventValue - do whatever makes sense I guess. Perhaps time vector from previous interaction.
+ *
+ * @see eventLabelFromChartNode()
+ *
+ * @param {string} category - Event Category
+ * @param {string} action - Event Action
+ * @param {Object} fields - Additional fields.
+ * @param {string} fields.eventLabel - Event Label, e.g. 'play'.
+ * @param {number} [fields.eventValue] - Event Value, must be an integer.
+ * @param {Object} [fields.currentFilters] - Current filters set in portal, if on a search page.
+ * @param {string} [fields.name] - Name of Item we're on, if any.
+ * @param {string} [fields.field] - Name of field being acted on, if any.
+ * @param {string} [fields.term] - Name of term being acted on or changed, if any.
+ */
+
 
 function event(category, action) {
   var fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -245,7 +325,8 @@ function event(category, action) {
     'hitType': 'event',
     'eventCategory': category,
     'eventAction': action
-  });
+  }); // Convert internal dimension names to Google Analytics ones.
+
 
   _underscore["default"].forEach(_underscore["default"].pairs(eventObj), function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
@@ -256,7 +337,11 @@ function event(category, action) {
       eventObj[state.dimensionMap[key]] = value;
       delete eventObj[key];
     }
-  });
+  }); // Add current expSetFilters if not present in 'fields' already.
+  //if (typeof eventObj[state.dimensionMap.currentFilters] === 'undefined'){
+  //    eventObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(Filters.currentExpSetFilters());
+  //}
+
 
   eventObj.hitCallback = function () {
     _patchedConsole.patchedConsoleInstance.info('Successfuly sent UI event.', eventObj);
@@ -295,7 +380,7 @@ function productClick(item) {
     'name': pObj.name || pObj.id
   };
   ga2('ec:addProduct', _underscore["default"].omit(pObj, 'list'));
-  ga2('ec:setAction', 'click', _underscore["default"].pick(pObj, 'list'));
+  ga2('ec:setAction', 'click', _underscore["default"].pick(pObj, 'list')); // Convert internal dimension names to Google Analytics ones.
 
   _underscore["default"].forEach(_underscore["default"].pairs(eventObj), function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
@@ -306,15 +391,21 @@ function productClick(item) {
       eventObj[state.dimensionMap[key]] = value;
       delete eventObj[key];
     }
-  });
+  }); // Add current filters.
+
 
   eventObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(context && context.filters || null));
   ga2('send', eventObj);
   return true;
 }
+/**
+ * @see https://developers.google.com/analytics/devguides/collection/analyticsjs/exceptions
+ */
+
 
 function exception(message) {
   var fatal = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  // Doesn't test whether should track or not -- assume always track errors.
   var excObj = {
     'hitType': 'exception',
     'exDescription': message,
@@ -328,6 +419,14 @@ function exception(message) {
   ga2('send', excObj);
   return true;
 }
+/**
+ * Given a 'node' object with a field, term, and potential parent node, generate a descriptive string to use as event label.
+ *
+ * @param {{ field : string, term : string }} node - Node object with at least 'field' and 'term'.
+ * @param {boolean} [includeParentInfo=true] - Whether to add text for Parent Field and Parent Term (if any).
+ * @returns {string} Label for analytics event.
+ */
+
 
 function eventLabelFromChartNode(node) {
   var includeParentInfo = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -343,6 +442,13 @@ function eventLabelFromChartNode(node) {
 function eventLabelFromChartNodes(nodes) {
   return nodes.map(eventLabelFromChartNode).join('; ');
 }
+/**
+ * Converts expSetFilters object or href with query (as string) to stringified JSON representation.
+ *
+ * @param {Object} expSetFilters - expSetFilters object.
+ * @returns {string} Stringified JSON to be saved to analytics.
+ */
+
 
 function getStringifiedCurrentFilters(expSetFilters) {
   return JSON.stringify(expSetFilters, _underscore["default"].keys(expSetFilters).sort());
@@ -372,6 +478,8 @@ function getGoogleAnalyticsTrackingData() {
     }
   }
 }
+/** Generates a list name for analytics "list" property based on href */
+
 
 function hrefToListName(href) {
   var hrefParts = _url["default"].parse(href, false);
@@ -392,13 +500,19 @@ function hrefToListName(href) {
 
   return strippedPathName;
 }
+/*********************
+ * Private Functions *
+ *********************/
+
 
 function shouldTrack() {
+  // 1. Ensure we're initialized
   if (!state || (0, _misc.isServerSide)() || typeof window.ga === 'undefined') {
     _patchedConsole.patchedConsoleInstance.error("Google Analytics is not initialized. Fine if this appears in a test.");
 
     return false;
-  }
+  } // 2. TODO: Make sure not logged in as admin on a production site.
+
 
   var userDetails = JWT.getUserDetails();
 
@@ -414,6 +528,11 @@ function shouldTrack() {
 
   return true;
 }
+/**
+ * @private
+ * @returns {Object[]} Representation of what was sent.
+ */
+
 
 function impressionListOfItems(itemList, href) {
   var listName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -421,6 +540,7 @@ function impressionListOfItems(itemList, href) {
   var from = 0;
 
   if (typeof href === 'string') {
+    // Convert to URL parts.
     href = _url["default"].parse(href, true);
     if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
   }

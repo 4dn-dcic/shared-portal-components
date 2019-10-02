@@ -32,6 +32,14 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+// TODO change to only import d3.select and d3.interpolateNumber
+
+/**
+ * Most of these functions should not be run from a component until it has mounted as they do not work
+ * on serverside (depend on window, document, DOM, etc.)
+ */
+
+/** Get distance from top of browser viewport to an element's top. */
 function getElementTop(el) {
   if (!(typeof window !== 'undefined' && window && document && document.body)) return null;
   if (!el || typeof el.getBoundingClientRect !== 'function') return null;
@@ -56,6 +64,7 @@ function getElementOffsetFine(el) {
   var y = 0;
 
   while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
+    // FF & IE don't support body's scrollTop - use window instead
     x += el.offsetLeft - (el.tagName === 'BODY' ? window.pageXOffset : el.scrollLeft);
     y += el.offsetTop - (el.tagName === 'BODY' ? window.pageYOffset : el.scrollTop);
     el = el.offsetParent;
@@ -66,6 +75,16 @@ function getElementOffsetFine(el) {
     top: y
   };
 }
+/**
+ * Shorten a string to a maximum character length, splitting on word break (or other supplied character).
+ * Optionally append an ellipsis.
+ *
+ * @param {string}  originalText
+ * @param {number}  maxChars
+ * @param {boolean} [addEllipsis=true]
+ * @param {string}  [splitOn=' ']
+ */
+
 
 var shortenString = (0, _memoizeOne["default"])(function (originalText) {
   var maxChars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 28;
@@ -88,11 +107,24 @@ var shortenString = (0, _memoizeOne["default"])(function (originalText) {
   if (textArr.length === 0) return originalText;
   return returnArr.join(splitOn) + (addEllipsis ? '...' : '');
 });
+/**
+ * Get current grid size, if need to sidestep CSS.
+ * Keep widths in sync with stylesheet, e.g. $screen-sm-min, $screen-md-min, & $screen-lg-min
+ * in src/encoded/static/scss/bootstrap/_variables.scss.
+ *
+ * 2019-07-10 -- updated to Bootstrap v4 breakpoints, added 'xl'.
+ *
+ * @param {number} width - Width of the current browser _window_.
+ * @return {string} - Abbreviation for column/grid Bootstrap size, e.g. 'lg', 'md', 'sm', or 'xs'.
+ */
+
 exports.shortenString = shortenString;
 var responsiveGridState = (0, _memoizeOne["default"])(function () {
   var width = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
   if (typeof width !== 'number') {
+    // Assumed to be null or undefined which should mean we are
+    // server-side or not yet mounted.
     return 'xl';
   }
 
@@ -102,11 +134,24 @@ var responsiveGridState = (0, _memoizeOne["default"])(function () {
   if (width >= 576) return 'sm';
   return 'xs';
 });
+/**
+ * Get the width of what a 12-column bootstrap section would be in current viewport size.
+ * Keep widths in sync with stylesheet, e.g.
+ * $container-tablet - $grid-gutter-width,
+ * $container-desktop - $grid-gutter-width, and
+ * $container-large-desktop - $grid-gutter-width
+ * in src/encoded/static/scss/bootstrap/_variables.scss.
+ *
+ * @param {number} [windowWidth] Optional current window width to supply.
+ * @return {integer}
+ */
+
 exports.responsiveGridState = responsiveGridState;
 
 function gridContainerWidth() {
   var windowWidth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
+  // Subtract 20 for padding/margins.
   switch (responsiveGridState(windowWidth)) {
     case 'xl':
       return 1120;
@@ -125,6 +170,16 @@ function gridContainerWidth() {
       return (windowWidth || window.innerWidth) - 20;
   }
 }
+/**
+ * Check width of text if it were to fit on one line.
+ * Must only be called client-side. Will throw error server-side.
+ *
+ * @param {string} textContent - Either text or text-like content, e.g. with span elements.
+ * @param {string} [font] - Font to use/measure. Include font-size. Defaults to "1rem 'Work Sans'".
+ * @param {boolean} [roundToPixel] - Whether to round result up.
+ * @return {integer} - Width of text if whitespace style set to nowrap, or object containing 'containerHeight' & 'textWidth' if widthForHeightCheck is set.
+ */
+
 
 var textWidth = (0, _memoizeOne["default"])(function (textContent) {
   var font = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "1rem 'Work Sans'";
@@ -132,12 +187,14 @@ var textWidth = (0, _memoizeOne["default"])(function (textContent) {
   var canvas, context, width;
 
   try {
+    // Attempt to use HTML5 canvas for sub-pixel accuracy, no DOM update, etc.
     canvas = textWidth.canvas || (textWidth.canvas = document.createElement("canvas"));
     context = canvas.getContext("2d");
     context.font = font;
     var metrics = context.measureText(textContent);
     width = metrics.width;
   } catch (e) {
+    // Fallback to older DOM-based check.
     console.warn("Failed to get text width with HTML5 canvas method, falling back to DOM method.");
     width = textContentWidth(textContent, 'div', null, null, {
       'font': font
@@ -187,6 +244,17 @@ var textHeight = (0, _memoizeOne["default"])(function () {
 
   return height;
 });
+/**
+ * Check width of text or text-like content if it were to fit on one line.
+ *
+ * @param {string} textContent                      Either text or text-like content, e.g. with span elements.
+ * @param {string} [containerElementType="div"]     Type of element to fit into, e.g. 'div' or 'p'.
+ * @param {?string} [containerClassName=null]       ClassName of containing element, e.g. with 'text-large' to use larger text size.
+ * @param {?integer} [widthForHeightCheck=null]     If provided, will return an object which will return height of text content when constrained to width.
+ * @param {?Object} [style=null]                    Any additional style properties.
+ * @return {integer|{ containerHeight: number, textWidth: number }} Width of text if whitespace style set to nowrap, or object containing 'containerHeight' & 'textWidth' if widthForHeightCheck is set.
+ */
+
 exports.textHeight = textHeight;
 var textContentWidth = (0, _memoizeOne["default"])(function (textContent) {
   var containerElementType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'div';
@@ -220,10 +288,18 @@ var textContentWidth = (0, _memoizeOne["default"])(function (textContent) {
 
   return textLineWidth;
 });
+/**
+ * Grabs the outer-most scrolling container for the page, either <body> or <html>.
+ * Needed because the outer-most scrolling container differs between Google Chrome (which use `document.body`, aka <body>)
+ * and Mozilla Firefox & MS Edge (which use `document.documentElement`, aka <html>).
+ *
+ * @returns {HTMLElement}
+ */
+
 exports.textContentWidth = textContentWidth;
 
 function getScrollingOuterElement() {
-  if (!window || !document) return null;
+  if (!window || !document) return null; // Best. Chrome will return document.body automatically here.
 
   if (typeof document.scrollingElement !== 'undefined' && document.scrollingElement) {
     return document.scrollingElement;
@@ -244,6 +320,16 @@ function getPageVerticalScrollPosition() {
   if ((0, _misc.isServerSide)() || !window || !document) return null;
   return window.pageYOffset || document.scrollingElement && document.scrollingElement.scrollTop || document.documentElement && document.documentElement.scrollTop || document.body.scrollTop;
 }
+/**
+ * Scroll to a target element, element ID, or scrollTop position over a period of time via transition.
+ *
+ * @param {string|number|HTMLElement} to - Where to scroll to.
+ * @param {number} [duration=750] - How long should take.
+ * @param {number} [offsetBeforeTarget=72] - How much padding under target element to give, e.g. to account for fixed top bar.
+ * @param {?function} [callback=null] - Optional callback.
+ * @returns {void}
+ */
+
 
 function animateScrollTo(to) {
   var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 750;
@@ -256,23 +342,28 @@ function animateScrollTo(to) {
   if (typeof to === 'string') {
     var elem = document.getElementById(to);
     if (!elem) throw new Error(to + " not found in document.");
-    elementTop = getElementTop(elem);
+    elementTop = getElementTop(elem); //} else if (typeof to === "ELEMENT" /* FIND PROPER TYPEOF */){
   } else if (typeof to === 'number') {
     elementTop = to;
   } else throw new Error("Invalid argument 'to' supplied.");
 
   if (elementTop === null) return null;
-  elementTop = Math.max(0, elementTop - offsetBeforeTarget);
+  elementTop = Math.max(0, elementTop - offsetBeforeTarget); // - offset re: nav bar header.
 
   if (scrollElement && scrollElement.scrollHeight && window && window.innerHeight) {
+    // Try to prevent from trying to scroll past max scrollable height.
     elementTop = Math.min(scrollElement.scrollHeight - window.innerHeight, elementTop);
   }
 
+  //var origScrollTop = scrollElement.scrollTop;
   var animation = d3.select(scrollElement).interrupt().transition().duration(duration).tween("bodyScroll", function (scrollTop) {
     return function () {
+      // `this` refers to selected DOM element in d3 tween callbacks.
+      // eslint-disable-next-line no-invalid-this
       var interpolate = d3.interpolateNumber(this.scrollTop, scrollTop);
       return function (t) {
         window.scrollTo(0, interpolate(t));
+        /*scrollElement.scrollTop = interpolate(t);*/
       };
     };
   }(elementTop));
@@ -341,36 +432,57 @@ function isDOMElementChildOfElementWithClass(elem, className) {
 
   return false;
 }
+/**
+ * Handle browser capabilities, a la Modernizr.
+ *
+ * Entry point is `setHtmlFeatClass`. Called in browser.js.
+ * May *only* be called from mounted components (componentDidMount method
+ * would be a good method to use this from), because actual DOM is needed.
+ *
+ * @deprecated
+ * @constant
+ */
+
 
 var BrowserFeat = {
   'feat': {},
+
+  /**
+   * Return object with browser capabilities; return from cache if available.
+   */
   'getBrowserCaps': function getBrowserCaps(feat) {
     if (Object.keys(this.feat).length === 0) {
-      this.feat.svg = document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#Image', '1.1');
+      // Detect SVG
+      this.feat.svg = document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#Image', '1.1'); // Detect <canvas>
 
       this.feat.canvas = function () {
         var elem = document.createElement('canvas');
         return !!(elem.getContext && elem.getContext('2d'));
-      }();
+      }(); // Detect toDataURL
+
 
       this.feat.todataurlpng = function () {
         var canvas = document.createElement('canvas');
         return !!(canvas && canvas.toDataURL && canvas.toDataURL('image/png').indexOf('data:image/png') === 0);
-      }();
+      }(); // Detect CSS transforms
+
 
       this.feat.csstransforms = function () {
         var elem = document.createElement('tspan');
         return 'transform' in elem.style;
-      }();
+      }(); // Detect FlexBox
+
 
       this.feat.flexbox = function () {
         var elem = document.createElement('tspan');
         return 'flexBasis' in elem.style;
-      }();
+      }(); // UA checks; should be retired as soon as possible
+
 
       this.feat.uaTrident = function () {
         return navigator.userAgent.indexOf('Trident') > 0;
-      }();
+      }(); // UA checks; should be retired as soon as possible
+
 
       this.feat.uaEdge = function () {
         return navigator.userAgent.indexOf('Edge') > 0;
@@ -381,7 +493,8 @@ var BrowserFeat = {
   },
   'setHtmlFeatClass': function setHtmlFeatClass() {
     var htmlclass = [];
-    this.getBrowserCaps();
+    this.getBrowserCaps(); // For each set feature, add to the <html> element's class
+
     var keys = Object.keys(this.feat);
     var i = keys.length;
 
@@ -391,7 +504,8 @@ var BrowserFeat = {
       } else {
         htmlclass.push('no-' + keys[i]);
       }
-    }
+    } // Now write the classes to the <html> DOM element
+
 
     document.documentElement.className = htmlclass.join(' ');
   }

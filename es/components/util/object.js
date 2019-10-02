@@ -95,6 +95,12 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+/**
+ * Get '@id' from param 'object' if it exists
+ *
+ * @param {Object} o - Must have an'@id' property. Else will return null.
+ * @returns {string|null} The Item's '@id'.
+ */
 function atIdFromObject(o) {
   if (!o) return null;
   if (_typeof(o) !== 'object') return null;
@@ -122,7 +128,8 @@ function linkFromItem(item) {
   if (!href || !title) {
     if (item && _typeof(item) === 'object' && typeof item.error === 'string') {
       return _react["default"].createElement("em", null, item.error);
-    }
+    } // Uh oh, probably not an Item
+
 
     if (!suppressErrors) _patchedConsole.patchedConsoleInstance.error("Could not get atId for Item", item);
     return null;
@@ -143,6 +150,11 @@ function linkFromItem(item) {
     href: href
   }, propsToInclude), title);
 }
+/**
+ * Convert an ES6 Map to an object literal.
+ * @see https://gist.github.com/lukehorvat/133e2293ba6ae96a35ba#gistcomment-2655752 re: performance
+ */
+
 
 function mapToObject(esMap) {
   var retObj = {};
@@ -175,6 +187,10 @@ function mapToObject(esMap) {
 
   return retObj;
 }
+/** TODO: Move these 3 functions to Schemas.js */
+
+/** Return the properties dictionary from a schema for use as tooltips */
+
 
 function tipsFromSchema(schemas, content) {
   if (content['@type'] && Array.isArray(content['@type']) && content['@type'].length > 0) {
@@ -184,6 +200,8 @@ function tipsFromSchema(schemas, content) {
 
   return {};
 }
+/** Return the properties dictionary from a schema for use as tooltips */
+
 
 function tipsFromSchemaByType(schemas) {
   var itemType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ExperimentSet';
@@ -197,6 +215,11 @@ function tipsFromSchemaByType(schemas) {
 
   return tips;
 }
+/**
+ * Convert tips, as obtained from tipsFromSchema, into a list containing objects with at least the following properties:
+ * 'key', 'title', 'description'
+ */
+
 
 function listFromTips(tips) {
   return _underscore["default"].map(_underscore["default"].pairs(tips), function (p) {
@@ -205,6 +228,17 @@ function listFromTips(tips) {
     });
   });
 }
+/**
+ * Find property within an object using a propertyName in object dot notation.
+ * Recursively travels down object tree following dot-delimited property names.
+ * If any node is an array, will return array of results.
+ *
+ * @param {Object} object - Item to traverse or find propertyName in.
+ * @param {string|string[]} propertyName - (Nested) property in object to retrieve, in dot notation or ordered array.
+ * @param {boolean} [suppressNotFoundError=false] - If true, will not print a console warning message if no value found.
+ * @return {?any} Value corresponding to propertyName.
+ */
+
 
 function getNestedProperty(object, propertyName) {
   var suppressNotFoundError = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -255,6 +289,14 @@ function getNestedProperty(object, propertyName) {
     return null;
   }
 }
+/**
+ * Check if parameter is a valid JSON object or array.
+ *
+ * @param {Object|Array} content - Parameter to test for JSON validity.
+ * @returns {boolean} Whether passed in param is JSON.
+ * @todo Research if a more performant option might exist for this.
+ */
+
 
 function isValidJSON(content) {
   var isJson = true;
@@ -267,6 +309,19 @@ function isValidJSON(content) {
 
   return isJson;
 }
+/**
+ * Sets value to be deeply nested within an otherwise empty object, given a field with dot notation.
+ * Use for creating objects for PATCH requests. Does not currently support arrays.
+ * If want to update a full object rather than create an empty one, use @see deepExtendObject with output.
+ *
+ * @param {string|string[]} field   Property name of object of where to nest value, in dot-notation or pre-split into array.
+ * @param {*} value                 Any value to nest.
+ * @returns {Object} - Object with deepy-nested value.
+ * @example
+ *   generateSparseNestedProperty('human.body.leftArm.indexFinger', 'Orange') returns
+ *   { human : { body : { leftArm : { indexFinger : 'Orange' } } } }
+ */
+
 
 function generateSparseNestedProperty(field, value) {
   if (typeof field === 'string') field = field.split('.');
@@ -276,13 +331,25 @@ function generateSparseNestedProperty(field, value) {
   if (field.length === 0) return currObj;
   return generateSparseNestedProperty(field, currObj);
 }
+/**
+ * Performs an IN-PLACE 'deep merge' of a small object (one property per level, max) into a host object.
+ * Arrays are not allowed, for simplicity.
+ *
+ * @param {Object} hostObj           Object to merge/insert into.
+ * @param {Object} nestedObj         Object whose value to insert into hostObj.
+ * @param {number} [maxDepth=10]     Max number of recursions or object depth.
+ * @param {number} [currentDepth=0]  Current recursion depth.
+ * @returns {boolean} False if failed.
+ */
+
 
 function deepExtend(hostObj, nestedObj) {
   var maxDepth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
   var currentDepth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-  var nKey = Object.keys(nestedObj)[0];
+  var nKey = Object.keys(nestedObj)[0]; // Should only be 1.
 
   if (currentDepth > maxDepth) {
+    // Doubt we'd go this deep... so cancel out
     return false;
   }
 
@@ -290,7 +357,9 @@ function deepExtend(hostObj, nestedObj) {
     if (_typeof(nestedObj[nKey]) === 'object' && !Array.isArray(hostObj[nKey])) {
       return deepExtend(hostObj[nKey], nestedObj[nKey], maxDepth, currentDepth + 1);
     } else {
+      // No more nested objects, insert here.
       if (typeof nestedObj[nKey] === 'undefined') {
+        // Delete the field
         delete hostObj[nKey];
         return true;
       }
@@ -299,19 +368,30 @@ function deepExtend(hostObj, nestedObj) {
       return true;
     }
   } else if (typeof nestedObj[nKey] !== 'undefined') {
+    // Field doesn't exist on hostObj, but does on nestedObj, == new field.
+    // N.B. this might extend _more_ than anticipated -- TODO: address this later if this function
+    // gets re-used somewhere else.
+    // Or like... see if underscore has some function for this already.
     hostObj[nKey] = nestedObj[nKey];
     return true;
   } else {
+    // Whoops, doesn't seem like fields match.
     return false;
   }
 }
+/**
+ * Extends _child properties_ of first argument object with properties from subsequent objects.
+ * All arguments MUST be objects with objects as children.
+ */
+
 
 function extendChildren() {
   var args = Array.from(arguments),
       argsLen = args.length;
   if (args.length < 2) return args[0];
   var hostObj = args[0] || {},
-      allKeys = Array.from(_underscore["default"].reduce(args.slice(1), function (m, obj) {
+      // Allow null to be first arg, because why not.
+  allKeys = Array.from(_underscore["default"].reduce(args.slice(1), function (m, obj) {
     _underscore["default"].forEach(_underscore["default"].keys(obj), function (k) {
       m.add(k);
     });
@@ -335,6 +415,14 @@ function extendChildren() {
 
   return hostObj;
 }
+/**
+ * Deep-clone a given object using JSON stringify/parse.
+ * Does not handle or clone references or non-serializable types.
+ *
+ * @param {Object|Array} obj - JSON to deep-clone.
+ * @returns {Object|Array} Cloned JSON.
+ */
+
 
 function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -343,7 +431,10 @@ function deepClone(obj) {
 function htmlToJSX(htmlString) {
   var nodes,
       result,
-      someTags = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+      // Theoretically, esp in modern browsers, almost any tag/element name can be used to create a <div>.
+  // So we allow them in our HTML, but exclude elements/tags with numbers, special characters, etc.
+  // Except for hardcoded exceptions defined here in someTags.
+  someTags = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 
   try {
     nodes = (0, _htmlToDomServer["default"])(htmlString, {
@@ -357,17 +448,25 @@ function htmlToJSX(htmlString) {
       className: "error"
     }, "Parsing Error. Check your markup.");
   }
+  /**
+   * Filters out nodes and node children recursively if detect an invalid tag name.
+   * Also removes any <script> tags.
+   */
+
 
   function filterNodes(nodeList) {
     return _underscore["default"].filter(_underscore["default"].map(nodeList, function (n) {
       if (n.type === 'tag') {
-        if (someTags.has(n.name)) return n;
-        if (n.name === 'script') return null;
+        if (someTags.has(n.name)) return n; // Exclude scripts due to security vulnerability potential.
+
+        if (n.name === 'script') return null; // Filter out nonsensical tags which will likely break React, e.g. <hr?>
+
         var match = n.name.match(/[\W\s\d]/);
 
         if (match && (match.length > 1 || match[0] !== '/')) {
           return null;
-        }
+        } // Recurse on children
+
 
         if (Array.isArray(n.children)) {
           n = _underscore["default"].extend({}, n, {
@@ -392,20 +491,48 @@ function htmlToJSX(htmlString) {
 
   return result;
 }
+/**
+ * Check if param is in form of an @id. Doesn't validate whether proper collection, etc. just URL format.
+ *
+ * @param {string} value - String to test.
+ * @returns {boolean} - Whether is valid-ish.
+ */
+
 
 function isValidAtIDFormat(value) {
   return value && typeof value === 'string' && value.length > 3 && value.charAt(0) === '/' && value[value.length - 1] === '/' && (value.match(/\//g) || []).length === 3;
 }
+/**
+ * Performs a rudimentary check on an object to determine whether it is an Item.
+ * Checks for presence of properties 'display_title' and '@id'.
+ *
+ * @param {Object} content - Object to check.
+ * @returns {boolean} Whether 'content' param is (likely to be) an Item.
+ */
+
 
 function isAnItem(content) {
   return content && _typeof(content) === 'object' && (typeof content.display_title === 'string' || typeof content.uuid === 'string') && typeof atIdFromObject(content) === 'string';
 }
+/**
+ * Used for object.randomId().
+ * @private
+ */
+
 
 var randomIdIncrement = 0;
 
 function randomId() {
   return 'random-id-' + ++randomIdIncrement;
 }
+/**
+ * Assert that param passed in & returned is in UUID format.
+ *
+ * @param {string} uuid - UUID string to be asserted.
+ * @returns {string} Original UUID string (uuid param) if in valid form.
+ * @throws Error if not in valid UUID format.
+ */
+
 
 function assertUUID(uuid) {
   if (typeof uuid !== 'string') throw new Error('UUID is not a string!');
@@ -517,8 +644,18 @@ TooltipInfoIconContainerAuto.propTypes = {
   'schemas': _propTypes["default"].object,
   'elementType': _propTypes["default"].string
 };
+/**
+ * Use this Component to generate a 'copy' button.
+ *
+ * @prop {string} value - What to copy to clipboard upon clicking the button.
+ * @prop {boolean} [flash=true] - Whether to do a 'flash' effect of the button and children wrapper on click.
+ * @prop {JSX.Element[]} [children] - What to wrap and present to the right of the copy button. Optional. Should be some formatted version of 'value' string, e.g. <span className="accession">{ accession }</span>.
+ * @prop {string|React.Component} [wrapperElement='div'] - Element type to wrap props.children in, if any.
+ */
 
-var CopyWrapper = function (_React$PureComponent) {
+var CopyWrapper =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(CopyWrapper, _React$PureComponent);
 
   _createClass(CopyWrapper, null, [{
@@ -535,7 +672,8 @@ var CopyWrapper = function (_React$PureComponent) {
       textArea.style.padding = 0;
       textArea.style.border = 'none';
       textArea.style.outline = 'none';
-      textArea.style.boxShadow = 'none';
+      textArea.style.boxShadow = 'none'; // Avoid flash of white box if rendered for any reason.
+
       textArea.style.background = 'transparent';
       textArea.value = value;
       document.body.appendChild(textArea);
@@ -609,6 +747,9 @@ var CopyWrapper = function (_React$PureComponent) {
       if (!flash || !wrapper) return null;
 
       if (typeof wrapperElement === 'function') {
+        // Means we have a React component vs a React/JSX element.
+        // This approach will be deprecated soon so we should look into forwarding refs
+        // ... I think
         wrapper = _reactDom["default"].findDOMNode(wrapper);
       }
 
@@ -638,7 +779,8 @@ var CopyWrapper = function (_React$PureComponent) {
           iconProps = _this$props2.iconProps,
           includeIcon = _this$props2.includeIcon,
           className = _this$props2.className;
-      if (!value) return null;
+      if (!value) return null; // eslint-disable-next-line react/destructuring-assignment
+
       var isMounted = mounted || this.state && this.state.mounted || false;
       var elemsToWrap = [];
       if (children) elemsToWrap.push(children);
@@ -690,6 +832,10 @@ CopyWrapper.defaultProps = {
   'flashActiveTransform': 'scale3d(1.2, 1.2, 1.2) translate3d(0, 0, 0)',
   'flashInactiveTransform': 'translate3d(0, 0, 0)'
 };
+/**
+ * md5() sometimes throws an error for some reason. Lets memoize the result and catch exceptions.
+ */
+
 var saferMD5 = (0, _memoizeOne["default"])(function (val) {
   try {
     return (0, _jsMd["default"])(val);
@@ -699,11 +845,25 @@ var saferMD5 = (0, _memoizeOne["default"])(function (val) {
     return 'Error';
   }
 });
+/**
+ * Functions which are specific to Items [structure] in the 4DN/Encoded database. Some are just aliased from functions above for now for backwards compatibility.
+ * Contains sections for Aliases, Functions, and Secondary Dictionaries of functions (e.g. for 'User').
+ */
+
 exports.saferMD5 = saferMD5;
 var itemUtil = {
+  // Aliases
   isAnItem: isAnItem,
   generateLink: linkFromItem,
   atId: atIdFromObject,
+  // Funcs
+
+  /**
+   * Function to determine title for each Item object.
+   *
+   * @param {Object} props - Object containing props commonly supplied to Item page. At minimum, must have a 'context' property.
+   * @returns {string} Title string to use.
+   */
   titleFromProps: function titleFromProps(props) {
     var title = itemUtil.getTitleStringFromContext(props.context || {});
 
@@ -713,9 +873,26 @@ var itemUtil = {
 
     return title || null;
   },
+
+  /**
+   * Get Item title string from a context object (JSON representation of Item).
+   *
+   * @param {Object} context - JSON representation of an Item object.
+   * @returns {string} The title.
+   */
   getTitleStringFromContext: function getTitleStringFromContext(context) {
-    return context.display_title || context.title || context.name || context.download || context.accession || context.uuid || (typeof context['@id'] === 'string' ? context['@id'] : null);
+    return context.display_title || context.title || context.name || context.download || context.accession || context.uuid || (typeof context['@id'] === 'string' ? context['@id'] : null //: 'No title found'
+    );
   },
+
+  /**
+   * Determine whether the title which is displayed is an accession or not.
+   * Use for determining whether to include accession in ItemHeader.TopRow.
+   *
+   * @param {Object} context          JSON representation of an Item object.
+   * @param {string} [displayTitle]   Display title of Item object. Gets it from context if not provided.
+   * @returns {boolean} If title is an accession (or contains it).
+   */
   isDisplayTitleAccession: function isDisplayTitleAccession(context) {
     var displayTitle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var checkContains = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -724,6 +901,15 @@ var itemUtil = {
     if (checkContains && displayTitle.indexOf(context.accession) > -1) return true;
     return false;
   },
+
+  /**
+   * Compare two arrays of Items to check if they contain the same Items, by their @id.
+   * Does _NOT_ compare the fields within each Item (e.g. to detect changed or more 'complete').
+   *
+   * @param {Object[]} listA      1st list of Items to compare.
+   * @param {Object[]} listB      2nd list of Items to compare.
+   * @returns {boolean} True if equal.
+   */
   compareResultsByID: function compareResultsByID(listA, listB) {
     var listALen = listA.length;
     if (listALen !== listB.length) return false;
@@ -734,12 +920,28 @@ var itemUtil = {
 
     return true;
   },
+
+  /**
+   * Performs a `_.uniq` on list of Items by their @id.
+   *
+   * @param {Item[]} items - List of Items to unique.
+   * @returns {Item[]} Uniqued list.
+   */
   uniq: function uniq(items) {
     return _underscore["default"].uniq(items, false, function (o) {
       return atIdFromObject(o);
     });
   },
+  // Secondary Dictionaries -- functions by Item type.
   User: {
+    /**
+     * Generate a URL to get Gravatar image from Gravatar service.
+     *
+     * @param {string} email                    User's email address.
+     * @param {number} size                     Width & height of image square.
+     * @param {string} [defaultImg='retro']     Style of Gravatar image.
+     * @returns {string} A URL.
+     */
     buildGravatarURL: function buildGravatarURL(email) {
       var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var defaultImg = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'retro';
@@ -748,6 +950,16 @@ var itemUtil = {
       if (size) url += '&s=' + size;
       return url;
     },
+
+    /**
+     * Generate an <img> element with provided size, className, and Gravatar src.
+     *
+     * @param {string} email                    User's email address.
+     * @param {number} size                     Width & height of image square.
+     * @param {Object} props                    Extra element props for <img> element returned.
+     * @param {string} [defaultImg='retro']     Style of Gravatar image.
+     * @returns {Element} A React Image (<img>) element.
+     */
     gravatar: function gravatar(email) {
       var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var props = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -759,8 +971,30 @@ var itemUtil = {
         className: 'gravatar' + (props.className ? ' ' + props.className : '')
       }));
     },
+
+    /**
+     * Definitions for regex validators.
+     *
+     * @public
+     * @constant
+     */
     localRegexValidation: {
+      /**
+       * http://www.regular-expressions.info/email.html -> changed capital A to lowercase
+       *
+       * @public
+       * @constant
+       */
+      // eslint-disable-next-line no-useless-escape
       email: '^[a-Z0-9][a-Z0-9._%+-]{0,63}@(?:(?=[a-Z0-9-]{1,63}\.)[a-Z0-9]+(?:-[a-Z0-9]+)*\.){1,8}[a-Z]{2,63}$',
+
+      /**
+       * Digits only, with optional extension (space + x, ext, extension + [space?] + 1-7 digits) and
+       * optional leading plus sign (for international).
+       *
+       * @public
+       * @constant
+       */
       phone: '[+]?[\\d]{10,36}((\\sx|\\sext|\\sextension)(\\s)?[\\d]{1,7})?$'
     }
   }

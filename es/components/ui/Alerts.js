@@ -46,15 +46,36 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 var defaultNavigateDisappearThreshold = 1;
 var alertNavigatationCountMap = {};
 var store = null;
+/**
+ * A Component and utility (via Component's 'statics' property & functions) to
+ * queue and dequeue alerts from appearing at top of pages. Alerts, once queued, will persist until they are closed by
+ * the end user, which is the same functionality as calling Alerts.deQueue(alert) from anywhere in application, supplying the same
+ * title for alert that was queued.
+ */
 
-var Alerts = function (_React$Component) {
+var Alerts =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(Alerts, _React$Component);
 
   _createClass(Alerts, null, [{
     key: "setStore",
+
+    /** This must be called with the current Redux store for the app before Alerts can be used. */
     value: function setStore(useStore) {
       store = useStore;
     }
+    /**
+     * Open an alert box.
+     * More specifically, saves a new alert to Redux store 'alerts' field.
+     *
+     * @public
+     * @param {AlertObj} alert              Object used to represent alert message element contents at top of page.
+     * @param {function} [callback]         Optional function to be ran after queuing.
+     * @param {AlertObj[]} [currentAlerts]  Current alerts, if any. Pass in for performance, else will retrieve them from Redux.
+     * @returns {void} Nothing
+     */
+
   }, {
     key: "queue",
     value: function queue(alert) {
@@ -76,6 +97,7 @@ var Alerts = function (_React$Component) {
       var newAlerts = currentAlerts.slice(0);
 
       if (typeof duplicateTitleAlertIdx === 'number' && duplicateTitleAlertIdx > -1) {
+        // Same alert already set, lets update it instead of adding new one.
         newAlerts.splice(duplicateTitleAlertIdx, 1, alert);
       } else {
         newAlerts.push(alert);
@@ -87,6 +109,15 @@ var Alerts = function (_React$Component) {
         }
       });
     }
+    /**
+     * Close an alert box.
+     *
+     * @public
+     * @param {AlertObj} alert - Object with at least 'title'.
+     * @param {AlertObj[]} [currentAlerts] - Current alerts, if any. Pass in for performance, else will retrieve them from Redux.
+     * @returns {void} Nothing
+     */
+
   }, {
     key: "deQueue",
     value: function deQueue(alert) {
@@ -107,6 +138,16 @@ var Alerts = function (_React$Component) {
         }
       });
     }
+    /**
+     * This is called after each navigation within the portal.
+     * It increments counter per each alert title, and if counter exceeds
+     * limit of any `alert.navigateDisappearThreshold`, the alerts is dequeued.
+     *
+     * @static
+     * @param {AlertObj[]} [currentAlerts=null] Current alerts, if any. Pass in for performance, else will retrieve them from Redux.
+     * @returns {undefined} Nothing
+     */
+
   }, {
     key: "updateCurrentAlertsTitleMap",
     value: function updateCurrentAlertsTitleMap() {
@@ -134,6 +175,7 @@ var Alerts = function (_React$Component) {
     }
   }]);
 
+  /** @ignore */
   function Alerts(props) {
     var _this;
 
@@ -141,11 +183,24 @@ var Alerts = function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Alerts).call(this, props));
     _this.setDismissing = _this.setDismissing.bind(_assertThisInitialized(_this));
+    /**
+     * State object for component.
+     *
+     * @type {Object}
+     * @private
+     * @property {AlertObj[]} state.dismissing - List of alerts currently being faded out.
+     */
+
     _this.state = {
       'dismissing': []
     };
     return _this;
   }
+  /**
+   * Called when 'fade out' of an alert is initialized.
+   * @private
+   */
+
 
   _createClass(Alerts, [{
     key: "setDismissing",
@@ -154,6 +209,13 @@ var Alerts = function (_React$Component) {
         dismissing: dismissing
       });
     }
+    /**
+     * Renders out Bootstrap Alerts for any queued alerts.
+     *
+     * @private
+     * @returns {JSX.Element} A `<div>` element containing AlertItems as children.
+     */
+
   }, {
     key: "render",
     value: function render() {
@@ -190,6 +252,11 @@ _defineProperty(Alerts, "defaultProps", {
 });
 
 Alerts.propTypes = {
+  /**
+   * List of Alert objects currently being displayed. Should be passed down from Redux store from App.
+   *
+   * @type {AlertObj[]}
+   */
   'alerts': _propTypes["default"].arrayOf(_propTypes["default"].shape({
     'title': _propTypes["default"].string.isRequired,
     'message': _propTypes["default"].string.isRequired,
@@ -197,6 +264,10 @@ Alerts.propTypes = {
     'navigationDissappearThreshold': _propTypes["default"].number
   }))
 };
+/**
+ * Reusable Alert Definitions
+ */
+
 var LoggedOut = Alerts.LoggedOut = {
   "title": "Logged Out",
   "message": "You have been logged out.",
@@ -224,9 +295,19 @@ var LoginFailed = Alerts.LoginFailed = {
   "style": "danger",
   'navigateDisappearThreshold': 1
 };
+/**
+ * Component which renders out an individual Alert.
+ * Rendered by `Alerts` component.
+ *
+ * @ignore
+ * @private
+ */
+
 exports.LoginFailed = LoginFailed;
 
-var AlertItem = function (_React$PureComponent) {
+var AlertItem =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(AlertItem, _React$PureComponent);
 
   function AlertItem(props) {

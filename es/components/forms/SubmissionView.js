@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.buildContext = buildContext;
-exports.default = void 0;
+exports["default"] = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -34,7 +34,7 @@ var _SubmissionTree = require("./components/SubmissionTree");
 
 var _submissionFields = require("./components/submission-fields");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -52,7 +52,9 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -80,11 +82,48 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var SubmissionView = function (_React$PureComponent) {
+/**
+ * Key container component for Submission components.
+ *
+ * Holds object values for all downstream components and owns the methods
+ * for submitting data. Passes the appropriate data downwards to the individual
+ * object views.
+ *
+ * The general function of Submission view is a container that holds the state
+ * off all objects being created, as well as state required to change view between
+ * object, coordinate uploads, and the alias naming process.
+ *
+ * The functions modifyKeyContext and setSubmissionState are used to change object
+ * creation views and modify the each object's content. Other functions, like
+ * updateUpload and addExistingObj are used to interface with lower level
+ * components for specific state changes.
+ *
+ * This component also holds submission logic and a few functions for generating
+ * JSX to be rendered depending on state.
+ *
+ * @class SubmissionView
+ * @prop {string} href      Current browser URL/href. If a search href, should have a 'type=' query component to infer type of Item to create.
+ * @prop {Object} [context] Current resource (Item) at our current href path. Used to get '@type' from, if not a search page.
+ * @prop {Object} schemas   Schemas as returned from back-end via /profiles/ endpoint. Required.
+ * @prop {boolean} create   Is this a new Item being created?
+ * @prop {boolean} edit     Is this an Item being edited?
+ */
+var SubmissionView =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(SubmissionView, _React$PureComponent);
 
   _createClass(SubmissionView, null, [{
     key: "findValidationState",
+
+    /**
+     * Function to look at a specific object (reference by key) and
+     * use searchHierarchy() to see if the children of the given key
+     * contain any un-submitted custom objects. If they do, return
+     * 1 (ready to validate). Otherwise return 0 (not ready to validate)
+     *
+     * @todo maybe memoize this and replace usage of state.keyValid w/ it.
+     */
     value: function findValidationState(keyIdx, prevKeyHierarchy, keyContext, keyComplete) {
       var hierarchy = _util.object.deepClone(prevKeyHierarchy);
 
@@ -92,7 +131,7 @@ var SubmissionView = function (_React$PureComponent) {
       if (keyHierarchy === null) return 0;
       var validationReturn = 1;
 
-      _underscore.default.keys(keyHierarchy).forEach(function (key) {
+      _underscore["default"].keys(keyHierarchy).forEach(function (key) {
         if (!isNaN(key)) {
           if (!keyComplete[key] && keyContext[key]) {
             validationReturn = 0;
@@ -106,7 +145,7 @@ var SubmissionView = function (_React$PureComponent) {
     key: "principalTitle",
     value: function principalTitle(context, edit, create) {
       var itemType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      var principalDisplay;
+      var principalDisplay; // Name of our current Item being created.
 
       if (create === true && !edit) {
         principalDisplay = 'New ' + itemType;
@@ -129,21 +168,65 @@ var SubmissionView = function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionView).call(this, props));
 
-    _underscore.default.bindAll(_assertThisInitialized(_this), 'modifyKeyContext', 'initializePrincipal', 'initCreateObj', 'initCreateAlias', 'submitAmbiguousType', 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'handleAliasChange', 'handleAliasLabChange', 'submitAlias', 'modifyAlias', 'createObj', 'removeObj', 'initExistingObj', 'addExistingObj', 'setSubmissionState', 'updateUpload', 'testPostNewContext', 'realPostNewContext', 'removeNullsFromContext', 'checkRoundTwo', 'buildDeleteFields', 'modifyMD5Progess', 'submitObject', 'finishRoundTwo', 'cancelCreateNewObject', 'cancelCreatePrimaryObject');
+    _underscore["default"].bindAll(_assertThisInitialized(_this), 'modifyKeyContext', 'initializePrincipal', 'initCreateObj', 'initCreateAlias', 'submitAmbiguousType', 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'handleAliasChange', 'handleAliasLabChange', 'submitAlias', 'modifyAlias', 'createObj', 'removeObj', 'initExistingObj', 'addExistingObj', 'setSubmissionState', 'updateUpload', 'testPostNewContext', 'realPostNewContext', 'removeNullsFromContext', 'checkRoundTwo', 'buildDeleteFields', 'modifyMD5Progess', 'submitObject', 'finishRoundTwo', 'cancelCreateNewObject', 'cancelCreatePrimaryObject');
+    /**
+     * *** DETAIL ON THIS.STATE ***
+     * There are a lot of individual states to keep track of, but most workflow-runs
+     * the same way: they are objects where the key is this.state.currKey and the
+     * content is some information about the object created.
+     *
+     * @prop {!number} currKey                  Is an int that is used to index the objects you are creating and acts as a switch for the states.
+     * @prop {{ number : Object }} keyContext   (idx: currKey) stores the context for each new object
+     * @prop {{ number : number }} keyValid     (idx: currKey) stores the validation status for each new object; 0 is cannot yet validate (incomplete children), 1 is ready to validate, 2 is validation error, 3 is successfully validated, 4 is submitted.
+     * @prop {{ number : string }} keyDisplay   (idx: currKey) stores the formatted titles for each object
+     * @prop {{ number : string }} keyComplete  (idx: currKey) stores completed custom object's @id path by key.
+     * @prop {number} keyIter                   (int) is a reference to the current maximum currKey. Is used to iterate to add more keys.
+     * @prop {!number} currKey                  (int) controls which object we're manipulating.
+     * @prop {{ number : Object }} keyHierarchy Nested form of object relationships, where values are currKey idxs for created objects and @id paths for existing objects.
+     * @prop {{ number : Array.<string> }} keyLinkBookmarks - (idx: currKey) all possible child object types for a given currKey. Stored as schema title, or schema LinkTo if not present.
+     * @prop {{ number : string }} keyLinks     (idx: currKey) holds the corresponding keyLinkBookmarks field for each key.
+     * @prop {boolean} processingFetch          keeps track of whether top level is processing a request
+     * @prop {number} errorCount                (int) keeps track of how many validation errors currently exist
+     * @prop {!number} ambiguousIdx             (int) has to do with linkTo selection when multiple object types are associated with a single linkTo (example: File -> FileProcessed, FileFastq...)
+     * @prop {!string} ambiguousType            Originally selected ambiguous linkTo type
+     * @prop {!string} ambiguousSelected        Selected type to resolve ambiguity
+     * @prop {!number} creatingIdx              (int) Has to do with alias creation. Value is equal to a currKey index when currently creating an alias, null otherwise.
+     * @prop {!string} creatingType             Similar to creatingIdx, but string object type.
+     * @prop {!string} creatingLink             Similar to creatingIdx, but string link type.
+     * @prop {!string} creatingAlias            Stores input when creating an alias
+     * @prop {!string} creatingAliasMessage     Stores any error messages to display while alias creation is occuring.
+     * @prop {!string} creatingLinkForField     Stores temporarily the name of the field on the parent item for which a new object/item is being created.
+     * @prop {boolean} fullScreen               If true, the whole component rendered is the Search page for pre-existing object selection.
+     * @prop {number} md5Progress               (int) md5 percentage complete for uploading files. Equals null if no current md5 calcuation.
+     * @prop {boolean} roundTwo                 Begins false, true only when first round submissions is done AND there are second round submission fields.
+     * @prop {number[]} roundTwoKeys      List of key idxs that need round two submission
+     * @prop {!Object} file                     Holds currently uploading file info (round two)
+     * @prop {!Object} upload                   Holds upload info to be passed to children
+     * @prop {!string} uploadStatus             Holds message relevant to file BuildField. Reset to null when currKey changes.
+     * @prop {!Object} currentSubmittingUser    Holds current/submitting User Item; used primarily for submission permission(s) and autosuggesting an alias.
+     */
+
 
     _this.state = {
       'keyContext': null,
       'keyValid': null,
       'keyTypes': null,
       'keyDisplay': null,
+      // serves to hold navigation-formatted names for objs
       'keyComplete': {},
+      // init to empty dict b/c objs cannot be complete on initialization
       'keyIter': 0,
+      // serves as key versions for child objects. 0 is reserved for principal
       'currKey': null,
+      // start with viewing principle object (key = 0),
       'keyHierarchy': {
         0: {}
       },
+      // initalize with principal item at top
       'keyLinkBookmarks': {},
+      // hold bookmarks LinkTos for each obj key
       'keyLinks': {},
+      // associates each non-primary key with a field
       'processingFetch': false,
       'errorCount': 0,
       'ambiguousIdx': null,
@@ -165,20 +248,32 @@ var SubmissionView = function (_React$PureComponent) {
       'currentSubmittingUser': null,
       'edit': props.currentAction === 'edit',
       'create': props.currentAction === 'create' || props.currentAction === 'add',
-      'callbackHref': null
+      'callbackHref': null // Where we navigate to after submission
+
     };
     return _this;
   }
+  /**
+   * Call initializePrincipal to get state set up, but only if schemas are
+   * available.
+   */
+
 
   _createClass(SubmissionView, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var schemas = this.props.schemas;
 
-      if (schemas && _underscore.default.keys(schemas).length > 0) {
+      if (schemas && _underscore["default"].keys(schemas).length > 0) {
         this.initializePrincipal();
       }
     }
+    /**
+     * If schemas in props change (this should not happen often), re-initialize.
+     * The main functionality of this is to wait for schemas if they're not
+     * available on componentDidMount.
+     */
+
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
@@ -200,6 +295,14 @@ var SubmissionView = function (_React$PureComponent) {
         });
       }
     }
+    /**
+     * Function that modifies new context and sets validation state whenever
+     * a modification occurs
+     *
+     * @param {number} objKey - Key of Item being modified.
+     * @param {Object} newContext - New Context/representation for this Item to be saved.
+     */
+
   }, {
     key: "modifyKeyContext",
     value: function modifyKeyContext(objKey, newContext) {
@@ -213,14 +316,25 @@ var SubmissionView = function (_React$PureComponent) {
 
         var validCopy = _util.object.deepClone(keyValid);
 
-        contextCopy[objKey] = newContext;
+        contextCopy[objKey] = newContext; // TODO maybe get rid of this state.keyValid and just use memoized static function.
+
         validCopy[objKey] = SubmissionView.findValidationState(objKey, prevKeyHierarchy, keyContext, keyComplete);
         return {
           'keyContext': contextCopy,
           'keyValid': validCopy
         };
-      }, _reactTooltip.default.rebuild);
+      }, _reactTooltip["default"].rebuild);
     }
+    /**
+     * Initialize state for the principal object (i.e. the primary object we
+     * are creating/editing/cloning). It has the index of 0.
+     * Editing/cloning, fetch the frame=object context and use it initialize
+     * the values of the fields.
+     * initObjs is used to hold the linked objects for edited/cloned objects.
+     * These are later used with initCreateObj to put those objects' information
+     * in state.
+     */
+
   }, {
     key: "initializePrincipal",
     value: function initializePrincipal() {
@@ -237,15 +351,16 @@ var SubmissionView = function (_React$PureComponent) {
       var keyContext = {};
       var contextID = _util.object.itemUtil.atId(context) || null;
 
-      var parsedHref = _url.default.parse(href, true);
+      var parsedHref = _url["default"].parse(href, true);
 
       var principalTypes = context['@type'];
 
       if (principalTypes[0] === 'Search' || principalTypes[0] === 'Browse') {
+        // If we're creating from search or browse page, use type from href.
         var typeFromHref = parsedHref.query && parsedHref.query.type || 'Item';
 
         if (Array.isArray(typeFromHref)) {
-          var _$without = _underscore.default.without(typeFromHref, 'Item');
+          var _$without = _underscore["default"].without(typeFromHref, 'Item');
 
           var _$without2 = _slicedToArray(_$without, 1);
 
@@ -253,9 +368,10 @@ var SubmissionView = function (_React$PureComponent) {
         }
 
         if (typeFromHref && typeFromHref !== 'Item') {
-          principalTypes = [typeFromHref];
+          principalTypes = [typeFromHref]; // e.g. ['ExperimentSetReplicate']
         }
-      }
+      } // Where we navigate to after submission.
+
 
       var callbackHref = create ? null : parsedHref.query && typeof parsedHref.query.callbackHref === 'string' && parsedHref.query.callbackHref || contextID;
       var keyTypes = {
@@ -272,22 +388,26 @@ var SubmissionView = function (_React$PureComponent) {
       var keyLinkBookmarks = {};
       var bookmarksList = [];
       var schema = schemas[principalTypes[0]];
-      var existingAlias = false;
+      var existingAlias = false; // Step A : Get labs from User, in order to autogenerate alias.
 
-      var userInfo = _util.JWT.getUserInfo();
+      var userInfo = _util.JWT.getUserInfo(); // Should always succeed, else no edit permission..
+
 
       var userHref = null;
 
       if (userInfo && Array.isArray(userInfo.user_actions)) {
-        userHref = _underscore.default.findWhere(userInfo.user_actions, {
+        userHref = _underscore["default"].findWhere(userInfo.user_actions, {
           'id': 'profile'
         }).href;
       } else {
         userHref = '/me';
-      }
+      } // Step B : Callback for after grabbing user w/ submits_for
+
 
       var continueInitProcess = function () {
+        // if @id cannot be found or we are creating from scratch, start with empty fields
         if (!contextID || create) {
+          // We may not have schema (if Abstract type). If so, leave empty and allow initCreateObj ... -> createObj() to create it.
           if (schema) keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
           keyLinkBookmarks["0"] = bookmarksList;
 
@@ -295,6 +415,7 @@ var SubmissionView = function (_React$PureComponent) {
             keyContext: keyContext,
             keyValid: keyValid,
             keyTypes: keyTypes,
+            // Gets updated in submitAmbiguousType
             keyDisplay: keyDisplay,
             keyLinkBookmarks: keyLinkBookmarks,
             currKey: 0,
@@ -303,20 +424,24 @@ var SubmissionView = function (_React$PureComponent) {
             _this2.initCreateObj(principalTypes[0], 0, 'Primary Object');
           });
         } else {
+          // get the DB result to avoid any possible indexing hang-ups
           _util.ajax.promise(contextID + '?frame=object&datastore=database').then(function (response) {
             var reponseAtID = _util.object.itemUtil.atId(response);
 
-            var initObjs = [];
+            var initObjs = []; // Gets modified/added-to in-place by buildContext.
 
             if (reponseAtID && reponseAtID === contextID) {
               keyContext["0"] = buildContext(response, schema, bookmarksList, edit, create, initObjs);
               keyLinkBookmarks["0"] = bookmarksList;
 
               if (edit && response.aliases && response.aliases.length > 0) {
+                // we already have an alias for editing, so use it for title
+                // setting creatingIdx and creatingType to null prevents alias creation
                 keyDisplay["0"] = response.aliases[0];
                 existingAlias = true;
               }
             } else {
+              // something went wrong with fetching context. Just use an empty object
               keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
               keyLinkBookmarks["0"] = bookmarksList;
             }
@@ -330,21 +455,27 @@ var SubmissionView = function (_React$PureComponent) {
               currKey: 0,
               callbackHref: callbackHref
             }, function () {
-              _underscore.default.forEach(initObjs, function (initObj) {
+              _underscore["default"].forEach(initObjs, function (initObj) {
+                // We get 'path' as display in buildContext->delveExistingObj.. so override here.
                 initObj.display = keyDisplay[initObj.path] || initObj.display;
 
                 _this2.initExistingObj(initObj);
-              });
+              }); // if we are cloning and there is not an existing alias
+              // never prompt alias creation on edit
+              // do not initiate ambiguous type lookup on edit or create
+
 
               if (!edit && !existingAlias) {
                 _this2.initCreateObj(principalTypes[0], 0, 'Primary Object', true);
               }
             });
           });
-        }
+        } // set state in app to prevent accidental mid-submission navigation
+
 
         setIsSubmitting(true);
-      };
+      }; // Grab current user via AJAX and store to state. To use for alias auto-generation using current user's top submits_for lab name.
+
 
       _util.ajax.load(userHref + '?frame=embedded', function (r) {
         _this2.setState({
@@ -352,6 +483,15 @@ var SubmissionView = function (_React$PureComponent) {
         }, continueInitProcess);
       }, 'GET', continueInitProcess);
     }
+    /**
+     * Takes in an object type, the newIdx to create it under, the newLink linkTo
+     * fieldname for it. If there are multiple available schemas for the linkTo,
+     * set up the 'ambiguous lookup' process, which uses a modal to prompt the user
+     * to select a type. If not an ambiguous linkTo type, move directly to alias
+     * creation (initCreateAlias). If init (bool) is true, skip ambiguous type
+     * lookup even if applicable and move right to alias selection.
+     */
+
   }, {
     key: "initCreateObj",
     value: function initCreateObj(ambiguousType, ambiguousIdx, creatingLink) {
@@ -359,9 +499,13 @@ var SubmissionView = function (_React$PureComponent) {
       var parentField = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       var schemas = this.props.schemas;
 
-      var itemTypeHierarchy = _util.schemaTransforms.schemasToItemTypeHierarchy(schemas);
+      var itemTypeHierarchy = _util.schemaTransforms.schemasToItemTypeHierarchy(schemas); // check to see if we have an ambiguous linkTo type.
+      // this means there could be multiple types of linked objects for a
+      // given type. let the user choose one.
+
 
       if (itemTypeHierarchy[ambiguousType] && !init) {
+        // ambiguous linkTo type found
         this.setState({
           ambiguousType: ambiguousType,
           ambiguousIdx: ambiguousIdx,
@@ -372,6 +516,13 @@ var SubmissionView = function (_React$PureComponent) {
         this.initCreateAlias(ambiguousType, ambiguousIdx, creatingLink, parentField);
       }
     }
+    /**
+     * Takes a type, newIdx, linkTo type (newLink). Clears the state of the ambiguous object
+     * type information and initializes state for the alias creation process.
+     * If the current object's schemas does not support aliases, finish out the
+     * creation process with createObj using a boilerplate placeholer obj name.
+     */
+
   }, {
     key: "initCreateAlias",
     value: function initCreateAlias(type, newIdx, newLink) {
@@ -387,7 +538,7 @@ var SubmissionView = function (_React$PureComponent) {
       }
 
       if (schema && schema.properties.aliases) {
-        this.setState(_underscore.default.extend({
+        this.setState(_underscore["default"].extend({
           'creatingAlias': autoSuggestedAlias,
           'creatingIdx': newIdx,
           'creatingType': type,
@@ -395,9 +546,16 @@ var SubmissionView = function (_React$PureComponent) {
           'creatingLinkForField': parentField
         }, extraState));
       } else {
+        // schema doesn't support aliases
         this.createObj(type, newIdx, newLink, 'My ' + type + ' ' + newIdx, extraState);
       }
     }
+    /**
+     * Callback function used with the ambiguous input element. Called when a type
+     * is selected from the enum ambiguousType list.
+     * Move to initCreateAlias afterwards.
+     */
+
   }, {
     key: "submitAmbiguousType",
     value: function submitAmbiguousType(e) {
@@ -412,24 +570,30 @@ var SubmissionView = function (_React$PureComponent) {
         'ambiguousIdx': null,
         'ambiguousType': null,
         'ambiguousSelected': null
-      };
+      }; // safety check to ensure schema exists for selected type
 
       if (schema && type) {
         this.initCreateAlias(type, newIdx, newLink, null, stateChange);
       } else {
-        this.setState(stateChange);
+        this.setState(stateChange); // abort
       }
     }
+    /** Simple function to generate enum entries for ambiguous types */
+
   }, {
     key: "buildAmbiguousEnumEntry",
     value: function buildAmbiguousEnumEntry(val) {
-      return _react.default.createElement(_DropdownButton.DropdownItem, {
+      return _react["default"].createElement(_DropdownButton.DropdownItem, {
         key: val,
         title: val || '',
         eventKey: val,
         onSelect: this.handleTypeSelection
       }, val || '');
     }
+    /**
+     * Enum callback to change state in ambiguous type selection
+     */
+
   }, {
     key: "handleTypeSelection",
     value: function handleTypeSelection(e) {
@@ -437,6 +601,11 @@ var SubmissionView = function (_React$PureComponent) {
         'ambiguousSelected': e
       });
     }
+    /**
+     * Callback function used to change state in response to user input in the
+     * alias creation process
+     */
+
   }, {
     key: "handleAliasChange",
     value: function handleAliasChange(value) {
@@ -444,6 +613,11 @@ var SubmissionView = function (_React$PureComponent) {
         'creatingAlias': value
       });
     }
+    /**
+     * Callback function used to change state in response to user input in the
+     * alias creation process
+     */
+
   }, {
     key: "handleAliasLabChange",
     value: function handleAliasLabChange(e) {
@@ -453,6 +627,16 @@ var SubmissionView = function (_React$PureComponent) {
         'creatingAlias': currValue
       });
     }
+    /**
+     * Callback function used when alias creation process is complete.
+     * Evaluates the input alias (this.state.creatingAlias) and checks it using
+     * a regex and makes sure it is not redundant with any aliases already used
+     * in this object creation session or elsewhere on fourfront. If there is
+     * an error in the alias given, display a helpful message (kept in
+     * this.state.creatingAliasMessage). If alias is valid, finalize the object
+     * create process with createObj.
+     */
+
   }, {
     key: "submitAlias",
     value: function submitAlias(e) {
@@ -471,7 +655,8 @@ var SubmissionView = function (_React$PureComponent) {
 
       if (type === null || newIdx === null || newLink === null) {
         return false;
-      }
+      } // check if created object supports aliases
+
 
       var hasAlias = schema && schema.properties && schema.properties.aliases;
 
@@ -493,7 +678,8 @@ var SubmissionView = function (_React$PureComponent) {
             });
             return false;
           }
-        }
+        } // see if the input alias is already being used
+
 
         _util.ajax.promise('/' + alias).then(function (data) {
           if (data && data.title && data.title === "Not Found") {
@@ -517,6 +703,13 @@ var SubmissionView = function (_React$PureComponent) {
 
       return false;
     }
+    /**
+     * Function passed down in props to modify the display title used for custom
+     * objects upon a change of the alias field in the main creation process.
+     * If all aliases are manually removed, use a placeholder object name. Otherwise,
+     * use the lasst alias in the aliases field (an array).
+     */
+
   }, {
     key: "modifyAlias",
     value: function modifyAlias() {
@@ -528,10 +721,11 @@ var SubmissionView = function (_React$PureComponent) {
             edit = _ref2.edit,
             create = _ref2.create;
         var currAlias = keyDisplay[currKey];
-        var aliases = keyContext[currKey].aliases || null;
+        var aliases = keyContext[currKey].aliases || null; // Try to get 'alias' > 'name' > 'title' > then fallback to 'My ItemType currKey'
+
         var name = Array.isArray(aliases) && aliases.length > 1 && aliases[aliases.length - 2] || keyContext[currKey].name || keyContext[currKey].title || null;
 
-        var nextKeyDisplay = _underscore.default.clone(keyDisplay);
+        var nextKeyDisplay = _underscore["default"].clone(keyDisplay);
 
         if (name) {
           nextKeyDisplay[currKey] = name;
@@ -547,11 +741,23 @@ var SubmissionView = function (_React$PureComponent) {
         };
       });
     }
+    /**
+     * Takes in the type, newIdx, linkTo type (newLink), and the alias for a new
+     * custom object. Used to generate an entry in all relevant key-indexed states
+     * in SubmissionView. These are: keyContext, keyValid, keyTypes, keyHierarchy,
+     * keyDisplay, keyLinkBookmarks, and keyLinks. Also resets state related to
+     * the ambiguous type selection and alias creation processes (these should be
+     * complete at this point).
+      * Iterates keyIter, which is used as the master placeholder for the index of
+     * the next created object. Sets currKey to the idx of the newly created object
+     * so the view changes to it.
+     */
+
   }, {
     key: "createObj",
     value: function createObj(type, newIdx, newLink, alias) {
       var extraState = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-      var errorCount = this.state.errorCount;
+      var errorCount = this.state.errorCount; // get rid of any hanging errors
 
       for (var i = 0; i < errorCount; i++) {
         _Alerts.Alerts.deQueue({
@@ -571,29 +777,30 @@ var SubmissionView = function (_React$PureComponent) {
             keyLinks = currState.keyLinks,
             prevKeyDisplay = currState.keyDisplay;
 
-        var contextCopy = _underscore.default.clone(keyContext);
+        var contextCopy = _underscore["default"].clone(keyContext);
 
-        var validCopy = _underscore.default.clone(keyValid);
+        var validCopy = _underscore["default"].clone(keyValid);
 
-        var typesCopy = _underscore.default.clone(keyTypes);
+        var typesCopy = _underscore["default"].clone(keyTypes);
 
         var parentKeyIdx = currKey;
 
-        var bookmarksCopy = _underscore.default.clone(keyLinkBookmarks);
+        var bookmarksCopy = _underscore["default"].clone(keyLinkBookmarks);
 
         var linksCopy = _util.object.deepClone(keyLinks);
 
-        var keyDisplay = _underscore.default.clone(prevKeyDisplay);
+        var keyDisplay = _underscore["default"].clone(prevKeyDisplay);
 
         var bookmarksList = [];
         var keyIdx;
         var newHierarchy;
 
         if (newIdx === 0) {
+          // initial object creation
           keyIdx = 0;
-          newHierarchy = _underscore.default.clone(keyHierarchy);
+          newHierarchy = _underscore["default"].clone(keyHierarchy);
         } else {
-          keyIdx = keyIter + 1;
+          keyIdx = keyIter + 1; // increase key iter by 1 for a new unique key
 
           if (newIdx !== keyIdx) {
             _util.console.error('ERROR: KEY INDEX INCONSISTENCY!');
@@ -601,16 +808,17 @@ var SubmissionView = function (_React$PureComponent) {
             return;
           }
 
-          newHierarchy = modifyHierarchy(_underscore.default.clone(keyHierarchy), keyIdx, parentKeyIdx);
-          validCopy[keyIdx] = 1;
-          validCopy[parentKeyIdx] = 0;
+          newHierarchy = modifyHierarchy(_underscore["default"].clone(keyHierarchy), keyIdx, parentKeyIdx);
+          validCopy[keyIdx] = 1; // new object has no incomplete children yet
+
+          validCopy[parentKeyIdx] = 0; // parent is now not ready for validation
         }
 
         typesCopy[keyIdx] = type;
         var contextWithAlias = contextCopy && contextCopy[keyIdx] ? contextCopy[keyIdx] : {};
 
         if (Array.isArray(contextWithAlias.aliases)) {
-          contextWithAlias.aliases = _underscore.default.uniq(_underscore.default.filter(contextWithAlias.aliases.slice(0)).concat([alias]));
+          contextWithAlias.aliases = _underscore["default"].uniq(_underscore["default"].filter(contextWithAlias.aliases.slice(0)).concat([alias]));
         } else {
           contextWithAlias.aliases = [alias];
         }
@@ -619,7 +827,7 @@ var SubmissionView = function (_React$PureComponent) {
         bookmarksCopy[keyIdx] = bookmarksList;
         linksCopy[keyIdx] = newLink;
         keyDisplay[keyIdx] = alias;
-        return _underscore.default.extend({
+        return _underscore["default"].extend({
           'keyContext': contextCopy,
           'keyValid': validCopy,
           'keyTypes': typesCopy,
@@ -634,6 +842,19 @@ var SubmissionView = function (_React$PureComponent) {
         }, extraState);
       });
     }
+    /**
+     * Takes in a key for an object to removed from the state. Effectively deletes
+     * an object by removing its idx from keyContext and other key-indexed state.
+     * Used for the both pre-existing, where key is their string path, and custom
+     * objects that have index keys.
+     * If deleting a pre-existing object, dont modify the key-indexed states for
+     * it since other occurences of that object may be used in the creation
+     * process and those should not be affected. Effectively, removing a pre-
+     * existing object amounts to removing it from keyHierarchy.
+     *
+     * @param {number} key - Key of item to remove.
+     */
+
   }, {
     key: "removeObj",
     value: function removeObj(key) {
@@ -655,38 +876,46 @@ var SubmissionView = function (_React$PureComponent) {
 
         var keyCompleteCopy = _util.object.deepClone(keyComplete);
 
-        var bookmarksCopy = _underscore.default.clone(keyLinkBookmarks);
+        var bookmarksCopy = _underscore["default"].clone(keyLinkBookmarks);
 
-        var linksCopy = _underscore.default.clone(keyLinks);
+        var linksCopy = _underscore["default"].clone(keyLinks);
 
         var roundTwoCopy = roundTwoKeys.slice();
 
-        var hierarchy = _underscore.default.clone(keyHierarchy);
+        var hierarchy = _underscore["default"].clone(keyHierarchy);
 
         var dummyHierarchy = _util.object.deepClone(hierarchy);
 
-        var hierKey = key;
+        var hierKey = key; // the key may be a @id string and not keyIdx if already submitted
 
-        _underscore.default.keys(keyCompleteCopy).forEach(function (compKey) {
+        _underscore["default"].keys(keyCompleteCopy).forEach(function (compKey) {
           if (keyCompleteCopy[compKey] === key) {
             hierKey = compKey;
           }
-        });
+        }); // find hierachy below the object being deleted
+
 
         dummyHierarchy = searchHierarchy(dummyHierarchy, hierKey);
 
         if (dummyHierarchy === null) {
+          // occurs when keys cannot be found to delete
           return null;
-        }
+        } // get a list of all keys to remove
+
 
         var toDelete = flattenHierarchy(dummyHierarchy);
-        toDelete.push(key);
-        var newHierarchy = trimHierarchy(hierarchy, hierKey);
+        toDelete.push(key); // add this key
+        // trimming the hierarchy effectively removes objects from creation process
 
-        _underscore.default.forEach(toDelete, function (keyToDelete) {
-          if (isNaN(keyToDelete)) return;
+        var newHierarchy = trimHierarchy(hierarchy, hierKey); // for housekeeping, remove the keys from keyLinkBookmarks, keyLinks, and keyCompleteCopy
 
-          if (_underscore.default.contains(roundTwoCopy, keyToDelete)) {
+        _underscore["default"].forEach(toDelete, function (keyToDelete) {
+          if (isNaN(keyToDelete)) return; // only remove creation data for non-sumbitted, non-preexisiting objs
+          // remove key from roundTwoKeys if necessary
+          // NOTE: submitted custom objects will NOT be removed from this
+          // after deletion. Still give user opportunity for second round edits
+
+          if (_underscore["default"].contains(roundTwoCopy, keyToDelete)) {
             var rmIdx = roundTwoCopy.indexOf(keyToDelete);
 
             if (rmIdx > -1) {
@@ -714,6 +943,12 @@ var SubmissionView = function (_React$PureComponent) {
         };
       });
     }
+    /**
+     * Uses an object holding specific data needed to initializing pre-existing
+     * objects in the principal object initializing process when cloning/editing.
+     * Exclusively called from initializePrincipal. Calls addExistingObj
+     */
+
   }, {
     key: "initExistingObj",
     value: function initExistingObj(_ref4) {
@@ -723,6 +958,15 @@ var SubmissionView = function (_React$PureComponent) {
           field = _ref4.field;
       this.addExistingObj(path, display, type, field, true);
     }
+    /**
+     * Takes in the @id path of an exisiting object, a display name for it, the
+     * object type, the linkTo field type (newLink), and whether or not it's
+     * being added during the initializePrincipal process (bool init). Sets up
+     * state to contain the newly introduced pre-existing object and adds it into
+     * keyHierarchy. The key for pre-existing objects are their @id path. Thus,
+     * isNan() for the key of a pre-existing object will return true.
+     */
+
   }, {
     key: "addExistingObj",
     value: function addExistingObj(path, display, type, field) {
@@ -735,13 +979,13 @@ var SubmissionView = function (_React$PureComponent) {
             prevKeyLinks = _ref5.keyLinks;
         var parentKeyIdx = init ? 0 : currKey;
 
-        var keyDisplay = _underscore.default.clone(prevKeyDisplay);
+        var keyDisplay = _underscore["default"].clone(prevKeyDisplay);
 
-        var keyTypes = _underscore.default.clone(prevKeyTypes);
+        var keyTypes = _underscore["default"].clone(prevKeyTypes);
 
-        var keyLinks = _underscore.default.clone(prevKeyLinks);
+        var keyLinks = _underscore["default"].clone(prevKeyLinks);
 
-        var keyHierarchy = modifyHierarchy(_underscore.default.clone(prevKeyHierarchy), path, parentKeyIdx);
+        var keyHierarchy = modifyHierarchy(_underscore["default"].clone(prevKeyHierarchy), path, parentKeyIdx);
         keyDisplay[path] = display;
         keyTypes[path] = type;
         keyLinks[path] = field;
@@ -753,6 +997,16 @@ var SubmissionView = function (_React$PureComponent) {
         };
       });
     }
+    /**
+     * Takes a key and value and sets the corresponding state in this component to the value.
+     *
+     * Primarily used as a callback to change currKey, in which case we
+     * ensure that there are no current uploads of md5 calculations running. If
+     * allowed to change keys, attempt to automatically validate the key we are
+     * leaving if its validation state == 1 (has no incomplete children). Also
+     * remove any hanging Alert error messages from validation.
+     */
+
   }, {
     key: "setSubmissionState",
     value: function setSubmissionState(key, value) {
@@ -769,11 +1023,15 @@ var SubmissionView = function (_React$PureComponent) {
       var stateToSet = {};
 
       if (typeof this.state[key] !== 'undefined') {
+        // this means we're navigating to a new object if true
         if (key === 'currKey' && value !== currKey) {
+          // don't allow navigation when we have an uploading file
+          // or calculating md5
           if (upload !== null || md5Progress !== null) {
             alert('Please wait for your upload to finish.');
             return;
-          }
+          } // get rid of any hanging errors
+
 
           for (var i = 0; i < errorCount; i++) {
             _Alerts.Alerts.deQueue({
@@ -781,24 +1039,29 @@ var SubmissionView = function (_React$PureComponent) {
             });
 
             stateToSet.errorCount = 0;
-          }
+          } // skip validation stuff if in roundTwo
+
 
           if (!roundTwo) {
+            // if current key is ready for validation, first try that
+            // but suppress warning messages
             if (keyValid[currKey] === 1) {
               this.submitObject(currKey, true, true);
-            }
+            } // see if newly-navigated obj is ready for validation
+
 
             if (keyValid[value] === 0) {
               var validState = SubmissionView.findValidationState(value, keyHierarchy, keyContext, keyComplete);
 
               if (validState === 1) {
-                var nextKeyValid = _underscore.default.clone(keyValid);
+                var nextKeyValid = _underscore["default"].clone(keyValid);
 
                 nextKeyValid[value] = 1;
                 stateToSet['keyValid'] = nextKeyValid;
               }
             }
-          }
+          } // reset some state
+
 
           stateToSet.processingFetch = false;
           stateToSet.uploadStatus = null;
@@ -808,6 +1071,17 @@ var SubmissionView = function (_React$PureComponent) {
         this.setState(stateToSet);
       }
     }
+    /**
+     * Function used to initialize uploads, complete them, and end them on failure.
+     *
+     * Sets the upload status, upload (which holds the s3 upload manager), and
+     * also communicates to app.js that there is an upload occuring.
+     * When upload is initialized, calculate the md5sum of the file before uploading.
+     * In app, state is changed so users are prompted before navigating away from a running
+     * upload. When upload is complete, call finishRoundTwo to finish the object
+     * creation process for the file object with the upload.
+     */
+
   }, {
     key: "updateUpload",
     value: function updateUpload(uploadInfo) {
@@ -827,18 +1101,25 @@ var SubmissionView = function (_React$PureComponent) {
         var destination = this.state.keyComplete[this.state.currKey];
         var payload = JSON.stringify({
           'status': 'upload failed'
-        });
+        }); // set status to upload failed for the file
 
         _util.ajax.promise(destination, 'PATCH', {}, payload).then(function () {
+          // doesn't really matter what response is
           stateToSet.uploadStatus = 'Upload failed';
           stateToSet.upload = null;
 
           _this4.setState(stateToSet);
         });
       } else {
-        var file = this.state.file;
+        // must be the initial run
+        // Calculate the md5sum for the file held in state and save it to the md5
+        // field of the current key's context (this can only be a file due to the
+        // submission process). Resets file and md5Progess in state after running.
+        var file = this.state.file; // md5 calculation should ONLY occur when current type is file
+
         if (file === null) return;
         (0, _file.getLargeMD5)(file, this.modifyMD5Progess).then(function (hash) {
+          // perform async patch to set md5sum field of the file
           var destination = _this4.state.keyComplete[_this4.state.currKey];
           var payload = JSON.stringify({
             'md5sum': hash
@@ -854,18 +1135,20 @@ var SubmissionView = function (_React$PureComponent) {
 
               _this4.setState(stateToSet);
             } else if (data.status && data.title && data.status == 'error' && data.title == 'Conflict') {
+              // md5 key conflict
               stateToSet.uploadStatus = 'MD5 conflicts with another file';
               stateToSet.md5Progress = null;
 
               _this4.setState(stateToSet);
             } else {
+              // error setting md5
               stateToSet.uploadStatus = 'MD5 calculation error';
               stateToSet.md5Progress = null;
 
               _this4.setState(stateToSet);
             }
           });
-        }).catch(function () {
+        })["catch"](function () {
           stateToSet.uploadStatus = 'MD5 calculation error';
           stateToSet.file = null;
           stateToSet.md5Progress = null;
@@ -886,16 +1169,27 @@ var SubmissionView = function (_React$PureComponent) {
       e.preventDefault();
       this.submitObject(this.state.currKey);
     }
+    /**
+     * Takes the context held in keyContext for a given key idx and returns a
+     * copy that has been passed through removeNulls to delete any key-value pair
+     * with a null value.
+     */
+
   }, {
     key: "removeNullsFromContext",
     value: function removeNullsFromContext(inKey) {
       var keyContext = this.state.keyContext;
       return removeNulls(_util.object.deepClone(keyContext[inKey]));
     }
+    /**
+     * Returns true if the given schema has a round two flag within it
+     * Used within the submission process to see if items will need second round submission.
+     */
+
   }, {
     key: "checkRoundTwo",
     value: function checkRoundTwo(schema) {
-      var fields = schema.properties ? _underscore.default.keys(schema.properties) : [];
+      var fields = schema.properties ? _underscore["default"].keys(schema.properties) : [];
 
       for (var i = 0; i < fields.length; i++) {
         if (schema.properties[fields[i]]) {
@@ -906,6 +1200,7 @@ var SubmissionView = function (_React$PureComponent) {
           }
 
           if (fieldSchema.ff_flag && fieldSchema.ff_flag == 'second round') {
+            // this object needs second round submission
             return true;
           }
         }
@@ -913,12 +1208,25 @@ var SubmissionView = function (_React$PureComponent) {
 
       return false;
     }
+    /**
+     * Used to generate a list of fields that have been removed in the submission
+     * process. This list will in turn be used to make a deleteFields string
+     * that is passed to the server with the PATCH request for editing or
+     * second round submission. Takes the patchContext, which is the submission
+     * content after removeNulls and submitObject processing, and compares it
+     * to the original content (which is passed through removeNulls). If the
+     * roundTwo flag is set to true, only operate on roundTwo submission fields.
+     * Otherwise, do not operate on roundTwo fields.
+     *
+     * Returns a list of stirng fieldnames to delete.
+     */
+
   }, {
     key: "buildDeleteFields",
     value: function buildDeleteFields(patchContext, origContext, schema) {
       var _this5 = this;
 
-      var deleteFields = [];
+      var deleteFields = []; // must remove nulls from the orig copy to sync with patchContext
 
       var origCopy = _util.object.deepClone(origContext);
 
@@ -926,7 +1234,9 @@ var SubmissionView = function (_React$PureComponent) {
 
       var userGroups = _util.JWT.getUserGroups();
 
-      _underscore.default.keys(origCopy).forEach(function (field) {
+      _underscore["default"].keys(origCopy).forEach(function (field) {
+        // if patchContext already has a value (such as admin edited
+        // import_items fields), don't overwrite
         if (!(0, _submissionFields.isValueNull)(patchContext[field])) {
           return;
         }
@@ -936,25 +1246,30 @@ var SubmissionView = function (_React$PureComponent) {
 
           if (!fieldSchema) {
             return;
-          }
+          } // skip calculated properties and exclude_from fields
+
 
           if (fieldSchema.calculatedProperty && fieldSchema.calculatedProperty === true) {
             return;
           }
 
-          if (fieldSchema.exclude_from && (_underscore.default.contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from == 'FFedit-create')) {
+          if (fieldSchema.exclude_from && (_underscore["default"].contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from == 'FFedit-create')) {
             return;
-          }
+          } // if the user is admin, they already have these fields available;
+          // only register as removed if admin did it intentionally
+
 
           if (fieldSchema.permission && fieldSchema.permission == "import_items") {
-            if (_underscore.default.contains(userGroups, 'admin')) deleteFields.push(field);
+            if (_underscore["default"].contains(userGroups, 'admin')) deleteFields.push(field);
             return;
-          }
+          } // check round two fields if the parameter roundTwo is set
+
 
           if (fieldSchema.ff_flag && fieldSchema.ff_flag == 'second round') {
             if (_this5.state.roundTwo) deleteFields.push(field);
             return;
-          }
+          } // if we're here, the submission field was legitimately deleted
+
 
           if (!_this5.state.roundTwo) deleteFields.push(field);
         }
@@ -962,6 +1277,8 @@ var SubmissionView = function (_React$PureComponent) {
 
       return deleteFields;
     }
+    /** Set md5Progress in state to val. Passed as callback to getLargeMD5 */
+
   }, {
     key: "modifyMD5Progess",
     value: function modifyMD5Progess(val) {
@@ -969,6 +1286,25 @@ var SubmissionView = function (_React$PureComponent) {
         'md5Progress': val
       });
     }
+    /**
+     * Master object submission function. Takes a key index and uses ajax to
+     * POST/PATCH the json to the object collection (a new object) or to the
+     * specific object path (a pre-existing/roundTwo object). If test=true,
+     * the POST is made to the check_only=true endpoint for validation without
+     * actual submission.
+     *
+     * Upon successful submission, reponse data for the newly instantiated object
+     * is stored in state (with key equal to the new object's path). On the
+     * principal object submission if there are object that require roundTwo
+     * submission, this function initializes the roundTwo process by setting
+     * this.state.roundTwo to true and the currKey to the first index in the process.
+     * If there are no roundTwo objects, completes submission process.
+     *
+     * Handles roundTwo submission slightly differently. Uses PATCH and kicks off
+     * uploads using updateUpload if there is a file given. Completes submission
+     * process once all roundTwo objects have been skipped or submitted.
+     */
+
   }, {
     key: "submitObject",
     value: function submitObject(inKey) {
@@ -976,6 +1312,8 @@ var SubmissionView = function (_React$PureComponent) {
 
       var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var suppressWarnings = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      // function to test a POST of the data or actually POST it.
+      // validates if test=true, POSTs if test=false.
       var _this$props3 = this.props,
           context = _this$props3.context,
           schemas = _this$props3.schemas,
@@ -996,13 +1334,15 @@ var SubmissionView = function (_React$PureComponent) {
           keyLinks = _this$state5.keyLinks,
           roundTwoKeys = _this$state5.roundTwoKeys,
           callbackHref = _this$state5.callbackHref;
-      var stateToSet = {};
+      var stateToSet = {}; // hold next state
+
       var currType = keyTypes[inKey];
-      var currSchema = schemas[currType];
+      var currSchema = schemas[currType]; // this will always be reset when stateToSet is implemented
+
       stateToSet.processingFetch = false;
-      stateToSet.keyValid = _underscore.default.clone(keyValid);
+      stateToSet.keyValid = _underscore["default"].clone(keyValid);
       var finalizedContext = this.removeNullsFromContext(inKey);
-      var i;
+      var i; // get rid of any hanging errors
 
       for (i = 0; i < errorCount; i++) {
         _Alerts.Alerts.deQueue({
@@ -1028,6 +1368,8 @@ var SubmissionView = function (_React$PureComponent) {
         var userLab = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
         var userAward = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
+        // if editing, use pre-existing award, lab, and submitted_by
+        // this should only be done on the primary object
         if (edit && inKey === 0 && context.award && context.lab) {
           if (currSchema.properties.award && !('award' in finalizedContext)) {
             finalizedContext.award = _util.object.itemUtil.atId(context.award);
@@ -1035,16 +1377,21 @@ var SubmissionView = function (_React$PureComponent) {
 
           if (currSchema.properties.lab && !('lab' in finalizedContext)) {
             finalizedContext.lab = _util.object.itemUtil.atId(context.lab);
-          }
+          } // an admin is editing. Use the pre-existing submitted_by
+          // otherwise, permissions won't let us change this field
 
-          if (currentSubmittingUser.groups && _underscore.default.contains(currentSubmittingUser.groups, 'admin')) {
+
+          if (currentSubmittingUser.groups && _underscore["default"].contains(currentSubmittingUser.groups, 'admin')) {
             if (context.submitted_by) {
               finalizedContext.submitted_by = _util.object.itemUtil.atId(context.submitted_by);
             } else {
+              // use current user
               finalizedContext.submitted_by = _util.object.itemUtil.atId(currentSubmittingUser);
             }
           }
         } else if (userLab && userAward && currType !== 'User') {
+          // Otherwise, use lab/award of user submitting unless values present
+          // Skip this is we are working on a User object
           if (currSchema.properties.award && !('award' in finalizedContext)) {
             finalizedContext.award = _util.object.itemUtil.atId(userAward);
           }
@@ -1056,12 +1403,14 @@ var SubmissionView = function (_React$PureComponent) {
 
         var destination;
         var actionMethod;
-        var deleteFields;
+        var deleteFields; // used to keep track of fields to delete with PATCH for edit/round two; will become comma-separated string
 
         if (roundTwo) {
+          // change actionMethod and destination based on edit/round two
           destination = keyComplete[inKey];
           actionMethod = 'PATCH';
-          var alreadySubmittedContext = keyContext[destination];
+          var alreadySubmittedContext = keyContext[destination]; // roundTwo flag set to true for second round
+
           deleteFields = _this6.buildDeleteFields(finalizedContext, alreadySubmittedContext, currSchema);
         } else if (edit && inKey === 0) {
           destination = _util.object.itemUtil.atId(context);
@@ -1073,6 +1422,7 @@ var SubmissionView = function (_React$PureComponent) {
         }
 
         if (test) {
+          // if testing validation, use check_only=true (see /types/base.py)'
           destination += '?check_only=true';
         } else {
           _util.console.log('FINALIZED PAYLOAD:', finalizedContext);
@@ -1080,21 +1430,24 @@ var SubmissionView = function (_React$PureComponent) {
           _util.console.log('DELETE FIELDS:', deleteFields);
         }
 
-        var payload = JSON.stringify(finalizedContext);
+        var payload = JSON.stringify(finalizedContext); // add delete_fields parameter to request if necessary
 
         if (deleteFields && Array.isArray(deleteFields) && deleteFields.length > 0) {
           var deleteString = deleteFields.join(',');
           destination = destination + (test ? '&' : '?') + 'delete_fields=' + deleteString;
 
           _util.console.log('DESTINATION:', destination);
-        }
+        } // Perform request
+
 
         _util.ajax.promise(destination, actionMethod, {}, payload).then(function (response) {
           if (response.status && response.status !== 'success') {
+            // error
             stateToSet.keyValid[inKey] = 2;
 
             if (!suppressWarnings) {
-              var errorList = response.errors || [response.detail] || [];
+              var errorList = response.errors || [response.detail] || []; // make an alert for each error description
+
               stateToSet.errorCount = errorList.length;
 
               for (i = 0; i < errorList.length; i++) {
@@ -1132,10 +1485,14 @@ var SubmissionView = function (_React$PureComponent) {
 
               responseData = _response$Graph[0];
               submitted_at_id = _util.object.itemUtil.atId(responseData);
-            }
+            } // handle submission for round two
+
 
             if (roundTwo) {
+              // there is a file
               if (file && responseData.upload_credentials) {
+                // add important info to result from finalizedContext
+                // that is not added from /types/file.py get_upload
                 var creds = responseData.upload_credentials;
 
                 require.ensure(['../util/aws'], function (require) {
@@ -1143,8 +1500,13 @@ var SubmissionView = function (_React$PureComponent) {
                       upload_manager = awsUtil.s3UploadFile(file, creds);
 
                   if (upload_manager === null) {
+                    // bad upload manager. Cause an alert
                     alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
                   } else {
+                    // this will set off a chain of aync events.
+                    // first, md5 will be calculated and then the
+                    // file will be uploaded to s3. If all of this
+                    // is succesful, call finishRoundTwo.
                     stateToSet.uploadStatus = null;
 
                     _this6.setState(stateToSet);
@@ -1153,27 +1515,36 @@ var SubmissionView = function (_React$PureComponent) {
                   }
                 }, "aws-utils-bundle");
               } else {
+                // state cleanup for this key
                 _this6.finishRoundTwo();
 
                 _this6.setState(stateToSet);
               }
             } else {
-              stateToSet.keyValid[inKey] = 4;
-              var parentKey = parseInt(findParentFromHierarchy(keyHierarchy, inKey));
+              stateToSet.keyValid[inKey] = 4; // Perform final steps when object is submitted
+              // *** SHOULD THIS STUFF BE BROKEN OUT INTO ANOTHER FXN?
+              // find key of parent object, starting from top of hierarchy
+
+              var parentKey = parseInt(findParentFromHierarchy(keyHierarchy, inKey)); // navigate to parent obj if it was found. Else, go to top level
+
               stateToSet.currKey = parentKey !== null && !isNaN(parentKey) ? parentKey : 0;
 
-              var typesCopy = _underscore.default.clone(keyTypes);
+              var typesCopy = _underscore["default"].clone(keyTypes);
 
-              var keyCompleteCopy = _underscore.default.clone(keyComplete);
+              var keyCompleteCopy = _underscore["default"].clone(keyComplete);
 
-              var linksCopy = _underscore.default.clone(keyLinks);
+              var linksCopy = _underscore["default"].clone(keyLinks);
 
-              var displayCopy = _underscore.default.clone(keyDisplay);
+              var displayCopy = _underscore["default"].clone(keyDisplay); // set contextCopy to returned data from POST
 
-              var contextCopy = _underscore.default.clone(keyContext);
 
-              var roundTwoCopy = roundTwoKeys.slice();
-              keyCompleteCopy[inKey] = submitted_at_id;
+              var contextCopy = _underscore["default"].clone(keyContext);
+
+              var roundTwoCopy = roundTwoKeys.slice(); // update the state storing completed objects.
+
+              keyCompleteCopy[inKey] = submitted_at_id; // represent the submitted object with its new path
+              // rather than old keyIdx.
+
               linksCopy[submitted_at_id] = linksCopy[inKey];
               typesCopy[submitted_at_id] = currType;
               displayCopy[submitted_at_id] = displayCopy[inKey];
@@ -1183,23 +1554,29 @@ var SubmissionView = function (_React$PureComponent) {
               stateToSet.keyTypes = typesCopy;
               stateToSet.keyComplete = keyCompleteCopy;
               stateToSet.keyDisplay = displayCopy;
-              stateToSet.keyContext = contextCopy;
+              stateToSet.keyContext = contextCopy; // update roundTwoKeys if necessary
 
               var needsRoundTwo = _this6.checkRoundTwo(currSchema);
 
-              if (needsRoundTwo && !_underscore.default.contains(roundTwoCopy, inKey)) {
+              if (needsRoundTwo && !_underscore["default"].contains(roundTwoCopy, inKey)) {
+                // was getting an error where this could be str
                 roundTwoCopy.push(parseInt(inKey));
                 stateToSet.roundTwoKeys = roundTwoCopy;
-              }
+              } // inKey is 0 for the primary object
+
 
               if (inKey === 0) {
+                // see if we need to go into round two submission
                 if (roundTwoCopy.length === 0) {
+                  // we're done!
                   setIsSubmitting(false, function () {
                     propNavigate(callbackHref || submitted_at_id);
                   });
                 } else {
+                  // break this out into another fxn?
+                  // roundTwo initiation
                   stateToSet.roundTwo = true;
-                  stateToSet.currKey = roundTwoCopy[0];
+                  stateToSet.currKey = roundTwoCopy[0]; // reset validation state for all round two keys
 
                   for (i = 0; i < roundTwoCopy.length; i++) {
                     stateToSet.keyValid[roundTwoCopy[i]] = 0;
@@ -1216,13 +1593,15 @@ var SubmissionView = function (_React$PureComponent) {
               }
             }
 
-            _reactTooltip.default.rebuild();
+            _reactTooltip["default"].rebuild();
           }
         });
       };
 
       if (currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0) {
+        // use first lab for now
         _util.ajax.promise(_util.object.itemUtil.atId(currentSubmittingUser.submits_for[0])).then(function (myLab) {
+          // use first award for now
           var myAward = myLab && Array.isArray(myLab.awards) && myLab.awards.length > 0 && myLab.awards[0] || null;
           submitProcessContd(myLab, myAward);
         });
@@ -1230,6 +1609,13 @@ var SubmissionView = function (_React$PureComponent) {
         submitProcessContd();
       }
     }
+    /**
+     * Finish the roundTwo process for the current key. Removes the currKey from
+     * this.state.roundTwoKeys and modifies state to finish out for that object.
+     * If there are no keys left in roundTwoKeys, navigate to the path of the
+     * principal object we created.
+     */
+
   }, {
     key: "finishRoundTwo",
     value: function finishRoundTwo() {
@@ -1241,12 +1627,12 @@ var SubmissionView = function (_React$PureComponent) {
             _ref6$roundTwoKeys = _ref6.roundTwoKeys,
             roundTwoKeys = _ref6$roundTwoKeys === void 0 ? [] : _ref6$roundTwoKeys;
 
-        var validationCopy = _underscore.default.clone(keyValid);
+        var validationCopy = _underscore["default"].clone(keyValid);
 
         var roundTwoCopy = roundTwoKeys.slice();
         validationCopy[currKey] = 4;
 
-        if (_underscore.default.contains(roundTwoCopy, currKey)) {
+        if (_underscore["default"].contains(roundTwoCopy, currKey)) {
           var rmIdx = roundTwoCopy.indexOf(currKey);
 
           if (rmIdx > -1) {
@@ -1255,6 +1641,7 @@ var SubmissionView = function (_React$PureComponent) {
         }
 
         return {
+          // navigate to next key in roundTwoKeys
           currKey: roundTwoCopy.length > 0 ? roundTwoCopy[0] : currKey,
           uploadStatus: null,
           keyValid: validationCopy,
@@ -1271,6 +1658,7 @@ var SubmissionView = function (_React$PureComponent) {
             callbackHref = _this7$state.callbackHref;
 
         if (roundTwoKeys.length === 0) {
+          // we're done!
           setIsSubmitting(false, function () {
             propNavigate(callbackHref || keyComplete[0]);
           });
@@ -1287,19 +1675,21 @@ var SubmissionView = function (_React$PureComponent) {
             creatingLinkForField = _ref7.creatingLinkForField;
         if (!creatingIdx) return null;
 
-        var nextKeyContext = _underscore.default.clone(keyContext);
+        var nextKeyContext = _underscore["default"].clone(keyContext);
 
         var currentContextPointer = nextKeyContext[currKey];
 
-        _underscore.default.pairs(currentContextPointer).forEach(function (_ref8) {
+        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref8) {
           var _ref9 = _slicedToArray(_ref8, 2),
               field = _ref9[0],
               idx = _ref9[1];
 
           if (field === (typeof creatingLinkForField === 'string' && creatingLinkForField)) {
+            // Unset value to null
             if (idx === creatingIdx) {
               currentContextPointer[field] = null;
-            }
+            } // Remove value from array.
+
 
             if (Array.isArray(idx)) {
               var idxInArray = idx.indexOf(creatingIdx);
@@ -1324,6 +1714,8 @@ var SubmissionView = function (_React$PureComponent) {
         };
       });
     }
+    /** Navigate to version of same page we're on, minus the `currentAction` URI parameter. */
+
   }, {
     key: "cancelCreatePrimaryObject",
     value: function cancelCreatePrimaryObject() {
@@ -1335,21 +1727,22 @@ var SubmissionView = function (_React$PureComponent) {
           setIsSubmitting = _this$props4.setIsSubmitting;
 
       var leaveFunc = function () {
+        // Navigate out.
         var nextURI;
         var navOpts = {};
 
         if (callbackHref) {
           nextURI = callbackHref;
         } else {
-          var parts = _url.default.parse(href, true);
+          var parts = _url["default"].parse(href, true);
 
-          var modifiedQuery = _underscore.default.omit(parts.query, 'currentAction');
+          var modifiedQuery = _underscore["default"].omit(parts.query, 'currentAction');
 
-          var modifiedSearch = _queryString.default.stringify(modifiedQuery);
+          var modifiedSearch = _queryString["default"].stringify(modifiedQuery);
 
           parts.query = modifiedQuery;
           parts.search = (modifiedSearch.length > 0 ? '?' : '') + modifiedSearch;
-          nextURI = _url.default.format(parts);
+          nextURI = _url["default"].format(parts);
           navOpts.skipRequest = true;
         }
 
@@ -1362,6 +1755,12 @@ var SubmissionView = function (_React$PureComponent) {
         return leaveFunc();
       }
     }
+    /**
+     * Render the navigable SubmissionTree and IndividualObjectView for the
+     * current key. Also render modals for ambiguous type selection or alias
+     * creation if necessary.
+     */
+
   }, {
     key: "render",
     value: function render() {
@@ -1378,7 +1777,7 @@ var SubmissionView = function (_React$PureComponent) {
           keyTypes = _this$state6.keyTypes,
           fullScreen = _this$state6.fullScreen,
           keyDisplay = _this$state6.keyDisplay,
-          keyHierarchy = _this$state6.keyHierarchy;
+          keyHierarchy = _this$state6.keyHierarchy; // see if initialized
 
       if (!keyContext || currKey === null) {
         return null;
@@ -1388,7 +1787,7 @@ var SubmissionView = function (_React$PureComponent) {
       var currType = keyTypes[currKey];
       var currContext = keyContext[currKey];
       var navCol = "mb-4 " + (fullScreen ? 'submission-hidden-nav' : 'col-12 col-md-3');
-      var bodyCol = fullScreen ? 'col-12' : 'col-12 col-md-9';
+      var bodyCol = fullScreen ? 'col-12' : 'col-12 col-md-9'; // remove context and navigate from this.props
 
       var _this$props5 = this.props,
           context = _this$props5.context,
@@ -1396,46 +1795,46 @@ var SubmissionView = function (_React$PureComponent) {
           propsToPass = _objectWithoutProperties(_this$props5, ["context", "navigate"]);
 
       keyDisplay[currKey] || currType;
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "submission-view-page-container container",
         id: "content"
-      }, _react.default.createElement(TypeSelectModal, _extends({
+      }, _react["default"].createElement(TypeSelectModal, _extends({
         show: showAmbiguousModal
-      }, _underscore.default.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _underscore.default.pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
+      }, _underscore["default"].pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _underscore["default"].pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
         schemas: schemas
-      })), _react.default.createElement(AliasSelectModal, _extends({
+      })), _react["default"].createElement(AliasSelectModal, _extends({
         show: !showAmbiguousModal && creatingIdx !== null && creatingType !== null
-      }, _underscore.default.pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser'), {
+      }, _underscore["default"].pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser'), {
         handleAliasChange: this.handleAliasChange,
         submitAlias: this.submitAlias,
         cancelCreateNewObject: this.cancelCreateNewObject,
         cancelCreatePrimaryObject: this.cancelCreatePrimaryObject
-      })), _react.default.createElement(WarningBanner, {
+      })), _react["default"].createElement(WarningBanner, {
         cancelCreatePrimaryObject: this.cancelCreatePrimaryObject
-      }, _react.default.createElement("button", {
+      }, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-danger",
         onClick: this.cancelCreatePrimaryObject
-      }, "Cancel / Exit"), _react.default.createElement(ValidationButton, _extends({}, _underscore.default.pick(this.state, 'currKey', 'keyValid', 'md5Progress', 'upload', 'roundTwo', 'processingFetch'), {
+      }, "Cancel / Exit"), _react["default"].createElement(ValidationButton, _extends({}, _underscore["default"].pick(this.state, 'currKey', 'keyValid', 'md5Progress', 'upload', 'roundTwo', 'processingFetch'), {
         testPostNewContext: this.testPostNewContext,
         finishRoundTwo: this.finishRoundTwo
-      })), _react.default.createElement(SubmitButton, _extends({}, _underscore.default.pick(this.state, 'keyValid', 'currKey', 'roundTwo', 'upload', 'processingFetch', 'md5Progress'), {
+      })), _react["default"].createElement(SubmitButton, _extends({}, _underscore["default"].pick(this.state, 'keyValid', 'currKey', 'roundTwo', 'upload', 'processingFetch', 'md5Progress'), {
         realPostNewContext: this.realPostNewContext
-      }))), _react.default.createElement(DetailTitleBanner, _extends({
+      }))), _react["default"].createElement(DetailTitleBanner, _extends({
         hierarchy: keyHierarchy,
         setSubmissionState: this.setSubmissionState,
         schemas: schemas
-      }, _underscore.default.pick(this.state, 'keyContext', 'keyTypes', 'keyDisplay', 'currKey', 'fullScreen'))), _react.default.createElement("div", {
+      }, _underscore["default"].pick(this.state, 'keyContext', 'keyTypes', 'keyDisplay', 'currKey', 'fullScreen'))), _react["default"].createElement("div", {
         className: "clearfix row"
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: navCol
-      }, _react.default.createElement(_SubmissionTree.SubmissionTree, _extends({
+      }, _react["default"].createElement(_SubmissionTree.SubmissionTree, _extends({
         setSubmissionState: this.setSubmissionState,
         hierarchy: keyHierarchy,
         schemas: schemas
-      }, _underscore.default.pick(this.state, 'keyValid', 'keyTypes', 'keyDisplay', 'keyComplete', 'currKey', 'keyLinkBookmarks', 'keyLinks', 'keyHierarchy')))), _react.default.createElement("div", {
+      }, _underscore["default"].pick(this.state, 'keyValid', 'keyTypes', 'keyDisplay', 'keyComplete', 'currKey', 'keyLinkBookmarks', 'keyLinks', 'keyHierarchy')))), _react["default"].createElement("div", {
         className: bodyCol
-      }, _react.default.createElement(IndividualObjectView, _extends({}, propsToPass, {
+      }, _react["default"].createElement(IndividualObjectView, _extends({}, propsToPass, {
         schemas: schemas,
         currType: currType,
         currContext: currContext,
@@ -1447,16 +1846,26 @@ var SubmissionView = function (_React$PureComponent) {
         modifyAlias: this.modifyAlias,
         updateUpload: this.updateUpload,
         hierarchy: keyHierarchy
-      }, _underscore.default.pick(this.state, 'keyDisplay', 'keyComplete', 'keyIter', 'currKey', 'keyContext', 'upload', 'uploadStatus', 'md5Progress', 'roundTwo', 'currentSubmittingUser'))))));
+      }, _underscore["default"].pick(this.state, 'keyDisplay', 'keyComplete', 'keyIter', 'currKey', 'keyContext', 'upload', 'uploadStatus', 'md5Progress', 'roundTwo', 'currentSubmittingUser'))))));
     }
   }]);
 
   return SubmissionView;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
+/**
+ * Generate JSX for a validation button. Disabled unless validation state == 1
+ * (when all children are complete and no errors/unsubmitted) or == 2
+ * (submitted by validation errors). If the submission is processing, render
+ * a spinner icon.
+ * When roundTwo, validation becomes Skip, which allows you to skip roundTwo
+ * submissions for an object. Disable when the is an initialized upload or the
+ * md5 is calculating.
+ */
 
-exports.default = SubmissionView;
 
-var ValidationButton = _react.default.memo(function (props) {
+exports["default"] = SubmissionView;
+
+var ValidationButton = _react["default"].memo(function (props) {
   var currKey = props.currKey,
       keyValid = props.keyValid,
       md5Progress = props.md5Progress,
@@ -1465,39 +1874,40 @@ var ValidationButton = _react.default.memo(function (props) {
       processingFetch = props.processingFetch,
       finishRoundTwo = props.finishRoundTwo,
       testPostNewContext = props.testPostNewContext;
-  var validity = keyValid[currKey];
+  var validity = keyValid[currKey]; // when roundTwo, replace the validation button with a Skip
+  // button that completes the submission process for currKey
 
   if (roundTwo) {
     if (upload === null && md5Progress === null) {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-warning",
         onClick: finishRoundTwo
       }, "Skip");
     } else {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-warning",
         disabled: true
       }, "Skip");
     }
   } else if (validity === 3 || validity === 4) {
-    return _react.default.createElement("button", {
+    return _react["default"].createElement("button", {
       type: "button",
       className: "btn btn-info",
       disabled: true
     }, "Validated");
   } else if (validity === 2) {
     if (processingFetch) {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-danger",
         disabled: true
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       }));
     } else {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-danger",
         onClick: testPostNewContext
@@ -1505,30 +1915,38 @@ var ValidationButton = _react.default.memo(function (props) {
     }
   } else if (validity === 1) {
     if (processingFetch) {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-info",
         disabled: true
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       }));
     } else {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-info",
         onClick: testPostNewContext
       }, "Validate");
     }
   } else {
-    return _react.default.createElement("button", {
+    return _react["default"].createElement("button", {
       type: "button",
       className: "btn btn-info",
       disabled: true
     }, "Validate");
   }
 });
+/**
+ * Generate JSX for the the button that allows users to submit their custom
+ * objects. Only active when validation state == 3 (validation successful).
+ *
+ * In roundTwo, there is no validation step, so only inactive when there is
+ * an active upload of md5 calculation.
+ */
 
-var SubmitButton = _react.default.memo(function (props) {
+
+var SubmitButton = _react["default"].memo(function (props) {
   var keyValid = props.keyValid,
       currKey = props.currKey,
       roundTwo = props.roundTwo,
@@ -1540,15 +1958,15 @@ var SubmitButton = _react.default.memo(function (props) {
 
   if (roundTwo) {
     if (upload !== null || processingFetch || md5Progress !== null) {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         disabled: true,
         className: "btn btn-success"
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       }));
     } else {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-success",
         onClick: realPostNewContext
@@ -1556,28 +1974,28 @@ var SubmitButton = _react.default.memo(function (props) {
     }
   } else if (validity == 3) {
     if (processingFetch) {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         disabled: true,
         className: "btn btn-success"
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       }));
     } else {
-      return _react.default.createElement("button", {
+      return _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-success",
         onClick: realPostNewContext
       }, "Submit");
     }
   } else if (validity == 4) {
-    return _react.default.createElement("button", {
+    return _react["default"].createElement("button", {
       type: "button",
       className: "btn btn-success",
       disabled: true
     }, "Submitted");
   } else {
-    return _react.default.createElement("button", {
+    return _react["default"].createElement("button", {
       type: "button",
       className: "btn btn-success",
       disabled: true
@@ -1585,32 +2003,43 @@ var SubmitButton = _react.default.memo(function (props) {
   }
 });
 
-var WarningBanner = _react.default.memo(function (props) {
+var WarningBanner = _react["default"].memo(function (props) {
   var children = props.children;
-  return _react.default.createElement("div", {
+  return _react["default"].createElement("div", {
     className: "mb-2 mt-1 text-400 warning-banner"
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement("div", {
     className: "row"
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement("div", {
     className: "col"
-  }, "Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change."), _react.default.createElement("div", {
+  }, "Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change."), _react["default"].createElement("div", {
     className: "col-md-auto"
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement("div", {
     className: "action-buttons-container text-right"
   }, children))));
 });
 
-var DetailTitleBanner = function (_React$PureComponent2) {
+var DetailTitleBanner =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(DetailTitleBanner, _React$PureComponent2);
 
   _createClass(DetailTitleBanner, null, [{
     key: "getListOfKeysInPath",
+
+    /**
+     * Traverse keyHierarchy option to get a list of hierarchical keys, e.g. 0,1,4 if are on currKey 4 that is a child of currKey 1 that is a child of currKey 0.
+     *
+     * @param {Object} hierachy - Hierarchy as defined on state of SubmissionView components.
+     * @param {number} currKey - Current key of Object/Item we're editing.
+     * @returns {number[]} List of keys leading from 0 to currKey.
+     */
     value: function getListOfKeysInPath(hierachy, currKey) {
       function findNestedKey(obj) {
         if (typeof obj[currKey] !== 'undefined') {
           return [currKey];
         } else {
-          var nestedFound = _underscore.default.find(_underscore.default.map(_underscore.default.pairs(obj), function (p) {
+          var nestedFound = _underscore["default"].find(_underscore["default"].map(_underscore["default"].pairs(obj), // p[0] = key, p[1] = child obj with keys
+          function (p) {
             return [p[0], findNestedKey(p[1])];
           }), function (p) {
             return typeof p[1] !== 'undefined' && p[1] !== null;
@@ -1631,12 +2060,13 @@ var DetailTitleBanner = function (_React$PureComponent2) {
       var foundPropertyName = null;
       var arrayIdx = null;
 
-      _underscore.default.pairs(context).forEach(function (p) {
+      _underscore["default"].pairs(context).forEach(function (p) {
         if (foundPropertyName) return;
 
         if (p[1] === nextKey) {
           foundPropertyName = p[0];
-        }
+        } // Remove value from array.
+
 
         if (Array.isArray(p[1])) {
           arrayIdx = p[1].indexOf(nextKey);
@@ -1664,7 +2094,7 @@ var DetailTitleBanner = function (_React$PureComponent2) {
 
     _this8 = _possibleConstructorReturn(this, _getPrototypeOf(DetailTitleBanner).call(this, props));
     _this8.generateCrumbTitle = _this8.generateCrumbTitle.bind(_assertThisInitialized(_this8));
-    _this8.toggleOpen = _underscore.default.throttle(_this8.toggleOpen.bind(_assertThisInitialized(_this8)), 500);
+    _this8.toggleOpen = _underscore["default"].throttle(_this8.toggleOpen.bind(_assertThisInitialized(_this8)), 500);
     _this8.generateHierarchicalTitles = _this8.generateHierarchicalTitles.bind(_assertThisInitialized(_this8));
     _this8.state = {
       'open': true
@@ -1707,7 +2137,7 @@ var DetailTitleBanner = function (_React$PureComponent2) {
         hierarchyKeyList = [numKey];
       }
 
-      var icon = i === 0 ? null : _react.default.createElement("i", {
+      var icon = i === 0 ? null : _react["default"].createElement("i", {
         className: "icon icon-fw"
       }, "\u21B5");
       var isLast = i + 1 === hierarchyKeyList.length;
@@ -1730,21 +2160,21 @@ var DetailTitleBanner = function (_React$PureComponent2) {
         }
       }
 
-      return _react.default.createElement(_Collapse.Collapse, {
-        in: true,
+      return _react["default"].createElement(_Collapse.Collapse, {
+        "in": true,
         appear: hierarchyKeyList.length !== 1,
         key: i
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "title-crumb depth-level-" + i + (isLast ? ' last-title' : ' mid-title')
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "submission-working-title"
-      }, _react.default.createElement("span", {
+      }, _react["default"].createElement("span", {
         onClick: this.handleClick.bind(this, numKey)
-      }, icon, parentPropertyName ? _react.default.createElement("span", {
+      }, icon, parentPropertyName ? _react["default"].createElement("span", {
         className: "next-property-name"
-      }, parentPropertyName, ": ") : null, _react.default.createElement("span", {
+      }, parentPropertyName, ": ") : null, _react["default"].createElement("span", {
         className: "working-subtitle"
-      }, _util.schemaTransforms.getTitleForType(keyTypes[numKey], schemas)), " ", _react.default.createElement("span", null, keyDisplay[numKey])))));
+      }, _util.schemaTransforms.getTitleForType(keyTypes[numKey], schemas)), " ", _react["default"].createElement("span", null, keyDisplay[numKey])))));
     }
   }, {
     key: "generateHierarchicalTitles",
@@ -1752,7 +2182,7 @@ var DetailTitleBanner = function (_React$PureComponent2) {
       var _this$props7 = this.props,
           hierarchy = _this$props7.hierarchy,
           currKey = _this$props7.currKey;
-      return _underscore.default.map(DetailTitleBanner.getListOfKeysInPath(hierarchy, currKey), this.generateCrumbTitle);
+      return _underscore["default"].map(DetailTitleBanner.getListOfKeysInPath(hierarchy, currKey), this.generateCrumbTitle);
     }
   }, {
     key: "render",
@@ -1762,23 +2192,27 @@ var DetailTitleBanner = function (_React$PureComponent2) {
           currKey = _this$props8.currKey;
       var open = this.state.open;
       if (fullScreen) return null;
-      return _react.default.createElement("h3", {
+      return _react["default"].createElement("h3", {
         className: "crumbs-title mb-2"
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "subtitle-heading form-section-heading mb-08"
-      }, _react.default.createElement("span", {
+      }, _react["default"].createElement("span", {
         className: "inline-block clickable",
         onClick: this.toggleOpen
-      }, "Currently Editing ", currKey > 0 ? _react.default.createElement("i", {
+      }, "Currently Editing ", currKey > 0 ? _react["default"].createElement("i", {
         className: "icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')
       }) : null)), open ? this.generateHierarchicalTitles() : this.generateCrumbTitle(currKey));
     }
   }]);
 
   return DetailTitleBanner;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
+/** TODO: DropdownButton to be v4 bootstrap compliant */
 
-var TypeSelectModal = function (_React$Component) {
+
+var TypeSelectModal =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(TypeSelectModal, _React$Component);
 
   function TypeSelectModal(props) {
@@ -1801,8 +2235,10 @@ var TypeSelectModal = function (_React$Component) {
           cancelCreateNewObject = _this$props9.cancelCreateNewObject;
 
       if (ambiguousIdx === null || ambiguousIdx === 0) {
+        // If just starting (creating first item / idx), navigate to non-edit version of page we are currently on.
         cancelCreatePrimaryObject(true);
       } else if (ambiguousIdx > 0) {
+        // Else cancel creating new object by unsetting temporary state & values.
         cancelCreateNewObject();
       }
     }
@@ -1836,24 +2272,24 @@ var TypeSelectModal = function (_React$Component) {
         ambiguousDescrip = schemas[ambiguousSelected].description;
       }
 
-      return _react.default.createElement(_reactBootstrap.Modal, {
+      return _react["default"].createElement(_reactBootstrap.Modal, {
         show: true,
         onHide: this.onHide,
         className: "submission-view-modal"
-      }, _react.default.createElement(_reactBootstrap.Modal.Header, null, _react.default.createElement(_reactBootstrap.Modal.Title, null, 'Multiple object types found for your new ' + ambiguousType)), _react.default.createElement(_reactBootstrap.Modal.Body, null, _react.default.createElement("div", {
+      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, null, 'Multiple object types found for your new ' + ambiguousType)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
         onKeyDown: this.onContainerKeyDown.bind(this, submitAmbiguousType)
-      }, _react.default.createElement("p", null, "Please select a specific object type from the menu below."), _react.default.createElement("div", {
+      }, _react["default"].createElement("p", null, "Please select a specific object type from the menu below."), _react["default"].createElement("div", {
         className: "input-wrapper mb-15"
-      }, _react.default.createElement(_DropdownButton.DropdownButton, {
+      }, _react["default"].createElement(_DropdownButton.DropdownButton, {
         id: "dropdown-type-select",
         title: ambiguousSelected || "No value"
-      }, ambiguousType !== null ? _underscore.default.map(_underscore.default.keys(itemTypeHierarchy[ambiguousType]), function (val) {
+      }, ambiguousType !== null ? _underscore["default"].map(_underscore["default"].keys(itemTypeHierarchy[ambiguousType]), function (val) {
         return buildAmbiguousEnumEntry(val);
-      }) : null)), ambiguousDescrip ? _react.default.createElement("div", {
+      }) : null)), ambiguousDescrip ? _react["default"].createElement("div", {
         className: "mb-15 mt-15"
-      }, _react.default.createElement("h5", {
+      }, _react["default"].createElement("h5", {
         className: "text-500 mb-02"
-      }, "Description"), ambiguousDescrip) : null, _react.default.createElement("button", {
+      }, "Description"), ambiguousDescrip) : null, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-primary",
         disabled: ambiguousSelected === null,
@@ -1863,9 +2299,13 @@ var TypeSelectModal = function (_React$Component) {
   }]);
 
   return TypeSelectModal;
-}(_react.default.Component);
+}(_react["default"].Component);
+/** Ordinary React Component which just inherits TypeSelectModal.onHide() */
 
-var AliasSelectModal = function (_TypeSelectModal) {
+
+var AliasSelectModal =
+/*#__PURE__*/
+function (_TypeSelectModal) {
   _inherits(AliasSelectModal, _TypeSelectModal);
 
   function AliasSelectModal() {
@@ -1887,33 +2327,33 @@ var AliasSelectModal = function (_TypeSelectModal) {
           currentSubmittingUser = _this$props11.currentSubmittingUser;
       if (!show) return null;
       var disabledBtn = creatingAlias.indexOf(':') < 0 || creatingAlias.indexOf(':') + 1 === creatingAlias.length;
-      return _react.default.createElement(_reactBootstrap.Modal, {
+      return _react["default"].createElement(_reactBootstrap.Modal, {
         show: true,
         onHide: this.onHide,
         className: "submission-view-modal"
-      }, _react.default.createElement(_reactBootstrap.Modal.Header, null, _react.default.createElement(_reactBootstrap.Modal.Title, null, "Give your new ", creatingType, " an alias")), _react.default.createElement(_reactBootstrap.Modal.Body, null, _react.default.createElement("div", {
+      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, null, "Give your new ", creatingType, " an alias")), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
         onKeyDown: this.onContainerKeyDown.bind(this, submitAlias)
-      }, _react.default.createElement("p", {
+      }, _react["default"].createElement("p", {
         className: "mt-0 mb-1"
-      }, "Aliases are lab specific identifiers to reference an object. The format is ", _react.default.createElement("code", null, '<lab-name>:<identifier>'), " - a lab name and an identifier separated by a colon, e.g. ", _react.default.createElement("code", null, "dcic-lab:42"), "."), _react.default.createElement("p", {
+      }, "Aliases are lab specific identifiers to reference an object. The format is ", _react["default"].createElement("code", null, '<lab-name>:<identifier>'), " - a lab name and an identifier separated by a colon, e.g. ", _react["default"].createElement("code", null, "dcic-lab:42"), "."), _react["default"].createElement("p", {
         className: "mt-0 mb-1"
-      }, "Please create your own alias to help you to refer to this Item later."), _react.default.createElement("div", {
+      }, "Please create your own alias to help you to refer to this Item later."), _react["default"].createElement("div", {
         className: "input-wrapper mt-2 mb-2"
-      }, _react.default.createElement(_submissionFields.AliasInputField, {
+      }, _react["default"].createElement(_submissionFields.AliasInputField, {
         value: creatingAlias,
         errorMessage: creatingAliasMessage,
         onAliasChange: handleAliasChange,
         currentSubmittingUser: currentSubmittingUser,
         withinModal: true
-      })), creatingAliasMessage ? _react.default.createElement("div", {
+      })), creatingAliasMessage ? _react["default"].createElement("div", {
         style: {
           'marginBottom': '15px',
           'color': '#7e4544',
           'fontSize': '1.2em'
         }
-      }, creatingAliasMessage) : null, _react.default.createElement("div", {
+      }, creatingAliasMessage) : null, _react["default"].createElement("div", {
         className: "text-right"
-      }, _react.default.createElement("button", {
+      }, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-primary",
         disabled: disabledBtn,
@@ -1924,8 +2364,25 @@ var AliasSelectModal = function (_TypeSelectModal) {
 
   return AliasSelectModal;
 }(TypeSelectModal);
+/**
+ * Main view for editing a specific object. This includes all non-same level
+ * linkTo object relationships and non-file upload fields.
+ * Essentially, this takes data held by the container component and passes it down
+ * to the correct BuildFields. Also interfaces with SubmissionView to change
+ * the context for this specific object and create custom and/or pre-existing
+ * objects. Render changes slightly for RoundTwo.
+ *
+ * @see SubmissionView
+ * @prop {number} currKey - Current key being edited.
+ *
+ * @todo
+ * Use _.bindAll, make sure setState is using functional updater anywhere state update may derive from other state.
+ */
 
-var IndividualObjectView = function (_React$Component2) {
+
+var IndividualObjectView =
+/*#__PURE__*/
+function (_React$Component2) {
   _inherits(IndividualObjectView, _React$Component2);
 
   function IndividualObjectView(props) {
@@ -1935,7 +2392,15 @@ var IndividualObjectView = function (_React$Component2) {
 
     _this10 = _possibleConstructorReturn(this, _getPrototypeOf(IndividualObjectView).call(this, props));
 
-    _underscore.default.bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'checkObjectRemoval', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
+    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'checkObjectRemoval', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
+    /**
+     * State in this component mostly has to do with selection of existing objs
+     *
+     * @prop {!string} selectType           Type of existing object being selected (i.e. ExperimentHiC).
+     * @prop {!string} selectField          Actual fieldname that we're selecting the existing obj for. May be nested in the case of subobjects, e.g. experiments_in_set.experiment
+     * @prop {!number[]} selectArrayIdx     List of int numbers keeping track of list positions of the object we're selecting for. Since you can have arrays within arrays, one int won't do. Example: [1,2] would mean the current field is the second item within the first item of the array given by the top level field. When null, no arrays involved.
+     */
+
 
     _this10.state = {
       'selectType': null,
@@ -1944,6 +2409,29 @@ var IndividualObjectView = function (_React$Component2) {
     };
     return _this10;
   }
+  /**
+   * Takes a field and value and modifies the keyContext held in parent.
+   * Also uses the fieldType, which is unique among BuildField children,
+   * to direct any special functionality (such as running initCreateObj for
+   * new linked objects). Also takes the linkTo field of the new context,
+   * arrayIdxs used, and object type if applicable. If field == 'aliases',
+   * change keyDisplay to reflect the new alias name.
+   *
+   * The format of field is nested to allow for subobjects. For example, for the
+   * Related experiments flag, the actual linkTo experiment is stored using the
+   * following field: experiment_relation.experiment. ArrayIdx is an array of
+   * array indeces used to reference the specific value of the field. For example,
+   * if a value is submitted for the 3rd array element inside the 2nd array element
+   * of a larger field, arrayIdx would be [1,2].
+   *
+   * @param {string} field        Name of field on parent Item for which a value is being changed.
+   * @param {any} value           New value we are setting for this field.
+   * @param {string} fieldType    Internal descriptor for field type we're editing.
+   * @param {string} newLink      Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
+   * @param {!number} arrayIdx    Index in array of value when entire value for property is an array.
+   * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
+   */
+
 
   _createClass(IndividualObjectView, [{
     key: "modifyNewContext",
@@ -1961,6 +2449,7 @@ var IndividualObjectView = function (_React$Component2) {
       }
 
       if (!field || typeof field !== 'string') {
+        // Throw error instead?
         _util.console.error.apply(_util.console, ['No field supplied'].concat(Array.prototype.slice.call(arguments)));
       }
 
@@ -1987,15 +2476,18 @@ var IndividualObjectView = function (_React$Component2) {
       }
 
       if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array') {
+        // move pointer into array
         pointer = pointer[splitFieldLeaf];
         prevValue = pointer[arrayIdx[arrayIdxPointer]];
 
         if (value === null) {
+          // delete this array item
           pointer.splice(arrayIdx[arrayIdxPointer], 1);
         } else {
           pointer[arrayIdx[arrayIdxPointer]] = value;
         }
       } else {
+        // value we're trying to set is not inside an array at this point
         prevValue = pointer[splitFieldLeaf];
         pointer[splitFieldLeaf] = value;
       }
@@ -2005,8 +2497,10 @@ var IndividualObjectView = function (_React$Component2) {
       }
 
       if (fieldType === 'new linked object') {
+        // value is new key index in this case
         this.props.initCreateObj(type, value, field, false, field);
       } else {
+        // actually change value
         this.props.modifyKeyContext(this.props.currKey, contextCopy);
       }
 
@@ -2014,6 +2508,16 @@ var IndividualObjectView = function (_React$Component2) {
         this.props.modifyAlias();
       }
     }
+    /**
+     * Use ajax to get the display_title for an existing object. Use that to kicks
+     * of the addExistingObj process; if a title can't be found, use the object
+     * path as a fallback.
+     *
+     * @param {string} value    The @ID or unique key of the Item for which we want to validate and get title for.
+     * @param {string} type     The Item type of value.
+     * @param {any} newLink     No idea what this is.
+     */
+
   }, {
     key: "fetchAndValidateItem",
     value: function fetchAndValidateItem(itemAtID, field, type, arrayIdx) {
@@ -2031,7 +2535,8 @@ var IndividualObjectView = function (_React$Component2) {
           "style": "danger"
         });
 
-        _util.layout.animateScrollTo(0);
+        _util.layout.animateScrollTo(0); // Scroll to top of page so alert b visible to end-user.
+
 
         _this11.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
       };
@@ -2052,17 +2557,20 @@ var IndividualObjectView = function (_React$Component2) {
       }
 
       if (hrefToFetch.charAt(0) !== '/') {
+        // Pre-pend slash so will request hostname + '/' + itemAtID.
         hrefToFetch = '/' + hrefToFetch;
       }
 
       _util.ajax.load(hrefToFetch, function (result) {
         if (result && result.display_title && Array.isArray(result['@type'])) {
           if (type) {
+            // Check for matching Type validity.
             if (result['@type'].indexOf(type) > -1) {
               successCallback(result);
               return;
             }
           } else {
+            // Any Item type == valid, is assumed (e.g. linkTo type Item)
             successCallback(result);
             return;
           }
@@ -2071,6 +2579,11 @@ var IndividualObjectView = function (_React$Component2) {
         failureCallback();
       }, 'GET', failureCallback);
     }
+    /**
+     * If a itemAtID is null that was previously non-null, remove the linked object
+     * from the current context and change state in SubmissionView accordingly.
+     */
+
   }, {
     key: "checkObjectRemoval",
     value: function checkObjectRemoval(value, prevValue) {
@@ -2080,6 +2593,12 @@ var IndividualObjectView = function (_React$Component2) {
         removeObj(prevValue);
       }
     }
+    /**
+     * Initializes the first search (with just type=<type>) and sets state
+     * accordingly. Set the fullScreen state in SubmissionView to alter its render
+     * and hide the object navigation tree.
+     */
+
   }, {
     key: "selectObj",
     value: function selectObj(collection, field) {
@@ -2090,6 +2609,12 @@ var IndividualObjectView = function (_React$Component2) {
         'selectType': collection
       });
     }
+    /**
+     * Callback passed to Search to select a pre-existing object. Cleans up
+     * object selection state, modifies context, and initializes the fetchAndValidateItem
+     * process.
+     */
+
   }, {
     key: "selectComplete",
     value: function selectComplete(atIds) {
@@ -2110,9 +2635,10 @@ var IndividualObjectView = function (_React$Component2) {
           var atId = _step.value;
           var current = selectField && currContext[selectField];
 
-          var isRepeat = Array.isArray(current) && _underscore.default.contains(current, atId);
+          var isRepeat = Array.isArray(current) && _underscore["default"].contains(current, atId);
 
           if (!isRepeat) {
+            //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
             this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
 
             if (isMultiSelect) {
@@ -2127,8 +2653,8 @@ var IndividualObjectView = function (_React$Component2) {
         _iteratorError = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
           }
         } finally {
           if (_didIteratorError) {
@@ -2143,6 +2669,8 @@ var IndividualObjectView = function (_React$Component2) {
         'selectType': null
       });
     }
+    /** Exit out of the selection process and clean up state */
+
   }, {
     key: "selectCancel",
     value: function selectCancel() {
@@ -2156,6 +2684,12 @@ var IndividualObjectView = function (_React$Component2) {
         'selectArrayIdx': null
       });
     }
+    /**
+     * Given a field, use the schema to generate the sufficient information to
+     * make a BuildField component for that field. Different fields are returned
+     * for roundOne and roundTwo.
+     */
+
   }, {
     key: "initiateField",
     value: function initiateField(field) {
@@ -2179,7 +2713,8 @@ var IndividualObjectView = function (_React$Component2) {
       if (roundTwo && !secondRoundField) {
         return null;
       } else if (!roundTwo && secondRoundField) {
-        return _react.default.createElement("div", {
+        // return a placeholder informing user that this field is for roundTwo
+        return _react["default"].createElement("div", {
           key: fieldTitle,
           className: "row field-row",
           required: false,
@@ -2187,15 +2722,15 @@ var IndividualObjectView = function (_React$Component2) {
           style: {
             'overflow': 'visible'
           }
-        }, _react.default.createElement("div", {
+        }, _react["default"].createElement("div", {
           className: "col-12 col-md-4"
-        }, _react.default.createElement("h5", {
+        }, _react["default"].createElement("h5", {
           className: "facet-title submission-field-title"
-        }, fieldTitle)), _react.default.createElement("div", {
+        }, fieldTitle)), _react["default"].createElement("div", {
           className: "col-12 col-md-8"
-        }, _react.default.createElement("div", {
+        }, _react["default"].createElement("div", {
           className: "field-container"
-        }, _react.default.createElement("div", {
+        }, _react["default"].createElement("div", {
           className: "notice-message"
         }, "This field is available after finishing initial submission."))));
       }
@@ -2210,18 +2745,24 @@ var IndividualObjectView = function (_React$Component2) {
           fieldValue = currContext[field] !== null ? currContext[field] : null,
           enumValues = [],
           isLinked = false,
-          linked = (0, _SubmissionTree.fieldSchemaLinkToType)(fieldSchema);
+          linked = (0, _SubmissionTree.fieldSchemaLinkToType)(fieldSchema); // check if this is an enum
+
 
       if (fieldType === 'enum') {
-        enumValues = fieldSchema.enum || fieldSchema.suggested_enum;
-      }
+        enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum;
+      } // check for linkTo if further down in object or array
+
 
       if (linked !== null) {
         linked = fieldSchema.title ? fieldSchema.title : linked;
         isLinked = true;
-      }
+      } // handle a linkTo object on the the top level
+      // check if any schema-specific adjustments need to made:
+
 
       if (fieldSchema.s3Upload && fieldSchema.s3Upload === true) {
+        // only render file upload input if status is 'uploading' or 'upload_failed'
+        // when editing a File principal object.
         var path = keyComplete[currKey],
             completeContext = keyContext[path],
             statusCheck = completeContext.status && (completeContext.status == 'uploading' || completeContext.status == 'upload failed');
@@ -2237,7 +2778,7 @@ var IndividualObjectView = function (_React$Component2) {
         }
       }
 
-      return _react.default.createElement(_submissionFields.BuildField, _extends({
+      return _react["default"].createElement(_submissionFields.BuildField, _extends({
         field: field,
         fieldType: fieldType,
         fieldTip: fieldTip,
@@ -2245,7 +2786,7 @@ var IndividualObjectView = function (_React$Component2) {
         isLinked: isLinked,
         currType: currType,
         currContext: currContext
-      }, _underscore.default.pick(this.props, 'md5Progress', 'edit', 'create', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'upload', 'uploadStatus', 'updateUpload', 'currentSubmittingUser', 'roundTwo'), {
+      }, _underscore["default"].pick(this.props, 'md5Progress', 'edit', 'create', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'upload', 'uploadStatus', 'updateUpload', 'currentSubmittingUser', 'roundTwo'), {
         value: fieldValue,
         key: field,
         schema: fieldSchema,
@@ -2255,7 +2796,7 @@ var IndividualObjectView = function (_React$Component2) {
         linkType: linked,
         disabled: false,
         arrayIdx: null,
-        required: _underscore.default.contains(currSchema.required, field),
+        required: _underscore["default"].contains(currSchema.required, field),
         modifyNewContext: this.modifyNewContext,
         selectObj: this.selectObj,
         selectComplete: this.selectComplete,
@@ -2264,6 +2805,15 @@ var IndividualObjectView = function (_React$Component2) {
         fieldBeingSelectedArrayIdx: this.state.selectArrayIdx
       }));
     }
+    /**
+     * Render the fieldPanels which contain the BuildFields for regular field and
+     * linked object fields, respectively.
+     *
+     * On round two, combine all types of BuildFields and also render a
+     * RoundTwoDetailPanel, which shows the attributes for the already submitted
+     * object.
+     */
+
   }, {
     key: "render",
     value: function render() {
@@ -2274,14 +2824,16 @@ var IndividualObjectView = function (_React$Component2) {
           currKey = _this$props13.currKey,
           schemas = _this$props13.schemas,
           roundTwo = _this$props13.roundTwo;
-      var fields = currContext ? _underscore.default.keys(currContext) : [];
-      var fieldJSXComponents = sortPropFields(_underscore.default.filter(_underscore.default.map(fields, this.initiateField), function (f) {
+      var fields = currContext ? _underscore["default"].keys(currContext) : [];
+      var fieldJSXComponents = sortPropFields(_underscore["default"].filter( // Sort fields first by requirement and secondly alphabetically. These are JSX BuildField components.
+      _underscore["default"].map(fields, this.initiateField), function (f) {
         return !!f;
-      }));
+      } // Removes falsy (e.g. null) items.
+      ));
       var roundTwoDetailContext = roundTwo && keyComplete[currKey] && keyContext[keyComplete[currKey]];
-      return _react.default.createElement("div", null, _react.default.createElement(FormFieldsContainer, {
+      return _react["default"].createElement("div", null, _react["default"].createElement(FormFieldsContainer, {
         currKey: currKey
-      }, fieldJSXComponents), roundTwo ? _react.default.createElement(RoundTwoDetailPanel, {
+      }, fieldJSXComponents), roundTwo ? _react["default"].createElement(RoundTwoDetailPanel, {
         schemas: schemas,
         context: roundTwoDetailContext,
         open: true
@@ -2290,17 +2842,17 @@ var IndividualObjectView = function (_React$Component2) {
   }]);
 
   return IndividualObjectView;
-}(_react.default.Component);
+}(_react["default"].Component);
 
-var FormFieldsContainer = _react.default.memo(function (props) {
+var FormFieldsContainer = _react["default"].memo(function (props) {
   var children = props.children,
       title = props.title;
-  if (_react.default.Children.count(children) === 0) return null;
-  return _react.default.createElement("div", {
+  if (_react["default"].Children.count(children) === 0) return null;
+  return _react["default"].createElement("div", {
     className: "form-fields-container"
-  }, _react.default.createElement("h4", {
+  }, _react["default"].createElement("h4", {
     className: "clearfix page-subtitle form-section-heading submission-field-header"
-  }, title), _react.default.createElement("div", {
+  }, title), _react["default"].createElement("div", {
     className: "form-section-body"
   }, children));
 });
@@ -2309,8 +2861,14 @@ FormFieldsContainer.defaultProps = {
   'title': 'Fields & Dependencies',
   'currKey': 0
 };
+/**
+ * Simple Component that opens/closes and renders a Detail panel using the context
+ * and schemas passed to it.
+ */
 
-var RoundTwoDetailPanel = function (_React$PureComponent3) {
+var RoundTwoDetailPanel =
+/*#__PURE__*/
+function (_React$PureComponent3) {
   _inherits(RoundTwoDetailPanel, _React$PureComponent3);
 
   function RoundTwoDetailPanel(props) {
@@ -2344,21 +2902,21 @@ var RoundTwoDetailPanel = function (_React$PureComponent3) {
           context = _this$props14.context,
           schemas = _this$props14.schemas;
       var open = this.state.open;
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "current-item-properties round-two-panel"
-      }, _react.default.createElement("h4", {
+      }, _react["default"].createElement("h4", {
         className: "clearfix page-subtitle submission-field-header"
-      }, _react.default.createElement("button", {
+      }, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-xs icon-container pull-left",
         onClick: this.handleToggle
-      }, _react.default.createElement("i", {
+      }, _react["default"].createElement("i", {
         className: "icon fas " + (open ? "icon-minus" : "icon-plus")
-      })), _react.default.createElement("span", null, "Object Attributes")), _react.default.createElement(_Collapse.Collapse, {
-        in: open
-      }, _react.default.createElement("div", {
+      })), _react["default"].createElement("span", null, "Object Attributes")), _react["default"].createElement(_Collapse.Collapse, {
+        "in": open
+      }, _react["default"].createElement("div", {
         className: "item-page-detail"
-      }, _react.default.createElement(_ItemDetailList.Detail, {
+      }, _react["default"].createElement(_ItemDetailList.Detail, {
         excludedKeys: _ItemDetailList.Detail.defaultProps.excludedKeys.concat('upload_credentials'),
         context: context,
         schemas: schemas,
@@ -2369,7 +2927,19 @@ var RoundTwoDetailPanel = function (_React$PureComponent3) {
   }]);
 
   return RoundTwoDetailPanel;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
+/***** MISC. FUNCIONS *****/
+
+/**
+ * Build context based off an object's and populate values from
+ * pre-existing context. Empty fields are given null value.
+ * All linkTo fields are added to objList.
+ * If initObjs provided (edit or clone functionality), pre-existing objs will be added.
+ * Also checks user info to see if user is admin, which affects which fields are displayed.
+ *
+ * @returns {Object} A new object represent context.
+ */
+
 
 function buildContext(context, itemSchema) {
   var objList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -2380,28 +2950,32 @@ function buildContext(context, itemSchema) {
 
   var userGroups = _util.JWT.getUserGroups();
 
-  var fields = itemSchema.properties ? _underscore.default.keys(itemSchema.properties) : [];
+  var fields = itemSchema.properties ? _underscore["default"].keys(itemSchema.properties) : [];
 
-  _underscore.default.forEach(fields, function (field) {
+  _underscore["default"].forEach(fields, function (field) {
     var fieldSchema = _util.object.getNestedProperty(itemSchema, ['properties', field], true);
 
     if (!fieldSchema) {
       return;
     }
 
-    if (fieldSchema.exclude_from && (Array.isArray(fieldSchema.exclude_from) && _underscore.default.contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from === 'FFedit-create')) {
+    if (fieldSchema.exclude_from && (Array.isArray(fieldSchema.exclude_from) && _underscore["default"].contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from === 'FFedit-create')) {
       return;
-    }
+    } // check to see if this field is a calculated prop
+
 
     if (fieldSchema.calculatedProperty && fieldSchema.calculatedProperty === true) {
       return;
-    }
+    } // check to see if permission == import items; if admin, allow import_items fields
+
 
     if (fieldSchema.permission && fieldSchema.permission == "import_items") {
-      if (!_underscore.default.contains(userGroups, 'admin')) {
+      if (!_underscore["default"].contains(userGroups, 'admin')) {
         return;
       }
-    }
+    } // set value to context value if editing/cloning.
+    // if creating or value not present, set to null
+
 
     if (edit) {
       if (context[field] === null || fieldSchema.ff_flag && fieldSchema.ff_flag === "clear edit") {
@@ -2410,6 +2984,7 @@ function buildContext(context, itemSchema) {
         built[field] = context[field] || null;
       }
     } else if (!create) {
+      //clone
       if (context[field] === null || fieldSchema.ff_flag && fieldSchema.ff_flag === "clear clone") {
         built[field] = null;
       } else {
@@ -2420,12 +2995,15 @@ function buildContext(context, itemSchema) {
     }
 
     if (objList !== null) {
-      var linkedProperty = (0, _SubmissionTree.fieldSchemaLinkToPath)(fieldSchema);
+      var linkedProperty = (0, _SubmissionTree.fieldSchemaLinkToPath)(fieldSchema); // Is it a linkTo (recursively or not)?
+
       var roundTwoExclude = fieldSchema.ff_flag && fieldSchema.ff_flag == 'second round';
 
       if (linkedProperty !== null && typeof linkedProperty !== 'undefined' && !roundTwoExclude) {
+        // If linkTo, add to our list, selecting a nice name for it first.
+        //var listTerm = fieldSchema.title ? fieldSchema.title : linked;
         var fieldToStore = field;
-        linkedProperty = _underscore.default.reject(linkedProperty, function (p) {
+        linkedProperty = _underscore["default"].reject(linkedProperty, function (p) {
           return p === 'items' || p === 'properties';
         });
 
@@ -2433,9 +3011,10 @@ function buildContext(context, itemSchema) {
           fieldToStore += '.' + linkedProperty.join('.');
         }
 
-        if (!_underscore.default.contains(objList, fieldToStore)) {
+        if (!_underscore["default"].contains(objList, fieldToStore)) {
           objList.push(fieldToStore);
-        }
+        } // add pre-existing linkTo objects
+
 
         if (initObjs !== null && built[field] !== null) {
           delvePreExistingObjects(initObjs, built[field], fieldSchema, fieldToStore);
@@ -2448,6 +3027,12 @@ function buildContext(context, itemSchema) {
 
   return built;
 }
+/**
+ * Takes an initObjs array that it will fill with data for each existing
+ * object in an edit/clone situation. json is json content for the field,
+ * schema is the individual fields schema. Recursively handles objects and arrays
+ */
+
 
 function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
   if (Array.isArray(json)) {
@@ -2458,13 +3043,14 @@ function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
     }
   } else if (json instanceof Object && json) {
     if (fieldSchema.properties) {
-      _underscore.default.keys(json).forEach(function (key) {
+      _underscore["default"].keys(json).forEach(function (key) {
         if (fieldSchema.properties[key]) {
           delvePreExistingObjects(initObjs, json[key], fieldSchema.properties[key], listTerm);
         }
       });
     }
-  } else if (_underscore.default.contains(_underscore.default.keys(fieldSchema), 'linkTo')) {
+  } else if (_underscore["default"].contains(_underscore["default"].keys(fieldSchema), 'linkTo')) {
+    // non-array, non-object field. check schema to ensure there's a linkTo
     initObjs.push({
       'path': json,
       'display': json,
@@ -2473,10 +3059,13 @@ function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
     });
   }
 }
+/** Sort a list of BuildFields first by required status, then by schema lookup order, then by title */
+
 
 function sortPropFields(fields) {
   var reqFields = [];
   var optFields = [];
+  /** Compare by schema property 'lookup' meta-property, if available. */
 
   function sortSchemaLookupFunc(a, b) {
     var aLookup = a.props.schema && a.props.schema.lookup || 750,
@@ -2484,6 +3073,7 @@ function sortPropFields(fields) {
         res;
 
     if (typeof aLookup === 'number' && typeof bLookup === 'number') {
+      //if (a.props.field === 'ch02_power_output' || b.props.field === 'ch02_power_output') console.log('X', aLookup - bLookup, a.props.field, b.props.field);
       res = aLookup - bLookup;
     }
 
@@ -2491,6 +3081,8 @@ function sortPropFields(fields) {
       return sortTitle(a, b);
     }
   }
+  /** Compare by property title, alphabetically. */
+
 
   function sortTitle(a, b) {
     if (typeof a.props.field === 'string' && typeof b.props.field === 'string') {
@@ -2501,7 +3093,7 @@ function sortPropFields(fields) {
     return 0;
   }
 
-  _underscore.default.forEach(fields, function (field) {
+  _underscore["default"].forEach(fields, function (field) {
     if (!field) return;
 
     if (field.props.required) {
@@ -2521,13 +3113,14 @@ function gatherLinkToTitlesFromContextEmbedded(context) {
 
   if (context['@id'] && context.display_title) {
     if (typeof idsToTitles[context['@id']] !== 'undefined') {
+      // Seen already
       return;
     }
 
     idsToTitles[context['@id']] = context.display_title;
   }
 
-  _underscore.default.values(context).forEach(function (value) {
+  _underscore["default"].values(context).forEach(function (value) {
     if (Array.isArray(value)) {
       value.forEach(function (arrItem) {
         if (!Array.isArray(arrItem) && arrItem && _typeof(arrItem) === 'object') {
@@ -2541,9 +3134,15 @@ function gatherLinkToTitlesFromContextEmbedded(context) {
 
   return idsToTitles;
 }
+/**
+ * Given the parent object key and a new object key, return a version
+ * of this.state.keyHierarchy that includes the new parent-child relation.
+ * Recursive function
+ */
+
 
 var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
-  _underscore.default.keys(hierarchy).forEach(function (key) {
+  _underscore["default"].keys(hierarchy).forEach(function (key) {
     if (key == parentKeyIdx) {
       hierarchy[parentKeyIdx][keyIdx] = {};
     } else {
@@ -2553,24 +3152,31 @@ var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
 
   return hierarchy;
 };
+/** Remove given key from hierarchy. Recursive function. */
+
 
 var trimHierarchy = function myself(hierarchy, keyIdx) {
   if (hierarchy[keyIdx]) {
     delete hierarchy[keyIdx];
   } else {
-    _underscore.default.keys(hierarchy).forEach(function (key) {
+    _underscore["default"].keys(hierarchy).forEach(function (key) {
       hierarchy[key] = myself(hierarchy[key], keyIdx);
     });
   }
 
   return hierarchy;
 };
+/**
+ * Returns the entire hierarchy below for the given keyIdx. keyIdx must be a
+ * number (custom object). Recursive function.
+ */
+
 
 var searchHierarchy = function myself(hierarchy, keyIdx) {
   if (!hierarchy) return null;
   var found_hierarchy = null;
 
-  _underscore.default.keys(hierarchy).forEach(function (key) {
+  _underscore["default"].keys(hierarchy).forEach(function (key) {
     if (key == keyIdx) {
       found_hierarchy = hierarchy[key];
     } else {
@@ -2584,12 +3190,14 @@ var searchHierarchy = function myself(hierarchy, keyIdx) {
 
   return found_hierarchy;
 };
+/** Finds the key of direct parent for a given key in a hierarchy */
+
 
 var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
   if (isNaN(keyIdx) || !hierarchy) return null;
   var found_parent = null;
 
-  _underscore.default.keys(hierarchy).forEach(function (key) {
+  _underscore["default"].keys(hierarchy).forEach(function (key) {
     if (keyIdx in hierarchy[key]) {
       found_parent = key;
     } else {
@@ -2600,11 +3208,13 @@ var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
 
   return found_parent;
 };
+/** Replace a key with a different key in the hierarchy */
+
 
 var replaceInHierarchy = function myself(hierarchy, current, toReplace) {
   if (typeof current === 'number') current = current + '';
 
-  _underscore.default.keys(hierarchy).forEach(function (key) {
+  _underscore["default"].keys(hierarchy).forEach(function (key) {
     if (key === current) {
       var downstream = hierarchy[key];
       hierarchy[toReplace] = downstream;
@@ -2616,28 +3226,39 @@ var replaceInHierarchy = function myself(hierarchy, current, toReplace) {
 
   return hierarchy;
 };
+/** Return a list of all keys contained within a given hierarchy */
+
 
 var flattenHierarchy = function myself(hierarchy) {
   var found_keys = [];
 
-  _underscore.default.keys(hierarchy).forEach(function (key) {
+  _underscore["default"].keys(hierarchy).forEach(function (key) {
     if (!isNaN(key)) key = parseInt(key);
     var sub_keys = myself(hierarchy[key]);
-    found_keys = _underscore.default.union(found_keys, sub_keys, [key]);
+    found_keys = _underscore["default"].union(found_keys, sub_keys, [key]);
   });
 
   return found_keys;
 };
+/**
+ * Remove any field with a null value from given json context.
+ * also remove empty arrays and objects
+ *
+ * @param {Object} context - Object representing an Item, with properties & values.
+ * @returns {Object} The same context which was passed in, minus null-y values.
+ */
+
 
 function removeNulls(context) {
-  _underscore.default.keys(context).forEach(function (key) {
+  _underscore["default"].keys(context).forEach(function (key) {
     if ((0, _submissionFields.isValueNull)(context[key])) {
       delete context[key];
     } else if (Array.isArray(context[key])) {
-      context[key] = _underscore.default.filter(context[key], function (v) {
+      context[key] = _underscore["default"].filter(context[key], function (v) {
         return !(0, _submissionFields.isValueNull)(v);
-      });
-      context[key] = _underscore.default.map(context[key], function (v) {
+      }); // Recurse for any objects
+
+      context[key] = _underscore["default"].map(context[key], function (v) {
         return v && _typeof(v) === 'object' ? removeNulls(v) : v;
       });
     } else if (context[key] instanceof Object) {

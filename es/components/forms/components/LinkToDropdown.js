@@ -43,7 +43,9 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var LinkToDropdown = function (_React$PureComponent) {
+var LinkToDropdown =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(LinkToDropdown, _React$PureComponent);
 
   function LinkToDropdown(props) {
@@ -68,6 +70,8 @@ var LinkToDropdown = function (_React$PureComponent) {
   _createClass(LinkToDropdown, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      // Todo, call from componentDidUpdate if session has changed
+      // _IF_ is possible this is needed (e.g. anonymous users could select things)
       this.loadViableOptions();
     }
   }, {
@@ -204,7 +208,7 @@ var LinkToDropdown = function (_React$PureComponent) {
                         val = _step$value[1];
 
                     this.searchCache["delete"](key);
-                    break;
+                    break; // Just need to delete first (oldest) val.
                   }
                 } catch (err) {
                   _didIteratorError = true;
@@ -282,6 +286,15 @@ _defineProperty(LinkToDropdown, "defaultProps", {
   'searchURL': "/search/?type=Project",
   'selectedID': null,
   'selectedTitle': null,
+
+  /**
+   * Example function to use.
+   * Once selected, selectedTitle and selectedID should be passed back down to
+   * this component.
+   *
+   * @param {*} itemID - The "@id" of selected item.
+   * @param {*} itemJson - JSON/context of selected item. Will only contain limited subset of fields, e.g. type and title.
+   */
   'onSelect': function onSelect(itemID, itemJson) {
     _util.console.info("Selected!", itemID, itemJson);
   }

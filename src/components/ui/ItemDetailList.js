@@ -765,12 +765,14 @@ export class Detail extends React.PureComponent {
         'columnDefinitions' : PropTypes.object
     };
 
+    /** For the most part, these are 4DN-specific and overriden as needed in CGAP portal. */
     static defaultProps = {
         'excludedKeys' : [
             '@context', 'actions', 'principals_allowed',
             // Visible elsewhere on page
             'lab', 'award', 'description',
-            '@id', 'display_title'
+            '@id', 'display_title',
+            'aggregated-items'
         ],
         'stickyKeys' : [
             'display_title', 'title',
@@ -800,7 +802,16 @@ export class Detail extends React.PureComponent {
             'aliases',
         ],
         'alwaysCollapsibleKeys' : [
-            '@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'dbxrefs', 'status', 'external_references', 'date_created'
+            '@type',
+            'accession',
+            'schema_version',
+            'uuid',
+            'replicate_exps',
+            'dbxrefs',
+            'status',
+            'external_references',
+            'date_created',
+            'validation-errors'
         ],
         'open' : null,
         'columnDefinitionMap' : {

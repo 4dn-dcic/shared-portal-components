@@ -45,9 +45,20 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SortController = function (_React$PureComponent) {
+var SortController =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(SortController, _React$PureComponent);
 
+  /**
+   * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
+   *
+   * @static
+   * @param {string} href - Current page href, with query.
+   * @returns {Object} { 'page' : int, 'limit' : int }
+   *
+   * @memberof SortController
+   */
   function SortController(props) {
     var _this;
 
@@ -57,7 +68,8 @@ var SortController = function (_React$PureComponent) {
     _this.sortBy = _this.sortBy.bind(_assertThisInitialized(_this));
     _this.state = {
       'changingPage': false
-    };
+    }; // 'changingPage' = historical name, analogous of 'loading'
+
     return _this;
   }
 
@@ -93,7 +105,10 @@ var SortController = function (_React$PureComponent) {
           'replace': true
         }, function () {
           _this2.setState({
-            'changingPage': false
+            //'sortColumn' : key,
+            //'sortReverse' : reverse,
+            'changingPage': false //'page' : 1
+
           });
         });
       });
@@ -108,7 +123,8 @@ var SortController = function (_React$PureComponent) {
 
       var _SortController$getSo = SortController.getSortColumnAndReverseFromContext(context),
           sortColumn = _SortController$getSo.sortColumn,
-          sortReverse = _SortController$getSo.sortReverse;
+          sortReverse = _SortController$getSo.sortReverse; // The below `page` and `limit` aren't used any longer (I think).
+
 
       var _SortController$getPa = SortController.getPageAndLimitFromURL(href),
           page = _SortController$getPa.page,
@@ -172,6 +188,8 @@ _defineProperty(SortController, "getSortColumnAndReverseFromContext", (0, _memoi
   var sortKey = _underscore["default"].keys(context.sort);
 
   if (sortKey.length > 0) {
+    // Use first if multiple.
+    // eslint-disable-next-line prefer-destructuring
     sortKey = sortKey[0];
   } else {
     return defaults;

@@ -37,7 +37,9 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SearchResultDetailPane = function (_React$PureComponent) {
+var SearchResultDetailPane =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(SearchResultDetailPane, _React$PureComponent);
 
   function SearchResultDetailPane() {
@@ -67,7 +69,8 @@ var SearchResultDetailPane = function (_React$PureComponent) {
         className: "flex-description-container"
       }, _react["default"].createElement("h5", null, _react["default"].createElement("i", {
         className: "icon icon-fw icon-align-left fas"
-      }), "\xA0 Description"), _react["default"].createElement(_FlexibleDescriptionBox.FlexibleDescriptionBox, {
+      }), "\xA0 Description"), _react["default"].createElement(_FlexibleDescriptionBox.FlexibleDescriptionBox //windowWidth={this.props.windowWidth}
+      , {
         description: result.description,
         fitTo: "self",
         textClassName: "text-normal",
@@ -102,5 +105,6 @@ _defineProperty(SearchResultDetailPane, "propTypes", {
     'description': _propTypes["default"].string
   }),
   'popLink': _propTypes["default"].bool,
-  'schemas': _propTypes["default"].object
+  'schemas': _propTypes["default"].object //'windowWidth' : PropTypes.number.isRequired
+
 });

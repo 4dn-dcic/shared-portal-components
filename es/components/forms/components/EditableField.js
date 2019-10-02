@@ -39,7 +39,20 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var EditableField = function (_React$Component) {
+/** TODO 1 of refactor out / get rid of / fix */
+
+/**
+ * Display a field which may be edited & saved to server.
+ * Currently can only be used on pages/views which have a context, i.e. JSON graph/output
+ * from server, and only edit fields in that context.
+ *
+ * @todo: Refactor, a lot. Pass in editing boolean prop instead of reading from parent state.
+ *
+ * @see EditableField.propTypes for more info of props to provide.
+ */
+var EditableField =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(EditableField, _React$Component);
 
   function EditableField(props) {
@@ -69,27 +82,38 @@ var EditableField = function (_React$Component) {
     var initialValue = null;
 
     try {
-      initialValue = _util.object.getNestedProperty(props.context, props.labelID);
+      initialValue = _util.object.getNestedProperty(props.context, props.labelID); // Returns undefined if doesn't exist in context
     } catch (e) {
       _util.console.error(e);
     }
 
     _this.state = {
       'value': initialValue || null,
+      // Changes on input field change
       'savedValue': initialValue || null,
+      // Changes only on sync w/ server.
       'valueExistsOnObj': typeof initialValue !== 'undefined',
+      // If undefined then field doesn't exist on props.context
       'validationPattern': props.pattern || _this.validationPattern(),
       'required': props.required || _this.isRequired(),
       'valid': null,
+      // Must distinguish between true, false, and null.
       'serverErrors': [],
+      // Validation state sent from server.
       'serverErrorsMessage': null,
       'loading': false,
+      // True if in middle of save or fetch request.
       'dispatching': false,
+      // True if dispatching to Redux store.
       'leanTo': null,
-      'leanOffset': 0
+      // Re: inline style
+      'leanOffset': 0 // Re: inline style
+
     };
-    _this.fieldRef = _react["default"].createRef();
-    _this.inputElementRef = _react["default"].createRef();
+    _this.fieldRef = _react["default"].createRef(); // Field container element
+
+    _this.inputElementRef = _react["default"].createRef(); // Input element
+
     return _this;
   }
 
@@ -124,29 +148,33 @@ var EditableField = function (_React$Component) {
     key: "componentWillReceiveProps",
     value: function componentWillReceiveProps(newProps) {
       var newState = {},
-          stateChangeCallback = null;
+          stateChangeCallback = null; // Reset value/savedValue if props.context or props.labelID changes for some reason.
 
       if (!this.state.dispatching && (this.props.context !== newProps.context || this.props.labelID !== newProps.labelID)) {
         var newVal = _util.object.getNestedProperty(newProps.context, this.props.labelID, true);
 
         newState.savedValue = newState.value = newVal || null;
         newState.valueExistsOnObj = typeof newVal !== 'undefined';
-      }
+      } // Update state.validationPattern && state.isRequired if this.props.schemas becomes available
+      // (loaded via ajax by app.js) or from props if is provided.
+
 
       if (newProps.schemas !== this.props.schemas || newProps.pattern !== this.props.pattern || newProps.required !== this.props.required) {
         newState.validationPattern = newProps.pattern || this.validationPattern(newProps.schemas);
-        newState.required = newProps.required || this.isRequired(newProps.schemas);
+        newState.required = newProps.required || this.isRequired(newProps.schemas); // Also, update state.valid if in editing mode
 
         if (this.props.parent.state && this.props.parent.state.currentlyEditing && this.inputElementRef.current) {
           stateChangeCallback = this.handleChange;
         }
-      }
+      } // Apply state edits, if any
+
 
       if (_underscore["default"].keys(newState).length > 0) this.setState(newState, stateChangeCallback);
     }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(oldProps, oldState) {
+      // If state change but not onChange event -- e.g. change to/from editing state
       if (oldState.value === this.state.value && oldState.loading === this.state.loading && oldState.dispatching === this.state.dispatching && oldState.savedValue === this.state.savedValue) {
         if (this.justUpdatedLayout) {
           this.justUpdatedLayout = false;
@@ -182,6 +210,8 @@ var EditableField = function (_React$Component) {
           savedValue = this.state.savedValue;
       return _typeof(context) === 'object' && !_underscore["default"].isEmpty(context) && typeof savedValue !== 'undefined' && savedValue !== null && savedValue !== '';
     }
+    /** Check if field is required based on schemas. */
+
   }, {
     key: "isRequired",
     value: function isRequired() {
@@ -208,16 +238,29 @@ var EditableField = function (_React$Component) {
 
       return true;
     }
+    /** Return the schema for the provided props.labelID and (props.objectType or props.context['@type'][0]) */
+
   }, {
     key: "fieldSchema",
     value: function fieldSchema() {
       var schemas = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props.schemas;
+      // We do not handle nested, linked or embedded properties for now.
       if (!this.props.labelID || this.props.labelID.indexOf('.') > -1) return null;
-      if (schemas === null) return null;
+      if (schemas === null) return null; // We don't know what type of schema to get w/o objecttype.
+
       var objectType = this.objectType();
       if (!objectType) return null;
       return _util.object.getNestedProperty(schemas, [objectType, 'properties', this.props.labelID], true) || null;
     }
+    /**
+     * Get a validation pattern to check input against for text(-like) fields.
+     * Try to get from this.props.schemas based on object type (User, ExperimentHIC, etc.) and props.labelID.
+     * Defaults to generic per-fieldType validation pattern if available and pattern not set schemas, or null if not applicable.
+     *
+     * @todo Maybe move part of this to util/Schemas.js
+     * @return {RegExp|null} Pattern to input validate against.
+     */
+
   }, {
     key: "validationPattern",
     value: function validationPattern() {
@@ -230,16 +273,20 @@ var EditableField = function (_React$Component) {
           debug = _this$props.debug;
 
       var schemaDerivedPattern = function getPatternFromSchema() {
+        // TODO: Maybe move to util/Schemas.js
+        // We do not handle nested, linked or embedded properties for now.
         if (!schemas || !labelID || labelID.indexOf('.') > -1) return null;
 
         var fieldSchema = _this2.fieldSchema(schemas);
 
-        if (!fieldSchema || typeof fieldSchema.pattern === 'undefined') return null;
+        if (!fieldSchema || typeof fieldSchema.pattern === 'undefined') return null; // No pattern set.
+
         if (debug) _util.console.info('Obtained EditableField validationPattern from schema (' + [_this2.objectType(), 'properties', labelID].join('.') + ')');
         return fieldSchema.pattern;
       }();
 
-      if (schemaDerivedPattern) return schemaDerivedPattern;
+      if (schemaDerivedPattern) return schemaDerivedPattern; // Fallback to generic pattern, if applicable for props.fieldType.
+
       if (fieldType === 'phone') return _util.object.itemUtil.User.localRegexValidation.phone;else if (fieldType === 'email') return _util.object.itemUtil.User.localRegexValidation.email;else return null;
     }
   }, {
@@ -251,9 +298,11 @@ var EditableField = function (_React$Component) {
           valid = _this$state.valid,
           validationMessage = _this$state.validationMessage,
           serverErrors = _this$state.serverErrors,
-          serverErrorsMessage = _this$state.serverErrorsMessage;
+          serverErrorsMessage = _this$state.serverErrorsMessage; //if (this.isValid(true)) return null;
+      // ^ Hide via CSS instead.
 
       if (required && valid === false && validationMessage) {
+        // Some validationMessages provided by browser don't give much info, so use it selectively (if at all).
         return _react["default"].createElement("div", {
           className: "invalid-feedback"
         }, validationMessage);
@@ -303,6 +352,7 @@ var EditableField = function (_React$Component) {
       _util.console.log("TTT", onSave);
 
       var errorFallback = function (res) {
+        // ToDo display (bigger?) errors
         _util.console.error("Error: ", res);
 
         _this3.setState({
@@ -321,6 +371,7 @@ var EditableField = function (_React$Component) {
         var patchData = null;
 
         if (value === '') {
+          // Send delete fields request instd of normal patch
           ajaxEndpoint += '&delete_fields=' + labelID;
           patchData = _util.object.generateSparseNestedProperty(labelID, undefined);
         } else {
@@ -364,6 +415,7 @@ var EditableField = function (_React$Component) {
               }
             });
           } else {
+            // Couldn't insert into current context, refetch from server :s.
             _util.console.warn("Couldn't update current context, fetching from server.");
 
             (0, _util.navigate)('', {
@@ -412,6 +464,7 @@ var EditableField = function (_React$Component) {
       e.preventDefault();
 
       if (!this.isValid()) {
+        // ToDo : Bigger notification to end user that something is wrong.
         _util.console.error("Cannot save " + this.props.labelID + "; value is not valid:", this.state.value);
 
         return;
@@ -420,15 +473,19 @@ var EditableField = function (_React$Component) {
       }
 
       this.save(function () {
+        // Success callback
         _util.console.info("Saved " + _this4.props.labelID + " : " + _this4.state.savedValue);
       });
     }
+    /** Update state.value on each keystroke/input and check validity. */
+
   }, {
     key: "handleChange",
     value: function handleChange(e) {
       var inputElement = e && e.target ? e.target : this.inputElementRef.current;
       var state = {
-        'value': inputElement.value
+        'value': inputElement.value // ToDo: change to (inputElement.value === '' ? null : inputElement.value)  and enable to process it on backend.
+
       };
 
       if (inputElement.validity) {
@@ -439,12 +496,14 @@ var EditableField = function (_React$Component) {
 
       if (inputElement.validationMessage) {
         state.validationMessage = inputElement.validationMessage;
-      }
+      } // Reset serverErrors if any
+
 
       if (this.state.serverErrors && this.state.serverErrors.length > 0) {
         state.serverErrors = [];
         state.serverErrorsMessage = null;
-      }
+      } // ToDo : cross-browser validation check + set error state then use for styling, etc.
+
 
       this.setState(state);
     }
@@ -472,7 +531,8 @@ var EditableField = function (_React$Component) {
       switch (type) {
         case 'edit':
           if (this.props.disabled) {
-            if (!this.props.info) return null;
+            if (!this.props.info) return null; // ToDo info popup or tooltip
+
             return _react["default"].createElement("span", {
               className: extClass + " edit-button info disabled"
             }, _react["default"].createElement("i", {
@@ -568,9 +628,12 @@ var EditableField = function (_React$Component) {
         }, this.renderSavedValue());
       }
     }
+    /** Render an input field; for usage in this.renderEditing() */
+
   }, {
     key: "inputField",
     value: function inputField() {
+      // ToDo : Select boxes, radios, checkboxes, etc.
       var commonProps = {
         'id': this.props.labelID,
         'required': this.state.required,
@@ -622,10 +685,13 @@ var EditableField = function (_React$Component) {
             type: "text",
             inputMode: "latin"
           }, commonPropsTextInput)), this.validationFeedbackMessage());
-      }
+      } // Fallback (?)
+
 
       return _react["default"].createElement("span", null, "No edit field created yet.");
     }
+    /** Render 'in edit state' view */
+
   }, {
     key: "renderEditing",
     value: function renderEditing() {
@@ -684,6 +750,7 @@ var EditableField = function (_React$Component) {
     key: "render",
     value: function render() {
       if (this.props.disabled && !this.state.valueExistsOnObj && !this.props.forceVisible) {
+        // Field is empty (not returned in object) & not allowed to be edited, so assume end-user doesn't have permission to view.
         return null;
       }
 
@@ -697,6 +764,18 @@ var EditableField = function (_React$Component) {
 
   return EditableField;
 }(_react["default"].Component);
+/**
+ * FieldSet allows to group EditableFields together.
+ * Will apply pass props to all child EditableFields which it wraps, including
+ * context (JSON graph/output from server) and parent, if any.
+ * Can also act as host of state.currentlyEditing (== props.labelID of
+ * current EditableField being edited, if any) if props.parent is not supplied.
+ *
+ * @todo is not reactful, maybe refactor
+ *
+ * @see EditableField
+ */
+
 
 exports.EditableField = EditableField;
 
@@ -705,20 +784,34 @@ _defineProperty(EditableField, "displayName", 'EditableField');
 _defineProperty(EditableField, "propTypes", {
   label: _propTypes["default"].string,
   labelID: _propTypes["default"].string,
+  // Property in context to be edited. Allows dot notation for nested values.
   parent: _propTypes["default"].any,
+  // Holds 'currentlyEditing' state (== labelID of field being edited.)
   fallbackText: _propTypes["default"].string,
+  // Fallback text to display when no value is set/available.
   context: _propTypes["default"].object,
+  // ToDo : validate context obj has property labelID.
   endpoint: _propTypes["default"].string,
+  // Endpoint to PATCH update to. Defaults to props.context['@id'] if not set.
   fieldType: _propTypes["default"].string,
+  // Type of field, used for rendering of input element & validation.
   style: _propTypes["default"].string,
+  // Markup style, e.g. render row with label (default), minimal (just input field w/ buttons).
   inputSize: _propTypes["default"].oneOf(['sm', 'md', 'lg']),
+  // Size of Bootstrap input field to use. Defaults to sm.
   children: _propTypes["default"].any,
+  // Rendered value of field, use custom formatting on a per-field basis. ToDo : create fallback.
   placeholder: _propTypes["default"].string,
   objectType: _propTypes["default"].string,
+  // Class name of object being edited, e.g. User, Biosource, AccessKey, etc. for schema-based validation.
   pattern: _propTypes["default"].any,
+  // Optional pattern to use in lieu of one derived from schema or default field pattern.
+  // If set to false, will skip (default or schema-based) validation.
   required: _propTypes["default"].bool,
+  // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
   schemas: _propTypes["default"].object.isRequired,
-  debug: _propTypes["default"].bool
+  debug: _propTypes["default"].bool // Verbose lifecycle log messages.
+
 });
 
 _defineProperty(EditableField, "defaultProps", {
@@ -737,7 +830,9 @@ _defineProperty(EditableField, "defaultProps", {
   }
 });
 
-var FieldSet = function (_React$PureComponent) {
+var FieldSet =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(FieldSet, _React$PureComponent);
 
   function FieldSet(props) {
@@ -769,7 +864,8 @@ var FieldSet = function (_React$PureComponent) {
           context = _this$props4.context,
           parent = _this$props4.parent,
           windowWidth = _this$props4.windowWidth,
-          onSave = _this$props4.onSave;
+          onSave = _this$props4.onSave; // Add shared props to children EditableField elements.
+
       return _react["default"].Children.map(children, function (child) {
         if (child.type && child.type.displayName === 'EditableField') {
           var newProps = {};
@@ -781,7 +877,8 @@ var FieldSet = function (_React$PureComponent) {
           if (!child.props.schemas && schemas) newProps.schemas = schemas;
           if (onSave) newProps.onSave = onSave;
           if (typeof child.props.disabled === 'undefined' && typeof disabled === 'boolean') newProps.disabled = disabled;
-          if (inputSize) newProps.inputSize = inputSize;
+          if (inputSize) newProps.inputSize = inputSize; // Overwrite, since EditableField has default props.
+
           if (style) newProps.style = style;
           if (absoluteBox) newProps.absoluteBox = absoluteBox;
           if (windowWidth) newProps.windowWidth = windowWidth;
@@ -801,7 +898,8 @@ var FieldSet = function (_React$PureComponent) {
           parent = _this$props5.parent,
           children = _this$props5.children,
           stateHolder = parent || this,
-          childIDs = FieldSet.extractChildrenIds(children);
+          childIDs = FieldSet.extractChildrenIds(children); // Fallback to using self as state holder.
+
       return (className ? className + ' ' : '') + "editable-fields fieldset" + (style ? ' ' + style : '') + (inputSize ? ' size-' + inputSize : '') + (stateHolder.state && stateHolder.state.currentlyEditing && childIDs.indexOf(stateHolder.state.currentlyEditing) > -1 ? ' editing' : '');
     }
   }, {
@@ -826,18 +924,30 @@ exports.FieldSet = FieldSet;
 
 _defineProperty(FieldSet, "propTypes", {
   children: _propTypes["default"].node,
+  // Inner fieldset content, should have at least 1 EditableField, probably more.
   context: _propTypes["default"].object,
+  // JSON graph/output from server representing page data. Passed to child EditableFields.
   endpoint: _propTypes["default"].string,
+  // Override context['@id'] (if doesn't exist, dif endpoint, etc.)
   inputSize: _propTypes["default"].oneOf(['sm', 'md', 'lg']),
   style: _propTypes["default"].oneOf(['row', 'minimal', 'inline']),
+
+  /**
+   * Pass a parent React component, i.e. supply 'this' from a parent's render method,
+   * to have it act as host of state.currentlyEditing. Use when there are other EditableFields
+   * available on view/page which act on same props.context but not all within this FieldSet.
+   */
   parent: _propTypes["default"].any,
   className: _propTypes["default"].string,
+  // Additional className to prepend.
   schemas: _propTypes["default"].object,
+  // Schemas to use for validation. If not provided, EditableField attempts to get from context
   onSave: _propTypes["default"].func
 });
 
 _defineProperty(FieldSet, "defaultProps", {
   'parent': null,
+  // if null, use own state
   'context': {},
   'className': null,
   'endpoint': null,

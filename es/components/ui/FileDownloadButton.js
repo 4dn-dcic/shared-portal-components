@@ -22,6 +22,11 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+/*****************************
+ ** Common React Components **
+ *****************************/
+
+/** @todo (?) Move to ui folder */
 function FileDownloadButton(props) {
   var href = props.href,
       className = props.className,
@@ -100,7 +105,8 @@ var ViewFileButton = _react["default"].memo(function (props) {
       bsStyle = props.bsStyle,
       variant = props.variant;
   var action = 'View';
-  var extLink = null;
+  var extLink = null; // Unsure if really used. Maybe should test href for presence of http[s]:// instd of target="_blank"?
+
   var preLink = null;
   preLink = _react["default"].createElement("i", {
     className: "icon icon-fw icon-cloud-download-alt fas"

@@ -15,6 +15,7 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
+/** Emulates React-Bootstrap 0.32.4 Checkbox for backwards compatibility */
 var Checkbox = _react["default"].memo(function (props) {
   var className = props.className,
       children = props.children,

@@ -50,7 +50,7 @@ var _SortController = require("./components/SortController");
 
 var _typedefs = require("./../util/typedefs");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -86,7 +86,18 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SearchControllersContainer = function (_React$PureComponent) {
+/**
+ * Provides callbacks for FacetList to filter on term click and check if a term is selected by interfacing with the
+ * `href` prop and the `navigate` callback prop or fxn (usually utils/navigate.js).
+ *
+ * Manages and updates `state.defaultHiddenColumns`, which in turn resets CustomColumnController state with new columns,
+ * if search type has changed.
+ *
+ * Passes other props down to ControlsAndResults.
+ */
+var SearchControllersContainer =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(SearchControllersContainer, _React$PureComponent);
 
   function SearchControllersContainer(props) {
@@ -117,9 +128,9 @@ var SearchControllersContainer = function (_React$PureComponent) {
     value: function render() {
       var context = this.props.context;
       var defaultHiddenColumns = (0, _tableCommons.defaultHiddenColumnMapFromColumns)(context.columns);
-      return _react.default.createElement(_CustomColumnController.CustomColumnController, {
+      return _react["default"].createElement(_CustomColumnController.CustomColumnController, {
         defaultHiddenColumns: defaultHiddenColumns
-      }, _react.default.createElement(_SortController.SortController, _underscore.default.pick(this.props, 'href', 'context', 'navigate'), _react.default.createElement(ControlsAndResults, _extends({}, this.props, {
+      }, _react["default"].createElement(_SortController.SortController, _underscore["default"].pick(this.props, 'href', 'context', 'navigate'), _react["default"].createElement(ControlsAndResults, _extends({}, this.props, {
         isTermSelected: this.isTermSelected,
         onFilter: this.onFilter
       }))));
@@ -127,7 +138,7 @@ var SearchControllersContainer = function (_React$PureComponent) {
   }]);
 
   return SearchControllersContainer;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.SearchControllersContainer = SearchControllersContainer;
 
@@ -135,9 +146,18 @@ _defineProperty(SearchControllersContainer, "defaultProps", {
   'navigate': _navigate.navigate
 });
 
-var ControlsAndResults = function (_React$PureComponent2) {
+var ControlsAndResults =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(ControlsAndResults, _React$PureComponent2);
 
+  /**
+   * Parses out the specific item type from `props.href` and finds the abstract item type, if any.
+   *
+   * @param {Object} props Component props.
+   * @returns {{ specificType: string, abstractType: string }} The leaf specific Item type and parent abstract type (before 'Item' in `@type` array) as strings in an object.
+   * Ex: `{ abstractType: null, specificType: "Item" }`, `{ abstractType: "Experiment", specificType: "ExperimentHiC" }`
+   */
   function ControlsAndResults(props) {
     var _this2;
 
@@ -153,9 +173,14 @@ var ControlsAndResults = function (_React$PureComponent2) {
     _this2.state = {
       selectedItems: new Map()
     };
-    _this2.searchResultTableRef = _react.default.createRef();
+    _this2.searchResultTableRef = _react["default"].createRef();
     return _this2;
   }
+  /**
+   * This function add/or removes the selected item into an Map in state,
+   * if `props.currentAction` is set to "multiselect" or "selection".
+   */
+
 
   _createClass(ControlsAndResults, [{
     key: "handleSelectItemClick",
@@ -167,7 +192,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
         var resultID = _object.itemUtil.atId(result);
 
         if (nextItems.has(resultID)) {
-          nextItems.delete(resultID);
+          nextItems["delete"](resultID);
         } else {
           if (!isMultiSelect) {
             nextItems.clear();
@@ -181,6 +206,10 @@ var ControlsAndResults = function (_React$PureComponent2) {
         };
       });
     }
+    /**
+     * This function sends selected items to parent window for if `props.currentAction` is set to "multiselect" or "singleselect".
+     */
+
   }, {
     key: "handleSelectItemCompleteClick",
     value: function handleSelectItemCompleteClick() {
@@ -206,8 +235,8 @@ var ControlsAndResults = function (_React$PureComponent2) {
         _iteratorError = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
           }
         } finally {
           if (_didIteratorError) {
@@ -218,6 +247,10 @@ var ControlsAndResults = function (_React$PureComponent2) {
 
       this.sendDataToParentWindow(itemsWrappedWithID);
     }
+    /**
+     * This function cancels the selection if `props.currentAction` is set to "multiselect".
+     */
+
   }, {
     key: "handleSelectCancelClick",
     value: function handleSelectCancelClick() {
@@ -229,11 +262,18 @@ var ControlsAndResults = function (_React$PureComponent2) {
         }
       }
 
-      window.dispatchEvent(new Event('fourfrontcancelclick'));
+      window.dispatchEvent(new Event('fourfrontcancelclick')); // CURRENT: If we have parent window, post a message to it as well.
+
       if (window.opener) window.opener.postMessage({
         'eventType': 'fourfrontcancelclick'
       }, '*');
     }
+    /**
+     * Utility function to post message to parent window
+     * @param {Array} selectedItems: array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
+     * set selectedItems as empty array ([]) to close child window
+     */
+
   }, {
     key: "sendDataToParentWindow",
     value: function sendDataToParentWindow(itemsListWrappedWithID) {
@@ -244,11 +284,12 @@ var ControlsAndResults = function (_React$PureComponent2) {
       var eventJSON = {
         'items': itemsListWrappedWithID,
         'eventType': 'fourfrontselectionclick'
-      };
+      }; // Standard - postMessage
 
       try {
         window.opener.postMessage(eventJSON, '*');
       } catch (err) {
+        // Check for presence of parent window and alert if non-existent.
         if (!(typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window)) {
           _Alerts.Alerts.queue({
             'title': 'Failed to send data to parent window.',
@@ -257,7 +298,8 @@ var ControlsAndResults = function (_React$PureComponent2) {
         } else {
           _patchedConsole.patchedConsoleInstance.err('Unexpecter error -- browser may not support postMessage', err);
         }
-      }
+      } // Nonstandard - in case browser doesn't support postMessage but does support other cross-window events (unlikely).
+
 
       window.dispatchEvent(new CustomEvent('fourfrontselectionclick', {
         'detail': eventJSON
@@ -274,29 +316,35 @@ var ControlsAndResults = function (_React$PureComponent2) {
         return columnExtensionMap;
       }
 
-      columnExtensionMap = _underscore.default.clone(columnExtensionMap);
-      var origDisplayTitleRenderFxn = columnExtensionMap.display_title && columnExtensionMap.display_title.render || _tableCommons.basicColumnExtensionMap.display_title.render;
+      columnExtensionMap = _underscore["default"].clone(columnExtensionMap); // Avoid modifying in place
+
+      var origDisplayTitleRenderFxn = columnExtensionMap.display_title && columnExtensionMap.display_title.render || _tableCommons.basicColumnExtensionMap.display_title.render; // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
+      //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
 
       if (inSelectionMode) {
-        columnExtensionMap.display_title = _underscore.default.extend({}, columnExtensionMap.display_title, {
+        // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
+        // Also add the popLink/target=_blank functionality to links
+        // Remove lab.display_title and type columns on selection
+        columnExtensionMap.display_title = _underscore["default"].extend({}, columnExtensionMap.display_title, {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
+            //set select click handler according to currentAction type (selection or multiselect)
             var selectedItems = _this3.state.selectedItems;
             var isChecked = selectedItems.has(_object.itemUtil.atId(result));
 
-            var checkBoxControl = _react.default.createElement("input", {
+            var checkBoxControl = _react["default"].createElement("input", {
               type: "checkbox",
               checked: isChecked,
               onChange: _this3.handleSelectItemClick.bind(_this3, result, currentAction === 'multiselect'),
               className: "mr-2"
             });
 
-            var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore.default.extend({}, props, {
+            var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore["default"].extend({}, props, {
               currentAction: currentAction
             }), width, true);
             var newChildren = currentTitleBlock.props.children.slice(0);
             newChildren.unshift(checkBoxControl);
-            return _react.default.cloneElement(currentTitleBlock, {
+            return _react["default"].cloneElement(currentTitleBlock, {
               'children': newChildren
             });
           }
@@ -328,7 +376,8 @@ var ControlsAndResults = function (_React$PureComponent2) {
         _patchedConsole.patchedConsoleInstance.error("No Clear Filters URL");
 
         return;
-      }
+      } // If we have a '#' in URL, add to target URL as well.
+
 
       var hashFragmentIdx = href.indexOf('#');
 
@@ -345,13 +394,13 @@ var ControlsAndResults = function (_React$PureComponent2) {
           href = _this$props2.href,
           context = _this$props2.context;
 
-      var urlPartsQuery = _url.default.parse(href, true).query;
+      var urlPartsQuery = _url["default"].parse(href, true).query;
 
       var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
 
-      var clearFiltersURLQuery = clearFiltersURL && _url.default.parse(clearFiltersURL, true).query;
+      var clearFiltersURLQuery = clearFiltersURL && _url["default"].parse(clearFiltersURL, true).query;
 
-      return !!(clearFiltersURLQuery && !_underscore.default.isEqual(clearFiltersURLQuery, urlPartsQuery));
+      return !!(clearFiltersURLQuery && !_underscore["default"].isEqual(clearFiltersURLQuery, urlPartsQuery));
     }
   }, {
     key: "renderSearchDetailPane",
@@ -359,7 +408,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
       var _this$props3 = this.props,
           windowWidth = _this$props3.windowWidth,
           schemas = _this$props3.schemas;
-      return _react.default.createElement(_SearchResultDetailPane.SearchResultDetailPane, {
+      return _react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {
         result: result,
         rowNumber: rowNumber,
         containerWidth: containerWidth,
@@ -381,7 +430,8 @@ var ControlsAndResults = function (_React$PureComponent2) {
           tableColumnClassName = _this$props4.tableColumnClassName,
           facetColumnClassName = _this$props4.facetColumnClassName;
       var selectedItems = this.state.selectedItems;
-      var results = context['@graph'];
+      var results = context['@graph']; // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
+
       var facets = propFacets || context.facets;
 
       var _ControlsAndResults$s = ControlsAndResults.searchItemTypesFromHref(href, schemas),
@@ -390,36 +440,36 @@ var ControlsAndResults = function (_React$PureComponent2) {
 
       var selfExtendedColumnExtensionMap = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
       var columnDefinitions = (0, _tableCommons.columnsToColumnDefinitions)(context.columns || {}, selfExtendedColumnExtensionMap);
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "row"
-      }, facets.length ? _react.default.createElement("div", {
+      }, facets.length ? _react["default"].createElement("div", {
         className: facetColumnClassName
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "above-results-table-row"
-      }), _react.default.createElement(_FacetList.FacetList, _extends({
+      }), _react["default"].createElement(_FacetList.FacetList, _extends({
         className: "with-header-bg",
         facets: facets,
         filters: context.filters,
         onClearFilters: this.handleClearFilters,
         itemTypeForSchemas: specificType,
         showClearFiltersButton: this.isClearFiltersBtnVisible()
-      }, _underscore.default.pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react.default.createElement("div", {
+      }, _underscore["default"].pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react["default"].createElement("div", {
         className: tableColumnClassName
-      }, _react.default.createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
+      }, _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
         showTotalResults: context.total,
         parentForceUpdate: this.forceUpdateOnSelf
-      }, _underscore.default.pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen'), {
+      }, _underscore["default"].pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen'), {
         hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions
-      })), _react.default.createElement(_SearchResultTable.SearchResultTable, _extends({
+      })), _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane,
         totalExpected: context.total
-      }, _underscore.default.pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas'), {
+      }, _underscore["default"].pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas'), {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions
-      })), (0, _misc.isSelectAction)(currentAction) ? _react.default.createElement(SelectStickyFooter, _extends({
+      })), (0, _misc.isSelectAction)(currentAction) ? _react["default"].createElement(SelectStickyFooter, _extends({
         context: context,
         schemas: schemas,
         selectedItems: selectedItems,
@@ -432,13 +482,16 @@ var ControlsAndResults = function (_React$PureComponent2) {
   }]);
 
   return ControlsAndResults;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
-_defineProperty(ControlsAndResults, "searchItemTypesFromHref", (0, _memoizeOne.default)(function (href, schemas) {
-  var specificType = 'Item';
-  var abstractType = null;
+_defineProperty(ControlsAndResults, "searchItemTypesFromHref", (0, _memoizeOne["default"])(function (href, schemas) {
+  var specificType = 'Item'; // Default
 
-  var urlParts = _url.default.parse(href, true);
+  var abstractType = null; // Will be equal to specificType if no parent type.
+
+  var urlParts = _url["default"].parse(href, true); // Non-zero chance of having array here - though shouldn't occur unless URL entered into browser manually
+  // If we do get multiple Item types defined, we treat as if searching `type=Item` (== show `type` facet + column).
+
 
   if (typeof urlParts.query.type === 'string') {
     if (urlParts.query.type !== 'Item') {
@@ -453,7 +506,9 @@ _defineProperty(ControlsAndResults, "searchItemTypesFromHref", (0, _memoizeOne.d
   };
 }));
 
-var SearchView = function (_React$PureComponent3) {
+var SearchView =
+/*#__PURE__*/
+function (_React$PureComponent3) {
   _inherits(SearchView, _React$PureComponent3);
 
   function SearchView() {
@@ -464,8 +519,15 @@ var SearchView = function (_React$PureComponent3) {
 
   _createClass(SearchView, [{
     key: "componentDidMount",
+
+    /**
+     * @property {string} href - Current URI.
+     * @property {!string} [currentAction=null] - Current action, if any.
+     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
+     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
+     */
     value: function componentDidMount() {
-      _reactTooltip.default.rebuild();
+      _reactTooltip["default"].rebuild();
     }
   }, {
     key: "render",
@@ -474,9 +536,9 @@ var SearchView = function (_React$PureComponent3) {
           propFacets = _this$props5.facets,
           propNavigate = _this$props5.navigate,
           context = _this$props5.context;
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "search-page-container"
-      }, _react.default.createElement(_AboveSearchTablePanel.AboveSearchTablePanel, _underscore.default.pick(this.props, 'href', 'context', 'schemas')), _react.default.createElement(SearchControllersContainer, _extends({}, this.props, {
+      }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, _underscore["default"].pick(this.props, 'href', 'context', 'schemas')), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
         facets: propFacets || context.facets,
         navigate: propNavigate || _navigate.navigate
       })));
@@ -484,20 +546,20 @@ var SearchView = function (_React$PureComponent3) {
   }]);
 
   return SearchView;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.SearchView = SearchView;
 
 _defineProperty(SearchView, "propTypes", {
-  'context': _propTypes.default.object.isRequired,
-  'currentAction': _propTypes.default.string,
-  'href': _propTypes.default.string.isRequired,
-  'session': _propTypes.default.bool.isRequired,
-  'navigate': _propTypes.default.func,
-  'facets': _propTypes.default.array,
-  'isFullscreen': _propTypes.default.bool.isRequired,
-  'toggleFullScreen': _propTypes.default.func.isRequired,
-  'separateSingleTermFacets': _propTypes.default.bool.isRequired
+  'context': _propTypes["default"].object.isRequired,
+  'currentAction': _propTypes["default"].string,
+  'href': _propTypes["default"].string.isRequired,
+  'session': _propTypes["default"].bool.isRequired,
+  'navigate': _propTypes["default"].func,
+  'facets': _propTypes["default"].array,
+  'isFullscreen': _propTypes["default"].bool.isRequired,
+  'toggleFullScreen': _propTypes["default"].func.isRequired,
+  'separateSingleTermFacets': _propTypes["default"].bool.isRequired
 });
 
 _defineProperty(SearchView, "defaultProps", {
@@ -507,7 +569,7 @@ _defineProperty(SearchView, "defaultProps", {
   'separateSingleTermFacets': true
 });
 
-var SelectStickyFooter = _react.default.memo(function (props) {
+var SelectStickyFooter = _react["default"].memo(function (props) {
   var context = props.context,
       schemas = props.schemas,
       selectedItems = props.selectedItems,
@@ -516,43 +578,49 @@ var SelectStickyFooter = _react.default.memo(function (props) {
       currentAction = props.currentAction;
   var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
   currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : '0';
-  return _react.default.createElement(StickyFooter, null, _react.default.createElement("div", {
+  return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
     className: "row"
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement("div", {
     className: "col-12 col-md-9 text-md-left col-sm-center"
-  }, currentAction === 'multiselect' ? _react.default.createElement("h3", {
+  }, currentAction === 'multiselect' ? _react["default"].createElement("h3", {
     className: "mt-03 mb-0"
-  }, selectedItems.size, _react.default.createElement("small", {
+  }, selectedItems.size, _react["default"].createElement("small", {
     className: "text-muted ml-08"
-  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react.default.createElement("h3", {
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("h3", {
     className: "mt-03 mb-0"
-  }, "\xA0")), _react.default.createElement("div", {
+  }, "\xA0")), _react["default"].createElement("div", {
     className: "col-12 col-md-3 text-md-right col-sm-center"
-  }, _react.default.createElement("button", {
+  }, _react["default"].createElement("button", {
     type: "button",
     className: "btn btn-success",
     onClick: onComplete,
     disabled: selectedItems.size === 0,
     "data-tip": "Select checked items and close window"
-  }, _react.default.createElement("i", {
+  }, _react["default"].createElement("i", {
     className: "icon icon-fw fas icon-check"
-  }), "\xA0 Apply"), _react.default.createElement("button", {
+  }), "\xA0 Apply"), _react["default"].createElement("button", {
     type: "button",
     className: "btn btn-outline-warning ml-1",
     onClick: onCancel,
     "data-tip": "Cancel selection and close window"
-  }, _react.default.createElement("i", {
+  }, _react["default"].createElement("i", {
     className: "icon icon-fw fas icon-times"
   }), "\xA0 Cancel"))));
 });
+/**
+ * General purpose sticky footer component
+ * @param {*} props
+ * TODO: Component can be moved to a separate file.
+ */
+
 
 function StickyFooter(props) {
   var children = props.children,
       passProps = _objectWithoutProperties(props, ["children"]);
 
-  return _react.default.createElement("div", _extends({
+  return _react["default"].createElement("div", _extends({
     className: "sticky-page-footer"
-  }, passProps), _react.default.createElement("div", {
+  }, passProps), _react["default"].createElement("div", {
     className: "container"
   }, children));
 }

@@ -51,7 +51,9 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var TableEntry = function (_React$Component) {
+var TableEntry =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(TableEntry, _React$Component);
 
   function TableEntry(props) {
@@ -66,7 +68,7 @@ var TableEntry = function (_React$Component) {
     _this.handleClick = _underscore["default"].throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 300);
     _this.determineIfActive = _this.determineIfActive.bind(_assertThisInitialized(_this));
     _this.toggleOpen = _this.toggleOpen.bind(_assertThisInitialized(_this));
-    _this.targetElement = null;
+    _this.targetElement = null; // Header element we scroll to is cached here. Not in state as does not change.
 
     if (props.collapsible) {
       _this.state = {
@@ -90,9 +92,10 @@ var TableEntry = function (_React$Component) {
     key: "getTargetElement",
     value: function getTargetElement() {
       var link = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props.link;
-      if (typeof document === 'undefined' || !document || !window) return null;
+      if (typeof document === 'undefined' || !document || !window) return null; // Not clientside.
 
       if (!this.targetElement) {
+        // Cache it for performance. Doesn't needa be in state as won't change.
         this.targetElement = d3.select('[id="' + link + '"]').node();
       }
 
@@ -102,7 +105,8 @@ var TableEntry = function (_React$Component) {
     key: "getNextHeaderElement",
     value: function getNextHeaderElement() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
-      if (!props.nextHeader || typeof document === 'undefined' || !document || !window) return null;
+      if (!props.nextHeader || typeof document === 'undefined' || !document || !window) return null; // Not clientside or no header.
+
       var id = null;
 
       if (props.nextHeader === 'bottom') {
@@ -137,6 +141,7 @@ var TableEntry = function (_React$Component) {
         elemTop = (0, _layout.getElementTop)(targetElem);
 
         if (props.mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight) {
+          // Try to prevent from trying to scroll past max scrollable height.
           elemTop = Math.min(scrollingOuterElement.scrollHeight - window.innerHeight, elemTop);
         }
       }
@@ -284,7 +289,9 @@ _defineProperty(TableEntry, "defaultProps", {
   'recurDepth': 1
 });
 
-var TableEntryChildren = function (_React$Component2) {
+var TableEntryChildren =
+/*#__PURE__*/
+function (_React$Component2) {
   _inherits(TableEntryChildren, _React$Component2);
 
   _createClass(TableEntryChildren, null, [{
@@ -313,14 +320,19 @@ var TableEntryChildren = function (_React$Component2) {
           }
 
           var hAttributes = MarkdownHeading.getAttributes(h.props.children);
-          var linkTitle = TableOfContents.textFromReactChildren(h.props.children);
+          var linkTitle = TableOfContents.textFromReactChildren(h.props.children); // We must have this to be equal to the ID of the element we're navigating to.
+          // A custom ID might be set in Markdown 'attributes' which we prefer over the one passed to explicitly via props.
+
           var link = hAttributes && hAttributes.id || h.props.id || null;
 
           if (hAttributes && hAttributes.matchedString) {
             linkTitle = linkTitle.replace(hAttributes.matchedString, '').trim();
           }
+          /** @deprecated */
 
-          if (!link) link = TableOfContents.slugify(linkTitle);
+
+          if (!link) link = TableOfContents.slugify(linkTitle); // Fallback -- attempt to not use -- may fail.
+
           return _react["default"].createElement(TableEntry, {
             link: link,
             title: linkTitle,
@@ -393,6 +405,8 @@ var TableEntryChildren = function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
+      // Removed: 'collapse' children if not over them (re: negative feedback)
+      //if (this.props.depth >= 3 && !this.props.active) return null;
       var children = this.children();
       if (!children) return null;
       return _react["default"].createElement("ol", {
@@ -450,7 +464,9 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne
     }
 
     return m;
-  }, []);
+  },
+  /* m = */
+  []);
 
   return {
     'content': _react["default"].cloneElement(jsxContent, {}, nextHeaderComponents),
@@ -458,14 +474,26 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne
   };
 }));
 
-var TableOfContents = function (_React$Component3) {
+var TableOfContents =
+/*#__PURE__*/
+function (_React$Component3) {
   _inherits(TableOfContents, _React$Component3);
 
   _createClass(TableOfContents, null, [{
     key: "slugify",
+
+    /** Taken from https://gist.github.com/mathewbyrne/1280286 */
+
+    /** @deprecated */
     value: function slugify(text) {
-      return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
+      return text.toString().toLowerCase().replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, ''); // Trim - from end of text
     }
+    /** @deprecated */
+
   }, {
     key: "slugifyReactChildren",
     value: function slugifyReactChildren(children) {
@@ -606,6 +634,7 @@ var TableOfContents = function (_React$Component3) {
       var _this5 = this;
 
       if (pastProps.windowWidth !== this.props.windowWidth) {
+        // Recalculate new position on page etc.
         this.updateQueued = true;
         setTimeout(function () {
           _this5.setState({
@@ -772,14 +801,14 @@ var TableOfContents = function (_React$Component3) {
         maxHeaderDepth: maxHeaderDepth,
         skipDepth: skipDepth || 0
       }, sectionEntries()));
-      var marginTop = 0;
+      var marginTop = 0; // Account for test warning
 
       if (windowWidth) {
         if (typeof scrollTop === 'number' && scrollTop < 80 && windowWidth >= 1200) {
           var testWarningElem = document.getElementsByClassName('navbar-container test-warning-visible');
           marginTop = testWarningElem[0] && testWarningElem[0].offsetHeight || marginTop;
         } else if (windowWidth < 1200) {
-          marginTop = -12;
+          marginTop = -12; // Account for spacing between title and first section
         }
       }
 
@@ -881,7 +910,9 @@ NextPreviousPageSection.defaultProps = {
   'nextTitle': 'Next'
 };
 
-var MarkdownHeading = function (_React$PureComponent) {
+var MarkdownHeading =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(MarkdownHeading, _React$PureComponent);
 
   _createClass(MarkdownHeading, null, [{
@@ -934,6 +965,8 @@ var MarkdownHeading = function (_React$PureComponent) {
       var set = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       if (typeof this.id === 'string') return this.id;
+      /** slugifyReactChildren is deprecated and should never be called now as we always get props.id passed in (?) */
+
       var idToSet = id || this.props && this.props.id || TableOfContents.slugifyReactChildren(this.props.children);
 
       if (set) {
@@ -977,7 +1010,7 @@ var MarkdownHeading = function (_React$PureComponent) {
       }
 
       if (!propsToPass.id) propsToPass.id = this.getID(true);
-      return _react["default"].createElement(HeaderWithLink, propsToPass);
+      return _react["default"].createElement(HeaderWithLink, propsToPass); //return React.createElement(type, propsToPass);
     }
   }]);
 
@@ -991,7 +1024,9 @@ _defineProperty(MarkdownHeading, "defaultProps", {
   'id': null
 });
 
-var HeaderWithLink = function (_React$PureComponent2) {
+var HeaderWithLink =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(HeaderWithLink, _React$PureComponent2);
 
   function HeaderWithLink(props) {

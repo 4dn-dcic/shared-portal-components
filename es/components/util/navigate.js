@@ -17,6 +17,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 var cachedNavFunction = null;
 var callbackFunctions = [];
+/**
+ * Navigation function, defined globally to act as alias of App.navigate.
+ * Is set in App constructor via navigate.setNavigateFunction.
+ *
+ * Singleton function, defined the old fashioned way (pre ES6).
+ * Uses the same parameters as app.prototype.navigate(..).
+ *
+ * Use by importing and calling in the same way app.navigate might be used.
+ *
+ * @param {string}       href                        Where to navigate to.
+ * @param {NavigateOpts} [options={}]                Additional options, examine App.navigate for details.
+ * @param {function}     [callback]                  Optional callback, accepts the response object.
+ * @param {function}     [fallbackCallback]          Optional callback called if any error with response, including 404 error. Accepts response object -or- error object, if AJAX request failed.
+ * @param {Object}       [includeReduxDispatch={}]   Optional state to save to Redux store, in addition to the 'href' and 'context' set by navigate function.
+ *
+ * @example
+ * var { navigate } = require('./util');
+ * navigate('/a/different/page', options);
+ */
 
 var navigate = function (href) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -28,12 +47,22 @@ var navigate = function (href) {
   var callbackFxn = function (jsonResponse) {
     if (callbackFunctions.length > 0) _underscore["default"].forEach(callbackFunctions, function (cb) {
       cb(jsonResponse);
-    });
-    if (typeof callback === 'function') callback(jsonResponse);
+    }); // Any registered callbacks.
+
+    if (typeof callback === 'function') callback(jsonResponse); // Original callback
   };
 
   return cachedNavFunction.call(cachedNavFunction, href, options, callbackFxn, fallbackCallback, includeReduxDispatch);
 };
+/******* PUBLIC STATIC FUNCTIONS *******/
+
+/**
+ * This is called in app initialization to alias app.navigate into this global module/function.
+ *
+ * @param {function} navFxn - The `navigate` function bound to `App` component to be aliased.
+ * @returns {void}
+ */
+
 
 exports.navigate = navigate;
 
@@ -43,14 +72,19 @@ navigate.setNavigateFunction = function (navFxn) {
 };
 
 navigate.determineSeparatorChar = function (href) {
-  return ['?', '&'].indexOf(href.charAt(href.length - 1)) > -1 ? '' : href.match(/\?./) ? '&' : '?';
+  return ['?', '&'].indexOf(href.charAt(href.length - 1)) > -1 ? // Is last character a '&' or '?' ?
+  '' : href.match(/\?./) ? '&' : '?';
 };
+/** Utility function to check if we are on a search page. */
+
 
 navigate.isSearchHref = function (href) {
   if (typeof href === 'string') href = _url["default"].parse(href);
   if (href.pathname.slice(0, 8) === '/search/') return true;
   return false;
 };
+/** Register a function to be called on each navigate response. */
+
 
 navigate.registerCallbackFunction = function (fxn) {
   callbackFunctions.push(fxn);
@@ -59,6 +93,8 @@ navigate.registerCallbackFunction = function (fxn) {
 navigate.deregisterCallbackFunction = function (fxn) {
   callbackFunctions = _underscore["default"].without(callbackFunctions, fxn);
 };
+/** Useful for param lists */
+
 
 navigate.mergeObjectsOfLists = function () {
   if (arguments.length < 2) throw Error('Expecting multiple objects as params');
@@ -84,13 +120,16 @@ navigate.mergeObjectsOfLists = function () {
   });
 
   _underscore["default"].forEach(_underscore["default"].keys(targetObj), function (tKey) {
-    if (typeof targetObj[tKey] === 'string') targetObj[tKey] = [targetObj[tKey]];
+    if (typeof targetObj[tKey] === 'string') targetObj[tKey] = [targetObj[tKey]]; // Keys which perhaps don't exist on sourceObjs
+
     targetObj[tKey] = _underscore["default"].uniq(_underscore["default"].filter(targetObj[tKey]));
     if (targetObj[tKey].length === 0) delete targetObj[tKey];
   });
 
   return targetObj;
 };
+/** Test if same origin on 2 hrefs. Ported from ENCODE/libs/origin. */
+
 
 navigate.sameOrigin = function (from, to) {
   if (typeof to === 'undefined') {

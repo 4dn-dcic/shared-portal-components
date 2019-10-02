@@ -31,7 +31,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var IndeterminateCheckbox = function (_React$PureComponent) {
+var IndeterminateCheckbox =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(IndeterminateCheckbox, _React$PureComponent);
 
   function IndeterminateCheckbox(props) {
@@ -48,6 +50,7 @@ var IndeterminateCheckbox = function (_React$PureComponent) {
   _createClass(IndeterminateCheckbox, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      // Can be skipped if not set to true.
       if (this.props.indeterminate === true) {
         this.setIndeterminateOnRef();
       }

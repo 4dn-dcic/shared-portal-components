@@ -20,16 +20,29 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+/**
+ * @private
+ */
 var defaultHeaders = {
   "Content-Type": "application/json; charset=UTF-8",
   "Accept": "application/json",
-  "X-Requested-With": "XMLHttpRequest"
+  "X-Requested-With": "XMLHttpRequest" // Allows some server-side libs (incl. pyramid) to identify using `request.is_xhr`.
+
 };
+/**
+ * @private
+ * @function
+ * @param {XMLHttpRequest} xhr - XHR object.
+ * @param {Object} [headers={}] - Headers object.
+ * @param {string[]} [deleteHeaders=[]] - List of header key names to exclude, e.g. from extra or default headers object.
+ * @returns {XMLHttpRequest} XHR object with set headers.
+ */
 
 function setHeaders(xhr) {
   var headers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var deleteHeaders = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-  headers = JWT.addToHeaders(_underscore["default"].extend({}, defaultHeaders, headers));
+  headers = JWT.addToHeaders(_underscore["default"].extend({}, defaultHeaders, headers)); // Set defaults, add JWT if set
+  // Put everything in the header
 
   var headerKeys = _underscore["default"].keys(headers);
 
@@ -88,6 +101,13 @@ function load(url, callback) {
 
   return xhr;
 }
+/**
+ * Own implementation of an AJAX Promise.
+ * Similar to the modern `window.fetch` that most modern browsers support (excl. IE),
+ * but adds support for `abort` and all other nice features of the XMLHttpRequest
+ * interface.
+ */
+
 
 function promise(url) {
   var method = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'GET';
@@ -100,7 +120,7 @@ function promise(url) {
     xhr = new XMLHttpRequest();
 
     xhr.onload = function () {
-      var response = null;
+      var response = null; // response SHOULD be json
 
       try {
         response = JSON.parse(xhr.responseText);
@@ -142,6 +162,15 @@ function promise(url) {
 
   return promiseInstance;
 }
+/**
+ * Wrapper around function promise() which is slightly more relevant for navigation.
+ * Strips hash from URL, sets same origin policy.
+ *
+ * @export
+ * @param {any} url
+ * @param {any} options
+ */
+
 
 function fetch(targetURL, options) {
   options = _underscore["default"].extend({
@@ -149,7 +178,8 @@ function fetch(targetURL, options) {
   }, options);
   var http_method = options.method || 'GET';
 
-  var headers = options.headers = _underscore["default"].extend({}, options.headers || {});
+  var headers = options.headers = _underscore["default"].extend({}, options.headers || {}); // Strip url fragment.
+
 
   var hashIndex = targetURL.indexOf('#');
 
@@ -166,6 +196,8 @@ function fetch(targetURL, options) {
   });
   return request;
 }
+/** Calls ajax.fetch() internally, but adds 'json' function to return self. */
+
 
 function fetchPolyfill(url, options) {
   var req = fetch(url, options);

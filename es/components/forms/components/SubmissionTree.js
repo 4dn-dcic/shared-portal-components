@@ -53,7 +53,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SubmissionTree = function (_React$PureComponent) {
+// Create a custom tree to represent object hierarchy in front end submission.
+// Each leaf is clickable and will bring you to a view of the new object
+var SubmissionTree =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(SubmissionTree, _React$PureComponent);
 
   function SubmissionTree() {
@@ -103,7 +107,9 @@ _defineProperty(SubmissionTree, "propTypes", {
   'schemas': _propTypes["default"].object
 });
 
-var SubmissionProperty = function (_React$Component) {
+var SubmissionProperty =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(SubmissionProperty, _React$Component);
 
   function SubmissionProperty(props) {
@@ -141,7 +147,8 @@ var SubmissionProperty = function (_React$Component) {
           keyIdx = _this$props2.keyIdx,
           depth = _this$props2.depth,
           hierarchy = _this$props2.hierarchy;
-      if (!isNaN(childKey)) childKey = parseInt(childKey);
+      if (!isNaN(childKey)) childKey = parseInt(childKey); // replace key and hierarchy in props
+
       return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
         key: childKey,
         keyIdx: childKey,
@@ -161,7 +168,8 @@ var SubmissionProperty = function (_React$Component) {
           hierarchy = _this$props3.hierarchy,
           keyLinks = _this$props3.keyLinks,
           depth = _this$props3.depth;
-      var open = this.state.open;
+      var open = this.state.open; // Item currently being edited
+
       var itemSchema = schemas[keyTypes[keyIdx]];
       if (!itemSchema) return null;
 
@@ -197,8 +205,16 @@ var SubmissionProperty = function (_React$Component) {
 
   return SubmissionProperty;
 }(_react["default"].Component);
+/*
+Generate an entry in SubmissionTree that corresponds to an object. When clicked
+on, either change the currKey to that object's key if a custom object, or
+open that object's page in a new tab if a pre-existing or submitted object.
+*/
 
-var SubmissionLeaf = function (_React$PureComponent2) {
+
+var SubmissionLeaf =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(SubmissionLeaf, _React$PureComponent2);
 
   function SubmissionLeaf(props) {
@@ -226,7 +242,8 @@ var SubmissionLeaf = function (_React$PureComponent2) {
       var _this$props4 = this.props,
           hierarchy = _this$props4.hierarchy,
           keyIdx = _this$props4.keyIdx,
-          depth = _this$props4.depth;
+          depth = _this$props4.depth; // replace key and hierarchy in props
+
       return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
         key: childKey,
         keyIdx: childKey,
@@ -266,6 +283,14 @@ var SubmissionLeaf = function (_React$PureComponent2) {
       if ((fieldASchema.lookup || 750) < (fieldBSchema.lookup || 750)) return 1;
       return 0;
     }
+    /**
+     * Generate placeholders in the SubmissionTree for every linkTo name and
+     * create a SubmissionLeaf for each child object under its corresponding
+     * placholder.
+     *
+     * @returns {JSX.Element} Visible leaf/branch-representing element.
+     */
+
   }, {
     key: "generateAllPlaceholders",
     value: function generateAllPlaceholders() {
@@ -282,6 +307,8 @@ var SubmissionLeaf = function (_React$PureComponent2) {
         }));
       });
     }
+    /** Open a new tab on click or change the currKey of submissionView to that of props.keyIdx */
+
   }, {
     key: "handleClick",
     value: function handleClick(e) {
@@ -290,7 +317,9 @@ var SubmissionLeaf = function (_React$PureComponent2) {
           keyIdx = _this$props7.keyIdx,
           keyValid = _this$props7.keyValid,
           keyComplete = _this$props7.keyComplete;
-      e.preventDefault();
+      e.preventDefault(); // if key is not a number (i.e. path), the object is not a custom one.
+      // format the leaf as the following if pre-existing obj or submitted
+      // custom object.
 
       if (isNaN(keyIdx) || keyValid[keyIdx] === 4 && keyComplete[keyIdx]) {
         var win = window.open(isNaN(keyIdx) ? keyIdx : keyComplete[keyIdx], '_blank');
@@ -322,6 +351,7 @@ var SubmissionLeaf = function (_React$PureComponent2) {
       if (!isNaN(keyIdx)) {
         placeholders = this.generateAllPlaceholders();
       } else {
+        // must be a submitted object - plot directly
         placeholders = _underscore["default"].keys(hierarchy[keyIdx]).map(this.generateChild);
       }
 
@@ -330,7 +360,9 @@ var SubmissionLeaf = function (_React$PureComponent2) {
       var extIcon;
       var statusClass = null;
       var isCurrentlySelected = false;
-      var tip = null;
+      var tip = null; // if key is not a number (i.e. path), the object is not a custom one.
+      // format the leaf as the following if pre-existing obj or submitted
+      // custom object.
 
       if (isNaN(keyIdx) || keyValid[keyIdx] === 4 && keyComplete[keyIdx]) {
         statusClass = 'existing-item';
@@ -376,6 +408,7 @@ var SubmissionLeaf = function (_React$PureComponent2) {
       });
 
       if (keyIdx === currKey) {
+        // We're currently on this Item
         isCurrentlySelected = true;
         extIcon = _react["default"].createElement("i", {
           className: "icon icon-pencil pull-right fas",
@@ -420,6 +453,15 @@ function InfoIcon(_ref2) {
     "data-tip": children
   });
 }
+/**
+ * Function to recursively find whether a schema for a field contains a linkTo to
+ * another Item within its nested structure.
+ *
+ * @param {{ title: string, type: string, linkTo: string }} json - A schema for a field.
+ * @param {boolean} [getProperty=false] - Unused? What is this supposed to do?
+ * @returns {string|null} The `@type` of the linkTo Item referenced in the field schema, if any, else null.
+ */
+
 
 function fieldSchemaLinkToType(json) {
   arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
@@ -443,6 +485,13 @@ function fieldSchemaLinkToType(json) {
     }
   }
 }
+/**
+ * Returns list of recursed/nested keys from fieldSchema which contains linkTo, or true if direct linkTo on fieldSchema itself.
+ *
+ * @param {{ 'title':string, 'type':string, 'linkTo':string }} json - Schema for a field.
+ * @returns {string[]|boolean} True if current field is linkTo, else field keys which contain nested linkTos.
+ */
+
 
 function fieldSchemaLinkToPath(json) {
   var jsonKeys = _underscore["default"].keys(json),
