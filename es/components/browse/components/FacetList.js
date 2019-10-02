@@ -38,9 +38,9 @@ var _PartialList = require("./../../ui/PartialList");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -71,7 +71,7 @@ var Term = function (_React$PureComponent) {
     _classCallCheck(this, Term);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Term).call(this, props));
-    _this.handleClick = _underscore["default"].debounce(_this.handleClick.bind(_assertThisInitialized(_this)), 500, true);
+    _this.handleClick = _underscore.default.debounce(_this.handleClick.bind(_assertThisInitialized(_this)), 500, true);
     _this.state = {
       'filtering': false
     };
@@ -104,24 +104,28 @@ var Term = function (_React$PureComponent) {
       var _this$props2 = this.props,
           term = _this$props2.term,
           facet = _this$props2.facet,
-          isTermSelected = _this$props2.isTermSelected,
+          getTermStatus = _this$props2.getTermStatus,
           termTransformFxn = _this$props2.termTransformFxn;
       var filtering = this.state.filtering;
-      var selected = isTermSelected(term, facet);
+      var status = getTermStatus(term, facet);
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
 
       if (filtering) {
-        icon = _react["default"].createElement("i", {
+        icon = _react.default.createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
-      } else if (selected) {
-        icon = _react["default"].createElement("i", {
+      } else if (status === 'selected') {
+        icon = _react.default.createElement("i", {
           className: "icon icon-times-circle icon-fw fas"
         });
+      } else if (status === 'omitted') {
+        icon = _react.default.createElement("i", {
+          className: "icon icon-minus-circle icon-fw fas"
+        });
       } else {
-        icon = _react["default"].createElement("i", {
+        icon = _react.default.createElement("i", {
           className: "icon icon-circle icon-fw unselected far"
         });
       }
@@ -130,40 +134,41 @@ var Term = function (_React$PureComponent) {
         title = 'None';
       }
 
-      return _react["default"].createElement("li", {
-        className: "facet-list-element" + (selected ? " selected" : ''),
+      var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
+      return _react.default.createElement("li", {
+        className: "facet-list-element " + statusClassName,
         key: term.key,
         "data-key": term.key
-      }, _react["default"].createElement("a", {
+      }, _react.default.createElement("a", {
         className: "term",
-        "data-selected": selected,
+        "data-selected": status !== 'none',
         href: "#",
         onClick: this.handleClick,
         "data-term": term.key
-      }, _react["default"].createElement("span", {
+      }, _react.default.createElement("span", {
         className: "facet-selector"
-      }, icon), _react["default"].createElement("span", {
+      }, icon), _react.default.createElement("span", {
         className: "facet-item",
         "data-tip": title.length > 30 ? title : null
-      }, title), _react["default"].createElement("span", {
+      }, title), _react.default.createElement("span", {
         className: "facet-count"
       }, count)));
     }
   }]);
 
   return Term;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 Term.propTypes = {
-  'facet': _propTypes["default"].shape({
-    'field': _propTypes["default"].string.isRequired
+  'facet': _propTypes.default.shape({
+    'field': _propTypes.default.string.isRequired
   }).isRequired,
-  'term': _propTypes["default"].shape({
-    'key': _propTypes["default"].string.isRequired,
-    'doc_count': _propTypes["default"].number
+  'term': _propTypes.default.shape({
+    'key': _propTypes.default.string.isRequired,
+    'doc_count': _propTypes.default.number
   }).isRequired,
-  'isTermSelected': _propTypes["default"].func.isRequired,
-  'onClick': _propTypes["default"].func.isRequired
+  'getTermStatus': _propTypes.default.func.isRequired,
+  'onClick': _propTypes.default.func.isRequired
 };
 
 var FacetTermsList = function (_React$Component) {
@@ -201,7 +206,7 @@ var FacetTermsList = function (_React$Component) {
       }
 
       if (pastState.facetOpen !== facetOpen) {
-        _reactTooltip["default"].rebuild();
+        _reactTooltip.default.rebuild();
       }
     }
   }, {
@@ -263,7 +268,7 @@ var FacetTermsList = function (_React$Component) {
       var expanded = this.state.expanded;
 
       var makeTermComponent = function (term) {
-        return _react["default"].createElement(Term, _extends({}, _this5.props, {
+        return _react.default.createElement(Term, _extends({}, _this5.props, {
           onClick: onTermClick,
           key: term.key,
           term: term,
@@ -274,37 +279,37 @@ var FacetTermsList = function (_React$Component) {
       if (terms.length > persistentCount) {
         var persistentTerms = terms.slice(0, persistentCount);
         var collapsibleTerms = terms.slice(persistentCount);
-        var remainingTermsCount = !expanded ? _underscore["default"].reduce(collapsibleTerms, function (m, term) {
+        var remainingTermsCount = !expanded ? _underscore.default.reduce(collapsibleTerms, function (m, term) {
           return m + (term.doc_count || 0);
         }, 0) : null;
         var expandButtonTitle;
 
         if (expanded) {
-          expandButtonTitle = _react["default"].createElement("span", null, _react["default"].createElement("i", {
+          expandButtonTitle = _react.default.createElement("span", null, _react.default.createElement("i", {
             className: "icon icon-fw icon-minus fas"
           }), " Collapse");
         } else {
-          expandButtonTitle = _react["default"].createElement("span", null, _react["default"].createElement("i", {
+          expandButtonTitle = _react.default.createElement("span", null, _react.default.createElement("i", {
             className: "icon icon-fw icon-plus fas"
-          }), " View ", terms.length - persistentCount, " More", _react["default"].createElement("span", {
+          }), " View ", terms.length - persistentCount, " More", _react.default.createElement("span", {
             className: "pull-right"
           }, remainingTermsCount));
         }
 
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: "facet-list"
-        }, _react["default"].createElement(_PartialList.PartialList, {
+        }, _react.default.createElement(_PartialList.PartialList, {
           open: expanded,
-          persistent: _underscore["default"].map(persistentTerms, makeTermComponent),
-          collapsible: _underscore["default"].map(collapsibleTerms, makeTermComponent)
-        }), _react["default"].createElement("div", {
+          persistent: _underscore.default.map(persistentTerms, makeTermComponent),
+          collapsible: _underscore.default.map(collapsibleTerms, makeTermComponent)
+        }), _react.default.createElement("div", {
           className: "view-more-button",
           onClick: this.handleExpandListToggleClick
         }, expandButtonTitle));
       } else {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: "facet-list"
-        }, _underscore["default"].map(terms, makeTermComponent));
+        }, _underscore.default.map(terms, makeTermComponent));
       }
     }
   }, {
@@ -318,23 +323,23 @@ var FacetTermsList = function (_React$Component) {
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing;
 
-      var terms = _underscore["default"].filter(facet.terms, function (term) {
+      var terms = _underscore.default.filter(facet.terms, function (term) {
         return term.doc_count > 0;
       });
 
       if (facet.field === 'type') {
-        terms = _underscore["default"].filter(terms, function (t) {
+        terms = _underscore.default.filter(terms, function (t) {
           return t !== 'Item' && t && t.key !== 'Item';
         });
       }
 
-      var indicator = _react["default"].createElement(_Fade.Fade, {
-        "in": facetClosing || !facetOpen
-      }, _react["default"].createElement("span", {
+      var indicator = _react.default.createElement(_Fade.Fade, {
+        in: facetClosing || !facetOpen
+      }, _react.default.createElement("span", {
         className: "pull-right closed-terms-count",
         "data-tip": terms.length + " options"
-      }, _underscore["default"].range(0, Math.min(Math.ceil(terms.length / 3), 8)).map(function (c) {
-        return _react["default"].createElement("i", {
+      }, _underscore.default.range(0, Math.min(Math.ceil(terms.length / 3), 8)).map(function (c) {
+        return _react.default.createElement("i", {
           className: "icon icon-ellipsis-v fas",
           style: {
             opacity: (c + 1) / 5 * 0.67 + 0.33
@@ -343,28 +348,28 @@ var FacetTermsList = function (_React$Component) {
         });
       })));
 
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: "facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
         "data-field": facet.field
-      }, _react["default"].createElement("h5", {
+      }, _react.default.createElement("h5", {
         className: "facet-title",
         onClick: this.handleOpenToggleClick
-      }, _react["default"].createElement("span", {
+      }, _react.default.createElement("span", {
         className: "expand-toggle"
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")
-      })), _react["default"].createElement("span", {
+      })), _react.default.createElement("span", {
         className: "inline-block",
         "data-tip": tooltip,
         "data-place": "right"
-      }, title), indicator), _react["default"].createElement(_Collapse.Collapse, {
-        "in": facetOpen && !facetClosing
+      }, title), indicator), _react.default.createElement(_Collapse.Collapse, {
+        in: facetOpen && !facetClosing
       }, this.renderTerms(terms)));
     }
   }]);
 
   return FacetTermsList;
-}(_react["default"].Component);
+}(_react.default.Component);
 
 FacetTermsList.defaultProps = {
   'persistentCount': 10
@@ -376,7 +381,7 @@ var Facet = function (_React$PureComponent2) {
   _createClass(Facet, null, [{
     key: "isStatic",
     value: function isStatic(facet) {
-      return facet.terms.length === 1 && facet.total <= _underscore["default"].reduce(facet.terms, function (m, t) {
+      return facet.terms.length === 1 && facet.total <= _underscore.default.reduce(facet.terms, function (m, t) {
         return m + (t.doc_count || 0);
       }, 0);
     }
@@ -388,7 +393,7 @@ var Facet = function (_React$PureComponent2) {
     _classCallCheck(this, Facet);
 
     _this6 = _possibleConstructorReturn(this, _getPrototypeOf(Facet).call(this, props));
-    _this6.isStatic = (0, _memoizeOne["default"])(Facet.isStatic);
+    _this6.isStatic = (0, _memoizeOne.default)(Facet.isStatic);
     _this6.handleStaticClick = _this6.handleStaticClick.bind(_assertThisInitialized(_this6));
     _this6.handleTermClick = _this6.handleTermClick.bind(_assertThisInitialized(_this6));
     _this6.state = {
@@ -429,7 +434,7 @@ var Facet = function (_React$PureComponent2) {
     value: function render() {
       var _this$props7 = this.props,
           facet = _this$props7.facet,
-          isTermSelected = _this$props7.isTermSelected,
+          getTermStatus = _this$props7.getTermStatus,
           extraClassname = _this$props7.extraClassname,
           termTransformFxn = _this$props7.termTransformFxn,
           separateSingleTermFacets = _this$props7.separateSingleTermFacets;
@@ -443,18 +448,18 @@ var Facet = function (_React$PureComponent2) {
       var showTitle = title || field;
 
       if (separateSingleTermFacets && this.isStatic(facet)) {
-        return _react["default"].createElement(StaticSingleTerm, {
+        return _react.default.createElement(StaticSingleTerm, {
           facet: facet,
           term: terms[0],
           filtering: filtering,
           showTitle: showTitle,
           onClick: this.handleStaticClick,
-          isTermSelected: isTermSelected,
+          getTermStatus: getTermStatus,
           extraClassname: extraClassname,
           termTransformFxn: termTransformFxn
         });
       } else {
-        return _react["default"].createElement(FacetTermsList, _extends({}, this.props, {
+        return _react.default.createElement(FacetTermsList, _extends({}, this.props, {
           onTermClick: this.handleTermClick,
           tooltip: description,
           title: showTitle
@@ -464,61 +469,63 @@ var Facet = function (_React$PureComponent2) {
   }]);
 
   return Facet;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 Facet.propTypes = {
-  'facet': _propTypes["default"].shape({
-    'field': _propTypes["default"].string.isRequired,
-    'title': _propTypes["default"].string,
-    'total': _propTypes["default"].number,
-    'terms': _propTypes["default"].array.isRequired,
-    'description': _propTypes["default"].string
+  'facet': _propTypes.default.shape({
+    'field': _propTypes.default.string.isRequired,
+    'title': _propTypes.default.string,
+    'total': _propTypes.default.number,
+    'terms': _propTypes.default.array.isRequired,
+    'description': _propTypes.default.string
   }),
-  'defaultFacetOpen': _propTypes["default"].bool,
-  'onFilter': _propTypes["default"].func,
-  'extraClassname': _propTypes["default"].string,
-  'schemas': _propTypes["default"].object,
-  'isTermSelected': _propTypes["default"].func.isRequired,
-  'href': _propTypes["default"].string.isRequired
+  'defaultFacetOpen': _propTypes.default.bool,
+  'onFilter': _propTypes.default.func,
+  'extraClassname': _propTypes.default.string,
+  'schemas': _propTypes.default.object,
+  'getTermStatus': _propTypes.default.func.isRequired,
+  'href': _propTypes.default.string.isRequired
 };
 
-var StaticSingleTerm = _react["default"].memo(function (_ref4) {
+var StaticSingleTerm = _react.default.memo(function (_ref4) {
   var term = _ref4.term,
       facet = _ref4.facet,
       showTitle = _ref4.showTitle,
       filtering = _ref4.filtering,
       onClick = _ref4.onClick,
-      isTermSelected = _ref4.isTermSelected,
+      getTermStatus = _ref4.getTermStatus,
       extraClassname = _ref4.extraClassname,
       termTransformFxn = _ref4.termTransformFxn;
   var _facet$description2 = facet.description,
       description = _facet$description2 === void 0 ? null : _facet$description2,
       field = facet.field;
-  var selected = isTermSelected(term, facet);
+  var status = getTermStatus(term, facet);
+  var selectedOrOmitted = status !== 'none';
+  var statusClassName = selectedOrOmitted ? status === 'selected' ? 'selected' : 'omitted' : '';
   var termName = termTransformFxn(field, term.key);
 
   if (!termName || termName === 'null' || termName === 'undefined') {
     termName = 'None';
   }
 
-  return _react["default"].createElement("div", {
-    className: "facet static" + (selected ? ' selected' : '') + (filtering ? ' filtering' : '') + (extraClassname ? ' ' + extraClassname : ''),
+  return _react.default.createElement("div", {
+    className: "facet static " + statusClassName + (filtering ? ' filtering' : '') + (extraClassname ? ' ' + extraClassname : ''),
     "data-field": field
-  }, _react["default"].createElement("div", {
+  }, _react.default.createElement("div", {
     className: "facet-static-row clearfix"
-  }, _react["default"].createElement("h5", {
+  }, _react.default.createElement("h5", {
     className: "facet-title"
-  }, _react["default"].createElement("span", {
+  }, _react.default.createElement("span", {
     className: "inline-block",
     "data-tip": description,
     "data-place": "right"
-  }, "\xA0", showTitle)), _react["default"].createElement("div", {
-    className: "facet-item term" + (selected ? ' selected' : '') + (filtering ? ' filtering' : '')
-  }, _react["default"].createElement("span", {
+  }, "\xA0", showTitle)), _react.default.createElement("div", {
+    className: "facet-item term " + statusClassName + (filtering ? ' filtering' : '')
+  }, _react.default.createElement("span", {
     onClick: onClick,
-    title: 'All results have ' + term.key + ' as their ' + showTitle.toLowerCase() + '; ' + (selected ? 'currently active as portal-wide filter.' : 'not currently active as portal-wide filter.')
-  }, _react["default"].createElement("i", {
-    className: "icon icon-fw " + (filtering ? 'icon-spin icon-circle-notch' : selected ? 'icon-times-circle fas' : 'icon-circle fas')
+    title: 'All results ' + (status !== 'omitted' ? 'have ' : 'omitted ') + term.key + (status !== 'omitted' ? ' as their ' : ' from their ') + showTitle.toLowerCase() + '; ' + (selectedOrOmitted ? 'currently active as portal-wide filter.' : 'not currently active as portal-wide filter.')
+  }, _react.default.createElement("i", {
+    className: "icon icon-fw " + (filtering ? 'icon-spin icon-circle-notch' : selectedOrOmitted ? status === 'selected' ? 'icon-times-circle fas' : 'icon-minus-circle fas' : 'icon-circle fas')
   }), termName))));
 });
 
@@ -530,31 +537,32 @@ function performFilteringQuery(props, facet, term, callback) {
       context = props.context;
   var targetSearchHref;
   currentHref = currentHref || propHref;
-  var unselectHrefIfSelected = (0, _searchFilters.getUnselectHrefIfSelectedFromResponseFilters)(term, facet, context.filters);
+  var statusAndHref = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, context.filters);
+  var isUnselecting = !!statusAndHref.href;
 
-  if (unselectHrefIfSelected) {
-    targetSearchHref = unselectHrefIfSelected;
+  if (statusAndHref.href) {
+    targetSearchHref = statusAndHref.href;
   } else {
     targetSearchHref = (0, _searchFilters.buildSearchHref)(facet.field, term.key, currentHref);
   }
 
   if (facet.field === 'type') {
-    if (!unselectHrefIfSelected) {
-      var parts = _url["default"].parse(targetSearchHref, true);
+    if (!statusAndHref.href) {
+      var parts = _url.default.parse(targetSearchHref, true);
 
       if (Array.isArray(parts.query.type)) {
         var types = parts.query.type;
 
         if (types.length > 1) {
-          var queryParts = _underscore["default"].clone(parts.query);
+          var queryParts = _underscore.default.clone(parts.query);
 
           delete queryParts[""];
           queryParts.type = encodeURIComponent(term.key);
 
-          var searchString = _queryString["default"].stringify(queryParts);
+          var searchString = _queryString.default.stringify(queryParts);
 
           parts.search = searchString && searchString.length > 0 ? '?' + searchString : '';
-          targetSearchHref = _url["default"].format(parts);
+          targetSearchHref = _url.default.format(parts);
         }
       }
     }
@@ -566,7 +574,7 @@ function performFilteringQuery(props, facet, term, callback) {
     targetSearchHref += currentHref.slice(hashFragmentIdx);
   }
 
-  analytics.event('FacetList', !!unselectHrefIfSelected ? 'Unset Filter' : 'Set Filter', {
+  analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
     'field': facet.field,
     'term': term.key,
     'eventLabel': analytics.eventLabelFromChartNode({
@@ -616,7 +624,7 @@ var FacetList = function (_React$PureComponent3) {
           context = _this$props8.context;
       var href = propHref || context && context['@id'] ? context['@id'] : null;
       if (!href) return null;
-      return href && _url["default"].parse(href, true).query;
+      return href && _url.default.parse(href, true).query;
     }
   }, {
     key: "renderFacets",
@@ -627,7 +635,7 @@ var FacetList = function (_React$PureComponent3) {
           href = _this$props9.href,
           onFilter = _this$props9.onFilter,
           schemas = _this$props9.schemas,
-          isTermSelected = _this$props9.isTermSelected,
+          getTermStatus = _this$props9.getTermStatus,
           itemTypeForSchemas = _this$props9.itemTypeForSchemas,
           windowWidth = _this$props9.windowWidth,
           persistentCount = _this$props9.persistentCount,
@@ -635,11 +643,11 @@ var FacetList = function (_React$PureComponent3) {
           separateSingleTermFacets = _this$props9.separateSingleTermFacets;
       var mounted = this.state.mounted;
 
-      var useFacets = _underscore["default"].sortBy(_underscore["default"].map(_underscore["default"].uniq(facets, false, function (f) {
+      var useFacets = _underscore.default.sortBy(_underscore.default.map(_underscore.default.uniq(facets, false, function (f) {
         return f.field;
       }), function (f) {
         if (typeof f.order !== 'number') {
-          return _underscore["default"].extend({
+          return _underscore.default.extend({
             'order': 0
           }, f);
         }
@@ -647,7 +655,7 @@ var FacetList = function (_React$PureComponent3) {
         return f;
       }), 'order');
 
-      var facetIndexWherePastXTerms = _underscore["default"].reduce(useFacets, function (m, facet, index) {
+      var facetIndexWherePastXTerms = _underscore.default.reduce(useFacets, function (m, facet, index) {
         if (m.end) return m;
         m.facetIndex = index;
         m.termCount = m.termCount + Math.min(facet.terms.length, persistentCount || FacetTermsList.defaultProps.persistentCount);
@@ -659,12 +667,12 @@ var FacetList = function (_React$PureComponent3) {
         end: false
       }).facetIndex;
 
-      return _underscore["default"].map(useFacets, function (facet, i) {
-        return _react["default"].createElement(Facet, _extends({
+      return _underscore.default.map(useFacets, function (facet, i) {
+        return _react.default.createElement(Facet, _extends({
           onFilter: onFilter,
           facet: facet,
           href: href,
-          isTermSelected: isTermSelected,
+          getTermStatus: getTermStatus,
           schemas: schemas,
           itemTypeForSchemas: itemTypeForSchemas,
           mounted: mounted,
@@ -672,8 +680,8 @@ var FacetList = function (_React$PureComponent3) {
           separateSingleTermFacets: separateSingleTermFacets
         }, {
           key: facet.field,
-          defaultFacetOpen: !mounted ? false : !!(_underscore["default"].any(facet.terms, function (t) {
-            return isTermSelected(t, facet);
+          defaultFacetOpen: !mounted ? false : !!(_underscore.default.any(facet.terms, function (t) {
+            return getTermStatus(t, facet) !== 'none';
           }) || (0, _layout.responsiveGridState)(windowWidth || null) !== 'xs' && i < (facetIndexWherePastXTerms || 1))
         }));
       });
@@ -693,7 +701,7 @@ var FacetList = function (_React$PureComponent3) {
       if (debug) _patchedConsole.patchedConsoleInstance.log('render facetlist');
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
-        return _react["default"].createElement("div", {
+        return _react.default.createElement("div", {
           className: "pt-2 pb-2",
           style: {
             color: "#aaa"
@@ -719,55 +727,55 @@ var FacetList = function (_React$PureComponent3) {
         selectableFacetElements = allFacetElements;
       }
 
-      return _react["default"].createElement("div", {
+      return _react.default.createElement("div", {
         className: "facets-container facets" + (className ? ' ' + className : '')
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: "row facets-header"
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: "col facets-title-column text-ellipsis-container"
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-fw icon-filter fas"
-      }), "\xA0", _react["default"].createElement("h4", {
+      }), "\xA0", _react.default.createElement("h4", {
         className: "facets-title"
-      }, title)), _react["default"].createElement("div", {
+      }, title)), _react.default.createElement("div", {
         className: "col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')
-      }, _react["default"].createElement("a", {
+      }, _react.default.createElement("a", {
         href: "#",
         onClick: onClearFilters,
         className: "btn clear-filters-btn btn-xs " + clearButtonClassName
-      }, _react["default"].createElement("i", {
+      }, _react.default.createElement("i", {
         className: "icon icon-fw icon-times fas mr-03"
-      }), _react["default"].createElement("span", null, "Clear All")))), _react["default"].createElement("div", {
+      }), _react.default.createElement("span", null, "Clear All")))), _react.default.createElement("div", {
         className: "facets-body"
-      }, selectableFacetElements, staticFacetElements.length > 0 ? _react["default"].createElement("div", {
+      }, selectableFacetElements, staticFacetElements.length > 0 ? _react.default.createElement("div", {
         className: "row facet-list-separator"
-      }, _react["default"].createElement("div", {
+      }, _react.default.createElement("div", {
         className: "col-12"
       }, staticFacetElements.length, " Common Properties")) : null, staticFacetElements));
     }
   }]);
 
   return FacetList;
-}(_react["default"].PureComponent);
+}(_react.default.PureComponent);
 
 exports.FacetList = FacetList;
 FacetList.propTypes = {
-  'facets': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-    'field': _propTypes["default"].string,
-    'terms': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-      'doc_count': _propTypes["default"].number,
-      'key': _propTypes["default"].string
+  'facets': _propTypes.default.arrayOf(_propTypes.default.shape({
+    'field': _propTypes.default.string,
+    'terms': _propTypes.default.arrayOf(_propTypes.default.shape({
+      'doc_count': _propTypes.default.number,
+      'key': _propTypes.default.string
     })),
-    'title': _propTypes["default"].string,
-    'total': _propTypes["default"].number
+    'title': _propTypes.default.string,
+    'total': _propTypes.default.number
   })),
-  'schemas': _propTypes["default"].object,
-  'title': _propTypes["default"].string,
-  'className': _propTypes["default"].string,
-  'href': _propTypes["default"].string,
-  'onFilter': _propTypes["default"].func,
-  'context': _propTypes["default"].object,
-  'separateSingleTermFacets': _propTypes["default"].bool.isRequired
+  'schemas': _propTypes.default.object,
+  'title': _propTypes.default.string,
+  'className': _propTypes.default.string,
+  'href': _propTypes.default.string,
+  'onFilter': _propTypes.default.func,
+  'context': _propTypes.default.object,
+  'separateSingleTermFacets': _propTypes.default.bool.isRequired
 };
 FacetList.defaultProps = {
   'facets': null,
@@ -791,8 +799,11 @@ FacetList.defaultProps = {
       setTimeout(callback, 1000);
     }
   },
-  'isTermSelected': function isTermSelected() {
-    return false;
+  'getTermStatus': function getTermStatus() {
+    return {
+      'status': 'none',
+      'href': null
+    };
   },
   'itemTypeForSchemas': 'ExperimentSetReplicate',
   'termTransformFxn': function termTransformFxn(field, term) {

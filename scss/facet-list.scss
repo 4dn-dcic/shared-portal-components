@@ -4,6 +4,7 @@
 // Default vars - may be overridden earlier in import chain.
 $facetlist-term-line-height: 1.075rem !default;
 $facetlist-selected-term-color: blue !default;
+$facetlist-omitted-term-color : red !default;
 $facetlist-term-font-size: 0.875rem !default;
 $facetlist-facet-font-size: 0.925rem !default;
 
@@ -253,6 +254,12 @@ $facetlist-facet-font-size: 0.925rem !default;
                     font-size: 0.825rem;
                 }
 
+                &.omitted span i.icon {
+                    opacity: 1 !important;
+                    color : #7e4544;
+                    font-size: 0.825rem;
+                }
+
                 &.filtering span i.icon {
                     opacity: 0.33 !important;
                     color : #888 !important;
@@ -350,6 +357,17 @@ $facetlist-facet-font-size: 0.925rem !default;
                     }
                 }
 
+                &.omitted > a {
+                    text-decoration: none;
+                    color: #f8f8f8;
+                    background-color: $facetlist-omitted-term-color;
+                    &:hover {
+                        color: #fff;
+                        .facet-item, .facet-count {
+                            text-shadow: 0px 0px 0px #fff;
+                        }
+                    }
+                }
             }
 
             > .expandable-list {

@@ -11,7 +11,7 @@ import { Alerts } from './../ui/Alerts';
 import { navigate } from './../util/navigate';
 import { isSelectAction } from './../util/misc';
 import { getAbstractTypeForType, getSchemaTypeFromSearchContext } from './../util/schema-transforms';
-import { determineIfTermFacetSelected } from './../util/search-filters';
+import { determineIfTermFacetSelected, getTermFacetStatus } from './../util/search-filters';
 import { itemUtil } from './../util/object';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 
@@ -47,15 +47,15 @@ export class SearchControllersContainer extends React.PureComponent {
     constructor(props){
         super(props);
         this.onFilter = this.onFilter.bind(this);
-        this.isTermSelected = this.isTermSelected.bind(this);
+        this.getTermStatus = this.getTermStatus.bind(this);
     }
 
     onFilter(facet, term, callback, skipNavigation = false, currentHref = null){
         performFilteringQuery(this.props, facet, term, callback, skipNavigation, currentHref);
     }
 
-    isTermSelected(term, facet){
-        return determineIfTermFacetSelected(term, facet, this.props);
+    getTermStatus(term, facet){
+        return getTermFacetStatus(term, facet, this.props);
     }
 
     render(){
@@ -65,7 +65,7 @@ export class SearchControllersContainer extends React.PureComponent {
         return (
             <CustomColumnController defaultHiddenColumns={defaultHiddenColumns}>
                 <SortController {..._.pick(this.props, 'href', 'context', 'navigate')}>
-                    <ControlsAndResults {...this.props} isTermSelected={this.isTermSelected} onFilter={this.onFilter} />
+                    <ControlsAndResults {...this.props} getTermStatus={this.getTermStatus} onFilter={this.onFilter} />
                 </SortController>
             </CustomColumnController>
         );
@@ -311,7 +311,7 @@ class ControlsAndResults extends React.PureComponent {
                         <FacetList className="with-header-bg" facets={facets} filters={context.filters}
                             onClearFilters={this.handleClearFilters} itemTypeForSchemas={specificType}
                             showClearFiltersButton={this.isClearFiltersBtnVisible()}
-                            {..._.pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter',
+                            {..._.pick(this.props, 'getTermStatus', 'schemas', 'session', 'onFilter',
                                 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')} />
                     </div>
                     : null }
