@@ -112,11 +112,13 @@ var SubItemListView = _react["default"].memo(function (props) {
       schemas = props.schemas,
       popLink = props.popLink,
       excludedKeys = props.excludedKeys,
-      columnDefinitions = props.columnDefinitions;
+      columnDefinitions = props.columnDefinitions,
+      termTransformFxn = props.termTransformFxn;
   if (!isOpen) return null;
   var passProps = {
     schemas: schemas,
     popLink: popLink,
+    termTransformFxn: termTransformFxn,
     'context': item,
     'alwaysCollapsibleKeys': [],
     'excludedKeys': excludedKeys || _underscore["default"].without(Detail.defaultProps.excludedKeys, // Remove
@@ -747,14 +749,16 @@ function (_React$PureComponent) {
         return _react["default"].createElement("div", null, _react["default"].createElement(_PartialList.PartialList.Row, {
           label: labelToShow,
           className: (className || '') + (isOpen ? ' open' : '')
-        }, value), _react["default"].createElement(SubItemListView, {
+        }, value), _react["default"].createElement(SubItemListView, _extends({
           popLink: popLink,
-          content: item,
           schemas: schemas,
           isOpen: isOpen,
+          termTransformFxn: termTransformFxn
+        }, {
+          content: item,
           columnDefinitions: value.props.columnDefinitions || columnDefinitions // Recursively pass these down
 
-        }));
+        })));
       }
 
       if (value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" && value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
