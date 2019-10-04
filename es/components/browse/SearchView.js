@@ -50,7 +50,7 @@ var _SortController = require("./components/SortController");
 
 var _typedefs = require("./../util/typedefs");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -117,9 +117,9 @@ var SearchControllersContainer = function (_React$PureComponent) {
     value: function render() {
       var context = this.props.context;
       var defaultHiddenColumns = (0, _tableCommons.defaultHiddenColumnMapFromColumns)(context.columns);
-      return _react.default.createElement(_CustomColumnController.CustomColumnController, {
+      return _react["default"].createElement(_CustomColumnController.CustomColumnController, {
         defaultHiddenColumns: defaultHiddenColumns
-      }, _react.default.createElement(_SortController.SortController, _underscore.default.pick(this.props, 'href', 'context', 'navigate'), _react.default.createElement(ControlsAndResults, _extends({}, this.props, {
+      }, _react["default"].createElement(_SortController.SortController, _underscore["default"].pick(this.props, 'href', 'context', 'navigate'), _react["default"].createElement(ControlsAndResults, _extends({}, this.props, {
         isTermSelected: this.isTermSelected,
         onFilter: this.onFilter
       }))));
@@ -127,7 +127,7 @@ var SearchControllersContainer = function (_React$PureComponent) {
   }]);
 
   return SearchControllersContainer;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.SearchControllersContainer = SearchControllersContainer;
 
@@ -153,7 +153,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
     _this2.state = {
       selectedItems: new Map()
     };
-    _this2.searchResultTableRef = _react.default.createRef();
+    _this2.searchResultTableRef = _react["default"].createRef();
     return _this2;
   }
 
@@ -167,7 +167,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
         var resultID = _object.itemUtil.atId(result);
 
         if (nextItems.has(resultID)) {
-          nextItems.delete(resultID);
+          nextItems["delete"](resultID);
         } else {
           if (!isMultiSelect) {
             nextItems.clear();
@@ -206,8 +206,8 @@ var ControlsAndResults = function (_React$PureComponent2) {
         _iteratorError = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
           }
         } finally {
           if (_didIteratorError) {
@@ -274,29 +274,29 @@ var ControlsAndResults = function (_React$PureComponent2) {
         return columnExtensionMap;
       }
 
-      columnExtensionMap = _underscore.default.clone(columnExtensionMap);
+      columnExtensionMap = _underscore["default"].clone(columnExtensionMap);
       var origDisplayTitleRenderFxn = columnExtensionMap.display_title && columnExtensionMap.display_title.render || _tableCommons.basicColumnExtensionMap.display_title.render;
 
       if (inSelectionMode) {
-        columnExtensionMap.display_title = _underscore.default.extend({}, columnExtensionMap.display_title, {
+        columnExtensionMap.display_title = _underscore["default"].extend({}, columnExtensionMap.display_title, {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
             var selectedItems = _this3.state.selectedItems;
             var isChecked = selectedItems.has(_object.itemUtil.atId(result));
 
-            var checkBoxControl = _react.default.createElement("input", {
+            var checkBoxControl = _react["default"].createElement("input", {
               type: "checkbox",
               checked: isChecked,
               onChange: _this3.handleSelectItemClick.bind(_this3, result, currentAction === 'multiselect'),
               className: "mr-2"
             });
 
-            var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore.default.extend({}, props, {
+            var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore["default"].extend({}, props, {
               currentAction: currentAction
             }), width, true);
             var newChildren = currentTitleBlock.props.children.slice(0);
             newChildren.unshift(checkBoxControl);
-            return _react.default.cloneElement(currentTitleBlock, {
+            return _react["default"].cloneElement(currentTitleBlock, {
               'children': newChildren
             });
           }
@@ -345,13 +345,13 @@ var ControlsAndResults = function (_React$PureComponent2) {
           href = _this$props2.href,
           context = _this$props2.context;
 
-      var urlPartsQuery = _url.default.parse(href, true).query;
+      var urlPartsQuery = _url["default"].parse(href, true).query;
 
       var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
 
-      var clearFiltersURLQuery = clearFiltersURL && _url.default.parse(clearFiltersURL, true).query;
+      var clearFiltersURLQuery = clearFiltersURL && _url["default"].parse(clearFiltersURL, true).query;
 
-      return !!(clearFiltersURLQuery && !_underscore.default.isEqual(clearFiltersURLQuery, urlPartsQuery));
+      return !!(clearFiltersURLQuery && !_underscore["default"].isEqual(clearFiltersURLQuery, urlPartsQuery));
     }
   }, {
     key: "renderSearchDetailPane",
@@ -359,7 +359,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
       var _this$props3 = this.props,
           windowWidth = _this$props3.windowWidth,
           schemas = _this$props3.schemas;
-      return _react.default.createElement(_SearchResultDetailPane.SearchResultDetailPane, {
+      return _react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {
         result: result,
         rowNumber: rowNumber,
         containerWidth: containerWidth,
@@ -390,36 +390,36 @@ var ControlsAndResults = function (_React$PureComponent2) {
 
       var selfExtendedColumnExtensionMap = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
       var columnDefinitions = (0, _tableCommons.columnsToColumnDefinitions)(context.columns || {}, selfExtendedColumnExtensionMap);
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "row"
-      }, facets.length ? _react.default.createElement("div", {
+      }, facets.length ? _react["default"].createElement("div", {
         className: facetColumnClassName
-      }, _react.default.createElement("div", {
+      }, _react["default"].createElement("div", {
         className: "above-results-table-row"
-      }), _react.default.createElement(_FacetList.FacetList, _extends({
+      }), _react["default"].createElement(_FacetList.FacetList, _extends({
         className: "with-header-bg",
         facets: facets,
         filters: context.filters,
         onClearFilters: this.handleClearFilters,
         itemTypeForSchemas: specificType,
         showClearFiltersButton: this.isClearFiltersBtnVisible()
-      }, _underscore.default.pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react.default.createElement("div", {
+      }, _underscore["default"].pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react["default"].createElement("div", {
         className: tableColumnClassName
-      }, _react.default.createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
+      }, _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
         showTotalResults: context.total,
         parentForceUpdate: this.forceUpdateOnSelf
-      }, _underscore.default.pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen'), {
+      }, _underscore["default"].pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen'), {
         hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions
-      })), _react.default.createElement(_SearchResultTable.SearchResultTable, _extends({
+      })), _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane,
         totalExpected: context.total
-      }, _underscore.default.pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas'), {
+      }, _underscore["default"].pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas'), {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions
-      })), (0, _misc.isSelectAction)(currentAction) ? _react.default.createElement(SelectStickyFooter, _extends({
+      })), (0, _misc.isSelectAction)(currentAction) ? _react["default"].createElement(SelectStickyFooter, _extends({
         context: context,
         schemas: schemas,
         selectedItems: selectedItems,
@@ -432,13 +432,13 @@ var ControlsAndResults = function (_React$PureComponent2) {
   }]);
 
   return ControlsAndResults;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
-_defineProperty(ControlsAndResults, "searchItemTypesFromHref", (0, _memoizeOne.default)(function (href, schemas) {
+_defineProperty(ControlsAndResults, "searchItemTypesFromHref", (0, _memoizeOne["default"])(function (href, schemas) {
   var specificType = 'Item';
   var abstractType = null;
 
-  var urlParts = _url.default.parse(href, true);
+  var urlParts = _url["default"].parse(href, true);
 
   if (typeof urlParts.query.type === 'string') {
     if (urlParts.query.type !== 'Item') {
@@ -465,7 +465,7 @@ var SearchView = function (_React$PureComponent3) {
   _createClass(SearchView, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip.default.rebuild();
+      _reactTooltip["default"].rebuild();
     }
   }, {
     key: "render",
@@ -474,9 +474,9 @@ var SearchView = function (_React$PureComponent3) {
           propFacets = _this$props5.facets,
           propNavigate = _this$props5.navigate,
           context = _this$props5.context;
-      return _react.default.createElement("div", {
+      return _react["default"].createElement("div", {
         className: "search-page-container"
-      }, _react.default.createElement(_AboveSearchTablePanel.AboveSearchTablePanel, _underscore.default.pick(this.props, 'href', 'context', 'schemas')), _react.default.createElement(SearchControllersContainer, _extends({}, this.props, {
+      }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, _underscore["default"].pick(this.props, 'href', 'context', 'schemas')), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
         facets: propFacets || context.facets,
         navigate: propNavigate || _navigate.navigate
       })));
@@ -484,20 +484,20 @@ var SearchView = function (_React$PureComponent3) {
   }]);
 
   return SearchView;
-}(_react.default.PureComponent);
+}(_react["default"].PureComponent);
 
 exports.SearchView = SearchView;
 
 _defineProperty(SearchView, "propTypes", {
-  'context': _propTypes.default.object.isRequired,
-  'currentAction': _propTypes.default.string,
-  'href': _propTypes.default.string.isRequired,
-  'session': _propTypes.default.bool.isRequired,
-  'navigate': _propTypes.default.func,
-  'facets': _propTypes.default.array,
-  'isFullscreen': _propTypes.default.bool.isRequired,
-  'toggleFullScreen': _propTypes.default.func.isRequired,
-  'separateSingleTermFacets': _propTypes.default.bool.isRequired
+  'context': _propTypes["default"].object.isRequired,
+  'currentAction': _propTypes["default"].string,
+  'href': _propTypes["default"].string.isRequired,
+  'session': _propTypes["default"].bool.isRequired,
+  'navigate': _propTypes["default"].func,
+  'facets': _propTypes["default"].array,
+  'isFullscreen': _propTypes["default"].bool.isRequired,
+  'toggleFullScreen': _propTypes["default"].func.isRequired,
+  'separateSingleTermFacets': _propTypes["default"].bool.isRequired
 });
 
 _defineProperty(SearchView, "defaultProps", {
@@ -507,7 +507,7 @@ _defineProperty(SearchView, "defaultProps", {
   'separateSingleTermFacets': true
 });
 
-var SelectStickyFooter = _react.default.memo(function (props) {
+var SelectStickyFooter = _react["default"].memo(function (props) {
   var context = props.context,
       schemas = props.schemas,
       selectedItems = props.selectedItems,
@@ -516,32 +516,32 @@ var SelectStickyFooter = _react.default.memo(function (props) {
       currentAction = props.currentAction;
   var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
   currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : '0';
-  return _react.default.createElement(StickyFooter, null, _react.default.createElement("div", {
+  return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
     className: "row"
-  }, _react.default.createElement("div", {
+  }, _react["default"].createElement("div", {
     className: "col-12 col-md-9 text-md-left col-sm-center"
-  }, currentAction === 'multiselect' ? _react.default.createElement("h3", {
+  }, currentAction === 'multiselect' ? _react["default"].createElement("h3", {
     className: "mt-03 mb-0"
-  }, selectedItems.size, _react.default.createElement("small", {
+  }, selectedItems.size, _react["default"].createElement("small", {
     className: "text-muted ml-08"
-  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react.default.createElement("h3", {
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("h3", {
     className: "mt-03 mb-0"
-  }, "\xA0")), _react.default.createElement("div", {
+  }, "\xA0")), _react["default"].createElement("div", {
     className: "col-12 col-md-3 text-md-right col-sm-center"
-  }, _react.default.createElement("button", {
+  }, _react["default"].createElement("button", {
     type: "button",
     className: "btn btn-success",
     onClick: onComplete,
     disabled: selectedItems.size === 0,
     "data-tip": "Select checked items and close window"
-  }, _react.default.createElement("i", {
+  }, _react["default"].createElement("i", {
     className: "icon icon-fw fas icon-check"
-  }), "\xA0 Apply"), _react.default.createElement("button", {
+  }), "\xA0 Apply"), _react["default"].createElement("button", {
     type: "button",
     className: "btn btn-outline-warning ml-1",
     onClick: onCancel,
     "data-tip": "Cancel selection and close window"
-  }, _react.default.createElement("i", {
+  }, _react["default"].createElement("i", {
     className: "icon icon-fw fas icon-times"
   }), "\xA0 Cancel"))));
 });
@@ -550,9 +550,9 @@ function StickyFooter(props) {
   var children = props.children,
       passProps = _objectWithoutProperties(props, ["children"]);
 
-  return _react.default.createElement("div", _extends({
+  return _react["default"].createElement("div", _extends({
     className: "sticky-page-footer"
-  }, passProps), _react.default.createElement("div", {
+  }, passProps), _react["default"].createElement("div", {
     className: "container"
   }, children));
 }
