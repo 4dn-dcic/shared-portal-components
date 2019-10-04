@@ -1945,7 +1945,6 @@ var ValidationButton = _react["default"].memo(function (props) {
  * an active upload of md5 calculation.
  */
 
-
 var SubmitButton = _react["default"].memo(function (props) {
   var keyValid = props.keyValid,
       currKey = props.currKey,

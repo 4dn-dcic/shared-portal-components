@@ -100,7 +100,10 @@ function (_React$PureComponent) {
         }
       } // check if this is an enum
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f0e8b54132521ce9bea9c4707e6c631192e49d90
       if (fieldSchema["enum"] || fieldSchema.suggested_enum) {
         fieldType = 'enum';
       } // handle a linkTo object on the the top level
@@ -824,9 +827,19 @@ function (_React$PureComponent2) {
     value: function childWindowAlert() {
       var _this$props14 = this.props,
           schema = _this$props14.schema,
-          nestedField = _this$props14.nestedField;
+          nestedField = _this$props14.nestedField,
+          isMultiSelect = _this$props14.isMultiSelect;
       var itemType = schema && schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
+
+      var message = _react["default"].createElement("div", null, !isMultiSelect ? _react["default"].createElement("p", {
+        className: "mb-0"
+      }, "Please either select an Item below and click ", _react["default"].createElement("em", null, "Apply"), " or ", _react["default"].createElement("em", null, "drag and drop"), " an Item (row) from this window into the submissions window.") : _react["default"].createElement("p", {
+        className: "mb-0"
+      }, "Please select the Item(s) you would like and then press ", _react["default"].createElement("em", null, "Apply"), " below."), _react["default"].createElement("p", {
+        className: "mb-0"
+      }, "You may use facets on the left-hand side to narrow down results."));
+
       return {
         'title': 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
         'message': null,
@@ -1048,7 +1061,10 @@ function (_React$Component) {
         fieldType = 'text';
       } // check if this is an enum
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f0e8b54132521ce9bea9c4707e6c631192e49d90
       if (itemSchema["enum"]) {
         fieldType = 'enum';
       } // handle a linkTo object on the the top level
@@ -1589,7 +1605,10 @@ function (_React$Component3) {
             extensions = extensions.concat(response.other_allowed_extensions);
           } // Fail if "other" extension is not used and a valid extension is not provided
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f0e8b54132521ce9bea9c4707e6c631192e49d90
           if (extensions.indexOf("other") === -1 && !_underscore["default"].any(extensions, function (ext) {
             return filename.endsWith(ext);
           })) {
