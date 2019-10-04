@@ -729,7 +729,7 @@ var LinkedObj = function (_React$PureComponent2) {
       var itemType = schema && schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
 
-      var message = _react["default"].createElement("div", null, isMultiSelect ? _react["default"].createElement("p", {
+      var message = _react["default"].createElement("div", null, !isMultiSelect ? _react["default"].createElement("p", {
         className: "mb-0"
       }, "Please either select an Item below and click ", _react["default"].createElement("em", null, "Apply"), " or ", _react["default"].createElement("em", null, "drag and drop"), " an Item (row) from this window into the submissions window.") : _react["default"].createElement("p", {
         className: "mb-0"

@@ -533,7 +533,7 @@ class LinkedObj extends React.PureComponent {
         const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
         const message = (
             <div>
-                { isMultiSelect?
+                { !isMultiSelect?
                     <p className="mb-0">
                         Please either select an Item below and click <em>Apply</em> or <em>drag and drop</em> an Item (row) from this window into the submissions window.
                     </p>
