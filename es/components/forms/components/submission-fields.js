@@ -100,10 +100,7 @@ function (_React$PureComponent) {
         }
       } // check if this is an enum
 
-<<<<<<< HEAD
 
-=======
->>>>>>> f0e8b54132521ce9bea9c4707e6c631192e49d90
       if (fieldSchema["enum"] || fieldSchema.suggested_enum) {
         fieldType = 'enum';
       } // handle a linkTo object on the the top level
@@ -841,17 +838,9 @@ function (_React$PureComponent2) {
       }, "You may use facets on the left-hand side to narrow down results."));
 
       return {
-        'title': 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
-        'message': null,
-        // 'message' : (
-        //     <div>
-        //         <p className="mb-0">
-        //             Please either <b>drag and drop</b> an Item (row) from this window into the submissions window or click its corresponding select (checkbox) button.
-        //         </p>
-        //         <p className="mb-0">You may also browse around and drag & drop a link into the submissions window as well.</p>
-        //     </div>
-        // ),
-        'style': 'info'
+        title: 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
+        message: message,
+        style: 'info'
       };
     }
   }, {
@@ -1061,10 +1050,7 @@ function (_React$Component) {
         fieldType = 'text';
       } // check if this is an enum
 
-<<<<<<< HEAD
 
-=======
->>>>>>> f0e8b54132521ce9bea9c4707e6c631192e49d90
       if (itemSchema["enum"]) {
         fieldType = 'enum';
       } // handle a linkTo object on the the top level
@@ -1605,10 +1591,7 @@ function (_React$Component3) {
             extensions = extensions.concat(response.other_allowed_extensions);
           } // Fail if "other" extension is not used and a valid extension is not provided
 
-<<<<<<< HEAD
 
-=======
->>>>>>> f0e8b54132521ce9bea9c4707e6c631192e49d90
           if (extensions.indexOf("other") === -1 && !_underscore["default"].any(extensions, function (ext) {
             return filename.endsWith(ext);
           })) {

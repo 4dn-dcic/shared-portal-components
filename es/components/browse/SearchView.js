@@ -316,10 +316,15 @@ function (_React$PureComponent2) {
         return columnExtensionMap;
       }
 
-      columnExtensionMap = _underscore["default"].clone(columnExtensionMap);
-      var origDisplayTitleRenderFxn = columnExtensionMap.display_title && columnExtensionMap.display_title.render || _tableCommons.basicColumnExtensionMap.display_title.render;
+      columnExtensionMap = _underscore["default"].clone(columnExtensionMap); // Avoid modifying in place
+
+      var origDisplayTitleRenderFxn = columnExtensionMap.display_title && columnExtensionMap.display_title.render || _tableCommons.basicColumnExtensionMap.display_title.render; // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
+      //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
 
       if (inSelectionMode) {
+        // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
+        // Also add the popLink/target=_blank functionality to links
+        // Remove lab.display_title and type columns on selection
         columnExtensionMap.display_title = _underscore["default"].extend({}, columnExtensionMap.display_title, {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
@@ -480,10 +485,13 @@ function (_React$PureComponent2) {
 }(_react["default"].PureComponent);
 
 _defineProperty(ControlsAndResults, "searchItemTypesFromHref", (0, _memoizeOne["default"])(function (href, schemas) {
-  var specificType = 'Item';
-  var abstractType = null;
+  var specificType = 'Item'; // Default
 
-  var urlParts = _url["default"].parse(href, true);
+  var abstractType = null; // Will be equal to specificType if no parent type.
+
+  var urlParts = _url["default"].parse(href, true); // Non-zero chance of having array here - though shouldn't occur unless URL entered into browser manually
+  // If we do get multiple Item types defined, we treat as if searching `type=Item` (== show `type` facet + column).
+
 
   if (typeof urlParts.query.type === 'string') {
     if (urlParts.query.type !== 'Item') {
