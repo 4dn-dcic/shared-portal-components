@@ -1123,7 +1123,7 @@ var DimensioningContainer = function (_React$PureComponent4) {
           stickyHeaderTopOffset = _this$props13.stickyHeaderTopOffset,
           currentAction = _this$props13.currentAction,
           href = _this$props13.href;
-      var displayNavBar = !(href && typeof href === 'string' && href.indexOf('/search/') >= 0 && currentAction === 'multiselect');
+      var displayNavBar = !(href && typeof href === 'string' && href.indexOf('/search/') >= 0 && (0, _misc.isSelectAction)(currentAction));
       var rgs = (0, _layout.responsiveGridState)(windowWidth);
 
       switch (rgs) {

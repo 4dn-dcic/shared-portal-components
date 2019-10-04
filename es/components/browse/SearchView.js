@@ -48,8 +48,6 @@ var _SearchResultDetailPane = require("./components/SearchResultDetailPane");
 
 var _SortController = require("./components/SortController");
 
-var _Checkbox = require("../forms/components/Checkbox");
-
 var _typedefs = require("./../util/typedefs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -150,7 +148,7 @@ var ControlsAndResults = function (_React$PureComponent2) {
     _this2.handleClearFilters = _this2.handleClearFilters.bind(_assertThisInitialized(_this2));
     _this2.columnExtensionMapWithSelectButton = _this2.columnExtensionMapWithSelectButton.bind(_assertThisInitialized(_this2));
     _this2.renderSearchDetailPane = _this2.renderSearchDetailPane.bind(_assertThisInitialized(_this2));
-    _this2.handleMultiSelectItemCompleteClick = _this2.handleMultiSelectItemCompleteClick.bind(_assertThisInitialized(_this2));
+    _this2.handleSelectItemCompleteClick = _this2.handleSelectItemCompleteClick.bind(_assertThisInitialized(_this2));
     _this2.handleSelectCancelClick = _this2.handleSelectCancelClick.bind(_assertThisInitialized(_this2));
     _this2.state = {
       selectedItems: new Map()
@@ -160,16 +158,8 @@ var ControlsAndResults = function (_React$PureComponent2) {
   }
 
   _createClass(ControlsAndResults, [{
-    key: "handleSingleSelectItemClick",
-    value: function handleSingleSelectItemClick(result) {
-      this.sendDataToParentWindow([{
-        'id': _object.itemUtil.atId(result),
-        'json': result
-      }]);
-    }
-  }, {
-    key: "handleMultiSelectItemClick",
-    value: function handleMultiSelectItemClick(result) {
+    key: "handleSelectItemClick",
+    value: function handleSelectItemClick(result, isMultiSelect) {
       this.setState(function (_ref) {
         var prevItems = _ref.selectedItems;
         var nextItems = new Map(prevItems);
@@ -179,6 +169,10 @@ var ControlsAndResults = function (_React$PureComponent2) {
         if (nextItems.has(resultID)) {
           nextItems["delete"](resultID);
         } else {
+          if (!isMultiSelect) {
+            nextItems.clear();
+          }
+
           nextItems.set(resultID, result);
         }
 
@@ -188,8 +182,8 @@ var ControlsAndResults = function (_React$PureComponent2) {
       });
     }
   }, {
-    key: "handleMultiSelectItemCompleteClick",
-    value: function handleMultiSelectItemCompleteClick() {
+    key: "handleSelectItemCompleteClick",
+    value: function handleSelectItemCompleteClick() {
       var selectedItems = this.state.selectedItems;
       var itemsWrappedWithID = [];
       var _iteratorNormalCompletion = true;
@@ -287,28 +281,15 @@ var ControlsAndResults = function (_React$PureComponent2) {
         columnExtensionMap.display_title = _underscore["default"].extend({}, columnExtensionMap.display_title, {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
-            var checkBoxControl;
+            var selectedItems = _this3.state.selectedItems;
+            var isChecked = selectedItems.has(_object.itemUtil.atId(result));
 
-            if (currentAction === 'multiselect') {
-              var selectedItems = _this3.state.selectedItems;
-              var isChecked = selectedItems.has(_object.itemUtil.atId(result));
-              checkBoxControl = _react["default"].createElement("input", {
-                type: "checkbox",
-                checked: isChecked,
-                onChange: _this3.handleMultiSelectItemClick.bind(_this3, result),
-                className: "mr-2"
-              });
-            } else {
-              checkBoxControl = _react["default"].createElement("div", {
-                className: "select-button-container"
-              }, _react["default"].createElement("button", {
-                type: "button",
-                className: "select-button",
-                onClick: _this3.handleSingleSelectItemClick.bind(_this3, result)
-              }, _react["default"].createElement("i", {
-                className: "icon icon-fw icon-check fas"
-              })));
-            }
+            var checkBoxControl = _react["default"].createElement("input", {
+              type: "checkbox",
+              checked: isChecked,
+              onChange: _this3.handleSelectItemClick.bind(_this3, result, currentAction === 'multiselect'),
+              className: "mr-2"
+            });
 
             var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore["default"].extend({}, props, {
               currentAction: currentAction
@@ -438,12 +419,13 @@ var ControlsAndResults = function (_React$PureComponent2) {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions
-      })), currentAction === 'multiselect' ? _react["default"].createElement(MultiSelectStickyFooter, _extends({
+      })), (0, _misc.isSelectAction)(currentAction) ? _react["default"].createElement(SelectStickyFooter, _extends({
         context: context,
         schemas: schemas,
-        selectedItems: selectedItems
+        selectedItems: selectedItems,
+        currentAction: currentAction
       }, {
-        onComplete: this.handleMultiSelectItemCompleteClick,
+        onComplete: this.handleSelectItemCompleteClick,
         onCancel: this.handleSelectCancelClick
       })) : null));
     }
@@ -525,23 +507,27 @@ _defineProperty(SearchView, "defaultProps", {
   'separateSingleTermFacets': true
 });
 
-var MultiSelectStickyFooter = _react["default"].memo(function (props) {
+var SelectStickyFooter = _react["default"].memo(function (props) {
   var context = props.context,
       schemas = props.schemas,
       selectedItems = props.selectedItems,
       onComplete = props.onComplete,
-      onCancel = props.onCancel;
+      onCancel = props.onCancel,
+      currentAction = props.currentAction;
   var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
+  currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : '0';
   return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
     className: "row"
   }, _react["default"].createElement("div", {
-    className: "col-12 col-md-6 text-md-left col-sm-center"
-  }, _react["default"].createElement("h3", {
+    className: "col-12 col-md-9 text-md-left col-sm-center"
+  }, currentAction === 'multiselect' ? _react["default"].createElement("h3", {
     className: "mt-03 mb-0"
   }, selectedItems.size, _react["default"].createElement("small", {
     className: "text-muted ml-08"
-  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected"))), _react["default"].createElement("div", {
-    className: "col-12 col-md-6 text-md-right col-sm-center"
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("h3", {
+    className: "mt-03 mb-0"
+  }, "\xA0")), _react["default"].createElement("div", {
+    className: "col-12 col-md-3 text-md-right col-sm-center"
   }, _react["default"].createElement("button", {
     type: "button",
     className: "btn btn-success",
