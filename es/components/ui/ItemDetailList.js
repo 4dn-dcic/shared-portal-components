@@ -753,9 +753,12 @@ function (_React$PureComponent) {
           popLink: popLink,
           schemas: schemas,
           isOpen: isOpen,
+          termTransformFxn: termTransformFxn
+        }, {
+          content: item,
           columnDefinitions: value.props.columnDefinitions || columnDefinitions // Recursively pass these down
 
-        }));
+        })));
       }
 
       if (value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" && value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
@@ -1029,7 +1032,7 @@ _defineProperty(Detail, "propTypes", {
 
 _defineProperty(Detail, "defaultProps", {
   'excludedKeys': ['@context', 'actions', 'principals_allowed', // Visible elsewhere on page
-  'lab', 'award', 'description', '@id', 'display_title'],
+  'lab', 'award', 'description', '@id', 'display_title', 'aggregated-items'],
   'stickyKeys': ['display_title', 'title', // Experiment Set
   'experimentset_type', 'date_released', // Experiment
   'experiment_type', 'experiment_summary', 'experiment_sets', 'files', 'filesets', 'protocol', 'biosample', 'digestion_enzyme', 'digestion_temperature', 'digestion_time', 'ligation_temperature', 'ligation_time', 'ligation_volume', 'tagging_method', // Experiment Type
@@ -1040,7 +1043,7 @@ _defineProperty(Detail, "defaultProps", {
   'end_date', 'project', 'uri', 'ID', // Document
   'attachment', // Things to go at bottom consistently
   'aliases'],
-  'alwaysCollapsibleKeys': ['@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'dbxrefs', 'status', 'external_references', 'date_created'],
+  'alwaysCollapsibleKeys': ['@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'dbxrefs', 'status', 'external_references', 'date_created', 'validation-errors'],
   'open': null,
   'columnDefinitionMap': {
     '@id': {

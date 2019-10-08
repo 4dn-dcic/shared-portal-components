@@ -744,9 +744,7 @@ function (_React$PureComponent2) {
         return item.id && typeof item.id === 'string' && item.json;
       })) {
         return;
-      } //currenly we support single item selection
-      //TODO: implement multi selection functionality
-
+      }
 
       var atIds;
 
@@ -860,7 +858,7 @@ function (_React$PureComponent2) {
       var extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
       var itemType = schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
-      var searchURL = '/search/?currentAction=selection&type=' + itemType; // check if we have any schema flags that will affect the searchUrl
+      var searchURL = '/search/?currentAction=' + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType; // check if we have any schema flags that will affect the searchUrl
 
       if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
         // the field to facet on could be set dynamically
@@ -1109,14 +1107,14 @@ function (_React$Component) {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
       // We can't do a comparison of props.value here because parent property mutates yet stays part of same obj.
-      var _this$props17 = this.props,
-          value = _this$props17.value,
-          field = _this$props17.field,
-          pushArrayValue = _this$props17.pushArrayValue,
-          modifyNewContext = _this$props17.modifyNewContext,
-          nestedField = _this$props17.nestedField,
-          schema = _this$props17.schema,
-          linkType = _this$props17.linkType;
+      var _this$props18 = this.props,
+          value = _this$props18.value,
+          field = _this$props18.field,
+          pushArrayValue = _this$props18.pushArrayValue,
+          modifyNewContext = _this$props18.modifyNewContext,
+          nestedField = _this$props18.nestedField,
+          schema = _this$props18.schema,
+          linkType = _this$props18.linkType;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -1131,9 +1129,9 @@ function (_React$Component) {
   }, {
     key: "initiateArrayField",
     value: function initiateArrayField(arrayInfo, index, allItems) {
-      var _this$props18 = this.props,
-          propArrayIdx = _this$props18.arrayIdx,
-          schema = _this$props18.schema; // use arrayIdx as stand-in value for field
+      var _this$props19 = this.props,
+          propArrayIdx = _this$props19.arrayIdx,
+          schema = _this$props19.schema; // use arrayIdx as stand-in value for field
 
       var _arrayInfo = _slicedToArray(arrayInfo, 3),
           inArrValue = _arrayInfo[0],
@@ -1282,12 +1280,12 @@ function (_React$PureComponent3) {
   _createClass(ObjectField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props21 = this.props,
-          value = _this$props21.value,
-          modifyNewContext = _this$props21.modifyNewContext,
-          nestedField = _this$props21.nestedField,
-          linkType = _this$props21.linkType,
-          arrayIdx = _this$props21.arrayIdx; // initialize with empty dictionary
+      var _this$props22 = this.props,
+          value = _this$props22.value,
+          modifyNewContext = _this$props22.modifyNewContext,
+          nestedField = _this$props22.nestedField,
+          linkType = _this$props22.linkType,
+          arrayIdx = _this$props22.arrayIdx; // initialize with empty dictionary
 
       modifyNewContext(nestedField, value || {}, 'object', linkType, arrayIdx);
     }
@@ -1522,9 +1520,9 @@ function (_React$Component3) {
   _createClass(S3FileInput, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      var _this$props24 = this.props,
-          upload = _this$props24.upload,
-          uploadStatus = _this$props24.uploadStatus; // todo: rename upload to uploadManager?
+      var _this$props25 = this.props,
+          upload = _this$props25.upload,
+          uploadStatus = _this$props25.uploadStatus; // todo: rename upload to uploadManager?
 
       var pastUpload = pastProps.upload,
           pastUploadStatus = pastProps.uploadStatus;

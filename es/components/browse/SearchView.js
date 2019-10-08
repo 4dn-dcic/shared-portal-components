@@ -177,26 +177,14 @@ function (_React$PureComponent2) {
     return _this2;
   }
   /**
-   * This is the callback for the "select" button shown in the
-   * display_title column when `props.currentAction` is set to "selection".
+   * This function add/or removes the selected item into an Map in state,
+   * if `props.currentAction` is set to "multiselect" or "selection".
    */
 
 
   _createClass(ControlsAndResults, [{
-    key: "handleSingleSelectItemClick",
-    value: function handleSingleSelectItemClick(result) {
-      this.sendDataToParentWindow([{
-        'id': _object.itemUtil.atId(result),
-        'json': result
-      }]);
-    }
-    /**
-     * This function add/or removes the selected item into an array in state, if `props.currentAction` is set to "multiselect".
-     */
-
-  }, {
-    key: "handleMultiSelectItemClick",
-    value: function handleMultiSelectItemClick(result) {
+    key: "handleSelectItemClick",
+    value: function handleSelectItemClick(result, isMultiSelect) {
       this.setState(function (_ref) {
         var prevItems = _ref.selectedItems;
         var nextItems = new Map(prevItems);
@@ -219,7 +207,7 @@ function (_React$PureComponent2) {
       });
     }
     /**
-     * This function sends selected items to parent window for if `props.currentAction` is set to "multiselect".
+     * This function sends selected items to parent window for if `props.currentAction` is set to "multiselect" or "singleselect".
      */
 
   }, {
@@ -341,29 +329,15 @@ function (_React$PureComponent2) {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
             //set select click handler according to currentAction type (selection or multiselect)
-            var checkBoxControl;
+            var selectedItems = _this3.state.selectedItems;
+            var isChecked = selectedItems.has(_object.itemUtil.atId(result));
 
-            if (currentAction === 'multiselect') {
-              var selectedItems = _this3.state.selectedItems;
-              var isChecked = selectedItems.has(_object.itemUtil.atId(result));
-              checkBoxControl = _react["default"].createElement("input", {
-                type: "checkbox",
-                checked: isChecked,
-                onChange: _this3.handleMultiSelectItemClick.bind(_this3, result),
-                className: "mr-2"
-              });
-            } else {
-              //default: currentAction is selection
-              checkBoxControl = _react["default"].createElement("div", {
-                className: "select-button-container"
-              }, _react["default"].createElement("button", {
-                type: "button",
-                className: "select-button",
-                onClick: _this3.handleSingleSelectItemClick.bind(_this3, result)
-              }, _react["default"].createElement("i", {
-                className: "icon icon-fw icon-check fas"
-              })));
-            }
+            var checkBoxControl = _react["default"].createElement("input", {
+              type: "checkbox",
+              checked: isChecked,
+              onChange: _this3.handleSelectItemClick.bind(_this3, result, currentAction === 'multiselect'),
+              className: "mr-2"
+            });
 
             var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore["default"].extend({}, props, {
               currentAction: currentAction
@@ -636,7 +610,7 @@ var SelectStickyFooter = _react["default"].memo(function (props) {
 /**
  * General purpose sticky footer component
  * @param {*} props
- * TODO: 1. instead of inline styling, a rule can be added into a scss file, 2. Component can be moved to a separate file.
+ * TODO: Component can be moved to a separate file.
  */
 
 
