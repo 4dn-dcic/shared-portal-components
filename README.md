@@ -1,6 +1,6 @@
 
 
-# Introduction# 
+# Introduction
 
 This is a repo of various code/components which is meant to be re-used between CGAP and 4DN portals.
 
@@ -28,6 +28,10 @@ From child component:
 From parent component:
 - `npm link @hms-dbmi-bgm/shared-portal-components`
 - followed by your build/dev script, e.g. `npm run dev-quick`, `npm run build`, etc.
+
+### ESM (ECMAScript Module) Compilation of shared-portal-components
+
+.. should handled entirely by parent repo such as cgap-portal or fourfront. The `npm run dev-quick` command in each respective portal repo will determine if `shared-portal-components` is sym-linked, and if so, will compile the "es" directory of shared-portal-components' working directory. Contents from "es" directory are then imported and used in portal(s). Alternatively, if not running `npm run dev-quick`, can build from working dir of `shared-portal-components` using command `npm run build`.
 
 # Important Notes
 
