@@ -1,6 +1,6 @@
 
 
-## Intro
+# Introduction
 
 This is a repo of various code/components which is meant to be re-used between CGAP and 4DN portals.
 
@@ -29,4 +29,17 @@ From parent component:
 - `npm link @hms-dbmi-bgm/shared-portal-components`
 - followed by your build/dev script, e.g. `npm run dev-quick`, `npm run build`, etc.
 
+### ESM (ECMAScript Module) Compilation of shared-portal-components
 
+.. should handled entirely by parent repo such as cgap-portal or fourfront. The `npm run dev-quick` command in each respective portal repo will determine if `shared-portal-components` is sym-linked, and if so, will compile the "es" directory of shared-portal-components' working directory. Contents from "es" directory are then imported and used in portal(s). Alternatively, if not running `npm run dev-quick`, can build from working dir of `shared-portal-components` using command `npm run build`.
+
+# Important Notes
+
+## Updating (any) NPM dependencies
+Updating (ordinary) dependencies either in this `shared-portal-components` repo or in a parent/portal repo, assuming you have or have had the shared-portal-components `npm link`ed, requires a few additional steps in addition to uptading package.json and running `npm install`:
+
+Whenever update a package dependency in package.json in any portal, you **must** also run `npm install` and commit the resulting `package-lock.json`. If have any modules `link`ed, then you must run `npm install` **twice**, possibly also followed by `npm dedupe`. This is because NPM will reconcile dependencies from _linked_ locations and install over any linked modules/locations. The first time is run, it will assume some dependency requirements are falsely satisfied due to the sym-link(s). The second time is run, it will run with all local (non-sym-linked) modules and correctly concile dependencies. `npm dedupe` does what it sounds like and remove any redundant packages which might have been installed.
+
+## Version Releases
+
+We currently hold this `shared-portal-components` (SPC) only in GitHub and not on NPM. We might publish in NPM in the future, but this a big big maybe. Once have reviewed & merged a branch or commit, to make changes appear in non-sym-linked local or in production, will need to release a new version of SPC repository using GitHub Releases. Then will need to `npm install` the new version in both 4DN and CGAP portals (depending on priority, if changes needed in portal repo, etc.) according to the above "Updating (any) NPM dependencies" notes to test ordinary/production installation/usage of SPC. Once package.json & package-lock.json have been updated accordingly and committed, changes will show up in production deployments.
