@@ -64,10 +64,10 @@ SubItemTitle.propTypes = {
 };
 
 export const SubItemListView = React.memo(function SubItemListView(props){
-    const { isOpen, content : item, schemas, popLink, excludedKeys, columnDefinitions } = props;
+    const { isOpen, content : item, schemas, popLink, excludedKeys, columnDefinitions, termTransformFxn } = props;
     if (!isOpen) return null;
     const passProps = {
-        schemas, popLink,
+        schemas, popLink, termTransformFxn,
         'context' : item,
         'alwaysCollapsibleKeys' : [],
         'excludedKeys' : (
@@ -609,8 +609,7 @@ class DetailRow extends React.PureComponent {
             return (
                 <div>
                     <PartialList.Row label={labelToShow} className={(className || '') + (isOpen ? ' open' : '')}>{ value }</PartialList.Row>
-                    <SubItemListView
-                        popLink={popLink} content={item} schemas={schemas} isOpen={isOpen}
+                    <SubItemListView {...{ popLink, schemas, isOpen, termTransformFxn }} content={item}
                         columnDefinitions={value.props.columnDefinitions || columnDefinitions} // Recursively pass these down
                     />
                 </div>
@@ -623,8 +622,7 @@ class DetailRow extends React.PureComponent {
             return (
                 <div className="array-group" data-length={item.length}>
                     { React.Children.map(value.props.children, (c, i)=>
-                        <DetailRow
-                            {...this.props} label={i === 0 ? labelToShow : <span className="dim-duplicate">{ labelToShow }</span>} labelNumber={i + 1} item={item[i]}
+                        <DetailRow {...this.props} label={i === 0 ? labelToShow : <span className="dim-duplicate">{ labelToShow }</span>} labelNumber={i + 1} item={item[i]}
                             className={("array-group-row item-index-" + i) + (i === item.length - 1 ? ' last-item' : '') + (i === 0 ? ' first-item' : '')} />
                     ) }
                 </div>
@@ -765,12 +763,14 @@ export class Detail extends React.PureComponent {
         'columnDefinitions' : PropTypes.object
     };
 
+    /** For the most part, these are 4DN-specific and overriden as needed in CGAP portal. */
     static defaultProps = {
         'excludedKeys' : [
             '@context', 'actions', 'principals_allowed',
             // Visible elsewhere on page
             'lab', 'award', 'description',
-            '@id', 'display_title'
+            '@id', 'display_title',
+            'aggregated-items'
         ],
         'stickyKeys' : [
             'display_title', 'title',
@@ -800,7 +800,16 @@ export class Detail extends React.PureComponent {
             'aliases',
         ],
         'alwaysCollapsibleKeys' : [
-            '@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'dbxrefs', 'status', 'external_references', 'date_created'
+            '@type',
+            'accession',
+            'schema_version',
+            'uuid',
+            'replicate_exps',
+            'dbxrefs',
+            'status',
+            'external_references',
+            'date_created',
+            'validation-errors'
         ],
         'open' : null,
         'columnDefinitionMap' : {

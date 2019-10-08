@@ -58,6 +58,9 @@ $facetlist-facet-font-size: 0.925rem !default;
                     background-color: #fff;
                     color: #333;
                 }
+                > i.icon {
+                    transform: none;
+                }
             }
 
             &.placeholder {

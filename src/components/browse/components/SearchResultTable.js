@@ -936,7 +936,7 @@ class DimensioningContainer extends React.PureComponent {
 
     stickyHeaderTopOffset(){
         const { windowWidth, stickyHeaderTopOffset, currentAction, href } = this.props;
-        const displayNavBar = !(href && typeof href === 'string' && (href.indexOf('/search/') >= 0) && (currentAction === 'multiselect'));
+        const displayNavBar = !(href && typeof href === 'string' && (href.indexOf('/search/') >= 0) && isSelectAction(currentAction));
         const rgs = responsiveGridState(windowWidth);
         switch (rgs){
             case 'xs':

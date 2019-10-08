@@ -36,6 +36,14 @@ var _submissionFields = require("./components/submission-fields");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -2609,22 +2617,50 @@ function (_React$Component2) {
 
   }, {
     key: "selectComplete",
-    value: function selectComplete(value) {
+    value: function selectComplete(atIds) {
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
           selectField = _this$state7.selectField,
           selectArrayIdx = _this$state7.selectArrayIdx,
           selectType = _this$state7.selectType;
       if (!selectField) throw new Error('No field being selected for');
-      var current = selectField && currContext[selectField];
+      var isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
+      var cloneSelectArrayIdx = isMultiSelect ? _toConsumableArray(selectArrayIdx) : null;
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
 
-      var isRepeat = Array.isArray(current) && _underscore["default"].contains(current, value);
+      try {
+        for (var _iterator = atIds[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var atId = _step.value;
+          var current = selectField && currContext[selectField];
 
-      if (!isRepeat) {
-        //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-        this.fetchAndValidateItem(value, selectField, selectType, selectArrayIdx, null);
-      } else {
-        this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+          var isRepeat = Array.isArray(current) && _underscore["default"].contains(current, atId);
+
+          if (!isRepeat) {
+            //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
+            this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
+
+            if (isMultiSelect) {
+              cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
+            }
+          } else {
+            this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx);
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
       }
 
       this.setState({

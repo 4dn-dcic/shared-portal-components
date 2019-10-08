@@ -1938,19 +1938,27 @@ class IndividualObjectView extends React.Component {
      * object selection state, modifies context, and initializes the fetchAndValidateItem
      * process.
      */
-    selectComplete(value){
+    selectComplete(atIds) {
         const { currContext } = this.props;
         const { selectField, selectArrayIdx, selectType } = this.state;
+
         if (!selectField) throw new Error('No field being selected for');
 
-        const current = selectField && currContext[selectField];
-        const isRepeat = (Array.isArray(current) && _.contains(current, value));
+        const isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
+        const cloneSelectArrayIdx = isMultiSelect ? [...selectArrayIdx] : null;
+        for (const atId of atIds) {
+            const current = selectField && currContext[selectField];
+            const isRepeat = (Array.isArray(current) && _.contains(current, atId));
 
-        if (!isRepeat) {
-            //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-            this.fetchAndValidateItem(value, selectField, selectType, selectArrayIdx, null);
-        } else {
-            this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+            if (!isRepeat) {
+                //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
+                this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? [...cloneSelectArrayIdx] : null, null);
+                if (isMultiSelect) {
+                    cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
+                }
+            } else {
+                this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx);
+            }
         }
 
         this.setState({ 'selectField': null, 'selectArrayIdx': null, 'selectType': null });

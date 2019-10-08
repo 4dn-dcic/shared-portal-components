@@ -48,8 +48,6 @@ var _SearchResultDetailPane = require("./components/SearchResultDetailPane");
 
 var _SortController = require("./components/SortController");
 
-var _Checkbox = require("../forms/components/Checkbox");
-
 var _typedefs = require("./../util/typedefs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -170,7 +168,7 @@ function (_React$PureComponent2) {
     _this2.handleClearFilters = _this2.handleClearFilters.bind(_assertThisInitialized(_this2));
     _this2.columnExtensionMapWithSelectButton = _this2.columnExtensionMapWithSelectButton.bind(_assertThisInitialized(_this2));
     _this2.renderSearchDetailPane = _this2.renderSearchDetailPane.bind(_assertThisInitialized(_this2));
-    _this2.handleMultiSelectItemCompleteClick = _this2.handleMultiSelectItemCompleteClick.bind(_assertThisInitialized(_this2));
+    _this2.handleSelectItemCompleteClick = _this2.handleSelectItemCompleteClick.bind(_assertThisInitialized(_this2));
     _this2.handleSelectCancelClick = _this2.handleSelectCancelClick.bind(_assertThisInitialized(_this2));
     _this2.state = {
       selectedItems: new Map()
@@ -208,6 +206,10 @@ function (_React$PureComponent2) {
         if (nextItems.has(resultID)) {
           nextItems["delete"](resultID);
         } else {
+          if (!isMultiSelect) {
+            nextItems.clear();
+          }
+
           nextItems.set(resultID, result);
         }
 
@@ -221,8 +223,8 @@ function (_React$PureComponent2) {
      */
 
   }, {
-    key: "handleMultiSelectItemCompleteClick",
-    value: function handleMultiSelectItemCompleteClick() {
+    key: "handleSelectItemCompleteClick",
+    value: function handleSelectItemCompleteClick() {
       var selectedItems = this.state.selectedItems;
       var itemsWrappedWithID = [];
       var _iteratorNormalCompletion = true;
@@ -493,12 +495,13 @@ function (_React$PureComponent2) {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions
-      })), currentAction === 'multiselect' ? _react["default"].createElement(MultiSelectStickyFooter, _extends({
+      })), (0, _misc.isSelectAction)(currentAction) ? _react["default"].createElement(SelectStickyFooter, _extends({
         context: context,
         schemas: schemas,
-        selectedItems: selectedItems
+        selectedItems: selectedItems,
+        currentAction: currentAction
       }, {
-        onComplete: this.handleMultiSelectItemCompleteClick,
+        onComplete: this.handleSelectItemCompleteClick,
         onCancel: this.handleSelectCancelClick
       })) : null));
     }
@@ -592,23 +595,27 @@ _defineProperty(SearchView, "defaultProps", {
   'separateSingleTermFacets': true
 });
 
-var MultiSelectStickyFooter = _react["default"].memo(function (props) {
+var SelectStickyFooter = _react["default"].memo(function (props) {
   var context = props.context,
       schemas = props.schemas,
       selectedItems = props.selectedItems,
       onComplete = props.onComplete,
-      onCancel = props.onCancel;
+      onCancel = props.onCancel,
+      currentAction = props.currentAction;
   var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
+  currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : '0';
   return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
     className: "row"
   }, _react["default"].createElement("div", {
-    className: "col-12 col-md-6 text-md-left col-sm-center"
-  }, _react["default"].createElement("h3", {
+    className: "col-12 col-md-9 text-md-left col-sm-center"
+  }, currentAction === 'multiselect' ? _react["default"].createElement("h3", {
     className: "mt-03 mb-0"
   }, selectedItems.size, _react["default"].createElement("small", {
     className: "text-muted ml-08"
-  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected"))), _react["default"].createElement("div", {
-    className: "col-12 col-md-6 text-md-right col-sm-center"
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("h3", {
+    className: "mt-03 mb-0"
+  }, "\xA0")), _react["default"].createElement("div", {
+    className: "col-12 col-md-3 text-md-right col-sm-center"
   }, _react["default"].createElement("button", {
     type: "button",
     className: "btn btn-success",
