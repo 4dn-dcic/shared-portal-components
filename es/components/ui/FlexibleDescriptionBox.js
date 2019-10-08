@@ -221,7 +221,7 @@ function (_React$Component3) {
       if (!(0, _misc.isServerSide)()) {
         // Create throttled version of toggleDescriptionExpand for button.
         this.throttledToggleDescriptionExpand = _underscore["default"].throttle(this.toggleDescriptionExpand, 350);
-        (0, _utilities.requestAnimationFrame)(function () {
+        setTimeout(function () {
           var willDescriptionFitAtCurrentSize = _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
 
           _this4.setState({
@@ -229,7 +229,7 @@ function (_React$Component3) {
             'mounted': true,
             'shortContent': _this4.props.linesOfText > 1 ? _this4.makeShortContent() : null
           });
-        });
+        }, 50);
       }
     }
   }, {
@@ -263,15 +263,21 @@ function (_React$Component3) {
           lineHeight = _this$props2.lineHeight,
           fitTo = _this$props2.fitTo;
       if ((0, _misc.isServerSide)()) return true;
+      var boxRef = this.boxRef.current;
+
+      if (!boxRef) {
+        _patchedConsole.patchedConsoleInstance.error("boxRef not available");
+      }
+
       var dims = this.dimensions();
       var containerWidth;
 
       if (fitTo === 'grid') {
         containerWidth = (0, _layout.gridContainerWidth)(windowWidth || null);
       } else if (fitTo === 'parent') {
-        containerWidth = this.boxRef.current.parentElement.offsetWidth;
+        containerWidth = boxRef && boxRef.parentElement && boxRef.parentElement.offsetWidth || (0, _layout.gridContainerWidth)(windowWidth || null);
       } else if (fitTo === 'self') {
-        containerWidth = this.boxRef.current.offsetWidth || 1000;
+        containerWidth = boxRef && boxRef.offsetWidth || (0, _layout.gridContainerWidth)(windowWidth || null);
       }
 
       containerWidth -= dims.paddingWidth; // Account for inner padding & border.
@@ -371,7 +377,7 @@ function (_React$Component3) {
       }
 
       return _react["default"].createElement("div", {
-        ref: this.boxRef || null,
+        ref: this.boxRef,
         className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
         style: {
           'height': containerHeightSet,

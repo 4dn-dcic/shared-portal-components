@@ -189,14 +189,14 @@ export class FlexibleDescriptionBox extends React.Component {
             // Create throttled version of toggleDescriptionExpand for button.
             this.throttledToggleDescriptionExpand = _.throttle(this.toggleDescriptionExpand, 350);
 
-            raf(()=>{
+            setTimeout(()=>{
                 var willDescriptionFitAtCurrentSize = this.checkWillDescriptionFitOneLineAndUpdateHeight();
                 this.setState({
                     'descriptionWillFitOneLine' : willDescriptionFitAtCurrentSize,
                     'mounted' : true,
                     'shortContent' : this.props.linesOfText > 1 ? this.makeShortContent() : null
                 });
-            });
+            }, 50);
         }
 
     }
@@ -219,8 +219,12 @@ export class FlexibleDescriptionBox extends React.Component {
 
     checkWillDescriptionFitOneLineAndUpdateHeight(){
         const { description, textElement, textClassName, textStyle, windowWidth, linesOfText, lineHeight, fitTo } = this.props;
-
         if (isServerSide()) return true;
+        const boxRef = this.boxRef.current;
+
+        if (!boxRef){
+            console.error("boxRef not available");
+        }
 
         const dims = this.dimensions();
         let containerWidth;
@@ -228,9 +232,9 @@ export class FlexibleDescriptionBox extends React.Component {
         if (fitTo === 'grid'){
             containerWidth = gridContainerWidth(windowWidth || null);
         } else if (fitTo === 'parent'){
-            containerWidth = this.boxRef.current.parentElement.offsetWidth;
+            containerWidth = (boxRef && boxRef.parentElement && boxRef.parentElement.offsetWidth) || gridContainerWidth(windowWidth || null);
         } else if (fitTo === 'self'){
-            containerWidth = this.boxRef.current.offsetWidth || 1000;
+            containerWidth = (boxRef && boxRef.offsetWidth) || gridContainerWidth(windowWidth || null);
         }
 
         containerWidth -= dims.paddingWidth; // Account for inner padding & border.
@@ -324,7 +328,7 @@ export class FlexibleDescriptionBox extends React.Component {
         }
 
         return (
-            <div ref={this.boxRef || null}
+            <div ref={this.boxRef}
                 className={"flexible-description-box " + (className ? className : '') + (expandButton ? (expanded ? ' expanded' : ' collapsed') : ' not-expandable') }
                 style={{
                     'height'        : containerHeightSet,
