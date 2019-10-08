@@ -41,7 +41,9 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var FlexibleCharacterCountBox = function (_React$Component) {
+var FlexibleCharacterCountBox =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(FlexibleCharacterCountBox, _React$Component);
 
   function FlexibleCharacterCountBox(props) {
@@ -111,7 +113,9 @@ _defineProperty(FlexibleCharacterCountBox, "propTypes", {
   'icon': _propTypes["default"].element
 });
 
-var FlexibleCharacterCountString = function (_React$Component2) {
+var FlexibleCharacterCountString =
+/*#__PURE__*/
+function (_React$Component2) {
   _inherits(FlexibleCharacterCountString, _React$Component2);
 
   function FlexibleCharacterCountString() {
@@ -143,6 +147,11 @@ var FlexibleCharacterCountString = function (_React$Component2) {
 
   return FlexibleCharacterCountString;
 }(_react["default"].Component);
+/**
+ * Works by calculating height of text content using a temporary off-screen container element.
+ * Not related to FlexibleCharacterCount.. classes above.
+ */
+
 
 _defineProperty(FlexibleCharacterCountString, "propTypes", {
   'string': _propTypes["default"].string,
@@ -154,7 +163,9 @@ _defineProperty(FlexibleCharacterCountString, "defaultProps", {
   'expanded': false
 });
 
-var FlexibleDescriptionBox = function (_React$Component3) {
+var FlexibleDescriptionBox =
+/*#__PURE__*/
+function (_React$Component3) {
   _inherits(FlexibleDescriptionBox, _React$Component3);
 
   function FlexibleDescriptionBox(props) {
@@ -183,7 +194,9 @@ var FlexibleDescriptionBox = function (_React$Component3) {
     value: function componentDidUpdate(pastProps) {
       var _this3 = this;
 
+      // Handle window resize
       if (pastProps.windowWidth !== this.props.windowWidth) {
+        // Recalculate some layouting stuff
         (0, _utilities.requestAnimationFrame)(function () {
           _this3.setState(function () {
             _this3.descriptionHeight;
@@ -206,6 +219,7 @@ var FlexibleDescriptionBox = function (_React$Component3) {
       if (this.props.debug) _patchedConsole.patchedConsoleInstance.info("Mounted FlexibleDescriptionBox");
 
       if (!(0, _misc.isServerSide)()) {
+        // Create throttled version of toggleDescriptionExpand for button.
         this.throttledToggleDescriptionExpand = _underscore["default"].throttle(this.toggleDescriptionExpand, 350);
         (0, _utilities.requestAnimationFrame)(function () {
           var willDescriptionFitAtCurrentSize = _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
@@ -260,11 +274,14 @@ var FlexibleDescriptionBox = function (_React$Component3) {
         containerWidth = this.boxRef.current.offsetWidth || 1000;
       }
 
-      containerWidth -= dims.paddingWidth;
-      var tcw = (0, _layout.textContentWidth)(description, textElement, textClassName, containerWidth - dims.buttonWidth, textStyle);
+      containerWidth -= dims.paddingWidth; // Account for inner padding & border.
+
+      var tcw = (0, _layout.textContentWidth)(description, textElement, textClassName, containerWidth - dims.buttonWidth, // Account for expand button.
+      textStyle);
       if (!tcw) return true;
-      this.descriptionHeight = tcw.containerHeight + dims.paddingHeight;
-      this.descriptionWidth = containerWidth;
+      this.descriptionHeight = tcw.containerHeight + dims.paddingHeight; // Account for padding, border.
+
+      this.descriptionWidth = containerWidth; // If we want more than 1 line, calculate if descriptionheight / lineheight > linesWanted.
 
       if (typeof linesOfText === 'number' && linesOfText > 1 && typeof lineHeight === 'number') {
         var divRes = Math.ceil(this.descriptionHeight / lineHeight);
@@ -277,7 +294,8 @@ var FlexibleDescriptionBox = function (_React$Component3) {
       }
 
       if (tcw.textWidth < containerWidth) {
-        this.descriptionHeight = lineHeight + dims.paddingHeight;
+        this.descriptionHeight = lineHeight + dims.paddingHeight; // unset if calcd higher val above
+
         return true;
       }
 
@@ -299,12 +317,14 @@ var FlexibleDescriptionBox = function (_React$Component3) {
         var descriptionExpanded = _this5.state.descriptionExpanded;
 
         if (!descriptionExpanded && linesOfText === 1) {
+          // Delay whiteSpace style since can't transition it w/ CSS3
           setTimeout(function () {
             _this5.setState({
               "descriptionWhiteSpace": 'nowrap'
             });
           }, 350);
-        } else if (!descriptionExpanded) {}
+        } else if (!descriptionExpanded) {// Nada
+        }
       });
     }
   }, {
@@ -343,7 +363,8 @@ var FlexibleDescriptionBox = function (_React$Component3) {
         }));
       }
 
-      var containerHeightSet = expanded ? this.descriptionHeight : !mounted && showOnMount ? 0 : collapsedHeight || Math.min(Math.max(this.dimensions().initialHeight, lineHeight * (linesOfText || 1)), mounted && this.descriptionHeight || 1000);
+      var containerHeightSet = expanded ? this.descriptionHeight : !mounted && showOnMount ? 0 : collapsedHeight || Math.min(Math.max(this.dimensions().initialHeight, lineHeight * (linesOfText || 1)), mounted && this.descriptionHeight || 1000); // Add boxRef to our instance only if we need to.
+      // Moved from componentWillReceiveProps as this lifecycle method is being deprecated.
 
       if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')) {
         this.boxRef = _react["default"].createRef();
@@ -386,6 +407,7 @@ _defineProperty(FlexibleDescriptionBox, "propTypes", {
   }),
   'fitTo': _propTypes["default"].oneOf(['grid', 'parent', 'self']),
   'includeButton': _propTypes["default"].bool,
+  // If false, must use refs and call this.toggleDescriptionExpand manually
   'className': _propTypes["default"].string,
   'textClassName': _propTypes["default"].string,
   'textElement': _propTypes["default"].oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),

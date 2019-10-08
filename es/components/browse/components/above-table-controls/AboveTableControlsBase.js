@@ -43,7 +43,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var AboveTableControlsBase = function (_React$PureComponent) {
+/**
+ * This component must be fed props from CustomColumnController (for columns UI), SelectedFilesController (for selected files read-out).
+ * Some may need to be transformed to exclude certain non-user-controlled columns (e.g. @type) and such.
+ */
+var AboveTableControlsBase =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(AboveTableControlsBase, _React$PureComponent);
 
   _createClass(AboveTableControlsBase, null, [{
@@ -64,6 +70,7 @@ var AboveTableControlsBase = function (_React$PureComponent) {
   }, {
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(props, state) {
+      // Close panel if needed (as told by panelMap 'close' bool field)
       if (state.open && typeof state.open === 'string') {
         var currPanelDefinition = props.panelMap[state.open];
 
@@ -93,6 +100,12 @@ var AboveTableControlsBase = function (_React$PureComponent) {
     _underscore["default"].forEach(_underscore["default"].keys(props.panelMap), function (key) {
       _this.panelToggleFxns[key] = _this.handleOpenToggle.bind(_assertThisInitialized(_this), key);
     });
+    /**
+     * @property {boolean} state.open - Whether panel is open.
+     * @property {boolean} state.reallyOpen - Extra check for if open, will remain true until 'closing' transition is complete.
+     * @property {string[]} state.fileTypeFilters - List of file_type_detailed strings that we filter selected files down to.
+     */
+
 
     _this.state = {
       'open': false,
@@ -209,6 +222,7 @@ var AboveTableControlsBase = function (_React$PureComponent) {
 exports.AboveTableControlsBase = AboveTableControlsBase;
 AboveTableControlsBase.defaultProps = {
   "panelMap": {
+    // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
     "customColumns": {
       "title": _react["default"].createElement("span", null, _react["default"].createElement("i", {
         className: "icon icon-fw icon-gear fas"

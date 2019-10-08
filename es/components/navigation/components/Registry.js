@@ -15,10 +15,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var Registry = function () {
+/**
+ * A registry of views to text and possibly sub-text strings.
+ * Used to register an Item view to be the renderer for a given Item type[/action], for example.
+ *
+ * Copied over from ENCODE.
+ */
+var Registry =
+/*#__PURE__*/
+function () {
   function Registry(options) {
     _classCallCheck(this, Registry);
 
+    // May provide custom providedBy and fallback functions
     this.views = {};
 
     _underscore["default"].extend(this, options);

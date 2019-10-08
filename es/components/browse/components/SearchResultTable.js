@@ -1,4 +1,5 @@
 'use strict';
+/* @flow */
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -92,17 +93,21 @@ var ResultRowColumnBlock = _react["default"].memo(function (props) {
     blockWidth = (0, _tableCommons.getColumnWidthFromDefinition)(columnDefinition, mounted, windowWidth);
   }
 
-  return _react["default"].createElement("div", {
-    className: "search-result-column-block",
-    style: {
-      "width": blockWidth
-    },
-    "data-field": columnDefinition.field
-  }, _react["default"].createElement(_tableCommons.ResultRowColumnBlockValue, _extends({}, props, {
-    width: blockWidth,
-    schemas: schemas
-  })));
+  return (// props includes result
+    _react["default"].createElement("div", {
+      className: "search-result-column-block",
+      style: {
+        "width": blockWidth
+      },
+      "data-field": columnDefinition.field
+    }, _react["default"].createElement(_tableCommons.ResultRowColumnBlockValue, _extends({}, props, {
+      width: blockWidth,
+      schemas: schemas
+    })))
+  );
 });
+/** Not used anywhere (?) */
+
 
 var DefaultDetailPane = _react["default"].memo(function (_ref) {
   var result = _ref.result;
@@ -118,7 +123,9 @@ var DefaultDetailPane = _react["default"].memo(function (_ref) {
   })));
 });
 
-var ResultDetail = function (_React$PureComponent) {
+var ResultDetail =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(ResultDetail, _React$PureComponent);
 
   function ResultDetail(props) {
@@ -135,6 +142,11 @@ var ResultDetail = function (_React$PureComponent) {
     _this.firstFoundHeight = null;
     return _this;
   }
+  /**
+   * @todo Call this function in ExperimentSetDetailPane to keep heights up-to-date
+   * when Processed Files or Raw Files sections are expanded/collapsed as well as just row itself.
+   */
+
 
   _createClass(ResultDetail, [{
     key: "setDetailHeightFromPane",
@@ -212,7 +224,9 @@ _defineProperty(ResultDetail, "propTypes", {
   'toggleDetailOpen': _propTypes["default"].func.isRequired
 });
 
-var ResultRow = function (_React$PureComponent2) {
+var ResultRow =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(ResultRow, _React$PureComponent2);
 
   _createClass(ResultRow, null, [{
@@ -233,7 +247,8 @@ var ResultRow = function (_React$PureComponent2) {
 
     _classCallCheck(this, ResultRow);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ResultRow).call(this, props));
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ResultRow).call(this, props)); //this.shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
+
     _this2.toggleDetailOpen = _underscore["default"].throttle(_this2.toggleDetailOpen.bind(_assertThisInitialized(_this2)), 250);
     _this2.isOpen = _this2.isOpen.bind(_assertThisInitialized(_this2));
     _this2.setDetailHeight = _this2.setDetailHeight.bind(_assertThisInitialized(_this2));
@@ -265,6 +280,8 @@ var ResultRow = function (_React$PureComponent2) {
           id = _this$props5.id;
       return openDetailPanes[id] || false;
     }
+    /** Add some JSON data about the result item upon initiating dragstart. */
+
   }, {
     key: "handleDragStart",
     value: function handleDragStart(evt) {
@@ -272,8 +289,9 @@ var ResultRow = function (_React$PureComponent2) {
       var _this$props6 = this.props,
           result = _this$props6.result,
           href = _this$props6.href,
-          schemas = _this$props6.schemas;
-      evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result));
+          schemas = _this$props6.schemas; // Result JSON itself.
+
+      evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result)); // Result URL and @id.
 
       var hrefParts = _url["default"].parse(href);
 
@@ -282,16 +300,19 @@ var ResultRow = function (_React$PureComponent2) {
       var formedURL = (hrefParts.protocol || '') + (hrefParts.hostname ? '//' + hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '') + atId;
       evt.dataTransfer.setData('text/plain', formedURL);
       evt.dataTransfer.setData('text/uri-list', formedURL);
-      evt.dataTransfer.setData('text/4dn-item-id', atId);
+      evt.dataTransfer.setData('text/4dn-item-id', atId); // Add cool drag image (generate HTML element showing display_title and item type)
+
       if (!document || !document.createElement) return;
       var element = document.createElement('div');
       element.className = "draggable-item-cursor";
-      var innerText = result.display_title;
+      var innerText = result.display_title; // document.createTextNode('')
+
       var innerBoldElem = document.createElement('strong');
       innerBoldElem.appendChild(document.createTextNode(innerText));
       element.appendChild(innerBoldElem);
       element.appendChild(document.createElement('br'));
-      innerText = (0, _schemaTransforms.getItemTypeTitle)(result, schemas);
+      innerText = (0, _schemaTransforms.getItemTypeTitle)(result, schemas); // document.createTextNode('')
+
       element.appendChild(document.createTextNode(innerText));
       document.body.appendChild(element);
       evt.dataTransfer.setDragImage(element, 150, 30);
@@ -304,17 +325,21 @@ var ResultRow = function (_React$PureComponent2) {
     value: function renderColumns() {
       var _this3 = this;
 
+      // TODO (?) prop func to do this to control which columns get which props.
+      // to make more reusable re: e.g. `selectedFiles` (= 4DN-specific).
       var _this$props7 = this.props,
           columnDefinitions = _this$props7.columnDefinitions,
           selectedFiles = _this$props7.selectedFiles;
       var detailOpen = this.isOpen();
       return _underscore["default"].map(columnDefinitions, function (columnDefinition, columnNumber) {
-        var passedProps = _underscore["default"].extend(_underscore["default"].omit(_this3.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id'), {
+        var passedProps = _underscore["default"].extend( // Contains required 'result', 'rowNumber', 'href', 'headerColumnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction
+        _underscore["default"].omit(_this3.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id'), {
           columnDefinition: columnDefinition,
           columnNumber: columnNumber,
           detailOpen: detailOpen,
           'key': columnDefinition.field,
           'toggleDetailOpen': _this3.toggleDetailOpen,
+          // Only needed on first column (contains title, checkbox)
           'selectedFiles': columnNumber === 0 ? selectedFiles : null
         });
 
@@ -329,12 +354,26 @@ var ResultRow = function (_React$PureComponent2) {
           currentAction = _this$props8.currentAction;
       var detailOpen = this.isOpen();
       var isDraggable = (0, _misc.isSelectAction)(currentAction);
+      /**
+       * Props passed to ResultDetail include:
+       * `result`, `renderDetailPane`, `rowNumber`, `tableContainerWidth`, `tableContainerScrollLeft`.
+       *
+       * It should also contain selectedFiles if parent passes it down.
+       */
 
       var detailProps = _underscore["default"].omit(this.props, 'openDetailPanes', 'mounted', 'headerColumnWidths', 'columnDefinitions', 'id', 'detailOpen', 'setDetailHeight');
 
       return _react["default"].createElement("div", {
         className: "search-result-row detail-" + (detailOpen ? 'open' : 'closed') + (isDraggable ? ' is-draggable' : ''),
         "data-row-number": rowNumber
+        /* ref={(r)=>{
+        // TODO POTENTIALLY: Use to set height on open/close icon & sticky title column.
+        var height = (r && r.offsetHeight) || null;
+        if (height && height !== this.rowFullHeight){
+        this.rowFullHeight = height;
+        }
+        }}*/
+
       }, _react["default"].createElement("div", {
         className: "columns clearfix result-table-row",
         draggable: isDraggable,
@@ -378,7 +417,9 @@ _defineProperty(ResultRow, "propTypes", {
   'id': _propTypes["default"].string.isRequired
 });
 
-var LoadMoreAsYouScroll = function (_React$PureComponent3) {
+var LoadMoreAsYouScroll =
+/*#__PURE__*/
+function (_React$PureComponent3) {
   _inherits(LoadMoreAsYouScroll, _React$PureComponent3);
 
   _createClass(LoadMoreAsYouScroll, null, [{
@@ -396,7 +437,9 @@ var LoadMoreAsYouScroll = function (_React$PureComponent3) {
     _this4 = _possibleConstructorReturn(this, _getPrototypeOf(LoadMoreAsYouScroll).call(this, props));
     _this4.getInitialFrom = _this4.getInitialFrom.bind(_assertThisInitialized(_this4));
     _this4.rebuiltHref = _this4.rebuiltHref.bind(_assertThisInitialized(_this4));
-    _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000);
+    _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000); //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
+    //this.handleScrollExt = this.handleScrollExt.bind(this);
+
     var state = {
       'isLoading': false,
       'canLoad': true
@@ -460,7 +503,7 @@ var LoadMoreAsYouScroll = function (_React$PureComponent3) {
           var _this5$props = _this5.props,
               onDuplicateResultsFoundCallback = _this5$props.onDuplicateResultsFoundCallback,
               results = _this5$props.results,
-              setResults = _this5$props.setResults;
+              setResults = _this5$props.setResults; // Check if have same result, if so, refresh all results (something has changed on back-end)
 
           var oldKeys = _underscore["default"].map(results, _object.itemUtil.atId);
 
@@ -521,6 +564,7 @@ var LoadMoreAsYouScroll = function (_React$PureComponent3) {
 
       var elementHeight = _underscore["default"].keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
         if (typeof openDetailPanes[c.props.id] === 'number') {
+          //console.log('height', openDetailPanes[c.props.id], rowHeight, 2 + openDetailPanes[c.props.id] + openRowHeight);
           return openDetailPanes[c.props.id] + openRowHeight + 2;
         }
 
@@ -532,7 +576,8 @@ var LoadMoreAsYouScroll = function (_React$PureComponent3) {
         useWindowAsScrollContainer: true,
         onInfiniteLoad: this.handleLoad,
         isInfiniteLoading: isLoading,
-        timeScrollStateLastsForAfterUserScrolls: 250,
+        timeScrollStateLastsForAfterUserScrolls: 250 //onChangeScrollState={this.handleScrollingStateChange}
+        ,
         loadingSpinnerDelegate: _react["default"].createElement("div", {
           className: "search-result-row loading text-center",
           style: {
@@ -571,7 +616,9 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   }
 });
 
-var ShadowBorderLayer = function (_React$Component) {
+var ShadowBorderLayer =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(ShadowBorderLayer, _React$Component);
 
   _createClass(ShadowBorderLayer, null, [{
@@ -648,11 +695,12 @@ var ShadowBorderLayer = function (_React$Component) {
 
       if (fullRowWidth > tableContainerWidth) {
         if (tableContainerScrollLeft > 5) {
+          //shadowBorderClassName += ' shadow-left';
           edges.left = tableContainerScrollLeft;
         }
 
         if (tableContainerScrollLeft + tableContainerWidth <= fullRowWidth - 5) {
-          edges.right = fullRowWidth - tableContainerWidth - tableContainerScrollLeft;
+          edges.right = fullRowWidth - tableContainerWidth - tableContainerScrollLeft; //shadowBorderClassName += ' shadow-right';
         }
       }
 
@@ -674,11 +722,21 @@ var ShadowBorderLayer = function (_React$Component) {
 
       if (tableHeight > 800) {
         cls = ' tall';
+        /*
+        if (!isServerSide()){
+            var windowHeight = window.innerHeight;
+            var scrollTop = document && document.body && document.body.scrollTop;
+            var tableTopOffset = getElementOffset(props.innerContainerElem).top;
+            if (windowHeight / 2 + scrollTop > tableTopOffset){
+                cls += ' fixed-position-arrows';
+            }
+        }
+        */
       } else {
         cls = ' short';
       }
 
-      return cls;
+      return cls; //return this.lastDimClassName;
     }
   }, {
     key: "handleScrollButtonMouseDown",
@@ -687,6 +745,7 @@ var ShadowBorderLayer = function (_React$Component) {
       var evt = arguments.length > 1 ? arguments[1] : undefined;
 
       if (evt.button === 0) {
+        // Left click
         this.scrolling = true;
         this.performScrollAction(direction);
       }
@@ -786,7 +845,9 @@ _defineProperty(ShadowBorderLayer, "defaultProps", {
   'horizontalScrollRateOnEdgeButton': 10
 });
 
-var DimensioningContainer = function (_React$PureComponent4) {
+var DimensioningContainer =
+/*#__PURE__*/
+function (_React$PureComponent4) {
   _inherits(DimensioningContainer, _React$PureComponent4);
 
   _createClass(DimensioningContainer, null, [{
@@ -794,6 +855,7 @@ var DimensioningContainer = function (_React$PureComponent4) {
     value: function resetHeaderColumnWidths(columnDefinitions) {
       var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var windowWidth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      //const listOfZeroes = [].fill(0, 0, columnDefinitions.length);
       return _underscore["default"].map(columnDefinitions, function (colDef) {
         return (0, _tableCommons.getColumnWidthFromDefinition)(colDef, mounted, windowWidth);
       });
@@ -855,6 +917,15 @@ var DimensioningContainer = function (_React$PureComponent4) {
 
       return null;
     }
+    /**
+     * We previously had used `object.itemUtil.compareResultsByID`, however
+     * `getDerivedStateFromProps` is ran right before every single render so
+     * for performance we compare list/object reference instead.
+     *
+     * If results have changed, it implicitly means something like href or user
+     * session has changed as well.
+     */
+
   }, {
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(props, state) {
@@ -894,9 +965,13 @@ var DimensioningContainer = function (_React$PureComponent4) {
     _this8.state = {
       'mounted': false,
       'widths': DimensioningContainer.resetHeaderColumnWidths(props.columnDefinitions, false, props.windowWidth),
+      // We cache this here in order to be able props.results vs state.orginalResults
+      // in getDerivedStateFromProps.
+      // SearchResultTable _does not_ get context passed in, so we compare results instead.
       'originalResults': props.results,
       'results': props.results.slice(0),
       'isWindowPastTableTop': false,
+      // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
       'openDetailPanes': {}
     };
     _this8.innerContainerRef = _react["default"].createRef();
@@ -927,7 +1002,8 @@ var DimensioningContainer = function (_React$PureComponent4) {
         innerContainerElem.addEventListener('scroll', this.onHorizontalScroll);
       } else {
         nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
-      }
+      } // Register onScroll handler.
+
 
       this.scrollHandlerUnsubscribeFxn = registerWindowOnScrollHandler(this.onVerticalScroll);
       this.setState(nextState);
@@ -950,7 +1026,12 @@ var DimensioningContainer = function (_React$PureComponent4) {
         _reactTooltip["default"].rebuild();
       }
 
-      if (pastProps.columnDefinitions.length !== this.props.columnDefinitions.length) {
+      if (pastProps.columnDefinitions.length !== this.props.columnDefinitions.length
+      /* || this.props.results !== pastProps.results*/
+      ) {
+          // We have a list of widths in state; if new col is added, these are no longer aligned, so we reset.
+          // We may optioanlly (currently disabled) also do this if _original_ results have changed as extra glitter to decrease some widths re: col values.
+          // (if done when state.results have changed, it would occur way too many times to be performant (state.results changes as-you-scroll))
           this.resetWidths();
         } else if (pastProps.windowWidth !== this.props.windowWidth) {
         this.setState(this.getTableDims());
@@ -1019,14 +1100,62 @@ var DimensioningContainer = function (_React$PureComponent4) {
     value: function onVerticalScroll() {
       var _this9 = this;
 
+      //if (!document || !window || !this.refs.innerContainer) return null;
       setTimeout(function () {
+        // Means this callback was finally (after setTimeout) called after `innerContainer` or `this` have been dismounted -- negligible occurence.
         var innerContainerElem = _this9.innerContainerRef.current;
         if (!innerContainerElem) return null;
         var _this9$props = _this9.props,
             windowHeight = _this9$props.windowHeight,
             windowWidth = _this9$props.windowWidth;
         var scrollTop = (0, _layout.getPageVerticalScrollPosition)();
-        var tableTopOffset = (0, _layout.getElementOffset)(innerContainerElem).top;
+        var tableTopOffset = (0, _layout.getElementOffset)(innerContainerElem).top; //var isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem, windowHeight, scrollTop, tableTopOffset);
+
+        // Resize to full width.
+
+        /*
+        if (typeof this.props.fullWidthInitOffset === 'number' && typeof this.props.fullWidthContainerSelectorString === 'string'
+            && !isServerSide() && document && document.body && document.querySelector
+        ){
+            var bodyWidth = document.body.offsetWidth || window.innerWidth;
+            if (bodyWidth > 1200) {
+                var extraWidth = bodyWidth - 1180;
+                var distanceToTopOfTable = tableTopOffset - scrollTop + this.props.stickyHeaderTopOffset;
+                var pageTableContainer = document.querySelector(this.props.fullWidthContainerSelectorString);
+                if (pageTableContainer){
+                    if (distanceToTopOfTable <= 5){
+                        pageTableContainer.style.transition = "none";
+                        pageTableContainer.style.marginLeft = pageTableContainer.style.marginRight = -(extraWidth / 2) + 'px';
+                        if (this.lastDistanceToTopOfTable !== distanceToTopOfTable || !this.state.isWindowPastTableTop){
+                            vizUtil.requestAnimationFrame(()=>{
+                                this.setState({ 'isWindowPastTableTop' : true });
+                            });
+                        }
+                        done = true;
+                    } else if (distanceToTopOfTable > 5 && distanceToTopOfTable <= this.props.fullWidthInitOffset){
+                         //var fullWidthInitOffset = Math.min(this.props.fullWidthInitOffset, tableTopOffset + this.props.stickyHeaderTopOffset);
+                        //var difScale = (fullWidthInitOffset - distanceToTopOfTable) / fullWidthInitOffset;
+                        //pageTableContainer.style.transition = "margin-left .33s, margin-right .33s";
+                        //pageTableContainer.style.marginLeft = pageTableContainer.style.marginRight = -((extraWidth * difScale) / 2) + 'px';
+                        //if (this.lastDistanceToTopOfTable !== distanceToTopOfTable || !this.state.isWindowPastTableTop){
+                        //    this.setState({ 'isWindowPastTableTop' : true });
+                        //}
+                     } else if (distanceToTopOfTable > this.props.fullWidthInitOffset){
+                        pageTableContainer.style.transition = "margin-left .6s, margin-right .6s";
+                        pageTableContainer.style.marginLeft = pageTableContainer.style.marginRight = '0px';
+                        if ((this.lastDistanceToTopOfTable <= this.props.fullWidthInitOffset) || this.state.isWindowPastTableTop){
+                            vizUtil.requestAnimationFrame(()=>{
+                                this.setState({ 'isWindowPastTableTop' : false });
+                            });
+                        }
+                        done = true;
+                    }
+                    this.lastDistanceToTopOfTable = distanceToTopOfTable;
+                 }
+                //console.log('V',scrollTop, tableTopOffset, distanceToTopOfTable);
+            }
+        }
+        */
         var isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem, windowHeight, scrollTop, tableTopOffset);
 
         if (isWindowPastTableTop !== _this9.state.isWindowPastTableTop) {
@@ -1087,7 +1216,7 @@ var DimensioningContainer = function (_React$PureComponent4) {
         (0, _utilities.requestAnimationFrame)(function () {
           var _this10$props = _this10.props,
               columnDefinitions = _this10$props.columnDefinitions,
-              windowWidth = _this10$props.windowWidth;
+              windowWidth = _this10$props.windowWidth; // 2. Upon render into DOM, decrease col sizes.
 
           _this10.setState(_underscore["default"].extend(_this10.getTableDims(), {
             'widths': DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth)
@@ -1174,7 +1303,8 @@ var DimensioningContainer = function (_React$PureComponent4) {
           widths = _this$state3.widths,
           openDetailPanes = _this$state3.openDetailPanes;
 
-      var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
+      var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth); // selectedFiles passed to trigger re-render on PureComponent further down tree (DetailPane).
+
 
       var commonPropsToPass = _underscore["default"].extend(_underscore["default"].pick(this.props, 'columnDefinitions', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'windowWidth', 'schemas'), {
         openDetailPanes: openDetailPanes,
@@ -1230,13 +1360,16 @@ var DimensioningContainer = function (_React$PureComponent4) {
       }, _react["default"].createElement(_reactSticky.Sticky, {
         windowWidth: windowWidth,
         topOffset: this.stickyHeaderTopOffset()
-      }, this.renderHeadersRow), _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'totalExpected', 'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas'), _underscore["default"].pick(this.state, 'results', 'mounted', 'openDetailPanes'), {
+      }, this.renderHeadersRow
+      /* Sticky calls children as if is function */
+      ), _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'totalExpected', 'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas'), _underscore["default"].pick(this.state, 'results', 'mounted', 'openDetailPanes'), {
         tableContainerWidth: tableContainerWidth,
         tableContainerScrollLeft: tableContainerScrollLeft,
         innerContainerElem: innerContainerElem
       }, {
         setResults: this.setResults,
-        ref: this.loadMoreAsYouScrollRef
+        ref: this.loadMoreAsYouScrollRef //onVerticalScroll={this.onVerticalScroll}
+
       }), this.renderResults()))), _react["default"].createElement(ShadowBorderLayer, _extends({
         tableContainerScrollLeft: tableContainerScrollLeft,
         tableContainerWidth: tableContainerWidth,
@@ -1259,8 +1392,25 @@ var DimensioningContainer = function (_React$PureComponent4) {
 
   return DimensioningContainer;
 }(_react["default"].PureComponent);
+/**
+ * Reusable table for displaying search results according to column definitions.
+ *
+ * @export
+ * @class SearchResultTable
+ * @prop {Object[]}         results             Results as returned from back-end, e.g. props.context['@graph'].
+ * @prop {Object[]}         columns             List of column definitions.
+ * @prop {Object}           [defaultWidthMap]   Default column widths per responsive grid state. Applied to all non-constant columns.
+ * @prop {string[]}         [hiddenColumns]     Keys of columns to remove from final columnDefinitions before rendering.
+ * @prop {function}         [renderDetailPane]  An instance of a React component which will receive prop 'result'.
+ * @prop {string}           sortColumn          Current sort column, as fed by SortController.
+ * @prop {boolean}          sortReverse         Whether current sort column is reversed, as fed by SortController.
+ * @prop {function}         sortBy              Callback function for performing a sort, acceping 'sortColumn' and 'sortReverse' as params. As fed by SortController.
+ */
 
-var SearchResultTable = function (_React$PureComponent5) {
+
+var SearchResultTable =
+/*#__PURE__*/
+function (_React$PureComponent5) {
   _inherits(SearchResultTable, _React$PureComponent5);
 
   _createClass(SearchResultTable, null, [{
@@ -1268,6 +1418,13 @@ var SearchResultTable = function (_React$PureComponent5) {
     value: function isDesktopClientside(windowWidth) {
       return !(0, _misc.isServerSide)() && (0, _layout.responsiveGridState)(windowWidth) !== 'xs';
     }
+    /**
+     * Returns the finalized list of columns and their properties in response to
+     * {Object} `hiddenColumns`.
+     *
+     * @param {{ columnDefinitions: Object[], hiddenColumns: Object.<boolean> }} props Component props.
+     */
+
   }]);
 
   function SearchResultTable(props) {

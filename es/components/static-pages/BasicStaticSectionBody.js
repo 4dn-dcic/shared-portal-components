@@ -37,6 +37,7 @@ var BasicStaticSectionBody = _react["default"].memo(function (props) {
   } else if (filetype === 'jsx' && typeof content === 'string') {
     return placeholderReplacementFxn(content.trim());
   } else if (filetype === 'txt' && typeof content === 'string' && content.slice(0, 12) === 'placeholder:') {
+    // Deprecated older method - to be removed once data.4dn uses filetype=jsx everywhere w/ placeholder
     return placeholderReplacementFxn(content.slice(12).trim());
   } else {
     return _react["default"].createElement(element, passProps, content);
@@ -55,6 +56,7 @@ BasicStaticSectionBody.defaultProps = {
   "filetype": "md",
   "element": "div",
   "placeholderReplacementFxn": function placeholderReplacementFxn(placeholderString) {
+    // To be implemented by parent app.
     return placeholderString;
   }
 };

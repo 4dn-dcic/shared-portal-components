@@ -77,6 +77,17 @@ var DEFAULT_WIDTH_MAP = {
   'sm': 120,
   'xs': 120
 };
+/**
+ * Default value rendering function.
+ * Uses columnDefinition field (column key) to get nested property value from result and display it.
+ *
+ * @param {Item} result - JSON object representing row data.
+ * @param {ColumnDefinition} columnDefinition - Object with column definition data - field, title, widthMap, render function (self)
+ * @param {Object} props - Props passed down from SearchResultTable/ResultRowColumnBlock instance.
+ * @param {number} width - Unused. Todo - remove?
+ * @returns {string|null} String value or null. Your function may return a React element, as well.
+ */
+
 exports.DEFAULT_WIDTH_MAP = DEFAULT_WIDTH_MAP;
 
 function defaultColumnBlockRenderFxn(result, columnDefinition) {
@@ -90,6 +101,7 @@ function defaultColumnBlockRenderFxn(result, columnDefinition) {
   if (!value) value = null;
 
   if (Array.isArray(value)) {
+    // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
     value = filterAndUniq(_underscore["default"].map(value, function (v) {
       if (Array.isArray(v)) {
         v = filterAndUniq(v);
@@ -97,7 +109,7 @@ function defaultColumnBlockRenderFxn(result, columnDefinition) {
         if (v.length === 0) v = null;
       }
 
-      return v;
+      return v; //Schemas.Term.toName(columnDefinition.field, v);
     })).join(', ');
   }
 
@@ -129,6 +141,7 @@ var basicColumnExtensionMap = {
 
       var tooltip;
       var hasPhoto = false;
+      /** Registers a list click event for Google Analytics then performs navigation. */
 
       function handleClick(evt) {
         evt.preventDefault();
@@ -145,6 +158,7 @@ var basicColumnExtensionMap = {
       if (title && (title.length > 20 || width < 100)) tooltip = title;
 
       if (link) {
+        // This should be the case always
         title = _react["default"].createElement("a", {
           key: "title",
           href: link || '#',
@@ -152,6 +166,7 @@ var basicColumnExtensionMap = {
         }, title);
 
         if (typeof result.email === 'string' && result.email.indexOf('@') > -1) {
+          // Specific case for User items. May be removed or more cases added, if needed.
           hasPhoto = true;
           title = _react["default"].createElement("span", {
             key: "title"
@@ -184,6 +199,7 @@ var basicColumnExtensionMap = {
       }, _react["default"].createElement("i", {
         className: "icon icon-fw fas icon-filter clickable mr-05",
         onClick: function onClick(e) {
+          // Preserve search query, if any, but remove filters (which are usually per-type).
           if (!props.href || props.href.indexOf('/search/') === -1) return;
           e.preventDefault();
           e.stopPropagation();
@@ -244,6 +260,15 @@ var basicColumnExtensionMap = {
     'order': 515
   }
 };
+/**
+ * Ensure we have a valid React element to render.
+ * If not, try to detect if Item object, and generate link.
+ * Else, let exception bubble up.
+ *
+ * @static
+ * @param {any} value - Value to sanitize.
+ */
+
 exports.basicColumnExtensionMap = basicColumnExtensionMap;
 
 function sanitizeOutputValue(value) {
@@ -283,6 +308,19 @@ var TableRowToggleOpenButton = _react["default"].memo(function (_ref) {
     className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
   }))));
 });
+/**
+ * Should handle and fail cases where context and columns object reference values
+ * have changed, but not contents. User-selected columns should be preserved upon faceting
+ * or similar filtering, but be updated when search type changes.
+ *
+ * Used as equality checker for `columnsToColumnDefinitions` `columns` param memoization as well.
+ *
+ * @param {Object.<Object>} cols1 Previous object of columns, to be passed in from a lifecycle method.
+ * @param {Object.<Object>} cols2 Next object of columns, to be passed in from a lifecycle method.
+ *
+ * @returns {boolean} If context columns have changed, which should be about same as if type has changed.
+ */
+
 
 exports.TableRowToggleOpenButton = TableRowToggleOpenButton;
 
@@ -304,6 +342,16 @@ function haveContextColumnsChanged(cols1, cols2) {
 
   return false;
 }
+/**
+ * Convert a map of field:title to list of column definitions, setting defaults.
+ *
+ * @param {Object.<string>} columns         Map of field names to field/column titles, as returned from back-end.
+ * @param {Object} columnDefinitionMap      Map of field names to extra column properties such 'render', 'title', 'widthMap', etc.
+ * @param {Object[]} constantDefinitions    Preset list of column definitions, each containing at least 'field' and 'title'.
+ * @param {Object} defaultWidthMap          Map of responsive grid states (lg, md, sm) to pixel number sizes.
+ * @returns {Object[]}                      List of objects containing keys 'title', 'field', 'widthMap', and 'render'.
+ */
+
 
 var columnsToColumnDefinitions = (0, _memoizeOne["default"])(function (columns, columnDefinitionMap) {
   var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_WIDTH_MAP;
@@ -325,7 +373,8 @@ var columnsToColumnDefinitions = (0, _memoizeOne["default"])(function (columns, 
       var colDef2 = _underscore["default"].extend({}, colDefOverride, colDef);
 
       colDef = colDef2;
-    }
+    } // Add defaults for any required-for-view but not-present properties.
+
 
     if (colDef.widthMap && colDef.widthMap.sm && typeof colDef.widthMap.xs !== 'number') {
       colDef.widthMap.xs = colDef.widthMap.sm;
@@ -357,8 +406,13 @@ var defaultHiddenColumnMapFromColumns = (0, _memoizeOne["default"])(function (co
 
   return hiddenColMap;
 }, function (newArgs, lastArgs) {
+  // We allow different object references to be considered equal as long as their values are equal.
   return !haveContextColumnsChanged(lastArgs[0], newArgs[0]);
 });
+/**
+ * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).
+ */
+
 exports.defaultHiddenColumnMapFromColumns = defaultHiddenColumnMapFromColumns;
 var columnDefinitionsToScaledColumnDefinitions = (0, _memoizeOne["default"])(function (columnDefinitions) {
   return _underscore["default"].map(columnDefinitions, function (colDef) {
@@ -373,6 +427,16 @@ var columnDefinitionsToScaledColumnDefinitions = (0, _memoizeOne["default"])(fun
     return colDef2;
   });
 });
+/**
+ * Determine the typical column width, given current browser width. Defaults to large width if server-side.
+ *
+ * @param {ColumnDefinition} columnDefinition - JSON of column definition, should have widthMap or width or baseWidth.
+ * @param {Object} columnDefinition.widthMap - Map of integer sizes to use at 'lg', 'md', or 'sm' sizes.
+ * @param {boolean} [mounted=true]  - Whether component calling this function is mounted. If false, uses 'lg' to align with server-side render.
+ * @param {number} [windowWidth=null] - Current window width.
+ * @returns {string|number} Width for div column block to be used at current screen/browser size.
+ */
+
 exports.columnDefinitionsToScaledColumnDefinitions = columnDefinitionsToScaledColumnDefinitions;
 
 function getColumnWidthFromDefinition(columnDefinition) {
@@ -394,10 +458,12 @@ function getColumnWidthFromDefinition(columnDefinition) {
     return widthMap[responsiveGridSize || 'lg'];
   }
 
-  return 250;
+  return 250; // Fallback.
 }
 
-var ResultRowColumnBlockValue = function (_React$Component) {
+var ResultRowColumnBlockValue =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(ResultRowColumnBlockValue, _React$Component);
 
   function ResultRowColumnBlockValue() {
@@ -476,7 +542,9 @@ _defineProperty(ResultRowColumnBlockValue, "defaultProps", {
   'defaultColumnBlockRenderFxn': defaultColumnBlockRenderFxn
 });
 
-var ColumnSorterIcon = function (_React$PureComponent) {
+var ColumnSorterIcon =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(ColumnSorterIcon, _React$PureComponent);
 
   _createClass(ColumnSorterIcon, null, [{
@@ -549,7 +617,9 @@ _defineProperty(ColumnSorterIcon, "defaultProps", {
   'descend': false
 });
 
-var HeadersRowColumn = function (_React$PureComponent2) {
+var HeadersRowColumn =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(HeadersRowColumn, _React$PureComponent2);
 
   function HeadersRowColumn(props) {
@@ -629,7 +699,9 @@ var HeadersRowColumn = function (_React$PureComponent2) {
   return HeadersRowColumn;
 }(_react["default"].PureComponent);
 
-var HeadersRow = function (_React$Component2) {
+var HeadersRow =
+/*#__PURE__*/
+function (_React$Component2) {
   _inherits(HeadersRow, _React$Component2);
 
   function HeadersRow(props) {
@@ -718,7 +790,8 @@ var HeadersRow = function (_React$Component2) {
         'left': tableLeftOffset,
         'width': tableContainerWidth
       }) : {
-        'width': width || null
+        'width': width || null // Only passed in from ItemPage
+
       };
       return _react["default"].createElement("div", {
         className: outerClassName,
@@ -763,6 +836,7 @@ _defineProperty(HeadersRow, "fullRowWidth", (0, _memoizeOne["default"])(function
 
 _defineProperty(HeadersRow, "propTypes", {
   'columnDefinitions': _propTypes["default"].array.isRequired,
+  //ResultRow.propTypes.columnDefinitions,
   'mounted': _propTypes["default"].bool.isRequired,
   'isSticky': _propTypes["default"].bool,
   'stickyStyle': _propTypes["default"].object,

@@ -14,6 +14,15 @@ var _util = require("./../util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+/**
+ * Reusable Component for showing Aliases, External References, etc.
+ * Shown at bottom of Item pages.
+ *
+ * @class ItemFooterRow
+ * @type {Component}
+ * @prop {Object} context - JSON representation of current Item object. Should be available through Redux store's context.
+ * @prop {Object} schemas - JSON representation of sitewide schemas.
+ */
 var ItemFooterRow = _react["default"].memo(function (_ref) {
   var context = _ref.context,
       schemas = _ref.schemas;
@@ -91,7 +100,8 @@ function AliasesSection(_ref5) {
   if (aliases.length === 0) return null;
   if (!_underscore["default"].find(actions, {
     'name': 'edit'
-  })) return null;
+  })) return null; // No 'Edit' action for this Item.
+
   return _react["default"].createElement("div", null, _react["default"].createElement("h4", {
     className: "text-500"
   }, "Aliases"), _react["default"].createElement("div", null, _react["default"].createElement("ul", null, _underscore["default"].map(aliases, function (alias, i) {
@@ -100,12 +110,20 @@ function AliasesSection(_ref5) {
     }, alias);
   }))));
 }
+/**
+ * Used to display an external reference link.
+ *
+ * @prop {Component[]|Element[]|string[]} children - Inner contents or title of link.
+ * @prop {string} uri - The href for the link.
+ */
+
 
 function ExternalReferenceLink(_ref6) {
   var uri = _ref6.uri,
       children = _ref6.children;
 
   if (!uri || typeof uri === 'string' && uri.length < 8) {
+    // < 8 because that's minimum we need for a URL (e.g. 'http://' is first 7 chars)
     return _react["default"].createElement("span", {
       className: "external-reference"
     }, children);

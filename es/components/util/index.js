@@ -1,4 +1,10 @@
 'use strict';
+/**
+ * A directory of methods and maybe a mini-component or two for common use.
+ *
+ * @module util
+ */
+// Misc functions are top-level
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -53,25 +59,40 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-var object = objectMethods;
+// Transforms, manipulations, parsers, etc. re: objects.
+var object = objectMethods; // Navigation
+
 exports.object = object;
-var analytics = analyticsMethods;
+var analytics = analyticsMethods; // Layout
+
 exports.analytics = analytics;
-var layout = layoutMethods;
+var layout = layoutMethods; // AJAX
+
 exports.layout = layout;
-var ajax = ajaxMethods;
+var ajax = ajaxMethods; // Patches over browser window's console and disables logging (e.g. console.log) on production. Just import from this module to patch.
+
 exports.ajax = ajax;
-var console = _patchedConsole.patchedConsoleInstance;
+var console = _patchedConsole.patchedConsoleInstance; // Type definitions
+
 exports.console = console;
-var typedefs = typeDefinitions;
+var typedefs = typeDefinitions; // Functions related to JWT encoding/decoding/storage. Prevent name interference with 'jwt' NPM package.
+
 exports.typedefs = typedefs;
-var JWT = JWTMethods;
+var JWT = JWTMethods; //import * as experimentTransformFunctions from './experiments-transforms';
+//export const expFxn = experimentTransformFunctions;
+
 exports.JWT = JWT;
-var searchFilters = searchFiltersImported;
+var searchFilters = searchFiltersImported; //export { itemTypeHierarchy } from './itemTypeHierarchy';
+//import * as SchemaUtilities from './Schemas';
+//export const Schemas = SchemaUtilities;
+
 exports.searchFilters = searchFilters;
 var schemaTransforms = schemaTransformsImported;
 exports.schemaTransforms = schemaTransforms;
-var valueTransforms = valueTransformsImported;
+var valueTransforms = valueTransformsImported; // Transforms, manipulations, parsers, etc. re: objects.
+
 exports.valueTransforms = valueTransforms;
-var commonFileUtil = fileUtilities;
+var commonFileUtil = fileUtilities; //import * as SearchEngineOptimizationUtilities from './seo';
+//export const SEO = SearchEngineOptimizationUtilities;
+
 exports.commonFileUtil = commonFileUtil;

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'; // @flow
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -35,7 +35,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var CustomColumnController = function (_React$Component) {
+/**
+ * This component stores an object of `hiddenColumns` in state which contains field names as keys and booleans as values.
+ * This, along with functions `addHiddenColumn(field: string)` and `removeHiddenColumn(field: string)`, are passed down to
+ * this component instance's child component instances.
+ *
+ * @prop {Object.<boolean>} [defaultHiddenColumns] - Initial hidden columns state object, if any.
+ */
+var CustomColumnController =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(CustomColumnController, _React$Component);
 
   function CustomColumnController(props) {
@@ -64,6 +73,11 @@ var CustomColumnController = function (_React$Component) {
         });
       }
     }
+    /**
+     * @param {{ hiddenColumns?: string[], defaultHiddenColumns }} props - Component props.
+     * @returns {Object.<boolean>} Map of field names to boolean representing hidden or not.
+     */
+
   }, {
     key: "getAllHiddenColumns",
     value: function getAllHiddenColumns() {
@@ -127,7 +141,9 @@ var CustomColumnController = function (_React$Component) {
 
 exports.CustomColumnController = CustomColumnController;
 
-var CustomColumnSelector = function (_React$PureComponent) {
+var CustomColumnSelector =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(CustomColumnSelector, _React$PureComponent);
 
   function CustomColumnSelector(props) {
@@ -140,6 +156,15 @@ var CustomColumnSelector = function (_React$PureComponent) {
     _this2.handleOptionVisibilityChange = _underscore["default"].throttle(_this2.handleOptionVisibilityChange.bind(_assertThisInitialized(_this2)), 300);
     return _this2;
   }
+  /**
+   * Extends `props.columnDefinitions` (Object[]) with property `hiddenState` (boolean)
+   * according to internal state of `hiddenColumns` (Object.<boolean>).
+   *
+   * Sorts columns according to order and remove the display_title option, as well.
+   *
+   * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
+   */
+
 
   _createClass(CustomColumnSelector, [{
     key: "columnDefinitionsWithHiddenState",

@@ -57,6 +57,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+/** TAKEN FROM https://github.com/react-bootstrap/react-bootstrap/blob/master/src/Collapse.js **/
 var MARGINS = {
   height: ['marginTop', 'marginBottom'],
   width: ['marginLeft', 'marginRight']
@@ -71,7 +72,9 @@ function getDimensionValue(dimension, elem) {
 
 var collapseStyles = (_collapseStyles = {}, _defineProperty(_collapseStyles, _Transition.EXITED, 'collapse'), _defineProperty(_collapseStyles, _Transition.EXITING, 'collapsing'), _defineProperty(_collapseStyles, _Transition.ENTERING, 'collapsing'), _defineProperty(_collapseStyles, _Transition.ENTERED, 'collapse show in'), _collapseStyles);
 
-var Collapse = function (_React$PureComponent) {
+var Collapse =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(Collapse, _React$PureComponent);
 
   function Collapse(props) {
@@ -92,6 +95,8 @@ var Collapse = function (_React$PureComponent) {
       var dimension = this.props.dimension;
       return typeof dimension === 'function' ? dimension() : dimension;
     }
+    /* -- Expanding -- */
+
   }, {
     key: "handleEnter",
     value: function handleEnter(elem) {
@@ -108,6 +113,8 @@ var Collapse = function (_React$PureComponent) {
     value: function handleEntered(elem) {
       elem.style[this.getDimension()] = null;
     }
+    /* -- Collapsing -- */
+
   }, {
     key: "handleExit",
     value: function handleExit(elem) {
@@ -120,7 +127,8 @@ var Collapse = function (_React$PureComponent) {
     key: "handleExiting",
     value: function handleExiting(elem) {
       elem.style[this.getDimension()] = null;
-    }
+    } // for testing
+
   }, {
     key: "_getScrollDimensionValue",
     value: function _getScrollDimensionValue(elem, dimension) {

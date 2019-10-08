@@ -5,6 +5,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.createChainedFunction = createChainedFunction;
 
+/**
+ * Safe chained function
+ *
+ * Will only create a new function if needed,
+ * otherwise will pass back existing functions or null.
+ *
+ * @param {function} functions to chain
+ * @returns {function|null}
+ */
 function createChainedFunction() {
   for (var _len = arguments.length, funcs = new Array(_len), _key = 0; _key < _len; _key++) {
     funcs[_key] = arguments[_key];
@@ -23,7 +32,9 @@ function createChainedFunction() {
         args[_key2] = arguments[_key2];
       }
 
-      acc.apply(this, args);
+      // eslint-disable-next-line no-invalid-this
+      acc.apply(this, args); // eslint-disable-next-line no-invalid-this
+
       f.apply(this, args);
     };
   }, null);

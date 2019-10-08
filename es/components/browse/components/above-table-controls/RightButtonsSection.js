@@ -76,8 +76,11 @@ exports.ConfigureVisibleColumnsButton = ConfigureVisibleColumnsButton;
 ConfigureVisibleColumnsButton.defaultProps = {
   "className": "btn btn-outline-primary"
 };
+/** Toggles between regular & full screen views */
 
-var ToggleLayoutButton = function (_React$PureComponent) {
+var ToggleLayoutButton =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(ToggleLayoutButton, _React$PureComponent);
 
   function ToggleLayoutButton(props) {

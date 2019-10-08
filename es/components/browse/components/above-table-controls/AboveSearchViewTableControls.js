@@ -17,10 +17,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
+/** This left section for Search should be made prettier, either kept in 4DN or re-used. */
 var AboveSearchViewTableControls = _react["default"].memo(function (props) {
   var context = props.context,
       currentAction = props.currentAction,
-      showTotalResults = props.showTotalResults;
+      showTotalResults = props.showTotalResults; // Case if on SearchView
+
   var total = null;
 
   if (showTotalResults) {
@@ -32,9 +34,10 @@ var AboveSearchViewTableControls = _react["default"].memo(function (props) {
     }, _react["default"].createElement("span", {
       className: "text-500"
     }, typeof showTotalResults === 'number' ? showTotalResults : context && typeof context.total === 'number' ? context.total : null), " Results");
-  }
+  } // FOR NOW, we'll stick 'add' button here. -- IF NO SELECTED FILES CONTROLS
 
-  var addButton = null;
+
+  var addButton = null; // don't show during submission search "selecting existing"
 
   if (context && Array.isArray(context.actions) && !currentAction) {
     var addAction = _underscore["default"].findWhere(context.actions, {

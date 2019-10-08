@@ -42,7 +42,15 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+// eslint-disable-next-line no-unused-vars
 var Item = _util.typedefs.Item;
+/**
+ * @todo:
+ * - improve/cleanup code
+ * - remove references to selectedFiles & similar props but ensure still works from 4DN/file-tables
+ *   - maybe pass in selectedFiles props directly to FileEntryBlock (& similar)
+ *   - or pass them thru props here
+ */
 
 function StackedBlockNameLabel(props) {
   var title = props.title,
@@ -65,14 +73,19 @@ function StackedBlockNameLabel(props) {
 }
 
 StackedBlockNameLabel.propTypes = {
+  /** Subtitle/label will appear more opaque when not hovered over */
   'subtitleVisible': _propTypes["default"].bool,
   'className': _propTypes["default"].string,
   'title': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].node]),
   'subtitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].node]),
+  // Pass in place of or in addition to subtitle (takes precedence).
   'accession': _propTypes["default"].string
 };
+/** Name element to be put inside of StackedBlocks as the first child. */
 
-var StackedBlockName = function (_React$PureComponent) {
+var StackedBlockName =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(StackedBlockName, _React$PureComponent);
 
   function StackedBlockName() {
@@ -106,12 +119,18 @@ var StackedBlockName = function (_React$PureComponent) {
 
   return StackedBlockName;
 }(_react["default"].PureComponent);
+/**
+ * Button to toggle collapse/visible of longer StacedkBlockLists. Used in StackedBlockLists.
+ */
+
 
 exports.StackedBlockName = StackedBlockName;
 
 _defineProperty(StackedBlockName, "Label", StackedBlockNameLabel);
 
-var StackedBlockListViewMoreButton = function (_React$PureComponent2) {
+var StackedBlockListViewMoreButton =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(StackedBlockListViewMoreButton, _React$PureComponent2);
 
   function StackedBlockListViewMoreButton() {
@@ -145,16 +164,23 @@ var StackedBlockListViewMoreButton = function (_React$PureComponent2) {
 
   return StackedBlockListViewMoreButton;
 }(_react["default"].PureComponent);
+/**
+ * List which can be put inside a StackedBlock, after a StackedBlockName, and which holds other StackedBlocks.
+ */
+
 
 exports.StackedBlockListViewMoreButton = StackedBlockListViewMoreButton;
 
 _defineProperty(StackedBlockListViewMoreButton, "propTypes", {
   'collapsibleChildren': _propTypes["default"].array,
   'collapsed': _propTypes["default"].bool,
-  'handleCollapseToggle': _propTypes["default"].func
+  'handleCollapseToggle': _propTypes["default"].func // + those from parent .List
+
 });
 
-var StackedBlockList = function (_React$PureComponent3) {
+var StackedBlockList =
+/*#__PURE__*/
+function (_React$PureComponent3) {
   _inherits(StackedBlockList, _React$PureComponent3);
 
   function StackedBlockList(props) {
@@ -183,11 +209,13 @@ var StackedBlockList = function (_React$PureComponent3) {
           columnHeaders = _this$props3.columnHeaders,
           columnClass = _this$props3.columnClass;
       return _react["default"].Children.map(children, function (c) {
+        //if (c.type.displayName !== 'StackedBlock') return c; // Only add props to StackedBlocks
+        // TODO: TEST MIGRATION FROM _.PICK
         var childProps = {
           colWidthStyles: colWidthStyles,
           columnHeaders: columnHeaders,
           stackDepth: stackDepth + 1
-        };
+        }; //const childProps = _.pick(this.props, 'colWidthStyles', 'selectedFiles', 'columnHeaders', 'handleFileCheckboxChange');
 
         _underscore["default"].forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
@@ -227,6 +255,7 @@ var StackedBlockList = function (_React$PureComponent3) {
       var cls = "s-block-list " + (className || '') + (' stack-depth-' + stackDepth);
 
       if (collapseLongLists === false || !Array.isArray(children) || children.length <= collapseLimit) {
+        // Don't have enough items for collapsible element, return plain list.
         return _react["default"].createElement("div", {
           className: cls
         }, children);
@@ -237,6 +266,7 @@ var StackedBlockList = function (_React$PureComponent3) {
       var collapsibleChildrenElemsList;
 
       if (collapsibleChildrenLen > Math.min(collapseShow, 10)) {
+        // Don't transition
         collapsibleChildrenElemsList = this.state.collapsed ? null : _react["default"].createElement("div", {
           className: "collapsible-s-block-ext"
         }, collapsibleChildren);
@@ -276,9 +306,12 @@ _defineProperty(StackedBlockList, "propTypes", {
   'stackDepth': _propTypes["default"].number
 });
 
-var StackedBlock = function (_React$PureComponent4) {
+var StackedBlock =
+/*#__PURE__*/
+function (_React$PureComponent4) {
   _inherits(StackedBlock, _React$PureComponent4);
 
+  /** TODO MAYBE USE HERE & ON LIST */
   function StackedBlock(props) {
     var _this3;
 
@@ -310,6 +343,12 @@ var StackedBlock = function (_React$PureComponent4) {
           stackDepth: stackDepth,
           colWidthStyles: colWidthStyles
         };
+        /*
+        const childProps = _.pick(this.props,
+            'columnClass', 'colWidthStyles', 'label', 'stackDepth',
+            'selectedFiles', 'columnHeaders', 'handleFileCheckboxChange'
+        );
+        */
 
         _underscore["default"].forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
@@ -347,6 +386,17 @@ var StackedBlock = function (_React$PureComponent4) {
 
   return StackedBlock;
 }(_react["default"].PureComponent);
+/**
+ * To be used within Experiments Set View/Page, or
+ * within a collapsible row on the browse page.
+ *
+ * Shows experiments only, not experiment sets.
+ *
+ * Allows either table component itself to control state of "selectedFiles"
+ * or for a parentController (passed in as a prop) to take over management
+ * of "selectedFiles" Set and "checked", for integration with other pages/UI.
+ */
+
 
 exports.StackedBlock = StackedBlock;
 
@@ -356,7 +406,9 @@ _defineProperty(StackedBlock, "List", StackedBlockList);
 
 _defineProperty(StackedBlock, "excludedPassedProps", new Set(['stripe', 'hideNameOnHover', 'keepLabelOnHover', 'className', 'children', 'showMoreExtTitle']));
 
-var StackedBlockTable = function (_React$PureComponent5) {
+var StackedBlockTable =
+/*#__PURE__*/
+function (_React$PureComponent5) {
   _inherits(StackedBlockTable, _React$PureComponent5);
 
   _createClass(StackedBlockTable, null, [{
@@ -374,11 +426,16 @@ var StackedBlockTable = function (_React$PureComponent5) {
         return m + v;
       }, 0);
     }
+    /**
+     * Returns array of column widths, aligned to columnHeaders, which are scaled up to
+     * fit `width`, or original/initial widths if total is > props.width.
+     */
+
   }, {
     key: "scaledColumnWidths",
     value: function scaledColumnWidths(width, columnHeaders, defaultInitialColumnWidth) {
       if (!width) {
-        width = 960;
+        width = 960; // 960 = fallback for tests
       }
 
       var origColumnWidths = StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth);
@@ -398,13 +455,15 @@ var StackedBlockTable = function (_React$PureComponent5) {
         return m + v;
       }, 0);
 
-      var remainder = width - totalNewColsWidth;
+      var remainder = width - totalNewColsWidth; // Adjust first column by few px to fit perfectly.
+
       newColWidths[0] += Math.floor(remainder - 0.5);
       return newColWidths;
     }
   }, {
     key: "colWidthStyles",
     value: function colWidthStyles(columnWidths, columnHeaders) {
+      // { 'experiment' : { width } , 'biosample' : { width }, ... }
       return _underscore["default"].object(_underscore["default"].map(columnHeaders, function (col, index) {
         var key;
 
@@ -473,7 +532,9 @@ var StackedBlockTable = function (_React$PureComponent5) {
           columnHeaders = _this$props8.columnHeaders;
       var colWidthStyles = this.colWidthStyles();
       return _react["default"].Children.map(children, function (c) {
-        var addedProps = _underscore["default"].omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles');
+        // Includes handleFileCheckboxChange, selectedFiles, etc. if present
+        var addedProps = _underscore["default"].omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles'); // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
+
 
         addedProps.colWidthStyles = colWidthStyles;
         addedProps.stackDepth = 0;
@@ -500,7 +561,7 @@ var StackedBlockTable = function (_React$PureComponent5) {
       }
 
       var totalColsWidth = this.totalColumnsWidthMemoized(columnHeaders, defaultInitialColumnWidth);
-      var minTotalWidth = Math.max(width || 0, totalColsWidth);
+      var minTotalWidth = Math.max(width || 0, totalColsWidth); // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
 
       var tableHeaderProps = _underscore["default"].omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles');
 
@@ -604,9 +665,12 @@ function TableHeaders(props) {
 }
 
 TableHeaders.propTypes = {
+  /** Basic props */
   'columnHeaders': _propTypes["default"].array.isRequired,
   'width': _propTypes["default"].number.isRequired,
   'defaultInitialColumnWidth': _propTypes["default"].number,
+
+  /** Below needed to feed into visibleTitle func for e.g. checkbox in column title. */
   'allFiles': _propTypes["default"].arrayOf(_propTypes["default"].object),
   'selectedFiles': _propTypes["default"].arrayOf(_propTypes["default"].object),
   'handleFileCheckboxChange': _propTypes["default"].func.isRequired

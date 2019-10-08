@@ -33,6 +33,22 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+/**
+ * Bootstrap 'Row' component which may be used in PartialList's props.collapsible or props.persistent.
+ * Renders two row columns: one for props.label and one for props.value or props.children.
+ *
+ * @memberof module:item-pages/components.PartialList
+ * @namespace
+ * @type {Component}
+ * @prop {Component|Element|string} label - Label to use in left column.
+ * @prop {Component|Element|string} value - Value to use in right column.
+ * @prop {string} className - Classname to add to '.row.list-item'.
+ * @prop {number} colSm - Grid size (1-12) of label column at *small* screen sizes.
+ * @prop {number} colMd - Grid size (1-12) of label column at *medium* screen sizes.
+ * @prop {number} colLg - Grid size (1-12) of label column at *large* screen sizes.
+ * @prop {Component|Element|string} title - Alias for props.label.
+ * @prop {Component|Element|string} children - Alias for props.value.
+ */
 var Row = _react["default"].memo(function (props) {
   var colSm = props.colSm,
       colMd = props.colMd,
@@ -68,8 +84,22 @@ Row.defaultProps = {
   'colLg': 4,
   'className': ''
 };
+/**
+ * Renders a list using elements along the Bootstrap grid.
+ * Takes two lists as props: 'persistent' and 'collapsible'.
+ * Persistent items are always visible, while collapsible are only shown if props.open is true.
+ *
+ * @type {Component}
+ * @prop {Component[]|Element[]|string[]} persistent    - React elements or components to always render.
+ * @prop {Component[]|Element[]|string[]} collapsible   - React elements or components to render conditionally.
+ * @prop {boolean} open          - Show collapsed items or not.
+ * @prop {string}  className     - Class name for outermost element.
+ * @prop {string}  containerType - Type of element to use as container for the two lists. Defaults to 'div'.
+ */
 
-var PartialList = function (_React$Component) {
+var PartialList =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(PartialList, _React$Component);
 
   _createClass(PartialList, null, [{
@@ -96,6 +126,8 @@ var PartialList = function (_React$Component) {
     };
     return _this;
   }
+  /** TODO implement handleToggle fxn and pass to child */
+
 
   _createClass(PartialList, [{
     key: "render",

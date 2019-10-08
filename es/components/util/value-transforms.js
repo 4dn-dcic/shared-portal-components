@@ -61,7 +61,7 @@ function roundDecimal(num) {
 }
 
 function decorateNumberWithCommas(num) {
-  if (!num || typeof num !== 'number' || num < 1000) return num;
+  if (!num || typeof num !== 'number' || num < 1000) return num; // Put full number into tooltip w. commas.
 
   var chunked = _underscore["default"].chunk((num + '').split('').reverse(), 3);
 
@@ -69,6 +69,8 @@ function decorateNumberWithCommas(num) {
     return c.reverse().join('');
   }).reverse().join(',');
 }
+/** Only use where filename is expected. */
+
 
 function hrefToFilename(href) {
   var linkTitle = href.split('/');

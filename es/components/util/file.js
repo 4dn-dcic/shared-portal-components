@@ -37,15 +37,37 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 var CryptoJS = require('crypto-js');
 
+/** WE WILL REMOVE MOST FUNCS FROM HERE THAT ARENT REUSABLE & KEEP REST IN PROJ-SPECIFIC REPOS */
+
+/**
+ * Gets file_format string from a file.
+ * Requires file_format to be embedded.
+ * Currently file_format.display_title is same as file_format.file_format, so either property is fine.
+ * This may change in the future and would require file_format.file_format to be embedded.
+ *
+ * @param {File} file - A File Item JSON
+ * @returns {string|null} Format of the file.
+ */
 function getFileFormatStr(file) {
   return file && file.file_format && (file.file_format.file_format || file.file_format.display_title) || null;
 }
+/**
+ * Pass a File Item through this function to determine whether to fetch more of it via AJAX or not.
+ *
+ * Use presence of 'status', '@type', and 'display_title' property to determine if File object/Item we have
+ * is complete in its properties or not.
+ *
+ * @param {File} file - Object representing an embedded file. Should have display_title, at minimum.
+ * @returns {boolean} True if complete, false if not.
+ * @throws Error if file is not an object.
+ */
+
 
 function isFileDataComplete(file) {
   if (!file || _typeof(file) !== 'object') throw new Error('File param is not an object.');
 
   if ((0, _misc.isServerSide)() || !window || !document) {
-    return true;
+    return true; // For tests, primarily.
   }
 
   if (typeof file.status !== 'string') {
@@ -62,6 +84,18 @@ function isFileDataComplete(file) {
 
   return true;
 }
+/**********************************
+ *** Grouping-related functions ***
+ **********************************/
+
+/**
+ * Basic greedy file grouping algorithm.
+ *
+ * @param {{ related_files: { relationship_type : string, file: Object }[] }[]} files - List of File Items.
+ * @param {boolean} isBidirectional - If set to true, runs slightly faster.
+ * @returns {File[][]} A list of groups (lists) of files grouped by their related_files connection(s).
+ */
+
 
 function groupFilesByRelations(files) {
   var isBidirectional = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -77,6 +111,7 @@ function groupFilesByRelations(files) {
 
   while (ungroupedFiles.length > 0) {
     if (currGroupIdx >= currGroup.length) {
+      // No more left to add to curr. group. Start new one.
       groups.push(currGroup);
       currGroup = [ungroupedFiles.shift()];
       currGroupIdx = 0;
@@ -86,20 +121,26 @@ function groupFilesByRelations(files) {
     currFileID = _object.itemUtil.atId(currFile);
 
     if (!currFileID) {
+      // No view permission most likely, continue.
       currGroupIdx++;
       continue;
-    }
+    } // Handle unidirectional cases from this file pointing to others.
+    // Bidirectional cases are implicitly handled as part of this.
+
 
     _underscore["default"].forEach(currFile.related_files || [], function (relatedFileEmbeddedObject) {
       var relatedFileID = _object.itemUtil.atId(relatedFileEmbeddedObject.file);
 
-      relatedFileEmbeddedObject.relationship_type;
+      relatedFileEmbeddedObject.relationship_type; // Unused
 
       if (!relatedFileID) {
+        // Most likely no view permissions
+        // Cancel out -- remaining file (if any) will be picked up as part of while loop.
         return;
       }
 
       if (encounteredIDs.has(relatedFileID)) {
+        // Has been encountered already, likely as part of bidirectional connection.
         return;
       }
 
@@ -119,6 +160,7 @@ function groupFilesByRelations(files) {
     });
 
     if (!isBidirectional) {
+      // Handle unidirectional cases from other files pointing to this 1.
       for (ungroupedIter = 0; ungroupedIter < ungroupedFiles.length; ungroupedIter++) {
         anotherUngroupedFile = ungroupedFiles[ungroupedIter];
 
@@ -126,10 +168,13 @@ function groupFilesByRelations(files) {
           var relatedFileID = _object.itemUtil.atId(relatedFileEmbeddedObject.file);
 
           if (!relatedFileID) {
+            // Most likely no view permissions
+            // Cancel out -- remaining file (if any) will be picked up as part of while loop.
             return;
           }
 
           if (encounteredIDs.has(relatedFileID)) {
+            // Has been encountered already, likely as part of bidirectional connection.
             return;
           }
 
@@ -160,6 +205,16 @@ function extractSinglyGroupedItems(groups) {
 
   return [multiFileGroups, _underscore["default"].flatten(singleFileGroups, true)];
 }
+/**
+ * Filter a list of files down to those with a value for `quality_metric` and `quality_metric.overall_quality_status`.
+ *
+ * @deprecated If Raw Files also start have quality_metric_summary populated, then we can migrate away from & delete this func.
+ *
+ * @param {File[]} files                    List of files, potentially with quality_metric.
+ * @param {boolean} [checkAny=false]        Whether to run a _.any (returning a boolean) instead of a _.filter, for performance in case don't need the files themselves.
+ * @returns {File[]|true} Filtered list of files or boolean for "any", depending on `checkAny` param.
+ */
+
 
 var filterFilesWithEmbeddedMetricItem = (0, _memoizeOne["default"])(function (files) {
   var checkAny = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
@@ -173,18 +228,27 @@ var filterFilesWithQCSummary = (0, _memoizeOne["default"])(function (files) {
   var checkAny = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   var func = checkAny ? _underscore["default"].any : _underscore["default"].filter;
   return func(files, function (f) {
-    return Array.isArray(f.quality_metric_summary) && f.quality_metric_summary.length > 0 && f.quality_metric_summary.length === Array.from(new Set(_underscore["default"].pluck(f.quality_metric_summary, 'title'))).length;
+    return Array.isArray(f.quality_metric_summary) && f.quality_metric_summary.length > 0 && // Ensure all unique titles
+    f.quality_metric_summary.length === Array.from(new Set(_underscore["default"].pluck(f.quality_metric_summary, 'title'))).length;
   });
 });
+/**
+ * Groups files with a `quality_metric_summary` property by the concatanated
+ * unique titles of the summary items/columns.
+ *
+ * @param {File[]} filesWithMetrics - List of files which all contain a `quality_metric_summary`.
+ * @returns {File[][]} Groups of files as 2d array.
+ */
+
 exports.filterFilesWithQCSummary = filterFilesWithQCSummary;
 var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWithMetrics) {
   var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "\t";
   return _underscore["default"].pluck(Array.from(_underscore["default"].reduce(filesWithMetrics, function (m, file) {
     var titles = _underscore["default"].map(file.quality_metric_summary, function (qcMetric) {
-      return qcMetric.title || qcMetric.display_title;
+      return qcMetric.title || qcMetric.display_title; // In case becomes an embedded obj at some point.
     });
 
-    var titlesAsString = titles.join(sep);
+    var titlesAsString = titles.join(sep); // Using Tab as is unlikely character to be used in a title column.
 
     if (!m.has(titlesAsString)) {
       m.set(titlesAsString, []);
@@ -201,7 +265,8 @@ function isFilenameAnImage(filename) {
   var fileNameLower, fileNameLowerEnds;
 
   if (typeof filename === 'string') {
-    fileNameLower = filename && filename.length > 0 && filename.toLowerCase() || '';
+    fileNameLower = filename && filename.length > 0 && filename.toLowerCase() || ''; // Store ending(s) into object so we don't have to call `fileNameLower.slice` per each comparison.
+
     fileNameLowerEnds = {
       '3': fileNameLower.slice(-3),
       '4': fileNameLower.slice(-4),
@@ -217,6 +282,18 @@ function isFilenameAnImage(filename) {
 
   return fileNameLowerEnds['5'] === '.tiff' || fileNameLowerEnds['4'] === '.jpg' || fileNameLowerEnds['5'] === '.jpeg' || fileNameLowerEnds['4'] === '.png' || fileNameLowerEnds['4'] === '.bmp' || fileNameLowerEnds['4'] === '.gif';
 }
+/*******************/
+
+/*** MD5 Related ***/
+
+/*******************/
+
+/**
+ * Return a cryptojs WordArray given an arrayBuffer (elemtent 0). Also return
+ * original arraylength contained within buffer (element 1)
+ * Solution originally: https://groups.google.com/forum/#!msg/crypto-js/TOb92tcJlU0/Eq7VZ5tpi-QJ
+ */
+
 
 function arrayBufferToWordArray(ab) {
   var i8a = new Uint8Array(ab);
@@ -224,7 +301,8 @@ function arrayBufferToWordArray(ab) {
 
   for (var i = 0; i < i8a.length; i += 4) {
     a.push(i8a[i] << 24 | i8a[i + 1] << 16 | i8a[i + 2] << 8 | i8a[i + 3]);
-  }
+  } // WordArrays are UTF8 by default
+
 
   var result = CryptoJS.lib.WordArray.create(a, i8a.length);
   return [result, i8a.length];
@@ -232,6 +310,7 @@ function arrayBufferToWordArray(ab) {
 
 function readChunked(file, chunkCallback, endCallback) {
   var fileSize = file.size;
+  // 4MB chunks
   var offset = 0;
   var reader = new FileReader();
 
@@ -242,7 +321,8 @@ function readChunked(file, chunkCallback, endCallback) {
     }
 
     var wordArrayRes = arrayBufferToWordArray(reader.result);
-    offset += wordArrayRes[1];
+    offset += wordArrayRes[1]; // callback for handling read chunk
+
     chunkCallback(wordArrayRes[0], offset, fileSize);
 
     if (offset >= fileSize) {
@@ -264,9 +344,19 @@ function readChunked(file, chunkCallback, endCallback) {
 
   readNext();
 }
+/**
+ * Adapted from http://stackoverflow.com/questions/39112096
+ * Takes a file object and optional callback progress function
+ *
+ * @param {File} file - Instance of a File class (subclass of Blob).
+ * @param {function} cbProgress - Callback function on progress change. Accepts a 0-1 float value.
+ * @returns {Promise} AJAX Promise object.
+ */
+
 
 function getLargeMD5(file, cbProgress) {
   return new Promise(function (resolve, reject) {
+    // create algorithm for progressive hashing
     var md5 = CryptoJS.algo.MD5.create();
     readChunked(file, function (chunk, offs, total) {
       md5.update(chunk);
