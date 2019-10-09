@@ -303,7 +303,7 @@ class ControlsAndResults extends React.PureComponent {
                             'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen')}
                         {...{ hiddenColumns, columnDefinitions }}/>
                     <SearchResultTable ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} totalExpected={context.total}
-                        {..._.pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse',
+                        {..._.pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn',
                             'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas')}
                         {...{ hiddenColumns, results, columnDefinitions }} />
                     {isSelectAction(currentAction) ?

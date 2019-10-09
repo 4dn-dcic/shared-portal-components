@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.defaultColumnBlockRenderFxn = defaultColumnBlockRenderFxn;
 exports.sanitizeOutputValue = sanitizeOutputValue;
 exports.haveContextColumnsChanged = haveContextColumnsChanged;
 exports.getColumnWidthFromDefinition = getColumnWidthFromDefinition;
@@ -45,15 +44,15 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -77,45 +76,7 @@ var DEFAULT_WIDTH_MAP = {
   'sm': 120,
   'xs': 120
 };
-/**
- * Default value rendering function.
- * Uses columnDefinition field (column key) to get nested property value from result and display it.
- *
- * @param {Item} result - JSON object representing row data.
- * @param {ColumnDefinition} columnDefinition - Object with column definition data - field, title, widthMap, render function (self)
- * @param {Object} props - Props passed down from SearchResultTable/ResultRowColumnBlock instance.
- * @param {number} width - Unused. Todo - remove?
- * @returns {string|null} String value or null. Your function may return a React element, as well.
- */
-
 exports.DEFAULT_WIDTH_MAP = DEFAULT_WIDTH_MAP;
-
-function defaultColumnBlockRenderFxn(result, columnDefinition) {
-  function filterAndUniq(vals) {
-    return _underscore["default"].uniq(_underscore["default"].filter(vals, function (v) {
-      return v !== null && typeof v !== 'undefined';
-    }));
-  }
-
-  var value = (0, _object.getNestedProperty)(result, columnDefinition.field, true);
-  if (!value) value = null;
-
-  if (Array.isArray(value)) {
-    // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
-    value = filterAndUniq(_underscore["default"].map(value, function (v) {
-      if (Array.isArray(v)) {
-        v = filterAndUniq(v);
-        if (v.length === 1) v = v[0];
-        if (v.length === 0) v = null;
-      }
-
-      return v; //Schemas.Term.toName(columnDefinition.field, v);
-    })).join(', ');
-  }
-
-  return value;
-}
-
 var basicColumnExtensionMap = {
   'display_title': {
     'title': "Title",
@@ -126,8 +87,7 @@ var basicColumnExtensionMap = {
     },
     'minColumnWidth': 90,
     'order': -100,
-    'render': function (result, columnDefinition, props, width) {
-      arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+    'render': function (result, columnDefinition, props, termTransformFxn, width) {
       var href = props.href,
           rowNumber = props.rowNumber,
           currentAction = props.currentAction,
@@ -466,10 +426,69 @@ var ResultRowColumnBlockValue =
 function (_React$Component) {
   _inherits(ResultRowColumnBlockValue, _React$Component);
 
-  function ResultRowColumnBlockValue() {
+  _createClass(ResultRowColumnBlockValue, null, [{
+    key: "transformIfNeeded",
+
+    /**
+     * Default value rendering function.
+     * Uses columnDefinition field (column key) to get nested property value from result and display it.
+     *
+     * @param {Item} result - JSON object representing row data.
+     * @param {ColumnDefinition} columnDefinition - Object with column definition data - field, title, widthMap, render function (self)
+     * @param {Object} props - Props passed down from SearchResultTable/ResultRowColumnBlock instance.
+     * @param {number} width - Unused. Todo - remove?
+     * @returns {string|null} String value or null. Your function may return a React element, as well.
+     */
+    value: function transformIfNeeded(result, columnDefinition, props, termTransformFxn) {
+      function filterAndUniq(vals) {
+        return _underscore["default"].uniq(_underscore["default"].filter(vals, function (v) {
+          return v !== null && typeof v !== 'undefined';
+        }));
+      }
+
+      var value = (0, _object.getNestedProperty)(result, columnDefinition.field, true);
+      if (!value) value = null;
+
+      if (Array.isArray(value)) {
+        // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
+        value = filterAndUniq(value.map(function (v) {
+          if (Array.isArray(v)) {
+            v = filterAndUniq(v);
+            if (v.length === 1) v = v[0];
+            if (v.length === 0) v = null;
+          }
+
+          if (typeof termTransformFxn === 'function') {
+            return termTransformFxn(columnDefinition.field, v, false);
+          }
+
+          console.warn("No termTransformFxn supplied.");
+          return v;
+        })).map(function (v) {
+          if (typeof termTransformFxn === 'function') {
+            return termTransformFxn(columnDefinition.field, v, false);
+          }
+
+          return v;
+        }).join(', ');
+      } else if (typeof termTransformFxn === 'function') {
+        value = termTransformFxn(columnDefinition.field, value, true);
+      }
+
+      return value;
+    }
+  }]);
+
+  function ResultRowColumnBlockValue(props) {
+    var _this;
+
     _classCallCheck(this, ResultRowColumnBlockValue);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(ResultRowColumnBlockValue).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ResultRowColumnBlockValue).call(this, props));
+    _this.memoized = {
+      transformIfNeeded: (0, _memoizeOne["default"])(ResultRowColumnBlockValue.transformIfNeeded)
+    };
+    return _this;
   }
 
   _createClass(ResultRowColumnBlockValue, [{
@@ -495,9 +514,9 @@ function (_React$Component) {
           columnDefinition = _this$props2.columnDefinition,
           propTooltip = _this$props2.tooltip,
           className = _this$props2.className,
-          propDefaultRenderFxn = _this$props2.defaultColumnBlockRenderFxn;
-      var renderFxn = columnDefinition.render || propDefaultRenderFxn;
-      var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore["default"].omit(this.props, 'columnDefinition', 'result')));
+          termTransformFxn = _this$props2.termTransformFxn;
+      var renderFxn = columnDefinition.render || this.memoized.transformIfNeeded;
+      var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore["default"].omit(this.props, 'columnDefinition', 'result'), termTransformFxn));
       var tooltip;
 
       if (typeof value === 'number') {
@@ -538,8 +557,7 @@ _defineProperty(ResultRowColumnBlockValue, "defaultProps", {
   'toggleDetailOpen': function toggleDetailOpen() {
     console.warn('Triggered props.toggleDetailOpen() but no toggleDetailOpen prop passed to ResultRowColumnValue Component.');
   },
-  'shouldComponentUpdateExt': null,
-  'defaultColumnBlockRenderFxn': defaultColumnBlockRenderFxn
+  'shouldComponentUpdateExt': null
 });
 
 var ColumnSorterIcon =
@@ -560,13 +578,13 @@ function (_React$PureComponent) {
   }]);
 
   function ColumnSorterIcon(props) {
-    var _this;
+    var _this2;
 
     _classCallCheck(this, ColumnSorterIcon);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
-    _this.sortClickFxn = _this.sortClickFxn.bind(_assertThisInitialized(_this));
-    return _this;
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
+    _this2.sortClickFxn = _this2.sortClickFxn.bind(_assertThisInitialized(_this2));
+    return _this2;
   }
 
   _createClass(ColumnSorterIcon, [{
@@ -623,15 +641,15 @@ function (_React$PureComponent2) {
   _inherits(HeadersRowColumn, _React$PureComponent2);
 
   function HeadersRowColumn(props) {
-    var _this2;
+    var _this3;
 
     _classCallCheck(this, HeadersRowColumn);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this2), 'onDrag', 'onStop');
+    _underscore["default"].bindAll(_assertThisInitialized(_this3), 'onDrag', 'onStop');
 
-    return _this2;
+    return _this3;
   }
 
   _createClass(HeadersRowColumn, [{
@@ -705,18 +723,18 @@ function (_React$Component2) {
   _inherits(HeadersRow, _React$Component2);
 
   function HeadersRow(props) {
-    var _this3;
+    var _this4;
 
     _classCallCheck(this, HeadersRow);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRow).call(this, props));
-    _this3.throttledSetHeaderWidths = _underscore["default"].debounce(_underscore["default"].throttle(_this3.setHeaderWidths.bind(_assertThisInitialized(_this3)), 1000), 350);
-    _this3.setHeaderWidths = _this3.setHeaderWidths.bind(_assertThisInitialized(_this3));
-    _this3.onAdjusterDrag = _this3.onAdjusterDrag.bind(_assertThisInitialized(_this3));
-    _this3.state = {
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRow).call(this, props));
+    _this4.throttledSetHeaderWidths = _underscore["default"].debounce(_underscore["default"].throttle(_this4.setHeaderWidths.bind(_assertThisInitialized(_this4)), 1000), 350);
+    _this4.setHeaderWidths = _this4.setHeaderWidths.bind(_assertThisInitialized(_this4));
+    _this4.onAdjusterDrag = _this4.onAdjusterDrag.bind(_assertThisInitialized(_this4));
+    _this4.state = {
       'widths': props.headerColumnWidths && props.headerColumnWidths.slice(0) || null
     };
-    return _this3;
+    return _this4;
   }
 
   _createClass(HeadersRow, [{
@@ -771,7 +789,7 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this4 = this;
+      var _this5 = this;
 
       var _this$props9 = this.props,
           isSticky = _this$props9.isSticky,
@@ -803,12 +821,12 @@ function (_React$Component2) {
           'width': stickyStyle && stickyStyle.width || null
         }
       }, _underscore["default"].map(columnDefinitions, function (colDef, i) {
-        return _react["default"].createElement(HeadersRowColumn, _extends({}, _underscore["default"].pick(_this4.props, 'sortColumn', 'sortReverse', 'sortBy', 'headerColumnWidths'), {
+        return _react["default"].createElement(HeadersRowColumn, _extends({}, _underscore["default"].pick(_this5.props, 'sortColumn', 'sortReverse', 'sortBy', 'headerColumnWidths'), {
           colDef: colDef,
           index: i,
-          onAdjusterDrag: _this4.onAdjusterDrag,
-          setHeaderWidths: _this4.setHeaderWidths,
-          width: _this4.getWidthFor(i),
+          onAdjusterDrag: _this5.onAdjusterDrag,
+          setHeaderWidths: _this5.setHeaderWidths,
+          width: _this5.getWidthFor(i),
           key: colDef.field
         }));
       })));

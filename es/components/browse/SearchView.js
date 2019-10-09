@@ -465,7 +465,7 @@ function (_React$PureComponent2) {
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane,
         totalExpected: context.total
-      }, _underscore["default"].pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas'), {
+      }, _underscore["default"].pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas'), {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions

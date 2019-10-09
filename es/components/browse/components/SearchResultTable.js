@@ -1405,6 +1405,7 @@ function (_React$PureComponent4) {
  * @prop {string}           sortColumn          Current sort column, as fed by SortController.
  * @prop {boolean}          sortReverse         Whether current sort column is reversed, as fed by SortController.
  * @prop {function}         sortBy              Callback function for performing a sort, acceping 'sortColumn' and 'sortReverse' as params. As fed by SortController.
+ * @prop {function}         termTransformFxn    Function passed from parent portal to transform system values into human readable values. Is portal-specific; not used if `render` for field in columnExtensionMap/columnDefinition exists/used.
  */
 
 
@@ -1504,7 +1505,9 @@ _defineProperty(SearchResultTable, "propTypes", {
     "order": _propTypes["default"].number,
     "render": _propTypes["default"].func,
     "noSort": _propTypes["default"].bool
-  }))
+  })),
+  'termTransformFxn': _propTypes["default"].func.isRequired,
+  'isOwnPage': _propTypes["default"].bool
 });
 
 _defineProperty(SearchResultTable, "defaultProps", {
@@ -1524,5 +1527,6 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'stickyHeaderTopOffset': -40,
   'fullWidthInitOffset': 60,
   'fullWidthContainerSelectorString': '.browse-page-container',
-  'currentAction': null
+  'currentAction': null,
+  'isOwnPage': true
 });

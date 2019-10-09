@@ -1038,6 +1038,7 @@ class DimensioningContainer extends React.PureComponent {
  * @prop {string}           sortColumn          Current sort column, as fed by SortController.
  * @prop {boolean}          sortReverse         Whether current sort column is reversed, as fed by SortController.
  * @prop {function}         sortBy              Callback function for performing a sort, acceping 'sortColumn' and 'sortReverse' as params. As fed by SortController.
+ * @prop {function}         termTransformFxn    Function passed from parent portal to transform system values into human readable values. Is portal-specific; not used if `render` for field in columnExtensionMap/columnDefinition exists/used.
  */
 export class SearchResultTable extends React.PureComponent {
 
@@ -1079,7 +1080,9 @@ export class SearchResultTable extends React.PureComponent {
             "order" : PropTypes.number,
             "render" : PropTypes.func,
             "noSort" : PropTypes.bool
-        }))
+        })),
+        'termTransformFxn' : PropTypes.func.isRequired,
+        'isOwnPage' : PropTypes.bool
     };
 
     static defaultProps = {
@@ -1093,7 +1096,8 @@ export class SearchResultTable extends React.PureComponent {
         'stickyHeaderTopOffset' : -40,
         'fullWidthInitOffset' : 60,
         'fullWidthContainerSelectorString' : '.browse-page-container',
-        'currentAction' : null
+        'currentAction' : null,
+        'isOwnPage' : true
     };
 
     constructor(props){

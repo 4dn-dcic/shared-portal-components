@@ -22,39 +22,6 @@ import { Item, ColumnDefinition } from './../../util/typedefs';
 
 export const DEFAULT_WIDTH_MAP = { 'lg' : 200, 'md' : 180, 'sm' : 120, 'xs' : 120 };
 
-/**
- * Default value rendering function.
- * Uses columnDefinition field (column key) to get nested property value from result and display it.
- *
- * @param {Item} result - JSON object representing row data.
- * @param {ColumnDefinition} columnDefinition - Object with column definition data - field, title, widthMap, render function (self)
- * @param {Object} props - Props passed down from SearchResultTable/ResultRowColumnBlock instance.
- * @param {number} width - Unused. Todo - remove?
- * @returns {string|null} String value or null. Your function may return a React element, as well.
- */
-export function defaultColumnBlockRenderFxn(result, columnDefinition, props, width){
-
-    function filterAndUniq(vals){
-        return _.uniq(_.filter(vals, function(v){
-            return v !== null && typeof v !== 'undefined';
-        }));
-    }
-
-    let value = getNestedProperty(result, columnDefinition.field, true);
-    if (!value) value = null;
-    if (Array.isArray(value)){ // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
-        value = filterAndUniq(_.map(value, function(v){
-            if (Array.isArray(v)){
-                v = filterAndUniq(v);
-                if (v.length === 1) v = v[0];
-                if (v.length === 0) v = null;
-            }
-            return v;//Schemas.Term.toName(columnDefinition.field, v);
-        })).join(', ');
-    }
-    return value;
-}
-
 
 export const basicColumnExtensionMap = {
     'display_title' : {
@@ -62,7 +29,7 @@ export const basicColumnExtensionMap = {
         'widthMap' : { 'lg' : 280, 'md' : 250, 'sm' : 200 },
         'minColumnWidth' : 90,
         'order' : -100,
-        'render' : function renderDisplayTitleColumn(result, columnDefinition, props, width, popLink = false){
+        'render' : function renderDisplayTitleColumn(result, columnDefinition, props, termTransformFxn, width){
             const { href, rowNumber, currentAction, navigate: propNavigate, detailOpen, toggleDetailOpen } = props;
             let title = itemUtil.getTitleStringFromContext(result);
             const link = itemUtil.atId(result);
@@ -108,7 +75,7 @@ export const basicColumnExtensionMap = {
     '@type' : {
         'noSort' : true,
         'order' : -80,
-        'render' : function(result, columnDefinition, props, width){
+        'render' : function(result, columnDefinition, props, termTransformFxn, width){
             if (!Array.isArray(result['@type'])) return null;
             const leafItemType = getItemType(result);
             const itemTypeTitle = getTitleForType(leafItemType, props.schemas || null);
@@ -138,7 +105,7 @@ export const basicColumnExtensionMap = {
         'title' : 'Date Created',
         'colTitle' : 'Created',
         'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
-        'render' : function dateCreatedTitle(result, columnDefinition, props, width){
+        'render' : function dateCreatedTitle(result, columnDefinition, props, termTransformFxn, width){
             if (!result.date_created) return null;
             return (
                 <span className="value">
@@ -151,7 +118,7 @@ export const basicColumnExtensionMap = {
     'last_modified.date_modified' : {
         'title' : 'Date Modified',
         'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
-        'render' : function lastModifiedDate(result, columnDefinition, props, width){
+        'render' : function lastModifiedDate(result, columnDefinition, props, termTransformFxn, width){
             if (!result.last_modified) return null;
             if (!result.last_modified.date_modified) return null;
             return (
@@ -330,12 +297,62 @@ export function getColumnWidthFromDefinition(columnDefinition, mounted=true, win
 
 export class ResultRowColumnBlockValue extends React.Component {
 
+    /**
+     * Default value rendering function.
+     * Uses columnDefinition field (column key) to get nested property value from result and display it.
+     *
+     * @param {Item} result - JSON object representing row data.
+     * @param {ColumnDefinition} columnDefinition - Object with column definition data - field, title, widthMap, render function (self)
+     * @param {Object} props - Props passed down from SearchResultTable/ResultRowColumnBlock instance.
+     * @param {number} width - Unused. Todo - remove?
+     * @returns {string|null} String value or null. Your function may return a React element, as well.
+     */
+    static transformIfNeeded(result, columnDefinition, props, termTransformFxn){
+
+        function filterAndUniq(vals){
+            return _.uniq(_.filter(vals, function(v){
+                return v !== null && typeof v !== 'undefined';
+            }));
+        }
+
+        let value = getNestedProperty(result, columnDefinition.field, true);
+        if (!value) value = null;
+        if (Array.isArray(value)){ // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
+            value = filterAndUniq(value.map(function(v){
+                if (Array.isArray(v)){
+                    v = filterAndUniq(v);
+                    if (v.length === 1) v = v[0];
+                    if (v.length === 0) v = null;
+                }
+                if (typeof termTransformFxn === 'function'){
+                    return termTransformFxn(columnDefinition.field, v, false);
+                }
+                console.warn("No termTransformFxn supplied.");
+                return v;
+            })).map(function(v){
+                if (typeof termTransformFxn === 'function'){
+                    return termTransformFxn(columnDefinition.field, v, false);
+                }
+                return v;
+            }).join(', ');
+        } else if (typeof termTransformFxn === 'function'){
+            value = termTransformFxn(columnDefinition.field, value, true);
+        }
+        return value;
+    }
+
     static defaultProps = {
         'mounted' : false,
         'toggleDetailOpen' : function(evt){ console.warn('Triggered props.toggleDetailOpen() but no toggleDetailOpen prop passed to ResultRowColumnValue Component.'); },
-        'shouldComponentUpdateExt' : null,
-        'defaultColumnBlockRenderFxn' : defaultColumnBlockRenderFxn
+        'shouldComponentUpdateExt' : null
     };
+
+    constructor(props){
+        super(props);
+        this.memoized = {
+            transformIfNeeded: memoize(ResultRowColumnBlockValue.transformIfNeeded)
+        };
+    }
 
     shouldComponentUpdate(nextProps, nextState){
         const { columnDefinition, schemas, result, className } = this.props;
@@ -353,11 +370,18 @@ export class ResultRowColumnBlockValue extends React.Component {
     }
 
     render(){
-        const { result, columnDefinition, tooltip : propTooltip, className, defaultColumnBlockRenderFxn : propDefaultRenderFxn } = this.props;
-        const renderFxn = columnDefinition.render || propDefaultRenderFxn;
+        const {
+            result,
+            columnDefinition,
+            tooltip : propTooltip,
+            className,
+            termTransformFxn
+        } = this.props;
+
+        const renderFxn = columnDefinition.render || this.memoized.transformIfNeeded;
 
         let value = sanitizeOutputValue(
-            renderFxn(result, columnDefinition, _.omit(this.props, 'columnDefinition', 'result'))
+            renderFxn(result, columnDefinition, _.omit(this.props, 'columnDefinition', 'result'), termTransformFxn)
         );
 
         let tooltip;
