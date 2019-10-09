@@ -11,6 +11,7 @@ import { isServerSide } from './misc';
 
 
 /**
+ * @deprecated
  * If the given term is selected, return the href for the term from context.filters.
  *
  * @param {string} term - Term for which existence of active filter is checked.
@@ -107,6 +108,114 @@ export function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filter
 
     }
     return null;
+}
+
+/**
+ * If the given term is selected or omitted, return the status and href for the term from context.filters.
+ *
+ * @param {string} term - Term for which existence of active filter is checked.
+ * @param {string} field - Field for which filter is checked.
+ * @param {{ 'field' : string, 'term' : string, 'remove' : string }[]} filters - Filters as supplied by context.filters in API response.
+ * @param {boolean} [includePathName] - If true, will return the pathname in addition to the URI search query.
+ * @returns {{ 'status' : string, 'href' : string }} status: one of [selected/omitted/none], href: URL to remove active filter, or null if filter not currently active for provided field:term pair.
+ */
+export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, filters, includePathName = false) {
+    //workaround: '!=' condition adds '!' to the end of facet.field in StaticSingleTerm, we remove it
+    const field = facet.field.endsWith('!') ? facet.field.slice(0, -1) : facet.field;
+
+    const isRange = facet.aggregation_type && ['range', 'date_histogram', 'histogram'].indexOf(facet.aggregation_type) > -1;
+    let i, filter, parts, retHref = '';
+
+    // THE CONTENTS UNDER THIS IF CONDITION WILL CHANGE ONCE WE CREATE NEW 'RANGE' FACET COMPONENT
+    if (facet.aggregation_type && ['range', 'date_histogram', 'histogram'].indexOf(facet.aggregation_type) > -1) {
+        var toFilter, fromFilter;
+
+        if (facet.aggregation_type === 'range'){
+            toFilter    = _.findWhere(filters, { 'field' : field + '.to',   'term' : term.to }),
+            fromFilter  = _.findWhere(filters, { 'field' : field + '.from', 'term' : term.from });
+        } else if (facet.aggregation_type === 'date_histogram'){
+            var interval = getDateHistogramIntervalFromFacet(facet) || 'month',
+                toDate = moment.utc(term.key);
+            toDate.add(1, interval + 's');
+            toFilter    = _.findWhere(filters, { 'field' : field + '.to',   'term' : toDate.format().slice(0,10) }),
+            fromFilter  = _.findWhere(filters, { 'field' : field + '.from', 'term' : term.key });
+        } else {
+            throw new Error('Histogram not currently supported.');
+            // Todo: var interval = ....
+        }
+
+        if (toFilter && !fromFilter){
+            parts = url.parse(toFilter['remove']);
+            if (includePathName) {
+                retHref += parts.pathname;
+            }
+            retHref += parts.search;
+            return { 'status': 'selected', 'href': retHref };
+        } else if (!toFilter && fromFilter){
+            parts = url.parse(fromFilter['remove']);
+            if (includePathName) {
+                retHref += parts.pathname;
+            }
+            retHref += parts.search;
+            return { 'status': 'selected', 'href': retHref };
+        } else if (toFilter && fromFilter){
+            var partsFrom   = url.parse(fromFilter['remove'], true),
+                partsTo     = url.parse(toFilter['remove'], true),
+                partsFromQ  = partsFrom.query,
+                partsToQ    = partsTo.query,
+                commonQs    = {};
+
+            _.forEach(_.keys(partsFromQ), function(qk){
+                if (typeof partsToQ[qk] !== 'undefined'){
+                    if (Array.isArray(partsToQ[qk]) || Array.isArray(partsFromQ[qk])){
+                        var a1, a2;
+                        if (Array.isArray(partsToQ[qk])) {
+                            a1 = partsToQ[qk];
+                        } else {
+                            a1 = [partsToQ[qk]];
+                        }
+                        if (Array.isArray(partsFromQ[qk])) {
+                            a2 = partsFromQ[qk];
+                        } else {
+                            a2 = [partsFromQ[qk]];
+                        }
+                        commonQs[qk] = _.intersection(a1, a2);
+                    } else {
+                        commonQs[qk] = partsToQ[qk];
+                    }
+                }
+            });
+
+            retHref = '?' + queryString.stringify(commonQs);
+            if (includePathName) {
+                retHref += partsFrom.pathname;
+            }
+            return { 'status': 'selected', 'href': retHref };
+        }
+
+    } else {
+        // Terms
+        for (i = 0; i < filters.length; i++) {
+            filter = filters[i];
+            if (filter.field == field && filter.term == term.key) {
+                parts = url.parse(filter.remove);
+                if (includePathName) {
+                    retHref += parts.pathname;
+                }
+                retHref += parts.search;
+                return { 'status': 'selected', 'href': retHref };
+            }
+            else if (filter.field.endsWith('!') && filter.field.slice(0, -1) == field && filter.term == term.key) {
+                parts = url.parse(filter.remove);
+                if (includePathName) {
+                    retHref += parts.pathname;
+                }
+                retHref += parts.search;
+                return { 'status': 'omitted', 'href': retHref };
+            }
+        }
+    }
+    return { 'status': 'none', 'href': null };
 }
 
 /**
@@ -246,6 +355,7 @@ export function getDateHistogramIntervalFromFacet(facet){
 
 
 /**
+ * @deprecated
  * Determine if term and facet objects are 'selected'.
  * The range check is likely to change or be completely removed
  * in response to needing different component to facet ranges.
@@ -310,6 +420,20 @@ export function determineIfTermFacetSelected(term, facet, props){
         return !!(getUnselectHrefIfSelectedFromResponseFilters(term, facet, props.context.filters));
     }
     */
+}
+/**
+ * Get status to determine if term and facet objects are 'selected' or 'omitted' or untouched ('none').
+ * The range check is likely to change or be completely removed
+ * in response to needing different component to facet ranges.
+ *
+ * @param {{ key: string }} term - Object for term option
+ * @param {{ field: string }} facet - Object for facet, containing field
+ * @param {Object} props - Props from FacetList. Should have context.filters.
+ * @returns {string} - returns one of 'selected', 'omitted' or 'none' values
+ */
+export function getTermFacetStatus(term, facet, props){
+    const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, props.context.filters);
+    return statusAndHref.status;
 }
 
 /** @deprecated */

@@ -9,7 +9,7 @@ import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 
 import { patchedConsoleInstance as console } from './../../util/patched-console';
-import { getUnselectHrefIfSelectedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters } from './../../util/search-filters';
+import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters } from './../../util/search-filters';
 import { navigate } from './../../util/navigate';
 import * as analytics from './../../util/analytics';
 import { responsiveGridState } from './../../util/layout';
@@ -85,31 +85,35 @@ class Term extends React.PureComponent {
     */
 
     render() {
-        const { term, facet, isTermSelected, termTransformFxn } = this.props;
+        const { term, facet, getTermStatus, termTransformFxn } = this.props;
         const { filtering } = this.state;
-        const selected = isTermSelected(term, facet);
+        const status = getTermStatus(term, facet);
+        const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
 
-        if (filtering){
-            icon = <i className="icon fas icon-circle-notch icon-spin icon-fw"/>;
-        } else if (selected) {
-            icon = <i className="icon icon-times-circle icon-fw fas"/>;
+        if (filtering) {
+            icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
+        } else if (status === 'selected') {
+            icon = <i className="icon icon-times-circle icon-fw fas" />;
+        } else if (status === 'omitted') {
+            icon = <i className="icon icon-minus-circle icon-fw fas" />;
         } else {
-            icon = <i className="icon icon-circle icon-fw unselected far"/>;
+            icon = <i className="icon icon-circle icon-fw unselected far" />;
         }
 
         if (!title || title === 'null' || title === 'undefined'){
             title = 'None';
         }
 
+        const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
         return (
-            <li className={"facet-list-element" + (selected ? " selected" : '')} key={term.key} data-key={term.key}>
+            <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                    <span className="facet-selector">{ icon }</span>
-                    <span className="facet-item" data-tip={title.length > 30 ? title : null}>{ title }</span>
-                    <span className="facet-count">{ count }</span>
+                    <span className="facet-selector">{icon}</span>
+                    <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
+                    <span className="facet-count">{count}</span>
                 </a>
             </li>
         );
@@ -124,7 +128,7 @@ Term.propTypes = {
         'key'               : PropTypes.string.isRequired,
         'doc_count'         : PropTypes.number
     }).isRequired,
-    'isTermSelected'    : PropTypes.func.isRequired,
+    'getTermStatus'     : PropTypes.func.isRequired,
     'onClick'           : PropTypes.func.isRequired
 };
 
@@ -330,14 +334,14 @@ class Facet extends React.PureComponent {
     }
 
     render() {
-        const { facet, isTermSelected, extraClassname, termTransformFxn, separateSingleTermFacets } = this.props;
+        const { facet, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets } = this.props;
         const { filtering } = this.state;
         const { description = null, field, title, terms = [] } = facet;
         const showTitle = title || field;
 
         if (separateSingleTermFacets && this.isStatic(facet)){
             // Only one term exists.
-            return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, isTermSelected, extraClassname, termTransformFxn }} />;
+            return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, getTermStatus, extraClassname, termTransformFxn }} />;
         } else {
             return <FacetTermsList {...this.props} onTermClick={this.handleTermClick} tooltip={description} title={showTitle} />;
         }
@@ -356,13 +360,15 @@ Facet.propTypes = {
     'onFilter'              : PropTypes.func,           // Executed on term click
     'extraClassname'        : PropTypes.string,
     'schemas'               : PropTypes.object,
-    'isTermSelected'        : PropTypes.func.isRequired,
+    'getTermStatus'         : PropTypes.func.isRequired,
     'href'                  : PropTypes.string.isRequired
 };
 
-const StaticSingleTerm = React.memo(function StaticSingleTerm({ term, facet, showTitle, filtering, onClick, isTermSelected, extraClassname, termTransformFxn }){
+const StaticSingleTerm = React.memo(function StaticSingleTerm({ term, facet, showTitle, filtering, onClick, getTermStatus, extraClassname, termTransformFxn }){
     const { description = null, field } = facet;
-    const selected = isTermSelected(term, facet);
+    const status = getTermStatus(term, facet);
+    const selectedOrOmitted = (status !== 'none');
+    const statusClassName = selectedOrOmitted ? (status === 'selected' ? 'selected' : 'omitted') : '';
     let termName = termTransformFxn(field, term.key);
 
     if (!termName || termName === 'null' || termName === 'undefined'){
@@ -370,26 +376,26 @@ const StaticSingleTerm = React.memo(function StaticSingleTerm({ term, facet, sho
     }
 
     return (
-        <div className={"facet static" + (selected ? ' selected' : '') + ( filtering ? ' filtering' : '') + ( extraClassname ? ' ' + extraClassname : '' )}
+        <div className={"facet static " + statusClassName + ( filtering ? ' filtering' : '') + ( extraClassname ? ' ' + extraClassname : '' )}
             data-field={field}>
             <div className="facet-static-row clearfix">
                 <h5 className="facet-title">
                     <span className="inline-block" data-tip={description} data-place="right">&nbsp;{ showTitle }</span>
                 </h5>
-                <div className={ "facet-item term" + (selected? ' selected' : '') + (filtering ? ' filtering' : '')}>
+                <div className={ "facet-item term " + statusClassName + (filtering ? ' filtering' : '')}>
                     <span onClick={onClick} title={
-                        'All results have ' +
+                        'All results ' + (status !== 'omitted' ? 'have ' : 'omitted ') +
                         term.key +
-                        ' as their ' +
+                        (status !== 'omitted' ? ' as their ' : ' from their ') +
                         showTitle.toLowerCase() + '; ' +
-                        (selected ?
+                        (selectedOrOmitted ?
                             'currently active as portal-wide filter.' :
                             'not currently active as portal-wide filter.'
                         )
                     }>
                         <i className={"icon icon-fw " +
                             (filtering ? 'icon-spin icon-circle-notch' :
-                                ( selected ? 'icon-times-circle fas' : 'icon-circle fas' )
+                                ( selectedOrOmitted ? (status === 'selected' ? 'icon-times-circle fas' : 'icon-minus-circle fas') : 'icon-circle fas' )
                             )
                         }/>
                         { termName }
@@ -419,11 +425,11 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
 
     currentHref = currentHref || propHref;
 
-    const unselectHrefIfSelected = getUnselectHrefIfSelectedFromResponseFilters(term, facet, context.filters);
-    const isUnselecting = !!(unselectHrefIfSelected);
+    const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, context.filters);
+    const isUnselecting = !!(statusAndHref.href);
 
-    if (unselectHrefIfSelected){
-        targetSearchHref = unselectHrefIfSelected;
+    if (statusAndHref.href){
+        targetSearchHref = statusAndHref.href;
     } else {
         targetSearchHref = buildSearchHref(facet.field, term.key, currentHref);
         /*
@@ -446,7 +452,7 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
     // Ensure only 1 type filter is selected at once.
     // Unselect any other type= filters if setting new one.
     if (facet.field === 'type'){
-        if (!(unselectHrefIfSelected)){
+        if (!(statusAndHref.href)){
             var parts = url.parse(targetSearchHref, true);
             if (Array.isArray(parts.query.type)){
                 var types = parts.query.type;
@@ -508,7 +514,7 @@ export class FacetList extends React.PureComponent {
 
     renderFacets(maxTermsToShow = 12){
         const {
-            facets, href, onFilter, schemas, isTermSelected,
+            facets, href, onFilter, schemas, getTermStatus,
             itemTypeForSchemas, windowWidth, persistentCount, termTransformFxn, separateSingleTermFacets
         } = this.props;
         const { mounted } = this.state;
@@ -539,9 +545,9 @@ export class FacetList extends React.PureComponent {
         }, { facetIndex : 0, termCount: 0, end : false }).facetIndex;
 
         return _.map(useFacets, (facet, i) =>
-            <Facet {...{ onFilter, facet, href, isTermSelected, schemas, itemTypeForSchemas, mounted, termTransformFxn, separateSingleTermFacets }}
+            <Facet {...{ onFilter, facet, href, getTermStatus, schemas, itemTypeForSchemas, mounted, termTransformFxn, separateSingleTermFacets }}
                 key={facet.field} defaultFacetOpen={!mounted ? false : !!(
-                    _.any(facet.terms, (t) => isTermSelected(t, facet)) ||
+                    _.any(facet.terms, (t) => getTermStatus(t, facet) !== 'none') ||
                     ( responsiveGridState(windowWidth || null) !== 'xs' && i < (facetIndexWherePastXTerms || 1) )
                 )} />
         );
@@ -659,9 +665,9 @@ FacetList.defaultProps = {
             setTimeout(callback, 1000);
         }
     },
-    'isTermSelected'    : function (term, facet){
+    'getTermStatus': function (term, facet) {
         // Check against responseContext.filters, or expSetFilters in Redux store.
-        return false;
+        return { 'status': 'none', 'href': null };
     },
     'itemTypeForSchemas': 'ExperimentSetReplicate',
     'termTransformFxn' : function(field, term, allowJSXOutput = false, addDescriptionTipForLinkTos = true){

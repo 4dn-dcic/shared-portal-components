@@ -151,10 +151,10 @@ function (_React$PureComponent) {
       var _this$props2 = this.props,
           term = _this$props2.term,
           facet = _this$props2.facet,
-          isTermSelected = _this$props2.isTermSelected,
+          getTermStatus = _this$props2.getTermStatus,
           termTransformFxn = _this$props2.termTransformFxn;
       var filtering = this.state.filtering;
-      var selected = isTermSelected(term, facet);
+      var status = getTermStatus(term, facet);
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
@@ -163,9 +163,13 @@ function (_React$PureComponent) {
         icon = _react["default"].createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
-      } else if (selected) {
+      } else if (status === 'selected') {
         icon = _react["default"].createElement("i", {
           className: "icon icon-times-circle icon-fw fas"
+        });
+      } else if (status === 'omitted') {
+        icon = _react["default"].createElement("i", {
+          className: "icon icon-minus-circle icon-fw fas"
         });
       } else {
         icon = _react["default"].createElement("i", {
@@ -177,13 +181,14 @@ function (_React$PureComponent) {
         title = 'None';
       }
 
+      var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
       return _react["default"].createElement("li", {
-        className: "facet-list-element" + (selected ? " selected" : ''),
+        className: "facet-list-element " + statusClassName,
         key: term.key,
         "data-key": term.key
       }, _react["default"].createElement("a", {
         className: "term",
-        "data-selected": selected,
+        "data-selected": status !== 'none',
         href: "#",
         onClick: this.handleClick,
         "data-term": term.key
@@ -209,7 +214,7 @@ Term.propTypes = {
     'key': _propTypes["default"].string.isRequired,
     'doc_count': _propTypes["default"].number
   }).isRequired,
-  'isTermSelected': _propTypes["default"].func.isRequired,
+  'getTermStatus': _propTypes["default"].func.isRequired,
   'onClick': _propTypes["default"].func.isRequired
 };
 
@@ -505,7 +510,7 @@ function (_React$PureComponent2) {
     value: function render() {
       var _this$props7 = this.props,
           facet = _this$props7.facet,
-          isTermSelected = _this$props7.isTermSelected,
+          getTermStatus = _this$props7.getTermStatus,
           extraClassname = _this$props7.extraClassname,
           termTransformFxn = _this$props7.termTransformFxn,
           separateSingleTermFacets = _this$props7.separateSingleTermFacets;
@@ -526,7 +531,7 @@ function (_React$PureComponent2) {
           filtering: filtering,
           showTitle: showTitle,
           onClick: this.handleStaticClick,
-          isTermSelected: isTermSelected,
+          getTermStatus: getTermStatus,
           extraClassname: extraClassname,
           termTransformFxn: termTransformFxn
         });
@@ -560,7 +565,7 @@ Facet.propTypes = {
   // Executed on term click
   'extraClassname': _propTypes["default"].string,
   'schemas': _propTypes["default"].object,
-  'isTermSelected': _propTypes["default"].func.isRequired,
+  'getTermStatus': _propTypes["default"].func.isRequired,
   'href': _propTypes["default"].string.isRequired
 };
 
@@ -570,13 +575,15 @@ var StaticSingleTerm = _react["default"].memo(function (_ref4) {
       showTitle = _ref4.showTitle,
       filtering = _ref4.filtering,
       onClick = _ref4.onClick,
-      isTermSelected = _ref4.isTermSelected,
+      getTermStatus = _ref4.getTermStatus,
       extraClassname = _ref4.extraClassname,
       termTransformFxn = _ref4.termTransformFxn;
   var _facet$description2 = facet.description,
       description = _facet$description2 === void 0 ? null : _facet$description2,
       field = facet.field;
-  var selected = isTermSelected(term, facet);
+  var status = getTermStatus(term, facet);
+  var selectedOrOmitted = status !== 'none';
+  var statusClassName = selectedOrOmitted ? status === 'selected' ? 'selected' : 'omitted' : '';
   var termName = termTransformFxn(field, term.key);
 
   if (!termName || termName === 'null' || termName === 'undefined') {
@@ -584,7 +591,7 @@ var StaticSingleTerm = _react["default"].memo(function (_ref4) {
   }
 
   return _react["default"].createElement("div", {
-    className: "facet static" + (selected ? ' selected' : '') + (filtering ? ' filtering' : '') + (extraClassname ? ' ' + extraClassname : ''),
+    className: "facet static " + statusClassName + (filtering ? ' filtering' : '') + (extraClassname ? ' ' + extraClassname : ''),
     "data-field": field
   }, _react["default"].createElement("div", {
     className: "facet-static-row clearfix"
@@ -595,12 +602,12 @@ var StaticSingleTerm = _react["default"].memo(function (_ref4) {
     "data-tip": description,
     "data-place": "right"
   }, "\xA0", showTitle)), _react["default"].createElement("div", {
-    className: "facet-item term" + (selected ? ' selected' : '') + (filtering ? ' filtering' : '')
+    className: "facet-item term " + statusClassName + (filtering ? ' filtering' : '')
   }, _react["default"].createElement("span", {
     onClick: onClick,
-    title: 'All results have ' + term.key + ' as their ' + showTitle.toLowerCase() + '; ' + (selected ? 'currently active as portal-wide filter.' : 'not currently active as portal-wide filter.')
+    title: 'All results ' + (status !== 'omitted' ? 'have ' : 'omitted ') + term.key + (status !== 'omitted' ? ' as their ' : ' from their ') + showTitle.toLowerCase() + '; ' + (selectedOrOmitted ? 'currently active as portal-wide filter.' : 'not currently active as portal-wide filter.')
   }, _react["default"].createElement("i", {
-    className: "icon icon-fw " + (filtering ? 'icon-spin icon-circle-notch' : selected ? 'icon-times-circle fas' : 'icon-circle fas')
+    className: "icon icon-fw " + (filtering ? 'icon-spin icon-circle-notch' : selectedOrOmitted ? status === 'selected' ? 'icon-times-circle fas' : 'icon-minus-circle fas' : 'icon-circle fas')
   }), termName))));
 });
 /**
@@ -625,10 +632,11 @@ function performFilteringQuery(props, facet, term, callback) {
       context = props.context;
   var targetSearchHref;
   currentHref = currentHref || propHref;
-  var unselectHrefIfSelected = (0, _searchFilters.getUnselectHrefIfSelectedFromResponseFilters)(term, facet, context.filters);
+  var statusAndHref = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, context.filters);
+  var isUnselecting = !!statusAndHref.href;
 
-  if (unselectHrefIfSelected) {
-    targetSearchHref = unselectHrefIfSelected;
+  if (statusAndHref.href) {
+    targetSearchHref = statusAndHref.href;
   } else {
     targetSearchHref = (0, _searchFilters.buildSearchHref)(facet.field, term.key, currentHref);
     /*
@@ -651,7 +659,7 @@ function performFilteringQuery(props, facet, term, callback) {
 
 
   if (facet.field === 'type') {
-    if (!unselectHrefIfSelected) {
+    if (!statusAndHref.href) {
       var parts = _url["default"].parse(targetSearchHref, true);
 
       if (Array.isArray(parts.query.type)) {
@@ -680,7 +688,7 @@ function performFilteringQuery(props, facet, term, callback) {
     targetSearchHref += currentHref.slice(hashFragmentIdx);
   }
 
-  analytics.event('FacetList', !!unselectHrefIfSelected ? 'Unset Filter' : 'Set Filter', {
+  analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
     'field': facet.field,
     'term': term.key,
     'eventLabel': analytics.eventLabelFromChartNode({
@@ -744,7 +752,7 @@ function (_React$PureComponent3) {
           href = _this$props9.href,
           onFilter = _this$props9.onFilter,
           schemas = _this$props9.schemas,
-          isTermSelected = _this$props9.isTermSelected,
+          getTermStatus = _this$props9.getTermStatus,
           itemTypeForSchemas = _this$props9.itemTypeForSchemas,
           windowWidth = _this$props9.windowWidth,
           persistentCount = _this$props9.persistentCount,
@@ -784,7 +792,7 @@ function (_React$PureComponent3) {
           onFilter: onFilter,
           facet: facet,
           href: href,
-          isTermSelected: isTermSelected,
+          getTermStatus: getTermStatus,
           schemas: schemas,
           itemTypeForSchemas: itemTypeForSchemas,
           mounted: mounted,
@@ -793,7 +801,7 @@ function (_React$PureComponent3) {
         }, {
           key: facet.field,
           defaultFacetOpen: !mounted ? false : !!(_underscore["default"].any(facet.terms, function (t) {
-            return isTermSelected(t, facet);
+            return getTermStatus(t, facet) !== 'none';
           }) || (0, _layout.responsiveGridState)(windowWidth || null) !== 'xs' && i < (facetIndexWherePastXTerms || 1))
         }));
       });
@@ -933,9 +941,12 @@ FacetList.defaultProps = {
       setTimeout(callback, 1000);
     }
   },
-  'isTermSelected': function isTermSelected() {
+  'getTermStatus': function getTermStatus() {
     // Check against responseContext.filters, or expSetFilters in Redux store.
-    return false;
+    return {
+      'status': 'none',
+      'href': null
+    };
   },
   'itemTypeForSchemas': 'ExperimentSetReplicate',
   'termTransformFxn': function termTransformFxn(field, term) {

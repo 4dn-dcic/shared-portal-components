@@ -107,7 +107,7 @@ function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SearchControllersContainer).call(this, props));
     _this.onFilter = _this.onFilter.bind(_assertThisInitialized(_this));
-    _this.isTermSelected = _this.isTermSelected.bind(_assertThisInitialized(_this));
+    _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -119,9 +119,9 @@ function (_React$PureComponent) {
       (0, _FacetList.performFilteringQuery)(this.props, facet, term, callback, skipNavigation, currentHref);
     }
   }, {
-    key: "isTermSelected",
-    value: function isTermSelected(term, facet) {
-      return (0, _searchFilters.determineIfTermFacetSelected)(term, facet, this.props);
+    key: "getTermStatus",
+    value: function getTermStatus(term, facet) {
+      return (0, _searchFilters.getTermFacetStatus)(term, facet, this.props);
     }
   }, {
     key: "render",
@@ -131,7 +131,7 @@ function (_React$PureComponent) {
       return _react["default"].createElement(_CustomColumnController.CustomColumnController, {
         defaultHiddenColumns: defaultHiddenColumns
       }, _react["default"].createElement(_SortController.SortController, _underscore["default"].pick(this.props, 'href', 'context', 'navigate'), _react["default"].createElement(ControlsAndResults, _extends({}, this.props, {
-        isTermSelected: this.isTermSelected,
+        getTermStatus: this.getTermStatus,
         onFilter: this.onFilter
       }))));
     }
@@ -453,7 +453,7 @@ function (_React$PureComponent2) {
         onClearFilters: this.handleClearFilters,
         itemTypeForSchemas: specificType,
         showClearFiltersButton: this.isClearFiltersBtnVisible()
-      }, _underscore["default"].pick(this.props, 'isTermSelected', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react["default"].createElement("div", {
+      }, _underscore["default"].pick(this.props, 'getTermStatus', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react["default"].createElement("div", {
         className: tableColumnClassName
       }, _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
         showTotalResults: context.total,
