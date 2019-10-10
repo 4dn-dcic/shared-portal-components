@@ -62,7 +62,6 @@
         "react-draggable": "^3.3.2",
         "react-infinite": "^0.13.0",
         "react-json-tree": "^0.11.2",
-        "react-sticky": "^6.0.3",
         "universal-cookie": "^4.0.2"
     },
     "peerDependencies": {

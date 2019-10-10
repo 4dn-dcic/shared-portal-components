@@ -1,6 +1,8 @@
 
 @import 'mixins';
 
+/*** In Parent Portal CSS, must define "postition: sticky" for HeadersRow + top offset, depending on usage/placement ***/
+
 $search-results-edge-shadow-color : rgba(0,0,0,0.125) !default;
 $search-results-result-row-height: 46px !default;
 $search-results-above-results-row-height: 40px !default;
@@ -483,13 +485,11 @@ $search-results-header-text-color: #fff !default;
 		display: -webkit-box;
 		display: flex;
 		position: relative;
-		transition: left .025s linear;
 
 		> .search-headers-column-block {
 			@include search-result-column-and-header-block;
 			flex-shrink: 0;
 			position: relative;
-			transform: translate3d(0,0,0);
 
 			&.no-sort {
 				> .inner {

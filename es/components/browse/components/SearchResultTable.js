@@ -22,8 +22,6 @@ var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _reactInfinite = _interopRequireDefault(require("react-infinite"));
 
-var _reactSticky = require("react-sticky");
-
 var _ItemDetailList = require("./../../ui/ItemDetailList");
 
 var _patchedConsole = require("./../../util/patched-console");
@@ -47,6 +45,10 @@ var _Alerts = require("./../../ui/Alerts");
 var _tableCommons = require("./table-commons");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -952,7 +954,8 @@ function (_React$PureComponent4) {
     _this8.throttledUpdate = _underscore["default"].debounce(_this8.forceUpdate.bind(_assertThisInitialized(_this8)), 500);
     _this8.toggleDetailPaneOpen = _underscore["default"].throttle(_this8.toggleDetailPaneOpen.bind(_assertThisInitialized(_this8)), 500);
     _this8.setDetailHeight = _this8.setDetailHeight.bind(_assertThisInitialized(_this8));
-    _this8.setContainerScrollLeft = _this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8));
+    _this8.setContainerScrollLeft = _this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8)); //_.throttle(this.setContainerScrollLeft.bind(this), 100);
+
     _this8.onHorizontalScroll = _this8.onHorizontalScroll.bind(_assertThisInitialized(_this8));
     _this8.onVerticalScroll = _underscore["default"].throttle(_this8.onVerticalScroll.bind(_assertThisInitialized(_this8)), 200);
     _this8.setHeaderWidths = _underscore["default"].throttle(_this8.setHeaderWidths.bind(_assertThisInitialized(_this8)), 300);
@@ -960,8 +963,6 @@ function (_React$PureComponent4) {
     _this8.resetWidths = _this8.resetWidths.bind(_assertThisInitialized(_this8));
     _this8.setResults = _this8.setResults.bind(_assertThisInitialized(_this8));
     _this8.canLoadMore = _this8.canLoadMore.bind(_assertThisInitialized(_this8));
-    _this8.stickyHeaderTopOffset = _this8.stickyHeaderTopOffset.bind(_assertThisInitialized(_this8));
-    _this8.renderHeadersRow = _this8.renderHeadersRow.bind(_assertThisInitialized(_this8));
     _this8.state = {
       'mounted': false,
       'widths': DimensioningContainer.resetHeaderColumnWidths(props.columnDefinitions, false, props.windowWidth),
@@ -972,7 +973,8 @@ function (_React$PureComponent4) {
       'results': props.results.slice(0),
       'isWindowPastTableTop': false,
       // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
-      'openDetailPanes': {}
+      'openDetailPanes': {},
+      'tableContainerScrollLeft': 0
     };
     _this8.innerContainerRef = _react["default"].createRef();
     _this8.loadMoreAsYouScrollRef = _react["default"].createRef();
@@ -1075,39 +1077,36 @@ function (_React$PureComponent4) {
     }
   }, {
     key: "setContainerScrollLeft",
-    value: function setContainerScrollLeft(nextScrollLeft) {
-      this.setState(function (_ref4) {
-        var tableContainerScrollLeft = _ref4.tableContainerScrollLeft;
-
-        if (tableContainerScrollLeft === nextScrollLeft) {
-          return null;
-        }
-
-        return {
-          'tableContainerScrollLeft': nextScrollLeft
-        };
+    value: function setContainerScrollLeft(tableContainerScrollLeft) {
+      this.setState({
+        tableContainerScrollLeft: tableContainerScrollLeft
       });
     }
   }, {
     key: "onHorizontalScroll",
     value: function onHorizontalScroll(e) {
+      var _this9 = this;
+
       e && e.stopPropagation();
-      this.setContainerScrollLeft(e.target.scrollLeft || 0);
+      e.preventDefault();
+      (0, _utilities.requestAnimationFrame)(function () {
+        _this9.setContainerScrollLeft(e.target.scrollLeft || 0);
+      });
       return false;
     }
   }, {
     key: "onVerticalScroll",
     value: function onVerticalScroll() {
-      var _this9 = this;
+      var _this10 = this;
 
       //if (!document || !window || !this.refs.innerContainer) return null;
       setTimeout(function () {
         // Means this callback was finally (after setTimeout) called after `innerContainer` or `this` have been dismounted -- negligible occurence.
-        var innerContainerElem = _this9.innerContainerRef.current;
+        var innerContainerElem = _this10.innerContainerRef.current;
         if (!innerContainerElem) return null;
-        var _this9$props = _this9.props,
-            windowHeight = _this9$props.windowHeight,
-            windowWidth = _this9$props.windowWidth;
+        var _this10$props = _this10.props,
+            windowHeight = _this10$props.windowHeight,
+            windowWidth = _this10$props.windowWidth;
         var scrollTop = (0, _layout.getPageVerticalScrollPosition)();
         var tableTopOffset = (0, _layout.getElementOffset)(innerContainerElem).top; //var isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem, windowHeight, scrollTop, tableTopOffset);
 
@@ -1158,8 +1157,8 @@ function (_React$PureComponent4) {
         */
         var isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem, windowHeight, scrollTop, tableTopOffset);
 
-        if (isWindowPastTableTop !== _this9.state.isWindowPastTableTop) {
-          _this9.setState({
+        if (isWindowPastTableTop !== _this10.state.isWindowPastTableTop) {
+          _this10.setState({
             'isWindowPastTableTop': isWindowPastTableTop
           });
         }
@@ -1203,22 +1202,22 @@ function (_React$PureComponent4) {
   }, {
     key: "resetWidths",
     value: function resetWidths() {
-      var _this10 = this;
+      var _this11 = this;
 
-      this.setState(function resetWidthStateChangeFxn(_ref5, _ref6) {
-        var mounted = _ref5.mounted;
-        var columnDefinitions = _ref6.columnDefinitions,
-            windowWidth = _ref6.windowWidth;
+      this.setState(function resetWidthStateChangeFxn(_ref4, _ref5) {
+        var mounted = _ref4.mounted;
+        var columnDefinitions = _ref5.columnDefinitions,
+            windowWidth = _ref5.windowWidth;
         return {
           "widths": DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth)
         };
       }, function resetWidthStateChangeFxnCallback() {
         (0, _utilities.requestAnimationFrame)(function () {
-          var _this10$props = _this10.props,
-              columnDefinitions = _this10$props.columnDefinitions,
-              windowWidth = _this10$props.windowWidth; // 2. Upon render into DOM, decrease col sizes.
+          var _this11$props = _this11.props,
+              columnDefinitions = _this11$props.columnDefinitions,
+              windowWidth = _this11$props.windowWidth; // 2. Upon render into DOM, decrease col sizes.
 
-          _this10.setState(_underscore["default"].extend(_this10.getTableDims(), {
+          _this11.setState(_underscore["default"].extend(_this11.getTableDims(), {
             'widths': DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth)
           }));
         });
@@ -1245,68 +1244,23 @@ function (_React$PureComponent4) {
       return LoadMoreAsYouScroll.canLoadMore(this.props.totalExpected, this.state.results);
     }
   }, {
-    key: "stickyHeaderTopOffset",
-    value: function () {
-      var _this$props13 = this.props,
-          windowWidth = _this$props13.windowWidth,
-          stickyHeaderTopOffset = _this$props13.stickyHeaderTopOffset,
-          currentAction = _this$props13.currentAction,
-          href = _this$props13.href;
-      var displayNavBar = !(href && typeof href === 'string' && href.indexOf('/search/') >= 0 && (0, _misc.isSelectAction)(currentAction));
-      var rgs = (0, _layout.responsiveGridState)(windowWidth);
-
-      switch (rgs) {
-        case 'xs':
-        case 'sm':
-          return 0;
-
-        case 'md':
-        case 'lg':
-        case 'xl':
-          return displayNavBar ? stickyHeaderTopOffset || 0 : 0;
-      }
-    }
-  }, {
-    key: "renderHeadersRow",
-    value: function renderHeadersRow(_ref7) {
-      var style = _ref7.style,
-          isSticky = _ref7.isSticky,
-          wasSticky = _ref7.wasSticky,
-          distanceFromTop = _ref7.distanceFromTop,
-          distanceFromBottom = _ref7.distanceFromBottom,
-          calculatedHeight = _ref7.calculatedHeight;
-      var _this$state2 = this.state,
-          tableContainerWidth = _this$state2.tableContainerWidth,
-          tableLeftOffset = _this$state2.tableLeftOffset,
-          widths = _this$state2.widths;
-      return _react["default"].createElement(_tableCommons.HeadersRow, _extends({}, _underscore["default"].pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'), _underscore["default"].pick(this.state, 'mounted', 'results'), {
-        stickyHeaderTopOffset: this.stickyHeaderTopOffset(),
-        headerColumnWidths: widths,
-        setHeaderWidths: this.setHeaderWidths,
-        tableLeftOffset: tableLeftOffset,
-        tableContainerWidth: tableContainerWidth,
-        stickyStyle: style,
-        isSticky: isSticky
-      }));
-    }
-  }, {
     key: "renderResults",
     value: function renderResults() {
-      var _this$props14 = this.props,
-          columnDefinitions = _this$props14.columnDefinitions,
-          windowWidth = _this$props14.windowWidth;
-      var _this$state3 = this.state,
-          results = _this$state3.results,
-          tableContainerWidth = _this$state3.tableContainerWidth,
-          tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
-          mounted = _this$state3.mounted,
-          widths = _this$state3.widths,
-          openDetailPanes = _this$state3.openDetailPanes;
+      var _this$props13 = this.props,
+          columnDefinitions = _this$props13.columnDefinitions,
+          windowWidth = _this$props13.windowWidth;
+      var _this$state2 = this.state,
+          results = _this$state2.results,
+          tableContainerWidth = _this$state2.tableContainerWidth,
+          tableContainerScrollLeft = _this$state2.tableContainerScrollLeft,
+          mounted = _this$state2.mounted,
+          widths = _this$state2.widths,
+          openDetailPanes = _this$state2.openDetailPanes;
 
       var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth); // selectedFiles passed to trigger re-render on PureComponent further down tree (DetailPane).
 
 
-      var commonPropsToPass = _underscore["default"].extend(_underscore["default"].pick(this.props, 'columnDefinitions', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'windowWidth', 'schemas'), {
+      var commonPropsToPass = _underscore["default"].extend(_underscore["default"].pick(this.props, 'columnDefinitions', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'windowWidth', 'schemas', 'termTransformFxn'), {
         openDetailPanes: openDetailPanes,
         tableContainerWidth: tableContainerWidth,
         tableContainerScrollLeft: tableContainerScrollLeft,
@@ -1331,25 +1285,36 @@ function (_React$PureComponent4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-          columnDefinitions = _this$props15.columnDefinitions,
-          windowWidth = _this$props15.windowWidth;
-      var _this$state4 = this.state,
-          tableContainerWidth = _this$state4.tableContainerWidth,
-          tableContainerScrollLeft = _this$state4.tableContainerScrollLeft,
-          mounted = _this$state4.mounted,
-          widths = _this$state4.widths,
-          isWindowPastTableTop = _this$state4.isWindowPastTableTop;
+      var _this$props14 = this.props,
+          columnDefinitions = _this$props14.columnDefinitions,
+          windowWidth = _this$props14.windowWidth,
+          isOwnPage = _this$props14.isOwnPage;
+      var _this$state3 = this.state,
+          tableContainerWidth = _this$state3.tableContainerWidth,
+          tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
+          mounted = _this$state3.mounted,
+          widths = _this$state3.widths,
+          isWindowPastTableTop = _this$state3.isWindowPastTableTop,
+          tableLeftOffset = _this$state3.tableLeftOffset;
 
       var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
 
       var canLoadMore = this.canLoadMore();
       var innerContainerElem = this.innerContainerRef.current;
+
+      var headerRowCommonProps = _objectSpread({}, _underscore["default"].pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'), {}, _underscore["default"].pick(this.state, 'mounted', 'results'), {
+        headerColumnWidths: widths,
+        setHeaderWidths: this.setHeaderWidths,
+        tableContainerWidth: tableContainerWidth
+      });
+
       return _react["default"].createElement("div", {
-        className: "search-results-outer-container"
-      }, _react["default"].createElement(_reactSticky.StickyContainer, null, _react["default"].createElement("div", {
-        className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
+        className: "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")
       }, _react["default"].createElement("div", {
+        className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
+      }, _react["default"].createElement(_tableCommons.HeadersRow, _extends({}, headerRowCommonProps, {
+        tableContainerScrollLeft: tableContainerScrollLeft
+      })), _react["default"].createElement("div", {
         className: "inner-container",
         ref: this.innerContainerRef
       }, _react["default"].createElement("div", {
@@ -1357,12 +1322,7 @@ function (_React$PureComponent4) {
         style: {
           minWidth: fullRowWidth + 6
         }
-      }, _react["default"].createElement(_reactSticky.Sticky, {
-        windowWidth: windowWidth,
-        topOffset: this.stickyHeaderTopOffset()
-      }, this.renderHeadersRow
-      /* Sticky calls children as if is function */
-      ), _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'totalExpected', 'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas'), _underscore["default"].pick(this.state, 'results', 'mounted', 'openDetailPanes'), {
+      }, _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'totalExpected', 'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas'), _underscore["default"].pick(this.state, 'results', 'mounted', 'openDetailPanes'), {
         tableContainerWidth: tableContainerWidth,
         tableContainerScrollLeft: tableContainerScrollLeft,
         innerContainerElem: innerContainerElem
@@ -1378,7 +1338,7 @@ function (_React$PureComponent4) {
         innerContainerElem: innerContainerElem
       }, {
         setContainerScrollLeft: this.setContainerScrollLeft
-      })))), canLoadMore === false ? _react["default"].createElement("div", {
+      }))), canLoadMore === false ? _react["default"].createElement("div", {
         key: "can-load-more",
         className: "fin search-result-row"
       }, _react["default"].createElement("div", {
@@ -1429,14 +1389,14 @@ function (_React$PureComponent5) {
   }]);
 
   function SearchResultTable(props) {
-    var _this11;
+    var _this12;
 
     _classCallCheck(this, SearchResultTable);
 
-    _this11 = _possibleConstructorReturn(this, _getPrototypeOf(SearchResultTable).call(this, props));
-    _this11.getDimensionContainer = _this11.getDimensionContainer.bind(_assertThisInitialized(_this11));
-    _this11.dimensionContainerRef = _react["default"].createRef();
-    return _this11;
+    _this12 = _possibleConstructorReturn(this, _getPrototypeOf(SearchResultTable).call(this, props));
+    _this12.getDimensionContainer = _this12.getDimensionContainer.bind(_assertThisInitialized(_this12));
+    _this12.dimensionContainerRef = _react["default"].createRef();
+    return _this12;
   }
 
   _createClass(SearchResultTable, [{
@@ -1447,10 +1407,10 @@ function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props16 = this.props,
-          hiddenColumns = _this$props16.hiddenColumns,
-          columnExtensionMap = _this$props16.columnExtensionMap,
-          columnDefinitions = _this$props16.columnDefinitions;
+      var _this$props15 = this.props,
+          hiddenColumns = _this$props15.hiddenColumns,
+          columnExtensionMap = _this$props15.columnExtensionMap,
+          columnDefinitions = _this$props15.columnDefinitions;
       var colDefs = columnDefinitions || (0, _tableCommons.columnsToColumnDefinitions)({
         'display_title': {
           'title': 'Title'
@@ -1524,7 +1484,6 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'hiddenColumns': null,
   'limit': 25,
   'rowHeight': 47,
-  'stickyHeaderTopOffset': -40,
   'fullWidthInitOffset': 60,
   'fullWidthContainerSelectorString': '.browse-page-container',
   'currentAction': null,

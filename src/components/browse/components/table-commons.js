@@ -513,22 +513,29 @@ export class HeadersRow extends React.Component {
     static propTypes = {
         'columnDefinitions' : PropTypes.array.isRequired,//ResultRow.propTypes.columnDefinitions,
         'mounted' : PropTypes.bool.isRequired,
+        /** @deprecated */
         'isSticky' : PropTypes.bool,
+        /** @deprecated */
         'stickyStyle' : PropTypes.object,
+        /** @deprecated ?? */
         'tableLeftOffset' : PropTypes.number,
+        /** @deprecated ?? */
         'tableContainerWidth' : PropTypes.number,
+        /** @deprecated */
         'stickyHeaderTopOffset' : PropTypes.number,
         'renderDetailPane' : PropTypes.func,
         'headerColumnWidths' : PropTypes.arrayOf(PropTypes.number),
         'setHeaderWidths' : PropTypes.func,
         'width' : PropTypes.number,
-        'defaultMinColumnWidth' : PropTypes.number
+        'defaultMinColumnWidth' : PropTypes.number,
+        'tableContainerScrollLeft' : PropTypes.number
     };
 
     static defaultProps = {
         'isSticky' : false,
         'tableLeftOffset' : 0,
-        'defaultMinColumnWidth' : 55
+        'defaultMinColumnWidth' : 55,
+        'tableContainerScrollLeft' : 0
     };
 
     constructor(props){
@@ -576,29 +583,29 @@ export class HeadersRow extends React.Component {
     }
 
     render(){
-        const { isSticky, stickyStyle, tableLeftOffset, tableContainerWidth, columnDefinitions, stickyHeaderTopOffset, renderDetailPane, headerColumnWidths, width } = this.props;
+        const { tableLeftOffset, tableContainerWidth, columnDefinitions, stickyHeaderTopOffset, renderDetailPane, headerColumnWidths, width, tableContainerScrollLeft } = this.props;
         const { widths } = this.state;
         const isAdjustable = headerColumnWidths && widths;
         const outerClassName = (
             "search-headers-row"
             + (isAdjustable ? '' : ' non-adjustable')
-            + (isSticky ? ' stickied' : '')
             + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '')
         );
-        const outerStyle = isSticky ? _.extend({}, stickyStyle, {
-            'top'   : -stickyHeaderTopOffset,
-            'left'  : tableLeftOffset,
-            'width' : tableContainerWidth
-        }) : {
+
+        const outerStyle = {
             'width' : width || null // Only passed in from ItemPage
+        };
+
+        const leftOffset = 0 - tableContainerScrollLeft - (tableLeftOffset || 0);
+
+        const innerStyle = {
+            left: leftOffset,
+            //transform: "translate3d(" + leftOffset + "px, 0px, 0px)"
         };
 
         return (
             <div className={outerClassName} style={outerStyle}>
-                <div className="columns clearfix" style={{
-                    'left'  : isSticky ? (stickyStyle.left || 0) - (tableLeftOffset || 0) : null,
-                    'width' : (stickyStyle && stickyStyle.width) || null
-                }}>
+                <div className="columns clearfix" style={innerStyle}>
                     {
                         _.map(columnDefinitions, (colDef, i)=>
                             <HeadersRowColumn {..._.pick(this.props, 'sortColumn', 'sortReverse', 'sortBy', 'headerColumnWidths')} colDef={colDef} index={i}

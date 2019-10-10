@@ -792,33 +792,27 @@ function (_React$Component2) {
       var _this5 = this;
 
       var _this$props9 = this.props,
-          isSticky = _this$props9.isSticky,
-          stickyStyle = _this$props9.stickyStyle,
           tableLeftOffset = _this$props9.tableLeftOffset,
           tableContainerWidth = _this$props9.tableContainerWidth,
           columnDefinitions = _this$props9.columnDefinitions,
           stickyHeaderTopOffset = _this$props9.stickyHeaderTopOffset,
           renderDetailPane = _this$props9.renderDetailPane,
           headerColumnWidths = _this$props9.headerColumnWidths,
-          width = _this$props9.width;
+          width = _this$props9.width,
+          tableContainerScrollLeft = _this$props9.tableContainerScrollLeft;
       var widths = this.state.widths;
-      var outerClassName = "search-headers-row" + (headerColumnWidths && widths ? '' : ' non-adjustable') + (isSticky ? ' stickied' : '') + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '');
-      var outerStyle = isSticky ? _underscore["default"].extend({}, stickyStyle, {
-        'top': -stickyHeaderTopOffset,
-        'left': tableLeftOffset,
-        'width': tableContainerWidth
-      }) : {
-        'width': width || null // Only passed in from ItemPage
-
-      };
+      var outerClassName = "search-headers-row" + (headerColumnWidths && widths ? '' : ' non-adjustable') + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '');
       return _react["default"].createElement("div", {
         className: outerClassName,
-        style: outerStyle
+        style: {
+          'width': width || null // Only passed in from ItemPage
+
+        }
       }, _react["default"].createElement("div", {
         className: "columns clearfix",
         style: {
-          'left': isSticky ? (stickyStyle.left || 0) - (tableLeftOffset || 0) : null,
-          'width': stickyStyle && stickyStyle.width || null
+          left: 0 - tableContainerScrollLeft - (tableLeftOffset || 0) //transform: "translate3d(" + leftOffset + "px, 0px, 0px)"
+
         }
       }, _underscore["default"].map(columnDefinitions, function (colDef, i) {
         return _react["default"].createElement(HeadersRowColumn, _extends({}, _underscore["default"].pick(_this5.props, 'sortColumn', 'sortReverse', 'sortBy', 'headerColumnWidths'), {
@@ -856,20 +850,32 @@ _defineProperty(HeadersRow, "propTypes", {
   'columnDefinitions': _propTypes["default"].array.isRequired,
   //ResultRow.propTypes.columnDefinitions,
   'mounted': _propTypes["default"].bool.isRequired,
+
+  /** @deprecated */
   'isSticky': _propTypes["default"].bool,
+
+  /** @deprecated */
   'stickyStyle': _propTypes["default"].object,
+
+  /** @deprecated ?? */
   'tableLeftOffset': _propTypes["default"].number,
+
+  /** @deprecated ?? */
   'tableContainerWidth': _propTypes["default"].number,
+
+  /** @deprecated */
   'stickyHeaderTopOffset': _propTypes["default"].number,
   'renderDetailPane': _propTypes["default"].func,
   'headerColumnWidths': _propTypes["default"].arrayOf(_propTypes["default"].number),
   'setHeaderWidths': _propTypes["default"].func,
   'width': _propTypes["default"].number,
-  'defaultMinColumnWidth': _propTypes["default"].number
+  'defaultMinColumnWidth': _propTypes["default"].number,
+  'tableContainerScrollLeft': _propTypes["default"].number
 });
 
 _defineProperty(HeadersRow, "defaultProps", {
   'isSticky': false,
   'tableLeftOffset': 0,
-  'defaultMinColumnWidth': 55
+  'defaultMinColumnWidth': 55,
+  'tableContainerScrollLeft': 0
 });
