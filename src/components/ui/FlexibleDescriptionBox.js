@@ -220,7 +220,7 @@ export class FlexibleDescriptionBox extends React.Component {
     checkWillDescriptionFitOneLineAndUpdateHeight(){
         const { description, textElement, textClassName, textStyle, windowWidth, linesOfText, lineHeight, fitTo } = this.props;
         if (isServerSide()) return true;
-        const boxRef = this.boxRef.current;
+        const boxRef = (this.boxRef && this.boxRef.current) || null;
 
         if (!boxRef){
             console.error("boxRef not available");

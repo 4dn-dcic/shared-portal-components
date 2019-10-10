@@ -263,7 +263,7 @@ function (_React$Component3) {
           lineHeight = _this$props2.lineHeight,
           fitTo = _this$props2.fitTo;
       if ((0, _misc.isServerSide)()) return true;
-      var boxRef = this.boxRef.current;
+      var boxRef = this.boxRef && this.boxRef.current || null;
 
       if (!boxRef) {
         _patchedConsole.patchedConsoleInstance.error("boxRef not available");
