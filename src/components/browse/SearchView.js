@@ -383,11 +383,10 @@ const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
                         ) :
                         (
                             <h3 className="mt-03 mb-0">
-                                &nbsp;
-                                {/* <span style={{ 'fontSize': '80%' }}>{selectedItemDisplayTitle}</span>
+                                <span style={{ 'fontSize': '80%' }}>{selectedItemDisplayTitle}</span>
                                 <small className="text-muted ml-08">
                                     {selectedItems.size === 1 ? '' : (itemTypeFriendlyName + 's')} selected
-                                </small> */}
+                                </small>
                             </h3>
                         )}
                 </div>
