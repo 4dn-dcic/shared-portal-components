@@ -363,6 +363,7 @@ function (_React$PureComponent) {
           noCloseButton = alert.noCloseButton,
           title = alert.title,
           message = alert.message;
+      var hasMessage = !!message;
       return _react["default"].createElement(_Fade.Fade, {
         timeout: 500,
         "in": _underscore["default"].findIndex(dismissing, alert) === -1,
@@ -379,10 +380,10 @@ function (_React$PureComponent) {
       }, "\xD7"), _react["default"].createElement("span", {
         className: "sr-only"
       }, "Close alert")) : null, _react["default"].createElement("h4", {
-        className: "alert-heading mt-0 mb-05"
-      }, title), _react["default"].createElement("div", {
+        className: "alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")
+      }, title), hasMessage ? _react["default"].createElement("div", {
         className: "mb-0"
-      }, message)));
+      }, message) : null));
     }
   }]);
 

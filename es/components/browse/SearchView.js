@@ -264,9 +264,13 @@ function (_React$PureComponent2) {
 
       window.dispatchEvent(new Event('fourfrontcancelclick')); // CURRENT: If we have parent window, post a message to it as well.
 
-      if (window.opener) window.opener.postMessage({
-        'eventType': 'fourfrontcancelclick'
-      }, '*');
+      if (window.opener) {
+        window.opener.postMessage({
+          'eventType': 'fourfrontcancelclick'
+        }, '*');
+      } else {
+        _patchedConsole.patchedConsoleInstance.error("Couldn't access opener window.");
+      }
     }
     /**
      * Utility function to post message to parent window
@@ -577,18 +581,24 @@ var SelectStickyFooter = _react["default"].memo(function (props) {
       onCancel = props.onCancel,
       currentAction = props.currentAction;
   var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
-  currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : '0';
+  var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : '0';
   return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
     className: "row"
   }, _react["default"].createElement("div", {
     className: "col-12 col-md-9 text-md-left col-sm-center"
-  }, currentAction === 'multiselect' ? _react["default"].createElement("h3", {
-    className: "mt-03 mb-0"
-  }, selectedItems.size, _react["default"].createElement("small", {
+  }, currentAction === 'multiselect' ?
+  /* TODO: <DropdownButton> ...list of selected items... </DropdownButton> */
+  _react["default"].createElement("h3", {
+    className: "mt-0 mb-0"
+  }, _react["default"].createElement("span", null, selectedItems.size), _react["default"].createElement("small", {
     className: "text-muted ml-08"
   }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("h3", {
-    className: "mt-03 mb-0"
-  }, "\xA0")), _react["default"].createElement("div", {
+    className: "mt-0 mb-0"
+  }, _react["default"].createElement("span", {
+    className: "small"
+  }, selectedItemDisplayTitle), _react["default"].createElement("small", {
+    className: "text-muted ml-08"
+  }, selectedItems.size === 1 ? '' : itemTypeFriendlyName + 's', " selected"))), _react["default"].createElement("div", {
     className: "col-12 col-md-3 text-md-right col-sm-center"
   }, _react["default"].createElement("button", {
     type: "button",

@@ -531,20 +531,21 @@ class LinkedObj extends React.PureComponent {
         const { schema, nestedField, isMultiSelect } = this.props;
         const itemType = schema && schema.linkTo;
         const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
-        const message = (
-            <div>
-                { !isMultiSelect?
-                    <p className="mb-0">
-                        Please either select an Item below and click <em>Apply</em> or <em>drag and drop</em> an Item (row) from this window into the submissions window.
-                    </p>
-                    :
-                    <p className="mb-0">
-                        Please select the Item(s) you would like and then press <em>Apply</em> below.
-                    </p>
-                }
-                <p className="mb-0">You may use facets on the left-hand side to narrow down results.</p>
-            </div>
-        );
+        const message = null;
+        // const message = (
+        //     <div>
+        //         { !isMultiSelect?
+        //             <p className="mb-0">
+        //                 Please either select an Item below and click <em>Apply</em> or <em>drag and drop</em> an Item (row) from this window into the submissions window.
+        //             </p>
+        //             :
+        //             <p className="mb-0">
+        //                 Please select the Item(s) you would like and then press <em>Apply</em> below.
+        //             </p>
+        //         }
+        //         <p className="mb-0">You may use facets on the left-hand side to narrow down results.</p>
+        //     </div>
+        // );
         return {
             title: 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
             message,
