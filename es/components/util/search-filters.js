@@ -196,41 +196,27 @@ function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, fa
   var includePathName = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   //workaround: '!=' condition adds '!' to the end of facet.field in StaticSingleTerm, we remove it
   var field = facet.field.endsWith('!') ? facet.field.slice(0, -1) : facet.field;
-  facet.aggregation_type && ['range', 'date_histogram', 'histogram'].indexOf(facet.aggregation_type) > -1;
   var i,
       filter,
       parts,
-      retHref = ''; // THE CONTENTS UNDER THIS IF CONDITION WILL CHANGE ONCE WE CREATE NEW 'RANGE' FACET COMPONENT
+      retHref = '',
+      found = false,
+      status = "selected";
 
-  if (facet.aggregation_type && ['range', 'date_histogram', 'histogram'].indexOf(facet.aggregation_type) > -1) {
-    var toFilter, fromFilter;
+  if (facet.aggregation_type === "stats") {
+    for (i = 0; i < filters.length; i++) {
+      filter = filters[i];
+      var filterTermValue = parseFloat(filter.term);
+      if (isNaN(filterTermValue)) continue;
 
-    if (facet.aggregation_type === 'range') {
-      toFilter = _underscore["default"].findWhere(filters, {
-        'field': field + '.to',
-        'term': term.to
-      }), fromFilter = _underscore["default"].findWhere(filters, {
-        'field': field + '.from',
-        'term': term.from
-      });
-    } else if (facet.aggregation_type === 'date_histogram') {
-      var interval = getDateHistogramIntervalFromFacet(facet) || 'month',
-          toDate = _moment["default"].utc(term.key);
-
-      toDate.add(1, interval + 's');
-      toFilter = _underscore["default"].findWhere(filters, {
-        'field': field + '.to',
-        'term': toDate.format().slice(0, 10)
-      }), fromFilter = _underscore["default"].findWhere(filters, {
-        'field': field + '.from',
-        'term': term.key
-      });
-    } else {
-      throw new Error('Histogram not currently supported.'); // Todo: var interval = ....
+      if (filter.field === field && filterTermValue === term.key) {
+        found = true;
+        break;
+      }
     }
 
-    if (toFilter && !fromFilter) {
-      parts = _url["default"].parse(toFilter['remove']);
+    if (found) {
+      parts = _url["default"].parse(filter.remove);
 
       if (includePathName) {
         retHref += parts.pathname;
@@ -238,60 +224,7 @@ function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, fa
 
       retHref += parts.search;
       return {
-        'status': 'selected',
-        'href': retHref
-      };
-    } else if (!toFilter && fromFilter) {
-      parts = _url["default"].parse(fromFilter['remove']);
-
-      if (includePathName) {
-        retHref += parts.pathname;
-      }
-
-      retHref += parts.search;
-      return {
-        'status': 'selected',
-        'href': retHref
-      };
-    } else if (toFilter && fromFilter) {
-      var partsFrom = _url["default"].parse(fromFilter['remove'], true),
-          partsTo = _url["default"].parse(toFilter['remove'], true),
-          partsFromQ = partsFrom.query,
-          partsToQ = partsTo.query,
-          commonQs = {};
-
-      _underscore["default"].forEach(_underscore["default"].keys(partsFromQ), function (qk) {
-        if (typeof partsToQ[qk] !== 'undefined') {
-          if (Array.isArray(partsToQ[qk]) || Array.isArray(partsFromQ[qk])) {
-            var a1, a2;
-
-            if (Array.isArray(partsToQ[qk])) {
-              a1 = partsToQ[qk];
-            } else {
-              a1 = [partsToQ[qk]];
-            }
-
-            if (Array.isArray(partsFromQ[qk])) {
-              a2 = partsFromQ[qk];
-            } else {
-              a2 = [partsFromQ[qk]];
-            }
-
-            commonQs[qk] = _underscore["default"].intersection(a1, a2);
-          } else {
-            commonQs[qk] = partsToQ[qk];
-          }
-        }
-      });
-
-      retHref = '?' + _queryString["default"].stringify(commonQs);
-
-      if (includePathName) {
-        retHref += partsFrom.pathname;
-      }
-
-      return {
-        'status': 'selected',
+        status: status,
         'href': retHref
       };
     }
@@ -300,31 +233,28 @@ function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, fa
     for (i = 0; i < filters.length; i++) {
       filter = filters[i];
 
-      if (filter.field == field && filter.term == term.key) {
-        parts = _url["default"].parse(filter.remove);
-
-        if (includePathName) {
-          retHref += parts.pathname;
-        }
-
-        retHref += parts.search;
-        return {
-          'status': 'selected',
-          'href': retHref
-        };
-      } else if (filter.field.endsWith('!') && filter.field.slice(0, -1) == field && filter.term == term.key) {
-        parts = _url["default"].parse(filter.remove);
-
-        if (includePathName) {
-          retHref += parts.pathname;
-        }
-
-        retHref += parts.search;
-        return {
-          'status': 'omitted',
-          'href': retHref
-        };
+      if (filter.field === field && filter.term === term.key) {
+        found = true;
+        break;
+      } else if (filter.field.endsWith('!') && filter.field.slice(0, -1) === field && filter.term === term.key) {
+        found = true;
+        status = "omitted";
+        break;
       }
+    }
+
+    if (found) {
+      parts = _url["default"].parse(filter.remove);
+
+      if (includePathName) {
+        retHref += parts.pathname;
+      }
+
+      retHref += parts.search;
+      return {
+        status: status,
+        'href': retHref
+      };
     }
   }
 
