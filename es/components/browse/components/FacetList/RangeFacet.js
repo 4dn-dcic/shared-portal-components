@@ -65,14 +65,14 @@ function (_React$PureComponent) {
   _createClass(RangeFacet, null, [{
     key: "parseNumber",
     value: function parseNumber(facet, value) {
-      var _facet$type = facet.type,
-          type = _facet$type === void 0 ? "integer" : _facet$type;
+      var _facet$field_type = facet.field_type,
+          field_type = _facet$field_type === void 0 ? "integer" : _facet$field_type;
 
       if (value === "" || value === null) {
         return null;
       }
 
-      var numVal = type === "integer" ? parseInt(value) : parseFloat(value);
+      var numVal = field_type === "integer" ? parseInt(value) : parseFloat(value);
 
       if (isNaN(numVal)) {
         throw new Error("Is not a number - " + numVal);
@@ -556,8 +556,6 @@ function (_React$PureComponent2) {
           active: increment === savedValue
         }, termTransformFxn(facet.field, increment, true), increment === min ? _react["default"].createElement("small", null, " (min)") : null, increment === max ? _react["default"].createElement("small", null, " (max)") : null);
       });
-
-      _patchedConsole.patchedConsoleInstance.log("RRRRR", savedValue, value);
 
       return _react["default"].createElement(_reactBootstrap.DropdownButton, _extends({
         variant: variant,

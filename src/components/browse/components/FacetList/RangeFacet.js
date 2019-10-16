@@ -15,13 +15,13 @@ import { Collapse } from './../../../ui/Collapse';
 export class RangeFacet extends React.PureComponent {
 
     static parseNumber(facet, value){
-        const { type = "integer" } = facet;
+        const { field_type = "integer" } = facet;
 
         if (value === "" || value === null){
             return null;
         }
 
-        const numVal = type === "integer" ? parseInt(value) : parseFloat(value);
+        const numVal = field_type === "integer" ? parseInt(value) : parseFloat(value);
 
         if (isNaN(numVal)) {
             throw new Error("Is not a number - " + numVal);
@@ -355,8 +355,6 @@ class RangeDropdown extends React.PureComponent {
                 </DropdownItem>
             );
         });
-
-        console.log("RRRRR", savedValue, value);
 
         const updateAble = (savedValue !== value);
 
