@@ -157,7 +157,11 @@ class ControlsAndResults extends React.PureComponent {
 
         window.dispatchEvent(new Event('fourfrontcancelclick'));
         // CURRENT: If we have parent window, post a message to it as well.
-        if (window.opener) window.opener.postMessage({ 'eventType': 'fourfrontcancelclick' }, '*');
+        if (window.opener){
+            window.opener.postMessage({ 'eventType': 'fourfrontcancelclick' }, '*');
+        } else {
+            console.error("Couldn't access opener window.");
+        }
     }
 
     /**
@@ -373,19 +377,18 @@ const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
             <div className="row">
                 <div className="col-12 col-md-9 text-md-left col-sm-center">
                     {currentAction === 'multiselect' ?
-                        (
-                            <h3 className="mt-03 mb-0">
-                                {selectedItems.size}
+                        (/* TODO: <DropdownButton> ...list of selected items... </DropdownButton> */
+                            <h3 className="mt-0 mb-0">
+                                <span>{ selectedItems.size }</span>
                                 <small className="text-muted ml-08">
-                                    {itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's')} selected
+                                    { itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's') } selected
                                 </small>
                             </h3>
-                        ) :
-                        (
-                            <h3 className="mt-03 mb-0">
-                                <span style={{ 'fontSize': '80%' }}>{selectedItemDisplayTitle}</span>
+                        ) : (
+                            <h3 className="mt-0 mb-0">
+                                <span className="small">{ selectedItemDisplayTitle }</span>
                                 <small className="text-muted ml-08">
-                                    {selectedItems.size === 1 ? '' : (itemTypeFriendlyName + 's')} selected
+                                    { selectedItems.size === 1 ? '' : (itemTypeFriendlyName + 's') } selected
                                 </small>
                             </h3>
                         )}
