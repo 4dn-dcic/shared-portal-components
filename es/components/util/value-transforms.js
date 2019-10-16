@@ -26,7 +26,7 @@ function capitalizeSentence(sen) {
   return sen.split(' ').map(capitalize).join(' ');
 }
 
-var byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'Petabytes', 'Exabytes'];
+var byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'PB', 'Exabytes', 'Zettabytes', 'Yottabyte'];
 exports.byteLevels = byteLevels;
 var numberLevels = ['', 'k', 'm', ' billion', ' trillion', ' quadrillion', ' quintillion'];
 exports.numberLevels = numberLevels;
@@ -34,7 +34,7 @@ exports.numberLevels = numberLevels;
 function bytesToLargerUnit(bytes) {
   var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-  if (bytes > 1024 && level < byteLevels.length) {
+  if (bytes >= 1024 && level < byteLevels.length) {
     return bytesToLargerUnit(bytes / 1024, level + 1);
   } else {
     return Math.round(bytes * 100) / 100 + ' ' + byteLevels[level];

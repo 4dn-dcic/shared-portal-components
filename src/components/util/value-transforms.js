@@ -13,12 +13,12 @@ export function capitalizeSentence(sen) {
     return sen.split(' ').map(capitalize).join(' ');
 }
 
-export const byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'Petabytes', 'Exabytes'];
+export const byteLevels = ['Bytes', 'kB', 'MB', 'GB', 'TB', 'PB', 'Exabytes', 'Zettabytes', 'Yottabyte'];
 
 export const numberLevels = ['', 'k', 'm', ' billion', ' trillion', ' quadrillion', ' quintillion'];
 
 export function bytesToLargerUnit(bytes, level = 0){
-    if (bytes > 1024 && level < byteLevels.length) {
+    if (bytes >= 1024 && level < byteLevels.length) {
         return bytesToLargerUnit(bytes / 1024, level + 1);
     } else {
         return (Math.round(bytes * 100) / 100) + ' ' + byteLevels[level];

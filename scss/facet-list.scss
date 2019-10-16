@@ -106,14 +106,16 @@ $facetlist-facet-font-size: 0.925rem !default;
     }
 
     .facet {
-        overflow: hidden;
-        padding-top: 9px;
-        padding-bottom: 0px;
 
         margin-left: -10px;
         margin-right: -10px;
         padding-left : 10px;
         padding-right : 10px;
+
+        &.closed,
+        &:not(.range-facet) {
+            overflow: hidden;
+        }
 
         &.active-submission-row {
             position: relative;
@@ -131,11 +133,75 @@ $facetlist-facet-font-size: 0.925rem !default;
             }
         }
 
+        &.range-facet {
+            > .inner-panel {
+
+                padding-top: 5px;
+
+                > div.row {
+                    align-items: center;
+                    padding-bottom: 5px;
+
+                    .range-dropdown-container {
+                        padding-left: 0;
+                        padding-right: 10px;
+                        > button {
+                            width: 100%;
+                            text-align: right;
+                        }
+                    }
+
+                    .clear-icon-container {
+                        padding-left: 0;
+                        opacity: 0.5;
+                        &.disabled {
+                            opacity: 0.25;
+                        }
+                        &:hover:not(.disabled) {
+                            opacity: 1;
+                        }
+                    }
+
+                    .dropdown > .dropdown-menu {
+                        .inline-input-container {
+                            padding-left: 10px;
+                            padding-bottom: 10px;
+                            border-bottom: 1px solid #ddd;
+                            margin-bottom: 8px;
+                            display: flex;
+                            align-items: center;
+                            > button {
+                                padding-right: 10px;
+                                padding-left: 10px;
+                                opacity: 0.7;
+                                &:hover:not(&:disabled){
+                                    opacity: 1;
+                                }
+                                &:disabled {
+                                    opacity: 0.3;
+                                }
+                                > i.icon {
+                                    &.disabled {
+                                        opacity: 0.33;
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+
+            }
+        }
+
         h5.facet-title {
             margin: 0 0 3px;
             font-weight: 500;
             line-height: inherit;
+            height: 40px;
             @include font-size($facetlist-facet-font-size);
+            //display: flex;
+            //height: 40px;
 
             > i.icon-info-circle {
                 margin-left: 6px;
@@ -153,13 +219,14 @@ $facetlist-facet-font-size: 0.925rem !default;
 
         &:not(.static) {
             transition: padding-bottom .35s ease, background-color .35s ease;
-            transform: translate3d(0,0,0);
             background-color: transparent;
             h5.facet-title {
                 margin : -1px 0 0;
-                padding: 0 0 8px;
                 border-bottom: 1px solid #f8f8f8;
                 cursor: pointer;
+                display: flex;
+                align-items: center;
+                height: 40px;
                 > span.expand-toggle > i.icon {
                     font-size: 0.7rem;
                     margin-right: 7px;
@@ -172,11 +239,15 @@ $facetlist-facet-font-size: 0.925rem !default;
                     font-weight: 300;
                     color: #707070;
                     font-size: 0.75rem;
-                    line-height : 1.25rem;
+                    line-height : 1rem;
                     > i {
                         margin-right: 1px;
                         margin-right: 0.5px;
                     }
+                }
+
+                .icon-container {
+                    opacity: 0.5;
                 }
             }
             &.open:not(.closing) {
@@ -194,7 +265,7 @@ $facetlist-facet-font-size: 0.925rem !default;
             }
             &.closed {
                 h5.facet-title {
-                    border-bottom: none;
+                    border-bottom-color: transparent;
                 }
             }
         }
