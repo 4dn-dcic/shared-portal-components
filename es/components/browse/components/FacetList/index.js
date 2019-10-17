@@ -85,9 +85,19 @@ function (_React$PureComponent) {
   _createClass(Facet, null, [{
     key: "isStatic",
     value: function isStatic(facet) {
-      return facet.terms.length === 1 && facet.total <= _underscore["default"].reduce(facet.terms, function (m, t) {
+      var _facet$terms = facet.terms,
+          terms = _facet$terms === void 0 ? null : _facet$terms,
+          _facet$total = facet.total,
+          total = _facet$total === void 0 ? 0 : _facet$total,
+          _facet$aggregation_ty = facet.aggregation_type,
+          aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty,
+          _facet$min = facet.min,
+          min = _facet$min === void 0 ? null : _facet$min,
+          _facet$max = facet.max,
+          max = _facet$max === void 0 ? null : _facet$max;
+      return aggregation_type === "terms" && Array.isArray(terms) && terms.length === 1 && total <= _underscore["default"].reduce(terms, function (m, t) {
         return m + (t.doc_count || 0);
-      }, 0);
+      }, 0) || aggregation_type == "stats" && min === max;
     }
   }]);
 
@@ -97,7 +107,6 @@ function (_React$PureComponent) {
     _classCallCheck(this, Facet);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Facet).call(this, props));
-    _this.isStatic = (0, _memoizeOne["default"])(Facet.isStatic);
     _this.handleStaticClick = _this.handleStaticClick.bind(_assertThisInitialized(_this));
     _this.handleTermClick = _this.handleTermClick.bind(_assertThisInitialized(_this));
     _this.state = {
@@ -119,11 +128,13 @@ function (_React$PureComponent) {
     value: function handleStaticClick(e) {
       var _this2 = this;
 
-      var facet = this.props.facet;
+      var _this$props = this.props,
+          facet = _this$props.facet,
+          isStatic = _this$props.isStatic;
       var term = facet.terms[0]; // Would only have 1
 
       e.preventDefault();
-      if (!this.isStatic(facet)) return false;
+      if (!isStatic) return false;
       this.setState({
         'filtering': true
       }, function () {
@@ -143,33 +154,34 @@ function (_React$PureComponent) {
   }, {
     key: "handleTermClick",
     value: function handleTermClick(facet, term, e, callback) {
-      var _this$props = this.props,
-          onFilter = _this$props.onFilter,
-          href = _this$props.href;
+      var _this$props2 = this.props,
+          onFilter = _this$props2.onFilter,
+          href = _this$props2.href;
       onFilter(facet, term, callback, false, href);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          facet = _this$props2.facet,
-          getTermStatus = _this$props2.getTermStatus,
-          extraClassname = _this$props2.extraClassname,
-          termTransformFxn = _this$props2.termTransformFxn,
-          separateSingleTermFacets = _this$props2.separateSingleTermFacets,
-          defaultFacetOpen = _this$props2.defaultFacetOpen,
-          filters = _this$props2.filters,
-          onFilter = _this$props2.onFilter,
-          mounted = _this$props2.mounted;
+      var _this$props3 = this.props,
+          facet = _this$props3.facet,
+          getTermStatus = _this$props3.getTermStatus,
+          extraClassname = _this$props3.extraClassname,
+          termTransformFxn = _this$props3.termTransformFxn,
+          separateSingleTermFacets = _this$props3.separateSingleTermFacets,
+          defaultFacetOpen = _this$props3.defaultFacetOpen,
+          filters = _this$props3.filters,
+          onFilter = _this$props3.onFilter,
+          mounted = _this$props3.mounted,
+          isStatic = _this$props3.isStatic;
       var filtering = this.state.filtering;
       var _facet$description = facet.description,
           description = _facet$description === void 0 ? null : _facet$description,
           field = facet.field,
           title = facet.title,
-          _facet$terms = facet.terms,
-          terms = _facet$terms === void 0 ? [] : _facet$terms,
-          _facet$aggregation_ty = facet.aggregation_type,
-          aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty;
+          _facet$terms2 = facet.terms,
+          terms = _facet$terms2 === void 0 ? [] : _facet$terms2,
+          _facet$aggregation_ty2 = facet.aggregation_type,
+          aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
       var showTitle = title || field;
 
       if (aggregation_type === "stats") {
@@ -180,7 +192,8 @@ function (_React$PureComponent) {
           termTransformFxn: termTransformFxn,
           filters: filters,
           onFilter: onFilter,
-          mounted: mounted
+          mounted: mounted,
+          isStatic: isStatic
         }, {
           tooltip: description,
           title: showTitle
@@ -188,7 +201,7 @@ function (_React$PureComponent) {
       } // Default case for "terms" buckets/facets
 
 
-      if (separateSingleTermFacets && this.isStatic(facet)) {
+      if (separateSingleTermFacets && isStatic) {
         // Only one term exists.
         return _react["default"].createElement(_StaticSingleTerm.StaticSingleTerm, {
           facet: facet,
@@ -364,18 +377,18 @@ function (_React$PureComponent2) {
     key: "renderFacets",
     value: function renderFacets() {
       var maxTermsToShow = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 12;
-      var _this$props3 = this.props,
-          facets = _this$props3.facets,
-          href = _this$props3.href,
-          onFilter = _this$props3.onFilter,
-          schemas = _this$props3.schemas,
-          getTermStatus = _this$props3.getTermStatus,
-          filters = _this$props3.filters,
-          itemTypeForSchemas = _this$props3.itemTypeForSchemas,
-          windowWidth = _this$props3.windowWidth,
-          persistentCount = _this$props3.persistentCount,
-          termTransformFxn = _this$props3.termTransformFxn,
-          separateSingleTermFacets = _this$props3.separateSingleTermFacets;
+      var _this$props4 = this.props,
+          facets = _this$props4.facets,
+          href = _this$props4.href,
+          onFilter = _this$props4.onFilter,
+          schemas = _this$props4.schemas,
+          getTermStatus = _this$props4.getTermStatus,
+          filters = _this$props4.filters,
+          itemTypeForSchemas = _this$props4.itemTypeForSchemas,
+          windowWidth = _this$props4.windowWidth,
+          persistentCount = _this$props4.persistentCount,
+          termTransformFxn = _this$props4.termTransformFxn,
+          separateSingleTermFacets = _this$props4.separateSingleTermFacets;
       var mounted = this.state.mounted; // Ensure each facets has an `order` property and default it to 0 if not.
       // And then sort by `order`.
 
@@ -423,30 +436,33 @@ function (_React$PureComponent2) {
       }).facetIndex;
       var rgs = (0, _layout.responsiveGridState)(windowWidth || null);
       return useFacets.map(function (facet, i) {
-        var defaultFacetOpen = !mounted ? false : !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1) || facet.aggregation_type === "stats" && _underscore["default"].any(filters || [], function (fltr) {
+        var isStatic = Facet.isStatic(facet);
+        var defaultFacetOpen = !mounted ? false : !isStatic && !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1) || facet.aggregation_type === "stats" && _underscore["default"].any(filters || [], function (fltr) {
           return fltr.field === facet.field + ".from" || fltr.field === facet.field + ".to";
         }) || facet.aggregation_type === "terms" && _underscore["default"].any(filters || [], function (fltr) {
           return fltr.field === facet.field;
         }));
         return _react["default"].createElement(Facet, _extends({}, commonProps, {
           facet: facet,
-          key: facet.field,
-          defaultFacetOpen: defaultFacetOpen
+          key: facet.field
+        }, {
+          defaultFacetOpen: defaultFacetOpen,
+          isStatic: isStatic
         }));
       });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-          debug = _this$props4.debug,
-          facets = _this$props4.facets,
-          className = _this$props4.className,
-          title = _this$props4.title,
-          showClearFiltersButton = _this$props4.showClearFiltersButton,
-          onClearFilters = _this$props4.onClearFilters,
-          windowHeight = _this$props4.windowHeight,
-          separateSingleTermFacets = _this$props4.separateSingleTermFacets;
+      var _this$props5 = this.props,
+          debug = _this$props5.debug,
+          facets = _this$props5.facets,
+          className = _this$props5.className,
+          title = _this$props5.title,
+          showClearFiltersButton = _this$props5.showClearFiltersButton,
+          onClearFilters = _this$props5.onClearFilters,
+          windowHeight = _this$props5.windowHeight,
+          separateSingleTermFacets = _this$props5.separateSingleTermFacets;
       if (debug) _patchedConsole.patchedConsoleInstance.log('render facetlist');
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
@@ -466,7 +482,7 @@ function (_React$PureComponent2) {
 
       if (separateSingleTermFacets) {
         allFacetElements.forEach(function (renderedFacet) {
-          if (Facet.isStatic(renderedFacet.props.facet)) {
+          if (renderedFacet.props.isStatic) {
             staticFacetElements.push(renderedFacet);
           } else {
             selectableFacetElements.push(renderedFacet);

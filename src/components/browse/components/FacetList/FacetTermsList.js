@@ -114,6 +114,27 @@ Term.propTypes = {
 
 export class FacetTermsList extends React.PureComponent {
 
+    static anyTermsSelected(terms = [], facet, getStatus){
+        for (let i = 0; i < terms.length; i++){
+            const term = terms[i];
+            const status = getStatus(term, facet);
+            if (status === "selected" || status === "omitted"){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static filterTerms(facet){
+        // Filter out terms w/ 0 counts (in case).
+        let terms = facet.terms.filter(function(term){ return term.doc_count > 0; });
+        // Filter out type=Item for now (hardcode)
+        if (facet.field === "type"){
+            terms = terms.filter(function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
+        }
+        return terms;
+    }
+
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
@@ -124,24 +145,32 @@ export class FacetTermsList extends React.PureComponent {
             'facetClosing'  : false,
             'expanded'      : false
         };
+        this.memoized = {
+            anyTermsSelected: memoize(FacetTermsList.anyTermsSelected),
+            filterTerms: memoize(FacetTermsList.filterTerms)
+        };
     }
 
     componentDidUpdate(pastProps, pastState){
-        const { mounted, defaultFacetOpen } = this.props;
-        const { facetOpen } = this.state;
-        if (
-            (
-                !pastProps.mounted && mounted &&
-                typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen
-            ) || (
-                defaultFacetOpen === true && !pastProps.defaultFacetOpen && !facetOpen
-            )
-        ){
-            this.setState({ 'facetOpen' : true });
-        }
-        if (pastState.facetOpen !== facetOpen){
-            ReactTooltip.rebuild();
-        }
+        const { mounted, defaultFacetOpen, isStatic } = this.props;
+
+        this.setState(function({ facetOpen: currFacetOpen }){
+            if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
+                return { 'facetOpen' : true };
+            }
+            if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
+                return { 'facetOpen' : true };
+            }
+            if (currFacetOpen && isStatic && !pastProps.isStatic){
+                return { 'facetOpen' : false };
+            }
+            return null;
+        }, ()=>{
+            const { facetOpen } = this.state;
+            if (pastState.facetOpen !== facetOpen){
+                ReactTooltip.rebuild();
+            }
+        });
     }
 
     handleOpenToggleClick(e) {
@@ -217,25 +246,38 @@ export class FacetTermsList extends React.PureComponent {
     }
 
     render(){
-        const { facet, tooltip, title } = this.props;
+        const { facet, tooltip, title, isStatic, getTermStatus } = this.props;
         const { facetOpen, facetClosing } = this.state;
-        // Filter out terms w/ 0 counts in case of range, etc.
-        let terms = _.filter(facet.terms, function(term){ return term.doc_count > 0; });
+        const terms = this.memoized.filterTerms(facet);
+        const anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, getTermStatus);
+        const termsLen = terms.length;
+        let indicator;
 
-        // Filter out type=Item for now (hardcode)
-        if (facet.field === 'type'){
-            terms = _.filter(terms, function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
+        if (isStatic || termsLen === 1){
+            indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
+                <Fade in={facetClosing || !facetOpen}>
+                    <span className={"closed-terms-count col-auto px-0" + (anyTermsSelected ? " text-primary" : "")}
+                        data-tip={"No useful options (1 total)" + (anyTermsSelected ? "; is selected" : "")}
+                        data-any-selected={anyTermsSelected}>
+                        <i className={"icon fas icon-" + (anyTermsSelected ? "circle" : "minus-circle")}
+                            style={{ opacity: anyTermsSelected ? 0.75 : 0.25 }}/>
+                    </span>
+                </Fade>
+            );
+        } else {
+            indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
+                <Fade in={facetClosing || !facetOpen}>
+                    <span className={"closed-terms-count col-auto px-0" + (anyTermsSelected ? " text-primary" : "")}
+                        data-tip={termsLen + " options" + (anyTermsSelected ? " with at least one selected" : "")}
+                        data-any-selected={anyTermsSelected}>
+                        { _.range(0, Math.min(Math.ceil(termsLen / 3), 8)).map((c)=>
+                            <i className="icon icon-ellipsis-v fas" key={c}
+                                style={{ opacity : ((c + 1) / 5) * (0.67) + 0.33 }} />
+                        )}
+                    </span>
+                </Fade>
+            );
         }
-
-        const indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
-            <Fade in={facetClosing || !facetOpen}>
-                <span className="closed-terms-count col-auto px-0" data-tip={terms.length + " options"}>
-                    { _.range(0, Math.min(Math.ceil(terms.length / 3), 8)).map((c)=>
-                        <i className="icon icon-ellipsis-v fas" style={{ opacity : ((c + 1) / 5) * (0.67) + 0.33 }} key={c}/>
-                    )}
-                </span>
-            </Fade>
-        );
 
         // List of terms
         return (

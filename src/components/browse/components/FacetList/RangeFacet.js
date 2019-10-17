@@ -122,23 +122,26 @@ export class RangeFacet extends React.PureComponent {
         };
     }
 
-    componentDidUpdate(pastProps){
-        const { facet, filters, mounted, defaultFacetOpen } = this.props;
-        const { facet: pastFacet, filters: pastFilters, mounted: pastMounted, defaultFacetOpen: pastDefOpen } = pastProps;
-        if (facet !== pastFacet || filters !== pastFilters){
-            this.setState(this.memoized.getValueFromFilters(facet, filters));
-        }
+    componentDidUpdate(pastProps, pastState){
+        const { mounted, defaultFacetOpen, isStatic } = this.props;
 
-        const { facetOpen } = this.state;
-        if (
-            (
-                !pastMounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefOpen
-            ) || (
-                defaultFacetOpen === true && !pastDefOpen && !facetOpen
-            )
-        ){
-            this.setState({ 'facetOpen' : true });
-        }
+        this.setState(function({ facetOpen: currFacetOpen }){
+            if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
+                return { 'facetOpen' : true };
+            }
+            if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
+                return { 'facetOpen' : true };
+            }
+            if (currFacetOpen && isStatic && !pastProps.isStatic){
+                return { 'facetOpen' : false };
+            }
+            return null;
+        }, ()=>{
+            const { facetOpen } = this.state;
+            if (pastState.facetOpen !== facetOpen){
+                ReactTooltip.rebuild();
+            }
+        });
     }
 
     setFrom(value, callback){
@@ -228,7 +231,7 @@ export class RangeFacet extends React.PureComponent {
     }
 
     render(){
-        const { facet, title, tooltip, termTransformFxn, filters } = this.props;
+        const { facet, title, tooltip, termTransformFxn, filters, isStatic } = this.props;
         const { field, min, max } = facet;
         const { facetOpen, facetClosing, fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
@@ -241,8 +244,10 @@ export class RangeFacet extends React.PureComponent {
                         <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
                     </span>
                     <span className="inline-block col px-0" data-tip={tooltip} data-place="right">{ title }</span>
-                    <span className="icon-container col-auto px-0">
-                        <i className="icon icon-fw icon-hashtag fas" />
+                    <span className={"icon-container col-auto px-0 " + (savedFromVal !== null || savedToVal !== null ? "text-primary" : "")}>
+                        { isStatic?
+                            <i className={"icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle")} />
+                            : <i className="icon icon-fw icon-hashtag fas" /> }
                     </span>
                 </h5>
                 <Collapse in={facetOpen && !facetClosing}>

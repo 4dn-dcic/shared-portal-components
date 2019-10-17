@@ -39,15 +39,20 @@ import { StaticSingleTerm } from './StaticSingleTerm';
 class Facet extends React.PureComponent {
 
     static isStatic(facet){
+        const { terms = null, total = 0, aggregation_type = "terms", min = null, max = null } = facet;
         return (
-            facet.terms.length === 1 &&
-            facet.total <= _.reduce(facet.terms, function(m, t){ return m + (t.doc_count || 0); }, 0)
+            aggregation_type === "terms" &&
+            Array.isArray(terms) &&
+            terms.length === 1 &&
+            total <= _.reduce(terms, function(m, t){ return m + (t.doc_count || 0); }, 0)
+        ) || (
+            aggregation_type == "stats" &&
+            min === max
         );
     }
 
     constructor(props){
         super(props);
-        this.isStatic = memoize(Facet.isStatic);
         this.handleStaticClick = this.handleStaticClick.bind(this);
         this.handleTermClick = this.handleTermClick.bind(this);
         this.state = { 'filtering' : false };
@@ -61,11 +66,11 @@ class Facet extends React.PureComponent {
      * @todo Allow to specify interval for histogram & date_histogram in schema instead of hard-coding 'month' interval.
      */
     handleStaticClick(e) {
-        const { facet } = this.props;
+        const { facet, isStatic } = this.props;
         const term = facet.terms[0]; // Would only have 1
 
         e.preventDefault();
-        if (!this.isStatic(facet)) return false;
+        if (!isStatic) return false;
 
         this.setState({ 'filtering' : true }, () => {
             this.handleTermClick(facet, term, e, () =>
@@ -86,17 +91,20 @@ class Facet extends React.PureComponent {
     }
 
     render() {
-        const { facet, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets, defaultFacetOpen, filters, onFilter, mounted } = this.props;
+        const {
+            facet, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets,
+            defaultFacetOpen, filters, onFilter, mounted, isStatic
+        } = this.props;
         const { filtering } = this.state;
         const { description = null, field, title, terms = [], aggregation_type = "terms" } = facet;
         const showTitle = title || field;
 
         if (aggregation_type === "stats") {
-            return <RangeFacet {...{ facet, filtering, defaultFacetOpen, termTransformFxn, filters, onFilter, mounted }} tooltip={description} title={showTitle} />;
+            return <RangeFacet {...{ facet, filtering, defaultFacetOpen, termTransformFxn, filters, onFilter, mounted, isStatic }} tooltip={description} title={showTitle} />;
         }
 
         // Default case for "terms" buckets/facets
-        if (separateSingleTermFacets && this.isStatic(facet)){
+        if (separateSingleTermFacets && isStatic){
             // Only one term exists.
             return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, getTermStatus, extraClassname, termTransformFxn }} />;
         } else {
@@ -266,7 +274,8 @@ export class FacetList extends React.PureComponent {
         const rgs = responsiveGridState(windowWidth || null);
 
         return useFacets.map(function(facet, i){
-            const defaultFacetOpen = !mounted ? false : !!(
+            const isStatic = Facet.isStatic(facet);
+            const defaultFacetOpen = !mounted ? false : !isStatic && !!(
                 ( rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1) ) ||
                 (facet.aggregation_type === "stats" && _.any(filters || [], function(fltr){
                     return (fltr.field === facet.field + ".from") || (fltr.field === facet.field + ".to");
@@ -275,7 +284,7 @@ export class FacetList extends React.PureComponent {
                     return fltr.field === facet.field;
                 }))
             );
-            return <Facet {...commonProps} facet={facet} key={facet.field} defaultFacetOpen={defaultFacetOpen} />;
+            return <Facet {...commonProps} facet={facet} key={facet.field} {...{ defaultFacetOpen, isStatic }} />;
         });
     }
 
@@ -302,7 +311,7 @@ export class FacetList extends React.PureComponent {
         let selectableFacetElements = [];
         if (separateSingleTermFacets){
             allFacetElements.forEach(function(renderedFacet){
-                if (Facet.isStatic(renderedFacet.props.facet)){
+                if (renderedFacet.props.isStatic){
                     staticFacetElements.push(renderedFacet);
                 } else {
                     selectableFacetElements.push(renderedFacet);

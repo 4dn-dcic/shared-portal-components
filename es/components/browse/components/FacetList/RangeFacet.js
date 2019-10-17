@@ -203,28 +203,42 @@ function (_React$PureComponent) {
 
   _createClass(RangeFacet, [{
     key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps) {
+    value: function componentDidUpdate(pastProps, pastState) {
+      var _this2 = this;
+
       var _this$props = this.props,
-          facet = _this$props.facet,
-          filters = _this$props.filters,
           mounted = _this$props.mounted,
-          defaultFacetOpen = _this$props.defaultFacetOpen;
-      var pastFacet = pastProps.facet,
-          pastFilters = pastProps.filters,
-          pastMounted = pastProps.mounted,
-          pastDefOpen = pastProps.defaultFacetOpen;
+          defaultFacetOpen = _this$props.defaultFacetOpen,
+          isStatic = _this$props.isStatic;
+      this.setState(function (_ref2) {
+        var currFacetOpen = _ref2.facetOpen;
 
-      if (facet !== pastFacet || filters !== pastFilters) {
-        this.setState(this.memoized.getValueFromFilters(facet, filters));
-      }
+        if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
+          return {
+            'facetOpen': true
+          };
+        }
 
-      var facetOpen = this.state.facetOpen;
+        if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen) {
+          return {
+            'facetOpen': true
+          };
+        }
 
-      if (!pastMounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefOpen || defaultFacetOpen === true && !pastDefOpen && !facetOpen) {
-        this.setState({
-          'facetOpen': true
-        });
-      }
+        if (currFacetOpen && isStatic && !pastProps.isStatic) {
+          return {
+            'facetOpen': false
+          };
+        }
+
+        return null;
+      }, function () {
+        var facetOpen = _this2.state.facetOpen;
+
+        if (pastState.facetOpen !== facetOpen) {
+          _reactTooltip["default"].rebuild();
+        }
+      });
     }
   }, {
     key: "setFrom",
@@ -235,8 +249,8 @@ function (_React$PureComponent) {
 
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
-        this.setState(function (_ref2) {
-          var toVal = _ref2.toVal;
+        this.setState(function (_ref3) {
+          var toVal = _ref3.toVal;
 
           if (fromVal === null || fromVal === min) {
             return {
@@ -273,8 +287,8 @@ function (_React$PureComponent) {
 
       try {
         var toVal = RangeFacet.parseAndValidate(facet, value);
-        this.setState(function (_ref3) {
-          var fromVal = _ref3.fromVal;
+        this.setState(function (_ref4) {
+          var fromVal = _ref4.fromVal;
 
           if (toVal === null || toVal === max) {
             return {
@@ -341,8 +355,8 @@ function (_React$PureComponent) {
   }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick() {
-      this.setState(function (_ref4) {
-        var facetOpen = _ref4.facetOpen;
+      this.setState(function (_ref5) {
+        var facetOpen = _ref5.facetOpen;
         return {
           facetOpen: !facetOpen
         };
@@ -356,7 +370,8 @@ function (_React$PureComponent) {
           title = _this$props4.title,
           tooltip = _this$props4.tooltip,
           termTransformFxn = _this$props4.termTransformFxn,
-          filters = _this$props4.filters;
+          filters = _this$props4.filters,
+          isStatic = _this$props4.isStatic;
       var field = facet.field,
           min = facet.min,
           max = facet.max;
@@ -389,8 +404,10 @@ function (_React$PureComponent) {
         "data-tip": tooltip,
         "data-place": "right"
       }, title), _react["default"].createElement("span", {
-        className: "icon-container col-auto px-0"
-      }, _react["default"].createElement("i", {
+        className: "icon-container col-auto px-0 " + (savedFromVal !== null || savedToVal !== null ? "text-primary" : "")
+      }, isStatic ? _react["default"].createElement("i", {
+        className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle")
+      }) : _react["default"].createElement("i", {
         className: "icon icon-fw icon-hashtag fas"
       }))), _react["default"].createElement(_Collapse.Collapse, {
         "in": facetOpen && !facetClosing
@@ -461,15 +478,15 @@ function (_React$PureComponent2) {
   _inherits(RangeDropdown, _React$PureComponent2);
 
   function RangeDropdown(props) {
-    var _this2;
+    var _this3;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(RangeDropdown).call(this, props));
-    _this2.onTextInputChange = _this2.onTextInputChange.bind(_assertThisInitialized(_this2));
-    _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
-    _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
-    return _this2;
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(RangeDropdown).call(this, props));
+    _this3.onTextInputChange = _this3.onTextInputChange.bind(_assertThisInitialized(_this3));
+    _this3.onDropdownSelect = _this3.onDropdownSelect.bind(_assertThisInitialized(_this3));
+    _this3.onTextInputFormSubmit = _this3.onTextInputFormSubmit.bind(_assertThisInitialized(_this3));
+    return _this3;
   }
 
   _createClass(RangeDropdown, [{

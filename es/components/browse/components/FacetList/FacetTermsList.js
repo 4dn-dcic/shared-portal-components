@@ -191,6 +191,42 @@ var FacetTermsList =
 function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
 
+  _createClass(FacetTermsList, null, [{
+    key: "anyTermsSelected",
+    value: function anyTermsSelected() {
+      var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var facet = arguments.length > 1 ? arguments[1] : undefined;
+      var getStatus = arguments.length > 2 ? arguments[2] : undefined;
+
+      for (var i = 0; i < terms.length; i++) {
+        var term = terms[i];
+        var status = getStatus(term, facet);
+
+        if (status === "selected" || status === "omitted") {
+          return true;
+        }
+      }
+
+      return false;
+    }
+  }, {
+    key: "filterTerms",
+    value: function filterTerms(facet) {
+      // Filter out terms w/ 0 counts (in case).
+      var terms = facet.terms.filter(function (term) {
+        return term.doc_count > 0;
+      }); // Filter out type=Item for now (hardcode)
+
+      if (facet.field === "type") {
+        terms = terms.filter(function (t) {
+          return t !== 'Item' && t && t.key !== 'Item';
+        });
+      }
+
+      return terms;
+    }
+  }]);
+
   function FacetTermsList(props) {
     var _this3;
 
@@ -205,35 +241,60 @@ function (_React$PureComponent2) {
       'facetClosing': false,
       'expanded': false
     };
+    _this3.memoized = {
+      anyTermsSelected: (0, _memoizeOne["default"])(FacetTermsList.anyTermsSelected),
+      filterTerms: (0, _memoizeOne["default"])(FacetTermsList.filterTerms)
+    };
     return _this3;
   }
 
   _createClass(FacetTermsList, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
+      var _this4 = this;
+
       var _this$props3 = this.props,
           mounted = _this$props3.mounted,
-          defaultFacetOpen = _this$props3.defaultFacetOpen;
-      var facetOpen = this.state.facetOpen;
+          defaultFacetOpen = _this$props3.defaultFacetOpen,
+          isStatic = _this$props3.isStatic;
+      this.setState(function (_ref) {
+        var currFacetOpen = _ref.facetOpen;
 
-      if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen || defaultFacetOpen === true && !pastProps.defaultFacetOpen && !facetOpen) {
-        this.setState({
-          'facetOpen': true
-        });
-      }
+        if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
+          return {
+            'facetOpen': true
+          };
+        }
 
-      if (pastState.facetOpen !== facetOpen) {
-        _reactTooltip["default"].rebuild();
-      }
+        if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen) {
+          return {
+            'facetOpen': true
+          };
+        }
+
+        if (currFacetOpen && isStatic && !pastProps.isStatic) {
+          return {
+            'facetOpen': false
+          };
+        }
+
+        return null;
+      }, function () {
+        var facetOpen = _this4.state.facetOpen;
+
+        if (pastState.facetOpen !== facetOpen) {
+          _reactTooltip["default"].rebuild();
+        }
+      });
     }
   }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
-      var _this4 = this;
+      var _this5 = this;
 
       e.preventDefault();
-      this.setState(function (_ref) {
-        var facetOpen = _ref.facetOpen;
+      this.setState(function (_ref2) {
+        var facetOpen = _ref2.facetOpen;
 
         if (!facetOpen) {
           return {
@@ -246,9 +307,9 @@ function (_React$PureComponent2) {
         }
       }, function () {
         setTimeout(function () {
-          _this4.setState(function (_ref2) {
-            var facetOpen = _ref2.facetOpen,
-                facetClosing = _ref2.facetClosing;
+          _this5.setState(function (_ref3) {
+            var facetOpen = _ref3.facetOpen,
+                facetClosing = _ref3.facetClosing;
 
             if (facetClosing) {
               return {
@@ -266,8 +327,8 @@ function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref3) {
-        var expanded = _ref3.expanded;
+      this.setState(function (_ref4) {
+        var expanded = _ref4.expanded;
         return {
           'expanded': !expanded
         };
@@ -276,7 +337,7 @@ function (_React$PureComponent2) {
   }, {
     key: "renderTerms",
     value: function renderTerms(terms) {
-      var _this5 = this;
+      var _this6 = this;
 
       var _this$props4 = this.props,
           facet = _this$props4.facet,
@@ -285,7 +346,7 @@ function (_React$PureComponent2) {
       var expanded = this.state.expanded;
 
       var makeTermComponent = function (term) {
-        return _react["default"].createElement(Term, _extends({}, _this5.props, {
+        return _react["default"].createElement(Term, _extends({}, _this6.props, {
           onClick: onTermClick,
           key: term.key,
           term: term,
@@ -335,37 +396,49 @@ function (_React$PureComponent2) {
       var _this$props5 = this.props,
           facet = _this$props5.facet,
           tooltip = _this$props5.tooltip,
-          title = _this$props5.title;
+          title = _this$props5.title,
+          isStatic = _this$props5.isStatic,
+          getTermStatus = _this$props5.getTermStatus;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
-          facetClosing = _this$state.facetClosing; // Filter out terms w/ 0 counts in case of range, etc.
+          facetClosing = _this$state.facetClosing;
+      var terms = this.memoized.filterTerms(facet);
+      var anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, getTermStatus);
+      var termsLen = terms.length;
+      var indicator;
 
-      var terms = _underscore["default"].filter(facet.terms, function (term) {
-        return term.doc_count > 0;
-      }); // Filter out type=Item for now (hardcode)
-
-
-      if (facet.field === 'type') {
-        terms = _underscore["default"].filter(terms, function (t) {
-          return t !== 'Item' && t && t.key !== 'Item';
-        });
-      }
-
-      var indicator = // Small indicator to help represent how many terms there are available for this Facet.
-      _react["default"].createElement(_Fade.Fade, {
-        "in": facetClosing || !facetOpen
-      }, _react["default"].createElement("span", {
-        className: "closed-terms-count col-auto px-0",
-        "data-tip": terms.length + " options"
-      }, _underscore["default"].range(0, Math.min(Math.ceil(terms.length / 3), 8)).map(function (c) {
-        return _react["default"].createElement("i", {
-          className: "icon icon-ellipsis-v fas",
+      if (isStatic || termsLen === 1) {
+        indicator = // Small indicator to help represent how many terms there are available for this Facet.
+        _react["default"].createElement(_Fade.Fade, {
+          "in": facetClosing || !facetOpen
+        }, _react["default"].createElement("span", {
+          className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " text-primary" : ""),
+          "data-tip": "No useful options (1 total)" + (anyTermsSelected ? "; is selected" : ""),
+          "data-any-selected": anyTermsSelected
+        }, _react["default"].createElement("i", {
+          className: "icon fas icon-" + (anyTermsSelected ? "circle" : "minus-circle"),
           style: {
-            opacity: (c + 1) / 5 * 0.67 + 0.33
-          },
-          key: c
-        });
-      }))); // List of terms
+            opacity: anyTermsSelected ? 0.75 : 0.25
+          }
+        })));
+      } else {
+        indicator = // Small indicator to help represent how many terms there are available for this Facet.
+        _react["default"].createElement(_Fade.Fade, {
+          "in": facetClosing || !facetOpen
+        }, _react["default"].createElement("span", {
+          className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " text-primary" : ""),
+          "data-tip": termsLen + " options" + (anyTermsSelected ? " with at least one selected" : ""),
+          "data-any-selected": anyTermsSelected
+        }, _underscore["default"].range(0, Math.min(Math.ceil(termsLen / 3), 8)).map(function (c) {
+          return _react["default"].createElement("i", {
+            className: "icon icon-ellipsis-v fas",
+            key: c,
+            style: {
+              opacity: (c + 1) / 5 * 0.67 + 0.33
+            }
+          });
+        })));
+      } // List of terms
 
 
       return _react["default"].createElement("div", {
