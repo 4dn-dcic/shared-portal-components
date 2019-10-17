@@ -697,17 +697,19 @@ class DimensioningContainer extends React.PureComponent {
 
         this.innerContainerRef      = React.createRef();
         this.loadMoreAsYouScrollRef = React.createRef();
+
+        this.outerContainerSizeInterval = null;
     }
 
     componentDidMount(){
-        var { columnDefinitions, windowWidth, registerWindowOnScrollHandler } = this.props,
-            nextState = _.extend(this.getTableDims(), {
-                'mounted' : true
-            }),
-            innerContainerElem = this.innerContainerRef.current;
+        const { columnDefinitions, windowWidth, registerWindowOnScrollHandler } = this.props;
+        const nextState = _.extend(this.getTableDims(), {
+            'mounted' : true
+        });
+        const innerContainerElem = this.innerContainerRef.current;
 
         if (innerContainerElem){
-            var fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, this.state.mounted, [], windowWidth);
+            const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, this.state.mounted, [], windowWidth);
             if (innerContainerElem.offsetWidth < fullRowWidth){
                 nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
                 nextState.isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem);
@@ -716,6 +718,17 @@ class DimensioningContainer extends React.PureComponent {
         } else {
             nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
         }
+
+        // Detect size changes and update
+        this.outerContainerSizeInterval = setInterval(()=>{
+            this.setState(({ tableContainerWidth: pastWidth }) => {
+                const tableContainerWidth = this.getTableContainerWidth();
+                if (pastWidth !== tableContainerWidth){
+                    return { tableContainerWidth };
+                }
+                return null;
+            });
+        }, 3000);
 
         // Register onScroll handler.
         this.scrollHandlerUnsubscribeFxn = registerWindowOnScrollHandler(this.onVerticalScroll);
@@ -727,6 +740,10 @@ class DimensioningContainer extends React.PureComponent {
         if (this.scrollHandlerUnsubscribeFxn){
             this.scrollHandlerUnsubscribeFxn();
             delete this.scrollHandlerUnsubscribeFxn;
+        }
+        if (this.outerContainerSizeInterval){
+            clearInterval(this.outerContainerSizeInterval);
+            this.outerContainerSizeInterval = null;
         }
         const innerContainerElem = this.innerContainerRef.current;
         innerContainerElem && innerContainerElem.removeEventListener('scroll', this.onHorizontalScroll);
@@ -866,17 +883,17 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     getTableLeftOffset(){
-        var innerContainerElem = this.innerContainerRef.current;
+        const innerContainerElem = this.innerContainerRef.current;
         return (innerContainerElem && getElementOffset(innerContainerElem).left) || null;
     }
 
     getTableContainerWidth(){
-        var innerContainerElem = this.innerContainerRef.current;
+        const innerContainerElem = this.innerContainerRef.current;
         return (innerContainerElem && innerContainerElem.offsetWidth) || null;
     }
 
     getTableScrollLeft(){
-        var innerContainerElem = this.innerContainerRef.current;
+        const innerContainerElem = this.innerContainerRef.current;
         return (innerContainerElem && typeof innerContainerElem.scrollLeft === 'number') ? innerContainerElem.scrollLeft : null;
     }
 

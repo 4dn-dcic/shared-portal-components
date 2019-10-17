@@ -978,20 +978,25 @@ function (_React$PureComponent4) {
     };
     _this8.innerContainerRef = _react["default"].createRef();
     _this8.loadMoreAsYouScrollRef = _react["default"].createRef();
+    _this8.outerContainerSizeInterval = null;
     return _this8;
   }
 
   _createClass(DimensioningContainer, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      var _this9 = this;
+
       var _this$props12 = this.props,
           columnDefinitions = _this$props12.columnDefinitions,
           windowWidth = _this$props12.windowWidth,
-          registerWindowOnScrollHandler = _this$props12.registerWindowOnScrollHandler,
-          nextState = _underscore["default"].extend(this.getTableDims(), {
+          registerWindowOnScrollHandler = _this$props12.registerWindowOnScrollHandler;
+
+      var nextState = _underscore["default"].extend(this.getTableDims(), {
         'mounted': true
-      }),
-          innerContainerElem = this.innerContainerRef.current;
+      });
+
+      var innerContainerElem = this.innerContainerRef.current;
 
       if (innerContainerElem) {
         var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, this.state.mounted, [], windowWidth);
@@ -1004,8 +1009,24 @@ function (_React$PureComponent4) {
         innerContainerElem.addEventListener('scroll', this.onHorizontalScroll);
       } else {
         nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
-      } // Register onScroll handler.
+      } // Detect size changes and update
 
+
+      this.outerContainerSizeInterval = setInterval(function () {
+        _this9.setState(function (_ref2) {
+          var pastWidth = _ref2.tableContainerWidth;
+
+          var tableContainerWidth = _this9.getTableContainerWidth();
+
+          if (pastWidth !== tableContainerWidth) {
+            return {
+              tableContainerWidth: tableContainerWidth
+            };
+          }
+
+          return null;
+        });
+      }, 3000); // Register onScroll handler.
 
       this.scrollHandlerUnsubscribeFxn = registerWindowOnScrollHandler(this.onVerticalScroll);
       this.setState(nextState);
@@ -1016,6 +1037,11 @@ function (_React$PureComponent4) {
       if (this.scrollHandlerUnsubscribeFxn) {
         this.scrollHandlerUnsubscribeFxn();
         delete this.scrollHandlerUnsubscribeFxn;
+      }
+
+      if (this.outerContainerSizeInterval) {
+        clearInterval(this.outerContainerSizeInterval);
+        this.outerContainerSizeInterval = null;
       }
 
       var innerContainerElem = this.innerContainerRef.current;
@@ -1043,8 +1069,8 @@ function (_React$PureComponent4) {
     key: "toggleDetailPaneOpen",
     value: function toggleDetailPaneOpen(rowKey) {
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref2) {
-        var openDetailPanes = _ref2.openDetailPanes;
+      this.setState(function (_ref3) {
+        var openDetailPanes = _ref3.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (openDetailPanes[rowKey]) {
@@ -1061,8 +1087,8 @@ function (_React$PureComponent4) {
   }, {
     key: "setDetailHeight",
     value: function setDetailHeight(rowKey, height, cb) {
-      this.setState(function (_ref3) {
-        var openDetailPanes = _ref3.openDetailPanes;
+      this.setState(function (_ref4) {
+        var openDetailPanes = _ref4.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (typeof openDetailPanes[rowKey] === 'undefined') {
@@ -1085,28 +1111,28 @@ function (_React$PureComponent4) {
   }, {
     key: "onHorizontalScroll",
     value: function onHorizontalScroll(e) {
-      var _this9 = this;
+      var _this10 = this;
 
       e && e.stopPropagation();
       e.preventDefault();
       (0, _utilities.requestAnimationFrame)(function () {
-        _this9.setContainerScrollLeft(e.target.scrollLeft || 0);
+        _this10.setContainerScrollLeft(e.target.scrollLeft || 0);
       });
       return false;
     }
   }, {
     key: "onVerticalScroll",
     value: function onVerticalScroll() {
-      var _this10 = this;
+      var _this11 = this;
 
       //if (!document || !window || !this.refs.innerContainer) return null;
       setTimeout(function () {
         // Means this callback was finally (after setTimeout) called after `innerContainer` or `this` have been dismounted -- negligible occurence.
-        var innerContainerElem = _this10.innerContainerRef.current;
+        var innerContainerElem = _this11.innerContainerRef.current;
         if (!innerContainerElem) return null;
-        var _this10$props = _this10.props,
-            windowHeight = _this10$props.windowHeight,
-            windowWidth = _this10$props.windowWidth;
+        var _this11$props = _this11.props,
+            windowHeight = _this11$props.windowHeight,
+            windowWidth = _this11$props.windowWidth;
         var scrollTop = (0, _layout.getPageVerticalScrollPosition)();
         var tableTopOffset = (0, _layout.getElementOffset)(innerContainerElem).top; //var isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem, windowHeight, scrollTop, tableTopOffset);
 
@@ -1157,8 +1183,8 @@ function (_React$PureComponent4) {
         */
         var isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem, windowHeight, scrollTop, tableTopOffset);
 
-        if (isWindowPastTableTop !== _this10.state.isWindowPastTableTop) {
-          _this10.setState({
+        if (isWindowPastTableTop !== _this11.state.isWindowPastTableTop) {
+          _this11.setState({
             'isWindowPastTableTop': isWindowPastTableTop
           });
         }
@@ -1202,22 +1228,22 @@ function (_React$PureComponent4) {
   }, {
     key: "resetWidths",
     value: function resetWidths() {
-      var _this11 = this;
+      var _this12 = this;
 
-      this.setState(function resetWidthStateChangeFxn(_ref4, _ref5) {
-        var mounted = _ref4.mounted;
-        var columnDefinitions = _ref5.columnDefinitions,
-            windowWidth = _ref5.windowWidth;
+      this.setState(function resetWidthStateChangeFxn(_ref5, _ref6) {
+        var mounted = _ref5.mounted;
+        var columnDefinitions = _ref6.columnDefinitions,
+            windowWidth = _ref6.windowWidth;
         return {
           "widths": DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth)
         };
       }, function resetWidthStateChangeFxnCallback() {
         (0, _utilities.requestAnimationFrame)(function () {
-          var _this11$props = _this11.props,
-              columnDefinitions = _this11$props.columnDefinitions,
-              windowWidth = _this11$props.windowWidth; // 2. Upon render into DOM, decrease col sizes.
+          var _this12$props = _this12.props,
+              columnDefinitions = _this12$props.columnDefinitions,
+              windowWidth = _this12$props.windowWidth; // 2. Upon render into DOM, decrease col sizes.
 
-          _this11.setState(_underscore["default"].extend(_this11.getTableDims(), {
+          _this12.setState(_underscore["default"].extend(_this12.getTableDims(), {
             'widths': DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth)
           }));
         });
@@ -1389,14 +1415,14 @@ function (_React$PureComponent5) {
   }]);
 
   function SearchResultTable(props) {
-    var _this12;
+    var _this13;
 
     _classCallCheck(this, SearchResultTable);
 
-    _this12 = _possibleConstructorReturn(this, _getPrototypeOf(SearchResultTable).call(this, props));
-    _this12.getDimensionContainer = _this12.getDimensionContainer.bind(_assertThisInitialized(_this12));
-    _this12.dimensionContainerRef = _react["default"].createRef();
-    return _this12;
+    _this13 = _possibleConstructorReturn(this, _getPrototypeOf(SearchResultTable).call(this, props));
+    _this13.getDimensionContainer = _this13.getDimensionContainer.bind(_assertThisInitialized(_this13));
+    _this13.dimensionContainerRef = _react["default"].createRef();
+    return _this13;
   }
 
   _createClass(SearchResultTable, [{
