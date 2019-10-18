@@ -125,9 +125,20 @@ export class FacetTermsList extends React.PureComponent {
         return false;
     }
 
-    static filterTerms(facet){
+    static filterTerms(facet, filters){
+        const activeTermsForField = {};
+        filters.forEach(function(f){
+            if (f.field !== facet.field) return;
+            activeTermsForField[f.term] = true;
+        });
+
         // Filter out terms w/ 0 counts (in case).
-        let terms = facet.terms.filter(function(term){ return term.doc_count > 0; });
+        let terms = facet.terms.filter(function(term){
+            if (term.doc_count > 0) return true;
+            if (term.key === "No value") return false;
+            if (activeTermsForField[term.key]) return true;
+            return false;
+        });
         // Filter out type=Item for now (hardcode)
         if (facet.field === "type"){
             terms = terms.filter(function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
@@ -152,16 +163,16 @@ export class FacetTermsList extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
-        const { mounted, defaultFacetOpen, isStatic } = this.props;
+        const { mounted, defaultFacetOpen, isStatic, getTermStatus, facet } = this.props;
 
-        this.setState(function({ facetOpen: currFacetOpen }){
+        this.setState(({ facetOpen: currFacetOpen }) => {
             if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
                 return { 'facetOpen' : true };
             }
             if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
                 return { 'facetOpen' : true };
             }
-            if (currFacetOpen && isStatic && !pastProps.isStatic){
+            if (currFacetOpen && isStatic && !pastProps.isStatic && !this.memoized.anyTermsSelected(this.memoized.filterTerms(facet), facet, getTermStatus)){
                 return { 'facetOpen' : false };
             }
             return null;
@@ -246,9 +257,9 @@ export class FacetTermsList extends React.PureComponent {
     }
 
     render(){
-        const { facet, tooltip, title, isStatic, getTermStatus } = this.props;
+        const { facet, filters, tooltip, title, isStatic, getTermStatus } = this.props;
         const { facetOpen, facetClosing } = this.state;
-        const terms = this.memoized.filterTerms(facet);
+        const terms = this.memoized.filterTerms(facet, filters);
         const anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, getTermStatus);
         const termsLen = terms.length;
         let indicator;

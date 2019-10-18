@@ -211,10 +211,18 @@ function (_React$PureComponent2) {
     }
   }, {
     key: "filterTerms",
-    value: function filterTerms(facet) {
-      // Filter out terms w/ 0 counts (in case).
+    value: function filterTerms(facet, filters) {
+      var activeTermsForField = {};
+      filters.forEach(function (f) {
+        if (f.field !== facet.field) return;
+        activeTermsForField[f.term] = true;
+      }); // Filter out terms w/ 0 counts (in case).
+
       var terms = facet.terms.filter(function (term) {
-        return term.doc_count > 0;
+        if (term.doc_count > 0) return true;
+        if (term.key === "No value") return false;
+        if (activeTermsForField[term.key]) return true;
+        return false;
       }); // Filter out type=Item for now (hardcode)
 
       if (facet.field === "type") {
@@ -256,7 +264,9 @@ function (_React$PureComponent2) {
       var _this$props3 = this.props,
           mounted = _this$props3.mounted,
           defaultFacetOpen = _this$props3.defaultFacetOpen,
-          isStatic = _this$props3.isStatic;
+          isStatic = _this$props3.isStatic,
+          getTermStatus = _this$props3.getTermStatus,
+          facet = _this$props3.facet;
       this.setState(function (_ref) {
         var currFacetOpen = _ref.facetOpen;
 
@@ -272,7 +282,7 @@ function (_React$PureComponent2) {
           };
         }
 
-        if (currFacetOpen && isStatic && !pastProps.isStatic) {
+        if (currFacetOpen && isStatic && !pastProps.isStatic && !_this4.memoized.anyTermsSelected(_this4.memoized.filterTerms(facet), facet, getTermStatus)) {
           return {
             'facetOpen': false
           };
@@ -395,6 +405,7 @@ function (_React$PureComponent2) {
     value: function render() {
       var _this$props5 = this.props,
           facet = _this$props5.facet,
+          filters = _this$props5.filters,
           tooltip = _this$props5.tooltip,
           title = _this$props5.title,
           isStatic = _this$props5.isStatic,
@@ -402,7 +413,7 @@ function (_React$PureComponent2) {
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing;
-      var terms = this.memoized.filterTerms(facet);
+      var terms = this.memoized.filterTerms(facet, filters);
       var anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, getTermStatus);
       var termsLen = terms.length;
       var indicator;
