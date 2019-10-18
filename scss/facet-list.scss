@@ -285,6 +285,9 @@ $facetlist-facet-font-size: 0.925rem !default;
                 display: block;
                 flex: 1;
                 margin: 0;
+                > span {
+                    line-height: 1.25rem;
+                }
             }
 
             .facet-title {
