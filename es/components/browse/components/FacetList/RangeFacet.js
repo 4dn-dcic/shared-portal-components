@@ -403,13 +403,18 @@ function (_React$PureComponent) {
         className: "inline-block col px-0",
         "data-tip": tooltip,
         "data-place": "right"
-      }, title), _react["default"].createElement("span", {
-        className: "icon-container col-auto px-0 " + (savedFromVal !== null || savedToVal !== null ? "text-primary" : "")
+      }, title), _react["default"].createElement(_reactBootstrap.Fade, {
+        "in": facetClosing || !facetOpen
+      }, _react["default"].createElement("span", {
+        className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " text-primary" : "")
       }, isStatic ? _react["default"].createElement("i", {
-        className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle")
+        className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle"),
+        style: {
+          opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25
+        }
       }) : _react["default"].createElement("i", {
-        className: "icon icon-fw icon-hashtag fas"
-      }))), _react["default"].createElement(_Collapse.Collapse, {
+        className: "icon icon-fw icon-greater-than-equal fas"
+      })))), _react["default"].createElement(_Collapse.Collapse, {
         "in": facetOpen && !facetClosing
       }, _react["default"].createElement("div", {
         className: "inner-panel"

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import { DropdownButton, DropdownItem } from 'react-bootstrap';
+import { DropdownButton, DropdownItem, Fade } from 'react-bootstrap';
 
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
 
@@ -244,11 +244,14 @@ export class RangeFacet extends React.PureComponent {
                         <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
                     </span>
                     <span className="inline-block col px-0" data-tip={tooltip} data-place="right">{ title }</span>
-                    <span className={"icon-container col-auto px-0 " + (savedFromVal !== null || savedToVal !== null ? "text-primary" : "")}>
-                        { isStatic?
-                            <i className={"icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle")} />
-                            : <i className="icon icon-fw icon-hashtag fas" /> }
-                    </span>
+                    <Fade in={facetClosing || !facetOpen}>
+                        <span className={"closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " text-primary" : "")}>
+                            { isStatic?
+                                <i className={"icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle")}
+                                    style={{ opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25 }}/>
+                                : <i className="icon icon-fw icon-greater-than-equal fas" /> }
+                        </span>
+                    </Fade>
                 </h5>
                 <Collapse in={facetOpen && !facetClosing}>
                     <div className="inner-panel">
