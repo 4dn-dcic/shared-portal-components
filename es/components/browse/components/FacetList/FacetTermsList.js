@@ -204,7 +204,7 @@ function (_React$PureComponent2) {
       });
 
       for (var i = 0; i < terms.length; i++) {
-        if (activeTermsForField[terms[i]]) {
+        if (activeTermsForField[terms[i].key]) {
           return true;
         }
       }
@@ -283,7 +283,7 @@ function (_React$PureComponent2) {
           };
         }
 
-        if (currFacetOpen && isStatic && !pastProps.isStatic && !_this4.memoized.anyTermsSelected(_this4.memoized.filterTerms(facet, facet, filters), filters)) {
+        if (currFacetOpen && isStatic && !pastProps.isStatic && !_this4.memoized.anyTermsSelected(_this4.memoized.filterTerms(facet, filters), facet, filters)) {
           return {
             'facetOpen': false
           };
@@ -415,6 +415,7 @@ function (_React$PureComponent2) {
           facetClosing = _this$state.facetClosing;
       var terms = this.memoized.filterTerms(facet, filters);
       var anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
+      console.log("TTTT", terms, anyTermsSelected, facet, filters, FacetTermsList.anyTermsSelected(terms, facet, filters));
       var termsLen = terms.length;
       var indicator;
 
@@ -423,7 +424,7 @@ function (_React$PureComponent2) {
         _react["default"].createElement(_Fade.Fade, {
           "in": facetClosing || !facetOpen
         }, _react["default"].createElement("span", {
-          className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " text-primary" : ""),
+          className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : ""),
           "data-tip": "No useful options (1 total)" + (anyTermsSelected ? "; is selected" : ""),
           "data-any-selected": anyTermsSelected
         }, _react["default"].createElement("i", {
@@ -437,7 +438,7 @@ function (_React$PureComponent2) {
         _react["default"].createElement(_Fade.Fade, {
           "in": facetClosing || !facetOpen
         }, _react["default"].createElement("span", {
-          className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " text-primary" : ""),
+          className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : ""),
           "data-tip": termsLen + " options" + (anyTermsSelected ? " with at least one selected" : ""),
           "data-any-selected": anyTermsSelected
         }, _underscore["default"].range(0, Math.min(Math.ceil(termsLen / 3), 8)).map(function (c) {

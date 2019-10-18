@@ -122,7 +122,7 @@ export class FacetTermsList extends React.PureComponent {
         });
 
         for (let i = 0; i < terms.length; i++){
-            if (activeTermsForField[terms[i]]) {
+            if (activeTermsForField[terms[i].key]) {
                 return true;
             }
         }
@@ -175,7 +175,7 @@ export class FacetTermsList extends React.PureComponent {
             if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
                 return { 'facetOpen' : true };
             }
-            if (currFacetOpen && isStatic && !pastProps.isStatic && !this.memoized.anyTermsSelected(this.memoized.filterTerms(facet, facet, filters), filters)){
+            if (currFacetOpen && isStatic && !pastProps.isStatic && !this.memoized.anyTermsSelected(this.memoized.filterTerms(facet, filters), facet, filters)){
                 return { 'facetOpen' : false };
             }
             return null;
@@ -264,13 +264,14 @@ export class FacetTermsList extends React.PureComponent {
         const { facetOpen, facetClosing } = this.state;
         const terms = this.memoized.filterTerms(facet, filters);
         const anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
+        console.log("TTTT", terms, anyTermsSelected, facet, filters, FacetTermsList.anyTermsSelected(terms, facet, filters));
         const termsLen = terms.length;
         let indicator;
 
         if (isStatic || termsLen === 1){
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
                 <Fade in={facetClosing || !facetOpen}>
-                    <span className={"closed-terms-count col-auto px-0" + (anyTermsSelected ? " text-primary" : "")}
+                    <span className={"closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : "")}
                         data-tip={"No useful options (1 total)" + (anyTermsSelected ? "; is selected" : "")}
                         data-any-selected={anyTermsSelected}>
                         <i className={"icon fas icon-" + (anyTermsSelected ? "circle" : "minus-circle")}
@@ -281,7 +282,7 @@ export class FacetTermsList extends React.PureComponent {
         } else {
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
                 <Fade in={facetClosing || !facetOpen}>
-                    <span className={"closed-terms-count col-auto px-0" + (anyTermsSelected ? " text-primary" : "")}
+                    <span className={"closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : "")}
                         data-tip={termsLen + " options" + (anyTermsSelected ? " with at least one selected" : "")}
                         data-any-selected={anyTermsSelected}>
                         { _.range(0, Math.min(Math.ceil(termsLen / 3), 8)).map((c)=>

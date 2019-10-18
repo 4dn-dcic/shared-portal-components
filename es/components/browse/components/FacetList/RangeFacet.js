@@ -406,7 +406,7 @@ function (_React$PureComponent) {
       }, title), _react["default"].createElement(_reactBootstrap.Fade, {
         "in": facetClosing || !facetOpen
       }, _react["default"].createElement("span", {
-        className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " text-primary" : "")
+        className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
       }, isStatic ? _react["default"].createElement("i", {
         className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle"),
         style: {

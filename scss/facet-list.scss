@@ -241,6 +241,9 @@ $facetlist-facet-font-size: 0.925rem !default;
                         margin-right: 1px;
                         margin-right: 0.5px;
                     }
+                    &.some-selected {
+                        color: $facetlist-selected-term-color;
+                    }
                 }
 
                 .icon-container {

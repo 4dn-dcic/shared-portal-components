@@ -245,7 +245,7 @@ export class RangeFacet extends React.PureComponent {
                     </span>
                     <span className="inline-block col px-0" data-tip={tooltip} data-place="right">{ title }</span>
                     <Fade in={facetClosing || !facetOpen}>
-                        <span className={"closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " text-primary" : "")}>
+                        <span className={"closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")}>
                             { isStatic?
                                 <i className={"icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle")}
                                     style={{ opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25 }}/>
