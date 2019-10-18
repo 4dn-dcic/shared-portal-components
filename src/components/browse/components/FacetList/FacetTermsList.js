@@ -135,7 +135,6 @@ export class FacetTermsList extends React.PureComponent {
         // Filter out terms w/ 0 counts (in case).
         let terms = facet.terms.filter(function(term){
             if (term.doc_count > 0) return true;
-            if (term.key === "No value") return false;
             if (activeTermsForField[term.key]) return true;
             return false;
         });

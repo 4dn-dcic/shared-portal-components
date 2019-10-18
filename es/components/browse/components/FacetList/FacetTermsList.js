@@ -220,7 +220,6 @@ function (_React$PureComponent2) {
 
       var terms = facet.terms.filter(function (term) {
         if (term.doc_count > 0) return true;
-        if (term.key === "No value") return false;
         if (activeTermsForField[term.key]) return true;
         return false;
       }); // Filter out type=Item for now (hardcode)
