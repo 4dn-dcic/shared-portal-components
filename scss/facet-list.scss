@@ -200,8 +200,6 @@ $facetlist-facet-font-size: 0.925rem !default;
             line-height: inherit;
             height: 40px;
             @include font-size($facetlist-facet-font-size);
-            //display: flex;
-            //height: 40px;
 
             > i.icon-info-circle {
                 margin-left: 6px;
@@ -211,10 +209,10 @@ $facetlist-facet-font-size: 0.925rem !default;
                     opacity: 0.75;
                 }
             }
-        }
 
-        &.static {
-            padding-bottom: 5px; // Extra 2px + account for margin-bottom: 5px in .facet-title/.facet-item
+            > span {
+                line-height: 1;
+            }
         }
 
         &:not(.static) {
@@ -226,7 +224,6 @@ $facetlist-facet-font-size: 0.925rem !default;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
-                height: 40px;
                 > span.expand-toggle > i.icon {
                     font-size: 0.7rem;
                     margin-right: 7px;
@@ -275,17 +272,21 @@ $facetlist-facet-font-size: 0.925rem !default;
 
         .facet-static-row {
 
-            .facet-title,
-            .facet-item {
-                display: inline-block;
-                margin-bottom: 4px;
-                width: 50%;
+            display: flex;
+            align-items: center;
+            min-height: 40px;
+            padding: 2px 0;
+
+            > .facet-title,
+            > .facet-item {
+                display: block;
+                flex: 1;
+                margin: 0;
             }
 
             .facet-title {
+                height: auto; // Unset 40px
                 padding-right: 12px;
-                margin-top: 0;
-                float: left;
                 min-width: 33%;
                 text-align: right;
 
