@@ -114,11 +114,15 @@ Term.propTypes = {
 
 export class FacetTermsList extends React.PureComponent {
 
-    static anyTermsSelected(terms = [], facet, getStatus){
+    static anyTermsSelected(terms = [], facet, filters = []){
+        const activeTermsForField = {};
+        filters.forEach(function(f){
+            if (f.field !== facet.field) return;
+            activeTermsForField[f.term] = true;
+        });
+
         for (let i = 0; i < terms.length; i++){
-            const term = terms[i];
-            const status = getStatus(term, facet);
-            if (status === "selected" || status === "omitted"){
+            if (activeTermsForField[terms[i]]) {
                 return true;
             }
         }
@@ -162,7 +166,7 @@ export class FacetTermsList extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
-        const { mounted, defaultFacetOpen, isStatic, getTermStatus, facet } = this.props;
+        const { mounted, defaultFacetOpen, isStatic, facet, filters } = this.props;
 
         this.setState(({ facetOpen: currFacetOpen }) => {
             if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
@@ -171,7 +175,7 @@ export class FacetTermsList extends React.PureComponent {
             if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
                 return { 'facetOpen' : true };
             }
-            if (currFacetOpen && isStatic && !pastProps.isStatic && !this.memoized.anyTermsSelected(this.memoized.filterTerms(facet), facet, getTermStatus)){
+            if (currFacetOpen && isStatic && !pastProps.isStatic && !this.memoized.anyTermsSelected(this.memoized.filterTerms(facet, facet, filters), filters)){
                 return { 'facetOpen' : false };
             }
             return null;
@@ -256,10 +260,10 @@ export class FacetTermsList extends React.PureComponent {
     }
 
     render(){
-        const { facet, filters, tooltip, title, isStatic, getTermStatus } = this.props;
+        const { facet, filters, tooltip, title, isStatic } = this.props;
         const { facetOpen, facetClosing } = this.state;
         const terms = this.memoized.filterTerms(facet, filters);
-        const anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, getTermStatus);
+        const anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
         const termsLen = terms.length;
         let indicator;
 
