@@ -581,25 +581,25 @@ var SelectStickyFooter = _react["default"].memo(function (props) {
       onCancel = props.onCancel,
       currentAction = props.currentAction;
   var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
-  var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : '0';
+  var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
   return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
-    className: "row"
+    className: "row selection-controls-footer"
   }, _react["default"].createElement("div", {
-    className: "col-12 col-md-9 text-md-left col-sm-center"
-  }, currentAction === 'multiselect' ?
-  /* TODO: <DropdownButton> ...list of selected items... </DropdownButton> */
-  _react["default"].createElement("h3", {
-    className: "mt-0 mb-0"
-  }, _react["default"].createElement("span", null, selectedItems.size), _react["default"].createElement("small", {
-    className: "text-muted ml-08"
-  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("h3", {
-    className: "mt-0 mb-0"
-  }, _react["default"].createElement("span", {
-    className: "small"
-  }, selectedItemDisplayTitle), _react["default"].createElement("small", {
-    className: "text-muted ml-08"
-  }, selectedItems.size === 1 ? '' : itemTypeFriendlyName + 's', " selected"))), _react["default"].createElement("div", {
-    className: "col-12 col-md-3 text-md-right col-sm-center"
+    className: "col mb-05 mt-05"
+  }, currentAction === 'multiselect' ? _react["default"].createElement("div", {
+    className: "row"
+  }, _react["default"].createElement("h3", {
+    className: "mt-0 mb-0 col-auto text-600"
+  }, selectedItems.size), _react["default"].createElement("h4", {
+    className: "mt-0 mb-0 text-muted col-auto text-400"
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("div", {
+    className: "row"
+  }, _react["default"].createElement("h4", {
+    className: "mt-0 mb-0 col-auto text-400"
+  }, selectedItemDisplayTitle), _react["default"].createElement("h4", {
+    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+  }, "selected"))), _react["default"].createElement("div", {
+    className: "col-12 col-md-auto"
   }, _react["default"].createElement("button", {
     type: "button",
     className: "btn btn-success",

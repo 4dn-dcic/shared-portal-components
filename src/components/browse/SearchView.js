@@ -371,29 +371,26 @@ const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
         onComplete, onCancel, currentAction
     } = props;
     const itemTypeFriendlyName = getSchemaTypeFromSearchContext(context, schemas);
-    const selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : '0';
+    const selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
     return (
         <StickyFooter>
-            <div className="row">
-                <div className="col-12 col-md-9 text-md-left col-sm-center">
+            <div className="row selection-controls-footer">
+                <div className="col mb-05 mt-05">
                     {currentAction === 'multiselect' ?
-                        (/* TODO: <DropdownButton> ...list of selected items... </DropdownButton> */
-                            <h3 className="mt-0 mb-0">
-                                <span>{ selectedItems.size }</span>
-                                <small className="text-muted ml-08">
-                                    { itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's') } selected
-                                </small>
-                            </h3>
-                        ) : (
-                            <h3 className="mt-0 mb-0">
-                                <span className="small">{ selectedItemDisplayTitle }</span>
-                                <small className="text-muted ml-08">
-                                    { selectedItems.size === 1 ? '' : (itemTypeFriendlyName + 's') } selected
-                                </small>
-                            </h3>
-                        )}
+                        <div className="row">
+                            <h3 className="mt-0 mb-0 col-auto text-600">{ selectedItems.size }</h3>
+                            <h4 className="mt-0 mb-0 text-muted col-auto text-400">
+                                { itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's') } selected
+                            </h4>
+                        </div>
+                        :
+                        <div className="row">
+                            <h4 className="mt-0 mb-0 col-auto text-400">{ selectedItemDisplayTitle }</h4>
+                            <h4 className="mt-0 mb-0 text-muted col-auto text-400 px-0">selected</h4>
+                        </div>
+                    }
                 </div>
-                <div className="col-12 col-md-3 text-md-right col-sm-center">
+                <div className="col-12 col-md-auto">
                     <button type="button" className="btn btn-success" onClick={onComplete} disabled={selectedItems.size === 0} data-tip="Select checked items and close window">
                         <i className="icon icon-fw fas icon-check"></i>&nbsp; Apply
                     </button>
