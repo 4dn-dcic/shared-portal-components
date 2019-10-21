@@ -96,7 +96,9 @@ function (_React$PureComponent) {
         fieldType = 'text';
 
         if (typeof fieldSchema.formInput === 'string') {
-          if (['textarea', 'html', 'code'].indexOf(fieldSchema.formInput) > -1) return fieldSchema.formInput;
+          if (['textarea', 'html', 'code'].indexOf(fieldSchema.formInput) > -1) {
+            return fieldSchema.formInput;
+          }
         }
       } // check if this is an enum
 
@@ -190,6 +192,8 @@ function (_React$PureComponent) {
         if (filetype === 'md' || filetype === 'html') {
           return _react["default"].createElement(PreviewField, _extends({}, this.props, {
             filetype: filetype,
+            fieldType: fieldType
+          }, {
             onChange: this.handleChange
           }));
         }
@@ -1017,7 +1021,7 @@ var PreviewField = _react["default"].memo(function (props) {
   }));
 
   return _react["default"].createElement("div", {
-    className: "preview-field-container"
+    className: "preview-field-container mt-08 mb-08"
   }, _react["default"].createElement(_reactBootstrap.FormControl, {
     onChange: onChange,
     id: "field_for_" + field,
@@ -1025,7 +1029,7 @@ var PreviewField = _react["default"].memo(function (props) {
     value: value,
     type: "text",
     inputMode: "latin",
-    componentClass: "textarea",
+    as: "textarea",
     rows: 8,
     wrap: "off",
     style: {
@@ -1324,7 +1328,7 @@ function (_React$PureComponent3) {
 
       var passProps = _underscore["default"].pick(this.props, 'modifyNewContext', 'linkType', 'setSubmissionState', 'selectObj', 'selectComplete', 'selectCancel', 'arrayIdx', 'keyDisplay', 'keyComplete', 'currType', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx');
 
-      var builtFields = _underscore["default"].map(fieldsToBuild, function (_ref2) {
+      var builtFields = fieldsToBuild.map(function (_ref2) {
         var _ref3 = _slicedToArray(_ref2, 2),
             field = _ref3[0],
             fieldSchema = _ref3[1];
@@ -1370,7 +1374,6 @@ function (_React$PureComponent3) {
           isMultiSelect: isMultiSelect || false
         }));
       });
-
       return _react["default"].createElement("div", {
         className: "object-field-container"
       }, builtFields);

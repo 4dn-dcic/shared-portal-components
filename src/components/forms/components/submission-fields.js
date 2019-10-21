@@ -41,7 +41,9 @@ export class BuildField extends React.PureComponent {
         if (fieldType === 'string'){
             fieldType = 'text';
             if (typeof fieldSchema.formInput === 'string'){
-                if (['textarea', 'html', 'code'].indexOf(fieldSchema.formInput) > -1) return fieldSchema.formInput;
+                if (['textarea', 'html', 'code'].indexOf(fieldSchema.formInput) > -1){
+                    return fieldSchema.formInput;
+                }
             }
         }
         // check if this is an enum
@@ -109,7 +111,7 @@ export class BuildField extends React.PureComponent {
             // Static section preview
             const filetype = currContext && currContext.options && currContext.options.filetype;
             if (filetype === 'md' || filetype === 'html'){
-                return <PreviewField {...this.props} filetype={filetype} onChange={this.handleChange} />;
+                return <PreviewField {...this.props} {...{ filetype, fieldType }} onChange={this.handleChange} />;
             }
         }
 
@@ -667,8 +669,8 @@ const PreviewField = React.memo(function PreviewField(props){
         </React.Fragment>
     );
     return (
-        <div className="preview-field-container">
-            <FormControl onChange={onChange} id={"field_for_" + field} name={field} value={value} type="text" inputMode="latin" componentClass="textarea" rows={8}
+        <div className="preview-field-container mt-08 mb-08">
+            <FormControl onChange={onChange} id={"field_for_" + field} name={field} value={value} type="text" inputMode="latin" as="textarea" rows={8}
                 wrap="off" style={{ 'fontFamily' : "Source Code Pro, monospace", 'fontSize' : 'small' }} />
             { preview }
         </div>
@@ -861,7 +863,7 @@ class ObjectField extends React.PureComponent {
             'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx'
         );
 
-        const builtFields = _.map(fieldsToBuild, function([ field, fieldSchema ]){
+        const builtFields = fieldsToBuild.map(function([ field, fieldSchema ]){
             let fieldTip = fieldSchema.description ? fieldSchema.description : null;
             if (fieldSchema.comment){
                 fieldTip = fieldTip ? fieldTip + ' ' + fieldSchema.comment : fieldSchema.comment;

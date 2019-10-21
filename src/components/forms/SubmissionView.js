@@ -2004,16 +2004,16 @@ class IndividualObjectView extends React.Component {
             );
         }
 
-        var fieldTip = fieldSchema.description ? fieldSchema.description : null;
+        let fieldTip = fieldSchema.description ? fieldSchema.description : null;
         if(fieldSchema.comment){
             fieldTip = fieldTip ? fieldTip + ' ' + fieldSchema.comment : fieldSchema.comment;
         }
 
-        var fieldType   = BuildField.fieldTypeFromFieldSchema(fieldSchema),
-            fieldValue  = currContext[field] !== null ? currContext[field] : null,
-            enumValues  = [],
-            isLinked    = false,
-            linked      = fieldSchemaLinkToType(fieldSchema);
+        const fieldValue = currContext[field] !== null ? currContext[field] : null;
+        let fieldType = BuildField.fieldTypeFromFieldSchema(fieldSchema);
+        let enumValues = [];
+        let isLinked = false;
+        let linked = fieldSchemaLinkToType(fieldSchema);
 
         // check if this is an enum
         if (fieldType === 'enum'){
@@ -2021,7 +2021,7 @@ class IndividualObjectView extends React.Component {
         }
 
         // check for linkTo if further down in object or array
-        if(linked !== null){
+        if (linked !== null){
             linked = fieldSchema.title ? fieldSchema.title : linked;
             isLinked = true;
         }

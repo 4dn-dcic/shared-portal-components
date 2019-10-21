@@ -2741,12 +2741,13 @@ function (_React$Component2) {
         fieldTip = fieldTip ? fieldTip + ' ' + fieldSchema.comment : fieldSchema.comment;
       }
 
-      var fieldType = _submissionFields.BuildField.fieldTypeFromFieldSchema(fieldSchema),
-          fieldValue = currContext[field] !== null ? currContext[field] : null,
-          enumValues = [],
-          isLinked = false,
-          linked = (0, _SubmissionTree.fieldSchemaLinkToType)(fieldSchema); // check if this is an enum
+      var fieldValue = currContext[field] !== null ? currContext[field] : null;
 
+      var fieldType = _submissionFields.BuildField.fieldTypeFromFieldSchema(fieldSchema);
+
+      var enumValues = [];
+      var isLinked = false;
+      var linked = (0, _SubmissionTree.fieldSchemaLinkToType)(fieldSchema); // check if this is an enum
 
       if (fieldType === 'enum') {
         enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum;
