@@ -591,7 +591,7 @@ var SelectStickyFooter = _react["default"].memo(function (props) {
   }, _react["default"].createElement("h3", {
     className: "mt-0 mb-0 col-auto text-600"
   }, selectedItems.size), _react["default"].createElement("h4", {
-    className: "mt-0 mb-0 text-muted col-auto text-400"
+    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
   }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("div", {
     className: "row"
   }, _react["default"].createElement("h4", {

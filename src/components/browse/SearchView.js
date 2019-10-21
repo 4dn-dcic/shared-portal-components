@@ -379,7 +379,7 @@ const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
                     {currentAction === 'multiselect' ?
                         <div className="row">
                             <h3 className="mt-0 mb-0 col-auto text-600">{ selectedItems.size }</h3>
-                            <h4 className="mt-0 mb-0 text-muted col-auto text-400">
+                            <h4 className="mt-0 mb-0 text-muted col-auto text-400 px-0">
                                 { itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's') } selected
                             </h4>
                         </div>
