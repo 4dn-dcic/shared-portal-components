@@ -22,7 +22,9 @@ var Checkbox = _react["default"].memo(function (props) {
       _props$labelClassName = props.labelClassName,
       labelClassName = _props$labelClassName === void 0 ? "mb-0" : _props$labelClassName,
       title = props.title,
-      passProps = _objectWithoutProperties(props, ["className", "children", "labelClassName", "title"]);
+      _props$inputClassName = props.inputClassName,
+      inputClassName = _props$inputClassName === void 0 ? "mr-08 align-middle" : _props$inputClassName,
+      passProps = _objectWithoutProperties(props, ["className", "children", "labelClassName", "title", "inputClassName"]);
 
   var disabled = passProps.disabled;
   var cls = "checkbox checkbox-with-label" + (disabled ? " disabled" : "") + (className ? " " + className : "");
@@ -33,7 +35,7 @@ var Checkbox = _react["default"].memo(function (props) {
     className: labelClassName
   }, _react["default"].createElement("input", _extends({
     type: "checkbox",
-    className: "mr-08 align-middle"
+    className: inputClassName
   }, passProps)), children));
 });
 

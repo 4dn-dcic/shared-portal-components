@@ -264,7 +264,6 @@ export class FacetTermsList extends React.PureComponent {
         const { facetOpen, facetClosing } = this.state;
         const terms = this.memoized.filterTerms(facet, filters);
         const anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
-        console.log("TTTT", terms, anyTermsSelected, facet, filters, FacetTermsList.anyTermsSelected(terms, facet, filters));
         const termsLen = terms.length;
         let indicator;
 

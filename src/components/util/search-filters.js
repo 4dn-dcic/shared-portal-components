@@ -641,3 +641,17 @@ export function filterObjExistsAndNoFiltersSelected(expSetFilters){
     );
 }
 
+
+export function getSearchItemType(context){
+    const { filters = [] } = context;
+    for (let i = 0; i < filters.length; i++){
+        const { field, term } = filters[i];
+        if (field === "type") {
+            if (term !== "Item") {
+                return term;
+            }
+        }
+    }
+    return null;
+}
+

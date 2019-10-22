@@ -415,7 +415,6 @@ function (_React$PureComponent2) {
           facetClosing = _this$state.facetClosing;
       var terms = this.memoized.filterTerms(facet, filters);
       var anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
-      console.log("TTTT", terms, anyTermsSelected, facet, filters, FacetTermsList.anyTermsSelected(terms, facet, filters));
       var termsLen = terms.length;
       var indicator;
 

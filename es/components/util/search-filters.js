@@ -22,6 +22,7 @@ exports.filtersToNodes = filtersToNodes;
 exports.convertExpSetFiltersTerms = convertExpSetFiltersTerms;
 exports.searchQueryStringFromHref = searchQueryStringFromHref;
 exports.filterObjExistsAndNoFiltersSelected = filterObjExistsAndNoFiltersSelected;
+exports.getSearchItemType = getSearchItemType;
 exports.NON_FILTER_URL_PARAMS = void 0;
 
 var _underscore = _interopRequireDefault(require("underscore"));
@@ -774,4 +775,23 @@ function searchQueryStringFromHref(href) {
 
 function filterObjExistsAndNoFiltersSelected(expSetFilters) {
   return _typeof(expSetFilters) === 'object' && expSetFilters !== null && _underscore["default"].keys(expSetFilters).length === 0;
+}
+
+function getSearchItemType(context) {
+  var _context$filters = context.filters,
+      filters = _context$filters === void 0 ? [] : _context$filters;
+
+  for (var i = 0; i < filters.length; i++) {
+    var _filters$i = filters[i],
+        field = _filters$i.field,
+        term = _filters$i.term;
+
+    if (field === "type") {
+      if (term !== "Item") {
+        return term;
+      }
+    }
+  }
+
+  return null;
 }
