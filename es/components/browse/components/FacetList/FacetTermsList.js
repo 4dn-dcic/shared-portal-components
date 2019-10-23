@@ -212,8 +212,8 @@ function (_React$PureComponent2) {
       return false;
     }
   }, {
-    key: "filterTerms",
-    value: function filterTerms(facet, filters) {
+    key: "mergeTerms",
+    value: function mergeTerms(facet, filters) {
       var activeTermsForField = {};
       filters.forEach(function (f) {
         if (f.field !== facet.field) return;
@@ -224,15 +224,28 @@ function (_React$PureComponent2) {
         if (term.doc_count > 0) return true;
         if (activeTermsForField[term.key]) return true;
         return false;
+      });
+      terms.forEach(function (_ref) {
+        var key = _ref.key;
+        delete activeTermsForField[key];
       }); // Filter out type=Item for now (hardcode)
 
       if (facet.field === "type") {
         terms = terms.filter(function (t) {
           return t !== 'Item' && t && t.key !== 'Item';
         });
-      }
+      } // These are terms which might have been manually defined in URL but are not present in data at all.
+      // Include them so we can unselect them.
 
-      return terms;
+
+      var unseenTerms = _underscore["default"].keys(activeTermsForField).map(function (term) {
+        return {
+          key: term,
+          doc_count: 0
+        };
+      });
+
+      return terms.concat(unseenTerms);
     }
   }]);
 
@@ -252,7 +265,7 @@ function (_React$PureComponent2) {
     };
     _this3.memoized = {
       anyTermsSelected: (0, _memoizeOne["default"])(FacetTermsList.anyTermsSelected),
-      filterTerms: (0, _memoizeOne["default"])(FacetTermsList.filterTerms)
+      mergeTerms: (0, _memoizeOne["default"])(FacetTermsList.mergeTerms)
     };
     return _this3;
   }
@@ -268,8 +281,8 @@ function (_React$PureComponent2) {
           isStatic = _this$props3.isStatic,
           facet = _this$props3.facet,
           filters = _this$props3.filters;
-      this.setState(function (_ref) {
-        var currFacetOpen = _ref.facetOpen;
+      this.setState(function (_ref2) {
+        var currFacetOpen = _ref2.facetOpen;
 
         if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
           return {
@@ -283,7 +296,7 @@ function (_React$PureComponent2) {
           };
         }
 
-        if (currFacetOpen && isStatic && !pastProps.isStatic && !_this4.memoized.anyTermsSelected(_this4.memoized.filterTerms(facet, filters), facet, filters)) {
+        if (currFacetOpen && isStatic && !pastProps.isStatic && !_this4.memoized.anyTermsSelected(_this4.memoized.mergeTerms(facet, filters), facet, filters)) {
           return {
             'facetOpen': false
           };
@@ -304,8 +317,8 @@ function (_React$PureComponent2) {
       var _this5 = this;
 
       e.preventDefault();
-      this.setState(function (_ref2) {
-        var facetOpen = _ref2.facetOpen;
+      this.setState(function (_ref3) {
+        var facetOpen = _ref3.facetOpen;
 
         if (!facetOpen) {
           return {
@@ -318,9 +331,9 @@ function (_React$PureComponent2) {
         }
       }, function () {
         setTimeout(function () {
-          _this5.setState(function (_ref3) {
-            var facetOpen = _ref3.facetOpen,
-                facetClosing = _ref3.facetClosing;
+          _this5.setState(function (_ref4) {
+            var facetOpen = _ref4.facetOpen,
+                facetClosing = _ref4.facetClosing;
 
             if (facetClosing) {
               return {
@@ -338,8 +351,8 @@ function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref4) {
-        var expanded = _ref4.expanded;
+      this.setState(function (_ref5) {
+        var expanded = _ref5.expanded;
         return {
           'expanded': !expanded
         };
@@ -413,7 +426,7 @@ function (_React$PureComponent2) {
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing;
-      var terms = this.memoized.filterTerms(facet, filters);
+      var terms = this.memoized.mergeTerms(facet, filters);
       var anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
       var termsLen = terms.length;
       var indicator;

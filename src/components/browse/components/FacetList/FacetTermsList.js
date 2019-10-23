@@ -129,7 +129,7 @@ export class FacetTermsList extends React.PureComponent {
         return false;
     }
 
-    static filterTerms(facet, filters){
+    static mergeTerms(facet, filters){
         const activeTermsForField = {};
         filters.forEach(function(f){
             if (f.field !== facet.field) return;
@@ -142,11 +142,23 @@ export class FacetTermsList extends React.PureComponent {
             if (activeTermsForField[term.key]) return true;
             return false;
         });
+
+        terms.forEach(function({ key }){
+            delete activeTermsForField[key];
+        });
+
         // Filter out type=Item for now (hardcode)
         if (facet.field === "type"){
             terms = terms.filter(function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
         }
-        return terms;
+
+        // These are terms which might have been manually defined in URL but are not present in data at all.
+        // Include them so we can unselect them.
+        const unseenTerms = _.keys(activeTermsForField).map(function(term){
+            return { key: term, doc_count: 0 };
+        });
+
+        return terms.concat(unseenTerms);
     }
 
     constructor(props){
@@ -161,7 +173,7 @@ export class FacetTermsList extends React.PureComponent {
         };
         this.memoized = {
             anyTermsSelected: memoize(FacetTermsList.anyTermsSelected),
-            filterTerms: memoize(FacetTermsList.filterTerms)
+            mergeTerms: memoize(FacetTermsList.mergeTerms)
         };
     }
 
@@ -175,7 +187,7 @@ export class FacetTermsList extends React.PureComponent {
             if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
                 return { 'facetOpen' : true };
             }
-            if (currFacetOpen && isStatic && !pastProps.isStatic && !this.memoized.anyTermsSelected(this.memoized.filterTerms(facet, filters), facet, filters)){
+            if (currFacetOpen && isStatic && !pastProps.isStatic && !this.memoized.anyTermsSelected(this.memoized.mergeTerms(facet, filters), facet, filters)){
                 return { 'facetOpen' : false };
             }
             return null;
@@ -262,7 +274,7 @@ export class FacetTermsList extends React.PureComponent {
     render(){
         const { facet, filters, tooltip, title, isStatic } = this.props;
         const { facetOpen, facetClosing } = this.state;
-        const terms = this.memoized.filterTerms(facet, filters);
+        const terms = this.memoized.mergeTerms(facet, filters);
         const anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
         const termsLen = terms.length;
         let indicator;

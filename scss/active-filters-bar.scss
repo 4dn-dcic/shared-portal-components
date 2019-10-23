@@ -1,6 +1,8 @@
 /** Common Breadcrumbs **/
 /** Used by QuickInfoBar -> ActiveFiltersBar **/
 
+$active-filters-bar-term-color: $facetlist-selected-term-color !default;
+
 .active-filters-bar-container {
     .crumbs-title {
         font-weight: 500;
@@ -12,8 +14,6 @@
 
 .active-filters-bar {
     position: relative;
-    height: 26px;
-    line-height: 26px;
     margin: 0;
 
     .field-group {
@@ -22,6 +22,7 @@
         position: relative;
         z-index: 1;
         transition: z-index .5s;
+        /* white-space: nowrap; */
 
         > .field-label {
             position: absolute;
@@ -74,8 +75,11 @@
         &:not(:last-child):after {
             content: "&";
             position: absolute;
-            font-size: 0.8rem;
-            right: -10px;
+            font-size: 12px;
+            right: -11px;
+            right: -10.5px;
+            top: 50%;
+            margin-top: -9px;
             color: #555;
         }
         
@@ -85,14 +89,14 @@
         display: inline-block;
         font-size: 0.925rem;
         margin-bottom: 2px;
-        height: inherit;
-        line-height: inherit;
+        height: 26px;
+        line-height: 26px;
         position: relative;
         transition: opacity 0.5s, background-color .5s;
         color: #fff;
         font-weight: 500;
         padding: 0 12px;
-        background-color: $facetlist-selected-term-color;
+        background-color: $active-filters-bar-term-color;
         > .icon-container {
             padding-left: 7px;
             cursor: pointer;

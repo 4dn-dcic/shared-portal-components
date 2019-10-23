@@ -51,7 +51,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-//import { Schemas, navigate } from './../../util';
 var ActiveFiltersBar =
 /*#__PURE__*/
 function (_React$PureComponent) {
@@ -92,10 +91,11 @@ function (_React$PureComponent) {
           filters = _this$props.filters,
           context = _this$props.context,
           orderedFieldNames = _this$props.orderedFieldNames,
-          href = _this$props.href,
           schemas = _this$props.schemas,
           termTransformFxn = _this$props.termTransformFxn,
-          fieldTransformFxn = _this$props.fieldTransformFxn;
+          fieldTransformFxn = _this$props.fieldTransformFxn,
+          termClassName = _this$props.termClassName,
+          fieldGroupClassName = _this$props.fieldGroupClassName;
       if (invisible) return null;
       if (!Array.isArray(filters) || filters.length === 0) return null;
       var filtersByField = new Map();
@@ -138,12 +138,11 @@ function (_React$PureComponent) {
                 filters: filters,
                 field: field,
                 term: term,
-                href: href,
                 termTransformFxn: termTransformFxn
               }, {
                 key: term,
-                color: null,
-                onClick: onTermClick
+                onClick: onTermClick,
+                className: termClassName
               })));
             }
           } catch (err) {
@@ -162,7 +161,7 @@ function (_React$PureComponent) {
           }
 
           renderedFieldFilterGroups.push(_react["default"].createElement("div", {
-            className: "field-group",
+            className: fieldGroupClassName,
             key: field,
             "data-field": field
           }, renderedNodes, _react["default"].createElement("div", {
@@ -203,9 +202,9 @@ function (_React$PureComponent) {
 exports.ActiveFiltersBar = ActiveFiltersBar;
 
 _defineProperty(ActiveFiltersBar, "defaultProps", {
+  'schemas': null,
   'parentId': 'main',
   'filters': null,
-  'expSetFilters': {},
   'invisible': false,
   'termTransformFxn': function termTransformFxn(field, term) {
     arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -217,7 +216,9 @@ _defineProperty(ActiveFiltersBar, "defaultProps", {
   },
   'onTermClick': function onTermClick(field, term) {
     _util.console.log("Clicked", field, term);
-  }
+  },
+  'fieldGroupClassName': "field-group mb-32",
+  'termClassName': "chart-crumb"
 });
 
 function Container(_ref2) {
@@ -234,11 +235,13 @@ function Container(_ref2) {
 var RegularCrumb = _react["default"].memo(function (props) {
   var field = props.field,
       term = props.term,
-      color = props.color,
+      _props$color = props.color,
+      color = _props$color === void 0 ? null : _props$color,
       termTransformFxn = props.termTransformFxn,
-      _onClick = props.onClick;
+      _onClick = props.onClick,
+      className = props.className;
   return _react["default"].createElement("span", {
-    className: "chart-crumb no-highlight-color",
+    className: className,
     "data-term": term,
     style: {
       backgroundColor: color

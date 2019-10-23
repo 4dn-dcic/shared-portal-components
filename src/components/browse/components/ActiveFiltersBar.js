@@ -4,17 +4,16 @@ import React from 'react';
 import _ from 'underscore';
 import memoize from "memoize-one";
 import * as vizUtil from './../../viz/utilities';
-import { console, searchFilters, analytics } from './../../util';
-//import { Schemas, navigate } from './../../util';
+import { console, searchFilters } from './../../util';
 
 
 
 export class ActiveFiltersBar extends React.PureComponent {
 
     static defaultProps = {
+        'schemas' : null,
         'parentId' : 'main',
         'filters' : null,
-        'expSetFilters' : {},
         'invisible' : false,
         'termTransformFxn' : function(field, term, allowJSX=true){
             return term;
@@ -24,7 +23,9 @@ export class ActiveFiltersBar extends React.PureComponent {
         },
         'onTermClick' : function(field, term){
             console.log("Clicked", field, term);
-        }
+        },
+        'fieldGroupClassName' : "field-group mb-32",
+        'termClassName': "chart-crumb"
     };
 
     constructor(props){
@@ -48,11 +49,12 @@ export class ActiveFiltersBar extends React.PureComponent {
             onTermClick,
             filters,
             context,
-            orderedFieldNames,
-            href,
+            orderedFieldNames, // todo - maybe order by this if present
             schemas,
             termTransformFxn,
-            fieldTransformFxn
+            fieldTransformFxn,
+            termClassName,
+            fieldGroupClassName
         } = this.props;
 
         if (invisible) return null;
@@ -81,13 +83,13 @@ export class ActiveFiltersBar extends React.PureComponent {
             const renderedNodes = [];
             for (const term of termSet){
                 renderedNodes.push(
-                    <RegularCrumb {...{ filters, field, term, href, termTransformFxn }}
-                        key={term} color={null} onClick={onTermClick} />
+                    <RegularCrumb {...{ filters, field, term, termTransformFxn }}
+                        key={term} onClick={onTermClick} className={termClassName} />
                 );
             }
 
             renderedFieldFilterGroups.push(
-                <div className="field-group" key={field} data-field={field}>
+                <div className={fieldGroupClassName} key={field} data-field={field}>
                     { renderedNodes }
                     <div className="field-label">{ fieldTitle }</div>
                 </div>
@@ -118,9 +120,9 @@ function Container({ sequential, children }){
 
 
 const RegularCrumb = React.memo(function RegularCrumb(props){
-    const { field, term, color, termTransformFxn, onClick } = props;
+    const { field, term, color = null, termTransformFxn, onClick, className } = props;
     return (
-        <span className="chart-crumb no-highlight-color"
+        <span className={className}
             data-term={term}
             style={{ backgroundColor : color }}>
             { termTransformFxn(field, term, true) }
