@@ -186,7 +186,8 @@ $font-family-sans-serif : sans-serif !default;
 				text-align: center;
 				line-height: 20px;
 
-				.mono-text {
+				.mono-text,
+				.text-monospace {
 					font-size: 0.85rem;
 				}
 

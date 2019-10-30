@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.stringToColor = stringToColor;
 exports.requestAnimationFrame = requestAnimationFrame;
+exports.cancelAnimationFrame = cancelAnimationFrame;
 exports.extendStyleOptions = extendStyleOptions;
 exports.transformBarPlotAggregationsToD3CompatibleHierarchy = transformBarPlotAggregationsToD3CompatibleHierarchy;
 exports.highlightTerm = highlightTerm;
@@ -69,6 +70,16 @@ function requestAnimationFrame(cb) {
   }
 
   return setTimeout(cb, 0); // Mock it for old browsers and server-side.
+}
+
+function cancelAnimationFrame(identifier) {
+  if (!(0, _misc.isServerSide)() && typeof window !== 'undefined') {
+    if (typeof window.cancelAnimationFrame !== 'undefined') return window.cancelAnimationFrame(identifier);
+    if (typeof window.webkitCancelAnimationFrame !== 'undefined') return window.webkitCancelAnimationFrame(identifier);
+    if (typeof window.mozCancelAnimationFrame !== 'undefined') return window.mozCancelAnimationFrame(identifier);
+  }
+
+  return clearTimeout(identifier); // Mock it for old browsers and server-side.
 }
 /**
  * Used in Barplot/Chart.js to merge 'style' options. Only merges keys which are present on `styleOptsToExtend`.

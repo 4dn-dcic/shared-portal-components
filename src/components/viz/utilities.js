@@ -48,6 +48,15 @@ export function requestAnimationFrame(cb){
     return setTimeout(cb, 0); // Mock it for old browsers and server-side.
 }
 
+export function cancelAnimationFrame(identifier){
+    if (!isServerSide() && typeof window !== 'undefined'){
+        if (typeof window.cancelAnimationFrame !== 'undefined')        return window.cancelAnimationFrame(identifier);
+        if (typeof window.webkitCancelAnimationFrame !== 'undefined')  return window.webkitCancelAnimationFrame(identifier);
+        if (typeof window.mozCancelAnimationFrame !== 'undefined')     return window.mozCancelAnimationFrame(identifier);
+    }
+    return clearTimeout(identifier); // Mock it for old browsers and server-side.
+}
+
 /**
  * Used in Barplot/Chart.js to merge 'style' options. Only merges keys which are present on `styleOptsToExtend`.
  * Similar to underscore's `_.extend` but arguments are reversed and... sort of unnecessary.
