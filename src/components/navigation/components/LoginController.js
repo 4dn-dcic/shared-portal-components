@@ -59,7 +59,12 @@ export class LoginController extends React.PureComponent {
                 icon: '/static/img/4dn_logo.svg',
                 primaryColor: '#009aad'
             },
-            allowedConnections: ['github', 'google-oauth2', 'partners']
+            allowedConnections: ['github', 'google-oauth2', 'partners'],
+            languageDictionary: {
+                title: 'Log In',
+                emailInputPlaceholder: 'email@partners.org',
+                databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
+            }
         },
         'onLogin' : function(profile){
             const isAdmin = Array.isArray(profile.groups) && profile.groups.indexOf('admin') > -1;
