@@ -230,6 +230,29 @@ export class FacetList extends React.PureComponent {
         this.setState({ 'mounted' : true });
     }
 
+    groupFacets() {
+        const { facets } = this.props;
+        const grouped = []; // { field: green, }
+        const groupIndices = {}; // green : 0 where in grouped
+
+        facets.forEach((facet)=> {
+            if (facet.grouping) {
+                // check if there's a facet group in grouped;
+                if (groupIndices.hasOwnProperty(facet.grouping)) {
+                    const i = groupIndices[facet.grouping];
+                    grouped[i].facetList.push(facet);
+                } else  {
+                    grouped.push({ field: facet.grouping, facetList: [facet] });
+                    groupIndices[facet.grouping] = grouped.length - 1;
+                }
+            } else {
+                grouped.push({ field: facet.field, facet: facet });
+            }
+        });
+
+        return grouped;
+    }
+
     renderFacets(maxTermsToShow = 12){
         const {
             facets, href, onFilter, schemas, getTermStatus, filters,
@@ -237,6 +260,7 @@ export class FacetList extends React.PureComponent {
         } = this.props;
         const { mounted } = this.state;
 
+        console.log("log1: ", facets);
         // Ensure each facets has an `order` property and default it to 0 if not.
         // And then sort by `order`.
         const useFacets = _.sortBy(
@@ -251,6 +275,10 @@ export class FacetList extends React.PureComponent {
             ),
             'order'
         );
+
+        console.log("log1: equal?" , facets === useFacets);
+        console.log("log1: this.groupFacets() ", this.groupFacets());
+        console.log("log1: usefacets: ", useFacets);
 
         const commonProps = {
             onFilter, href, getTermStatus, filters, schemas, itemTypeForSchemas,
@@ -270,6 +298,8 @@ export class FacetList extends React.PureComponent {
             if (m.termCount > maxTermsToShow) m.end = true;
             return m;
         }, { facetIndex : 0, termCount: 0, end : false }).facetIndex;
+
+        console.log("log1: facetIndexWherePastXTerms", facetIndexWherePastXTerms);
 
         const rgs = responsiveGridState(windowWidth || null);
 
