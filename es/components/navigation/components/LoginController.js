@@ -333,7 +333,7 @@ _defineProperty(LoginController, "defaultProps", {
   // TODO: these (maybe) should be read in from base and production.ini
   'auth0ClientID': 'DPxEwsZRnKDpk0VfVAxrStRKukN14ILB',
   'auth0Domain': 'hms-dbmi.auth0.com',
-  'auth0Options': _defineProperty({
+  'auth0Options': {
     auth: {
       sso: false,
       redirect: false,
@@ -344,20 +344,18 @@ _defineProperty(LoginController, "defaultProps", {
       }
     },
     socialButtonStyle: 'big',
-    languageDictionary: {
-      title: "Log in"
-    },
     theme: {
       logo: '/static/img/4dn_logo.svg',
       icon: '/static/img/4dn_logo.svg',
       primaryColor: '#009aad'
     },
-    allowedConnections: ['github', 'google-oauth2', 'partners']
-  }, "languageDictionary", {
-    title: 'Log In',
-    emailInputPlaceholder: 'email@partners.org',
-    databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
-  }),
+    allowedConnections: ['github', 'google-oauth2', 'partners'],
+    languageDictionary: {
+      title: 'Log In',
+      emailInputPlaceholder: 'email@partners.org',
+      databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
+    }
+  },
   'onLogin': function onLogin(profile) {
     var isAdmin = Array.isArray(profile.groups) && profile.groups.indexOf('admin') > -1;
 

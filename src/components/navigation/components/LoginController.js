@@ -53,7 +53,6 @@ export class LoginController extends React.PureComponent {
                 }
             },
             socialButtonStyle: 'big',
-            languageDictionary: { title: "Log in" },
             theme: {
                 logo: '/static/img/4dn_logo.svg',
                 icon: '/static/img/4dn_logo.svg',
