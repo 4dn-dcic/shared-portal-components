@@ -317,11 +317,7 @@ exports.LoginController = LoginController;
 
 _defineProperty(LoginController, "propTypes", {
   'updateUserInfo': _propTypes["default"].func.isRequired,
-  'session': _propTypes["default"].bool.isRequired,
-  'href': _propTypes["default"].string.isRequired,
   'id': _propTypes["default"].string,
-  'windowWidth': _propTypes["default"].number,
-  'schemas': _propTypes["default"].object,
   'auth0ClientID': _propTypes["default"].string.isRequired,
   'auth0Domain': _propTypes["default"].string.isRequired,
   'auth0Options': _propTypes["default"].object,

@@ -26,11 +26,7 @@ export class LoginController extends React.PureComponent {
 
     static propTypes = {
         'updateUserInfo'      : PropTypes.func.isRequired,
-        'session'             : PropTypes.bool.isRequired,
-        'href'                : PropTypes.string.isRequired,
         'id'                  : PropTypes.string,
-        'windowWidth'         : PropTypes.number,
-        'schemas'             : PropTypes.object,
         'auth0ClientID'       : PropTypes.string.isRequired,
         'auth0Domain'         : PropTypes.string.isRequired,
         'auth0Options'        : PropTypes.object,
