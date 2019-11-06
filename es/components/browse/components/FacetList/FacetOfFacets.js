@@ -9,13 +9,9 @@ var _react = _interopRequireDefault(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _index = require("./index");
-
 var _Collapse = require("./../../../ui/Collapse");
+
+var _Fade = require("./../../../ui/Fade");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -66,30 +62,6 @@ function (_React$PureComponent) {
   }
 
   _createClass(FacetOfFacets, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate() {
-      var _this$props = this.props,
-          mounted = _this$props.mounted,
-          defaultFacetOpen = _this$props.defaultFacetOpen,
-          isStatic = _this$props.isStatic; // this.setState(({ facetOpen: currFacetOpen }) => {
-      //     if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
-      //         return { 'facetOpen' : true };
-      //     }
-      //     if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
-      //         return { 'facetOpen' : true };
-      //     }
-      //     if (currFacetOpen && isStatic && !pastProps.isStatic){
-      //         return { 'facetOpen' : false };
-      //     }
-      //     return null;
-      // }, ()=>{
-      //     const { facetOpen } = this.state;
-      //     if (pastState.facetOpen !== facetOpen){
-      //         ReactTooltip.rebuild();
-      //     }
-      // });
-    }
-  }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
       var _this2 = this;
@@ -139,17 +111,13 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          title = _this$props2.title,
-          facetList = _this$props2.facets,
-          tooltip = _this$props2.tooltip;
+      var _this$props = this.props,
+          title = _this$props.title,
+          facetList = _this$props.facets,
+          tooltip = _this$props.tooltip;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing;
-      console.log("log1: facetList[0]", facetList[0]);
-      console.log("log1: mapped", facetList.map(function (facet) {
-        return facet.title;
-      }));
       return _react["default"].createElement("div", {
         className: "facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
         "data-field": title
@@ -164,76 +132,22 @@ function (_React$PureComponent) {
         className: "inline-block col px-0",
         "data-tip": tooltip,
         "data-place": "right"
-      }, title)), _react["default"].createElement(_Collapse.Collapse, {
+      }, title), _react["default"].createElement(_Fade.Fade, {
+        "in": facetClosing || !facetOpen
+      }, _react["default"].createElement("span", {
+        className: "closed-terms-count col-auto px-0",
+        "data-tip": "Nested filters (".concat(facetList.length, ")")
+      }, _react["default"].createElement("i", {
+        className: "icon fas icon-layer-group",
+        style: {
+          opacity: 0.25
+        }
+      })))), _react["default"].createElement(_Collapse.Collapse, {
         "in": facetOpen && !facetClosing
       }, _react["default"].createElement("div", {
-        className: "ml-1"
+        className: "ml-2"
       }, facetList)));
-    } // static isStatic(facet){
-    //     const { terms = null, total = 0, aggregation_type = "terms", min = null, max = null } = facet;
-    //     return (
-    //         aggregation_type === "terms" &&
-    //         Array.isArray(terms) &&
-    //         terms.length === 1 &&
-    //         total <= _.reduce(terms, function(m, t){ return m + (t.doc_count || 0); }, 0)
-    //     ) || (
-    //         aggregation_type == "stats" &&
-    //         min === max
-    //     );
-    // }
-    // constructor(props){
-    //     super(props);
-    //     this.handleStaticClick = this.handleStaticClick.bind(this);
-    //     this.handleTermClick = this.handleTermClick.bind(this);
-    //     this.state = { 'filtering' : false };
-    // }
-    // /**
-    //  * For cases when there is only one option for a facet - we render a 'static' row.
-    //  * This may change in response to design.
-    //  * Unlike in `handleTermClick`, we handle own state/UI here.
-    //  *
-    //  * @todo Allow to specify interval for histogram & date_histogram in schema instead of hard-coding 'month' interval.
-    //  */
-    // handleStaticClick(e) {
-    //     const { facet, isStatic } = this.props;
-    //     const term = facet.terms[0]; // Would only have 1
-    //     e.preventDefault();
-    //     if (!isStatic) return false;
-    //     this.setState({ 'filtering' : true }, () => {
-    //         this.handleTermClick(facet, term, e, () =>
-    //             this.setState({ 'filtering' : false })
-    //         );
-    //     });
-    // }
-    // /**
-    //  * Each Term component instance provides their own callback, we just route the navigation request.
-    //  *
-    //  * @todo Allow to specify interval for histogram & date_histogram in schema instead of hard-coding 'month' interval.
-    //  */
-    // handleTermClick(facet, term, e, callback) {
-    //     const { onFilter, href } = this.props;
-    //     onFilter(facet, term, callback, false, href);
-    // }
-    // render() {
-    //     const {
-    //         facet, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets,
-    //         defaultFacetOpen, filters, onFilter, mounted, isStatic
-    //     } = this.props;
-    //     const { filtering } = this.state;
-    //     const { description = null, field, title, terms = [], aggregation_type = "terms" } = facet;
-    //     const showTitle = title || field;
-    //     if (aggregation_type === "stats") {
-    //         return <RangeFacet {...{ facet, filtering, defaultFacetOpen, termTransformFxn, filters, onFilter, mounted, isStatic }} tooltip={description} title={showTitle} />;
-    //     }
-    //     // Default case for "terms" buckets/facets
-    //     if (separateSingleTermFacets && isStatic){
-    //         // Only one term exists.
-    //         return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, getTermStatus, extraClassname, termTransformFxn }} />;
-    //     } else {
-    //         return <FacetTermsList {...this.props} onTermClick={this.handleTermClick} tooltip={description} title={showTitle} />;
-    //     }
-    // }
-
+    }
   }]);
 
   return FacetOfFacets;

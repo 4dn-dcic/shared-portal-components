@@ -240,29 +240,6 @@ export class FacetList extends React.PureComponent {
         this.setState({ 'mounted' : true });
     }
 
-    // groupFacets() {
-    //     const { facets } = this.props;
-    //     const grouped = []; // { field: green, }
-    //     const groupIndices = {}; // green : 0 where in grouped
-
-    //     facets.forEach((facet)=> {
-    //         if (facet.grouping) {
-    //             // check if there's a facet group in grouped;
-    //             if (groupIndices.hasOwnProperty(facet.grouping)) {
-    //                 const i = groupIndices[facet.grouping];
-    //                 grouped[i].facetList.push(facet);
-    //             } else  {
-    //                 grouped.push({ field: facet.grouping, facetList: [facet] });
-    //                 groupIndices[facet.grouping] = grouped.length - 1;
-    //             }
-    //         } else {
-    //             grouped.push({ field: facet.field, facet: facet });
-    //         }
-    //     });
-
-    //     return grouped;
-    // }
-
     renderFacets(maxTermsToShow = 12){
         const {
             facets, href, onFilter, schemas, getTermStatus, filters,
@@ -270,7 +247,6 @@ export class FacetList extends React.PureComponent {
         } = this.props;
         const { mounted } = this.state;
 
-        console.log("log1: ", facets);
         // Ensure each facets has an `order` property and default it to 0 if not.
         // And then sort by `order`.
         const useFacets = _.sortBy(
@@ -285,11 +261,6 @@ export class FacetList extends React.PureComponent {
             ),
             'order'
         );
-
-        // console.log("log1: equal?" , facets === useFacets);
-        // console.log("log1: this.groupFacets() ", this.groupFacets());,
-        console.log("log1: usefacets: ", useFacets);
-
 
         const commonProps = {
             onFilter, href, getTermStatus, filters, schemas, itemTypeForSchemas,
@@ -309,7 +280,6 @@ export class FacetList extends React.PureComponent {
             if (m.termCount > maxTermsToShow) m.end = true;
             return m;
         }, { facetIndex : 0, termCount: 0, end : false }).facetIndex;
-
 
         const rgs = responsiveGridState(windowWidth || null);
 
@@ -332,8 +302,6 @@ export class FacetList extends React.PureComponent {
         const inGroupIndices = {}; // green : 0 where in groupedOnly
         const genFacetIndices = {};
 
-
-
         useFacets.forEach(function(facet, i){
             // if the facet isn't groupedOnly, add to render as-is
             if (!facet.grouping) {
@@ -345,25 +313,21 @@ export class FacetList extends React.PureComponent {
                 // check if there's a facet group in groupedOnly;
                 if (inGroupIndices.hasOwnProperty(facet.grouping)) {
                     const i = inGroupIndices[facet.grouping];
-                    groupedOnly[i].facets.push(generateFacet(facet, i - 1));
+                    groupedOnly[i].facets.push(generateFacet(facet, i));
                 } else  {
                     groupedOnly.push({
                         key: facet.grouping,
                         title: facet.grouping,
-                        facets: [generateFacet(facet, i-1)]
+                        facets: [generateFacet(facet, i)]
                     });
                     inGroupIndices[facet.grouping] = groupedOnly.length - 1;
                 }
             }
         });
 
-
-
         // splice back in the nested facets
         groupedOnly.forEach(function(group, i) {
-
-            //facetsWithGroupings.splice(genFacetIndices[group.field] + i, 0, <Facet {...commonProps} {...group} key={group.field} defaultFacetOpen={false} isStatic={false} />);
-            facetsWithGroupings.splice(genFacetIndices[group.field] + i, 0, <FacetOfFacets {...commonProps} {...group} defaultFacetOpen={false} isStatic={false} />);
+            facetsWithGroupings.splice(genFacetIndices[group.title] + i, 0, <FacetOfFacets {...commonProps} {...group} defaultFacetOpen={false} isStatic={false} />);
         });
 
         return facetsWithGroupings;

@@ -385,27 +385,7 @@ function (_React$PureComponent2) {
       this.setState({
         'mounted': true
       });
-    } // groupFacets() {
-    //     const { facets } = this.props;
-    //     const grouped = []; // { field: green, }
-    //     const groupIndices = {}; // green : 0 where in grouped
-    //     facets.forEach((facet)=> {
-    //         if (facet.grouping) {
-    //             // check if there's a facet group in grouped;
-    //             if (groupIndices.hasOwnProperty(facet.grouping)) {
-    //                 const i = groupIndices[facet.grouping];
-    //                 grouped[i].facetList.push(facet);
-    //             } else  {
-    //                 grouped.push({ field: facet.grouping, facetList: [facet] });
-    //                 groupIndices[facet.grouping] = grouped.length - 1;
-    //             }
-    //         } else {
-    //             grouped.push({ field: facet.field, facet: facet });
-    //         }
-    //     });
-    //     return grouped;
-    // }
-
+    }
   }, {
     key: "renderFacets",
     value: function renderFacets() {
@@ -422,11 +402,8 @@ function (_React$PureComponent2) {
           persistentCount = _this$props4.persistentCount,
           termTransformFxn = _this$props4.termTransformFxn,
           separateSingleTermFacets = _this$props4.separateSingleTermFacets;
-      var mounted = this.state.mounted;
-
-      _patchedConsole.patchedConsoleInstance.log("log1: ", facets); // Ensure each facets has an `order` property and default it to 0 if not.
+      var mounted = this.state.mounted; // Ensure each facets has an `order` property and default it to 0 if not.
       // And then sort by `order`.
-
 
       var useFacets = _underscore["default"].sortBy(_underscore["default"].map(_underscore["default"].uniq(facets, false, function (f) {
         return f.field;
@@ -439,11 +416,7 @@ function (_React$PureComponent2) {
         }
 
         return f;
-      }), 'order'); // console.log("log1: equal?" , facets === useFacets);
-      // console.log("log1: this.groupFacets() ", this.groupFacets());,
-
-
-      _patchedConsole.patchedConsoleInstance.log("log1: usefacets: ", useFacets);
+      }), 'order');
 
       var commonProps = {
         onFilter: onFilter,
@@ -511,12 +484,12 @@ function (_React$PureComponent2) {
           if (inGroupIndices.hasOwnProperty(facet.grouping)) {
             var _i = inGroupIndices[facet.grouping];
 
-            groupedOnly[_i].facets.push(generateFacet(facet, _i - 1));
+            groupedOnly[_i].facets.push(generateFacet(facet, _i));
           } else {
             groupedOnly.push({
               key: facet.grouping,
               title: facet.grouping,
-              facets: [generateFacet(facet, i - 1)]
+              facets: [generateFacet(facet, i)]
             });
             inGroupIndices[facet.grouping] = groupedOnly.length - 1;
           }
@@ -524,8 +497,7 @@ function (_React$PureComponent2) {
       }); // splice back in the nested facets
 
       groupedOnly.forEach(function (group, i) {
-        //facetsWithGroupings.splice(genFacetIndices[group.field] + i, 0, <Facet {...commonProps} {...group} key={group.field} defaultFacetOpen={false} isStatic={false} />);
-        facetsWithGroupings.splice(genFacetIndices[group.field] + i, 0, _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, group, {
+        facetsWithGroupings.splice(genFacetIndices[group.title] + i, 0, _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, group, {
           defaultFacetOpen: false,
           isStatic: false
         })));
