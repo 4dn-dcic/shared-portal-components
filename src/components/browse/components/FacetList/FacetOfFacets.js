@@ -6,6 +6,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 
 import { Facet } from './index';
+import { Collapse } from './../../../ui/Collapse';
 
 /**
  * Used to render individual facet fields and their available terms in FacetList.
@@ -15,9 +16,94 @@ import { Facet } from './index';
  * @type {Component}
  */
 export class FacetOfFacets extends React.PureComponent {
+    constructor(props){
+        super(props);
+        this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
+        this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
+        this.state = {
+            'facetOpen'     : typeof props.defaultFacetOpen === 'boolean' ? props.defaultFacetOpen : true,
+            'facetClosing'  : false,
+            'expanded'      : false
+        };
+    }
+
+    componentDidUpdate(pastProps, pastState){
+        const { mounted, defaultFacetOpen, isStatic } = this.props;
+
+        // this.setState(({ facetOpen: currFacetOpen }) => {
+        //     if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
+        //         return { 'facetOpen' : true };
+        //     }
+        //     if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
+        //         return { 'facetOpen' : true };
+        //     }
+        //     if (currFacetOpen && isStatic && !pastProps.isStatic){
+        //         return { 'facetOpen' : false };
+        //     }
+        //     return null;
+        // }, ()=>{
+        //     const { facetOpen } = this.state;
+        //     if (pastState.facetOpen !== facetOpen){
+        //         ReactTooltip.rebuild();
+        //     }
+        // });
+    }
+
+    handleOpenToggleClick(e) {
+        e.preventDefault();
+        this.setState(function({ facetOpen }){
+            const willBeOpen = !facetOpen;
+            if (willBeOpen) {
+                return { 'facetOpen': true };
+            } else {
+                return { 'facetClosing': true };
+            }
+        }, ()=>{
+            setTimeout(()=>{
+                this.setState(function({ facetOpen, facetClosing }){
+                    if (facetClosing){
+                        return { 'facetOpen' : false, 'facetClosing' : false };
+                    }
+                    return null;
+                });
+            }, 350);
+        });
+    }
+
+    handleExpandListToggleClick(e){
+        e.preventDefault();
+        this.setState(function({ expanded }){
+            return { 'expanded' : !expanded };
+        });
+    }
+
     render() {
-        const { facetField } = this.props;
-        return (<h1>{facetField}</h1>);
+        const { title, facets: facetList, tooltip } = this.props;
+        const { facetOpen, facetClosing } = this.state;
+
+        console.log("log1: facetList[0]", facetList[0]);
+        console.log("log1: mapped", facetList.map((facet) => facet.title));
+        return (
+            <div className={"facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : '')} data-field={title}>
+                <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
+                    <span className="expand-toggle col-auto px-0">
+                        <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
+                    </span>
+                    <span className="inline-block col px-0" data-tip={tooltip} data-place="right">{ title }</span>
+                    {/* { indicator } */}
+                </h5>
+                <Collapse in={facetOpen && !facetClosing}>
+                    <div className="ml-1">
+                        { facetList }
+                        {/* facetList.map((facet) => <li key={facet.field}>{facet.title}</li>) */}
+                    </div>
+                    {/* <span className="mr-1">{facetList.map((facet) => facet.title)}</span> */}
+                    {/* { facetList.map
+                        (facet) => <h1 key={facet.field}>{facet.title}</h1>)
+                    } */}
+                </Collapse>
+            </div>
+        );
     }
 
     // static isStatic(facet){

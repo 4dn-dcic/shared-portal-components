@@ -34,6 +34,8 @@ var _FacetTermsList = require("./FacetTermsList");
 
 var _StaticSingleTerm = require("./StaticSingleTerm");
 
+var _FacetOfFacets = require("./FacetOfFacets");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -172,17 +174,28 @@ function (_React$PureComponent) {
           filters = _this$props3.filters,
           onFilter = _this$props3.onFilter,
           mounted = _this$props3.mounted,
-          isStatic = _this$props3.isStatic;
+          isStatic = _this$props3.isStatic,
+          facetList = _this$props3.facetList;
       var filtering = this.state.filtering;
-      var _facet$description = facet.description,
-          description = _facet$description === void 0 ? null : _facet$description,
-          field = facet.field,
-          title = facet.title,
-          _facet$terms2 = facet.terms,
-          terms = _facet$terms2 === void 0 ? [] : _facet$terms2,
-          _facet$aggregation_ty2 = facet.aggregation_type,
-          aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
+
+      var _ref = facet || {},
+          _ref$description = _ref.description,
+          description = _ref$description === void 0 ? null : _ref$description,
+          field = _ref.field,
+          title = _ref.title,
+          _ref$terms = _ref.terms,
+          terms = _ref$terms === void 0 ? [] : _ref$terms,
+          _ref$aggregation_type = _ref.aggregation_type,
+          aggregation_type = _ref$aggregation_type === void 0 ? "terms" : _ref$aggregation_type;
+
       var showTitle = title || field;
+
+      if (Array.isArray(facetList)) {
+        return _react["default"].createElement(_FacetOfFacets.FacetOfFacets, {
+          facets: facetList,
+          title: field
+        });
+      }
 
       if (aggregation_type === "stats") {
         return _react["default"].createElement(_RangeFacet.RangeFacet, _extends({
@@ -372,7 +385,27 @@ function (_React$PureComponent2) {
       this.setState({
         'mounted': true
       });
-    }
+    } // groupFacets() {
+    //     const { facets } = this.props;
+    //     const grouped = []; // { field: green, }
+    //     const groupIndices = {}; // green : 0 where in grouped
+    //     facets.forEach((facet)=> {
+    //         if (facet.grouping) {
+    //             // check if there's a facet group in grouped;
+    //             if (groupIndices.hasOwnProperty(facet.grouping)) {
+    //                 const i = groupIndices[facet.grouping];
+    //                 grouped[i].facetList.push(facet);
+    //             } else  {
+    //                 grouped.push({ field: facet.grouping, facetList: [facet] });
+    //                 groupIndices[facet.grouping] = grouped.length - 1;
+    //             }
+    //         } else {
+    //             grouped.push({ field: facet.field, facet: facet });
+    //         }
+    //     });
+    //     return grouped;
+    // }
+
   }, {
     key: "renderFacets",
     value: function renderFacets() {
@@ -389,8 +422,11 @@ function (_React$PureComponent2) {
           persistentCount = _this$props4.persistentCount,
           termTransformFxn = _this$props4.termTransformFxn,
           separateSingleTermFacets = _this$props4.separateSingleTermFacets;
-      var mounted = this.state.mounted; // Ensure each facets has an `order` property and default it to 0 if not.
+      var mounted = this.state.mounted;
+
+      _patchedConsole.patchedConsoleInstance.log("log1: ", facets); // Ensure each facets has an `order` property and default it to 0 if not.
       // And then sort by `order`.
+
 
       var useFacets = _underscore["default"].sortBy(_underscore["default"].map(_underscore["default"].uniq(facets, false, function (f) {
         return f.field;
@@ -403,7 +439,11 @@ function (_React$PureComponent2) {
         }
 
         return f;
-      }), 'order');
+      }), 'order'); // console.log("log1: equal?" , facets === useFacets);
+      // console.log("log1: this.groupFacets() ", this.groupFacets());,
+
+
+      _patchedConsole.patchedConsoleInstance.log("log1: usefacets: ", useFacets);
 
       var commonProps = {
         onFilter: onFilter,
@@ -435,7 +475,8 @@ function (_React$PureComponent2) {
         end: false
       }).facetIndex;
       var rgs = (0, _layout.responsiveGridState)(windowWidth || null);
-      return useFacets.map(function (facet, i) {
+
+      function generateFacet(facet, i) {
         var isStatic = Facet.isStatic(facet);
         var defaultFacetOpen = !mounted ? false : !isStatic && !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1) || facet.aggregation_type === "stats" && _underscore["default"].any(filters || [], function (fltr) {
           return fltr.field === facet.field + ".from" || fltr.field === facet.field + ".to";
@@ -449,7 +490,47 @@ function (_React$PureComponent2) {
           defaultFacetOpen: defaultFacetOpen,
           isStatic: isStatic
         }));
+      }
+
+      var facetsWithGroupings = [];
+      var groupedOnly = []; // { field: green, }
+
+      var inGroupIndices = {}; // green : 0 where in groupedOnly
+
+      var genFacetIndices = {};
+      useFacets.forEach(function (facet, i) {
+        // if the facet isn't groupedOnly, add to render as-is
+        if (!facet.grouping) {
+          facetsWithGroupings.push(generateFacet(facet, i - 1));
+        } else {
+          if (!genFacetIndices.hasOwnProperty(facet.grouping)) {
+            genFacetIndices[facet.grouping] = facetsWithGroupings.length;
+          } // check if there's a facet group in groupedOnly;
+
+
+          if (inGroupIndices.hasOwnProperty(facet.grouping)) {
+            var _i = inGroupIndices[facet.grouping];
+
+            groupedOnly[_i].facets.push(generateFacet(facet, _i - 1));
+          } else {
+            groupedOnly.push({
+              key: facet.grouping,
+              title: facet.grouping,
+              facets: [generateFacet(facet, i - 1)]
+            });
+            inGroupIndices[facet.grouping] = groupedOnly.length - 1;
+          }
+        }
+      }); // splice back in the nested facets
+
+      groupedOnly.forEach(function (group, i) {
+        //facetsWithGroupings.splice(genFacetIndices[group.field] + i, 0, <Facet {...commonProps} {...group} key={group.field} defaultFacetOpen={false} isStatic={false} />);
+        facetsWithGroupings.splice(genFacetIndices[group.field] + i, 0, _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, group, {
+          defaultFacetOpen: false,
+          isStatic: false
+        })));
       });
+      return facetsWithGroupings;
     }
   }, {
     key: "render",
