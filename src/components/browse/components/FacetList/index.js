@@ -16,6 +16,7 @@ import { responsiveGridState } from './../../../util/layout';
 import { RangeFacet } from './RangeFacet';
 import { FacetTermsList } from './FacetTermsList';
 import { StaticSingleTerm } from './StaticSingleTerm';
+import { FacetOfFacets } from './FacetOfFacets';
 
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
@@ -230,28 +231,28 @@ export class FacetList extends React.PureComponent {
         this.setState({ 'mounted' : true });
     }
 
-    groupFacets() {
-        const { facets } = this.props;
-        const grouped = []; // { field: green, }
-        const groupIndices = {}; // green : 0 where in grouped
+    // groupFacets() {
+    //     const { facets } = this.props;
+    //     const grouped = []; // { field: green, }
+    //     const groupIndices = {}; // green : 0 where in grouped
 
-        facets.forEach((facet)=> {
-            if (facet.grouping) {
-                // check if there's a facet group in grouped;
-                if (groupIndices.hasOwnProperty(facet.grouping)) {
-                    const i = groupIndices[facet.grouping];
-                    grouped[i].facetList.push(facet);
-                } else  {
-                    grouped.push({ field: facet.grouping, facetList: [facet] });
-                    groupIndices[facet.grouping] = grouped.length - 1;
-                }
-            } else {
-                grouped.push({ field: facet.field, facet: facet });
-            }
-        });
+    //     facets.forEach((facet)=> {
+    //         if (facet.grouping) {
+    //             // check if there's a facet group in grouped;
+    //             if (groupIndices.hasOwnProperty(facet.grouping)) {
+    //                 const i = groupIndices[facet.grouping];
+    //                 grouped[i].facetList.push(facet);
+    //             } else  {
+    //                 grouped.push({ field: facet.grouping, facetList: [facet] });
+    //                 groupIndices[facet.grouping] = grouped.length - 1;
+    //             }
+    //         } else {
+    //             grouped.push({ field: facet.field, facet: facet });
+    //         }
+    //     });
 
-        return grouped;
-    }
+    //     return grouped;
+    // }
 
     renderFacets(maxTermsToShow = 12){
         const {
@@ -276,9 +277,10 @@ export class FacetList extends React.PureComponent {
             'order'
         );
 
-        console.log("log1: equal?" , facets === useFacets);
-        console.log("log1: this.groupFacets() ", this.groupFacets());
+        // console.log("log1: equal?" , facets === useFacets);
+        // console.log("log1: this.groupFacets() ", this.groupFacets());,
         console.log("log1: usefacets: ", useFacets);
+
 
         const commonProps = {
             onFilter, href, getTermStatus, filters, schemas, itemTypeForSchemas,
@@ -299,11 +301,10 @@ export class FacetList extends React.PureComponent {
             return m;
         }, { facetIndex : 0, termCount: 0, end : false }).facetIndex;
 
-        console.log("log1: facetIndexWherePastXTerms", facetIndexWherePastXTerms);
 
         const rgs = responsiveGridState(windowWidth || null);
 
-        return useFacets.map(function(facet, i){
+        function generateFacet(facet, i) {
             const isStatic = Facet.isStatic(facet);
             const defaultFacetOpen = !mounted ? false : !isStatic && !!(
                 ( rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1) ) ||
@@ -315,7 +316,55 @@ export class FacetList extends React.PureComponent {
                 }))
             );
             return <Facet {...commonProps} facet={facet} key={facet.field} {...{ defaultFacetOpen, isStatic }} />;
+        }
+
+        const generatedFacets = [];
+        const grouped = []; // { field: green, }
+        const inGroupIndices = {}; // green : 0 where in grouped
+        const genFacetIndices = {};
+
+        useFacets.forEach(function(facet, i){
+            console.log(`log1: currently examining facet: useFacets[${i}]`);
+            console.log("log1: generatedFacets is length: ", generatedFacets.length);
+            // if the facet isn't grouped, add to render as-is
+            if (!facet.grouping) {
+                console.log("log1: adding facet - ", facet.field, " to generatedFacets");
+                generatedFacets.push(generateFacet(facet, i));
+            } else {
+                console.log("log1: creating a new group: ", facet.field);
+                if (!genFacetIndices.hasOwnProperty(facet.grouping)) {
+                    console.log("log1: setting new genFacetIndex");
+                    genFacetIndices[facet.grouping] = generatedFacets.length;
+                }
+                // check if there's a facet group in grouped;
+                if (inGroupIndices.hasOwnProperty(facet.grouping)) {
+                    const i = inGroupIndices[facet.grouping];
+                    grouped[i].facetList.push(facet);
+                } else  {
+                    grouped.push({ field: facet.grouping, facetList: [facet] });
+                    inGroupIndices[facet.grouping] = grouped.length - 1;
+                   
+                }
+                // console.log("log1: grouped - ", grouped);
+                // console.log("log1: generatedFacets - ", generatedFacets);
+                // console.log("log1: inGroupIndices - ", inGroupIndices);
+
+                // render grouped facets differently
+                // generatedFacets.push(
+                //     <FacetOfFacets {...commonProps} facet={facet} key={facet.field} {...{ defaultFacetOpen, isStatic }} />);
+            }
         });
+
+        console.log("log1 genFacetIndices: ", genFacetIndices);
+        // resplice back in the grouped facets
+        grouped.forEach(function(group, i) {
+            console.log("log1: generatedFacets before splice - ", generatedFacets);
+            console.log("log1: adding at index: ", genFacetIndices[group.field]);
+            generatedFacets.splice(genFacetIndices[group.field] + i, 0, <FacetOfFacets facetField={group.field} facets={group.facetList} />);
+            console.log("log1: generatedFacets after splice - ", generatedFacets);
+        });
+
+        return generatedFacets;
     }
 
     render() {
