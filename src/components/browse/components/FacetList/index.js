@@ -227,6 +227,7 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
 
 }
 
+/* used in FacetList and FacetTermsList*/
 export function anyTermsSelected(terms = [], facet, filters = []){
     const activeTermsForField = {};
     filters.forEach(function(f){
@@ -242,6 +243,7 @@ export function anyTermsSelected(terms = [], facet, filters = []){
     return false;
 }
 
+/* used in FacetList and FacetTermsList */
 export function mergeTerms(facet, filters){
     const activeTermsForField = {};
     filters.forEach(function(f){
@@ -349,29 +351,29 @@ export class FacetList extends React.PureComponent {
             return <Facet {...commonProps} facet={facet} key={facet.field} {...{ defaultFacetOpen, isStatic }} />;
         }
 
-        const facetsWithGroupings = [];
-        const groupedOnly = [];
-        const inGroupIndices = {};
-        const genFacetIndices = {};
+        const allFacets = []; // first populated with ungrouped assets, then grouped assets are spliced in
+        const groupedOnly = []; // only facet groups
+        const inGroupIndices = {}; // map group names to index in GroupedOnly for quick lookup
+        const spliceIndices = {}; // map group names to index in allFacets where a nested facet should be spliced
 
         useFacets.forEach(function(facet, i){
-            // if the facet isn't groupedOnly, add to render as-is
             if (!facet.grouping) {
-                facetsWithGroupings.push(generateFacet(facet, i-1));
-            } else {
+                allFacets.push(generateFacet(facet, i-1)); // add ungrouped facets straight to allFacets
+            } else { // add or update facet groups and store in groupedOnly
                 const terms = this.memoized.mergeTerms(facet, filters);
                 const areTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
 
-                // keep track of what index in facetsWithGroupings a particular group should be added at
-                if (!genFacetIndices.hasOwnProperty(facet.grouping)) {
-                    genFacetIndices[facet.grouping] = facetsWithGroupings.length;
+                // keep track of what index in allFacets a particular group should be added at
+                if (!spliceIndices.hasOwnProperty(facet.grouping)) {
+                    spliceIndices[facet.grouping] = allFacets.length;
                 }
 
                 // check if there's a facet group in groupedOnly;
                 if (inGroupIndices.hasOwnProperty(facet.grouping)) {
                     const i = inGroupIndices[facet.grouping];
                     groupedOnly[i].facets.push(generateFacet(facet, i));
-                    // if there are selected, switch group selected status to true
+
+                    // if any terms are selected, update group selected status
                     if (!groupedOnly[i].areTermsSelected && areTermsSelected) {
                         groupedOnly[i].areTermsSelected = true;
                     }
@@ -389,10 +391,10 @@ export class FacetList extends React.PureComponent {
 
         // splice back in the nested facets
         groupedOnly.forEach(function(group, i) {
-            facetsWithGroupings.splice(genFacetIndices[group.title] + i, 0, <FacetOfFacets {...commonProps} {...group} defaultFacetOpen={false} isStatic={false} />);
+            allFacets.splice(spliceIndices[group.title] + i, 0, <FacetOfFacets {...commonProps} {...group} defaultFacetOpen={false} isStatic={false} />);
         });
 
-        return facetsWithGroupings;
+        return allFacets;
     }
 
     render() {

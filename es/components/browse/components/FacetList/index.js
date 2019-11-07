@@ -365,6 +365,8 @@ function performFilteringQuery(props, facet, term, callback) {
     return targetSearchHref;
   }
 }
+/* used in FacetList and FacetTermsList*/
+
 
 function anyTermsSelected() {
   var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
@@ -384,6 +386,8 @@ function anyTermsSelected() {
 
   return false;
 }
+/* used in FacetList and FacetTermsList */
+
 
 function mergeTerms(facet, filters) {
   var activeTermsForField = {};
@@ -528,27 +532,31 @@ function (_React$PureComponent2) {
         }));
       }
 
-      var facetsWithGroupings = [];
-      var groupedOnly = [];
-      var inGroupIndices = {};
-      var genFacetIndices = {};
-      useFacets.forEach(function (facet, i) {
-        // if the facet isn't groupedOnly, add to render as-is
-        if (!facet.grouping) {
-          facetsWithGroupings.push(generateFacet(facet, i - 1));
-        } else {
-          var terms = this.memoized.mergeTerms(facet, filters);
-          var areTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters); // keep track of what index in facetsWithGroupings a particular group should be added at
+      var allFacets = []; // first populated with ungrouped assets, then grouped assets are spliced in
 
-          if (!genFacetIndices.hasOwnProperty(facet.grouping)) {
-            genFacetIndices[facet.grouping] = facetsWithGroupings.length;
+      var groupedOnly = []; // only facet groups
+
+      var inGroupIndices = {}; // map group names to index in GroupedOnly for quick lookup
+
+      var spliceIndices = {}; // map group names to index in allFacets where a nested facet should be spliced
+
+      useFacets.forEach(function (facet, i) {
+        if (!facet.grouping) {
+          allFacets.push(generateFacet(facet, i - 1)); // add ungrouped facets straight to allFacets
+        } else {
+          // add or update facet groups and store in groupedOnly
+          var terms = this.memoized.mergeTerms(facet, filters);
+          var areTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters); // keep track of what index in allFacets a particular group should be added at
+
+          if (!spliceIndices.hasOwnProperty(facet.grouping)) {
+            spliceIndices[facet.grouping] = allFacets.length;
           } // check if there's a facet group in groupedOnly;
 
 
           if (inGroupIndices.hasOwnProperty(facet.grouping)) {
             var _i = inGroupIndices[facet.grouping];
 
-            groupedOnly[_i].facets.push(generateFacet(facet, _i)); // if there are selected, switch group selected status to true
+            groupedOnly[_i].facets.push(generateFacet(facet, _i)); // if any terms are selected, update group selected status
 
 
             if (!groupedOnly[_i].areTermsSelected && areTermsSelected) {
@@ -567,12 +575,12 @@ function (_React$PureComponent2) {
       }.bind(this)); // splice back in the nested facets
 
       groupedOnly.forEach(function (group, i) {
-        facetsWithGroupings.splice(genFacetIndices[group.title] + i, 0, _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, group, {
+        allFacets.splice(spliceIndices[group.title] + i, 0, _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, group, {
           defaultFacetOpen: false,
           isStatic: false
         })));
       });
-      return facetsWithGroupings;
+      return allFacets;
     }
   }, {
     key: "render",
