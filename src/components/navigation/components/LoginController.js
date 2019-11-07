@@ -255,11 +255,15 @@ export class LogoutController extends React.PureComponent {
      * Removes JWT from cookies, as well as userInfo from localStorage
      * and then refreshes current view/href via navigate fxn.
      *
-     * @param {string} eventKey - Not needed.
-     * @param {Event} eventObject - Not needed.
+     * @param {Event} [evt] - Not needed. Will prevent default / stopPropagation if present.
      */
-    performLogout(eventKey, eventObject){
+    performLogout(evt = null){
         const { updateUserInfo } = this.props;
+
+        if (evt && evt.preventDefault){
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
 
         // Removes both idToken (cookie) and userInfo (localStorage)
         JWT.remove();

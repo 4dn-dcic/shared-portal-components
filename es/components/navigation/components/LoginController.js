@@ -382,15 +382,21 @@ function (_React$PureComponent2) {
    * Removes JWT from cookies, as well as userInfo from localStorage
    * and then refreshes current view/href via navigate fxn.
    *
-   * @param {string} eventKey - Not needed.
-   * @param {Event} eventObject - Not needed.
+   * @param {Event} [evt] - Not needed. Will prevent default / stopPropagation if present.
    */
 
 
   _createClass(LogoutController, [{
     key: "performLogout",
     value: function performLogout() {
-      var updateUserInfo = this.props.updateUserInfo; // Removes both idToken (cookie) and userInfo (localStorage)
+      var evt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var updateUserInfo = this.props.updateUserInfo;
+
+      if (evt && evt.preventDefault) {
+        evt.preventDefault();
+        evt.stopPropagation();
+      } // Removes both idToken (cookie) and userInfo (localStorage)
+
 
       JWT.remove(); // Refetch page context without our old JWT to hide any forbidden content.
 
