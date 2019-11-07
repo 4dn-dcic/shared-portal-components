@@ -81,21 +81,20 @@ export class FacetOfFacets extends React.PureComponent {
         );
     }
 }
-// FacetOfFacets.propTypes = {
-//     'facet'                 : PropTypes.shape({
-//         'field'                 : PropTypes.string.isRequired,    // Name of nested field property in experiment objects, using dot-notation.
-//         'title'                 : PropTypes.string,               // Human-readable Facet Term
-//         'total'                 : PropTypes.number,               // Total experiments (or terms??) w/ field
-//         'terms'                 : PropTypes.array.isRequired,     // Possible terms,
-//         'description'           : PropTypes.string,
-//         'aggregation_type'      : PropTypes.oneOf(["stats", "terms"])
-//     }),
-//     'defaultFacetOpen'      : PropTypes.bool,
-//     'onFilter'              : PropTypes.func,           // Executed on term click
-//     'extraClassname'        : PropTypes.string,
-//     'schemas'               : PropTypes.object,
-//     'getTermStatus'         : PropTypes.func.isRequired,
-//     'href'                  : PropTypes.string.isRequired,
-//     'filters'               : PropTypes.arrayOf(PropTypes.object).isRequired,
-//     'mounted'               : PropTypes.bool
-// };
+FacetOfFacets.propTypes = {
+    'areTermsSelected'          : PropTypes.bool,
+    'defaultFacetOpen'          : PropTypes.bool,
+    'facets'                    : PropTypes.arrayOf(PropTypes.element),
+    'filters'                   : PropTypes.arrayOf(PropTypes.object).isRequired,
+    'getTermStatus'             : PropTypes.func.isRequired,
+    'href'                      : PropTypes.string.isRequired, // @todo: should this be required?
+    'isStatic'                  : PropTypes.bool,
+    'itemTypeForSchemas'        : PropTypes.string,
+    'mounted'                   : PropTypes.bool,
+    'onFilter'                  : PropTypes.func,           // Executed on term click
+    'schemas'                   : PropTypes.object,
+    'separateSingleTermFacets'  : PropTypes.bool,
+    'termTransformFxn'          : PropTypes.func,
+    'title'                     : PropTypes.string,
+    'extraClassname'            : PropTypes.string
+};

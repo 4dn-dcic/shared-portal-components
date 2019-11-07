@@ -232,6 +232,7 @@ export class FacetTermsList extends React.PureComponent {
         const termsLen = terms.length;
         let indicator;
 
+        // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
         if (isStatic || termsLen === 1){
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
                 <Fade in={facetClosing || !facetOpen}>

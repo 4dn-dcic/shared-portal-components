@@ -152,24 +152,25 @@ function (_React$PureComponent) {
   }]);
 
   return FacetOfFacets;
-}(_react["default"].PureComponent); // FacetOfFacets.propTypes = {
-//     'facet'                 : PropTypes.shape({
-//         'field'                 : PropTypes.string.isRequired,    // Name of nested field property in experiment objects, using dot-notation.
-//         'title'                 : PropTypes.string,               // Human-readable Facet Term
-//         'total'                 : PropTypes.number,               // Total experiments (or terms??) w/ field
-//         'terms'                 : PropTypes.array.isRequired,     // Possible terms,
-//         'description'           : PropTypes.string,
-//         'aggregation_type'      : PropTypes.oneOf(["stats", "terms"])
-//     }),
-//     'defaultFacetOpen'      : PropTypes.bool,
-//     'onFilter'              : PropTypes.func,           // Executed on term click
-//     'extraClassname'        : PropTypes.string,
-//     'schemas'               : PropTypes.object,
-//     'getTermStatus'         : PropTypes.func.isRequired,
-//     'href'                  : PropTypes.string.isRequired,
-//     'filters'               : PropTypes.arrayOf(PropTypes.object).isRequired,
-//     'mounted'               : PropTypes.bool
-// };
-
+}(_react["default"].PureComponent);
 
 exports.FacetOfFacets = FacetOfFacets;
+FacetOfFacets.propTypes = {
+  'areTermsSelected': _propTypes["default"].bool,
+  'defaultFacetOpen': _propTypes["default"].bool,
+  'facets': _propTypes["default"].arrayOf(_propTypes["default"].element),
+  'filters': _propTypes["default"].arrayOf(_propTypes["default"].object).isRequired,
+  'getTermStatus': _propTypes["default"].func.isRequired,
+  'href': _propTypes["default"].string.isRequired,
+  // @todo: should this be required?
+  'isStatic': _propTypes["default"].bool,
+  'itemTypeForSchemas': _propTypes["default"].string,
+  'mounted': _propTypes["default"].bool,
+  'onFilter': _propTypes["default"].func,
+  // Executed on term click
+  'schemas': _propTypes["default"].object,
+  'separateSingleTermFacets': _propTypes["default"].bool,
+  'termTransformFxn': _propTypes["default"].func,
+  'title': _propTypes["default"].string,
+  'extraClassname': _propTypes["default"].string
+};

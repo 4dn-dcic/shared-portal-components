@@ -373,7 +373,7 @@ function (_React$PureComponent2) {
       var terms = this.memoized.mergeTerms(facet, filters);
       var anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
       var termsLen = terms.length;
-      var indicator;
+      var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
 
       if (isStatic || termsLen === 1) {
         indicator = // Small indicator to help represent how many terms there are available for this Facet.
