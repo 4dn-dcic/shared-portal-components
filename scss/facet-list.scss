@@ -250,11 +250,11 @@ $facetlist-facet-font-size: 0.925rem !default;
                     opacity: 0.5;
                 }
             }
-            &.open:not(.closing) {
-                h5.facet-title .closed-terms-count {
-                    top : 9px;
-                }
-            }
+            // &.open:not(.closing) {
+            //     h5.facet-title .closed-terms-count {
+            //         top : 9px;
+            //     }
+            // }
             &.closed, &.closing {
                 padding-bottom: 0px;
                 background-color: #fcfcfc;
