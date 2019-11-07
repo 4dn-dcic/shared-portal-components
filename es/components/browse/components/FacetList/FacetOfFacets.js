@@ -9,13 +9,9 @@ var _react = _interopRequireDefault(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
 var _Collapse = require("./../../../ui/Collapse");
 
 var _Fade = require("./../../../ui/Fade");
-
-var _index = require("./index");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -57,16 +53,10 @@ function (_React$PureComponent) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(FacetOfFacets).call(this, props));
     _this.handleOpenToggleClick = _this.handleOpenToggleClick.bind(_assertThisInitialized(_this));
     _this.handleExpandListToggleClick = _this.handleExpandListToggleClick.bind(_assertThisInitialized(_this));
-    _this.checkAllTerms = _this.checkAllTerms.bind(_assertThisInitialized(_this));
     _this.state = {
       'facetOpen': typeof props.defaultFacetOpen === 'boolean' ? props.defaultFacetOpen : true,
       'facetClosing': false,
       'expanded': false
-    };
-    _this.memoized = {
-      checkAllTerms: (0, _memoizeOne["default"])(_this.checkAllTerms),
-      anyTermsSelectedPerFacet: (0, _memoizeOne["default"])(_index.anyTermsSelected),
-      mergeTerms: (0, _memoizeOne["default"])(_index.mergeTerms)
     };
     return _this;
   }
@@ -119,42 +109,16 @@ function (_React$PureComponent) {
       });
     }
   }, {
-    key: "checkAllTerms",
-    value: function checkAllTerms() {
-      var _this3 = this;
-
-      var _this$props = this.props,
-          _this$props$facets = _this$props.facets,
-          facets = _this$props$facets === void 0 ? [] : _this$props$facets,
-          _this$props$filters = _this$props.filters,
-          filters = _this$props$filters === void 0 ? [] : _this$props$filters;
-      var anySelected = false; // console.log("log1: running CheckAllTerms on facetList: ", facets);
-
-      facets.forEach(function (facet) {
-        // console.log("log1: examining this facet for selected terms: ", facet.props.facet);
-        // console.log("log1: seeking match with these filters", filters);
-        var terms = _this3.memoized.mergeTerms(facet.props.facet, filters); // console.log("log1: merged terms, ", terms);
-
-
-        var anyTermsSelectedThisFacet = _this3.memoized.anyTermsSelectedPerFacet(terms, facet.props.facet, filters);
-
-        if (anyTermsSelectedThisFacet === true) {
-          anySelected = true;
-        }
-      });
-      return anySelected;
-    }
-  }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          title = _this$props2.title,
-          facets = _this$props2.facets,
-          tooltip = _this$props2.tooltip;
+      var _this$props = this.props,
+          title = _this$props.title,
+          facets = _this$props.facets,
+          tooltip = _this$props.tooltip,
+          areTermsSelected = _this$props.areTermsSelected;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing;
-      var anyTermsSelected = this.memoized.checkAllTerms();
       return _react["default"].createElement("div", {
         className: "facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
         "data-field": title
@@ -172,12 +136,12 @@ function (_React$PureComponent) {
       }, title), _react["default"].createElement(_Fade.Fade, {
         "in": facetClosing || !facetOpen
       }, _react["default"].createElement("span", {
-        className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : ""),
-        "data-tip": "Nested filters (".concat(facets.length, ") ").concat(anyTermsSelected ? " with at least 1 selected." : "")
+        className: "closed-terms-count col-auto px-0" + (areTermsSelected ? " some-selected" : ""),
+        "data-tip": "Nested filters (".concat(facets.length, ") ").concat(areTermsSelected ? " with at least 1 selected." : "")
       }, _react["default"].createElement("i", {
         className: "icon fas icon-layer-group",
         style: {
-          opacity: anyTermsSelected ? 0.75 : 0.25
+          opacity: areTermsSelected ? 0.75 : 0.25
         }
       })))), _react["default"].createElement(_Collapse.Collapse, {
         "in": facetOpen && !facetClosing

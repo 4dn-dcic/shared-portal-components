@@ -434,6 +434,11 @@ function (_React$PureComponent2) {
     _this3.state = {
       'mounted': false
     };
+    _this3.memoized = {
+      anyTermsSelected: (0, _memoizeOne["default"])(anyTermsSelected),
+      mergeTerms: (0, _memoizeOne["default"])(mergeTerms)
+    };
+    _this3.renderFacets = _this3.renderFacets.bind(_assertThisInitialized(_this3));
     return _this3;
   }
 
@@ -524,16 +529,17 @@ function (_React$PureComponent2) {
       }
 
       var facetsWithGroupings = [];
-      var groupedOnly = []; // { field: green, }
-
-      var inGroupIndices = {}; // green : 0 where in groupedOnly
-
+      var groupedOnly = [];
+      var inGroupIndices = {};
       var genFacetIndices = {};
       useFacets.forEach(function (facet, i) {
         // if the facet isn't groupedOnly, add to render as-is
         if (!facet.grouping) {
           facetsWithGroupings.push(generateFacet(facet, i - 1));
         } else {
+          var terms = this.memoized.mergeTerms(facet, filters);
+          var areTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters); // keep track of what index in facetsWithGroupings a particular group should be added at
+
           if (!genFacetIndices.hasOwnProperty(facet.grouping)) {
             genFacetIndices[facet.grouping] = facetsWithGroupings.length;
           } // check if there's a facet group in groupedOnly;
@@ -542,17 +548,23 @@ function (_React$PureComponent2) {
           if (inGroupIndices.hasOwnProperty(facet.grouping)) {
             var _i = inGroupIndices[facet.grouping];
 
-            groupedOnly[_i].facets.push(generateFacet(facet, _i));
+            groupedOnly[_i].facets.push(generateFacet(facet, _i)); // if there are selected, switch group selected status to true
+
+
+            if (!groupedOnly[_i].areTermsSelected && areTermsSelected) {
+              groupedOnly[_i].areTermsSelected = true;
+            }
           } else {
             groupedOnly.push({
               key: facet.grouping,
               title: facet.grouping,
-              facets: [generateFacet(facet, i)]
+              facets: [generateFacet(facet, i)],
+              areTermsSelected: areTermsSelected
             });
             inGroupIndices[facet.grouping] = groupedOnly.length - 1;
           }
         }
-      }); // splice back in the nested facets
+      }.bind(this)); // splice back in the nested facets
 
       groupedOnly.forEach(function (group, i) {
         facetsWithGroupings.splice(genFacetIndices[group.title] + i, 0, _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, group, {
