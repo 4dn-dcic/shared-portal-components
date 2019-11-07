@@ -9,6 +9,7 @@ import ReactTooltip from 'react-tooltip';
 import { Collapse } from './../../../ui/Collapse';
 import { Fade } from './../../../ui/Fade';
 import { PartialList } from './../../../ui/PartialList';
+import { anyTermsSelected, mergeTerms } from './index';
 
 
 
@@ -113,54 +114,6 @@ Term.propTypes = {
 
 
 export class FacetTermsList extends React.PureComponent {
-
-    static anyTermsSelected(terms = [], facet, filters = []){
-        const activeTermsForField = {};
-        filters.forEach(function(f){
-            if (f.field !== facet.field) return;
-            activeTermsForField[f.term] = true;
-        });
-
-        for (let i = 0; i < terms.length; i++){
-            if (activeTermsForField[terms[i].key]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    static mergeTerms(facet, filters){
-        const activeTermsForField = {};
-        filters.forEach(function(f){
-            if (f.field !== facet.field) return;
-            activeTermsForField[f.term] = true;
-        });
-
-        // Filter out terms w/ 0 counts (in case).
-        let terms = facet.terms.filter(function(term){
-            if (term.doc_count > 0) return true;
-            if (activeTermsForField[term.key]) return true;
-            return false;
-        });
-
-        terms.forEach(function({ key }){
-            delete activeTermsForField[key];
-        });
-
-        // Filter out type=Item for now (hardcode)
-        if (facet.field === "type"){
-            terms = terms.filter(function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
-        }
-
-        // These are terms which might have been manually defined in URL but are not present in data at all.
-        // Include them so we can unselect them.
-        const unseenTerms = _.keys(activeTermsForField).map(function(term){
-            return { key: term, doc_count: 0 };
-        });
-
-        return terms.concat(unseenTerms);
-    }
-
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
@@ -172,8 +125,8 @@ export class FacetTermsList extends React.PureComponent {
             'expanded'      : false
         };
         this.memoized = {
-            anyTermsSelected: memoize(FacetTermsList.anyTermsSelected),
-            mergeTerms: memoize(FacetTermsList.mergeTerms)
+            anyTermsSelected: memoize(anyTermsSelected),
+            mergeTerms: memoize(mergeTerms)
         };
     }
 

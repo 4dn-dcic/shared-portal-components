@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.performFilteringQuery = performFilteringQuery;
+exports.anyTermsSelected = anyTermsSelected;
+exports.mergeTerms = mergeTerms;
 exports.FacetList = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -191,10 +193,12 @@ function (_React$PureComponent) {
       var showTitle = title || field;
 
       if (Array.isArray(facetList)) {
-        return _react["default"].createElement(_FacetOfFacets.FacetOfFacets, {
+        return _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({
           facets: facetList,
           title: field
-        });
+        }, {
+          filters: filters
+        }));
       }
 
       if (aggregation_type === "stats") {
@@ -360,6 +364,60 @@ function performFilteringQuery(props, facet, term, callback) {
   } else {
     return targetSearchHref;
   }
+}
+
+function anyTermsSelected() {
+  var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var facet = arguments.length > 1 ? arguments[1] : undefined;
+  var filters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+  var activeTermsForField = {};
+  filters.forEach(function (f) {
+    if (f.field !== facet.field) return;
+    activeTermsForField[f.term] = true;
+  });
+
+  for (var i = 0; i < terms.length; i++) {
+    if (activeTermsForField[terms[i].key]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function mergeTerms(facet, filters) {
+  var activeTermsForField = {};
+  filters.forEach(function (f) {
+    if (f.field !== facet.field) return;
+    activeTermsForField[f.term] = true;
+  }); // Filter out terms w/ 0 counts (in case).
+
+  var terms = facet.terms.filter(function (term) {
+    if (term.doc_count > 0) return true;
+    if (activeTermsForField[term.key]) return true;
+    return false;
+  });
+  terms.forEach(function (_ref2) {
+    var key = _ref2.key;
+    delete activeTermsForField[key];
+  }); // Filter out type=Item for now (hardcode)
+
+  if (facet.field === "type") {
+    terms = terms.filter(function (t) {
+      return t !== 'Item' && t && t.key !== 'Item';
+    });
+  } // These are terms which might have been manually defined in URL but are not present in data at all.
+  // Include them so we can unselect them.
+
+
+  var unseenTerms = _underscore["default"].keys(activeTermsForField).map(function (term) {
+    return {
+      key: term,
+      doc_count: 0
+    };
+  });
+
+  return terms.concat(unseenTerms);
 }
 
 var FacetList =

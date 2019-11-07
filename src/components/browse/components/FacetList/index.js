@@ -106,7 +106,7 @@ class Facet extends React.PureComponent {
         const showTitle = title || field;
 
         if (Array.isArray(facetList)) {
-            return <FacetOfFacets facets={facetList} title={field}/>;
+            return <FacetOfFacets facets={facetList} title={field} {...{ filters }}/>;
         }
 
         if (aggregation_type === "stats") {
@@ -225,6 +225,53 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
         return targetSearchHref;
     }
 
+}
+
+export function anyTermsSelected(terms = [], facet, filters = []){
+    const activeTermsForField = {};
+    filters.forEach(function(f){
+        if (f.field !== facet.field) return;
+        activeTermsForField[f.term] = true;
+    });
+
+    for (let i = 0; i < terms.length; i++){
+        if (activeTermsForField[terms[i].key]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export function mergeTerms(facet, filters){
+    const activeTermsForField = {};
+    filters.forEach(function(f){
+        if (f.field !== facet.field) return;
+        activeTermsForField[f.term] = true;
+    });
+
+    // Filter out terms w/ 0 counts (in case).
+    let terms = facet.terms.filter(function(term){
+        if (term.doc_count > 0) return true;
+        if (activeTermsForField[term.key]) return true;
+        return false;
+    });
+
+    terms.forEach(function({ key }){
+        delete activeTermsForField[key];
+    });
+
+    // Filter out type=Item for now (hardcode)
+    if (facet.field === "type"){
+        terms = terms.filter(function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
+    }
+
+    // These are terms which might have been manually defined in URL but are not present in data at all.
+    // Include them so we can unselect them.
+    const unseenTerms = _.keys(activeTermsForField).map(function(term){
+        return { key: term, doc_count: 0 };
+    });
+
+    return terms.concat(unseenTerms);
 }
 
 export class FacetList extends React.PureComponent {

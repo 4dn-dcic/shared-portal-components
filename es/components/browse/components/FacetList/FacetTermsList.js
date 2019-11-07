@@ -21,6 +21,8 @@ var _Fade = require("./../../../ui/Fade");
 
 var _PartialList = require("./../../../ui/PartialList");
 
+var _index = require("./index");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -191,64 +193,6 @@ var FacetTermsList =
 function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
 
-  _createClass(FacetTermsList, null, [{
-    key: "anyTermsSelected",
-    value: function anyTermsSelected() {
-      var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-      var facet = arguments.length > 1 ? arguments[1] : undefined;
-      var filters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-      var activeTermsForField = {};
-      filters.forEach(function (f) {
-        if (f.field !== facet.field) return;
-        activeTermsForField[f.term] = true;
-      });
-
-      for (var i = 0; i < terms.length; i++) {
-        if (activeTermsForField[terms[i].key]) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-  }, {
-    key: "mergeTerms",
-    value: function mergeTerms(facet, filters) {
-      var activeTermsForField = {};
-      filters.forEach(function (f) {
-        if (f.field !== facet.field) return;
-        activeTermsForField[f.term] = true;
-      }); // Filter out terms w/ 0 counts (in case).
-
-      var terms = facet.terms.filter(function (term) {
-        if (term.doc_count > 0) return true;
-        if (activeTermsForField[term.key]) return true;
-        return false;
-      });
-      terms.forEach(function (_ref) {
-        var key = _ref.key;
-        delete activeTermsForField[key];
-      }); // Filter out type=Item for now (hardcode)
-
-      if (facet.field === "type") {
-        terms = terms.filter(function (t) {
-          return t !== 'Item' && t && t.key !== 'Item';
-        });
-      } // These are terms which might have been manually defined in URL but are not present in data at all.
-      // Include them so we can unselect them.
-
-
-      var unseenTerms = _underscore["default"].keys(activeTermsForField).map(function (term) {
-        return {
-          key: term,
-          doc_count: 0
-        };
-      });
-
-      return terms.concat(unseenTerms);
-    }
-  }]);
-
   function FacetTermsList(props) {
     var _this3;
 
@@ -264,8 +208,8 @@ function (_React$PureComponent2) {
       'expanded': false
     };
     _this3.memoized = {
-      anyTermsSelected: (0, _memoizeOne["default"])(FacetTermsList.anyTermsSelected),
-      mergeTerms: (0, _memoizeOne["default"])(FacetTermsList.mergeTerms)
+      anyTermsSelected: (0, _memoizeOne["default"])(_index.anyTermsSelected),
+      mergeTerms: (0, _memoizeOne["default"])(_index.mergeTerms)
     };
     return _this3;
   }
@@ -281,8 +225,8 @@ function (_React$PureComponent2) {
           isStatic = _this$props3.isStatic,
           facet = _this$props3.facet,
           filters = _this$props3.filters;
-      this.setState(function (_ref2) {
-        var currFacetOpen = _ref2.facetOpen;
+      this.setState(function (_ref) {
+        var currFacetOpen = _ref.facetOpen;
 
         if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
           return {
@@ -317,8 +261,8 @@ function (_React$PureComponent2) {
       var _this5 = this;
 
       e.preventDefault();
-      this.setState(function (_ref3) {
-        var facetOpen = _ref3.facetOpen;
+      this.setState(function (_ref2) {
+        var facetOpen = _ref2.facetOpen;
 
         if (!facetOpen) {
           return {
@@ -331,9 +275,9 @@ function (_React$PureComponent2) {
         }
       }, function () {
         setTimeout(function () {
-          _this5.setState(function (_ref4) {
-            var facetOpen = _ref4.facetOpen,
-                facetClosing = _ref4.facetClosing;
+          _this5.setState(function (_ref3) {
+            var facetOpen = _ref3.facetOpen,
+                facetClosing = _ref3.facetClosing;
 
             if (facetClosing) {
               return {
@@ -351,8 +295,8 @@ function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref5) {
-        var expanded = _ref5.expanded;
+      this.setState(function (_ref4) {
+        var expanded = _ref4.expanded;
         return {
           'expanded': !expanded
         };
