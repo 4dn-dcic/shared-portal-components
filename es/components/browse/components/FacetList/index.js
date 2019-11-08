@@ -16,8 +16,6 @@ var _queryString = _interopRequireDefault(require("query-string"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
 var _patchedConsole = require("./../../../util/patched-console");
 
 var _searchFilters = require("./../../../util/search-filters");
@@ -28,11 +26,11 @@ var analytics = _interopRequireWildcard(require("./../../../util/analytics"));
 
 var _layout = require("./../../../util/layout");
 
+var _TermsFacet = require("./TermsFacet");
+
 var _RangeFacet = require("./RangeFacet");
 
 var _FacetTermsList = require("./FacetTermsList");
-
-var _StaticSingleTerm = require("./StaticSingleTerm");
 
 var _FacetOfFacets = require("./FacetOfFacets");
 
@@ -41,6 +39,8 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -58,21 +58,19 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -89,154 +87,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
  */
 
 /**
- * Used to render individual facet fields and their available terms in FacetList.
- */
-var TermsFacet =
-/*#__PURE__*/
-function (_React$PureComponent) {
-  _inherits(TermsFacet, _React$PureComponent);
-
-  _createClass(TermsFacet, null, [{
-    key: "isStatic",
-    value: function isStatic(facet) {
-      var _facet$terms = facet.terms,
-          terms = _facet$terms === void 0 ? null : _facet$terms,
-          _facet$total = facet.total,
-          total = _facet$total === void 0 ? 0 : _facet$total;
-      return Array.isArray(terms) && terms.length === 1 && total <= _underscore["default"].reduce(terms, function (m, t) {
-        return m + (t.doc_count || 0);
-      }, 0);
-    }
-  }]);
-
-  function TermsFacet(props) {
-    var _this;
-
-    _classCallCheck(this, TermsFacet);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TermsFacet).call(this, props));
-    _this.handleStaticClick = _this.handleStaticClick.bind(_assertThisInitialized(_this));
-    _this.handleTermClick = _this.handleTermClick.bind(_assertThisInitialized(_this));
-    _this.state = {
-      'filtering': false
-    };
-    return _this;
-  }
-  /**
-   * For cases when there is only one option for a facet - we render a 'static' row.
-   * This may change in response to design.
-   * Unlike in `handleTermClick`, we handle own state/UI here.
-   *
-   * @todo Allow to specify interval for histogram & date_histogram in schema instead of hard-coding 'month' interval.
-   */
-
-
-  _createClass(TermsFacet, [{
-    key: "handleStaticClick",
-    value: function handleStaticClick(e) {
-      var _this2 = this;
-
-      var _this$props = this.props,
-          facet = _this$props.facet,
-          isStatic = _this$props.isStatic;
-      var term = facet.terms[0]; // Would only have 1
-
-      e.preventDefault();
-      if (!isStatic) return false;
-      this.setState({
-        'filtering': true
-      }, function () {
-        _this2.handleTermClick(facet, term, e, function () {
-          return _this2.setState({
-            'filtering': false
-          });
-        });
-      });
-    }
-    /**
-     * Each Term component instance provides their own callback, we just route the navigation request.
-     *
-     * @todo Allow to specify interval for histogram & date_histogram in schema instead of hard-coding 'month' interval.
-     */
-
-  }, {
-    key: "handleTermClick",
-    value: function handleTermClick(facet, term, e, callback) {
-      var _this$props2 = this.props,
-          onFilter = _this$props2.onFilter,
-          href = _this$props2.href;
-      onFilter(facet, term, callback, false, href);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props3 = this.props,
-          facet = _this$props3.facet,
-          terms = _this$props3.terms,
-          getTermStatus = _this$props3.getTermStatus,
-          extraClassname = _this$props3.extraClassname,
-          termTransformFxn = _this$props3.termTransformFxn,
-          separateSingleTermFacets = _this$props3.separateSingleTermFacets,
-          isStatic = _this$props3.isStatic;
-      var filtering = this.state.filtering;
-
-      var _ref = facet || {},
-          field = _ref.field,
-          title = _ref.title,
-          _ref$description = _ref.description,
-          description = _ref$description === void 0 ? null : _ref$description;
-
-      var showTitle = title || field;
-
-      if (separateSingleTermFacets && isStatic) {
-        // Only one term exists.
-        return _react["default"].createElement(_StaticSingleTerm.StaticSingleTerm, {
-          facet: facet,
-          term: terms[0],
-          filtering: filtering,
-          showTitle: showTitle,
-          onClick: this.handleStaticClick,
-          getTermStatus: getTermStatus,
-          extraClassname: extraClassname,
-          termTransformFxn: termTransformFxn
-        });
-      } else {
-        return _react["default"].createElement(_FacetTermsList.FacetTermsList, _extends({}, this.props, {
-          onTermClick: this.handleTermClick,
-          tooltip: description,
-          title: showTitle
-        }));
-      }
-    }
-  }]);
-
-  return TermsFacet;
-}(_react["default"].PureComponent);
-
-TermsFacet.propTypes = {
-  'facet': _propTypes["default"].shape({
-    'field': _propTypes["default"].string.isRequired,
-    // Name of nested field property in experiment objects, using dot-notation.
-    'title': _propTypes["default"].string,
-    // Human-readable Facet Term
-    'total': _propTypes["default"].number,
-    // Total experiments (or terms??) w/ field
-    'terms': _propTypes["default"].array.isRequired,
-    // Possible terms,
-    'description': _propTypes["default"].string,
-    'aggregation_type': _propTypes["default"].oneOf(["stats", "terms"])
-  }),
-  'defaultFacetOpen': _propTypes["default"].bool,
-  'onFilter': _propTypes["default"].func,
-  // Executed on term click
-  'extraClassname': _propTypes["default"].string,
-  'schemas': _propTypes["default"].object,
-  'getTermStatus': _propTypes["default"].func.isRequired,
-  'href': _propTypes["default"].string.isRequired,
-  'filters': _propTypes["default"].arrayOf(_propTypes["default"].object).isRequired,
-  'mounted': _propTypes["default"].bool
-};
-/**
  * Use this function as part of SearchView and BrowseView to be passed down to FacetList.
  * Should be bound to a component instance, with `this` providing 'href', 'context' (with 'filters' property), and 'navigate'.
  *
@@ -248,7 +98,6 @@ TermsFacet.propTypes = {
  * @param {function} callback - Any function to execute afterwards.
  * @param {boolean} [skipNavigation=false] - If true, will return next targetSearchHref instead of going to it. Use to e.g. batch up filter changes on multiple fields.
  */
-
 function performFilteringQuery(props, facet, term, callback) {
   var skipNavigation = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
   var currentHref = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
@@ -338,20 +187,20 @@ function performFilteringQuery(props, facet, term, callback) {
 
 var FacetList =
 /*#__PURE__*/
-function (_React$PureComponent2) {
-  _inherits(FacetList, _React$PureComponent2);
+function (_React$PureComponent) {
+  _inherits(FacetList, _React$PureComponent);
 
   function FacetList(props) {
-    var _this3;
+    var _this;
 
     _classCallCheck(this, FacetList);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(FacetList).call(this, props));
-    _this3.state = {
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(FacetList).call(this, props));
+    _this.renderFacets = _this.renderFacets.bind(_assertThisInitialized(_this));
+    _this.state = {
       'mounted': false
     };
-    _this3.renderFacets = _this3.renderFacets.bind(_assertThisInitialized(_this3));
-    return _this3;
+    return _this;
   }
 
   _createClass(FacetList, [{
@@ -364,19 +213,19 @@ function (_React$PureComponent2) {
   }, {
     key: "renderFacets",
     value: function renderFacets() {
-      var _this$props4 = this.props,
-          facets = _this$props4.facets,
-          href = _this$props4.href,
-          onFilter = _this$props4.onFilter,
-          schemas = _this$props4.schemas,
-          getTermStatus = _this$props4.getTermStatus,
-          filters = _this$props4.filters,
-          itemTypeForSchemas = _this$props4.itemTypeForSchemas,
-          windowWidth = _this$props4.windowWidth,
-          persistentCount = _this$props4.persistentCount,
-          termTransformFxn = _this$props4.termTransformFxn,
-          separateSingleTermFacets = _this$props4.separateSingleTermFacets,
-          windowHeight = _this$props4.windowHeight;
+      var _this$props = this.props,
+          facets = _this$props.facets,
+          href = _this$props.href,
+          onFilter = _this$props.onFilter,
+          schemas = _this$props.schemas,
+          getTermStatus = _this$props.getTermStatus,
+          filters = _this$props.filters,
+          itemTypeForSchemas = _this$props.itemTypeForSchemas,
+          windowWidth = _this$props.windowWidth,
+          persistentCount = _this$props.persistentCount,
+          termTransformFxn = _this$props.termTransformFxn,
+          separateSingleTermFacets = _this$props.separateSingleTermFacets,
+          windowHeight = _this$props.windowHeight;
       var mounted = this.state.mounted; // Ensure each facets has an `order` property and default it to 0 if not.
       // And then sort by `order`.
 
@@ -468,12 +317,12 @@ function (_React$PureComponent2) {
 
           var _anySelected = (0, _FacetTermsList.anyTermsSelected)(terms, facet, filters);
 
-          var _isStatic = TermsFacet.isStatic(facet);
+          var _isStatic = _TermsFacet.TermsFacet.isStatic(facet);
 
           defaultFacetOpen = defaultFacetOpen || !_isStatic && _underscore["default"].any(filters || [], function (fltr) {
             return fltr.field === facetField;
           }) || false;
-          return _react["default"].createElement(TermsFacet, _extends({}, commonProps, {
+          return _react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, commonProps, {
             facet: facet,
             key: facetField,
             anyTermsSelected: _anySelected
@@ -521,10 +370,10 @@ function (_React$PureComponent2) {
       var groupsArr = _toConsumableArray(groups); // Check, render, and add groups into `componentsToReturn`
 
 
-      groupsArr.forEach(function (_ref2) {
-        var _ref3 = _slicedToArray(_ref2, 2),
-            groupTitle = _ref3[0],
-            facetGroup = _ref3[1];
+      groupsArr.forEach(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+            groupTitle = _ref2[0],
+            facetGroup = _ref2[1];
 
         var facetsInGroup = facetGroup.facets,
             index = facetGroup.index;
@@ -536,9 +385,9 @@ function (_React$PureComponent2) {
           // so `fromIdx` / `groupIndex` should always stay stable.
           // We increment facetGroup.index which is the index in `componentsToReturn`.
 
-          groupsArr.slice(fromIdx).forEach(function (_ref4) {
-            var _ref5 = _slicedToArray(_ref4, 2),
-                subsequentFacetGroup = _ref5[1];
+          groupsArr.slice(fromIdx).forEach(function (_ref3) {
+            var _ref4 = _slicedToArray(_ref3, 2),
+                subsequentFacetGroup = _ref4[1];
 
             subsequentFacetGroup.index++;
           });
@@ -558,15 +407,14 @@ function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props5 = this.props,
-          debug = _this$props5.debug,
-          facets = _this$props5.facets,
-          className = _this$props5.className,
-          title = _this$props5.title,
-          showClearFiltersButton = _this$props5.showClearFiltersButton,
-          onClearFilters = _this$props5.onClearFilters,
-          windowHeight = _this$props5.windowHeight,
-          separateSingleTermFacets = _this$props5.separateSingleTermFacets;
+      var _this$props2 = this.props,
+          debug = _this$props2.debug,
+          facets = _this$props2.facets,
+          className = _this$props2.className,
+          title = _this$props2.title,
+          showClearFiltersButton = _this$props2.showClearFiltersButton,
+          onClearFilters = _this$props2.onClearFilters,
+          separateSingleTermFacets = _this$props2.separateSingleTermFacets;
       if (debug) _patchedConsole.patchedConsoleInstance.log('render facetlist');
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
