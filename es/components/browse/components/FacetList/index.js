@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.performFilteringQuery = performFilteringQuery;
-exports.anyTermsSelected = anyTermsSelected;
-exports.mergeTerms = mergeTerms;
 exports.FacetList = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -44,6 +42,22 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -76,41 +90,31 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 /**
  * Used to render individual facet fields and their available terms in FacetList.
- *
- * @memberof module:facetlist
- * @class Facet
- * @type {Component}
  */
-var Facet =
+var TermsFacet =
 /*#__PURE__*/
 function (_React$PureComponent) {
-  _inherits(Facet, _React$PureComponent);
+  _inherits(TermsFacet, _React$PureComponent);
 
-  _createClass(Facet, null, [{
+  _createClass(TermsFacet, null, [{
     key: "isStatic",
     value: function isStatic(facet) {
       var _facet$terms = facet.terms,
           terms = _facet$terms === void 0 ? null : _facet$terms,
           _facet$total = facet.total,
-          total = _facet$total === void 0 ? 0 : _facet$total,
-          _facet$aggregation_ty = facet.aggregation_type,
-          aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty,
-          _facet$min = facet.min,
-          min = _facet$min === void 0 ? null : _facet$min,
-          _facet$max = facet.max,
-          max = _facet$max === void 0 ? null : _facet$max;
-      return aggregation_type === "terms" && Array.isArray(terms) && terms.length === 1 && total <= _underscore["default"].reduce(terms, function (m, t) {
+          total = _facet$total === void 0 ? 0 : _facet$total;
+      return Array.isArray(terms) && terms.length === 1 && total <= _underscore["default"].reduce(terms, function (m, t) {
         return m + (t.doc_count || 0);
-      }, 0) || aggregation_type == "stats" && min === max;
+      }, 0);
     }
   }]);
 
-  function Facet(props) {
+  function TermsFacet(props) {
     var _this;
 
-    _classCallCheck(this, Facet);
+    _classCallCheck(this, TermsFacet);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Facet).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(TermsFacet).call(this, props));
     _this.handleStaticClick = _this.handleStaticClick.bind(_assertThisInitialized(_this));
     _this.handleTermClick = _this.handleTermClick.bind(_assertThisInitialized(_this));
     _this.state = {
@@ -127,7 +131,7 @@ function (_React$PureComponent) {
    */
 
 
-  _createClass(Facet, [{
+  _createClass(TermsFacet, [{
     key: "handleStaticClick",
     value: function handleStaticClick(e) {
       var _this2 = this;
@@ -168,55 +172,21 @@ function (_React$PureComponent) {
     value: function render() {
       var _this$props3 = this.props,
           facet = _this$props3.facet,
+          terms = _this$props3.terms,
           getTermStatus = _this$props3.getTermStatus,
           extraClassname = _this$props3.extraClassname,
           termTransformFxn = _this$props3.termTransformFxn,
           separateSingleTermFacets = _this$props3.separateSingleTermFacets,
-          defaultFacetOpen = _this$props3.defaultFacetOpen,
-          filters = _this$props3.filters,
-          onFilter = _this$props3.onFilter,
-          mounted = _this$props3.mounted,
-          isStatic = _this$props3.isStatic,
-          facetList = _this$props3.facetList;
+          isStatic = _this$props3.isStatic;
       var filtering = this.state.filtering;
 
       var _ref = facet || {},
-          _ref$description = _ref.description,
-          description = _ref$description === void 0 ? null : _ref$description,
           field = _ref.field,
           title = _ref.title,
-          _ref$terms = _ref.terms,
-          terms = _ref$terms === void 0 ? [] : _ref$terms,
-          _ref$aggregation_type = _ref.aggregation_type,
-          aggregation_type = _ref$aggregation_type === void 0 ? "terms" : _ref$aggregation_type;
+          _ref$description = _ref.description,
+          description = _ref$description === void 0 ? null : _ref$description;
 
       var showTitle = title || field;
-
-      if (Array.isArray(facetList)) {
-        return _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({
-          facets: facetList,
-          title: field
-        }, {
-          filters: filters
-        }));
-      }
-
-      if (aggregation_type === "stats") {
-        return _react["default"].createElement(_RangeFacet.RangeFacet, _extends({
-          facet: facet,
-          filtering: filtering,
-          defaultFacetOpen: defaultFacetOpen,
-          termTransformFxn: termTransformFxn,
-          filters: filters,
-          onFilter: onFilter,
-          mounted: mounted,
-          isStatic: isStatic
-        }, {
-          tooltip: description,
-          title: showTitle
-        }));
-      } // Default case for "terms" buckets/facets
-
 
       if (separateSingleTermFacets && isStatic) {
         // Only one term exists.
@@ -240,10 +210,10 @@ function (_React$PureComponent) {
     }
   }]);
 
-  return Facet;
+  return TermsFacet;
 }(_react["default"].PureComponent);
 
-Facet.propTypes = {
+TermsFacet.propTypes = {
   'facet': _propTypes["default"].shape({
     'field': _propTypes["default"].string.isRequired,
     // Name of nested field property in experiment objects, using dot-notation.
@@ -365,64 +335,6 @@ function performFilteringQuery(props, facet, term, callback) {
     return targetSearchHref;
   }
 }
-/* used in FacetList and FacetTermsList*/
-
-
-function anyTermsSelected() {
-  var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-  var facet = arguments.length > 1 ? arguments[1] : undefined;
-  var filters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-  var activeTermsForField = {};
-  filters.forEach(function (f) {
-    if (f.field !== facet.field) return;
-    activeTermsForField[f.term] = true;
-  });
-
-  for (var i = 0; i < terms.length; i++) {
-    if (activeTermsForField[terms[i].key]) {
-      return true;
-    }
-  }
-
-  return false;
-}
-/* used in FacetList and FacetTermsList */
-
-
-function mergeTerms(facet, filters) {
-  var activeTermsForField = {};
-  filters.forEach(function (f) {
-    if (f.field !== facet.field) return;
-    activeTermsForField[f.term] = true;
-  }); // Filter out terms w/ 0 counts (in case).
-
-  var terms = facet.terms.filter(function (term) {
-    if (term.doc_count > 0) return true;
-    if (activeTermsForField[term.key]) return true;
-    return false;
-  });
-  terms.forEach(function (_ref2) {
-    var key = _ref2.key;
-    delete activeTermsForField[key];
-  }); // Filter out type=Item for now (hardcode)
-
-  if (facet.field === "type") {
-    terms = terms.filter(function (t) {
-      return t !== 'Item' && t && t.key !== 'Item';
-    });
-  } // These are terms which might have been manually defined in URL but are not present in data at all.
-  // Include them so we can unselect them.
-
-
-  var unseenTerms = _underscore["default"].keys(activeTermsForField).map(function (term) {
-    return {
-      key: term,
-      doc_count: 0
-    };
-  });
-
-  return terms.concat(unseenTerms);
-}
 
 var FacetList =
 /*#__PURE__*/
@@ -438,10 +350,6 @@ function (_React$PureComponent2) {
     _this3.state = {
       'mounted': false
     };
-    _this3.memoized = {
-      anyTermsSelected: (0, _memoizeOne["default"])(anyTermsSelected),
-      mergeTerms: (0, _memoizeOne["default"])(mergeTerms)
-    };
     _this3.renderFacets = _this3.renderFacets.bind(_assertThisInitialized(_this3));
     return _this3;
   }
@@ -456,7 +364,6 @@ function (_React$PureComponent2) {
   }, {
     key: "renderFacets",
     value: function renderFacets() {
-      var maxTermsToShow = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 12;
       var _this$props4 = this.props,
           facets = _this$props4.facets,
           href = _this$props4.href,
@@ -468,7 +375,8 @@ function (_React$PureComponent2) {
           windowWidth = _this$props4.windowWidth,
           persistentCount = _this$props4.persistentCount,
           termTransformFxn = _this$props4.termTransformFxn,
-          separateSingleTermFacets = _this$props4.separateSingleTermFacets;
+          separateSingleTermFacets = _this$props4.separateSingleTermFacets,
+          windowHeight = _this$props4.windowHeight;
       var mounted = this.state.mounted; // Ensure each facets has an `order` property and default it to 0 if not.
       // And then sort by `order`.
 
@@ -486,6 +394,7 @@ function (_React$PureComponent2) {
       }), 'order');
 
       var commonProps = {
+        // Passed to all Facets
         onFilter: onFilter,
         href: href,
         getTermStatus: getTermStatus,
@@ -495,7 +404,12 @@ function (_React$PureComponent2) {
         mounted: mounted,
         termTransformFxn: termTransformFxn,
         separateSingleTermFacets: separateSingleTermFacets
-      };
+      }; // We try to initially open some Facets depending on available screen size or props.
+      // We might get rid of this feature at some point as the amount of Facets are likely to increase.
+      // Or we could just set defaultFacetOpen = false if # facets > 10 or something.
+      // Basically seems like should adjust `maxTermsToShow` based on total # of facets...
+
+      var maxTermsToShow = (typeof windowHeight === 'number' && !isNaN(windowHeight) ? Math.floor(windowHeight / 60) : 15) - Math.floor(useFacets.length / 4);
       var facetIndexWherePastXTerms = useFacets.reduce(function (m, facet, index) {
         if (m.end) return m;
         m.facetIndex = index;
@@ -514,73 +428,132 @@ function (_React$PureComponent2) {
         termCount: 0,
         end: false
       }).facetIndex;
-      var rgs = (0, _layout.responsiveGridState)(windowWidth || null);
+      var rgs = (0, _layout.responsiveGridState)(windowWidth || null); // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
+      // until is rendered by some other component's render method.
+      // We can sort/manipulate/transform these still according to their `props.` values and such.
 
-      function generateFacet(facet, i) {
-        var isStatic = Facet.isStatic(facet);
-        var defaultFacetOpen = !mounted ? false : !isStatic && !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1) || facet.aggregation_type === "stats" && _underscore["default"].any(filters || [], function (fltr) {
-          return fltr.field === facet.field + ".from" || fltr.field === facet.field + ".to";
-        }) || facet.aggregation_type === "terms" && _underscore["default"].any(filters || [], function (fltr) {
-          return fltr.field === facet.field;
-        }));
-        return _react["default"].createElement(Facet, _extends({}, commonProps, {
-          facet: facet,
-          key: facet.field
-        }, {
-          defaultFacetOpen: defaultFacetOpen,
-          isStatic: isStatic
-        }));
-      }
+      var renderedFacets = useFacets.map(function (facet, i) {
+        var _facet$grouping = facet.grouping,
+            grouping = _facet$grouping === void 0 ? null : _facet$grouping,
+            facetField = facet.field,
+            _facet$aggregation_ty = facet.aggregation_type,
+            aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty; // Default Open if mounted and:
 
-      var allFacets = []; // first populated with ungrouped assets, then grouped assets are spliced in
+        var defaultFacetOpen = !mounted ? false : !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1));
 
-      var groupedOnly = []; // only facet groups
+        if (aggregation_type === "stats") {
+          var _getRangeValueFromFil = (0, _RangeFacet.getValueFromFilters)(facet, filters),
+              fromVal = _getRangeValueFromFil.fromVal,
+              toVal = _getRangeValueFromFil.toVal;
 
-      var inGroupIndices = {}; // map group names to index in GroupedOnly for quick lookup
-
-      var spliceIndices = {}; // map group names to index in allFacets where a nested facet should be spliced
-
-      useFacets.forEach(function (facet, i) {
-        if (!facet.grouping) {
-          allFacets.push(generateFacet(facet, i - 1)); // add ungrouped facets straight to allFacets
-        } else {
-          // add or update facet groups and store in groupedOnly
-          var terms = this.memoized.mergeTerms(facet, filters);
-          var areTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters); // keep track of what index in allFacets a particular group should be added at
-
-          if (!spliceIndices.hasOwnProperty(facet.grouping)) {
-            spliceIndices[facet.grouping] = allFacets.length;
-          } // check if there's a facet group in groupedOnly;
-
-
-          if (inGroupIndices.hasOwnProperty(facet.grouping)) {
-            var _i = inGroupIndices[facet.grouping];
-
-            groupedOnly[_i].facets.push(generateFacet(facet, _i)); // if any terms are selected, update group selected status
-
-
-            if (!groupedOnly[_i].areTermsSelected && areTermsSelected) {
-              groupedOnly[_i].areTermsSelected = true;
-            }
-          } else {
-            groupedOnly.push({
-              key: facet.grouping,
-              title: facet.grouping,
-              facets: [generateFacet(facet, i)],
-              areTermsSelected: areTermsSelected
-            });
-            inGroupIndices[facet.grouping] = groupedOnly.length - 1;
-          }
+          var isStatic = facet.min === facet.max;
+          defaultFacetOpen = defaultFacetOpen || !isStatic && _underscore["default"].any(filters || [], function (fltr) {
+            return fltr.field === facetField + ".from" || fltr.field === facetField + ".to";
+          }) || false;
+          return _react["default"].createElement(_RangeFacet.RangeFacet, _extends({}, commonProps, {
+            facet: facet,
+            key: facetField,
+            anyTermsSelected: fromVal !== null || toVal !== null
+          }, {
+            defaultFacetOpen: defaultFacetOpen,
+            isStatic: isStatic,
+            grouping: grouping,
+            fromVal: fromVal,
+            toVal: toVal
+          }));
         }
-      }.bind(this)); // splice back in the nested facets
 
-      groupedOnly.forEach(function (group, i) {
-        allFacets.splice(spliceIndices[group.title] + i, 0, _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, group, {
-          defaultFacetOpen: false,
-          isStatic: false
-        })));
+        if (aggregation_type === "terms") {
+          var terms = (0, _FacetTermsList.mergeTerms)(facet, filters); // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL.
+
+          var _anySelected = (0, _FacetTermsList.anyTermsSelected)(terms, facet, filters);
+
+          var _isStatic = TermsFacet.isStatic(facet);
+
+          defaultFacetOpen = defaultFacetOpen || !_isStatic && _underscore["default"].any(filters || [], function (fltr) {
+            return fltr.field === facetField;
+          }) || false;
+          return _react["default"].createElement(TermsFacet, _extends({}, commonProps, {
+            facet: facet,
+            key: facetField,
+            anyTermsSelected: _anySelected
+          }, {
+            defaultFacetOpen: defaultFacetOpen,
+            isStatic: _isStatic,
+            grouping: grouping,
+            terms: terms
+          }));
+        }
+
+        throw new Error("Unknown aggregation_type");
       });
-      return allFacets;
+      var componentsToReturn = []; // first populated with ungrouped facets, then facet groups are spliced in
+
+      var groups = new Map(); // { groupTitle: { index: 0, facets: [facet1, facet2, facet3, ...] } }; Map() to preserve order.
+      // Separate out facets with .grouping into groups.
+
+      renderedFacets.forEach(function (renderedFacet) {
+        var _renderedFacet$props = renderedFacet.props,
+            grouping = _renderedFacet$props.grouping,
+            defaultFacetOpen = _renderedFacet$props.defaultFacetOpen;
+
+        if (!grouping) {
+          // add ungrouped facets straight to componentsToReturn
+          componentsToReturn.push(renderedFacet);
+          return;
+        } // Get existing or create new.
+
+
+        var existingGroup = groups.get(grouping) || {
+          index: componentsToReturn.length,
+          facets: [],
+          defaultGroupOpen: false
+        }; // If any facets are open by default, have group open by default also.
+
+        if (defaultFacetOpen) {
+          existingGroup.defaultGroupOpen = true;
+        }
+
+        existingGroup.facets.push(renderedFacet);
+        groups.set(grouping, existingGroup);
+      });
+
+      var groupsArr = _toConsumableArray(groups); // Check, render, and add groups into `componentsToReturn`
+
+
+      groupsArr.forEach(function (_ref2) {
+        var _ref3 = _slicedToArray(_ref2, 2),
+            groupTitle = _ref3[0],
+            facetGroup = _ref3[1];
+
+        var facetsInGroup = facetGroup.facets,
+            index = facetGroup.index;
+
+        if (facetsInGroup.length === 1) {
+          // Doesn't need to be in group, put back into `componentsToReturn`
+          componentsToReturn.splice(index, 0, facetsInGroup[0]); // Increment remaining group indices to match new length of `componentsToReturn`.
+          // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
+          // so `fromIdx` / `groupIndex` should always stay stable.
+          // We increment facetGroup.index which is the index in `componentsToReturn`.
+
+          groupsArr.slice(fromIdx).forEach(function (_ref4) {
+            var _ref5 = _slicedToArray(_ref4, 2),
+                subsequentFacetGroup = _ref5[1];
+
+            subsequentFacetGroup.index++;
+          });
+          return;
+        } // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
+
+
+        var renderedGroup = _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, facetGroup, {
+          title: groupTitle,
+          key: groupTitle
+        }));
+
+        componentsToReturn.splice(index, 0, renderedGroup);
+      });
+      return componentsToReturn;
     }
   }, {
     key: "render",
@@ -606,8 +579,7 @@ function (_React$PureComponent2) {
       }
 
       var clearButtonClassName = className && className.indexOf('with-header-bg') > -1 ? "btn-outline-white" : "btn-outline-default";
-      var maxTermsToShow = typeof windowHeight === 'number' && !isNaN(windowHeight) ? Math.floor(windowHeight / 60) : 12;
-      var allFacetElements = this.renderFacets(maxTermsToShow);
+      var allFacetElements = this.renderFacets();
       var staticFacetElements = [];
       var selectableFacetElements = [];
 

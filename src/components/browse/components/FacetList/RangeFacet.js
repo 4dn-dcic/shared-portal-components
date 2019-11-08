@@ -12,6 +12,23 @@ import { patchedConsoleInstance as console } from './../../../util/patched-conso
 
 import { Collapse } from './../../../ui/Collapse';
 
+
+export function getValueFromFilters(facet, filters = []){
+    const { field } = facet;
+    const toFilter = _.findWhere(filters, { field: field + ".to" });
+    const fromFilter = _.findWhere(filters, { field: field + ".from" });
+    let fromVal = null;
+    let toVal = null;
+    if (fromFilter) {
+        fromVal = RangeFacet.parseNumber(facet, fromFilter.term);
+    }
+    if (toFilter) {
+        toVal = RangeFacet.parseNumber(facet, toFilter.term);
+    }
+    return { fromVal, toVal };
+}
+
+
 export class RangeFacet extends React.PureComponent {
 
     static parseNumber(facet, value){
@@ -85,21 +102,6 @@ export class RangeFacet extends React.PureComponent {
         };
     }
 
-    static getValueFromFilters(facet, filters = []){
-        const { field } = facet;
-        const toFilter = _.findWhere(filters, { field: field + ".to" });
-        const fromFilter = _.findWhere(filters, { field: field + ".from" });
-        let fromVal = null;
-        let toVal = null;
-        if (fromFilter) {
-            fromVal = RangeFacet.parseNumber(facet, fromFilter.term);
-        }
-        if (toFilter) {
-            toVal = RangeFacet.parseNumber(facet, toFilter.term);
-        }
-        return { fromVal, toVal };
-    }
-
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
@@ -111,14 +113,14 @@ export class RangeFacet extends React.PureComponent {
         this.performUpdateTo = this.performUpdateTo.bind(this);
 
         this.memoized = {
-            validIncrements: memoize(RangeFacet.validIncrements),
-            getValueFromFilters: memoize(RangeFacet.getValueFromFilters)
+            validIncrements: memoize(RangeFacet.validIncrements)
         };
 
         this.state = {
             facetOpen : props.defaultFacetOpen || false,
             facetClosing: false,
-            ...this.memoized.getValueFromFilters(props.facet, props.filters)
+            fromVal: props.fromVal,
+            toVal: props.toVal
         };
     }
 
@@ -231,11 +233,11 @@ export class RangeFacet extends React.PureComponent {
     }
 
     render(){
-        const { facet, title, tooltip, termTransformFxn, filters, isStatic } = this.props;
-        const { field, min, max } = facet;
+        const { facet, title: propTitle, termTransformFxn, isStatic, fromVal: savedFromVal, toVal: savedToVal } = this.props;
+        const { field, min, max, title: facetTitle = null, description: tooltip = null } = facet;
         const { facetOpen, facetClosing, fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
-        const { fromVal: savedFromVal, toVal: savedToVal } = this.memoized.getValueFromFilters(facet, filters);
+        const title = propTitle || facetTitle || field;
 
         return (
             <div className={"facet range-facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : '')} data-field={facet.field}>

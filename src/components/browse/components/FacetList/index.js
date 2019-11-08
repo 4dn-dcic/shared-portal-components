@@ -13,8 +13,8 @@ import { navigate } from './../../../util/navigate';
 import * as analytics from './../../../util/analytics';
 import { responsiveGridState } from './../../../util/layout';
 
-import { RangeFacet } from './RangeFacet';
-import { FacetTermsList } from './FacetTermsList';
+import { RangeFacet, getValueFromFilters as getRangeValueFromFilters } from './RangeFacet';
+import { FacetTermsList, mergeTerms, anyTermsSelected } from './FacetTermsList';
 import { StaticSingleTerm } from './StaticSingleTerm';
 import { FacetOfFacets } from './FacetOfFacets';
 
@@ -32,23 +32,15 @@ import { FacetOfFacets } from './FacetOfFacets';
 
 /**
  * Used to render individual facet fields and their available terms in FacetList.
- *
- * @memberof module:facetlist
- * @class Facet
- * @type {Component}
  */
-class Facet extends React.PureComponent {
+class TermsFacet extends React.PureComponent {
 
     static isStatic(facet){
-        const { terms = null, total = 0, aggregation_type = "terms", min = null, max = null } = facet;
+        const { terms = null, total = 0 } = facet;
         return (
-            aggregation_type === "terms" &&
             Array.isArray(terms) &&
             terms.length === 1 &&
             total <= _.reduce(terms, function(m, t){ return m + (t.doc_count || 0); }, 0)
-        ) || (
-            aggregation_type == "stats" &&
-            min === max
         );
     }
 
@@ -56,7 +48,10 @@ class Facet extends React.PureComponent {
         super(props);
         this.handleStaticClick = this.handleStaticClick.bind(this);
         this.handleTermClick = this.handleTermClick.bind(this);
-        this.state = { 'filtering' : false };
+
+        this.state = {
+            'filtering' : false
+        };
     }
 
     /**
@@ -93,27 +88,14 @@ class Facet extends React.PureComponent {
 
     render() {
         const {
-            facet, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets,
-            defaultFacetOpen, filters, onFilter, mounted, isStatic,
-            facetList
+            facet, terms, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets,
+            isStatic
         } = this.props;
         const { filtering } = this.state;
-        const {
-            description = null,
-            field,
-            title,
-            terms = [], aggregation_type = "terms" } = facet || {};
+        const { field, title, description = null } = facet || {};
+
         const showTitle = title || field;
 
-        if (Array.isArray(facetList)) {
-            return <FacetOfFacets facets={facetList} title={field} {...{ filters }}/>;
-        }
-
-        if (aggregation_type === "stats") {
-            return <RangeFacet {...{ facet, filtering, defaultFacetOpen, termTransformFxn, filters, onFilter, mounted, isStatic }} tooltip={description} title={showTitle} />;
-        }
-
-        // Default case for "terms" buckets/facets
         if (separateSingleTermFacets && isStatic){
             // Only one term exists.
             return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, getTermStatus, extraClassname, termTransformFxn }} />;
@@ -123,7 +105,7 @@ class Facet extends React.PureComponent {
 
     }
 }
-Facet.propTypes = {
+TermsFacet.propTypes = {
     'facet'                 : PropTypes.shape({
         'field'                 : PropTypes.string.isRequired,    // Name of nested field property in experiment objects, using dot-notation.
         'title'                 : PropTypes.string,               // Human-readable Facet Term
@@ -227,54 +209,7 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
 
 }
 
-/* used in FacetList and FacetTermsList*/
-export function anyTermsSelected(terms = [], facet, filters = []){
-    const activeTermsForField = {};
-    filters.forEach(function(f){
-        if (f.field !== facet.field) return;
-        activeTermsForField[f.term] = true;
-    });
 
-    for (let i = 0; i < terms.length; i++){
-        if (activeTermsForField[terms[i].key]) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/* used in FacetList and FacetTermsList */
-export function mergeTerms(facet, filters){
-    const activeTermsForField = {};
-    filters.forEach(function(f){
-        if (f.field !== facet.field) return;
-        activeTermsForField[f.term] = true;
-    });
-
-    // Filter out terms w/ 0 counts (in case).
-    let terms = facet.terms.filter(function(term){
-        if (term.doc_count > 0) return true;
-        if (activeTermsForField[term.key]) return true;
-        return false;
-    });
-
-    terms.forEach(function({ key }){
-        delete activeTermsForField[key];
-    });
-
-    // Filter out type=Item for now (hardcode)
-    if (facet.field === "type"){
-        terms = terms.filter(function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
-    }
-
-    // These are terms which might have been manually defined in URL but are not present in data at all.
-    // Include them so we can unselect them.
-    const unseenTerms = _.keys(activeTermsForField).map(function(term){
-        return { key: term, doc_count: 0 };
-    });
-
-    return terms.concat(unseenTerms);
-}
 
 export class FacetList extends React.PureComponent {
 
@@ -283,10 +218,6 @@ export class FacetList extends React.PureComponent {
         this.state = {
             'mounted' : false
         };
-        this.memoized = {
-            anyTermsSelected: memoize(anyTermsSelected),
-            mergeTerms: memoize(mergeTerms)
-        };
         this.renderFacets = this.renderFacets.bind(this);
     }
 
@@ -294,10 +225,11 @@ export class FacetList extends React.PureComponent {
         this.setState({ 'mounted' : true });
     }
 
-    renderFacets(maxTermsToShow = 12){
+    renderFacets(){
         const {
             facets, href, onFilter, schemas, getTermStatus, filters,
-            itemTypeForSchemas, windowWidth, persistentCount, termTransformFxn, separateSingleTermFacets
+            itemTypeForSchemas, windowWidth, persistentCount, termTransformFxn, separateSingleTermFacets,
+            windowHeight
         } = this.props;
         const { mounted } = this.state;
 
@@ -316,10 +248,19 @@ export class FacetList extends React.PureComponent {
             'order'
         );
 
-        const commonProps = {
+        const commonProps = { // Passed to all Facets
             onFilter, href, getTermStatus, filters, schemas, itemTypeForSchemas,
             mounted, termTransformFxn, separateSingleTermFacets
         };
+
+        // We try to initially open some Facets depending on available screen size or props.
+        // We might get rid of this feature at some point as the amount of Facets are likely to increase.
+        // Or we could just set defaultFacetOpen = false if # facets > 10 or something.
+        // Basically seems like should adjust `maxTermsToShow` based on total # of facets...
+        const maxTermsToShow = (
+            (typeof windowHeight === 'number' && !isNaN(windowHeight) ? Math.floor(windowHeight / 60) : 15)
+            - Math.floor(useFacets.length / 4)
+        );
 
         const facetIndexWherePastXTerms = useFacets.reduce(function(m, facet, index){
             if (m.end) return m;
@@ -337,64 +278,91 @@ export class FacetList extends React.PureComponent {
 
         const rgs = responsiveGridState(windowWidth || null);
 
-        function generateFacet(facet, i) {
-            const isStatic = Facet.isStatic(facet);
-            const defaultFacetOpen = !mounted ? false : !isStatic && !!(
-                ( rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1) ) ||
-                (facet.aggregation_type === "stats" && _.any(filters || [], function(fltr){
-                    return (fltr.field === facet.field + ".from") || (fltr.field === facet.field + ".to");
-                })) ||
-                (facet.aggregation_type === "terms" && _.any(filters || [], function(fltr){
-                    return fltr.field === facet.field;
-                }))
-            );
-            return <Facet {...commonProps} facet={facet} key={facet.field} {...{ defaultFacetOpen, isStatic }} />;
-        }
+        // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
+        // until is rendered by some other component's render method.
+        // We can sort/manipulate/transform these still according to their `props.` values and such.
+        const renderedFacets = useFacets.map(function(facet, i){
+            const {
+                grouping = null,
+                field: facetField,
+                aggregation_type = "terms"
+            } = facet;
 
-        const allFacets = []; // first populated with ungrouped assets, then grouped assets are spliced in
-        const groupedOnly = []; // only facet groups
-        const inGroupIndices = {}; // map group names to index in GroupedOnly for quick lookup
-        const spliceIndices = {}; // map group names to index in allFacets where a nested facet should be spliced
+            // Default Open if mounted and:
+            let defaultFacetOpen = !mounted ? false : !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1));
 
-        useFacets.forEach(function(facet, i){
-            if (!facet.grouping) {
-                allFacets.push(generateFacet(facet, i-1)); // add ungrouped facets straight to allFacets
-            } else { // add or update facet groups and store in groupedOnly
-                const terms = this.memoized.mergeTerms(facet, filters);
-                const areTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
-
-                // keep track of what index in allFacets a particular group should be added at
-                if (!spliceIndices.hasOwnProperty(facet.grouping)) {
-                    spliceIndices[facet.grouping] = allFacets.length;
-                }
-
-                // check if there's a facet group in groupedOnly;
-                if (inGroupIndices.hasOwnProperty(facet.grouping)) {
-                    const i = inGroupIndices[facet.grouping];
-                    groupedOnly[i].facets.push(generateFacet(facet, i));
-
-                    // if any terms are selected, update group selected status
-                    if (!groupedOnly[i].areTermsSelected && areTermsSelected) {
-                        groupedOnly[i].areTermsSelected = true;
-                    }
-                } else  {
-                    groupedOnly.push({
-                        key: facet.grouping,
-                        title: facet.grouping,
-                        facets: [generateFacet(facet, i)],
-                        areTermsSelected
-                    });
-                    inGroupIndices[facet.grouping] = groupedOnly.length - 1;
-                }
+            if (aggregation_type === "stats") {
+                const { fromVal, toVal } = getRangeValueFromFilters(facet, filters);
+                const anySelected = fromVal !== null || toVal !== null;
+                const isStatic = facet.min === facet.max;
+                defaultFacetOpen = defaultFacetOpen || (!isStatic && _.any(filters || [], function(fltr){
+                    return (fltr.field === facetField + ".from") || (fltr.field === facetField + ".to");
+                })) || false;
+                return <RangeFacet {...commonProps} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ defaultFacetOpen, isStatic, grouping, fromVal, toVal }} />;
             }
-        }.bind(this));
-
-        // splice back in the nested facets
-        groupedOnly.forEach(function(group, i) {
-            allFacets.splice(spliceIndices[group.title] + i, 0, <FacetOfFacets {...commonProps} {...group} defaultFacetOpen={false} isStatic={false} />);
+            if (aggregation_type === "terms"){
+                const terms = mergeTerms(facet, filters); // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL.
+                const anySelected = anyTermsSelected(terms, facet, filters);
+                const isStatic = TermsFacet.isStatic(facet);
+                defaultFacetOpen = defaultFacetOpen || (!isStatic && _.any(filters || [], function(fltr){
+                    return fltr.field === facetField;
+                })) || false;
+                return <TermsFacet {...commonProps} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ defaultFacetOpen, isStatic, grouping, terms }} />;
+            }
+            throw new Error("Unknown aggregation_type");
         });
 
-        return allFacets;
+        const componentsToReturn = [];  // first populated with ungrouped facets, then facet groups are spliced in
+        const groups = new Map();       // { groupTitle: { index: 0, facets: [facet1, facet2, facet3, ...] } }; Map() to preserve order.
+
+        // Separate out facets with .grouping into groups.
+        renderedFacets.forEach(function(renderedFacet, idx){
+            const { grouping, defaultFacetOpen } = renderedFacet.props;
+            if (!grouping) {
+                // add ungrouped facets straight to componentsToReturn
+                componentsToReturn.push(renderedFacet);
+                return;
+            }
+
+            // Get existing or create new.
+            const existingGroup = groups.get(grouping) || ({
+                index: componentsToReturn.length,
+                facets: [],
+                defaultGroupOpen: false
+            });
+
+            // If any facets are open by default, have group open by default also.
+            if (defaultFacetOpen) {
+                existingGroup.defaultGroupOpen = true;
+            }
+            existingGroup.facets.push(renderedFacet);
+            groups.set(grouping, existingGroup);
+        });
+
+        const groupsArr = [ ...groups ];
+
+        // Check, render, and add groups into `componentsToReturn`
+        groupsArr.forEach(function([groupTitle, facetGroup], groupIndex){
+            const { facets: facetsInGroup, index } = facetGroup;
+            if (facetsInGroup.length === 1) {
+                // Doesn't need to be in group, put back into `componentsToReturn`
+                componentsToReturn.splice(index, 0, facetsInGroup[0]);
+                // Increment remaining group indices to match new length of `componentsToReturn`.
+                // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
+                // so `fromIdx` / `groupIndex` should always stay stable.
+                // We increment facetGroup.index which is the index in `componentsToReturn`.
+                groupsArr.slice(fromIdx).forEach(function([ , subsequentFacetGroup]){
+                    subsequentFacetGroup.index++;
+                });
+                return;
+            }
+
+            // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
+            const renderedGroup = <FacetOfFacets {...commonProps} {...facetGroup} title={groupTitle} key={groupTitle} />;
+            componentsToReturn.splice(index, 0, renderedGroup);
+        });
+
+        return componentsToReturn;
     }
 
     render() {
@@ -413,8 +381,8 @@ export class FacetList extends React.PureComponent {
             (className && className.indexOf('with-header-bg') > -1) ?
                 "btn-outline-white" : "btn-outline-default"
         );
-        const maxTermsToShow = typeof windowHeight === 'number' && !isNaN(windowHeight) ? Math.floor(windowHeight / 60) : 12;
-        const allFacetElements = this.renderFacets(maxTermsToShow);
+
+        const allFacetElements = this.renderFacets();
 
         const staticFacetElements = [];
         let selectableFacetElements = [];
