@@ -195,7 +195,7 @@ function (_React$PureComponent) {
 
       return _react["default"].createElement("div", {
         className: "facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
-        "data-field": title
+        "data-group": title
       }, _react["default"].createElement("h5", {
         className: "facet-title",
         onClick: this.handleOpenToggleClick
@@ -211,7 +211,7 @@ function (_React$PureComponent) {
         "in": facetClosing || !facetOpen
       }, _react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
-        "data-tip": "Nested filters (".concat(extendedFacets.length, ") ").concat(anySelections ? " with at least 1 selected." : "")
+        "data-tip": "Group of filters (".concat(extendedFacets.length, ") ").concat(anySelections ? " with at least 1 having a selection." : "")
       }, _react["default"].createElement("i", {
         className: "icon fas icon-layer-group",
         style: {

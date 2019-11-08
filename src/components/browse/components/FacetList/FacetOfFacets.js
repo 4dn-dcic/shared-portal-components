@@ -106,7 +106,7 @@ export class FacetOfFacets extends React.PureComponent {
         });
 
         return (
-            <div className={"facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : '')} data-field={title}>
+            <div className={"facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : '')} data-group={title}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
                         <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
@@ -114,7 +114,7 @@ export class FacetOfFacets extends React.PureComponent {
                     <span className="inline-block col px-0" data-tip={tooltip} data-place="right">{ title }</span>
                     <Fade in={facetClosing || !facetOpen}>
                         <span className={"closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : "")}
-                            data-tip={`Nested filters (${extendedFacets.length}) ${ anySelections ? " with at least 1 selected." : ""}`}>
+                            data-tip={`Group of filters (${extendedFacets.length}) ${ anySelections ? " with at least 1 having a selection." : ""}`}>
                             <i className={"icon fas icon-layer-group" } style={{ opacity: anySelections ? 0.75 : 0.25 }}/>
                         </span>
                     </Fade>
