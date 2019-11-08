@@ -11,6 +11,56 @@ import { Fade } from './../../../ui/Fade';
 import { PartialList } from './../../../ui/PartialList';
 
 
+/* used in FacetList and FacetTermsList */
+export function anyTermsSelected(terms = [], facet, filters = []){
+    const activeTermsForField = {};
+    filters.forEach(function(f){
+        if (f.field !== facet.field) return;
+        activeTermsForField[f.term] = true;
+    });
+
+    for (let i = 0; i < terms.length; i++){
+        if (activeTermsForField[terms[i].key]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* used in FacetList and FacetTermsList */
+export function mergeTerms(facet, filters){
+    const activeTermsForField = {};
+    filters.forEach(function(f){
+        if (f.field !== facet.field) return;
+        activeTermsForField[f.term] = true;
+    });
+
+    // Filter out terms w/ 0 counts (in case).
+    let terms = facet.terms.filter(function(term){
+        if (term.doc_count > 0) return true;
+        if (activeTermsForField[term.key]) return true;
+        return false;
+    });
+
+    terms.forEach(function({ key }){
+        delete activeTermsForField[key];
+    });
+
+    // Filter out type=Item for now (hardcode)
+    if (facet.field === "type"){
+        terms = terms.filter(function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
+    }
+
+    // These are terms which might have been manually defined in URL but are not present in data at all.
+    // Include them so we can unselect them.
+    const unseenTerms = _.keys(activeTermsForField).map(function(term){
+        return { key: term, doc_count: 0 };
+    });
+
+    return terms.concat(unseenTerms);
+}
+
+
 
 /**
  * Used to render individual terms in FacetList.
@@ -113,54 +163,6 @@ Term.propTypes = {
 
 
 export class FacetTermsList extends React.PureComponent {
-
-    static anyTermsSelected(terms = [], facet, filters = []){
-        const activeTermsForField = {};
-        filters.forEach(function(f){
-            if (f.field !== facet.field) return;
-            activeTermsForField[f.term] = true;
-        });
-
-        for (let i = 0; i < terms.length; i++){
-            if (activeTermsForField[terms[i].key]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    static mergeTerms(facet, filters){
-        const activeTermsForField = {};
-        filters.forEach(function(f){
-            if (f.field !== facet.field) return;
-            activeTermsForField[f.term] = true;
-        });
-
-        // Filter out terms w/ 0 counts (in case).
-        let terms = facet.terms.filter(function(term){
-            if (term.doc_count > 0) return true;
-            if (activeTermsForField[term.key]) return true;
-            return false;
-        });
-
-        terms.forEach(function({ key }){
-            delete activeTermsForField[key];
-        });
-
-        // Filter out type=Item for now (hardcode)
-        if (facet.field === "type"){
-            terms = terms.filter(function(t){ return t !== 'Item' && t && t.key !== 'Item'; });
-        }
-
-        // These are terms which might have been manually defined in URL but are not present in data at all.
-        // Include them so we can unselect them.
-        const unseenTerms = _.keys(activeTermsForField).map(function(term){
-            return { key: term, doc_count: 0 };
-        });
-
-        return terms.concat(unseenTerms);
-    }
-
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
@@ -171,23 +173,20 @@ export class FacetTermsList extends React.PureComponent {
             'facetClosing'  : false,
             'expanded'      : false
         };
-        this.memoized = {
-            anyTermsSelected: memoize(FacetTermsList.anyTermsSelected),
-            mergeTerms: memoize(FacetTermsList.mergeTerms)
-        };
     }
 
     componentDidUpdate(pastProps, pastState){
-        const { mounted, defaultFacetOpen, isStatic, facet, filters } = this.props;
+        const { anyTermsSelected: anySelected, mounted, defaultFacetOpen, isStatic } = this.props;
+        const { mounted: pastMounted, defaultFacetOpen: pastDefaultOpen, isStatic: pastStatic } = pastProps;
 
         this.setState(({ facetOpen: currFacetOpen }) => {
-            if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
+            if (!pastMounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefaultOpen) {
                 return { 'facetOpen' : true };
             }
-            if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
+            if (defaultFacetOpen === true && !pastDefaultOpen && !currFacetOpen){
                 return { 'facetOpen' : true };
             }
-            if (currFacetOpen && isStatic && !pastProps.isStatic && !this.memoized.anyTermsSelected(this.memoized.mergeTerms(facet, filters), facet, filters)){
+            if (currFacetOpen && isStatic && !pastStatic && !anySelected){
                 return { 'facetOpen' : false };
             }
             return null;
@@ -272,30 +271,29 @@ export class FacetTermsList extends React.PureComponent {
     }
 
     render(){
-        const { facet, filters, tooltip, title, isStatic } = this.props;
+        const { facet, terms, tooltip, title, isStatic, anyTermsSelected: anySelected } = this.props;
         const { facetOpen, facetClosing } = this.state;
-        const terms = this.memoized.mergeTerms(facet, filters);
-        const anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
         const termsLen = terms.length;
         let indicator;
 
+        // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
         if (isStatic || termsLen === 1){
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
                 <Fade in={facetClosing || !facetOpen}>
-                    <span className={"closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : "")}
-                        data-tip={"No useful options (1 total)" + (anyTermsSelected ? "; is selected" : "")}
-                        data-any-selected={anyTermsSelected}>
-                        <i className={"icon fas icon-" + (anyTermsSelected ? "circle" : "minus-circle")}
-                            style={{ opacity: anyTermsSelected ? 0.75 : 0.25 }}/>
+                    <span className={"closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : "")}
+                        data-tip={"No useful options (1 total)" + (anySelected ? "; is selected" : "")}
+                        data-any-selected={anySelected}>
+                        <i className={"icon fas icon-" + (anySelected ? "circle" : "minus-circle")}
+                            style={{ opacity: anySelected ? 0.75 : 0.25 }}/>
                     </span>
                 </Fade>
             );
         } else {
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
                 <Fade in={facetClosing || !facetOpen}>
-                    <span className={"closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : "")}
-                        data-tip={termsLen + " options" + (anyTermsSelected ? " with at least one selected" : "")}
-                        data-any-selected={anyTermsSelected}>
+                    <span className={"closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : "")}
+                        data-tip={termsLen + " options" + (anySelected ? " with at least one selected" : "")}
+                        data-any-selected={anySelected}>
                         { _.range(0, Math.min(Math.ceil(termsLen / 3), 8)).map((c)=>
                             <i className="icon icon-ellipsis-v fas" key={c}
                                 style={{ opacity : ((c + 1) / 5) * (0.67) + 0.33 }} />

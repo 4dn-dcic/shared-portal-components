@@ -3,6 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.anyTermsSelected = anyTermsSelected;
+exports.mergeTerms = mergeTerms;
 exports.FacetTermsList = exports.Term = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -43,9 +45,67 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+/* used in FacetList and FacetTermsList */
+function anyTermsSelected() {
+  var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var facet = arguments.length > 1 ? arguments[1] : undefined;
+  var filters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+  var activeTermsForField = {};
+  filters.forEach(function (f) {
+    if (f.field !== facet.field) return;
+    activeTermsForField[f.term] = true;
+  });
+
+  for (var i = 0; i < terms.length; i++) {
+    if (activeTermsForField[terms[i].key]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+/* used in FacetList and FacetTermsList */
+
+
+function mergeTerms(facet, filters) {
+  var activeTermsForField = {};
+  filters.forEach(function (f) {
+    if (f.field !== facet.field) return;
+    activeTermsForField[f.term] = true;
+  }); // Filter out terms w/ 0 counts (in case).
+
+  var terms = facet.terms.filter(function (term) {
+    if (term.doc_count > 0) return true;
+    if (activeTermsForField[term.key]) return true;
+    return false;
+  });
+  terms.forEach(function (_ref) {
+    var key = _ref.key;
+    delete activeTermsForField[key];
+  }); // Filter out type=Item for now (hardcode)
+
+  if (facet.field === "type") {
+    terms = terms.filter(function (t) {
+      return t !== 'Item' && t && t.key !== 'Item';
+    });
+  } // These are terms which might have been manually defined in URL but are not present in data at all.
+  // Include them so we can unselect them.
+
+
+  var unseenTerms = _underscore["default"].keys(activeTermsForField).map(function (term) {
+    return {
+      key: term,
+      doc_count: 0
+    };
+  });
+
+  return terms.concat(unseenTerms);
+}
 /**
  * Used to render individual terms in FacetList.
  */
+
+
 var Term =
 /*#__PURE__*/
 function (_React$PureComponent) {
@@ -191,64 +251,6 @@ var FacetTermsList =
 function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
 
-  _createClass(FacetTermsList, null, [{
-    key: "anyTermsSelected",
-    value: function anyTermsSelected() {
-      var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-      var facet = arguments.length > 1 ? arguments[1] : undefined;
-      var filters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-      var activeTermsForField = {};
-      filters.forEach(function (f) {
-        if (f.field !== facet.field) return;
-        activeTermsForField[f.term] = true;
-      });
-
-      for (var i = 0; i < terms.length; i++) {
-        if (activeTermsForField[terms[i].key]) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-  }, {
-    key: "mergeTerms",
-    value: function mergeTerms(facet, filters) {
-      var activeTermsForField = {};
-      filters.forEach(function (f) {
-        if (f.field !== facet.field) return;
-        activeTermsForField[f.term] = true;
-      }); // Filter out terms w/ 0 counts (in case).
-
-      var terms = facet.terms.filter(function (term) {
-        if (term.doc_count > 0) return true;
-        if (activeTermsForField[term.key]) return true;
-        return false;
-      });
-      terms.forEach(function (_ref) {
-        var key = _ref.key;
-        delete activeTermsForField[key];
-      }); // Filter out type=Item for now (hardcode)
-
-      if (facet.field === "type") {
-        terms = terms.filter(function (t) {
-          return t !== 'Item' && t && t.key !== 'Item';
-        });
-      } // These are terms which might have been manually defined in URL but are not present in data at all.
-      // Include them so we can unselect them.
-
-
-      var unseenTerms = _underscore["default"].keys(activeTermsForField).map(function (term) {
-        return {
-          key: term,
-          doc_count: 0
-        };
-      });
-
-      return terms.concat(unseenTerms);
-    }
-  }]);
-
   function FacetTermsList(props) {
     var _this3;
 
@@ -263,10 +265,6 @@ function (_React$PureComponent2) {
       'facetClosing': false,
       'expanded': false
     };
-    _this3.memoized = {
-      anyTermsSelected: (0, _memoizeOne["default"])(FacetTermsList.anyTermsSelected),
-      mergeTerms: (0, _memoizeOne["default"])(FacetTermsList.mergeTerms)
-    };
     return _this3;
   }
 
@@ -276,27 +274,29 @@ function (_React$PureComponent2) {
       var _this4 = this;
 
       var _this$props3 = this.props,
+          anySelected = _this$props3.anyTermsSelected,
           mounted = _this$props3.mounted,
           defaultFacetOpen = _this$props3.defaultFacetOpen,
-          isStatic = _this$props3.isStatic,
-          facet = _this$props3.facet,
-          filters = _this$props3.filters;
+          isStatic = _this$props3.isStatic;
+      var pastMounted = pastProps.mounted,
+          pastDefaultOpen = pastProps.defaultFacetOpen,
+          pastStatic = pastProps.isStatic;
       this.setState(function (_ref2) {
         var currFacetOpen = _ref2.facetOpen;
 
-        if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
+        if (!pastMounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefaultOpen) {
           return {
             'facetOpen': true
           };
         }
 
-        if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen) {
+        if (defaultFacetOpen === true && !pastDefaultOpen && !currFacetOpen) {
           return {
             'facetOpen': true
           };
         }
 
-        if (currFacetOpen && isStatic && !pastProps.isStatic && !_this4.memoized.anyTermsSelected(_this4.memoized.mergeTerms(facet, filters), facet, filters)) {
+        if (currFacetOpen && isStatic && !pastStatic && !anySelected) {
           return {
             'facetOpen': false
           };
@@ -419,30 +419,29 @@ function (_React$PureComponent2) {
     value: function render() {
       var _this$props5 = this.props,
           facet = _this$props5.facet,
-          filters = _this$props5.filters,
+          terms = _this$props5.terms,
           tooltip = _this$props5.tooltip,
           title = _this$props5.title,
-          isStatic = _this$props5.isStatic;
+          isStatic = _this$props5.isStatic,
+          anySelected = _this$props5.anyTermsSelected;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing;
-      var terms = this.memoized.mergeTerms(facet, filters);
-      var anyTermsSelected = this.memoized.anyTermsSelected(terms, facet, filters);
       var termsLen = terms.length;
-      var indicator;
+      var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
 
       if (isStatic || termsLen === 1) {
         indicator = // Small indicator to help represent how many terms there are available for this Facet.
         _react["default"].createElement(_Fade.Fade, {
           "in": facetClosing || !facetOpen
         }, _react["default"].createElement("span", {
-          className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : ""),
-          "data-tip": "No useful options (1 total)" + (anyTermsSelected ? "; is selected" : ""),
-          "data-any-selected": anyTermsSelected
+          className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
+          "data-tip": "No useful options (1 total)" + (anySelected ? "; is selected" : ""),
+          "data-any-selected": anySelected
         }, _react["default"].createElement("i", {
-          className: "icon fas icon-" + (anyTermsSelected ? "circle" : "minus-circle"),
+          className: "icon fas icon-" + (anySelected ? "circle" : "minus-circle"),
           style: {
-            opacity: anyTermsSelected ? 0.75 : 0.25
+            opacity: anySelected ? 0.75 : 0.25
           }
         })));
       } else {
@@ -450,9 +449,9 @@ function (_React$PureComponent2) {
         _react["default"].createElement(_Fade.Fade, {
           "in": facetClosing || !facetOpen
         }, _react["default"].createElement("span", {
-          className: "closed-terms-count col-auto px-0" + (anyTermsSelected ? " some-selected" : ""),
-          "data-tip": termsLen + " options" + (anyTermsSelected ? " with at least one selected" : ""),
-          "data-any-selected": anyTermsSelected
+          className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
+          "data-tip": termsLen + " options" + (anySelected ? " with at least one selected" : ""),
+          "data-any-selected": anySelected
         }, _underscore["default"].range(0, Math.min(Math.ceil(termsLen / 3), 8)).map(function (c) {
           return _react["default"].createElement("i", {
             className: "icon icon-ellipsis-v fas",

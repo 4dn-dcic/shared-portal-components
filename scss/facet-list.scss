@@ -112,6 +112,21 @@ $facetlist-facet-font-size: 0.925rem !default;
         padding-left : 10px;
         padding-right : 10px;
 
+        > .facet-group-list-container {
+            padding-left: 20px;
+            position: relative;
+            &:before {
+                content: "";
+                position: absolute;
+                left: 3px;
+                top: 19px; // Facet title min height is 40px; Try to vertically center-ish it.
+                bottom: 19px;
+                width: 3px;
+                border: 1px solid #ddd;
+                border-right: none;
+            }
+        }
+
         &.closed,
         &:not(.range-facet) {
             overflow: hidden;
@@ -250,11 +265,11 @@ $facetlist-facet-font-size: 0.925rem !default;
                     opacity: 0.5;
                 }
             }
-            &.open:not(.closing) {
-                h5.facet-title .closed-terms-count {
-                    top : 9px;
-                }
-            }
+            // &.open:not(.closing) {
+            //     h5.facet-title .closed-terms-count {
+            //         top : 9px;
+            //     }
+            // }
             &.closed, &.closing {
                 padding-bottom: 0px;
                 background-color: #fcfcfc;

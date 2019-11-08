@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.getValueFromFilters = getValueFromFilters;
 exports.RangeFacet = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -56,6 +57,35 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function getValueFromFilters(facet) {
+  var filters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  var field = facet.field;
+
+  var toFilter = _underscore["default"].findWhere(filters, {
+    field: field + ".to"
+  });
+
+  var fromFilter = _underscore["default"].findWhere(filters, {
+    field: field + ".from"
+  });
+
+  var fromVal = null;
+  var toVal = null;
+
+  if (fromFilter) {
+    fromVal = RangeFacet.parseNumber(facet, fromFilter.term);
+  }
+
+  if (toFilter) {
+    toVal = RangeFacet.parseNumber(facet, toFilter.term);
+  }
+
+  return {
+    fromVal: fromVal,
+    toVal: toVal
+  };
+}
 
 var RangeFacet =
 /*#__PURE__*/
@@ -145,36 +175,6 @@ function (_React$PureComponent) {
         "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
       };
     }
-  }, {
-    key: "getValueFromFilters",
-    value: function getValueFromFilters(facet) {
-      var filters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-      var field = facet.field;
-
-      var toFilter = _underscore["default"].findWhere(filters, {
-        field: field + ".to"
-      });
-
-      var fromFilter = _underscore["default"].findWhere(filters, {
-        field: field + ".from"
-      });
-
-      var fromVal = null;
-      var toVal = null;
-
-      if (fromFilter) {
-        fromVal = RangeFacet.parseNumber(facet, fromFilter.term);
-      }
-
-      if (toFilter) {
-        toVal = RangeFacet.parseNumber(facet, toFilter.term);
-      }
-
-      return {
-        fromVal: fromVal,
-        toVal: toVal
-      };
-    }
   }]);
 
   function RangeFacet(props) {
@@ -191,13 +191,14 @@ function (_React$PureComponent) {
     _this.performUpdateFrom = _this.performUpdateFrom.bind(_assertThisInitialized(_this));
     _this.performUpdateTo = _this.performUpdateTo.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements),
-      getValueFromFilters: (0, _memoizeOne["default"])(RangeFacet.getValueFromFilters)
+      validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements)
     };
-    _this.state = _objectSpread({
+    _this.state = {
       facetOpen: props.defaultFacetOpen || false,
-      facetClosing: false
-    }, _this.memoized.getValueFromFilters(props.facet, props.filters));
+      facetClosing: false,
+      fromVal: props.fromVal,
+      toVal: props.toVal
+    };
     return _this;
   }
 
@@ -367,14 +368,18 @@ function (_React$PureComponent) {
     value: function render() {
       var _this$props4 = this.props,
           facet = _this$props4.facet,
-          title = _this$props4.title,
-          tooltip = _this$props4.tooltip,
+          propTitle = _this$props4.title,
           termTransformFxn = _this$props4.termTransformFxn,
-          filters = _this$props4.filters,
-          isStatic = _this$props4.isStatic;
+          isStatic = _this$props4.isStatic,
+          savedFromVal = _this$props4.fromVal,
+          savedToVal = _this$props4.toVal;
       var field = facet.field,
           min = facet.min,
-          max = facet.max;
+          max = facet.max,
+          _facet$title = facet.title,
+          facetTitle = _facet$title === void 0 ? null : _facet$title,
+          _facet$description = facet.description,
+          tooltip = _facet$description === void 0 ? null : _facet$description;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing,
@@ -384,10 +389,6 @@ function (_React$PureComponent) {
       var _this$memoized$validI = this.memoized.validIncrements(facet),
           fromIncrements = _this$memoized$validI.fromIncrements,
           toIncrements = _this$memoized$validI.toIncrements;
-
-      var _this$memoized$getVal = this.memoized.getValueFromFilters(facet, filters),
-          savedFromVal = _this$memoized$getVal.fromVal,
-          savedToVal = _this$memoized$getVal.toVal;
 
       return _react["default"].createElement("div", {
         className: "facet range-facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
@@ -403,7 +404,7 @@ function (_React$PureComponent) {
         className: "inline-block col px-0",
         "data-tip": tooltip,
         "data-place": "right"
-      }, title), _react["default"].createElement(_reactBootstrap.Fade, {
+      }, propTitle || facetTitle || field), _react["default"].createElement(_reactBootstrap.Fade, {
         "in": facetClosing || !facetOpen
       }, _react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
