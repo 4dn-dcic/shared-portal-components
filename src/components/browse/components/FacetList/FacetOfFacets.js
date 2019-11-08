@@ -120,7 +120,7 @@ export class FacetOfFacets extends React.PureComponent {
                     </Fade>
                 </h5>
                 <Collapse in={facetOpen && !facetClosing}>
-                    <div className="ml-2">
+                    <div className="facet-group-list-container">
                         { extendedFacets }
                     </div>
                 </Collapse>

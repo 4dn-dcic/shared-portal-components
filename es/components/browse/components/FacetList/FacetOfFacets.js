@@ -220,7 +220,7 @@ function (_React$PureComponent) {
       })))), _react["default"].createElement(_Collapse.Collapse, {
         "in": facetOpen && !facetClosing
       }, _react["default"].createElement("div", {
-        className: "ml-2"
+        className: "facet-group-list-container"
       }, extendedFacets)));
     }
   }]);
