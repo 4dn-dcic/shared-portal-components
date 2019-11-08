@@ -317,11 +317,7 @@ exports.LoginController = LoginController;
 
 _defineProperty(LoginController, "propTypes", {
   'updateUserInfo': _propTypes["default"].func.isRequired,
-  'session': _propTypes["default"].bool.isRequired,
-  'href': _propTypes["default"].string.isRequired,
   'id': _propTypes["default"].string,
-  'windowWidth': _propTypes["default"].number,
-  'schemas': _propTypes["default"].object,
   'auth0ClientID': _propTypes["default"].string.isRequired,
   'auth0Domain': _propTypes["default"].string.isRequired,
   'auth0Options': _propTypes["default"].object,
@@ -344,15 +340,17 @@ _defineProperty(LoginController, "defaultProps", {
       }
     },
     socialButtonStyle: 'big',
-    languageDictionary: {
-      title: "Log in"
-    },
     theme: {
       logo: '/static/img/4dn_logo.svg',
       icon: '/static/img/4dn_logo.svg',
       primaryColor: '#009aad'
     },
-    allowedConnections: ['github', 'google-oauth2']
+    allowedConnections: ['github', 'google-oauth2', 'partners'],
+    languageDictionary: {
+      title: 'Log In',
+      emailInputPlaceholder: 'email@partners.org',
+      databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
+    }
   },
   'onLogin': function onLogin(profile) {
     var isAdmin = Array.isArray(profile.groups) && profile.groups.indexOf('admin') > -1;
@@ -384,15 +382,21 @@ function (_React$PureComponent2) {
    * Removes JWT from cookies, as well as userInfo from localStorage
    * and then refreshes current view/href via navigate fxn.
    *
-   * @param {string} eventKey - Not needed.
-   * @param {Event} eventObject - Not needed.
+   * @param {Event} [evt] - Not needed. Will prevent default / stopPropagation if present.
    */
 
 
   _createClass(LogoutController, [{
     key: "performLogout",
     value: function performLogout() {
-      var updateUserInfo = this.props.updateUserInfo; // Removes both idToken (cookie) and userInfo (localStorage)
+      var evt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var updateUserInfo = this.props.updateUserInfo;
+
+      if (evt && evt.preventDefault) {
+        evt.preventDefault();
+        evt.stopPropagation();
+      } // Removes both idToken (cookie) and userInfo (localStorage)
+
 
       JWT.remove(); // Refetch page context without our old JWT to hide any forbidden content.
 

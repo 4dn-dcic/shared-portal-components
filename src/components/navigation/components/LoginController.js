@@ -26,11 +26,7 @@ export class LoginController extends React.PureComponent {
 
     static propTypes = {
         'updateUserInfo'      : PropTypes.func.isRequired,
-        'session'             : PropTypes.bool.isRequired,
-        'href'                : PropTypes.string.isRequired,
         'id'                  : PropTypes.string,
-        'windowWidth'         : PropTypes.number,
-        'schemas'             : PropTypes.object,
         'auth0ClientID'       : PropTypes.string.isRequired,
         'auth0Domain'         : PropTypes.string.isRequired,
         'auth0Options'        : PropTypes.object,
@@ -53,13 +49,17 @@ export class LoginController extends React.PureComponent {
                 }
             },
             socialButtonStyle: 'big',
-            languageDictionary: { title: "Log in" },
             theme: {
                 logo: '/static/img/4dn_logo.svg',
                 icon: '/static/img/4dn_logo.svg',
                 primaryColor: '#009aad'
             },
-            allowedConnections: ['github', 'google-oauth2']
+            allowedConnections: ['github', 'google-oauth2', 'partners'],
+            languageDictionary: {
+                title: 'Log In',
+                emailInputPlaceholder: 'email@partners.org',
+                databaseEnterpriseAlternativeLoginInstructions: 'or login via Partners'
+            }
         },
         'onLogin' : function(profile){
             const isAdmin = Array.isArray(profile.groups) && profile.groups.indexOf('admin') > -1;
@@ -255,11 +255,15 @@ export class LogoutController extends React.PureComponent {
      * Removes JWT from cookies, as well as userInfo from localStorage
      * and then refreshes current view/href via navigate fxn.
      *
-     * @param {string} eventKey - Not needed.
-     * @param {Event} eventObject - Not needed.
+     * @param {Event} [evt] - Not needed. Will prevent default / stopPropagation if present.
      */
-    performLogout(eventKey, eventObject){
+    performLogout(evt = null){
         const { updateUserInfo } = this.props;
+
+        if (evt && evt.preventDefault){
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
 
         // Removes both idToken (cookie) and userInfo (localStorage)
         JWT.remove();
