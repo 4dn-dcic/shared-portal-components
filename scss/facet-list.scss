@@ -128,7 +128,7 @@ $facetlist-facet-font-size: 0.925rem !default;
         }
 
         &.closed,
-        &:not(.range-facet) {
+        &.static {
             overflow: hidden;
         }
 
