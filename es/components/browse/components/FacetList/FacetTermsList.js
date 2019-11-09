@@ -4,8 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.anyTermsSelected = anyTermsSelected;
+exports.countTermsSelected = countTermsSelected;
 exports.mergeTerms = mergeTerms;
-exports.FacetTermsList = exports.Term = void 0;
+exports.CountIndicator = exports.FacetTermsList = exports.Term = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -17,6 +18,8 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
+var _utilities = require("./../../../viz/utilities");
+
 var _Collapse = require("./../../../ui/Collapse");
 
 var _Fade = require("./../../../ui/Fade");
@@ -26,6 +29,14 @@ var _PartialList = require("./../../../ui/PartialList");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -45,7 +56,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-/* used in FacetList and FacetTermsList */
+/**
+ * Used in FacetList
+ * @deprecated
+ */
 function anyTermsSelected() {
   var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var facet = arguments.length > 1 ? arguments[1] : undefined;
@@ -64,7 +78,33 @@ function anyTermsSelected() {
 
   return false;
 }
-/* used in FacetList and FacetTermsList */
+/**
+ * Used in FacetList
+ */
+
+
+function countTermsSelected() {
+  var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var facet = arguments.length > 1 ? arguments[1] : undefined;
+  var filters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+  var activeTermsForField = {};
+  var count = 0;
+  filters.forEach(function (f) {
+    if (f.field !== facet.field) return;
+    activeTermsForField[f.term] = true;
+  });
+
+  for (var i = 0; i < terms.length; i++) {
+    if (activeTermsForField[terms[i].key]) {
+      count++;
+    }
+  }
+
+  return count;
+}
+/**
+ * Used in FacetList
+ */
 
 
 function mergeTerms(facet, filters) {
@@ -423,7 +463,8 @@ function (_React$PureComponent2) {
           tooltip = _this$props5.tooltip,
           title = _this$props5.title,
           isStatic = _this$props5.isStatic,
-          anySelected = _this$props5.anyTermsSelected;
+          anySelected = _this$props5.anyTermsSelected,
+          termsSelectedCount = _this$props5.termsSelectedCount;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing;
@@ -437,11 +478,12 @@ function (_React$PureComponent2) {
         }, _react["default"].createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "No useful options (1 total)" + (anySelected ? "; is selected" : ""),
+          "data-place": "right",
           "data-any-selected": anySelected
         }, _react["default"].createElement("i", {
           className: "icon fas icon-" + (anySelected ? "circle" : "minus-circle"),
           style: {
-            opacity: anySelected ? 0.75 : 0.25
+            opacity: anySelected ? 1 : 0.5
           }
         })));
       } else {
@@ -450,16 +492,12 @@ function (_React$PureComponent2) {
           "in": facetClosing || !facetOpen
         }, _react["default"].createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
-          "data-tip": termsLen + " options" + (anySelected ? " with at least one selected" : ""),
+          "data-tip": "".concat(termsLen, " options with ").concat(termsSelectedCount, " selected"),
+          "data-place": "right",
           "data-any-selected": anySelected
-        }, _underscore["default"].range(0, Math.min(Math.ceil(termsLen / 3), 8)).map(function (c) {
-          return _react["default"].createElement("i", {
-            className: "icon icon-ellipsis-v fas",
-            key: c,
-            style: {
-              opacity: (c + 1) / 5 * 0.67 + 0.33
-            }
-          });
+        }, _react["default"].createElement(CountIndicator, {
+          count: termsLen,
+          countActive: termsSelectedCount
         })));
       } // List of terms
 
@@ -491,3 +529,40 @@ exports.FacetTermsList = FacetTermsList;
 FacetTermsList.defaultProps = {
   'persistentCount': 10
 };
+
+var CountIndicator = _react["default"].memo(function (_ref6) {
+  var _ref6$count = _ref6.count,
+      count = _ref6$count === void 0 ? 1 : _ref6$count,
+      _ref6$countActive = _ref6.countActive,
+      countActive = _ref6$countActive === void 0 ? 0 : _ref6$countActive,
+      _ref6$height = _ref6.height,
+      height = _ref6$height === void 0 ? 16 : _ref6$height,
+      _ref6$width = _ref6.width,
+      width = _ref6$width === void 0 ? 40 : _ref6$width;
+  var dotCoords = (0, _utilities.stackDotsInContainer)(Math.min(count, 21), height, 4, 2);
+  var dots = dotCoords.map(function (_ref7, idx) {
+    var _ref8 = _slicedToArray(_ref7, 2),
+        x = _ref8[0],
+        y = _ref8[1];
+
+    var col = Math.floor(idx / 3);
+    return _react["default"].createElement("circle", {
+      cx: width - x + 1,
+      cy: y + 1,
+      r: 2,
+      key: idx,
+      style: {
+        opacity: 1 - col * .125
+      },
+      className: idx < countActive ? "active" : null
+    });
+  });
+  return _react["default"].createElement("svg", {
+    className: "svg-count-indicator",
+    viewBox: "0 0 ".concat(width + 2, " ").concat(height + 2),
+    width: width + 2,
+    height: height + 2
+  }, dots);
+});
+
+exports.CountIndicator = CountIndicator;

@@ -245,19 +245,32 @@ $facetlist-facet-font-size: 0.925rem !default;
                 }
 
                 .closed-terms-count {
-                    position: relative;
-                    transition: top .35s ease-out, opacity .35s ease;
-                    top: 2px;
+                    transition: opacity .35s ease, top .35s ease;
                     font-weight: 300;
-                    color: #707070;
+                    color: #999;
                     font-size: 0.75rem;
                     line-height : 1rem;
+                    top: 0px;
+                    position: relative;
                     > i {
+                        top: 2px;
+                        position: relative;
                         margin-right: 1px;
                         margin-right: 0.5px;
                     }
+                    svg.svg-count-indicator circle {
+                        fill: #999;
+                    }
                     &.some-selected {
                         color: $facetlist-selected-term-color;
+                        svg.svg-count-indicator circle {
+                            &.active {
+                                fill: $facetlist-selected-term-color;
+                                stroke: $facetlist-selected-term-color;
+                                stroke-width: 1px;
+                                opacity: 1 !important;
+                            }
+                        }
                     }
                 }
 
@@ -265,11 +278,11 @@ $facetlist-facet-font-size: 0.925rem !default;
                     opacity: 0.5;
                 }
             }
-            // &.open:not(.closing) {
-            //     h5.facet-title .closed-terms-count {
-            //         top : 9px;
-            //     }
-            // }
+            &.open:not(.closing) {
+                > h5.facet-title .closed-terms-count {
+                    top : 7px;
+                }
+            }
             &.closed, &.closing {
                 padding-bottom: 0px;
                 background-color: #fcfcfc;

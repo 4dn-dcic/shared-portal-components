@@ -57,6 +57,30 @@ export function cancelAnimationFrame(identifier){
     return clearTimeout(identifier); // Mock it for old browsers and server-side.
 }
 
+
+export function stackDotsInContainer(count, height = 16, dotSize = 4, dotSpacing = 2, centerLowCount = true) {
+    const dotRadius = dotSize / 2;
+    let currX = dotRadius;
+    let currY = dotRadius;
+    if (centerLowCount && ((count * dotSize) + ((count - 1) * dotSpacing) < height)){
+        // Center vertically if low count
+        currY = (height / 2) - (((dotSpacing * (count - 1)) + (dotSize * count)) / 2) + dotRadius;
+    }
+
+    let counter = 0;
+    const dotCoords = [];
+    while (counter < count){
+        dotCoords.push([currX, currY]);
+        counter++;
+        currY += dotSize + dotSpacing;
+        if (currY > (height - dotRadius)) {
+            currX += dotSize + dotSpacing;
+            currY = dotRadius;
+        }
+    }
+    return dotCoords;
+}
+
 /**
  * Used in Barplot/Chart.js to merge 'style' options. Only merges keys which are present on `styleOptsToExtend`.
  * Similar to underscore's `_.extend` but arguments are reversed and... sort of unnecessary.

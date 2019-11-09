@@ -6,12 +6,16 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 
+import { stackDotsInContainer } from './../../../viz/utilities';
 import { Collapse } from './../../../ui/Collapse';
 import { Fade } from './../../../ui/Fade';
 import { PartialList } from './../../../ui/PartialList';
 
 
-/* used in FacetList and FacetTermsList */
+/**
+ * Used in FacetList
+ * @deprecated
+ */
 export function anyTermsSelected(terms = [], facet, filters = []){
     const activeTermsForField = {};
     filters.forEach(function(f){
@@ -27,7 +31,28 @@ export function anyTermsSelected(terms = [], facet, filters = []){
     return false;
 }
 
-/* used in FacetList and FacetTermsList */
+/**
+ * Used in FacetList
+ */
+export function countTermsSelected(terms = [], facet, filters = []){
+    const activeTermsForField = {};
+    let count = 0;
+    filters.forEach(function(f){
+        if (f.field !== facet.field) return;
+        activeTermsForField[f.term] = true;
+    });
+
+    for (let i = 0; i < terms.length; i++){
+        if (activeTermsForField[terms[i].key]) {
+            count++;
+        }
+    }
+    return count;
+}
+
+/**
+ * Used in FacetList
+ */
 export function mergeTerms(facet, filters){
     const activeTermsForField = {};
     filters.forEach(function(f){
@@ -271,7 +296,7 @@ export class FacetTermsList extends React.PureComponent {
     }
 
     render(){
-        const { facet, terms, tooltip, title, isStatic, anyTermsSelected: anySelected } = this.props;
+        const { facet, terms, tooltip, title, isStatic, anyTermsSelected: anySelected, termsSelectedCount } = this.props;
         const { facetOpen, facetClosing } = this.state;
         const termsLen = terms.length;
         let indicator;
@@ -282,9 +307,9 @@ export class FacetTermsList extends React.PureComponent {
                 <Fade in={facetClosing || !facetOpen}>
                     <span className={"closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : "")}
                         data-tip={"No useful options (1 total)" + (anySelected ? "; is selected" : "")}
-                        data-any-selected={anySelected}>
+                        data-place="right" data-any-selected={anySelected}>
                         <i className={"icon fas icon-" + (anySelected ? "circle" : "minus-circle")}
-                            style={{ opacity: anySelected ? 0.75 : 0.25 }}/>
+                            style={{ opacity: anySelected ? 1 : 0.5 }}/>
                     </span>
                 </Fade>
             );
@@ -292,12 +317,9 @@ export class FacetTermsList extends React.PureComponent {
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
                 <Fade in={facetClosing || !facetOpen}>
                     <span className={"closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : "")}
-                        data-tip={termsLen + " options" + (anySelected ? " with at least one selected" : "")}
-                        data-any-selected={anySelected}>
-                        { _.range(0, Math.min(Math.ceil(termsLen / 3), 8)).map((c)=>
-                            <i className="icon icon-ellipsis-v fas" key={c}
-                                style={{ opacity : ((c + 1) / 5) * (0.67) + 0.33 }} />
-                        )}
+                        data-tip={`${termsLen} options with ${termsSelectedCount} selected`}
+                        data-place="right" data-any-selected={anySelected}>
+                        <CountIndicator count={termsLen} countActive={termsSelectedCount} />
                     </span>
                 </Fade>
             );
@@ -321,3 +343,22 @@ export class FacetTermsList extends React.PureComponent {
 FacetTermsList.defaultProps = {
     'persistentCount' : 10
 };
+
+
+
+export const CountIndicator = React.memo(function CountIndicator({ count = 1, countActive = 0, height = 16, width = 40 }){
+    const dotCoords = stackDotsInContainer(Math.min(count, 21), height, 4, 2);
+    const dots = dotCoords.map(function([ x, y ], idx){
+        const col = Math.floor(idx / 3);
+        return (
+            <circle cx={width - x + 1} cy={y + 1} r={2} key={idx}
+                style={{ opacity: 1 - (col * .125) }} className={idx < countActive ? "active" : null} />
+        );
+    });
+    return (
+        <svg className="svg-count-indicator" viewBox={`0 0 ${width + 2} ${height + 2}`} width={width + 2} height={height + 2}>
+            { dots }
+        </svg>
+    );
+});
+

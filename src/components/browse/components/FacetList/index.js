@@ -14,7 +14,7 @@ import { responsiveGridState } from './../../../util/layout';
 
 import { TermsFacet } from './TermsFacet';
 import { RangeFacet, getValueFromFilters as getRangeValueFromFilters } from './RangeFacet';
-import { FacetTermsList, mergeTerms, anyTermsSelected } from './FacetTermsList';
+import { FacetTermsList, mergeTerms, anyTermsSelected, countTermsSelected } from './FacetTermsList';
 import { FacetOfFacets } from './FacetOfFacets';
 
 /**
@@ -205,12 +205,13 @@ export class FacetList extends React.PureComponent {
             }
             if (aggregation_type === "terms"){
                 const terms = mergeTerms(facet, filters); // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL.
-                const anySelected = anyTermsSelected(terms, facet, filters);
+                const termsSelectedCount = countTermsSelected(terms, facet, filters);
+                const anySelected = termsSelectedCount !== 0;
                 const isStatic = TermsFacet.isStatic(facet);
                 defaultFacetOpen = defaultFacetOpen || (!isStatic && _.any(filters || [], function(fltr){
                     return fltr.field === facetField;
                 })) || false;
-                return <TermsFacet {...commonProps} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ defaultFacetOpen, isStatic, grouping, terms }} />;
+                return <TermsFacet {...commonProps} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ defaultFacetOpen, isStatic, grouping, terms, termsSelectedCount }} />;
             }
             throw new Error("Unknown aggregation_type");
         });

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.stringToColor = stringToColor;
 exports.requestAnimationFrame = requestAnimationFrame;
 exports.cancelAnimationFrame = cancelAnimationFrame;
+exports.stackDotsInContainer = stackDotsInContainer;
 exports.extendStyleOptions = extendStyleOptions;
 exports.transformBarPlotAggregationsToD3CompatibleHierarchy = transformBarPlotAggregationsToD3CompatibleHierarchy;
 exports.highlightTerm = highlightTerm;
@@ -80,6 +81,37 @@ function cancelAnimationFrame(identifier) {
   }
 
   return clearTimeout(identifier); // Mock it for old browsers and server-side.
+}
+
+function stackDotsInContainer(count) {
+  var height = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 16;
+  var dotSize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 4;
+  var dotSpacing = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 2;
+  var centerLowCount = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+  var dotRadius = dotSize / 2;
+  var currX = dotRadius;
+  var currY = dotRadius;
+
+  if (centerLowCount && count * dotSize + (count - 1) * dotSpacing < height) {
+    // Center vertically if low count
+    currY = height / 2 - (dotSpacing * (count - 1) + dotSize * count) / 2 + dotRadius;
+  }
+
+  var counter = 0;
+  var dotCoords = [];
+
+  while (counter < count) {
+    dotCoords.push([currX, currY]);
+    counter++;
+    currY += dotSize + dotSpacing;
+
+    if (currY > height - dotRadius) {
+      currX += dotSize + dotSpacing;
+      currY = dotRadius;
+    }
+  }
+
+  return dotCoords;
 }
 /**
  * Used in Barplot/Chart.js to merge 'style' options. Only merges keys which are present on `styleOptsToExtend`.

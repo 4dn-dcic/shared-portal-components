@@ -211,11 +211,12 @@ function (_React$PureComponent) {
         "in": facetClosing || !facetOpen
       }, _react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
+        "data-place": "right",
         "data-tip": "Group of filters (".concat(extendedFacets.length, ") ").concat(anySelections ? " with at least 1 having a selection." : "")
       }, _react["default"].createElement("i", {
         className: "icon fas icon-layer-group",
         style: {
-          opacity: anySelections ? 0.75 : 0.25
+          opacity: anySelections ? 1 : 0.5
         }
       })))), _react["default"].createElement(_Collapse.Collapse, {
         "in": facetOpen && !facetClosing

@@ -315,7 +315,7 @@ function (_React$PureComponent) {
         if (aggregation_type === "terms") {
           var terms = (0, _FacetTermsList.mergeTerms)(facet, filters); // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL.
 
-          var _anySelected = (0, _FacetTermsList.anyTermsSelected)(terms, facet, filters);
+          var termsSelectedCount = (0, _FacetTermsList.countTermsSelected)(terms, facet, filters);
 
           var _isStatic = _TermsFacet.TermsFacet.isStatic(facet);
 
@@ -325,12 +325,13 @@ function (_React$PureComponent) {
           return _react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, commonProps, {
             facet: facet,
             key: facetField,
-            anyTermsSelected: _anySelected
+            anyTermsSelected: termsSelectedCount !== 0
           }, {
             defaultFacetOpen: defaultFacetOpen,
             isStatic: _isStatic,
             grouping: grouping,
-            terms: terms
+            terms: terms,
+            termsSelectedCount: termsSelectedCount
           }));
         }
 
