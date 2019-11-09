@@ -254,7 +254,7 @@ export class FacetList extends React.PureComponent {
                 // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
                 // so `fromIdx` / `groupIndex` should always stay stable.
                 // We increment facetGroup.index which is the index in `componentsToReturn`.
-                groupsArr.slice(fromIdx).forEach(function([ , subsequentFacetGroup]){
+                groupsArr.slice(groupIndex).forEach(function([ , subsequentFacetGroup]){
                     subsequentFacetGroup.index++;
                 });
                 return;

@@ -370,7 +370,7 @@ function (_React$PureComponent) {
       var groupsArr = _toConsumableArray(groups); // Check, render, and add groups into `componentsToReturn`
 
 
-      groupsArr.forEach(function (_ref) {
+      groupsArr.forEach(function (_ref, groupIndex) {
         var _ref2 = _slicedToArray(_ref, 2),
             groupTitle = _ref2[0],
             facetGroup = _ref2[1];
@@ -385,7 +385,7 @@ function (_React$PureComponent) {
           // so `fromIdx` / `groupIndex` should always stay stable.
           // We increment facetGroup.index which is the index in `componentsToReturn`.
 
-          groupsArr.slice(fromIdx).forEach(function (_ref3) {
+          groupsArr.slice(groupIndex).forEach(function (_ref3) {
             var _ref4 = _slicedToArray(_ref3, 2),
                 subsequentFacetGroup = _ref4[1];
 
