@@ -261,7 +261,7 @@ export class RangeFacet extends React.PureComponent {
                             <label className="col-auto mb-0">
                                 <i className="icon icon-fw icon-greater-than-equal fas small"/>
                             </label>
-                            <RangeDropdown title={termTransformFxn(facet.field, typeof fromVal === 'number' ? fromVal : min, true)}
+                            <RangeDropdown title={termTransformFxn(facet.field, typeof fromVal === 'number' ? fromVal : min || 0, true)}
                                 value={fromVal} onSelect={this.setFrom} max={toVal || null} increments={fromIncrements}
                                 variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"} savedValue={savedFromVal}
                                 {...{ termTransformFxn, facet }} id={"from_" + field} update={this.performUpdateFrom} />
@@ -274,7 +274,7 @@ export class RangeFacet extends React.PureComponent {
                             <label className="col-auto mb-0">
                                 <i className="icon icon-fw icon-less-than-equal fas small"/>
                             </label>
-                            <RangeDropdown title={termTransformFxn(facet.field, typeof toVal === 'number' ? toVal : max, true)}
+                            <RangeDropdown title={termTransformFxn(facet.field, typeof toVal === 'number' ? toVal : max, true) || <em>Infinity</em> }
                                 value={toVal} onSelect={this.setTo} min={fromVal || null} increments={toIncrements}
                                 variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"} savedValue={savedToVal}
                                 {...{ termTransformFxn, facet }} id={"to_" + field} update={this.performUpdateTo} />

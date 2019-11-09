@@ -426,7 +426,7 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas small"
       })), _react["default"].createElement(RangeDropdown, _extends({
-        title: termTransformFxn(facet.field, typeof fromVal === 'number' ? fromVal : min, true),
+        title: termTransformFxn(facet.field, typeof fromVal === 'number' ? fromVal : min || 0, true),
         value: fromVal,
         onSelect: this.setFrom,
         max: toVal || null,
@@ -451,7 +451,7 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-less-than-equal fas small"
       })), _react["default"].createElement(RangeDropdown, _extends({
-        title: termTransformFxn(facet.field, typeof toVal === 'number' ? toVal : max, true),
+        title: termTransformFxn(facet.field, typeof toVal === 'number' ? toVal : max, true) || _react["default"].createElement("em", null, "Infinity"),
         value: toVal,
         onSelect: this.setTo,
         min: fromVal || null,
