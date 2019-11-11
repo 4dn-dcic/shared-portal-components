@@ -95,9 +95,8 @@ export class FacetOfFacets extends React.PureComponent {
 
 
     render() {
-        const { title, facets: renderedFacets, filters, tooltip, defaultGroupOpen } = this.props;
+        const { title, facets: renderedFacets, tooltip } = this.props;
         const { facetOpen, facetClosing } = this.state;
-
         const anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets);
 
         // Ensure all facets within group are not "static single terms".
@@ -114,8 +113,8 @@ export class FacetOfFacets extends React.PureComponent {
                     <span className="inline-block col px-0" data-tip={tooltip} data-place="right">{ title }</span>
                     <Fade in={facetClosing || !facetOpen}>
                         <span className={"closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : "")} data-place="right"
-                            data-tip={`Group of filters (${extendedFacets.length}) ${ anySelections ? " with at least 1 having a selection." : ""}`}>
-                            <i className="icon fas icon-layer-group" style={{ opacity: anySelections ? 1 : 0.5 }}/>
+                            data-tip={`Group of ${extendedFacets.length} facets ${ anySelections ? " with at least 1 having a selection." : ""}`}>
+                            <i className="icon fas icon-layer-group" />
                         </span>
                     </Fade>
                 </h5>

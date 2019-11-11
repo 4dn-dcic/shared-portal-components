@@ -480,11 +480,9 @@ function (_React$PureComponent2) {
           "data-tip": "No useful options (1 total)" + (anySelected ? "; is selected" : ""),
           "data-place": "right",
           "data-any-selected": anySelected
-        }, _react["default"].createElement("i", {
-          className: "icon fas icon-" + (anySelected ? "circle" : "minus-circle"),
-          style: {
-            opacity: anySelected ? 1 : 0.5
-          }
+        }, _react["default"].createElement(CountIndicator, {
+          count: termsLen,
+          countActive: termsSelectedCount
         })));
       } else {
         indicator = // Small indicator to help represent how many terms there are available for this Facet.

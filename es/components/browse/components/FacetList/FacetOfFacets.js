@@ -179,9 +179,7 @@ function (_React$PureComponent) {
       var _this$props2 = this.props,
           title = _this$props2.title,
           renderedFacets = _this$props2.facets,
-          filters = _this$props2.filters,
-          tooltip = _this$props2.tooltip,
-          defaultGroupOpen = _this$props2.defaultGroupOpen;
+          tooltip = _this$props2.tooltip;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing;
@@ -212,12 +210,9 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
         "data-place": "right",
-        "data-tip": "Group of filters (".concat(extendedFacets.length, ") ").concat(anySelections ? " with at least 1 having a selection." : "")
+        "data-tip": "Group of ".concat(extendedFacets.length, " facets ").concat(anySelections ? " with at least 1 having a selection." : "")
       }, _react["default"].createElement("i", {
-        className: "icon fas icon-layer-group",
-        style: {
-          opacity: anySelections ? 1 : 0.5
-        }
+        className: "icon fas icon-layer-group"
       })))), _react["default"].createElement(_Collapse.Collapse, {
         "in": facetOpen && !facetClosing
       }, _react["default"].createElement("div", {

@@ -308,8 +308,7 @@ export class FacetTermsList extends React.PureComponent {
                     <span className={"closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : "")}
                         data-tip={"No useful options (1 total)" + (anySelected ? "; is selected" : "")}
                         data-place="right" data-any-selected={anySelected}>
-                        <i className={"icon fas icon-" + (anySelected ? "circle" : "minus-circle")}
-                            style={{ opacity: anySelected ? 1 : 0.5 }}/>
+                        <CountIndicator count={termsLen} countActive={termsSelectedCount} />
                     </span>
                 </Fade>
             );
