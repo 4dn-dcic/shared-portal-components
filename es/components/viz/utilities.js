@@ -87,7 +87,8 @@ function stackDotsInContainer(count) {
   var height = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 16;
   var dotSize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 4;
   var dotSpacing = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 2;
-  var centerLowCount = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+  var snakeOrdering = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+  var centerLowCount = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
   var dotRadius = dotSize / 2;
   var currX = dotRadius;
   var currY = dotRadius;
@@ -98,16 +99,34 @@ function stackDotsInContainer(count) {
   }
 
   var counter = 0;
+  var direction = snakeOrdering ? "up" : null;
   var dotCoords = [];
 
   while (counter < count) {
     dotCoords.push([currX, currY]);
     counter++;
-    currY += dotSize + dotSpacing;
 
-    if (currY > height - dotRadius) {
-      currX += dotSize + dotSpacing;
-      currY = dotRadius;
+    if (direction === "up" || direction === null) {
+      currY += dotSize + dotSpacing;
+
+      if (currY > height - dotRadius) {
+        currX += dotSize + dotSpacing;
+
+        if (direction === "up") {
+          direction = "down";
+          currY = height - dotRadius;
+        } else {
+          currY = dotRadius;
+        }
+      }
+    } else {
+      currY -= dotSize + dotSpacing;
+
+      if (currY < dotRadius) {
+        currX += dotSize + dotSpacing;
+        direction = "up";
+        currY = dotRadius;
+      }
     }
   }
 

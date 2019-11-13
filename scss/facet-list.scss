@@ -251,6 +251,7 @@ $facetlist-facet-font-size: 0.925rem !default;
                     font-size: 0.75rem;
                     line-height : 1rem;
                     transform-origin: 100% 50%;
+                    transform: scale3d(0.9, 0.9, 0.9);
                     // top: 0px;
                     // position: relative;
                     > i {
@@ -275,7 +276,7 @@ $facetlist-facet-font-size: 0.925rem !default;
                     }
                     &.fade:not(.show) { // Adjust/extend `Fade` closed style
                         opacity: 0.5;
-                        transform: scale(0.8);
+                        transform: scale3d(0.825, 0.825, 0.825);
                     }
                 }
 

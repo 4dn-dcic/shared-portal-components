@@ -573,7 +573,7 @@ function (_React$PureComponent2) {
         return m;
       }, new Set())).map(function (increment) {
         return _react["default"].createElement(_reactBootstrap.DropdownItem, {
-          disabled: typeof min === "number" && increment < min || typeof max === "number" && increment > max,
+          disabled: typeof min === "number" && increment <= min || typeof max === "number" && increment >= max,
           key: increment,
           eventKey: increment,
           active: increment === savedValue
@@ -593,6 +593,8 @@ function (_React$PureComponent2) {
       }), _react["default"].createElement("form", {
         className: "inline-input-container",
         onSubmit: this.onTextInputFormSubmit
+      }, _react["default"].createElement("div", {
+        className: "input-element-container"
       }, _react["default"].createElement("input", _extends({
         type: "number",
         className: "form-control"
@@ -603,7 +605,7 @@ function (_React$PureComponent2) {
         placeholder: placeholder
       }, {
         onChange: this.onTextInputChange
-      })), _react["default"].createElement("button", {
+      }))), _react["default"].createElement("button", {
         type: "submit",
         disabled: !(savedValue !== value),
         className: "btn"
