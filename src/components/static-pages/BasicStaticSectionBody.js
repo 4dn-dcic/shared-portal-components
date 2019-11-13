@@ -15,7 +15,7 @@ export const BasicStaticSectionBody = React.memo(function BasicStaticSectionBody
     } else if (filetype === 'html' && typeof content === 'string'){
         return React.createElement(element, passProps, htmlToJSX(content));
     } else if (filetype === 'jsx' && typeof content === 'string'){
-        return placeholderReplacementFxn(content.trim());
+        return placeholderReplacementFxn(content.trim(), passProps);
     } else if (filetype === 'txt' && typeof content === 'string' && content.slice(0,12) === 'placeholder:'){
         // Deprecated older method - to be removed once data.4dn uses filetype=jsx everywhere w/ placeholder
         return placeholderReplacementFxn(content.slice(12).trim());
