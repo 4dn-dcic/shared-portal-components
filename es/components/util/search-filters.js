@@ -742,7 +742,11 @@ function getBaseHref() {
 
   var baseHref = urlParts.protocol && urlParts.host ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
 
-  var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'q');
+  var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'experimentset_type', 'q');
+
+  if (hrefQuery.experimentset_type === 'undefined') {
+    hrefQuery.experimentset_type.remove();
+  }
 
   if (hrefPath.indexOf('/search/') > -1) {
     if (typeof hrefQuery.type !== 'string') {

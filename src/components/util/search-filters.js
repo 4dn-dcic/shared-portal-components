@@ -599,16 +599,19 @@ export function convertExpSetFiltersTerms(expSetFilters, to = 'array'){
 
 
 /** Return URL without any queries or hash, ending at pathname. Add hardcoded stuff for /browse/ or /search/ endpoints. */
-function getBaseHref(currentHref = '/browse/', hrefPath = null){
+function getBaseHref(currentHref = '/browse/', hrefPath = null) {
     const urlParts = url.parse(currentHref, true);
-    if (!hrefPath){
+    if (!hrefPath) {
         hrefPath = urlParts.pathname;
     }
 
     const baseHref = (urlParts.protocol && urlParts.host) ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
-    const hrefQuery = _.pick(urlParts.query, 'type', 'q');
-    if (hrefPath.indexOf('/search/') > -1){
-        if (typeof hrefQuery.type !== 'string'){
+    const hrefQuery = _.pick(urlParts.query, 'type', 'experimentset_type', 'q');
+    if (hrefQuery.experimentset_type === 'undefined') {
+        hrefQuery.experimentset_type.remove();
+    }
+    if (hrefPath.indexOf('/search/') > -1) {
+        if (typeof hrefQuery.type !== 'string') {
             hrefQuery.type = 'Item';
         }
     }
@@ -629,6 +632,7 @@ export function searchQueryStringFromHref(href){
         }
     }
     return searchQueryString;
+
 }
 
 
