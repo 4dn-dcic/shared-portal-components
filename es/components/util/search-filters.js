@@ -742,10 +742,10 @@ function getBaseHref() {
 
   var baseHref = urlParts.protocol && urlParts.host ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
 
-  var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'experimentset_type', 'q');
+  var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'q');
 
-  if (hrefQuery.experimentset_type === 'undefined') {
-    hrefQuery.experimentset_type.remove();
+  if (hrefPath.indexOf('/browse/') > -1 && urlParts.query.experimentset_type != 'undefined') {
+    hrefQuery.experimentset_type = urlParts.query.experimentset_type;
   }
 
   if (hrefPath.indexOf('/search/') > -1) {

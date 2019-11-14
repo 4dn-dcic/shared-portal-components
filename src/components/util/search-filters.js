@@ -606,9 +606,9 @@ function getBaseHref(currentHref = '/browse/', hrefPath = null) {
     }
 
     const baseHref = (urlParts.protocol && urlParts.host) ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
-    const hrefQuery = _.pick(urlParts.query, 'type', 'experimentset_type', 'q');
-    if (hrefQuery.experimentset_type === 'undefined') {
-        hrefQuery.experimentset_type.remove();
+    const hrefQuery = _.pick(urlParts.query, 'type', 'q');
+    if (hrefPath.indexOf('/browse/') > -1 && urlParts.query.experimentset_type != 'undefined') {
+        hrefQuery.experimentset_type = urlParts.query.experimentset_type;
     }
     if (hrefPath.indexOf('/search/') > -1) {
         if (typeof hrefQuery.type !== 'string') {
