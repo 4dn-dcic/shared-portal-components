@@ -256,8 +256,8 @@ export const defaultHiddenColumnMapFromColumns = memoize(function(columns){
  * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).
  */
 export const columnDefinitionsToScaledColumnDefinitions = memoize(function(columnDefinitions){
-    return _.map(columnDefinitions, function(colDef){
-        var colDef2 = _.clone(colDef);
+    return columnDefinitions.map(function(colDef){
+        const colDef2 = _.clone(colDef);
         colDef2.baseWidth = colDef.widthMap.sm || colDef.widthMap.md || colDef.widthMap.lg || 100;
         if (typeof colDef.render !== 'function'){
             colDef2.render = null;
@@ -391,7 +391,11 @@ export class ResultRowColumnBlockValue extends React.Component {
             if (propTooltip === true && value.length > 25) tooltip = value;
             value = <span className="value">{ value }</span>;
         } else if (value === null){
-            value = <small className="text-300">-</small>;
+            value = <small className="value">-</small>;
+        } else if (React.isValidElement(value) && value.type === "a") {
+            // We let other columnRender funcs define their `value` container (if any)
+            // But if is link, e.g. from termTransformFxn, then wrap it to center it.
+            value = <span className="value">{ value }</span>;
         }
 
         let cls = "inner";

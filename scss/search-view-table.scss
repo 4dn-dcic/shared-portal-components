@@ -758,23 +758,11 @@ $search-results-header-text-color: #fff !default;
 						height: auto;
 						white-space: normal;
 
-						padding-left: 47px;
 						padding-right: 0;
-						
-						.icon-container {
-							padding-bottom: 8px;
-							cursor: pointer;
-							font-size: 1.25rem;
-						}
 
-						.has-type-title, &.has-type-title {
-							.icon-container {
-								padding-top: 8px;
-							}
-						}
-
-						.title-container {
-							padding-right: 0;
+						.title-wrapper {
+							padding-left: 7px;
+							line-height: 1.25rem;
 						}
 
 						@include search-result-toggle-open-button-container;
