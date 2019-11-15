@@ -742,7 +742,7 @@ function getBaseHref() {
 
   var baseHref = urlParts.protocol && urlParts.host ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
 
-  var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'q');
+  var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'award.project', 'q');
 
   if (hrefPath.indexOf('/browse/') > -1 && urlParts.query.experimentset_type != 'undefined') {
     hrefQuery.experimentset_type = urlParts.query.experimentset_type;
