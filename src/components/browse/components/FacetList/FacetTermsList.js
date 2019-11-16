@@ -346,12 +346,14 @@ FacetTermsList.defaultProps = {
 
 
 export const CountIndicator = React.memo(function CountIndicator({ count = 1, countActive = 0, height = 16, width = 40 }){
-    const dotCoords = stackDotsInContainer(Math.min(count, 21), height, 4, 2);
+    const dotCountToShow = Math.min(count, 21);
+    const dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
     const dots = dotCoords.map(function([ x, y ], idx){
-        const col = Math.floor(idx / 3);
+        const colIdx = Math.floor(idx / 3);
+        // Flip both axes so going bottom right to top left.
         return (
-            <circle cx={width - x + 1} cy={y + 1} r={2} key={idx}
-                style={{ opacity: 1 - (col * .125) }} className={idx < countActive ? "active" : null} />
+            <circle cx={width - x + 1} cy={height - y + 1} r={2} key={idx} data-original-index={idx}
+                style={{ opacity: 1 - (colIdx * .125) }} className={(count - idx) <= countActive ? "active" : null} />
         );
     });
     return (

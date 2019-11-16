@@ -375,7 +375,7 @@ var defaultHiddenColumnMapFromColumns = (0, _memoizeOne["default"])(function (co
 
 exports.defaultHiddenColumnMapFromColumns = defaultHiddenColumnMapFromColumns;
 var columnDefinitionsToScaledColumnDefinitions = (0, _memoizeOne["default"])(function (columnDefinitions) {
-  return _underscore["default"].map(columnDefinitions, function (colDef) {
+  return columnDefinitions.map(function (colDef) {
     var colDef2 = _underscore["default"].clone(colDef);
 
     colDef2.baseWidth = colDef.widthMap.sm || colDef.widthMap.md || colDef.widthMap.lg || 100;
@@ -530,8 +530,14 @@ function (_React$Component) {
         }, value);
       } else if (value === null) {
         value = _react["default"].createElement("small", {
-          className: "text-300"
+          className: "value"
         }, "-");
+      } else if (_react["default"].isValidElement(value) && value.type === "a") {
+        // We let other columnRender funcs define their `value` container (if any)
+        // But if is link, e.g. from termTransformFxn, then wrap it to center it.
+        value = _react["default"].createElement("span", {
+          className: "value"
+        }, value);
       }
 
       var cls = "inner";

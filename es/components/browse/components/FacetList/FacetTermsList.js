@@ -537,22 +537,25 @@ var CountIndicator = _react["default"].memo(function (_ref6) {
       height = _ref6$height === void 0 ? 16 : _ref6$height,
       _ref6$width = _ref6.width,
       width = _ref6$width === void 0 ? 40 : _ref6$width;
-  var dotCoords = (0, _utilities.stackDotsInContainer)(Math.min(count, 21), height, 4, 2);
+  var dotCountToShow = Math.min(count, 21);
+  var dotCoords = (0, _utilities.stackDotsInContainer)(dotCountToShow, height, 4, 2, false);
   var dots = dotCoords.map(function (_ref7, idx) {
     var _ref8 = _slicedToArray(_ref7, 2),
         x = _ref8[0],
         y = _ref8[1];
 
-    var col = Math.floor(idx / 3);
+    var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
+
     return _react["default"].createElement("circle", {
       cx: width - x + 1,
-      cy: y + 1,
+      cy: height - y + 1,
       r: 2,
       key: idx,
+      "data-original-index": idx,
       style: {
-        opacity: 1 - col * .125
+        opacity: 1 - colIdx * .125
       },
-      className: idx < countActive ? "active" : null
+      className: count - idx <= countActive ? "active" : null
     });
   });
   return _react["default"].createElement("svg", {

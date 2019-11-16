@@ -356,7 +356,7 @@ class RangeDropdown extends React.PureComponent {
                 }, new Set())
         )].map(function(increment, indx){
             const active = increment === savedValue;
-            const disabled = (typeof min === "number" && increment < min) || (typeof max === "number" && increment > max);
+            const disabled = (typeof min === "number" && increment <= min) || (typeof max === "number" && increment >= max);
             return (
                 <DropdownItem disabled={disabled} key={increment} eventKey={increment} active={active}>
                     { termTransformFxn(facet.field, increment, true) }
@@ -371,7 +371,9 @@ class RangeDropdown extends React.PureComponent {
         return (
             <DropdownButton {...{ variant, disabled, className, title, size, id }} alignRight onSelect={this.onDropdownSelect}>
                 <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
-                    <input type="number" className="form-control" {...{ min, max, value, placeholder }} onChange={this.onTextInputChange} />
+                    <div className="input-element-container">
+                        <input type="number" className="form-control" {...{ min, max, value, placeholder }} onChange={this.onTextInputChange} />
+                    </div>
                     <button type="submit" disabled={!updateAble} className="btn">
                         <i className="icon icon-fw icon-check fas"/>
                     </button>

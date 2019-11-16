@@ -58,7 +58,7 @@ export function cancelAnimationFrame(identifier){
 }
 
 
-export function stackDotsInContainer(count, height = 16, dotSize = 4, dotSpacing = 2, centerLowCount = true) {
+export function stackDotsInContainer(count, height = 16, dotSize = 4, dotSpacing = 2, snakeOrdering = false, centerLowCount = true) {
     const dotRadius = dotSize / 2;
     let currX = dotRadius;
     let currY = dotRadius;
@@ -68,14 +68,29 @@ export function stackDotsInContainer(count, height = 16, dotSize = 4, dotSpacing
     }
 
     let counter = 0;
+    let direction = snakeOrdering ? "up" : null;
     const dotCoords = [];
     while (counter < count){
         dotCoords.push([currX, currY]);
         counter++;
-        currY += dotSize + dotSpacing;
-        if (currY > (height - dotRadius)) {
-            currX += dotSize + dotSpacing;
-            currY = dotRadius;
+        if (direction === "up" || direction === null) {
+            currY += (dotSize + dotSpacing);
+            if (currY > (height - dotRadius)) {
+                currX += dotSize + dotSpacing;
+                if (direction === "up") {
+                    direction = "down";
+                    currY = height - dotRadius;
+                } else {
+                    currY = dotRadius;
+                }
+            }
+        } else {
+            currY -= (dotSize + dotSpacing);
+            if (currY < dotRadius) {
+                currX += dotSize + dotSpacing;
+                direction = "up";
+                currY = dotRadius;
+            }
         }
     }
     return dotCoords;
