@@ -168,8 +168,25 @@ export class BuildField extends React.PureComponent {
     }
 
     submitEnumVal(eventKey){
-        const { modifyNewContext, nestedField, fieldType, linkType, arrayIdx } = this.props;
-        modifyNewContext(nestedField, eventKey, fieldType, linkType, arrayIdx);
+        const { modifyNewContext, nestedField, fieldType, linkType, arrayIdx, schema } = this.props;
+
+        //eventKey's type is always string, convert it to the proper type defined in schema
+        let value = eventKey;
+        if (schema && schema.type && (typeof schema.type === 'string')) {
+            if (schema.type === 'integer') {
+                value = parseInt(eventKey);
+            } else if (schema.type === 'float') {
+                value = parseFloat(eventKey);
+            } else if (schema.type === 'number') {
+                value = Number(eventKey);
+            } else if (schema.type === 'boolean') {
+                value = (eventKey === 'true');
+            } else {
+                //todo: define other conversion types
+            }
+        }
+
+        modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
     }
 
     handleChange(e){
@@ -881,6 +898,7 @@ class ObjectField extends React.PureComponent {
             if (fieldType === 'enum'){
                 enumValues = fieldSchema.enum || fieldSchema.suggested_enum || [];
             }
+            console.log('xxx enumValues: ', enumValues);
             // format field as <this_field>.<next_field> so top level modification
             // happens correctly
             const nestedField = propNestedField + '.' + field;
