@@ -1369,9 +1369,7 @@ function (_React$PureComponent3) {
 
         if (fieldType === 'enum') {
           enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum || [];
-        }
-
-        _util.console.log('xxx enumValues: ', enumValues); // format field as <this_field>.<next_field> so top level modification
+        } // format field as <this_field>.<next_field> so top level modification
         // happens correctly
 
 

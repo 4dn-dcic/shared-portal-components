@@ -898,7 +898,6 @@ class ObjectField extends React.PureComponent {
             if (fieldType === 'enum'){
                 enumValues = fieldSchema.enum || fieldSchema.suggested_enum || [];
             }
-            console.log('xxx enumValues: ', enumValues);
             // format field as <this_field>.<next_field> so top level modification
             // happens correctly
             const nestedField = propNestedField + '.' + field;
