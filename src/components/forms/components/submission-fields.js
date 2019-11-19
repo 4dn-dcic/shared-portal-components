@@ -1354,7 +1354,13 @@ export class AliasInputField extends React.Component {
                 </DropdownButton>
             );
         } else { // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
-            firstPartSelect = <InputGroup.Addon className="alias-lab-single-option">{ currFirstPartValue }</InputGroup.Addon>;
+            firstPartSelect = (
+                <InputGroup.Prepend className="alias-lab-single-option">
+                    <span className="input-group-text">
+                        { currFirstPartValue }
+                    </span>
+                </InputGroup.Prepend>
+            );
         }
 
         const outerClassName = "mb-0 alias-input-field form-group has-feedback" + (errorMessage? " is-invalid has-error" : isValid ? " is-valid" : "");

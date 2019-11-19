@@ -72,12 +72,14 @@
 			// consistent widths
 			padding-right: calc(1.475em + 0.75rem);
 		}
-		.input-group-addon.alias-lab-single-option {
-			background: #fff;
-			padding-left: 24px;
-			padding-right: 5px;
+
+		> .input-group-prepend.alias-lab-single-option {
+			& + .input-group-prepend.colon-separator > .input-group-text {
+				border-left: none;
+			}
 		}
-		.input-group-addon.colon-separator {
+
+		> .input-group-prepend.colon-separator {
 			font-weight: 700;
 			border-left: none;
 			border-right: none;

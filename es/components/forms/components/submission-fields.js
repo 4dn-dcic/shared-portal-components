@@ -1974,9 +1974,11 @@ function (_React$Component4) {
         }));
       } else {
         // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
-        firstPartSelect = _react["default"].createElement(_reactBootstrap.InputGroup.Addon, {
+        firstPartSelect = _react["default"].createElement(_reactBootstrap.InputGroup.Prepend, {
           className: "alias-lab-single-option"
-        }, currFirstPartValue);
+        }, _react["default"].createElement("span", {
+          className: "input-group-text"
+        }, currFirstPartValue));
       }
 
       var outerClassName = "mb-0 alias-input-field form-group has-feedback" + (errorMessage ? " is-invalid has-error" : isValid ? " is-valid" : "");
