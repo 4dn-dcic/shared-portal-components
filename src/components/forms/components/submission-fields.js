@@ -4,11 +4,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-import { InputGroup, FormGroup, FormControl } from 'react-bootstrap';
+import { InputGroup, FormControl, DropdownItem, DropdownButton } from 'react-bootstrap';
 
 import { Fade } from './../../ui/Fade';
 import { Checkbox } from './Checkbox';
-import { DropdownItem, DropdownButton } from './DropdownButton';
 import { ajax, console, object, valueTransforms } from './../../util';
 import { Alerts } from './../../ui/Alerts';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
@@ -1337,12 +1336,12 @@ export class AliasInputField extends React.Component {
         } else if (submits_for_list && submits_for_list.length > 1){
             firstPartSelect = (
                 <DropdownButton className={"alias-lab-select form-control alias-first-part-input" + (errorMessage ? " is-invalid" : "") }
-                    id="firstPartSelect"
-                    onSelect={this.onAliasFirstPartChange} componentClass={InputGroup.Button}
+                    id="firstPartSelect" variant="light"
+                    onSelect={this.onAliasFirstPartChange} as={InputGroup.Prepend}
                     title={(parts.length > 1 && (
-                        <span className="text-400">
-                            <small className="pull-left">Lab: </small>
-                            <span className="pull-right text-ellipsis-container" style={{ maxWidth : '80%' }}>
+                        <span className="text-400 d-flex justify-content-between align-items-center">
+                            <small>Lab:&nbsp;</small>
+                            <span className="text-ellipsis-container" style={{ maxWidth : '80%' }}>
                                 { ((parts[0] !== '' && parts[0]) || this.getInitialSubmitsForPart()) }
                             </span>
                         </span>

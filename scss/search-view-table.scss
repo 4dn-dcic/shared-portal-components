@@ -763,6 +763,7 @@ $search-results-header-text-color: #fff !default;
 						.title-wrapper {
 							padding-left: 7px;
 							line-height: 1.25rem;
+							max-width: 100%;
 						}
 
 						@include search-result-toggle-open-button-container;

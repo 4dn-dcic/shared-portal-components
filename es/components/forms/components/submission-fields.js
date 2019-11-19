@@ -20,8 +20,6 @@ var _Fade = require("./../../ui/Fade");
 
 var _Checkbox = require("./Checkbox");
 
-var _DropdownButton = require("./DropdownButton");
-
 var _util = require("./../../util");
 
 var _Alerts = require("./../../ui/Alerts");
@@ -264,7 +262,7 @@ function (_React$PureComponent) {
         case 'enum':
           return _react["default"].createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement(_DropdownButton.DropdownButton, {
+          }, _react["default"].createElement(_reactBootstrap.DropdownButton, {
             title: value || _react["default"].createElement("span", {
               className: "text-300"
             }, "No value"),
@@ -307,7 +305,7 @@ function (_React$PureComponent) {
   }, {
     key: "buildEnumEntry",
     value: function buildEnumEntry(val) {
-      return _react["default"].createElement(_DropdownButton.DropdownItem, {
+      return _react["default"].createElement(_reactBootstrap.DropdownItem, {
         key: val,
         title: val || '',
         eventKey: val,
@@ -1952,23 +1950,22 @@ function (_React$Component4) {
           className: "form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")
         });
       } else if (submits_for_list && submits_for_list.length > 1) {
-        firstPartSelect = _react["default"].createElement(_DropdownButton.DropdownButton, {
+        firstPartSelect = _react["default"].createElement(_reactBootstrap.DropdownButton, {
           className: "alias-lab-select form-control alias-first-part-input" + (errorMessage ? " is-invalid" : ""),
           id: "firstPartSelect",
+          variant: "light",
           onSelect: this.onAliasFirstPartChange,
-          componentClass: _reactBootstrap.InputGroup.Button,
+          as: _reactBootstrap.InputGroup.Prepend,
           title: parts.length > 1 && _react["default"].createElement("span", {
-            className: "text-400"
-          }, _react["default"].createElement("small", {
-            className: "pull-left"
-          }, "Lab: "), _react["default"].createElement("span", {
-            className: "pull-right text-ellipsis-container",
+            className: "text-400 d-flex justify-content-between align-items-center"
+          }, _react["default"].createElement("small", null, "Lab:\xA0"), _react["default"].createElement("span", {
+            className: "text-ellipsis-container",
             style: {
               maxWidth: '80%'
             }
           }, parts[0] !== '' && parts[0] || this.getInitialSubmitsForPart())) || 'Select a Lab'
         }, _underscore["default"].map(submits_for_list, function (lab) {
-          return _react["default"].createElement(_DropdownButton.DropdownItem, {
+          return _react["default"].createElement(_reactBootstrap.DropdownItem, {
             key: lab.name,
             eventKey: lab.name
           }, _react["default"].createElement("span", {

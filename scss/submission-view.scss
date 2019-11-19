@@ -35,27 +35,23 @@
 // Alias Input Multi-Field
 @mixin alias-input-fields {
 	.input-group {
-		.dropdown.input-group-btn {
-			width: 20%;
-			> button.alias-first-part-input {
+
+		.alias-first-part-input {
+			border-right: none;
+			padding: 0;
+			> button {
 				width: 100%;
-				border-right: none;
-				box-shadow: none;
-				outline: none;
-				padding-left: 24px;
-				padding-right: 8px;
-				padding-top: 5px;
-    			padding-bottom: 5px;
-				span.caret {
-					opacity: 0.33;
-					left: 10px;
-					right: unset;
-				}
-				small.pull-left {
-					margin-top: 2px;
-					opacity: 0.5;
-				}
 			}
+			span.caret {
+				opacity: 0.33;
+				left: 10px;
+				right: unset;
+			}
+			small.pull-left {
+				margin-top: 2px;
+				opacity: 0.5;
+			}
+
 			&:hover, &:focus, &:active, &.focus, &.active {
 				> button {
 					span.caret {
@@ -67,7 +63,10 @@
 					}
 				}
 			}
+
 		}
+
+
 		input[type="text"]{
 			// Keeep same padding regardless if showing icon to preserve
 			// consistent widths
