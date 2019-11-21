@@ -318,15 +318,14 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         this.handleLoad = _.throttle(this.handleLoad.bind(this), 3000);
         //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
         //this.handleScrollExt = this.handleScrollExt.bind(this);
-        var state = {
+        this.state = {
             'isLoading' : false,
             'canLoad' : true
         };
-        this.lastIsScrolling = false;
         if (typeof props.mounted === 'undefined'){
-            state.mounted = false;
+            this.state.mounted = false;
         }
-        this.state = state;
+        this.lastIsScrolling = false;
     }
 
     componentDidMount(){
@@ -1082,6 +1081,8 @@ export class SearchResultTable extends React.PureComponent {
         'defaultMinColumnWidth' : 55,
         'hiddenColumns' : null,
         'limit' : 25,
+        // This value (the default or if passed in) should be aligned to value in CSS.
+        // Value in CSS is decremented by 1px to account for border height.
         'rowHeight' : 47,
         'fullWidthInitOffset' : 60,
         'fullWidthContainerSelectorString' : '.browse-page-container',

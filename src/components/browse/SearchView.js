@@ -308,7 +308,7 @@ class ControlsAndResults extends React.PureComponent {
                         {...{ hiddenColumns, columnDefinitions }}/>
                     <SearchResultTable ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} totalExpected={context.total}
                         {..._.pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn',
-                            'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas')}
+                            'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas', 'rowHeight')}
                         {...{ hiddenColumns, results, columnDefinitions }} />
                     {isSelectAction(currentAction) ?
                         <SelectStickyFooter {...{ context, schemas, selectedItems, currentAction }}
@@ -356,6 +356,8 @@ export class SearchView extends React.PureComponent {
     render() {
         const { facets : propFacets, navigate: propNavigate, context } = this.props;
         return (
+            // TODO once we have @type : [..more stuff..], apply some HTML attributes to this search-page-container to allow
+            // custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
             <div className="search-page-container">
                 <AboveSearchTablePanel {..._.pick(this.props, 'href', 'context', 'schemas')} />
                 <SearchControllersContainer {...this.props} facets={propFacets || context.facets} navigate={propNavigate || navigate} />

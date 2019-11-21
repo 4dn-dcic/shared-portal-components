@@ -469,7 +469,7 @@ function (_React$PureComponent2) {
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane,
         totalExpected: context.total
-      }, _underscore["default"].pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas'), {
+      }, _underscore["default"].pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas', 'rowHeight'), {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions
@@ -540,12 +540,15 @@ function (_React$PureComponent3) {
           propFacets = _this$props5.facets,
           propNavigate = _this$props5.navigate,
           context = _this$props5.context;
-      return _react["default"].createElement("div", {
-        className: "search-page-container"
-      }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, _underscore["default"].pick(this.props, 'href', 'context', 'schemas')), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
-        facets: propFacets || context.facets,
-        navigate: propNavigate || _navigate.navigate
-      })));
+      return (// TODO once we have @type : [..more stuff..], apply some HTML attributes to this search-page-container to allow
+        // custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
+        _react["default"].createElement("div", {
+          className: "search-page-container"
+        }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, _underscore["default"].pick(this.props, 'href', 'context', 'schemas')), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
+          facets: propFacets || context.facets,
+          navigate: propNavigate || _navigate.navigate
+        })))
+      );
     }
   }]);
 

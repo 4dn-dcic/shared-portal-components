@@ -442,17 +442,16 @@ function (_React$PureComponent3) {
     _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000); //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
     //this.handleScrollExt = this.handleScrollExt.bind(this);
 
-    var state = {
+    _this4.state = {
       'isLoading': false,
       'canLoad': true
     };
-    _this4.lastIsScrolling = false;
 
     if (typeof props.mounted === 'undefined') {
-      state.mounted = false;
+      _this4.state.mounted = false;
     }
 
-    _this4.state = state;
+    _this4.lastIsScrolling = false;
     return _this4;
   }
 
@@ -1509,6 +1508,8 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'defaultMinColumnWidth': 55,
   'hiddenColumns': null,
   'limit': 25,
+  // This value (the default or if passed in) should be aligned to value in CSS.
+  // Value in CSS is decremented by 1px to account for border height.
   'rowHeight': 47,
   'fullWidthInitOffset': 60,
   'fullWidthContainerSelectorString': '.browse-page-container',
