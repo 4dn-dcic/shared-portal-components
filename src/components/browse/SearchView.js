@@ -10,7 +10,7 @@ import ReactTooltip from 'react-tooltip';
 import { Alerts } from './../ui/Alerts';
 import { navigate } from './../util/navigate';
 import { isSelectAction } from './../util/misc';
-import { getAbstractTypeForType, getSchemaTypeFromSearchContext } from './../util/schema-transforms';
+import { getAbstractTypeForType, getSchemaTypeFromSearchContext, getTitleForType } from './../util/schema-transforms';
 import { determineIfTermFacetSelected, getTermFacetStatus } from './../util/search-filters';
 import { itemUtil } from './../util/object';
 import { patchedConsoleInstance as console } from './../util/patched-console';
@@ -353,13 +353,16 @@ export class SearchView extends React.PureComponent {
         ReactTooltip.rebuild();
     }
 
+    /**
+     * TODO once we have @type : [..more stuff..], change to use instead of `getSchemaTypeFromSearchContext`.
+     * For custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
+     */
     render() {
-        const { facets : propFacets, navigate: propNavigate, context } = this.props;
+        const { facets : propFacets, navigate: propNavigate, href, context, schemas } = this.props;
+        const searchItemType = getSchemaTypeFromSearchContext(context, schemas);
         return (
-            // TODO once we have @type : [..more stuff..], apply some HTML attributes to this search-page-container to allow
-            // custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
-            <div className="search-page-container">
-                <AboveSearchTablePanel {..._.pick(this.props, 'href', 'context', 'schemas')} />
+            <div className="search-page-container" data-search-item-type={searchItemType}>
+                <AboveSearchTablePanel {...{ href, context, schemas }} />
                 <SearchControllersContainer {...this.props} facets={propFacets || context.facets} navigate={propNavigate || navigate} />
             </div>
         );
@@ -372,7 +375,7 @@ const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
         context, schemas, selectedItems,
         onComplete, onCancel, currentAction
     } = props;
-    const itemTypeFriendlyName = getSchemaTypeFromSearchContext(context, schemas);
+    const itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context, schemas), schemas);
     const selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
     return (
         <StickyFooter>

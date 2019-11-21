@@ -64,20 +64,18 @@ export function lookupFieldTitle(field, schemas, itemType = 'ExperimentSet'){
  * Helper function which gets the most relevant `@type` for search page context from the
  * current search filters. If none specified or is set to "Item", then null is returned.
  *
+ * @memoized Can be safely assumed there is one search context per page view at any time (might change in future, in which case, unmemoize prly)
  * @param {Item} context - Current Item or backend response JSON representation.
  * @returns {string|null} Type most relevant for current search, or `null`.
  */
-export function getSchemaTypeFromSearchContext(context, schemas){
+export const getSchemaTypeFromSearchContext = memoize(function getSchemaTypeFromSearchContext(context, schemas){
     const thisTypeFilter = _.find(context.filters || [], function({ field, term }){
         if (field === 'type' && term !== 'Item') return true;
         return false;
     }) || null;
     const { term: thisType } = thisTypeFilter || {};
-    if (thisType){
-        return getTitleForType(thisType, schemas);
-    }
-    return null;
-}
+    return thisType || null;
+});
 
 /**
  * Converts a nested object from this form: "key" : { ..., "items" : { ..., "properties" : { "property" : { ...details... } } } }

@@ -533,22 +533,32 @@ function (_React$PureComponent3) {
     value: function componentDidMount() {
       _reactTooltip["default"].rebuild();
     }
+    /**
+     * TODO once we have @type : [..more stuff..], change to use instead of `getSchemaTypeFromSearchContext`.
+     * For custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
+     */
+
   }, {
     key: "render",
     value: function render() {
       var _this$props5 = this.props,
           propFacets = _this$props5.facets,
           propNavigate = _this$props5.navigate,
-          context = _this$props5.context;
-      return (// TODO once we have @type : [..more stuff..], apply some HTML attributes to this search-page-container to allow
-        // custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
-        _react["default"].createElement("div", {
-          className: "search-page-container"
-        }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, _underscore["default"].pick(this.props, 'href', 'context', 'schemas')), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
-          facets: propFacets || context.facets,
-          navigate: propNavigate || _navigate.navigate
-        })))
-      );
+          href = _this$props5.href,
+          context = _this$props5.context,
+          schemas = _this$props5.schemas;
+      var searchItemType = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
+      return _react["default"].createElement("div", {
+        className: "search-page-container",
+        "data-search-item-type": searchItemType
+      }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
+        href: href,
+        context: context,
+        schemas: schemas
+      }), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
+        facets: propFacets || context.facets,
+        navigate: propNavigate || _navigate.navigate
+      })));
     }
   }]);
 
@@ -583,7 +593,7 @@ var SelectStickyFooter = _react["default"].memo(function (props) {
       onComplete = props.onComplete,
       onCancel = props.onCancel,
       currentAction = props.currentAction;
-  var itemTypeFriendlyName = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
+  var itemTypeFriendlyName = (0, _schemaTransforms.getTitleForType)((0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas), schemas);
   var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
   return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
     className: "row selection-controls-footer"
