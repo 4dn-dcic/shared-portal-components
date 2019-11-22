@@ -280,11 +280,7 @@ export function getColumnWidthFromDefinition(columnDefinition, mounted=true, win
         return w;
     }
 
-    let widthMap = columnDefinition.widthMap || null;
-
-    if (typeof widthMap === "function") {
-        widthMap = widthMap(props);
-    }
+    const widthMap = columnDefinition.widthMap || null;
 
     if (!widthMap) {
         return 250; // Fallback
@@ -573,12 +569,12 @@ export class HeadersRow extends React.Component {
     }
 
     getWidthFor(idx){
-        const { headerColumnWidths, mounted, columnDefinitions } = this.props;
+        const { headerColumnWidths, mounted, columnDefinitions, windowWidth } = this.props;
         const { widths } = this.state;
         return (
             (Array.isArray(widths) && widths[idx]) ||
             (Array.isArray(headerColumnWidths) && headerColumnWidths[idx]) ||
-            getColumnWidthFromDefinition(columnDefinitions[idx], mounted)
+            getColumnWidthFromDefinition(columnDefinitions[idx], mounted, windowWidth)
         );
     }
 

@@ -30,13 +30,13 @@ import {
 
 
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
-    const { columnDefinition, columnNumber, mounted, headerColumnWidths, schemas } = props;
+    const { columnDefinition, columnNumber, mounted, headerColumnWidths, schemas, windowWidth } = props;
     let blockWidth;
 
     if (mounted){
-        blockWidth = headerColumnWidths[columnNumber] || getColumnWidthFromDefinition(columnDefinition, props);
+        blockWidth = headerColumnWidths[columnNumber] || getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
     } else {
-        blockWidth = getColumnWidthFromDefinition(columnDefinition, props);
+        blockWidth = getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
     }
 
     return ( // props includes result

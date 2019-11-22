@@ -6,7 +6,7 @@ import moment from 'moment';
 import { isServerSide } from './../util/misc';
 
 
-export class LocalizedTime extends React.Component {
+export class LocalizedTime extends React.PureComponent {
 
     constructor(props){
         super(props);
@@ -22,17 +22,18 @@ export class LocalizedTime extends React.Component {
     }
 
     render(){
-        var { formatType, dateTimeSeparator, localize, customOutputFormat } = this.props;
-        if (!this.state.mounted || isServerSide()) {
+        const { formatType, dateTimeSeparator, localize, customOutputFormat, className } = this.props;
+        const { moment: stateMoment, mounted } = this.state;
+        if (!mounted || isServerSide()) {
             return (
-                <span className={this.props.className + ' utc'}>
-                    { display(this.state.moment, formatType, dateTimeSeparator, false, customOutputFormat) }
+                <span className={className + ' utc'}>
+                    { display(stateMoment, formatType, dateTimeSeparator, false, customOutputFormat) }
                 </span>
             );
         } else {
             return (
-                <span className={this.props.className + (localize ? ' local' : ' utc')}>
-                    { display(this.state.moment, formatType, dateTimeSeparator, localize, customOutputFormat) }
+                <span className={className + (localize ? ' local' : ' utc')}>
+                    { display(stateMoment, formatType, dateTimeSeparator, localize, customOutputFormat) }
                 </span>
             );
         }
@@ -83,6 +84,9 @@ export function preset(formatType = 'date-md', dateTimeSeparator = " "){
             case 'date-month':
                 // November 2016
                 return "MMMM YYYY";
+            case 'date-year':
+                // November 2016
+                return "YYYY";
         }
     }
 

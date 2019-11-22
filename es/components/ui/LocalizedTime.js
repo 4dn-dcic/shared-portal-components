@@ -39,8 +39,8 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 var LocalizedTime =
 /*#__PURE__*/
-function (_React$Component) {
-  _inherits(LocalizedTime, _React$Component);
+function (_React$PureComponent) {
+  _inherits(LocalizedTime, _React$PureComponent);
 
   function LocalizedTime(props) {
     var _this;
@@ -69,22 +69,26 @@ function (_React$Component) {
           formatType = _this$props.formatType,
           dateTimeSeparator = _this$props.dateTimeSeparator,
           localize = _this$props.localize,
-          customOutputFormat = _this$props.customOutputFormat;
+          customOutputFormat = _this$props.customOutputFormat,
+          className = _this$props.className;
+      var _this$state = this.state,
+          stateMoment = _this$state.moment,
+          mounted = _this$state.mounted;
 
-      if (!this.state.mounted || (0, _misc.isServerSide)()) {
+      if (!mounted || (0, _misc.isServerSide)()) {
         return _react["default"].createElement("span", {
-          className: this.props.className + ' utc'
-        }, display(this.state.moment, formatType, dateTimeSeparator, false, customOutputFormat));
+          className: className + ' utc'
+        }, display(stateMoment, formatType, dateTimeSeparator, false, customOutputFormat));
       } else {
         return _react["default"].createElement("span", {
-          className: this.props.className + (localize ? ' local' : ' utc')
-        }, display(this.state.moment, formatType, dateTimeSeparator, localize, customOutputFormat));
+          className: className + (localize ? ' local' : ' utc')
+        }, display(stateMoment, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
     }
   }]);
 
   return LocalizedTime;
-}(_react["default"].Component);
+}(_react["default"].PureComponent);
 
 exports.LocalizedTime = LocalizedTime;
 LocalizedTime.propTypes = {
@@ -139,6 +143,10 @@ function preset() {
       case 'date-month':
         // November 2016
         return "MMMM YYYY";
+
+      case 'date-year':
+        // November 2016
+        return "YYYY";
     }
   }
 

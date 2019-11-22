@@ -411,10 +411,6 @@ function getColumnWidthFromDefinition(columnDefinition) {
 
   var widthMap = columnDefinition.widthMap || null;
 
-  if (typeof widthMap === "function") {
-    widthMap = widthMap(props);
-  }
-
   if (!widthMap) {
     return 250; // Fallback
   }
@@ -779,9 +775,10 @@ function (_React$Component2) {
       var _this$props8 = this.props,
           headerColumnWidths = _this$props8.headerColumnWidths,
           mounted = _this$props8.mounted,
-          columnDefinitions = _this$props8.columnDefinitions;
+          columnDefinitions = _this$props8.columnDefinitions,
+          windowWidth = _this$props8.windowWidth;
       var widths = this.state.widths;
-      return Array.isArray(widths) && widths[idx] || Array.isArray(headerColumnWidths) && headerColumnWidths[idx] || getColumnWidthFromDefinition(columnDefinitions[idx], mounted);
+      return Array.isArray(widths) && widths[idx] || Array.isArray(headerColumnWidths) && headerColumnWidths[idx] || getColumnWidthFromDefinition(columnDefinitions[idx], mounted, windowWidth);
     }
   }, {
     key: "onAdjusterDrag",
