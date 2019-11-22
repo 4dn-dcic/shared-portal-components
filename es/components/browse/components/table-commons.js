@@ -316,7 +316,7 @@ function haveContextColumnsChanged(cols1, cols2) {
 var columnsToColumnDefinitions = (0, _memoizeOne["default"])(function (columns, columnDefinitionMap) {
   var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_WIDTH_MAP;
 
-  var uninishedColumnDefinitions = _underscore["default"].map(_underscore["default"].pairs(columns), function (_ref2) {
+  var uninishedColumnDefinitions = _underscore["default"].pairs(columns).map(function (_ref2) {
     var _ref3 = _slicedToArray(_ref2, 2),
         field = _ref3[0],
         columnProperties = _ref3[1];
@@ -371,6 +371,7 @@ var defaultHiddenColumnMapFromColumns = (0, _memoizeOne["default"])(function (co
 });
 /**
  * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).
+ * Used in 4DN ItemPageTable, otherwise is deprecated?
  */
 
 exports.defaultHiddenColumnMapFromColumns = defaultHiddenColumnMapFromColumns;
@@ -410,15 +411,19 @@ function getColumnWidthFromDefinition(columnDefinition) {
 
   var widthMap = columnDefinition.widthMap || null;
 
-  if (widthMap) {
-    var responsiveGridSize;
-    if (!mounted || (0, _misc.isServerSide)()) responsiveGridSize = 'lg';else responsiveGridSize = (0, _layout.responsiveGridState)(windowWidth);
-    if (responsiveGridSize === 'xs') responsiveGridSize = 'sm';
-    if (responsiveGridSize === 'xl') responsiveGridSize = 'lg';
-    return widthMap[responsiveGridSize || 'lg'];
+  if (typeof widthMap === "function") {
+    widthMap = widthMap(props);
   }
 
-  return 250; // Fallback.
+  if (!widthMap) {
+    return 250; // Fallback
+  }
+
+  var responsiveGridSize;
+  if (!mounted || (0, _misc.isServerSide)()) responsiveGridSize = 'lg';else responsiveGridSize = (0, _layout.responsiveGridState)(windowWidth);
+  if (responsiveGridSize === 'xs') responsiveGridSize = 'sm';
+  if (responsiveGridSize === 'xl') responsiveGridSize = 'lg';
+  return widthMap[responsiveGridSize || 'lg'];
 }
 
 var ResultRowColumnBlockValue =

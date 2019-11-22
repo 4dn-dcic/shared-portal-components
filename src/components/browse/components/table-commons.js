@@ -209,15 +209,12 @@ export function haveContextColumnsChanged(cols1, cols2){
  * @returns {Object[]}                      List of objects containing keys 'title', 'field', 'widthMap', and 'render'.
  */
 export const columnsToColumnDefinitions = memoize(function(columns, columnDefinitionMap, defaultWidthMap = DEFAULT_WIDTH_MAP){
-    var uninishedColumnDefinitions = _.map(
-        _.pairs(columns),
-        function([field, columnProperties]){
-            return _.extend({ field }, columnProperties);
-        }
-    );
+    const uninishedColumnDefinitions = _.pairs(columns).map(function([ field, columnProperties ]){
+        return _.extend({ field }, columnProperties);
+    });
 
-    var columnDefinitions = _.map(uninishedColumnDefinitions, function(colDef, i){
-        var colDefOverride = columnDefinitionMap && columnDefinitionMap[colDef.field];
+    const columnDefinitions = _.map(uninishedColumnDefinitions, function(colDef, i){
+        const colDefOverride = columnDefinitionMap && columnDefinitionMap[colDef.field];
         if (colDefOverride){
             var colDef2 = _.extend({}, colDefOverride, colDef);
             colDef = colDef2;
@@ -254,6 +251,7 @@ export const defaultHiddenColumnMapFromColumns = memoize(function(columns){
 
 /**
  * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).
+ * Used in 4DN ItemPageTable, otherwise is deprecated?
  */
 export const columnDefinitionsToScaledColumnDefinitions = memoize(function(columnDefinitions){
     return columnDefinitions.map(function(colDef){
@@ -277,21 +275,27 @@ export const columnDefinitionsToScaledColumnDefinitions = memoize(function(colum
  * @returns {string|number} Width for div column block to be used at current screen/browser size.
  */
 export function getColumnWidthFromDefinition(columnDefinition, mounted=true, windowWidth=null){
-
-    var w = columnDefinition.width || columnDefinition.baseWidth || null;
+    const w = columnDefinition.width || columnDefinition.baseWidth || null;
     if (typeof w === 'number'){
         return w;
     }
-    var widthMap = columnDefinition.widthMap || null;
-    if (widthMap){
-        let responsiveGridSize;
-        if (!mounted || isServerSide()) responsiveGridSize = 'lg';
-        else responsiveGridSize = responsiveGridState(windowWidth);
-        if (responsiveGridSize === 'xs') responsiveGridSize = 'sm';
-        if (responsiveGridSize === 'xl') responsiveGridSize = 'lg';
-        return widthMap[responsiveGridSize || 'lg'];
+
+    let widthMap = columnDefinition.widthMap || null;
+
+    if (typeof widthMap === "function") {
+        widthMap = widthMap(props);
     }
-    return 250; // Fallback.
+
+    if (!widthMap) {
+        return 250; // Fallback
+    }
+
+    let responsiveGridSize;
+    if (!mounted || isServerSide()) responsiveGridSize = 'lg';
+    else responsiveGridSize = responsiveGridState(windowWidth);
+    if (responsiveGridSize === 'xs') responsiveGridSize = 'sm';
+    if (responsiveGridSize === 'xl') responsiveGridSize = 'lg';
+    return widthMap[responsiveGridSize || 'lg'];
 }
 
 

@@ -553,7 +553,7 @@ function (_React$PureComponent3) {
           href = _this$props5.href,
           context = _this$props5.context,
           schemas = _this$props5.schemas;
-      var searchItemType = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas);
+      var searchItemType = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context);
       return _react["default"].createElement("div", {
         className: "search-page-container",
         "data-search-item-type": searchItemType
@@ -599,7 +599,7 @@ var SelectStickyFooter = _react["default"].memo(function (props) {
       onComplete = props.onComplete,
       onCancel = props.onCancel,
       currentAction = props.currentAction;
-  var itemTypeFriendlyName = (0, _schemaTransforms.getTitleForType)((0, _schemaTransforms.getSchemaTypeFromSearchContext)(context, schemas), schemas);
+  var itemTypeFriendlyName = (0, _schemaTransforms.getTitleForType)((0, _schemaTransforms.getSchemaTypeFromSearchContext)(context), schemas);
   var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
   return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
     className: "row selection-controls-footer"

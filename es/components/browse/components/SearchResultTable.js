@@ -85,14 +85,13 @@ var ResultRowColumnBlock = _react["default"].memo(function (props) {
       columnNumber = props.columnNumber,
       mounted = props.mounted,
       headerColumnWidths = props.headerColumnWidths,
-      schemas = props.schemas,
-      windowWidth = props.windowWidth;
+      schemas = props.schemas;
   var blockWidth;
 
   if (mounted) {
-    blockWidth = headerColumnWidths[columnNumber] || (0, _tableCommons.getColumnWidthFromDefinition)(columnDefinition, mounted, windowWidth);
+    blockWidth = headerColumnWidths[columnNumber] || (0, _tableCommons.getColumnWidthFromDefinition)(columnDefinition, props);
   } else {
-    blockWidth = (0, _tableCommons.getColumnWidthFromDefinition)(columnDefinition, mounted, windowWidth);
+    blockWidth = (0, _tableCommons.getColumnWidthFromDefinition)(columnDefinition, props);
   }
 
   return (// props includes result

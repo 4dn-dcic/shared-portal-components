@@ -361,7 +361,7 @@ export class SearchView extends React.PureComponent {
      */
     render() {
         const { facets : propFacets, navigate: propNavigate, href, context, schemas } = this.props;
-        const searchItemType = getSchemaTypeFromSearchContext(context, schemas);
+        const searchItemType = getSchemaTypeFromSearchContext(context);
         return (
             <div className="search-page-container" data-search-item-type={searchItemType}>
                 <AboveSearchTablePanel {...{ href, context, schemas }} />
@@ -377,7 +377,7 @@ const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
         context, schemas, selectedItems,
         onComplete, onCancel, currentAction
     } = props;
-    const itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context, schemas), schemas);
+    const itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context), schemas);
     const selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
     return (
         <StickyFooter>

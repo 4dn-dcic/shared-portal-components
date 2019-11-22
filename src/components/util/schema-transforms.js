@@ -68,7 +68,7 @@ export function lookupFieldTitle(field, schemas, itemType = 'ExperimentSet'){
  * @param {Item} context - Current Item or backend response JSON representation.
  * @returns {string|null} Type most relevant for current search, or `null`.
  */
-export const getSchemaTypeFromSearchContext = memoize(function getSchemaTypeFromSearchContext(context, schemas){
+export const getSchemaTypeFromSearchContext = memoize(function getSchemaTypeFromSearchContext(context){
     const thisTypeFilter = _.find(context.filters || [], function({ field, term }){
         if (field === 'type' && term !== 'Item') return true;
         return false;
