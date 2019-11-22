@@ -444,6 +444,17 @@ function (_React$PureComponent2) {
 
       var selfExtendedColumnExtensionMap = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
       var columnDefinitions = (0, _tableCommons.columnsToColumnDefinitions)(context.columns || {}, selfExtendedColumnExtensionMap);
+
+      var searchResultTableProps = _underscore["default"].extend({
+        context: context,
+        href: href,
+        currentAction: currentAction,
+        schemas: schemas,
+        hiddenColumns: hiddenColumns,
+        results: results,
+        columnDefinitions: columnDefinitions
+      }, _underscore["default"].pick(this.props, 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'windowWidth', 'registerWindowOnScrollHandler', 'rowHeight'));
+
       return _react["default"].createElement("div", {
         className: "row"
       }, facets.length ? _react["default"].createElement("div", {
@@ -465,14 +476,9 @@ function (_React$PureComponent2) {
       }, _underscore["default"].pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen'), {
         hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions
-      })), _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({
+      })), _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, searchResultTableProps, {
         ref: this.searchResultTableRef,
-        renderDetailPane: this.renderSearchDetailPane,
-        totalExpected: context.total
-      }, _underscore["default"].pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas', 'rowHeight'), {
-        hiddenColumns: hiddenColumns,
-        results: results,
-        columnDefinitions: columnDefinitions
+        renderDetailPane: this.renderSearchDetailPane
       })), (0, _misc.isSelectAction)(currentAction) ? _react["default"].createElement(SelectStickyFooter, _extends({
         context: context,
         schemas: schemas,

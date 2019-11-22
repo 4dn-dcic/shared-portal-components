@@ -384,7 +384,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
 
     render(){
         const {
-            children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft, totalExpected, results,
+            children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft, context, results,
             mounted: propMounted
         } = this.props;
         const { mounted: stateMounted, isLoading } = this.state;
@@ -398,7 +398,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             }
             return rowHeight;
         });
-        const canLoad = LoadMoreAsYouScroll.canLoadMore(totalExpected, results);
+        const canLoad = (context && context.total && LoadMoreAsYouScroll.canLoadMore(context.total, results)) || false;
         return (
             <Infinite
                 elementHeight={elementHeight}
@@ -945,7 +945,9 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     canLoadMore(){
-        return LoadMoreAsYouScroll.canLoadMore(this.props.totalExpected, this.state.results);
+        const { context : { total = 0 } = {} } = this.props;
+        const { results = [] } = this.state;
+        return LoadMoreAsYouScroll.canLoadMore(total, results);
     }
 
     renderResults(){
@@ -954,10 +956,15 @@ class DimensioningContainer extends React.PureComponent {
         const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
         // selectedFiles passed to trigger re-render on PureComponent further down tree (DetailPane).
         const commonPropsToPass = _.extend(
-            _.pick(this.props, 'columnDefinitions', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'windowWidth', 'schemas', 'termTransformFxn'),
-            { openDetailPanes, tableContainerWidth, tableContainerScrollLeft,
-                'mounted' : mounted || false, 'headerColumnWidths' : widths, 'rowWidth' : fullRowWidth, 'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
-                'setDetailHeight' : this.setDetailHeight }
+            _.pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'),
+            {
+                columnDefinitions, openDetailPanes, tableContainerWidth, tableContainerScrollLeft, windowWidth,
+                'mounted' : mounted || false,
+                'headerColumnWidths' : widths,
+                'rowWidth' : fullRowWidth,
+                'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
+                'setDetailHeight' : this.setDetailHeight
+            }
         );
 
         return _.map(results, (r, idx)=>{
@@ -988,7 +995,7 @@ class DimensioningContainer extends React.PureComponent {
                     <div className="inner-container" ref={this.innerContainerRef}>
                         <div className="scrollable-container" style={{ minWidth : fullRowWidth + 6 }}>
                             <LoadMoreAsYouScroll
-                                {..._.pick(this.props, 'href', 'limit', 'rowHeight', 'totalExpected',
+                                {..._.pick(this.props, 'href', 'limit', 'rowHeight', 'context',
                                     'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas')}
                                 {..._.pick(this.state, 'results', 'mounted', 'openDetailPanes')}
                                 {...{ tableContainerWidth, tableContainerScrollLeft, innerContainerElem }}
@@ -1059,7 +1066,9 @@ export class SearchResultTable extends React.PureComponent {
         'defaultWidthMap'   : PropTypes.shape({ 'lg' : PropTypes.number.isRequired, 'md' : PropTypes.number.isRequired, 'sm' : PropTypes.number.isRequired }).isRequired,
         'hiddenColumns'     : PropTypes.objectOf(PropTypes.bool),
         'renderDetailPane'  : PropTypes.func,
-        'totalExpected'     : PropTypes.number.isRequired,
+        'context'           : PropTypes.shape({
+            'total'             : PropTypes.number.isRequired
+        }).isRequired,
         'windowWidth'       : PropTypes.number.isRequired,
         'registerWindowOnScrollHandler' : PropTypes.func.isRequired,
         'columnExtensionMap' : PropTypes.objectOf(PropTypes.shape({

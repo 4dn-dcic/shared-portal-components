@@ -289,6 +289,11 @@ class ControlsAndResults extends React.PureComponent {
         const selfExtendedColumnExtensionMap  = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
         const columnDefinitions               = columnsToColumnDefinitions(context.columns || {}, selfExtendedColumnExtensionMap);
 
+        const searchResultTableProps = _.extend(
+            { context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions },
+            _.pick(this.props, 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'windowWidth', 'registerWindowOnScrollHandler', 'rowHeight')
+        );
+
         return (
             <div className="row">
                 { facets.length ?
@@ -306,10 +311,7 @@ class ControlsAndResults extends React.PureComponent {
                         {..._.pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns',
                             'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen')}
                         {...{ hiddenColumns, columnDefinitions }}/>
-                    <SearchResultTable ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} totalExpected={context.total}
-                        {..._.pick(this.props, 'href', 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn',
-                            'currentAction', 'windowWidth', 'registerWindowOnScrollHandler', 'schemas', 'rowHeight')}
-                        {...{ hiddenColumns, results, columnDefinitions }} />
+                    <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
                     {isSelectAction(currentAction) ?
                         <SelectStickyFooter {...{ context, schemas, selectedItems, currentAction }}
                             onComplete={this.handleSelectItemCompleteClick} onCancel={this.handleSelectCancelClick} />

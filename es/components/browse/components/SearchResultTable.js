@@ -552,7 +552,7 @@ function (_React$PureComponent3) {
           openRowHeight = _this$props10.openRowHeight,
           tableContainerWidth = _this$props10.tableContainerWidth,
           tableContainerScrollLeft = _this$props10.tableContainerScrollLeft,
-          totalExpected = _this$props10.totalExpected,
+          context = _this$props10.context,
           results = _this$props10.results,
           propMounted = _this$props10.mounted;
       var _this$state = this.state,
@@ -571,7 +571,7 @@ function (_React$PureComponent3) {
 
         return rowHeight;
       });
-      var canLoad = LoadMoreAsYouScroll.canLoadMore(totalExpected, results);
+      var canLoad = context && context.total && LoadMoreAsYouScroll.canLoadMore(context.total, results) || false;
       return _react["default"].createElement(_reactInfinite["default"], {
         elementHeight: elementHeight,
         useWindowAsScrollContainer: true,
@@ -1266,7 +1266,13 @@ function (_React$PureComponent4) {
   }, {
     key: "canLoadMore",
     value: function canLoadMore() {
-      return LoadMoreAsYouScroll.canLoadMore(this.props.totalExpected, this.state.results);
+      var _this$props$context = this.props.context;
+      _this$props$context = _this$props$context === void 0 ? {} : _this$props$context;
+      var _this$props$context$t = _this$props$context.total,
+          total = _this$props$context$t === void 0 ? 0 : _this$props$context$t;
+      var _this$state$results = this.state.results,
+          results = _this$state$results === void 0 ? [] : _this$state$results;
+      return LoadMoreAsYouScroll.canLoadMore(total, results);
     }
   }, {
     key: "renderResults",
@@ -1285,10 +1291,12 @@ function (_React$PureComponent4) {
       var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth); // selectedFiles passed to trigger re-render on PureComponent further down tree (DetailPane).
 
 
-      var commonPropsToPass = _underscore["default"].extend(_underscore["default"].pick(this.props, 'columnDefinitions', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'windowWidth', 'schemas', 'termTransformFxn'), {
+      var commonPropsToPass = _underscore["default"].extend(_underscore["default"].pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'), {
+        columnDefinitions: columnDefinitions,
         openDetailPanes: openDetailPanes,
         tableContainerWidth: tableContainerWidth,
         tableContainerScrollLeft: tableContainerScrollLeft,
+        windowWidth: windowWidth,
         'mounted': mounted || false,
         'headerColumnWidths': widths,
         'rowWidth': fullRowWidth,
@@ -1347,7 +1355,7 @@ function (_React$PureComponent4) {
         style: {
           minWidth: fullRowWidth + 6
         }
-      }, _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'totalExpected', 'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas'), _underscore["default"].pick(this.state, 'results', 'mounted', 'openDetailPanes'), {
+      }, _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'context', 'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas'), _underscore["default"].pick(this.state, 'results', 'mounted', 'openDetailPanes'), {
         tableContainerWidth: tableContainerWidth,
         tableContainerScrollLeft: tableContainerScrollLeft,
         innerContainerElem: innerContainerElem
@@ -1476,7 +1484,9 @@ _defineProperty(SearchResultTable, "propTypes", {
   }).isRequired,
   'hiddenColumns': _propTypes["default"].objectOf(_propTypes["default"].bool),
   'renderDetailPane': _propTypes["default"].func,
-  'totalExpected': _propTypes["default"].number.isRequired,
+  'context': _propTypes["default"].shape({
+    'total': _propTypes["default"].number.isRequired
+  }).isRequired,
   'windowWidth': _propTypes["default"].number.isRequired,
   'registerWindowOnScrollHandler': _propTypes["default"].func.isRequired,
   'columnExtensionMap': _propTypes["default"].objectOf(_propTypes["default"].shape({
