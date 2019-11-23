@@ -340,7 +340,7 @@ function changeFilter(field, term, filters) {
       return newObj;
     } else {
       console.info("Saving new filters:", newObj);
-      return saveChangedFilters(newObj, href, callback);
+      return saveChangedFilters(newObj, href, callback, excludedQs);
     }
   } else {
     return filters;
@@ -360,6 +360,7 @@ function changeFilter(field, term, filters) {
 function saveChangedFilters(newExpSetFilters) {
   var href = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var callback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+  var requiredQs = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   if (!Alerts) Alerts = require('../ui/Alerts').Alerts;
 
   if (!href) {
@@ -373,7 +374,7 @@ function saveChangedFilters(newExpSetFilters) {
 
   if (typeof href !== 'string') throw new Error("No valid href (3rd arg) supplied to saveChangedFilters: " + href);
   var origHref = href;
-  var newHref = filtersToHref(newExpSetFilters, href);
+  var newHref = filtersToHref(newExpSetFilters, href, null, false, null, requiredQs);
   (0, _navigate.navigate)(newHref, {
     replace: true,
     skipConfirmCheck: true
@@ -508,7 +509,8 @@ function filtersToHref(expSetFilters, currentHref) {
   var sortColumn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var sortReverse = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var hrefPath = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-  var baseHref = getBaseHref(currentHref, hrefPath); // Include a '?' or '&' if needed.
+  var requiredQs = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
+  var baseHref = getBaseHref(currentHref, hrefPath, requiredQs); // Include a '?' or '&' if needed.
 
   var sep = _navigate.navigate.determineSeparatorChar(baseHref),
       filterQuery = expSetFiltersToURLQuery(expSetFilters),
@@ -733,6 +735,7 @@ function convertExpSetFiltersTerms(expSetFilters) {
 function getBaseHref() {
   var currentHref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '/browse/';
   var hrefPath = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  var requiredQs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var urlParts = _url["default"].parse(currentHref, true);
 
@@ -743,6 +746,10 @@ function getBaseHref() {
   var baseHref = urlParts.protocol && urlParts.host ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
 
   var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'q');
+
+  if (hrefPath.indexOf('/browse/') > -1) {
+    _underscore["default"].extend(hrefQuery, requiredQs);
+  }
 
   if (hrefPath.indexOf('/search/') > -1) {
     if (typeof hrefQuery.type !== 'string') {

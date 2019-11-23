@@ -243,7 +243,7 @@ export function changeFilter(
             return newObj;
         } else {
             console.info("Saving new filters:", newObj);
-            return saveChangedFilters(newObj, href, callback);
+            return saveChangedFilters(newObj, href, callback, excludedQs);
         }
     } else {
         return filters;
@@ -260,7 +260,7 @@ export function changeFilter(
  * @param {?function} [callback=null]  Callback function.
  * @returns {void}
  */
-export function saveChangedFilters(newExpSetFilters, href=null, callback=null){
+export function saveChangedFilters(newExpSetFilters, href=null, callback=null, requiredQs={}){
     if (!Alerts) Alerts = require('../ui/Alerts').Alerts;
 
     if (!href){
@@ -275,7 +275,7 @@ export function saveChangedFilters(newExpSetFilters, href=null, callback=null){
     if (typeof href !== 'string') throw new Error("No valid href (3rd arg) supplied to saveChangedFilters: " + href);
 
     const origHref = href;
-    const newHref = filtersToHref(newExpSetFilters, href);
+    const newHref = filtersToHref(newExpSetFilters, href, null, false, null, requiredQs);
 
     navigate(newHref, { replace : true, skipConfirmCheck: true }, (result)=>{
         if (result && result.total === 0){
@@ -415,8 +415,8 @@ export function unsetAllTermsForField(field, expSetFilters, save = true, href = 
  * @param {string} [hrefPath]           Override the /path/ in URL returned, e.g. to /browse/.
  * @returns {string} URL which can be used to request filtered results from back-end, e.g. http://localhost:8000/browse/?type=ExperimentSetReplicate&experimentset_type=replicate&from=0&limit=50&field.name=term1&field2.something=term2[...]
  */
-export function filtersToHref(expSetFilters, currentHref, sortColumn = null, sortReverse = false, hrefPath = null){
-    var baseHref = getBaseHref(currentHref, hrefPath);
+export function filtersToHref(expSetFilters, currentHref, sortColumn = null, sortReverse = false, hrefPath = null, requiredQs = {}){
+    var baseHref = getBaseHref(currentHref, hrefPath, requiredQs);
 
     // Include a '?' or '&' if needed.
     var sep = navigate.determineSeparatorChar(baseHref),
@@ -599,16 +599,19 @@ export function convertExpSetFiltersTerms(expSetFilters, to = 'array'){
 
 
 /** Return URL without any queries or hash, ending at pathname. Add hardcoded stuff for /browse/ or /search/ endpoints. */
-function getBaseHref(currentHref = '/browse/', hrefPath = null){
+function getBaseHref(currentHref = '/browse/', hrefPath = null, requiredQs = {}) {
     const urlParts = url.parse(currentHref, true);
-    if (!hrefPath){
+    if (!hrefPath) {
         hrefPath = urlParts.pathname;
     }
 
     const baseHref = (urlParts.protocol && urlParts.host) ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
     const hrefQuery = _.pick(urlParts.query, 'type', 'q');
-    if (hrefPath.indexOf('/search/') > -1){
-        if (typeof hrefQuery.type !== 'string'){
+    if (hrefPath.indexOf('/browse/') > -1) {
+        _.extend(hrefQuery, requiredQs);
+    }
+    if (hrefPath.indexOf('/search/') > -1) {
+        if (typeof hrefQuery.type !== 'string') {
             hrefQuery.type = 'Item';
         }
     }
@@ -629,6 +632,7 @@ export function searchQueryStringFromHref(href){
         }
     }
     return searchQueryString;
+
 }
 
 
