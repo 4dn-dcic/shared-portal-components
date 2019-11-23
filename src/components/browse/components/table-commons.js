@@ -459,6 +459,11 @@ class HeadersRowColumn extends React.PureComponent {
     constructor(props){
         super(props);
         _.bindAll(this, 'onDrag', 'onStop');
+        this.memoized = {
+            showTooltip : memoize(function(colWidth, titleStr){
+                return ((colWidth - 40) / 7) < (titleStr || "").length;
+            })
+        };
     }
 
     onDrag(event, res){
@@ -473,18 +478,19 @@ class HeadersRowColumn extends React.PureComponent {
 
     render(){
         const { sortColumn, sortBy, sortReverse, width, colDef, headerColumnWidths } = this.props;
+        const { noSort, colTitle, title, field } = colDef;
+        const showTitle = colTitle || title;
+        const tooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
         let sorterIcon;
         if (!colDef.noSort && typeof sortBy === 'function' && width >= 50){
             sorterIcon = <ColumnSorterIcon sortByFxn={sortBy} currentSortColumn={sortColumn} descend={sortReverse} value={colDef.field} />;
         }
         return (
-            <div
-                data-field={colDef.field}
-                key={colDef.field}
-                className={"search-headers-column-block" + (colDef.noSort ? " no-sort" : '')}
+            <div data-field={field} key={field} data-tip={tooltip}
+                className={"search-headers-column-block" + (noSort ? " no-sort" : '')}
                 style={{ width }}>
                 <div className="inner">
-                    <span className="column-title">{ colDef.colTitle || colDef.title }</span>
+                    <span className="column-title">{ showTitle }</span>
                     { sorterIcon }
                 </div>
                 { Array.isArray(headerColumnWidths) ?

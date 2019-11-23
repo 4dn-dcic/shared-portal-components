@@ -656,6 +656,11 @@ function (_React$PureComponent2) {
 
     _underscore["default"].bindAll(_assertThisInitialized(_this3), 'onDrag', 'onStop');
 
+    _this3.memoized = {
+      showTooltip: (0, _memoizeOne["default"])(function (colWidth, titleStr) {
+        return (colWidth - 40) / 7 < (titleStr || "").length;
+      })
+    };
     return _this3;
   }
 
@@ -685,6 +690,11 @@ function (_React$PureComponent2) {
           width = _this$props7.width,
           colDef = _this$props7.colDef,
           headerColumnWidths = _this$props7.headerColumnWidths;
+      var noSort = colDef.noSort,
+          colTitle = colDef.colTitle,
+          title = colDef.title,
+          field = colDef.field;
+      var tooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
       var sorterIcon;
 
       if (!colDef.noSort && typeof sortBy === 'function' && width >= 50) {
@@ -697,9 +707,10 @@ function (_React$PureComponent2) {
       }
 
       return _react["default"].createElement("div", {
-        "data-field": colDef.field,
-        key: colDef.field,
-        className: "search-headers-column-block" + (colDef.noSort ? " no-sort" : ''),
+        "data-field": field,
+        key: field,
+        "data-tip": tooltip,
+        className: "search-headers-column-block" + (noSort ? " no-sort" : ''),
         style: {
           width: width
         }
@@ -707,7 +718,7 @@ function (_React$PureComponent2) {
         className: "inner"
       }, _react["default"].createElement("span", {
         className: "column-title"
-      }, colDef.colTitle || colDef.title), sorterIcon), Array.isArray(headerColumnWidths) ? _react["default"].createElement(_reactDraggable["default"], {
+      }, colTitle || title), sorterIcon), Array.isArray(headerColumnWidths) ? _react["default"].createElement(_reactDraggable["default"], {
         position: {
           x: width,
           y: 0
