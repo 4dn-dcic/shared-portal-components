@@ -235,16 +235,12 @@ export default class SubmissionView extends React.PureComponent{
         const keyContext = {};
         const contextID = object.itemUtil.atId(context) || null;
         const parsedHref = url.parse(href, true);
-        let principalTypes = context['@type'];
-        if (principalTypes[0] === 'Search' || principalTypes[0] === 'Browse'){
-            // If we're creating from search or browse page, use type from href.
-            let typeFromHref = (parsedHref.query && parsedHref.query.type) || 'Item';
-            if (Array.isArray(typeFromHref)) {
-                [ typeFromHref ] = _.without(typeFromHref, 'Item');
-            }
-            if (typeFromHref && typeFromHref !== 'Item'){
-                principalTypes = [ typeFromHref ]; // e.g. ['ExperimentSetReplicate']
-            }
+        let [ principalType ] = context['@type'];
+
+        const searchViewTypeMatch = principalType.match(/^(\w+)(SearchResults)$/); // Returns null or [ "ItemTypeSearchResults", "ItemType", "SearchResults" ]
+        if (Array.isArray(searchViewTypeMatch) && searchViewTypeMatch.length === 3){
+            // We're on a search results page. Parse out the proper 'type'.
+            [ , principalType ] = searchViewTypeMatch; // e.g. [ "PublicationSearchResults", >> "Publication" <<, "SearchResults" ]
         }
 
         // Where we navigate to after submission.
@@ -254,15 +250,15 @@ export default class SubmissionView extends React.PureComponent{
             parsedHref.query.callbackHref
         ) || contextID;
 
-        const keyTypes = { "0" : principalTypes[0] };
+        const keyTypes = { "0" : principalType };
         const keyValid = { "0" : 1 };
         const keyDisplay = {
             ...gatherLinkToTitlesFromContextEmbedded(context),
-            "0" : SubmissionView.principalTitle(context, edit, create, principalTypes[0]),
+            "0" : SubmissionView.principalTitle(context, edit, create, principalType),
         };
         const keyLinkBookmarks = {};
         const bookmarksList = [];
-        const schema = schemas[principalTypes[0]];
+        const schema = schemas[principalType];
         let existingAlias = false;
 
         // Step A : Get labs from User, in order to autogenerate alias.
@@ -286,7 +282,7 @@ export default class SubmissionView extends React.PureComponent{
                     keyDisplay, keyLinkBookmarks, currKey: 0,
                     callbackHref
                 }, () => {
-                    this.initCreateObj(principalTypes[0], 0, 'Primary Object');
+                    this.initCreateObj(principalType, 0, 'Primary Object');
                 });
             } else {
                 // get the DB result to avoid any possible indexing hang-ups
@@ -323,7 +319,7 @@ export default class SubmissionView extends React.PureComponent{
                         // never prompt alias creation on edit
                         // do not initiate ambiguous type lookup on edit or create
                         if (!edit && !existingAlias){
-                            this.initCreateObj(principalTypes[0], 0, 'Primary Object', true);
+                            this.initCreateObj(principalType, 0, 'Primary Object', true);
                         }
                     });
                 });

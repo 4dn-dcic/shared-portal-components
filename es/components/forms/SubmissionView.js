@@ -353,41 +353,34 @@ function (_React$PureComponent) {
 
       var parsedHref = _url["default"].parse(href, true);
 
-      var principalTypes = context['@type'];
+      var _context$Type = _slicedToArray(context['@type'], 1),
+          principalType = _context$Type[0];
 
-      if (principalTypes[0] === 'Search' || principalTypes[0] === 'Browse') {
-        // If we're creating from search or browse page, use type from href.
-        var typeFromHref = parsedHref.query && parsedHref.query.type || 'Item';
+      var searchViewTypeMatch = principalType.match(/^(\w+)(SearchResults)$/); // Returns null or [ "ItemTypeSearchResults", "ItemType", "SearchResults" ]
 
-        if (Array.isArray(typeFromHref)) {
-          var _$without = _underscore["default"].without(typeFromHref, 'Item');
+      if (Array.isArray(searchViewTypeMatch) && searchViewTypeMatch.length === 3) {
+        // We're on a search results page. Parse out the proper 'type'.
+        var _searchViewTypeMatch = _slicedToArray(searchViewTypeMatch, 2);
 
-          var _$without2 = _slicedToArray(_$without, 1);
-
-          typeFromHref = _$without2[0];
-        }
-
-        if (typeFromHref && typeFromHref !== 'Item') {
-          principalTypes = [typeFromHref]; // e.g. ['ExperimentSetReplicate']
-        }
+        principalType = _searchViewTypeMatch[1];
       } // Where we navigate to after submission.
 
 
       var callbackHref = create ? null : parsedHref.query && typeof parsedHref.query.callbackHref === 'string' && parsedHref.query.callbackHref || contextID;
       var keyTypes = {
-        "0": principalTypes[0]
+        "0": principalType
       };
       var keyValid = {
         "0": 1
       };
 
       var keyDisplay = _objectSpread({}, gatherLinkToTitlesFromContextEmbedded(context), {
-        "0": SubmissionView.principalTitle(context, edit, create, principalTypes[0])
+        "0": SubmissionView.principalTitle(context, edit, create, principalType)
       });
 
       var keyLinkBookmarks = {};
       var bookmarksList = [];
-      var schema = schemas[principalTypes[0]];
+      var schema = schemas[principalType];
       var existingAlias = false; // Step A : Get labs from User, in order to autogenerate alias.
 
       var userInfo = _util.JWT.getUserInfo(); // Should always succeed, else no edit permission..
@@ -421,7 +414,7 @@ function (_React$PureComponent) {
             currKey: 0,
             callbackHref: callbackHref
           }, function () {
-            _this2.initCreateObj(principalTypes[0], 0, 'Primary Object');
+            _this2.initCreateObj(principalType, 0, 'Primary Object');
           });
         } else {
           // get the DB result to avoid any possible indexing hang-ups
@@ -466,7 +459,7 @@ function (_React$PureComponent) {
 
 
               if (!edit && !existingAlias) {
-                _this2.initCreateObj(principalTypes[0], 0, 'Primary Object', true);
+                _this2.initCreateObj(principalType, 0, 'Primary Object', true);
               }
             });
           });
