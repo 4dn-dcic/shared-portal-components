@@ -53,6 +53,7 @@ var Row = _react["default"].memo(function (props) {
   var colSm = props.colSm,
       colMd = props.colMd,
       colLg = props.colLg,
+      field = props.field,
       className = props.className,
       label = props.label,
       title = props.title,
@@ -66,7 +67,8 @@ var Row = _react["default"].memo(function (props) {
   if (valMd < 3) valMd = 12;
   if (valLg < 3) valLg = 12;
   return _react["default"].createElement("div", {
-    className: "row list-item " + className
+    className: "row list-item " + className,
+    "data-for-field": field
   }, _react["default"].createElement("div", {
     className: "item-label col-sm-" + colSm + " col-md-" + colMd + " col-lg-" + colLg
   }, _react["default"].createElement("div", {

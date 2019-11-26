@@ -272,7 +272,10 @@ class ControlsAndResults extends React.PureComponent {
     }
 
     renderSearchDetailPane(result, rowNumber, containerWidth){
-        const { windowWidth, schemas } = this.props;
+        const { renderDetailPane, windowWidth, schemas } = this.props;
+        if (typeof renderDetailPane === "function") {
+            return renderDetailPane(result, rowNumber, containerWidth, { schemas, windowWidth });
+        }
         return <SearchResultDetailPane {...{ result, rowNumber, containerWidth, schemas, windowWidth }} />;
     }
 
@@ -335,7 +338,8 @@ export class SearchView extends React.PureComponent {
         'facets'        : PropTypes.array,
         'isFullscreen'  : PropTypes.bool.isRequired,
         'toggleFullScreen' : PropTypes.func.isRequired,
-        'separateSingleTermFacets' : PropTypes.bool.isRequired
+        'separateSingleTermFacets' : PropTypes.bool.isRequired,
+        'renderDetailPane' : PropTypes.func
     };
 
     /**

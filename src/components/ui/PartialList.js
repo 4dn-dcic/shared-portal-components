@@ -22,15 +22,16 @@ import { console } from './../util';
  * @prop {Component|Element|string} children - Alias for props.value.
  */
 const Row = React.memo(function Row(props){
-    const { colSm, colMd, colLg, className, label, title, value, val, children } = props;
+    const { colSm, colMd, colLg, field, className, label, title, value, val, children } = props;
     let valSm = 12 - colSm;
     let valMd = 12 - colMd;
     let valLg = 12 - colLg;
     if (valSm < 3) valSm = 12;
     if (valMd < 3) valMd = 12;
     if (valLg < 3) valLg = 12;
+
     return (
-        <div className={"row list-item " + className}>
+        <div className={"row list-item " + className} data-for-field={field}>
             <div className={"item-label col-sm-"+ colSm +" col-md-"+ colMd +" col-lg-"+ colLg}>
                 <div className="inner">
                     { label || title || "Label" }

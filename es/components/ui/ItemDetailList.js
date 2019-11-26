@@ -727,9 +727,10 @@ function (_React$PureComponent) {
           columnDefinitions = _this$props2.columnDefinitions,
           className = _this$props2.className,
           schemas = _this$props2.schemas,
-          termTransformFxn = _this$props2.termTransformFxn;
+          termTransformFxn = _this$props2.termTransformFxn,
+          key = _this$props2["data-key"];
       var isOpen = this.state.isOpen;
-      var value = Detail.formValue(item, popLink, this.props['data-key'], itemType, columnDefinitions, 0, schemas, termTransformFxn);
+      var value = Detail.formValue(item, popLink, key, itemType, columnDefinitions, 0, schemas, termTransformFxn);
       var labelToShow = label;
 
       if (labelNumber) {
@@ -747,6 +748,7 @@ function (_React$PureComponent) {
           'isOpen': isOpen
         });
         return _react["default"].createElement("div", null, _react["default"].createElement(_PartialList.PartialList.Row, {
+          field: key,
           label: labelToShow,
           className: (className || '') + (isOpen ? ' open' : '')
         }, value), _react["default"].createElement(SubItemListView, _extends({
@@ -781,6 +783,7 @@ function (_React$PureComponent) {
 
       return _react["default"].createElement(_PartialList.PartialList.Row, {
         label: labelToShow,
+        field: key,
         className: (className || '') + (isOpen ? ' open' : '')
       }, value);
     }

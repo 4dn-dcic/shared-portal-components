@@ -589,9 +589,9 @@ class DetailRow extends React.PureComponent {
     }
 
     render(){
-        const { label, labelNumber, item, popLink, itemType, columnDefinitions, className, schemas, termTransformFxn } = this.props;
+        const { label, labelNumber, item, popLink, itemType, columnDefinitions, className, schemas, termTransformFxn, "data-key": key } = this.props;
         const { isOpen } = this.state;
-        let value = Detail.formValue(item, popLink, this.props['data-key'], itemType, columnDefinitions, 0, schemas, termTransformFxn);
+        let value = Detail.formValue(item, popLink, key, itemType, columnDefinitions, 0, schemas, termTransformFxn);
         let labelToShow = label;
         if (labelNumber) {
             labelToShow = (
@@ -608,7 +608,7 @@ class DetailRow extends React.PureComponent {
 
             return (
                 <div>
-                    <PartialList.Row label={labelToShow} className={(className || '') + (isOpen ? ' open' : '')}>{ value }</PartialList.Row>
+                    <PartialList.Row field={key} label={labelToShow} className={(className || '') + (isOpen ? ' open' : '')}>{ value }</PartialList.Row>
                     <SubItemListView {...{ popLink, schemas, isOpen, termTransformFxn }} content={item}
                         columnDefinitions={value.props.columnDefinitions || columnDefinitions} // Recursively pass these down
                     />
@@ -629,7 +629,7 @@ class DetailRow extends React.PureComponent {
             );
         }
         // Default / Pass-Thru
-        return <PartialList.Row label={labelToShow} className={(className || '') + (isOpen ? ' open' : '')}>{ value }</PartialList.Row>;
+        return <PartialList.Row label={labelToShow} field={key} className={(className || '') + (isOpen ? ' open' : '')}>{ value }</PartialList.Row>;
     }
 
 }

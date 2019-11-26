@@ -410,8 +410,17 @@ function (_React$PureComponent2) {
     key: "renderSearchDetailPane",
     value: function renderSearchDetailPane(result, rowNumber, containerWidth) {
       var _this$props3 = this.props,
+          renderDetailPane = _this$props3.renderDetailPane,
           windowWidth = _this$props3.windowWidth,
           schemas = _this$props3.schemas;
+
+      if (typeof renderDetailPane === "function") {
+        return renderDetailPane(result, rowNumber, containerWidth, {
+          schemas: schemas,
+          windowWidth: windowWidth
+        });
+      }
+
       return _react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {
         result: result,
         rowNumber: rowNumber,
@@ -582,7 +591,8 @@ _defineProperty(SearchView, "propTypes", {
   'facets': _propTypes["default"].array,
   'isFullscreen': _propTypes["default"].bool.isRequired,
   'toggleFullScreen': _propTypes["default"].func.isRequired,
-  'separateSingleTermFacets': _propTypes["default"].bool.isRequired
+  'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
+  'renderDetailPane': _propTypes["default"].func
 });
 
 _defineProperty(SearchView, "defaultProps", {
