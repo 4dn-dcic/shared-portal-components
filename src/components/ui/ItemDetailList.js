@@ -809,6 +809,9 @@ export class Detail extends React.PureComponent {
             'status',
             'external_references',
             'date_created',
+            'last_modified',
+            'project_release',
+            'short_attribution',
             'validation-errors'
         ],
         'open' : null,
