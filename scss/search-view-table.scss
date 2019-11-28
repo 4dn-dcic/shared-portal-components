@@ -203,7 +203,7 @@ $search-results-header-text-color: #fff !default;
 					border-radius: 4px 0 0 4px;
 					box-shadow: inset 5px 0 10px #fff, 5px 0 10px -5px $search-results-edge-shadow-color;
 					&:hover {
-						box-shadow: -5px 0 10px -5px $search-results-edge-shadow-color;
+						box-shadow: 5px 0 10px -5px $search-results-edge-shadow-color;
 					}
 				}
 			}
