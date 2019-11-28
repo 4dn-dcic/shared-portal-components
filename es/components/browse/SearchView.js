@@ -58,6 +58,10 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -408,17 +412,17 @@ function (_React$PureComponent2) {
     }
   }, {
     key: "renderSearchDetailPane",
-    value: function renderSearchDetailPane(result, rowNumber, containerWidth) {
+    value: function renderSearchDetailPane(result, rowNumber, containerWidth, propsFromTable) {
       var _this$props3 = this.props,
           renderDetailPane = _this$props3.renderDetailPane,
           windowWidth = _this$props3.windowWidth,
           schemas = _this$props3.schemas;
 
       if (typeof renderDetailPane === "function") {
-        return renderDetailPane(result, rowNumber, containerWidth, {
+        return renderDetailPane(result, rowNumber, containerWidth, _objectSpread({}, propsFromTable, {
           schemas: schemas,
           windowWidth: windowWidth
-        });
+        }));
       }
 
       return _react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {

@@ -140,8 +140,13 @@ function (_React$PureComponent) {
     _this.state = {
       'closing': false
     };
-    _this.detailRef = _react["default"].createRef();
-    _this.firstFoundHeight = null;
+    _this.detailRef = _react["default"].createRef(); // Unsure if worth keeping/using still?
+    // Is potentially relevant but not ideally-implemented for BrowseView
+    // which has DetailPane which itself has collapsible areas and the height
+    // can thus vary outside of the open/closed toggle state in this table.
+    // Ideally, those things could hook into `setDetailHeight` maybe...
+
+    _this.lastFoundHeight = null;
     return _this;
   }
   /**
@@ -160,16 +165,17 @@ function (_React$PureComponent) {
         var domElem = this.detailRef && this.detailRef.current;
         height = domElem && parseInt(domElem.offsetHeight);
 
-        if (!this.firstFoundHeight && height && !isNaN(height)) {
-          this.firstFoundHeight = height;
+        if (typeof height === 'number' && !isNaN(height)) {
+          this.lastFoundHeight = height;
         }
       }
 
       if (isNaN(height) || typeof height !== 'number') {
-        height = this.firstFoundHeight || 1;
+        height = this.lastFoundHeight || null;
       }
 
       setDetailHeight(height);
+      return height;
     }
   }, {
     key: "componentDidUpdate",
@@ -177,10 +183,13 @@ function (_React$PureComponent) {
       var _this$props = this.props,
           open = _this$props.open,
           setDetailHeight = _this$props.setDetailHeight;
+      var pastOpen = pastProps.open;
 
-      if (pastProps.open !== open) {
+      if (pastOpen !== open) {
         if (open && typeof setDetailHeight === 'function') {
           setTimeout(this.setDetailHeightFromPane, 100);
+        } else if (!open && typeof setDetailHeight === 'function') {
+          setDetailHeight(null); // Unset back to default (rowHeight)
         }
       }
     }
@@ -194,7 +203,9 @@ function (_React$PureComponent) {
           tableContainerWidth = _this$props2.tableContainerWidth,
           tableContainerScrollLeft = _this$props2.tableContainerScrollLeft,
           renderDetailPane = _this$props2.renderDetailPane,
-          toggleDetailOpen = _this$props2.toggleDetailOpen;
+          toggleDetailOpen = _this$props2.toggleDetailOpen,
+          setDetailHeight = _this$props2.setDetailHeight,
+          detailPaneHeight = _this$props2.detailPaneHeight;
       var closing = this.state.closing;
       return _react["default"].createElement("div", {
         className: "result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')
@@ -205,7 +216,14 @@ function (_React$PureComponent) {
           'width': tableContainerWidth,
           'transform': _utilities.style.translate3d(tableContainerScrollLeft)
         }
-      }, renderDetailPane(result, rowNumber, tableContainerWidth, this.setDetailHeightFromPane), _react["default"].createElement("div", {
+      }, renderDetailPane(result, rowNumber, tableContainerWidth, {
+        open: open,
+        tableContainerScrollLeft: tableContainerScrollLeft,
+        toggleDetailOpen: toggleDetailOpen,
+        setDetailHeight: setDetailHeight,
+        detailPaneHeight: detailPaneHeight,
+        setDetailHeightFromPane: this.setDetailHeightFromPane
+      }), _react["default"].createElement("div", {
         className: "close-button-container text-center",
         onClick: toggleDetailOpen,
         "data-tip": "Collapse Details"
@@ -223,7 +241,10 @@ _defineProperty(ResultDetail, "propTypes", {
   'open': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func.isRequired,
   'rowNumber': _propTypes["default"].number,
-  'toggleDetailOpen': _propTypes["default"].func.isRequired
+  'toggleDetailOpen': _propTypes["default"].func.isRequired,
+  'setDetailHeight': _propTypes["default"].func.isRequired,
+  'tableContainerWidth': _propTypes["default"].number,
+  'tableContainerScrollLeft': _propTypes["default"].number
 });
 
 var ResultRow =
@@ -353,7 +374,8 @@ function (_React$PureComponent2) {
     value: function render() {
       var _this$props8 = this.props,
           rowNumber = _this$props8.rowNumber,
-          currentAction = _this$props8.currentAction;
+          currentAction = _this$props8.currentAction,
+          rowHeight = _this$props8.rowHeight;
       var detailOpen = this.isOpen();
       var isDraggable = (0, _misc.isSelectAction)(currentAction);
       /**
@@ -379,9 +401,14 @@ function (_React$PureComponent2) {
       }, _react["default"].createElement("div", {
         className: "columns clearfix result-table-row",
         draggable: isDraggable,
+        style: {
+          minHeight: rowHeight - 1
+        } // Account for 1px border bottom on parent div
+        ,
         onDragStart: isDraggable ? this.handleDragStart : null
       }, this.renderColumns()), _react["default"].createElement(ResultDetail, _extends({}, detailProps, {
         open: !!detailOpen,
+        detailPaneHeight: typeof detailOpen === "number" ? detailOpen : undefined,
         toggleDetailOpen: this.toggleDetailOpen,
         setDetailHeight: this.setDetailHeight
       })));
@@ -401,6 +428,7 @@ _defineProperty(ResultRow, "propTypes", {
     'date_created': _propTypes["default"].string.isRequired
   }).isRequired,
   'rowNumber': _propTypes["default"].number.isRequired,
+  'rowHeight': _propTypes["default"].number,
   'mounted': _propTypes["default"].bool.isRequired,
   'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].shape({
     'title': _propTypes["default"].string.isRequired,
@@ -1094,7 +1122,7 @@ function (_React$PureComponent4) {
           return null;
         }
 
-        openDetailPanes[rowKey] = height;
+        openDetailPanes[rowKey] = typeof height === "number" && !isNaN(height) ? height : true;
         return {
           openDetailPanes: openDetailPanes
         };
@@ -1291,7 +1319,7 @@ function (_React$PureComponent4) {
       var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth); // selectedFiles passed to trigger re-render on PureComponent further down tree (DetailPane).
 
 
-      var commonPropsToPass = _underscore["default"].extend(_underscore["default"].pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'), {
+      var commonPropsToPass = _underscore["default"].extend(_underscore["default"].pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn', 'rowHeight'), {
         columnDefinitions: columnDefinitions,
         openDetailPanes: openDetailPanes,
         tableContainerWidth: tableContainerWidth,
@@ -1507,12 +1535,12 @@ _defineProperty(SearchResultTable, "propTypes", {
 
 _defineProperty(SearchResultTable, "defaultProps", {
   'columnExtensionMap': {},
-  'renderDetailPane': function renderDetailPane(result, rowNumber, width) {
-    return _react["default"].createElement(DefaultDetailPane, {
+  'renderDetailPane': function renderDetailPane(result, rowNumber, width, props) {
+    return _react["default"].createElement(DefaultDetailPane, _extends({}, props, {
       result: result,
       rowNumber: rowNumber,
       width: width
-    });
+    }));
   },
   'defaultWidthMap': _tableCommons.DEFAULT_WIDTH_MAP,
   'defaultMinColumnWidth': 55,

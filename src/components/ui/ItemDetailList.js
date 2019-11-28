@@ -810,6 +810,7 @@ export class Detail extends React.PureComponent {
             'external_references',
             'date_created',
             'last_modified',
+            'submitted_by',
             'project_release',
             'short_attribution',
             'validation-errors'

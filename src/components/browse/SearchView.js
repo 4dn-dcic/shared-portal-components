@@ -271,10 +271,10 @@ class ControlsAndResults extends React.PureComponent {
         return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
     }
 
-    renderSearchDetailPane(result, rowNumber, containerWidth){
+    renderSearchDetailPane(result, rowNumber, containerWidth, propsFromTable){
         const { renderDetailPane, windowWidth, schemas } = this.props;
         if (typeof renderDetailPane === "function") {
-            return renderDetailPane(result, rowNumber, containerWidth, { schemas, windowWidth });
+            return renderDetailPane(result, rowNumber, containerWidth, { ...propsFromTable, schemas, windowWidth });
         }
         return <SearchResultDetailPane {...{ result, rowNumber, containerWidth, schemas, windowWidth }} />;
     }

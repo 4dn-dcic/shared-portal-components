@@ -71,7 +71,10 @@ class ResultDetail extends React.PureComponent{
         'open'      : PropTypes.bool.isRequired,
         'renderDetailPane': PropTypes.func.isRequired,
         'rowNumber' : PropTypes.number,
-        'toggleDetailOpen' : PropTypes.func.isRequired
+        'toggleDetailOpen' : PropTypes.func.isRequired,
+        'setDetailHeight' : PropTypes.func.isRequired,
+        'tableContainerWidth' : PropTypes.number,
+        'tableContainerScrollLeft' : PropTypes.number
     };
 
     constructor(props){
@@ -81,7 +84,12 @@ class ResultDetail extends React.PureComponent{
 
         this.detailRef = React.createRef();
 
-        this.firstFoundHeight = null;
+        // Unsure if worth keeping/using still?
+        // Is potentially relevant but not ideally-implemented for BrowseView
+        // which has DetailPane which itself has collapsible areas and the height
+        // can thus vary outside of the open/closed toggle state in this table.
+        // Ideally, those things could hook into `setDetailHeight` maybe...
+        this.lastFoundHeight = null;
     }
 
     /**
@@ -91,29 +99,33 @@ class ResultDetail extends React.PureComponent{
     setDetailHeightFromPane(height = null){
         const { setDetailHeight } = this.props;
         if (typeof height !== 'number'){
-            var domElem = this.detailRef && this.detailRef.current;
+            const domElem = this.detailRef && this.detailRef.current;
             height = domElem && parseInt(domElem.offsetHeight);
-            if (!this.firstFoundHeight && height && !isNaN(height)){
-                this.firstFoundHeight = height;
+            if (typeof height === 'number' && !isNaN(height)){
+                this.lastFoundHeight = height;
             }
         }
         if (isNaN(height) || typeof height !== 'number') {
-            height = this.firstFoundHeight || 1;
+            height = this.lastFoundHeight || null;
         }
         setDetailHeight(height);
+        return height;
     }
 
-    componentDidUpdate(pastProps, pastState){
+    componentDidUpdate(pastProps){
         const { open, setDetailHeight } = this.props;
-        if (pastProps.open !== open){
+        const { open: pastOpen } = pastProps;
+        if (pastOpen !== open){
             if (open && typeof setDetailHeight === 'function'){
                 setTimeout(this.setDetailHeightFromPane, 100);
+            } else if (!open && typeof setDetailHeight === 'function') {
+                setDetailHeight(null); // Unset back to default (rowHeight)
             }
         }
     }
 
     render(){
-        const { open, rowNumber, result, tableContainerWidth, tableContainerScrollLeft, renderDetailPane, toggleDetailOpen } = this.props;
+        const { open, rowNumber, result, tableContainerWidth, tableContainerScrollLeft, renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight } = this.props;
         const { closing } = this.state;
         return (
             <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')}>
@@ -122,7 +134,10 @@ class ResultDetail extends React.PureComponent{
                         'width' : tableContainerWidth,
                         'transform' : style.translate3d(tableContainerScrollLeft)
                     }}>
-                        { renderDetailPane(result, rowNumber, tableContainerWidth, this.setDetailHeightFromPane) }
+                        { renderDetailPane(
+                            result, rowNumber, tableContainerWidth,
+                            { open, tableContainerScrollLeft, toggleDetailOpen, setDetailHeight, detailPaneHeight, setDetailHeightFromPane : this.setDetailHeightFromPane }
+                        ) }
                         <div className="close-button-container text-center" onClick={toggleDetailOpen} data-tip="Collapse Details">
                             <i className="icon icon-angle-up fas"/>
                         </div>
@@ -154,6 +169,7 @@ class ResultRow extends React.PureComponent {
             'date_created'      : PropTypes.string.isRequired
         }).isRequired,
         'rowNumber'         : PropTypes.number.isRequired,
+        'rowHeight'         : PropTypes.number,
         'mounted'           : PropTypes.bool.isRequired,
         'columnDefinitions'     : PropTypes.arrayOf(PropTypes.shape({
             'title'             : PropTypes.string.isRequired,
@@ -256,7 +272,7 @@ class ResultRow extends React.PureComponent {
     }
 
     render(){
-        const { rowNumber, currentAction } = this.props;
+        const { rowNumber, currentAction, rowHeight } = this.props;
         const detailOpen = this.isOpen();
         const isDraggable = isSelectAction(currentAction);
 
@@ -272,17 +288,20 @@ class ResultRow extends React.PureComponent {
         );
 
         return (
-            <div className={"search-result-row detail-" + (detailOpen ? 'open' : 'closed') + (isDraggable ? ' is-draggable' : '')} data-row-number={rowNumber} /* ref={(r)=>{
+            <div className={"search-result-row detail-" + (detailOpen ? 'open' : 'closed') + (isDraggable ? ' is-draggable' : '')}
+                data-row-number={rowNumber} /* ref={(r)=>{
                 // TODO POTENTIALLY: Use to set height on open/close icon & sticky title column.
                 var height = (r && r.offsetHeight) || null;
                 if (height && height !== this.rowFullHeight){
                     this.rowFullHeight = height;
                 }
             }}*/>
-                <div className="columns clearfix result-table-row" draggable={isDraggable} onDragStart={isDraggable ? this.handleDragStart : null}>
+                <div className="columns clearfix result-table-row" draggable={isDraggable}
+                    style={{ minHeight: rowHeight - 1 }} // Account for 1px border bottom on parent div
+                    onDragStart={isDraggable ? this.handleDragStart : null}>
                     { this.renderColumns() }
                 </div>
-                <ResultDetail {...detailProps} open={!!(detailOpen)}
+                <ResultDetail {...detailProps} open={!!(detailOpen)} detailPaneHeight={typeof detailOpen === "number" ? detailOpen : undefined}
                     toggleDetailOpen={this.toggleDetailOpen} setDetailHeight={this.setDetailHeight} />
             </div>
         );
@@ -387,6 +406,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft, context, results,
             mounted: propMounted
         } = this.props;
+
         const { mounted: stateMounted, isLoading } = this.state;
         if (!(propMounted || stateMounted)){
             return <div>{ children }</div>;
@@ -782,7 +802,7 @@ class DimensioningContainer extends React.PureComponent {
             if (typeof openDetailPanes[rowKey] === 'undefined'){
                 return null;
             }
-            openDetailPanes[rowKey] = height;
+            openDetailPanes[rowKey] = typeof height === "number" && !isNaN(height) ? height : true;
             return { openDetailPanes };
         }, cb);
     }
@@ -956,7 +976,7 @@ class DimensioningContainer extends React.PureComponent {
         const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
         // selectedFiles passed to trigger re-render on PureComponent further down tree (DetailPane).
         const commonPropsToPass = _.extend(
-            _.pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'),
+            _.pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn', 'rowHeight'),
             {
                 columnDefinitions, openDetailPanes, tableContainerWidth, tableContainerScrollLeft, windowWidth,
                 'mounted' : mounted || false,
@@ -1085,7 +1105,7 @@ export class SearchResultTable extends React.PureComponent {
 
     static defaultProps = {
         'columnExtensionMap' : {},
-        'renderDetailPane' : function(result, rowNumber, width){ return <DefaultDetailPane {...{ result, rowNumber, width }} />; },
+        'renderDetailPane' : function(result, rowNumber, width, props){ return <DefaultDetailPane {...props} {...{ result, rowNumber, width }} />; },
         'defaultWidthMap' : DEFAULT_WIDTH_MAP,
         'defaultMinColumnWidth' : 55,
         'hiddenColumns' : null,
