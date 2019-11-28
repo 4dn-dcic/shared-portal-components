@@ -74,7 +74,9 @@ class ResultDetail extends React.PureComponent{
         'toggleDetailOpen' : PropTypes.func.isRequired,
         'setDetailHeight' : PropTypes.func.isRequired,
         'tableContainerWidth' : PropTypes.number,
-        'tableContainerScrollLeft' : PropTypes.number
+        'tableContainerScrollLeft' : PropTypes.number,
+        'id' : PropTypes.string,
+        'detailPaneHeight' : PropTypes.number
     };
 
     constructor(props){
@@ -98,8 +100,9 @@ class ResultDetail extends React.PureComponent{
      */
     setDetailHeightFromPane(height = null){
         const { setDetailHeight } = this.props;
+        let domElem = null;
         if (typeof height !== 'number'){
-            const domElem = this.detailRef && this.detailRef.current;
+            domElem = this.detailRef && this.detailRef.current;
             height = domElem && parseInt(domElem.offsetHeight);
             if (typeof height === 'number' && !isNaN(height)){
                 this.lastFoundHeight = height;
@@ -117,7 +120,7 @@ class ResultDetail extends React.PureComponent{
         const { open: pastOpen } = pastProps;
         if (pastOpen !== open){
             if (open && typeof setDetailHeight === 'function'){
-                setTimeout(this.setDetailHeightFromPane, 100);
+                this.setDetailHeightFromPane();
             } else if (!open && typeof setDetailHeight === 'function') {
                 setDetailHeight(null); // Unset back to default (rowHeight)
             }
@@ -128,9 +131,9 @@ class ResultDetail extends React.PureComponent{
         const { open, rowNumber, result, tableContainerWidth, tableContainerScrollLeft, renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight } = this.props;
         const { closing } = this.state;
         return (
-            <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')}>
+            <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} ref={this.detailRef}>
                 { open ?
-                    <div className="result-table-detail" ref={this.detailRef} style={{
+                    <div className="result-table-detail" style={{
                         'width' : tableContainerWidth,
                         'transform' : style.translate3d(tableContainerScrollLeft)
                     }}>
@@ -283,7 +286,7 @@ class ResultRow extends React.PureComponent {
          * It should also contain selectedFiles if parent passes it down.
          */
         const detailProps = _.omit(this.props,
-            'openDetailPanes', 'mounted', 'headerColumnWidths', 'columnDefinitions', 'id',
+            'openDetailPanes', 'mounted', 'headerColumnWidths', 'columnDefinitions',
             'detailOpen', 'setDetailHeight'
         );
 
@@ -320,7 +323,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
     static defaultProps = {
         'limit' : 25,
         'debouncePointerEvents' : 150,
-        'openRowHeight' : 56,
+        'openRowHeight' : 57,
         'onDuplicateResultsFoundCallback' : function(){
             Alerts.queue({ 'title' : 'Results Refreshed', 'message' : 'Results have changed while loading and have been refreshed.', 'navigateDisappearThreshold' : 1 });
         }
@@ -412,9 +415,10 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             return <div>{ children }</div>;
         }
         const elementHeight = _.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function(c){
-            if (typeof openDetailPanes[c.props.id] === 'number'){
+            const savedHeight = openDetailPanes[c.props.id];
+            if (savedHeight && typeof savedHeight === 'number'){
                 //console.log('height', openDetailPanes[c.props.id], rowHeight, 2 + openDetailPanes[c.props.id] + openRowHeight);
-                return openDetailPanes[c.props.id] + openRowHeight + 2;
+                return openDetailPanes[c.props.id] + openRowHeight;
             }
             return rowHeight;
         });
@@ -667,26 +671,6 @@ class DimensioningContainer extends React.PureComponent {
         return null;
     }
 
-    /**
-     * We previously had used `object.itemUtil.compareResultsByID`, however
-     * `getDerivedStateFromProps` is ran right before every single render so
-     * for performance we compare list/object reference instead.
-     *
-     * If results have changed, it implicitly means something like href or user
-     * session has changed as well.
-     */
-    static getDerivedStateFromProps(props, state){
-        if (state.originalResults !== props.results){
-            console.warn('props.results have changed, resetting some state -- ');
-            return {
-                'results' : props.results.slice(0),
-                'openDetailPanes' : {},
-                'originalResults' : props.results
-            };
-        }
-        return null;
-    }
-
     constructor(props){
         super(props);
         this.throttledUpdate = _.debounce(this.forceUpdate.bind(this), 500);
@@ -703,10 +687,6 @@ class DimensioningContainer extends React.PureComponent {
         this.state = {
             'mounted'   : false,
             'widths'    : DimensioningContainer.resetHeaderColumnWidths(props.columnDefinitions, false, props.windowWidth),
-            // We cache this here in order to be able props.results vs state.orginalResults
-            // in getDerivedStateFromProps.
-            // SearchResultTable _does not_ get context passed in, so we compare results instead.
-            'originalResults' : props.results,
             'results'   : props.results.slice(0),
             'isWindowPastTableTop' : false,
             // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
@@ -769,17 +749,25 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
+        const { results: propResults, columnDefinitions, windowWidth } = this.props;
+        const { results: pastPropResults, columnDefinitions: pastColDefs, windowWidth: pastWindowWidth } = pastProps;
 
         if (pastState.results !== this.state.results){
             ReactTooltip.rebuild();
         }
 
-        if (pastProps.columnDefinitions.length !== this.props.columnDefinitions.length/* || this.props.results !== pastProps.results*/){
+        // Is presumed neither of these can occur at same time.
+        if (propResults !== pastPropResults) { // `context`, and likely query, filters, session, or sort has changed
+            this.setState({
+                'results' : propResults.slice(0),
+                'openDetailPanes' : {}
+            });
+        } else if (pastColDefs.length !== columnDefinitions.length/* || this.props.results !== pastProps.results*/){ //
             // We have a list of widths in state; if new col is added, these are no longer aligned, so we reset.
             // We may optioanlly (currently disabled) also do this if _original_ results have changed as extra glitter to decrease some widths re: col values.
             // (if done when state.results have changed, it would occur way too many times to be performant (state.results changes as-you-scroll))
             this.resetWidths();
-        } else if (pastProps.windowWidth !== this.props.windowWidth){
+        } else if (pastWindowWidth !== windowWidth){
             this.setState(this.getTableDims());
         }
     }
