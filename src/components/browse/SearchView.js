@@ -6,7 +6,6 @@ import url from 'url';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-
 import { Alerts } from './../ui/Alerts';
 import { navigate } from './../util/navigate';
 import { isSelectAction } from './../util/misc';

@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import memoize from 'memoize-one';
 import _ from 'underscore';
 import { AboveTableControlsBase } from './AboveTableControlsBase';
 

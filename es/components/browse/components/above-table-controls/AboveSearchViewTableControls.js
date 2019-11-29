@@ -7,8 +7,6 @@ exports.AboveSearchViewTableControls = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
 var _underscore = _interopRequireDefault(require("underscore"));
 
 var _AboveTableControlsBase = require("./AboveTableControlsBase");
