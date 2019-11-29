@@ -349,7 +349,7 @@ function (_React$PureComponent2) {
 
             var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore["default"].extend({}, props, {
               currentAction: currentAction
-            }), width, true);
+            }), width, topLeftChildren, true);
             var newChildren = currentTitleBlock.props.children.slice(0);
             newChildren.unshift(checkBoxControl);
             return _react["default"].cloneElement(currentTitleBlock, {
@@ -445,7 +445,8 @@ function (_React$PureComponent2) {
           href = _this$props4.href,
           propFacets = _this$props4.facets,
           tableColumnClassName = _this$props4.tableColumnClassName,
-          facetColumnClassName = _this$props4.facetColumnClassName;
+          facetColumnClassName = _this$props4.facetColumnClassName,
+          topLeftChildren = _this$props4.topLeftChildren;
       var selectedItems = this.state.selectedItems;
       var results = context['@graph']; // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
 
@@ -465,7 +466,8 @@ function (_React$PureComponent2) {
         schemas: schemas,
         hiddenColumns: hiddenColumns,
         results: results,
-        columnDefinitions: columnDefinitions
+        columnDefinitions: columnDefinitions,
+        topLeftChildren: topLeftChildren
       }, _underscore["default"].pick(this.props, 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'windowWidth', 'registerWindowOnScrollHandler', 'rowHeight'));
 
       return _react["default"].createElement("div", {
@@ -484,6 +486,7 @@ function (_React$PureComponent2) {
       }, _underscore["default"].pick(this.props, 'getTermStatus', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react["default"].createElement("div", {
         className: tableColumnClassName
       }, _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
+        topLeftChildren: topLeftChildren,
         showTotalResults: context.total,
         parentForceUpdate: this.forceUpdateOnSelf
       }, _underscore["default"].pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen'), {
