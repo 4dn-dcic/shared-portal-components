@@ -52,17 +52,10 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
 });
 
 function LeftSectionControls({ total, addButton, topLeftChildren, panelToggleFxns, onClosePanel, currentOpenPanel }) {
-    if (!total && !addButton) return null;
-    if (topLeftChildren) {
-        return (
-            <div key="total-count" className="pull-left pt-11 box results-count">
-                {total}{topLeftChildren}
-            </div>
-        );
-    }
+    if (!total && !addButton && !topLeftChildren) return null;
     return (
         <div key="total-count" className="pull-left pt-11 box results-count">
-            {total}{addButton}
+            {total}{topLeftChildren || addButton}
         </div>
     );
 }

@@ -73,17 +73,9 @@ function LeftSectionControls(_ref) {
       panelToggleFxns = _ref.panelToggleFxns,
       onClosePanel = _ref.onClosePanel,
       currentOpenPanel = _ref.currentOpenPanel;
-  if (!total && !addButton) return null;
-
-  if (topLeftChildren) {
-    return _react["default"].createElement("div", {
-      key: "total-count",
-      className: "pull-left pt-11 box results-count"
-    }, total, topLeftChildren);
-  }
-
+  if (!total && !addButton && !topLeftChildren) return null;
   return _react["default"].createElement("div", {
     key: "total-count",
     className: "pull-left pt-11 box results-count"
-  }, total, addButton);
+  }, total, topLeftChildren || addButton);
 }

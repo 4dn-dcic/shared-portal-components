@@ -225,7 +225,7 @@ class ControlsAndResults extends React.PureComponent {
                         <input type="checkbox" checked={isChecked} onChange={this.handleSelectItemClick.bind(this, result, isMultiSelect)} className="mr-2" />
                     );
                     const currentTitleBlock = origDisplayTitleRenderFxn(
-                        result, columnDefinition, _.extend({}, props, { currentAction }), width, topLeftChildren,true
+                        result, columnDefinition, _.extend({}, props, { currentAction }), width, true
                     );
                     const newChildren = currentTitleBlock.props.children.slice(0);
                     newChildren.unshift(checkBoxControl);
@@ -281,7 +281,7 @@ class ControlsAndResults extends React.PureComponent {
     render() {
         const {
             context, schemas, hiddenColumns, columnExtensionMap, currentAction, href, facets: propFacets,
-            tableColumnClassName, facetColumnClassName, topLeftChildren
+            tableColumnClassName, facetColumnClassName
         } = this.props;
         const { selectedItems } = this.state;
         const results                         = context['@graph'];
@@ -292,7 +292,7 @@ class ControlsAndResults extends React.PureComponent {
         const columnDefinitions               = columnsToColumnDefinitions(context.columns || {}, selfExtendedColumnExtensionMap);
 
         const searchResultTableProps = _.extend(
-            { context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions ,topLeftChildren },
+            { context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions },
             _.pick(this.props, 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'windowWidth', 'registerWindowOnScrollHandler', 'rowHeight')
         );
 
@@ -309,9 +309,9 @@ class ControlsAndResults extends React.PureComponent {
                     </div>
                     : null }
                 <div className={tableColumnClassName}>
-                    <AboveSearchViewTableControls topLeftChildren={topLeftChildren} showTotalResults={context.total} parentForceUpdate={this.forceUpdateOnSelf}
+                    <AboveSearchViewTableControls showTotalResults={context.total} parentForceUpdate={this.forceUpdateOnSelf}
                         {..._.pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns',
-                            'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen')}
+                            'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen', 'topLeftChildren')}
                         {...{ hiddenColumns, columnDefinitions }}/>
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
                     {isSelectAction(currentAction) ?
