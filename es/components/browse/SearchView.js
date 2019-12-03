@@ -486,7 +486,7 @@ function (_React$PureComponent2) {
       }, _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
         showTotalResults: context.total,
         parentForceUpdate: this.forceUpdateOnSelf
-      }, _underscore["default"].pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen'), {
+      }, _underscore["default"].pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen', 'topLeftChildren'), {
         hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions
       })), _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, searchResultTableProps, {

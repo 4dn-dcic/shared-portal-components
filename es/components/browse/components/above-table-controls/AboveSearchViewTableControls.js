@@ -7,8 +7,6 @@ exports.AboveSearchViewTableControls = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
 var _underscore = _interopRequireDefault(require("underscore"));
 
 var _AboveTableControlsBase = require("./AboveTableControlsBase");
@@ -21,7 +19,8 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 var AboveSearchViewTableControls = _react["default"].memo(function (props) {
   var context = props.context,
       currentAction = props.currentAction,
-      showTotalResults = props.showTotalResults; // Case if on SearchView
+      showTotalResults = props.showTotalResults,
+      topLeftChildren = props.topLeftChildren; // Case if on SearchView
 
   var total = null;
 
@@ -60,7 +59,8 @@ var AboveSearchViewTableControls = _react["default"].memo(function (props) {
     panelMap: _AboveTableControlsBase.AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)
   }, _underscore["default"].pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'parentForceUpdate')), _react["default"].createElement(LeftSectionControls, {
     total: total,
-    addButton: addButton
+    addButton: addButton,
+    topLeftChildren: topLeftChildren
   }));
 });
 
@@ -69,12 +69,13 @@ exports.AboveSearchViewTableControls = AboveSearchViewTableControls;
 function LeftSectionControls(_ref) {
   var total = _ref.total,
       addButton = _ref.addButton,
+      topLeftChildren = _ref.topLeftChildren,
       panelToggleFxns = _ref.panelToggleFxns,
       onClosePanel = _ref.onClosePanel,
       currentOpenPanel = _ref.currentOpenPanel;
-  if (!total && !addButton) return null;
+  if (!total && !addButton && !topLeftChildren) return null;
   return _react["default"].createElement("div", {
     key: "total-count",
     className: "pull-left pt-11 box results-count"
-  }, total, addButton);
+  }, total, topLeftChildren || addButton);
 }

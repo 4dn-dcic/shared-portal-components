@@ -6,7 +6,6 @@ import url from 'url';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-
 import { Alerts } from './../ui/Alerts';
 import { navigate } from './../util/navigate';
 import { isSelectAction } from './../util/misc';
@@ -312,7 +311,7 @@ class ControlsAndResults extends React.PureComponent {
                 <div className={tableColumnClassName}>
                     <AboveSearchViewTableControls showTotalResults={context.total} parentForceUpdate={this.forceUpdateOnSelf}
                         {..._.pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns',
-                            'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen')}
+                            'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen', 'topLeftChildren')}
                         {...{ hiddenColumns, columnDefinitions }}/>
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
                     {isSelectAction(currentAction) ?

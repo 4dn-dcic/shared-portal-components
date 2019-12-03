@@ -1,14 +1,13 @@
 'use strict';
 
 import React from 'react';
-import memoize from 'memoize-one';
 import _ from 'underscore';
 import { AboveTableControlsBase } from './AboveTableControlsBase';
 
 
 /** This left section for Search should be made prettier, either kept in 4DN or re-used. */
 export const AboveSearchViewTableControls = React.memo(function AboveSearchViewTableControls(props){
-    const { context, currentAction, showTotalResults } = props;
+    const { context, currentAction, showTotalResults, topLeftChildren } = props;
 
     // Case if on SearchView
     let total = null;
@@ -47,17 +46,16 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
     return (
         <AboveTableControlsBase panelMap={AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)}
             {..._.pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'parentForceUpdate')}>
-            <LeftSectionControls {...{ total, addButton }} />
+            <LeftSectionControls {...{ total, addButton, topLeftChildren }} />
         </AboveTableControlsBase>
     );
 });
 
-
-function LeftSectionControls({ total, addButton, panelToggleFxns, onClosePanel, currentOpenPanel }){
-    if (!total && !addButton) return null;
+function LeftSectionControls({ total, addButton, topLeftChildren, panelToggleFxns, onClosePanel, currentOpenPanel }) {
+    if (!total && !addButton && !topLeftChildren) return null;
     return (
         <div key="total-count" className="pull-left pt-11 box results-count">
-            { total }{ addButton }
+            {total}{topLeftChildren || addButton}
         </div>
     );
 }
