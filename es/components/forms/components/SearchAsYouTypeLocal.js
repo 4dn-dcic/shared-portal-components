@@ -122,15 +122,19 @@ function (_React$Component) {
       var _this$props = this.props,
           searchList = _this$props.searchList,
           value = _this$props.value,
-          maxResults = _this$props.maxResults; // console.log("log2: this.props: ", this.props);
-
-      return _react["default"].createElement(_reactBootstrap.Dropdown, null, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
+          maxResults = _this$props.maxResults;
+      return _react["default"].createElement(_reactBootstrap.Dropdown, {
+        drop: "down",
+        flip: false
+      }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
         as: CustomToggle
       }, value || _react["default"].createElement("span", {
         className: "text-300"
       }, "No value")), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, {
         as: CustomMenu,
-        drop: "down"
+        drop: "down",
+        flip: false,
+        focusFirstItemOnShow: "keyboard"
       }, searchList.map(function (string, i) {
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
           key: string,
@@ -147,7 +151,8 @@ exports.SearchAsYouTypeLocal = SearchAsYouTypeLocal;
 SearchAsYouTypeLocal.propTypes = {
   maxResults: _propTypes["default"].number,
   searchList: _propTypes["default"].array.isRequired,
-  value: _propTypes["default"].string.isRequired
+  value: _propTypes["default"].string.isRequired,
+  onChange: _propTypes["default"].func
 }; // constructor(props){
 //     super(props);
 //     this.state = {

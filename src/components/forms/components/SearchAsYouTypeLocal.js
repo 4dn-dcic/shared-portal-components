@@ -67,14 +67,13 @@ const CustomMenu = React.forwardRef(
 export class SearchAsYouTypeLocal extends React.Component {
     render() {
         const { searchList, value, maxResults } = this.props;
-        // console.log("log2: this.props: ", this.props);
         return (
-            <Dropdown>
+            <Dropdown drop="down" flip={false}>
                 <Dropdown.Toggle as={CustomToggle}>
                     { value || <span className="text-300">No value</span>}
                 </Dropdown.Toggle>
 
-                <Dropdown.Menu as={CustomMenu} drop="down">
+                <Dropdown.Menu as={CustomMenu} drop="down" flip={false} focusFirstItemOnShow="keyboard">
                     { searchList.map((string, i) => <Dropdown.Item key={string} eventKey={i}>{string}</Dropdown.Item> )}
                 </Dropdown.Menu>
             </Dropdown>
@@ -84,7 +83,8 @@ export class SearchAsYouTypeLocal extends React.Component {
 SearchAsYouTypeLocal.propTypes = {
     maxResults : PropTypes.number,
     searchList : PropTypes.array.isRequired,
-    value : PropTypes.string.isRequired
+    value : PropTypes.string.isRequired,
+    onChange : PropTypes.func
 };
 
 
