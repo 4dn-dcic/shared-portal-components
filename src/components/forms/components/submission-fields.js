@@ -13,6 +13,7 @@ import { Alerts } from './../../ui/Alerts';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
 import { Line as ProgressBar } from 'rc-progress';
 import { LinkToSelector } from './LinkToSelector';
+import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 
 
 /**
@@ -46,7 +47,7 @@ export class BuildField extends React.PureComponent {
             }
         }
         // check if this is an enum
-        if (fieldSchema.enum || fieldSchema.suggested_enum){
+        if (fieldSchema.enum || fieldSchema.suggested_enum){ // not sure why this is here if suggested_enum doesn't even appear when is a field with that type
             fieldType = 'enum';
         }
         // handle a linkTo object on the the top level
@@ -62,7 +63,8 @@ export class BuildField extends React.PureComponent {
         super(props);
         _.bindAll(this,
             'displayField', 'handleDropdownButtonToggle', 'handleAliasChange',
-            'buildEnumEntry', 'submitEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue',
+            'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal',
+            'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue',
             'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel'
         );
         this.state = {
@@ -90,7 +92,7 @@ export class BuildField extends React.PureComponent {
      * @returns {JSX.Element} A JSX `<input>` element, a Bootstrap input element component, or custom React component which will render input fields.
      */
     displayField(fieldType){
-        const { field, value, disabled, enumValues, currentSubmittingUser, roundTwo, currType, currContext, fieldType : propFieldType } = this.props;
+        const { field, value, disabled, enumValues, suggestedEnumValues, currentSubmittingUser, roundTwo, currType, currContext, fieldType : propFieldType } = this.props;
         fieldType = fieldType || propFieldType;
         const inputProps = {
             'key'       :        field,
@@ -142,9 +144,29 @@ export class BuildField extends React.PureComponent {
             case 'enum'             : return (
                 <span className="input-wrapper">
                     <DropdownButton title={value || <span className="text-300">No value</span>}
-                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark">
-                        {_.map(enumValues, (val) => this.buildEnumEntry(val))}
+                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
+                        onSelect={this.submitEnumVal}>
+                        {
+                            enumValues.map((val)=>
+                                <DropdownItem key={val} title={val || ''} eventKey={val}>
+                                    {val || ''}
+                                </DropdownItem>
+                            )
+                        }
                     </DropdownButton>
+                </span>
+            );
+            // var myFilter = new RegExp("^(" + value +  ")(.+)", "i")
+            case 'suggested_enum'   : return (
+                <span className="input-wrapper">
+                    
+                    <SearchAsYouTypeLocal searchList={suggestedEnumValues} value={value}
+                        onChange={this.handleEnumChange} maxResults={3}/>
+                    I am a suggested enum NOT a normal enum.
+                    {/* <DropdownButton title={value || <span className="text-300">No value</span>}
+                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark">
+                        {_.map(suggestedEnumValues, (val) => this.buildSuggestedEnumEntry(val))}
+                    </DropdownButton> */}
                 </span>
             );
             case 'linked object'    : return <LinkedObj key="linked-item" {...this.props}/>;
@@ -157,16 +179,41 @@ export class BuildField extends React.PureComponent {
         return <div>No field for this case yet.</div>;
     }
 
-    // create a dropdown item corresponding to one enum value
-    buildEnumEntry(val){
+    buildSuggestedEnumEntry(val) {
+        // console.log("building suggested enum entry");
+        // console.log("val: ", val);
         return (
-            <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.submitEnumVal}>
+            <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.submitSuggestedEnumVal}>
                 {val || ''}
             </DropdownItem>
         );
     }
 
-    submitEnumVal(eventKey){
+    submitSuggestedEnumVal(eventKey) {
+        // console.log("submitting suggested enum");
+        // console.log("eventKey: ", eventKey);
+        const { modifyNewContext, nestedField, fieldType, linkType, arrayIdx, schema } = this.props;
+
+        //eventKey's type is always string, convert it to the proper type defined in schema
+        let value = eventKey;
+        if (schema && schema.type && (typeof schema.type === 'string')) {
+            if (schema.type === 'integer') {
+                value = parseInt(eventKey);
+            } else if (schema.type === 'float') {
+                value = parseFloat(eventKey);
+            } else if (schema.type === 'number') {
+                value = Number(eventKey);
+            } else if (schema.type === 'boolean') {
+                value = (eventKey === 'true');
+            } else {
+                //todo: define other conversion types
+            }
+        }
+
+        modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
+    }
+
+    handleEnumChange(eventKey){
         const { modifyNewContext, nestedField, fieldType, linkType, arrayIdx, schema } = this.props;
 
         //eventKey's type is always string, convert it to the proper type defined in schema
@@ -711,6 +758,9 @@ class ArrayField extends React.Component{
         if(itemSchema.enum){
             fieldType = 'enum';
         }
+        if (itemSchema.suggested_enum) {
+            fieldType = 'suggested_enum';
+        }
         // handle a linkTo object on the the top level
         if(itemSchema.linkTo){
             fieldType = 'linked object';
@@ -772,6 +822,7 @@ class ArrayField extends React.Component{
         const title = fieldSchema.title || 'Item';
         const fieldType = ArrayField.typeOfItems(fieldSchema);
         const enumValues = fieldSchema.enum ? (fieldSchema.enum || []) : []; // check if this is an enum
+        const suggestedEnumValues = fieldSchema.suggested_enum ? (fieldSchema.suggested_enum || []) : [];
 
         let arrayIdxList;
         if (propArrayIdx){
@@ -784,7 +835,7 @@ class ArrayField extends React.Component{
         return(
             <div key={arrayIdx} className={"array-field-container " + (arrayIdx % 2 === 0 ? 'even' : 'odd')} data-field-type={fieldType}>
                 <BuildField
-                    {...{ value, fieldTip, fieldType, title, enumValues }}
+                    {...{ value, fieldTip, fieldType, title, enumValues, suggestedEnumValues }}
                     { ..._.pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel',
                         'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx',
                         'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType' ) }
