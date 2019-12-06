@@ -59,7 +59,10 @@ export class ToggleLayoutButton extends React.PureComponent {
         return (
             <button type="button" className={cls}
                 onClick={this.handleLayoutToggle} data-tip={(!isFullscreen ? 'Expand' : 'Collapse') + " table width"}>
-                <i className={"icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')}></i>
+                <i className={"icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')}/>
+                <span className="ml-05 d-none d-xl-inline">
+                    { !isFullscreen ? "Full Screen" : "Collapse Table Width" }
+                </span>
             </button>
         );
     }
