@@ -162,7 +162,6 @@ export class BuildField extends React.PureComponent {
                     
                     <SearchAsYouTypeLocal searchList={suggestedEnumValues} value={value}
                         onChange={this.handleEnumChange} maxResults={3}/>
-                    I am a suggested enum NOT a normal enum.
                     {/* <DropdownButton title={value || <span className="text-300">No value</span>}
                         onToggle={this.handleDropdownButtonToggle} variant="outline-dark">
                         {_.map(suggestedEnumValues, (val) => this.buildSuggestedEnumEntry(val))}
@@ -180,8 +179,8 @@ export class BuildField extends React.PureComponent {
     }
 
     buildSuggestedEnumEntry(val) {
-        // console.log("building suggested enum entry");
-        // console.log("val: ", val);
+        // console.log("log2: building suggested enum entry");
+        // console.log("log2: val: ", val);
         return (
             <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.submitSuggestedEnumVal}>
                 {val || ''}

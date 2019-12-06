@@ -27,9 +27,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -67,7 +67,9 @@ var CustomToggle = _react["default"].forwardRef(function (_ref, ref) {
 
 
 var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
-  var children = _ref2.children,
+  var onChangeFx = _ref2.onChangeFx,
+      toggleOpen = _ref2.toggleOpen,
+      children = _ref2.children,
       style = _ref2.style,
       className = _ref2.className,
       labeledBy = _ref2['aria-labelledby'];
@@ -83,6 +85,19 @@ var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
   }
 
+  var filteredItems = _react["default"].Children.toArray(children).filter(function (child) {
+    // as person types, generate a regex filter based on their input
+    var regex = new RegExp("^" + escapeRegExp(value.toLowerCase()) + "(.+)$"); // show/hide entries depending on regex match
+
+    return (child.props.children.toLowerCase() || "").match(regex);
+  });
+
+  function onSubmitNewEntry() {
+    console.log("attempting to submit new entry");
+    onChangeFx(value);
+    toggleOpen();
+  }
+
   return _react["default"].createElement("div", {
     ref: ref,
     style: style,
@@ -96,13 +111,14 @@ var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
       return setValue(e.target.value);
     },
     value: value
-  }), _react["default"].createElement("ul", {
+  }), filteredItems.length > 0 ? _react["default"].createElement("ul", {
     className: "list-unstyled"
-  }, _react["default"].Children.toArray(children).filter(function (child) {
-    // as person types, generate a regex filter based on their input
-    var regex = new RegExp("^" + escapeRegExp(value.toLowerCase()) + "(.+)$");
-    return (child.props.children.toLowerCase() || "").match(regex);
-  })));
+  }, filteredItems) : null, filteredItems.length === 0 && value.length > 0 ? _react["default"].createElement("button", {
+    type: "button",
+    onClick: function onClick(e) {
+      return onSubmitNewEntry(e);
+    }
+  }, "+") : null);
 });
 
 var SearchAsYouTypeLocal =
@@ -110,22 +126,41 @@ var SearchAsYouTypeLocal =
 function (_React$Component) {
   _inherits(SearchAsYouTypeLocal, _React$Component);
 
-  function SearchAsYouTypeLocal() {
+  function SearchAsYouTypeLocal(props) {
+    var _this;
+
     _classCallCheck(this, SearchAsYouTypeLocal);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(SearchAsYouTypeLocal).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(SearchAsYouTypeLocal).call(this, props));
+    _this.state = {
+      dropOpen: false
+    };
+    _this.toggleOpen = _this.toggleOpen.bind(_assertThisInitialized(_this));
+    return _this;
   }
 
   _createClass(SearchAsYouTypeLocal, [{
+    key: "toggleOpen",
+    value: function toggleOpen() {
+      console.log("toggling state of drop down");
+      var dropOpen = this.state.dropOpen;
+      this.setState({
+        dropOpen: !dropOpen
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
           searchList = _this$props.searchList,
           value = _this$props.value,
-          maxResults = _this$props.maxResults;
+          onChange = _this$props.onChange;
+      var dropOpen = this.state.dropOpen;
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
         drop: "down",
-        flip: false
+        flip: false,
+        onToggle: this.toggleOpen,
+        show: dropOpen
       }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
         as: CustomToggle
       }, value || _react["default"].createElement("span", {
@@ -134,11 +169,17 @@ function (_React$Component) {
         as: CustomMenu,
         drop: "down",
         flip: false,
-        focusFirstItemOnShow: "keyboard"
-      }, searchList.map(function (string, i) {
+        focusFirstItemOnShow: "keyboard",
+        show: dropOpen,
+        onChangeFx: onChange,
+        toggleOpen: this.toggleOpen
+      }, searchList.map(function (string) {
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
           key: string,
-          eventKey: i
+          onSelect: function onSelect(e) {
+            onChange(e);
+          },
+          eventKey: string
         }, string);
       })));
     }
@@ -149,153 +190,7 @@ function (_React$Component) {
 
 exports.SearchAsYouTypeLocal = SearchAsYouTypeLocal;
 SearchAsYouTypeLocal.propTypes = {
-  maxResults: _propTypes["default"].number,
   searchList: _propTypes["default"].array.isRequired,
-  value: _propTypes["default"].string.isRequired,
-  onChange: _propTypes["default"].func
-}; // constructor(props){
-//     super(props);
-//     this.state = {
-//         results: [],
-//         resultsVisible: false,
-//         currQuery: ''
-//     };
-//     this.onFocus = this.onFocus.bind(this);
-//     this.onType = this.onType.bind(this);
-//     this.onUnfocus = this.onUnfocus.bind(this);
-//     this.filterResults = this.filterResults.bind(this);
-//     this.onClickResult = this.onClickResult.bind(this);
-// }
-// onFocus() {
-//     const { resultsVisible, results } = this.state;
-//     const { searchList } = this.props;
-//     if (!resultsVisible && results.length === 0) {
-//         this.setState({ results: searchList, resultsVisible: true });
-//     } else if (!resultsVisible && results.length > 0) {
-//         this.setState({ resultsVisible: true });
-//     }
-// }
-// onUnfocus() {
-//     this.setState({ resultsVisible: false });
-// }
-// onType(e) { // relates to onChange prop function how?
-//     const { currQuery, resultsVisible } = this.state;
-//     const { searchList } = this.props;
-//     const newQuery = e.target.value;
-//     console.log("currQuery:", currQuery);
-//     console.log("e.target.value: ", e.target.value);
-//     console.log("searchList: ", searchList);
-//     console.log("resultsVisible", resultsVisible);
-//     // todo: move to utils or find duplicate util
-//     function escapeRegExp(string) {
-//         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
-//     }
-//     // as person types, generate a regex filter based on their input
-//     const regex = new RegExp('^' + escapeRegExp(newQuery));
-//     // narrow down filter results
-//     const matches = searchList.filter((item) => item.match(regex, "i"));
-//     console.log("matches: , " , matches);
-//     if (newQuery.length > 0) {
-//         this.setState({ currQuery: e.target.value, results: matches });
-//     } else if (newQuery.length === 0 && currQuery.length > 0) {
-//         // if user deletes all characters, hide the results too
-//         this.setState({ currQuery: e.target.value, resultsVisible: true });
-//     } else if (newQuery.length === 0 && currQuery.length === 0) {
-//         this.setState({ currQuery: e.target.value, resultsVisible: false });
-//     }
-// }
-// onClickResult(e, result) { // handle hover in CSS
-//     this.setState({ currQuery: result }); // set the value of input to be value of clicked result
-// }
-// render() {
-//     const { results, resultsVisible, currQuery } = this.state;
-//     return (
-//         <div className="autocomp-wrap">
-//             <input type="text" onFocus={this.onFocus} onBlur={this.onUnfocus} onChange={this.onType} value={currQuery}></input>
-//             {
-//                 resultsVisible && results.length > 0 ? (
-//                     <ul className="autocomp-results">
-//                         { results.map((result) => (<li key={result} className="autocomp-result" onClick={ this.onClickResult }>{ result }</li>))}
-//                     </ul>): null
-//             }
-//         </div>);
-// }
-// }
-// SearchAsYouTypeLocal.propTypes = {
-//     maxResults : PropTypes.number,
-//     searchList : PropTypes.array.isRequired,
-// };
-
-/*
-import React from 'react';
-import PropTypes from 'prop-types';
-
-export class SearchAsYouTypeLocal extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            results: [],
-            resultsVisible: false,
-            currQuery: ''
-        };
-        this.onType = this.onType.bind(this);
-        this.onFocus = this.onFocus.bind(this);
-        this.onUnfocus = this.onUnfocus.bind(this);
-    }
-    onFocus() {
-        const { resultsVisible, results } = this.state;
-        const { searchList } = this.props;
-        if (!resultsVisible && results.length === 0) {
-            this.setState({ results: searchList, resultsVisible: true });
-        } else if (!resultsVisible && results.length > 0) {
-            this.setState({ resultsVisible: true });
-        }
-    }
-    onUnfocus() {
-        this.setState({ resultsVisible: false });
-    }
-    onType(e) { // relates to onChange prop function how?
-        const { currQuery, resultsVisible } = this.state;
-        const { searchList } = this.props;
-        const newQuery = e.target.value;
-        console.log("currQuery:", currQuery);
-        console.log("e.target.value: ", e.target.value);
-        console.log("searchList: ", searchList);
-        console.log("resultsVisible", resultsVisible);
-        // todo: move to utils or find duplicate util
-        function escapeRegExp(string) {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
-        }
-        // as person types, generate a regex filter based on their input
-        const regex = new RegExp('^' + escapeRegExp(newQuery) + "/i");
-        console.log("regex: ", regex);
-        // narrow down filter results
-        const matches = searchList.filter((item) => item.match(regex));
-        console.log("matches: , " , matches);
-        if (newQuery.length > 0) {
-            this.setState({ currQuery: e.target.value, results: matches });
-        } else if (newQuery.length === 0 && currQuery.length === 0) {
-            // if user deletes all characters, hide the results too
-            this.setState({ currQuery: e.target.value, resultsVisible: true });
-        } else if (newQuery.length === 0) {
-            this.setState({ currQuery: e.target.value });
-        }
-    }
-    // onClickResult(e, result) { // handle hover in CSS
-    //     this.setState({ currQuery: result }); // set the value of input to be value of clicked result
-    // }
-    render() {
-        const { results, resultsVisible, currQuery } = this.state;
-        return (
-            <div className="autocomp-wrap">
-                <input type="text" onFocus={this.onFocus} onBlur={this.onUnfocus} onChange={this.onType} value={currQuery}></input>
-                {
-                    resultsVisible && results.length > 0 ?
-                        (<ul className="autocomp-results">
-                            { results.map((result) => (<li key={result} className="autocomp-result" onClick={ this.onClickResult }>{ result }</li>))}
-                        </ul>): null
-                }
-            </div>);
-    }
-}
-*/
+  value: _propTypes["default"].string,
+  onChange: _propTypes["default"].func.isRequired
+};

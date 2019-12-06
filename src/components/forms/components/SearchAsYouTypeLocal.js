@@ -26,12 +26,25 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 // forwardRef again here!
 // Dropdown needs access to the DOM of the Menu to measure it
 const CustomMenu = React.forwardRef(
-    ({ children, style, className, 'aria-labelledby': labeledBy }, ref) => {
+    ({ onChangeFx, toggleOpen, children, style, className, 'aria-labelledby': labeledBy }, ref) => {
         const [value, setValue] = useState('');
 
         function escapeRegExp(string) { // todo: maybe move to util?
             // escapes regex characters from strings
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
+        }
+
+        const filteredItems = React.Children.toArray(children).filter((child) => {
+            // as person types, generate a regex filter based on their input
+            const regex = new RegExp("^" + escapeRegExp(value.toLowerCase()) + "(.+)$");
+            // show/hide entries depending on regex match
+            return (child.props.children.toLowerCase()||"").match(regex);
+        });
+
+        function onSubmitNewEntry(e) {
+            console.log("attempting to submit new entry");
+            onChangeFx(value);
+            toggleOpen();
         }
 
         return (
@@ -48,201 +61,47 @@ const CustomMenu = React.forwardRef(
                     onChange={(e) => setValue(e.target.value)}
                     value={value}
                 />
-                <ul className="list-unstyled">
-                    {React.Children.toArray(children).filter(
-                        (child) =>
-                        {
-                            // as person types, generate a regex filter based on their input
-                            const regex = new RegExp("^" + escapeRegExp(value.toLowerCase()) + "(.+)$");
-                            return (child.props.children.toLowerCase()||"").match(regex);
-                        }
 
-                    )}
-                </ul>
+                {filteredItems.length > 0 ?  <ul className="list-unstyled">{filteredItems}</ul> : null}
+                {filteredItems.length === 0 && value.length > 0 ? <button type="button" onClick={(e) => onSubmitNewEntry(e)}>+</button>: null}
             </div>
         );
     },
 );
 
 export class SearchAsYouTypeLocal extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            dropOpen: false,
+        };
+        this.toggleOpen = this.toggleOpen.bind(this);
+    }
+
+    toggleOpen() {
+        console.log("toggling state of drop down");
+        const { dropOpen } = this.state;
+        this.setState({ dropOpen: !dropOpen });
+    }
+
     render() {
-        const { searchList, value, maxResults } = this.props;
+        const { searchList, value, onChange } = this.props;
+        const { dropOpen } = this.state;
         return (
-            <Dropdown drop="down" flip={false}>
+            <Dropdown drop="down" flip={false} onToggle={this.toggleOpen} show={dropOpen}>
                 <Dropdown.Toggle as={CustomToggle}>
                     { value || <span className="text-300">No value</span>}
                 </Dropdown.Toggle>
 
-                <Dropdown.Menu as={CustomMenu} drop="down" flip={false} focusFirstItemOnShow="keyboard">
-                    { searchList.map((string, i) => <Dropdown.Item key={string} eventKey={i}>{string}</Dropdown.Item> )}
+                <Dropdown.Menu as={CustomMenu} drop="down" flip={false} focusFirstItemOnShow="keyboard" show={dropOpen} onChangeFx={onChange} toggleOpen={this.toggleOpen}>
+                    { searchList.map((string, i) => <Dropdown.Item key={string} onSelect={(e) => { onChange(e); }} eventKey={string}>{string}</Dropdown.Item> )}
                 </Dropdown.Menu>
             </Dropdown>
         );
     }
 }
 SearchAsYouTypeLocal.propTypes = {
-    maxResults : PropTypes.number,
     searchList : PropTypes.array.isRequired,
-    value : PropTypes.string.isRequired,
-    onChange : PropTypes.func
+    value : PropTypes.string,
+    onChange : PropTypes.func.isRequired
 };
-
-
-// constructor(props){
-//     super(props);
-//     this.state = {
-//         results: [],
-//         resultsVisible: false,
-//         currQuery: ''
-//     };
-
-//     this.onFocus = this.onFocus.bind(this);
-//     this.onType = this.onType.bind(this);
-//     this.onUnfocus = this.onUnfocus.bind(this);
-//     this.filterResults = this.filterResults.bind(this);
-//     this.onClickResult = this.onClickResult.bind(this);
-// }
-
-// onFocus() {
-//     const { resultsVisible, results } = this.state;
-//     const { searchList } = this.props;
-
-//     if (!resultsVisible && results.length === 0) {
-//         this.setState({ results: searchList, resultsVisible: true });
-//     } else if (!resultsVisible && results.length > 0) {
-//         this.setState({ resultsVisible: true });
-//     }
-// }
-
-// onUnfocus() {
-//     this.setState({ resultsVisible: false });
-// }
-
-// onType(e) { // relates to onChange prop function how?
-//     const { currQuery, resultsVisible } = this.state;
-//     const { searchList } = this.props;
-//     const newQuery = e.target.value;
-//     console.log("currQuery:", currQuery);
-//     console.log("e.target.value: ", e.target.value);
-//     console.log("searchList: ", searchList);
-//     console.log("resultsVisible", resultsVisible);
-
-//     // todo: move to utils or find duplicate util
-//     function escapeRegExp(string) {
-//         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
-//     }
-
-//     // as person types, generate a regex filter based on their input
-//     const regex = new RegExp('^' + escapeRegExp(newQuery));
-
-//     // narrow down filter results
-//     const matches = searchList.filter((item) => item.match(regex, "i"));
-//     console.log("matches: , " , matches);
-
-//     if (newQuery.length > 0) {
-//         this.setState({ currQuery: e.target.value, results: matches });
-//     } else if (newQuery.length === 0 && currQuery.length > 0) {
-//         // if user deletes all characters, hide the results too
-//         this.setState({ currQuery: e.target.value, resultsVisible: true });
-//     } else if (newQuery.length === 0 && currQuery.length === 0) {
-//         this.setState({ currQuery: e.target.value, resultsVisible: false });
-//     }
-// }
-
-// onClickResult(e, result) { // handle hover in CSS
-//     this.setState({ currQuery: result }); // set the value of input to be value of clicked result
-// }
-
-// render() {
-//     const { results, resultsVisible, currQuery } = this.state;
-//     return (
-//         <div className="autocomp-wrap">
-//             <input type="text" onFocus={this.onFocus} onBlur={this.onUnfocus} onChange={this.onType} value={currQuery}></input>
-//             {
-//                 resultsVisible && results.length > 0 ? (
-//                     <ul className="autocomp-results">
-//                         { results.map((result) => (<li key={result} className="autocomp-result" onClick={ this.onClickResult }>{ result }</li>))}
-//                     </ul>): null
-//             }
-//         </div>);
-// }
-// }
-
-// SearchAsYouTypeLocal.propTypes = {
-//     maxResults : PropTypes.number,
-//     searchList : PropTypes.array.isRequired,
-// };
-
-/*
-import React from 'react';
-import PropTypes from 'prop-types';
-
-export class SearchAsYouTypeLocal extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            results: [],
-            resultsVisible: false,
-            currQuery: ''
-        };
-        this.onType = this.onType.bind(this);
-        this.onFocus = this.onFocus.bind(this);
-        this.onUnfocus = this.onUnfocus.bind(this);
-    }
-    onFocus() {
-        const { resultsVisible, results } = this.state;
-        const { searchList } = this.props;
-        if (!resultsVisible && results.length === 0) {
-            this.setState({ results: searchList, resultsVisible: true });
-        } else if (!resultsVisible && results.length > 0) {
-            this.setState({ resultsVisible: true });
-        }
-    }
-    onUnfocus() {
-        this.setState({ resultsVisible: false });
-    }
-    onType(e) { // relates to onChange prop function how?
-        const { currQuery, resultsVisible } = this.state;
-        const { searchList } = this.props;
-        const newQuery = e.target.value;
-        console.log("currQuery:", currQuery);
-        console.log("e.target.value: ", e.target.value);
-        console.log("searchList: ", searchList);
-        console.log("resultsVisible", resultsVisible);
-        // todo: move to utils or find duplicate util
-        function escapeRegExp(string) {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
-        }
-        // as person types, generate a regex filter based on their input
-        const regex = new RegExp('^' + escapeRegExp(newQuery) + "/i");
-        console.log("regex: ", regex);
-        // narrow down filter results
-        const matches = searchList.filter((item) => item.match(regex));
-        console.log("matches: , " , matches);
-        if (newQuery.length > 0) {
-            this.setState({ currQuery: e.target.value, results: matches });
-        } else if (newQuery.length === 0 && currQuery.length === 0) {
-            // if user deletes all characters, hide the results too
-            this.setState({ currQuery: e.target.value, resultsVisible: true });
-        } else if (newQuery.length === 0) {
-            this.setState({ currQuery: e.target.value });
-        }
-    }
-    // onClickResult(e, result) { // handle hover in CSS
-    //     this.setState({ currQuery: result }); // set the value of input to be value of clicked result
-    // }
-    render() {
-        const { results, resultsVisible, currQuery } = this.state;
-        return (
-            <div className="autocomp-wrap">
-                <input type="text" onFocus={this.onFocus} onBlur={this.onUnfocus} onChange={this.onType} value={currQuery}></input>
-                {
-                    resultsVisible && results.length > 0 ?
-                        (<ul className="autocomp-results">
-                            { results.map((result) => (<li key={result} className="autocomp-result" onClick={ this.onClickResult }>{ result }</li>))}
-                        </ul>): null
-                }
-            </div>);
-    }
-}
-*/

@@ -288,7 +288,7 @@ function (_React$PureComponent) {
             value: value,
             onChange: this.handleEnumChange,
             maxResults: 3
-          }), "I am a suggested enum NOT a normal enum.");
+          }));
 
         case 'linked object':
           return _react["default"].createElement(LinkedObj, _extends({
@@ -322,8 +322,8 @@ function (_React$PureComponent) {
   }, {
     key: "buildSuggestedEnumEntry",
     value: function buildSuggestedEnumEntry(val) {
-      // console.log("building suggested enum entry");
-      // console.log("val: ", val);
+      // console.log("log2: building suggested enum entry");
+      // console.log("log2: val: ", val);
       return _react["default"].createElement(_reactBootstrap.DropdownItem, {
         key: val,
         title: val || '',
