@@ -67,7 +67,8 @@ var CustomToggle = _react["default"].forwardRef(function (_ref, ref) {
 
 
 var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
-  var onChangeFx = _ref2.onChangeFx,
+  var filterMethod = _ref2.filterMethod,
+      onChangeFx = _ref2.onChangeFx,
       toggleOpen = _ref2.toggleOpen,
       children = _ref2.children,
       style = _ref2.style,
@@ -85,40 +86,86 @@ var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
   }
 
+  function getRegexQuery() {
+    switch (filterMethod) {
+      case "includes":
+        return escapeRegExp(value.toLowerCase()) + "(.+)$";
+
+      case "startsWith":
+      default:
+        return "^" + escapeRegExp(value.toLowerCase()) + "(.+)$";
+    }
+  }
+
   var filteredItems = _react["default"].Children.toArray(children).filter(function (child) {
     // as person types, generate a regex filter based on their input
-    var regex = new RegExp("^" + escapeRegExp(value.toLowerCase()) + "(.+)$"); // show/hide entries depending on regex match
+    var regex = new RegExp(getRegexQuery()); // show/hide entries depending on regex match
 
     return (child.props.children.toLowerCase() || "").match(regex);
   });
 
   function onSubmitNewEntry() {
-    console.log("attempting to submit new entry");
     onChangeFx(value);
     toggleOpen();
   }
 
+  function _onKeyDown(e) {
+    if (e.key === "Enter") {
+      onSubmitNewEntry();
+    } else if ((e.key === "ArrowDown" || e.key === "Tab") && filteredItems.length !== 0) {
+      // add focus to the first item in filtered items
+      var x = document.querySelector(".dropdown > .dropdown-menu.show > .list-unstyled");
+
+      if (x.childNodes[0]) {
+        x.childNodes[0].focus();
+        e.preventDefault();
+      }
+    }
+  }
+
   return _react["default"].createElement("div", {
     ref: ref,
-    style: style,
+    style: (style, {
+      overflowY: "hidden",
+      width: "240px"
+    }),
     className: className,
     "aria-labelledby": labeledBy
+  }, _react["default"].createElement("div", {
+    className: "d-flex align-items-center"
+  }, _react["default"].createElement("div", {
+    className: "col"
   }, _react["default"].createElement(_reactBootstrap.FormControl, {
     autoFocus: true,
-    className: "mx-3 my-2 w-auto",
+    className: "mx-3 my-2",
     placeholder: "Type to filter...",
     onChange: function onChange(e) {
       return setValue(e.target.value);
     },
-    value: value
-  }), filteredItems.length > 0 ? _react["default"].createElement("ul", {
-    className: "list-unstyled"
-  }, filteredItems) : null, filteredItems.length === 0 && value.length > 0 ? _react["default"].createElement("button", {
+    onKeyDown: function onKeyDown(e) {
+      return _onKeyDown(e);
+    },
+    value: value,
+    tabIndex: "3"
+  })), _react["default"].createElement("div", {
+    className: "col-auto remove-button-container",
+    "data-tip": "Select '".concat(value, "'")
+  }, filteredItems.length === 0 && value.length > 0 ? _react["default"].createElement("button", {
+    className: "btn-success btn",
     type: "button",
-    onClick: function onClick(e) {
-      return onSubmitNewEntry(e);
+    onClick: function onClick() {
+      return onSubmitNewEntry();
     }
-  }, "+") : null);
+  }, _react["default"].createElement("i", {
+    className: "icon icon-plus fas"
+  })) : null)), filteredItems.length > 0 ? _react["default"].createElement("ul", {
+    className: "list-unstyled",
+    style: {
+      overflowY: "scroll",
+      maxHeight: "250px",
+      marginBottom: "0"
+    }
+  }, filteredItems) : null);
 });
 
 var SearchAsYouTypeLocal =
@@ -142,7 +189,6 @@ function (_React$Component) {
   _createClass(SearchAsYouTypeLocal, [{
     key: "toggleOpen",
     value: function toggleOpen() {
-      console.log("toggling state of drop down");
       var dropOpen = this.state.dropOpen;
       this.setState({
         dropOpen: !dropOpen
@@ -154,7 +200,8 @@ function (_React$Component) {
       var _this$props = this.props,
           searchList = _this$props.searchList,
           value = _this$props.value,
-          onChange = _this$props.onChange;
+          onChange = _this$props.onChange,
+          filterMethod = _this$props.filterMethod;
       var dropOpen = this.state.dropOpen;
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
         drop: "down",
@@ -166,20 +213,26 @@ function (_React$Component) {
       }, value || _react["default"].createElement("span", {
         className: "text-300"
       }, "No value")), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, {
+        style: {
+          maxWidth: "240px",
+          minHeight: "75px"
+        },
         as: CustomMenu,
         drop: "down",
         flip: false,
-        focusFirstItemOnShow: "keyboard",
         show: dropOpen,
         onChangeFx: onChange,
-        toggleOpen: this.toggleOpen
+        toggleOpen: this.toggleOpen,
+        filterMethod: filterMethod
       }, searchList.map(function (string) {
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
           key: string,
           onSelect: function onSelect(e) {
             onChange(e);
           },
-          eventKey: string
+          eventKey: string,
+          className: "text-ellipses-container",
+          tabIndex: "4"
         }, string);
       })));
     }
@@ -190,7 +243,9 @@ function (_React$Component) {
 
 exports.SearchAsYouTypeLocal = SearchAsYouTypeLocal;
 SearchAsYouTypeLocal.propTypes = {
-  searchList: _propTypes["default"].array.isRequired,
+  searchList: _propTypes["default"].arrayOf(_propTypes["default"].string).isRequired,
   value: _propTypes["default"].string,
-  onChange: _propTypes["default"].func.isRequired
+  onChange: _propTypes["default"].func.isRequired,
+  filterMethod: _propTypes["default"].string // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
+
 };

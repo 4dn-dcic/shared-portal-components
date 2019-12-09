@@ -286,6 +286,7 @@ function (_React$PureComponent) {
           }, _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
             searchList: suggestedEnumValues,
             value: value,
+            filterMethod: "includes",
             onChange: this.handleEnumChange,
             maxResults: 3
           }));
@@ -322,8 +323,6 @@ function (_React$PureComponent) {
   }, {
     key: "buildSuggestedEnumEntry",
     value: function buildSuggestedEnumEntry(val) {
-      // console.log("log2: building suggested enum entry");
-      // console.log("log2: val: ", val);
       return _react["default"].createElement(_reactBootstrap.DropdownItem, {
         key: val,
         title: val || '',
@@ -334,8 +333,6 @@ function (_React$PureComponent) {
   }, {
     key: "submitSuggestedEnumVal",
     value: function submitSuggestedEnumVal(eventKey) {
-      // console.log("submitting suggested enum");
-      // console.log("eventKey: ", eventKey);
       var _this$props2 = this.props,
           modifyNewContext = _this$props2.modifyNewContext,
           nestedField = _this$props2.nestedField,

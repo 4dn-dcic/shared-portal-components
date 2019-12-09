@@ -161,7 +161,7 @@ export class BuildField extends React.PureComponent {
                 <span className="input-wrapper">
                     
                     <SearchAsYouTypeLocal searchList={suggestedEnumValues} value={value}
-                        onChange={this.handleEnumChange} maxResults={3}/>
+                        filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                     {/* <DropdownButton title={value || <span className="text-300">No value</span>}
                         onToggle={this.handleDropdownButtonToggle} variant="outline-dark">
                         {_.map(suggestedEnumValues, (val) => this.buildSuggestedEnumEntry(val))}
@@ -179,8 +179,6 @@ export class BuildField extends React.PureComponent {
     }
 
     buildSuggestedEnumEntry(val) {
-        // console.log("log2: building suggested enum entry");
-        // console.log("log2: val: ", val);
         return (
             <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.submitSuggestedEnumVal}>
                 {val || ''}
@@ -189,8 +187,6 @@ export class BuildField extends React.PureComponent {
     }
 
     submitSuggestedEnumVal(eventKey) {
-        // console.log("submitting suggested enum");
-        // console.log("eventKey: ", eventKey);
         const { modifyNewContext, nestedField, fieldType, linkType, arrayIdx, schema } = this.props;
 
         //eventKey's type is always string, convert it to the proper type defined in schema
