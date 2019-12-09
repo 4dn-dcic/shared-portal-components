@@ -585,7 +585,9 @@ function (_React$PureComponent3) {
           tableContainerScrollLeft = _this$props10.tableContainerScrollLeft,
           context = _this$props10.context,
           results = _this$props10.results,
-          propMounted = _this$props10.mounted;
+          propMounted = _this$props10.mounted,
+          isOwnPage = _this$props10.isOwnPage,
+          maxHeight = _this$props10.maxHeight;
       var _this$state = this.state,
           stateMounted = _this$state.mounted,
           isLoading = _this$state.isLoading;
@@ -607,7 +609,8 @@ function (_React$PureComponent3) {
       var canLoad = context && context.total && LoadMoreAsYouScroll.canLoadMore(context.total, results) || false;
       return _react["default"].createElement(_reactInfinite["default"], {
         elementHeight: elementHeight,
-        useWindowAsScrollContainer: true,
+        containerHeight: maxHeight,
+        useWindowAsScrollContainer: isOwnPage,
         onInfiniteLoad: this.handleLoad,
         isInfiniteLoading: isLoading,
         timeScrollStateLastsForAfterUserScrolls: 250 //onChangeScrollState={this.handleScrollingStateChange}
@@ -634,7 +637,9 @@ function (_React$PureComponent3) {
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'href': _propTypes["default"].string.isRequired,
   'limit': _propTypes["default"].number,
-  'rowHeight': _propTypes["default"].number.isRequired
+  'rowHeight': _propTypes["default"].number.isRequired,
+  'isOwnPage': _propTypes["default"].bool.isRequired,
+  'maxHeight': _propTypes["default"].number
 });
 
 _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
@@ -647,7 +652,8 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
       'message': 'Results have changed while loading and have been refreshed.',
       'navigateDisappearThreshold': 1
     });
-  }
+  },
+  'isOwnPage': true
 });
 
 var ShadowBorderLayer =
@@ -1306,23 +1312,38 @@ function (_React$PureComponent4) {
       return LoadMoreAsYouScroll.canLoadMore(total, results);
     }
   }, {
-    key: "renderResults",
-    value: function renderResults() {
+    key: "render",
+    value: function render() {
       var _this$props14 = this.props,
           columnDefinitions = _this$props14.columnDefinitions,
-          windowWidth = _this$props14.windowWidth;
+          windowWidth = _this$props14.windowWidth,
+          isOwnPage = _this$props14.isOwnPage,
+          _this$props14$maxHeig = _this$props14.maxHeight,
+          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig;
       var _this$state2 = this.state,
           results = _this$state2.results,
           tableContainerWidth = _this$state2.tableContainerWidth,
           tableContainerScrollLeft = _this$state2.tableContainerScrollLeft,
           mounted = _this$state2.mounted,
           widths = _this$state2.widths,
-          openDetailPanes = _this$state2.openDetailPanes;
+          isWindowPastTableTop = _this$state2.isWindowPastTableTop,
+          openDetailPanes = _this$state2.openDetailPanes,
+          tableLeftOffset = _this$state2.tableLeftOffset;
 
-      var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth); // selectedFiles passed to trigger re-render on PureComponent further down tree (DetailPane).
+      var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
 
+      var canLoadMore = this.canLoadMore();
+      var innerContainerElem = this.innerContainerRef.current;
 
-      var commonPropsToPass = _underscore["default"].extend(_underscore["default"].pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn', 'rowHeight'), {
+      var headerRowCommonProps = _objectSpread({}, _underscore["default"].pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'), {
+        mounted: mounted,
+        results: results,
+        headerColumnWidths: widths,
+        setHeaderWidths: this.setHeaderWidths,
+        tableContainerWidth: tableContainerWidth
+      });
+
+      var resultRowCommonProps = _underscore["default"].extend(_underscore["default"].pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn', 'rowHeight'), {
         columnDefinitions: columnDefinitions,
         openDetailPanes: openDetailPanes,
         tableContainerWidth: tableContainerWidth,
@@ -1335,43 +1356,6 @@ function (_React$PureComponent4) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      return _underscore["default"].map(results, function (r, idx) {
-        var id = _object.itemUtil.atId(r);
-
-        return _react["default"].createElement(ResultRow, _extends({}, commonPropsToPass, {
-          result: r,
-          rowNumber: idx,
-          id: id,
-          key: id
-        }));
-      });
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props15 = this.props,
-          columnDefinitions = _this$props15.columnDefinitions,
-          windowWidth = _this$props15.windowWidth,
-          isOwnPage = _this$props15.isOwnPage;
-      var _this$state3 = this.state,
-          tableContainerWidth = _this$state3.tableContainerWidth,
-          tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
-          mounted = _this$state3.mounted,
-          widths = _this$state3.widths,
-          isWindowPastTableTop = _this$state3.isWindowPastTableTop,
-          tableLeftOffset = _this$state3.tableLeftOffset;
-
-      var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
-
-      var canLoadMore = this.canLoadMore();
-      var innerContainerElem = this.innerContainerRef.current;
-
-      var headerRowCommonProps = _objectSpread({}, _underscore["default"].pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'), {}, _underscore["default"].pick(this.state, 'mounted', 'results'), {
-        headerColumnWidths: widths,
-        setHeaderWidths: this.setHeaderWidths,
-        tableContainerWidth: tableContainerWidth
-      });
-
       return _react["default"].createElement("div", {
         className: "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")
       }, _react["default"].createElement("div", {
@@ -1380,7 +1364,10 @@ function (_React$PureComponent4) {
         tableContainerScrollLeft: tableContainerScrollLeft
       })), _react["default"].createElement("div", {
         className: "inner-container",
-        ref: this.innerContainerRef
+        ref: this.innerContainerRef,
+        style: !isOwnPage ? {
+          maxHeight: maxHeight
+        } : null
       }, _react["default"].createElement("div", {
         className: "scrollable-container",
         style: {
@@ -1392,9 +1379,17 @@ function (_React$PureComponent4) {
         innerContainerElem: innerContainerElem
       }, {
         setResults: this.setResults,
-        ref: this.loadMoreAsYouScrollRef //onVerticalScroll={this.onVerticalScroll}
+        ref: this.loadMoreAsYouScrollRef
+      }), results.map(function (r, idx) {
+        var id = _object.itemUtil.atId(r);
 
-      }), this.renderResults()))), _react["default"].createElement(ShadowBorderLayer, _extends({
+        return _react["default"].createElement(ResultRow, _extends({}, resultRowCommonProps, {
+          result: r,
+          rowNumber: idx,
+          id: id,
+          key: id
+        }));
+      })))), _react["default"].createElement(ShadowBorderLayer, _extends({
         tableContainerScrollLeft: tableContainerScrollLeft,
         tableContainerWidth: tableContainerWidth,
         fullRowWidth: fullRowWidth,
@@ -1471,10 +1466,10 @@ function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props16 = this.props,
-          hiddenColumns = _this$props16.hiddenColumns,
-          columnExtensionMap = _this$props16.columnExtensionMap,
-          columnDefinitions = _this$props16.columnDefinitions;
+      var _this$props15 = this.props,
+          hiddenColumns = _this$props15.hiddenColumns,
+          columnExtensionMap = _this$props15.columnExtensionMap,
+          columnDefinitions = _this$props15.columnDefinitions;
       var colDefs = columnDefinitions || (0, _tableCommons.columnsToColumnDefinitions)({
         'display_title': {
           'title': 'Title'
@@ -1533,7 +1528,9 @@ _defineProperty(SearchResultTable, "propTypes", {
     "noSort": _propTypes["default"].bool
   })),
   'termTransformFxn': _propTypes["default"].func.isRequired,
-  'isOwnPage': _propTypes["default"].bool
+  'isOwnPage': _propTypes["default"].bool,
+  'maxHeight': _propTypes["default"].number //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
+
 });
 
 _defineProperty(SearchResultTable, "defaultProps", {
@@ -1555,5 +1552,6 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'fullWidthInitOffset': 60,
   'fullWidthContainerSelectorString': '.browse-page-container',
   'currentAction': null,
-  'isOwnPage': true
+  'isOwnPage': true,
+  'maxHeight': 400
 });

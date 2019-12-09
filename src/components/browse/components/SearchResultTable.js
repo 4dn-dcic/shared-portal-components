@@ -317,7 +317,9 @@ class LoadMoreAsYouScroll extends React.PureComponent {
     static propTypes = {
         'href' : PropTypes.string.isRequired,
         'limit' : PropTypes.number,
-        'rowHeight' : PropTypes.number.isRequired
+        'rowHeight' : PropTypes.number.isRequired,
+        'isOwnPage' : PropTypes.bool.isRequired,
+        'maxHeight' : PropTypes.number
     };
 
     static defaultProps = {
@@ -326,7 +328,8 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         'openRowHeight' : 57,
         'onDuplicateResultsFoundCallback' : function(){
             Alerts.queue({ 'title' : 'Results Refreshed', 'message' : 'Results have changed while loading and have been refreshed.', 'navigateDisappearThreshold' : 1 });
-        }
+        },
+        'isOwnPage' : true
     };
 
     static canLoadMore(totalExpected, results){
@@ -407,7 +410,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
     render(){
         const {
             children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft, context, results,
-            mounted: propMounted
+            mounted: propMounted, isOwnPage, maxHeight
         } = this.props;
 
         const { mounted: stateMounted, isLoading } = this.state;
@@ -426,7 +429,8 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         return (
             <Infinite
                 elementHeight={elementHeight}
-                useWindowAsScrollContainer
+                containerHeight={maxHeight}
+                useWindowAsScrollContainer={isOwnPage}
                 onInfiniteLoad={this.handleLoad}
                 isInfiniteLoading={isLoading}
                 timeScrollStateLastsForAfterUserScrolls={250}
@@ -965,12 +969,23 @@ class DimensioningContainer extends React.PureComponent {
         return LoadMoreAsYouScroll.canLoadMore(total, results);
     }
 
-    renderResults(){
-        const { columnDefinitions, windowWidth } = this.props;
-        const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, openDetailPanes } = this.state;
+    render(){
+        const { columnDefinitions, windowWidth, isOwnPage, maxHeight = 500 } = this.props;
+        const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, isWindowPastTableTop, openDetailPanes, tableLeftOffset } = this.state;
         const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
-        // selectedFiles passed to trigger re-render on PureComponent further down tree (DetailPane).
-        const commonPropsToPass = _.extend(
+        const canLoadMore = this.canLoadMore();
+        const innerContainerElem = this.innerContainerRef.current;
+
+        const headerRowCommonProps = {
+            ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse',
+                'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'),
+            mounted, results,
+            headerColumnWidths: widths,
+            setHeaderWidths: this.setHeaderWidths,
+            tableContainerWidth
+        };
+
+        const resultRowCommonProps = _.extend(
             _.pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn', 'rowHeight'),
             {
                 columnDefinitions, openDetailPanes, tableContainerWidth, tableContainerScrollLeft, windowWidth,
@@ -982,42 +997,24 @@ class DimensioningContainer extends React.PureComponent {
             }
         );
 
-        return _.map(results, (r, idx)=>{
-            const id = itemUtil.atId(r);
-            return <ResultRow {...commonPropsToPass} result={r} rowNumber={idx} id={id} key={id} />;
-        });
-    }
-
-    render(){
-        const { columnDefinitions, windowWidth, isOwnPage } = this.props;
-        const { tableContainerWidth, tableContainerScrollLeft, mounted, widths, isWindowPastTableTop, tableLeftOffset } = this.state;
-        const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
-        const canLoadMore = this.canLoadMore();
-        const innerContainerElem = this.innerContainerRef.current;
-        const headerRowCommonProps = {
-            ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse',
-                'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'),
-            ..._.pick(this.state, 'mounted', 'results'),
-            headerColumnWidths: widths,
-            setHeaderWidths: this.setHeaderWidths,
-            tableContainerWidth
-        };
-
         return (
             <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")}>
                 <div className={"search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')}>
                     <HeadersRow {...headerRowCommonProps} tableContainerScrollLeft={tableContainerScrollLeft} />
-                    <div className="inner-container" ref={this.innerContainerRef}>
+                    <div className="inner-container" ref={this.innerContainerRef} style={!isOwnPage ? { maxHeight } : null}>
                         <div className="scrollable-container" style={{ minWidth : fullRowWidth + 6 }}>
                             <LoadMoreAsYouScroll
                                 {..._.pick(this.props, 'href', 'limit', 'rowHeight', 'context',
                                     'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas')}
                                 {..._.pick(this.state, 'results', 'mounted', 'openDetailPanes')}
                                 {...{ tableContainerWidth, tableContainerScrollLeft, innerContainerElem }}
-                                setResults={this.setResults} ref={this.loadMoreAsYouScrollRef}
-                                //onVerticalScroll={this.onVerticalScroll}
-                            >
-                                { this.renderResults() }
+                                setResults={this.setResults} ref={this.loadMoreAsYouScrollRef}>
+                                {
+                                    results.map(function(r, idx){
+                                        const id = itemUtil.atId(r);
+                                        return <ResultRow {...resultRowCommonProps} result={r} rowNumber={idx} id={id} key={id} />;
+                                    })
+                                }
                             </LoadMoreAsYouScroll>
                         </div>
                     </div>
@@ -1035,6 +1032,7 @@ class DimensioningContainer extends React.PureComponent {
     }
 
 }
+
 
 /**
  * Reusable table for displaying search results according to column definitions.
@@ -1095,7 +1093,8 @@ export class SearchResultTable extends React.PureComponent {
             "noSort" : PropTypes.bool
         })),
         'termTransformFxn' : PropTypes.func.isRequired,
-        'isOwnPage' : PropTypes.bool
+        'isOwnPage' : PropTypes.bool,
+        'maxHeight' : PropTypes.number //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
     };
 
     static defaultProps = {
@@ -1111,7 +1110,8 @@ export class SearchResultTable extends React.PureComponent {
         'fullWidthInitOffset' : 60,
         'fullWidthContainerSelectorString' : '.browse-page-container',
         'currentAction' : null,
-        'isOwnPage' : true
+        'isOwnPage' : true,
+        'maxHeight' : 400
     };
 
     constructor(props){
