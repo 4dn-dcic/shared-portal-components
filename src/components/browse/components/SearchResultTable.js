@@ -708,7 +708,7 @@ class DimensioningContainer extends React.PureComponent {
         const innerContainerElem = this.innerContainerRef.current;
 
         if (innerContainerElem){
-            const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, this.state.mounted, [], windowWidth);
+            const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, true, [], windowWidth);
             if (innerContainerElem.offsetWidth < fullRowWidth){
                 nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
                 nextState.isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem);
@@ -800,11 +800,18 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     onHorizontalScroll(e){
-        e && e.stopPropagation();
+        const { tableContainerScrollLeft } = this.state;
+        const innerElem = e.target;
+        const nextScrollLeft = innerElem.scrollLeft; // Grabbing this val here rather than within raf() fxn acts kind of like a throttle (?).
+        e.stopPropagation();
         e.preventDefault();
 
+        if (nextScrollLeft === tableContainerScrollLeft) { // Shouldn't occur but presence of this seems to improve smoothness (?)
+            return false;
+        }
+
         raf(()=>{
-            this.setContainerScrollLeft(e.target.scrollLeft || 0);
+            this.setContainerScrollLeft(nextScrollLeft || 0);
         });
 
         return false;

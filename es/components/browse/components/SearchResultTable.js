@@ -1003,7 +1003,7 @@ function (_React$PureComponent4) {
       var innerContainerElem = this.innerContainerRef.current;
 
       if (innerContainerElem) {
-        var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, this.state.mounted, [], windowWidth);
+        var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, true, [], windowWidth);
 
         if (innerContainerElem.offsetWidth < fullRowWidth) {
           nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
@@ -1133,10 +1133,20 @@ function (_React$PureComponent4) {
     value: function onHorizontalScroll(e) {
       var _this10 = this;
 
-      e && e.stopPropagation();
+      var tableContainerScrollLeft = this.state.tableContainerScrollLeft;
+      var innerElem = e.target;
+      var nextScrollLeft = innerElem.scrollLeft; // Grabbing this val here rather than within raf() fxn acts kind of like a throttle (?).
+
+      e.stopPropagation();
       e.preventDefault();
+
+      if (nextScrollLeft === tableContainerScrollLeft) {
+        // Shouldn't occur but presence of this seems to improve smoothness (?)
+        return false;
+      }
+
       (0, _utilities.requestAnimationFrame)(function () {
-        _this10.setContainerScrollLeft(e.target.scrollLeft || 0);
+        _this10.setContainerScrollLeft(nextScrollLeft || 0);
       });
       return false;
     }
