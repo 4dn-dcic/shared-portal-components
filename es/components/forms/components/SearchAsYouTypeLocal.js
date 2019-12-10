@@ -137,7 +137,6 @@ var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
     className: "col"
   }, _react["default"].createElement(_reactBootstrap.FormControl, {
     autoFocus: true,
-    className: "mx-3 my-2",
     placeholder: "Type to filter...",
     onChange: function onChange(e) {
       return setValue(e.target.value);
@@ -147,10 +146,9 @@ var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
     },
     value: value,
     tabIndex: "3"
-  })), _react["default"].createElement("div", {
-    className: "col-auto remove-button-container",
-    "data-tip": "Select '".concat(value, "'")
-  }, filteredItems.length === 0 && value.length > 0 ? _react["default"].createElement("button", {
+  })), filteredItems.length === 0 && value.length > 0 ? _react["default"].createElement("div", {
+    className: "col-auto remove-button-container"
+  }, _react["default"].createElement("button", {
     className: "btn-success btn",
     type: "button",
     onClick: function onClick() {
@@ -158,7 +156,7 @@ var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
     }
   }, _react["default"].createElement("i", {
     className: "icon icon-plus fas"
-  })) : null)), filteredItems.length > 0 ? _react["default"].createElement("ul", {
+  }))) : null), filteredItems.length > 0 ? _react["default"].createElement("ul", {
     className: "list-unstyled",
     style: {
       overflowY: "scroll",
@@ -224,14 +222,14 @@ function (_React$Component) {
         onChangeFx: onChange,
         toggleOpen: this.toggleOpen,
         filterMethod: filterMethod
-      }, searchList.map(function (string) {
+      }, searchList.map(function (string, i) {
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
           key: string,
           onSelect: function onSelect(e) {
             onChange(e);
           },
           eventKey: string,
-          className: "text-ellipsis-container",
+          className: "text-ellipsis-container ".concat(i === 0 ? "mt-1" : null),
           tabIndex: "4"
         }, string);
       })));

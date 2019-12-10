@@ -89,7 +89,6 @@ const CustomMenu = React.forwardRef(
                     <div className="col">
                         <FormControl
                             autoFocus
-                            className="mx-3 my-2"
                             placeholder="Type to filter..."
                             onChange={(e) => setValue(e.target.value)}
                             onKeyDown={(e) => onKeyDown(e)}
@@ -97,14 +96,14 @@ const CustomMenu = React.forwardRef(
                             tabIndex="3"
                         />
                     </div>
-                    <div className="col-auto remove-button-container" data-tip={`Select '${value}'`}>
-                        {filteredItems.length === 0 && value.length > 0 ?
+                    {filteredItems.length === 0 && value.length > 0 ?
+                        <div className="col-auto remove-button-container">
                             <button className="btn-success btn" type="button"
                                 onClick={() => onSubmitNewEntry()}>
                                 <i className="icon icon-plus fas"></i>
                             </button>
-                            : null}
-                    </div>
+                        </div>
+                        : null}
                 </div>
                 {filteredItems.length > 0 ?
                     <ul className="list-unstyled" style={{ overflowY: "scroll", maxHeight: "250px",
@@ -145,7 +144,7 @@ export class SearchAsYouTypeLocal extends React.Component {
                     filterMethod={filterMethod}>
                     { searchList.map((string, i) =>
                         <Dropdown.Item key={string} onSelect={(e) => { onChange(e); }} eventKey={string}
-                            className="text-ellipsis-container" tabIndex="4">
+                            className={`text-ellipsis-container ${i === 0 ? "mt-1" : null}`} tabIndex="4">
                             {string}
                         </Dropdown.Item>
                     )}
