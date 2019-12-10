@@ -158,13 +158,6 @@ $search-results-header-text-color: #fff !default;
 			}
 		}
 
-		&.is-own-page {
-			.search-headers-row {
-				position: sticky;
-				top: 0px; // May be overriden
-			}
-		}
-
 		.shadow-border-layer {
 			pointer-events: none;
 			> .edge-scroll-button {
