@@ -371,6 +371,22 @@ export function isDOMElementChildOfElementWithClass(elem, className, maxDepth=5)
     return false;
 }
 
+
+/**
+ * Meant to be used in click handlers. See app.js.
+ * Memoized in case multiple click handlers bound to
+ * event bubble chain (same event bubbles up).
+ */
+export const elementIsChildOfLink = memoize(function(initDomElement){
+    let domElem = initDomElement;
+    // SVG anchor elements have tagName == 'a' while HTML anchor elements have tagName == 'A'
+    while (domElem && (domElem.tagName.toLowerCase() !== 'a' && !domElem.getAttribute('data-href'))) {
+        domElem = domElem.parentElement;
+    }
+    return domElem;
+});
+
+
 /**
  * Handle browser capabilities, a la Modernizr.
  *

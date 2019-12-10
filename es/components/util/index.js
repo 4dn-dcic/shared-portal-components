@@ -21,6 +21,12 @@ Object.defineProperty(exports, "isSelectAction", {
     return _misc.isSelectAction;
   }
 });
+Object.defineProperty(exports, "memoizedUrlParse", {
+  enumerable: true,
+  get: function get() {
+    return _misc.memoizedUrlParse;
+  }
+});
 Object.defineProperty(exports, "navigate", {
   enumerable: true,
   get: function get() {
