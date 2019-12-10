@@ -345,10 +345,9 @@ div.alias-input-field {
 				}
 			}
 
-			&[data-field-type="suggested-enum"].field-column {
-				&.last-item-empty:not(:hover):not(.in-selection-field) {
-					opacity: 1; /* Fix for last item opacity bug */
-				}
+			[data-field-type="suggested_enum"] 
+				.field-column.last-item-empty:not(:hover):not(.in-selection-field) {
+					opacity: 1; /* Fix for last item opacity/layering bug */
 			}
 
 			.field-column {
