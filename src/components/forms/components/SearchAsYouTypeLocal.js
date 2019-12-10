@@ -145,7 +145,7 @@ export class SearchAsYouTypeLocal extends React.Component {
                     filterMethod={filterMethod}>
                     { searchList.map((string, i) =>
                         <Dropdown.Item key={string} onSelect={(e) => { onChange(e); }} eventKey={string}
-                            className="text-ellipses-container" tabIndex="4">
+                            className="text-ellipsis-container" tabIndex="4">
                             {string}
                         </Dropdown.Item>
                     )}

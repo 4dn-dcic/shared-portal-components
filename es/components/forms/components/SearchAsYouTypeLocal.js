@@ -231,7 +231,7 @@ function (_React$Component) {
             onChange(e);
           },
           eventKey: string,
-          className: "text-ellipses-container",
+          className: "text-ellipsis-container",
           tabIndex: "4"
         }, string);
       })));
