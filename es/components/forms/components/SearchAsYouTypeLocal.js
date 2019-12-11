@@ -45,14 +45,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 /*
 Custom Bootstrap Dropdown code adapted from:
 https://react-bootstrap.github.io/components/dropdowns/#custom-dropdown-components
@@ -63,111 +55,15 @@ var CustomToggle = _react["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
       _onClick = _ref.onClick;
   return _react["default"].createElement("a", {
-    href: "",
+    href: "#",
     ref: ref,
+    className: "btn btn-outline-dark dropdown-toggle",
     onClick: function onClick(e) {
       e.preventDefault();
 
       _onClick(e);
-    },
-    className: "btn btn-outline-dark dropdown-toggle"
+    }
   }, children);
-}); // forwardRef again here!
-// Dropdown needs access to the DOM of the Menu to measure it
-
-
-var CustomMenu = _react["default"].forwardRef(function (props, ref) {
-  var filterMethod = props.filterMethod,
-      onChangeFx = props.onChangeFx,
-      toggleOpen = props.toggleOpen,
-      children = props.children,
-      style = props.style,
-      className = props.className,
-      labeledBy = props['aria-labelledby'];
-
-  var _useState = (0, _react.useState)(''),
-      _useState2 = _slicedToArray(_useState, 2),
-      value = _useState2[0],
-      setValue = _useState2[1];
-
-  function getRegexQuery() {
-    switch (filterMethod) {
-      case "includes":
-        return _util.valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)$";
-
-      case "startsWith":
-      default:
-        return "^" + _util.valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)$";
-    }
-  }
-
-  var filteredItems = _react["default"].Children.toArray(children).filter(function (child) {
-    // as person types, generate a regex filter based on their input
-    var regex = new RegExp(getRegexQuery()); // show/hide entries depending on regex match
-
-    return (child.props.children.toLowerCase() || "").match(regex);
-  });
-
-  function onSubmitNewEntry() {
-    onChangeFx(value);
-    toggleOpen();
-  }
-
-  function _onKeyDown(e) {
-    if (e.key === "Enter") {
-      onSubmitNewEntry();
-    } else if ((e.key === "ArrowDown" || e.key === "Tab") && filteredItems.length !== 0) {
-      // add focus to the first item in filtered items
-      var x = document.querySelector(".dropdown > .dropdown-menu.show > .list-unstyled");
-
-      if (x.childNodes[0]) {
-        x.childNodes[0].focus();
-        e.preventDefault();
-      }
-    }
-  }
-
-  return _react["default"].createElement("div", {
-    ref: ref,
-    style: (style, {
-      overflowY: "hidden",
-      width: "240px"
-    }),
-    className: className,
-    "aria-labelledby": labeledBy
-  }, _react["default"].createElement("div", {
-    className: "d-flex align-items-center"
-  }, _react["default"].createElement("div", {
-    className: "col"
-  }, _react["default"].createElement(_reactBootstrap.FormControl, {
-    autoFocus: true,
-    placeholder: "Type to filter...",
-    onChange: function onChange(e) {
-      return setValue(e.target.value);
-    },
-    onKeyDown: function onKeyDown(e) {
-      return _onKeyDown(e);
-    },
-    value: value,
-    tabIndex: "3"
-  })), filteredItems.length === 0 && value.length > 0 ? _react["default"].createElement("div", {
-    className: "col-auto remove-button-container"
-  }, _react["default"].createElement("button", {
-    className: "btn-success btn",
-    type: "button",
-    onClick: function onClick() {
-      return onSubmitNewEntry();
-    }
-  }, _react["default"].createElement("i", {
-    className: "icon icon-plus fas"
-  }))) : null), filteredItems.length > 0 ? _react["default"].createElement("ul", {
-    className: "list-unstyled",
-    style: {
-      overflowY: "scroll",
-      maxHeight: "250px",
-      marginBottom: "0"
-    }
-  }, filteredItems) : null);
 });
 
 var SearchAsYouTypeLocal =
@@ -226,11 +122,9 @@ function (_React$PureComponent) {
       var value = evt.target.value;
 
       if (allowCustomValue) {
-        // IDK maybe get rid of later.
         onChange(value);
       }
 
-      console.log('ABCD', value, this.state.currentTextValue);
       this.setState({
         currentTextValue: value
       });
@@ -269,7 +163,7 @@ function (_React$PureComponent) {
 
       return _react["default"].createElement(SearchSelectionMenu, _extends({}, passProps, {
         options: filteredOptions,
-        value: currentTextValue,
+        currentTextValue: currentTextValue,
         optionsHeader: optionsHeader,
         onTextInputChange: this.onTextInputChange,
         onDropdownSelect: this.onDropdownSelect
@@ -289,59 +183,6 @@ SearchAsYouTypeLocal.propTypes = {
   // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
   allowCustomValue: _propTypes["default"].bool
 };
-
-var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
-  var value = props.value,
-      onTextInputChange = props.onTextInputChange,
-      onSelect = props.onSelect,
-      children = props.children,
-      style = props.style,
-      className = props.className,
-      _props$inputPlacehold = props.inputPlaceholder,
-      inputPlaceholder = _props$inputPlacehold === void 0 ? "Type to filter..." : _props$inputPlacehold,
-      _props$allowCustomVal = props.allowCustomValue,
-      allowCustomValue = _props$allowCustomVal === void 0 ? false : _props$allowCustomVal,
-      onKeyDown = props.onKeyDown,
-      labeledBy = props['aria-labelledby'],
-      optionsHeader = props.optionsHeader;
-  return _react["default"].createElement("div", {
-    ref: ref,
-    style: (style, {
-      overflowY: "hidden",
-      width: "240px"
-    }),
-    className: className,
-    "aria-labelledby": labeledBy
-  }, _react["default"].createElement("div", {
-    className: "d-flex align-items-center"
-  }, _react["default"].createElement("div", {
-    className: "col"
-  }, _react["default"].createElement(_reactBootstrap.FormControl, _extends({
-    autoFocus: true
-  }, {
-    value: value
-  }, {
-    onChange: onTextInputChange,
-    placeholder: inputPlaceholder,
-    tabIndex: "3"
-  }))), allowCustomValue && value.length > 0 ? _react["default"].createElement("div", {
-    className: "col-auto remove-button-container"
-  }, _react["default"].createElement("button", {
-    className: "btn-success btn",
-    type: "button",
-    onClick: null
-    /*() => onSubmitNewEntry()   ????? should be onSelect maybe; hook in onKeyDown for Enter btn to call onSelect also */
-
-  }, _react["default"].createElement("i", {
-    className: "icon icon-plus fas"
-  }))) : null), optionsHeader, _react["default"].createElement("ul", {
-    className: "list-unstyled mb-0",
-    style: {
-      overflowY: "scroll",
-      maxHeight: "250px"
-    }
-  }, children));
-});
 
 var SearchSelectionMenu =
 /*#__PURE__*/
@@ -375,14 +216,14 @@ function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       var _this$props3 = this.props,
+          _this$props3$currentT = _this$props3.currentTextValue,
+          currentTextValue = _this$props3$currentT === void 0 ? "" : _this$props3$currentT,
           _this$props3$value = _this$props3.value,
           value = _this$props3$value === void 0 ? "" : _this$props3$value,
           _this$props3$options = _this$props3.options,
           options = _this$props3$options === void 0 ? [] : _this$props3$options,
           _this$props3$optionRe = _this$props3.optionRenderFunction,
           optionRenderFunction = _this$props3$optionRe === void 0 ? null : _this$props3$optionRe,
-          _this$props3$allowCus = _this$props3.allowCustomValue,
-          allowCustomValue = _this$props3$allowCus === void 0 ? false : _this$props3$allowCus,
           onDropdownSelect = _this$props3.onDropdownSelect,
           onTextInputChange = _this$props3.onTextInputChange;
       var dropOpen = this.state.dropOpen;
@@ -406,8 +247,7 @@ function (_React$PureComponent2) {
         show: dropOpen,
         onTextInputChange: onTextInputChange,
         toggleOpen: this.onToggleOpen,
-        onSelect: onDropdownSelect,
-        allowCustomValue: allowCustomValue
+        onSelect: onDropdownSelect
       }, options.map(function (optStr) {
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(optStr) : optStr;
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
@@ -424,3 +264,45 @@ function (_React$PureComponent2) {
 }(_react["default"].PureComponent);
 
 exports.SearchSelectionMenu = SearchSelectionMenu;
+
+var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
+  var value = props.value,
+      currentTextValue = props.currentTextValue,
+      onTextInputChange = props.onTextInputChange,
+      onSelect = props.onSelect,
+      children = props.children,
+      style = props.style,
+      className = props.className,
+      _props$inputPlacehold = props.inputPlaceholder,
+      inputPlaceholder = _props$inputPlacehold === void 0 ? "Type to filter..." : _props$inputPlacehold,
+      onKeyDown = props.onKeyDown,
+      labeledBy = props['aria-labelledby'],
+      optionsHeader = props.optionsHeader;
+  return _react["default"].createElement("div", {
+    ref: ref,
+    style: (style, {
+      overflowY: "hidden",
+      width: "240px"
+    }),
+    className: className,
+    "aria-labelledby": labeledBy
+  }, _react["default"].createElement("div", {
+    className: "d-flex align-items-center"
+  }, _react["default"].createElement("div", {
+    className: "col"
+  }, _react["default"].createElement(_reactBootstrap.FormControl, _extends({
+    autoFocus: true
+  }, {
+    value: value
+  }, {
+    onChange: onTextInputChange,
+    placeholder: inputPlaceholder,
+    tabIndex: "3"
+  })))), optionsHeader, _react["default"].createElement("ul", {
+    className: "list-unstyled mb-0",
+    style: {
+      overflowY: "scroll",
+      maxHeight: "250px"
+    }
+  }, children));
+});
