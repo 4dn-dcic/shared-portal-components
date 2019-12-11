@@ -12,7 +12,7 @@ exports.getPageVerticalScrollPosition = getPageVerticalScrollPosition;
 exports.animateScrollTo = animateScrollTo;
 exports.toggleBodyClass = toggleBodyClass;
 exports.isDOMElementChildOfElementWithClass = isDOMElementChildOfElementWithClass;
-exports.BrowserFeat = exports.textContentWidth = exports.textHeight = exports.textWidth = exports.responsiveGridState = exports.shortenString = void 0;
+exports.BrowserFeat = exports.elementIsChildOfLink = exports.textContentWidth = exports.textHeight = exports.textWidth = exports.responsiveGridState = exports.shortenString = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -433,6 +433,22 @@ function isDOMElementChildOfElementWithClass(elem, className) {
   return false;
 }
 /**
+ * Meant to be used in click handlers. See app.js.
+ * Memoized in case multiple click handlers bound to
+ * event bubble chain (same event bubbles up).
+ */
+
+
+var elementIsChildOfLink = (0, _memoizeOne["default"])(function (initDomElement) {
+  var domElem = initDomElement; // SVG anchor elements have tagName == 'a' while HTML anchor elements have tagName == 'A'
+
+  while (domElem && domElem.tagName.toLowerCase() !== 'a' && !domElem.getAttribute('data-href')) {
+    domElem = domElem.parentElement;
+  }
+
+  return domElem;
+});
+/**
  * Handle browser capabilities, a la Modernizr.
  *
  * Entry point is `setHtmlFeatClass`. Called in browser.js.
@@ -443,7 +459,7 @@ function isDOMElementChildOfElementWithClass(elem, className) {
  * @constant
  */
 
-
+exports.elementIsChildOfLink = elementIsChildOfLink;
 var BrowserFeat = {
   'feat': {},
 

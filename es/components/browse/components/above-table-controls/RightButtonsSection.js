@@ -123,7 +123,9 @@ function (_React$PureComponent) {
         "data-tip": (!isFullscreen ? 'Expand' : 'Collapse') + " table width"
       }, _react["default"].createElement("i", {
         className: "icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')
-      }));
+      }), _react["default"].createElement("span", {
+        className: "ml-05 d-none d-xl-inline"
+      }, !isFullscreen ? "Full Screen" : "Collapse Table Width"));
     }
   }]);
 
