@@ -66,7 +66,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
         return false;
     }
 
-    onDropdownSelect(eventKey){
+    onDropdownSelect(eventKey, evt){
         const { onChange } = this.props;
         onChange(eventKey);
     }
@@ -134,15 +134,14 @@ export class SearchSelectionMenu extends React.PureComponent {
         } = this.props;
         const { dropOpen } = this.state;
         return (
-            <Dropdown drop="down" flip={false} onToggle={this.onToggleOpen} show={dropOpen}>
+            <Dropdown drop="down" flip={false} onToggle={this.onToggleOpen} show={dropOpen} onSelect={onDropdownSelect}>
 
                 <Dropdown.Toggle as={CustomToggle}>
                     { value || <span className="text-300">No value</span>}
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu style={{ maxWidth: "240px", minHeight: "75px" }} as={SearchSelectionMenuBody} drop="down"
-                    flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}
-                    onSelect={onDropdownSelect}>
+                    flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}>
                     {
                         options.map(function(optStr, idx){
                             const renderedOption = typeof optionRenderFunction === "function" ?

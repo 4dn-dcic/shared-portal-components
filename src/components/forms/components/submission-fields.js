@@ -158,7 +158,7 @@ export class BuildField extends React.PureComponent {
             );
             case 'suggested_enum'   : return (
                 <span className="input-wrapper">
-                    <SearchAsYouTypeLocal searchList={suggestedEnumValues} value={value}
+                    <SearchAsYouTypeLocal searchList={suggestedEnumValues} value={value} allowCustomValue
                         filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                 </span>
             );

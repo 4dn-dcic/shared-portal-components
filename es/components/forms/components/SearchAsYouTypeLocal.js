@@ -231,7 +231,8 @@ function (_React$PureComponent2) {
         drop: "down",
         flip: false,
         onToggle: this.onToggleOpen,
-        show: dropOpen
+        show: dropOpen,
+        onSelect: onDropdownSelect
       }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
         as: CustomToggle
       }, value || _react["default"].createElement("span", {
@@ -246,8 +247,7 @@ function (_React$PureComponent2) {
         flip: false,
         show: dropOpen,
         onTextInputChange: onTextInputChange,
-        toggleOpen: this.onToggleOpen,
-        onSelect: onDropdownSelect
+        toggleOpen: this.onToggleOpen
       }, options.map(function (optStr) {
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(optStr) : optStr;
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {

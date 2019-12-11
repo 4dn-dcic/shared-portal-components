@@ -285,6 +285,7 @@ function (_React$PureComponent) {
           }, _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
             searchList: suggestedEnumValues,
             value: value,
+            allowCustomValue: true,
             filterMethod: "includes",
             onChange: this.handleEnumChange,
             maxResults: 3
