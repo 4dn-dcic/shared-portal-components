@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
 import _ from 'underscore';
@@ -266,6 +266,50 @@ export const columnDefinitionsToScaledColumnDefinitions = memoize(function(colum
         return colDef2;
     });
 });
+
+
+/**
+ * Combines `props.columns` || `props.context.columns` with `props.columnExtensionMap` to generate
+ * final array of `columnDefinitions`.
+ *
+ * @param {{ columns: Object.<string, Object>?, context: { columns: Object.<string, Object> }, columnExtensionMap: Object.<string, Object> }} props - Props with column info.
+ * @returns {JSX.Element} Clone of children, passing in `columnDefinitions` {{ field: string, ... }[]} and `defaultHiddenColumns` {Object<string, bool>}.
+ */
+export const ColumnCombiner = React.memo(function ColumnCombiner(props){
+    const {
+        children,
+        columns: overridePropColumns = null,
+        columnExtensionMap,
+        ...passProps
+    } = props;
+    const { context : { columns: contextColumns } } = passProps;
+    const columns = overridePropColumns || contextColumns || null;
+
+    if (!columns) {
+        throw new Error("No columns available in context nor props. Please provide columns.");
+    }
+
+    const { columnDefinitions, defaultHiddenColumns } = useMemo(function(){
+        const columnDefinitions = columnsToColumnDefinitions(columns, columnExtensionMap);
+        // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
+        // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
+        const defaultHiddenColumns = defaultHiddenColumnMapFromColumns(columns);
+        return { columnDefinitions, defaultHiddenColumns };
+    }, [columns, columnExtensionMap]);
+
+    console.log("ABV", columnDefinitions);
+
+    const propsToPass = { ...passProps, columnDefinitions, defaultHiddenColumns };
+
+    return React.Children.map(children, function(child){
+        return React.cloneElement(child, propsToPass);
+    });
+});
+ColumnCombiner.defaultProps = {
+    "columns" : null, // Passed in as prop or defaults to context.columns
+    "columnExtensionMap": basicColumnExtensionMap,
+    "context" : {}
+};
 
 
 /**

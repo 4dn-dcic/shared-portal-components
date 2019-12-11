@@ -14,7 +14,7 @@ import { determineIfTermFacetSelected, getTermFacetStatus } from './../util/sear
 import { itemUtil } from './../util/object';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 
-import { basicColumnExtensionMap, columnsToColumnDefinitions, defaultHiddenColumnMapFromColumns } from './components/table-commons';
+import { basicColumnExtensionMap, ColumnCombiner } from './components/table-commons';
 import { AboveSearchTablePanel } from './components/AboveSearchTablePanel';
 import { AboveSearchViewTableControls } from './components/above-table-controls/AboveSearchViewTableControls';
 import { CustomColumnController } from './components/CustomColumnController';
@@ -72,55 +72,13 @@ export class SearchControllersContainer extends React.PureComponent {
         );
 
         if (isSelectAction(currentAction)) {
-            controllersAndView = <SelectedItemsController>{ commonControllersAndView }</SelectedItemsController>;
+            controllersAndView = <SelectedItemsController>{ controllersAndView }</SelectedItemsController>;
         }
 
         return controllersAndView;
     }
 
 }
-
-/**
- * Combines `props.columns` || `props.context.columns` with `props.columnExtensionMap` to generate
- * final array of `columnDefinitions`.
- *
- * @param {{ columns: Object.<string, Object>?, context: { columns: Object.<string, Object> }, columnExtensionMap: Object.<string, Object> }} props - Props with column info.
- * @returns {JSX.Element} Clone of children, passing in `columnDefinitions` {{ field: string, ... }[]} and `defaultHiddenColumns` {Object<string, bool>}.
- */
-export const ColumnCombiner = React.memo(function ColumnCombiner(props){
-    const {
-        children,
-        columns: overridePropColumns = null,
-        columnExtensionMap,
-        ...passProps
-    } = props;
-    const { context : { columns: contextColumns } } = passProps;
-    const columns = overridePropColumns || contextColumns || null;
-
-    if (!columns) {
-        throw new Error("No columns available in context nor props. Please provide columns.");
-    }
-
-    const { columnDefinitions, defaultHiddenColumns } = useMemo(function(){
-        const columnDefinitions = columnsToColumnDefinitions(columns, columnExtensionMap);
-        // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
-        // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
-        const defaultHiddenColumns = defaultHiddenColumnMapFromColumns(columns);
-        return { columnDefinitions, defaultHiddenColumns };
-    }, [columns, columnExtensionMap]);
-
-    console.log("ABV", columnDefinitions);
-
-    const propsToPass = { ...passProps, columnDefinitions, defaultHiddenColumns };
-
-    return React.Children.map(children, function(child){
-        return React.cloneElement(child, propsToPass);
-    });
-});
-ColumnCombiner.defaultProps = {
-    "columns" : null,
-    "columnExtensionMap": basicColumnExtensionMap
-};
 
 
 class ControlsAndResults extends React.PureComponent {
@@ -132,7 +90,7 @@ class ControlsAndResults extends React.PureComponent {
      * @returns {{ specificType: string, abstractType: string }} The leaf specific Item type and parent abstract type (before 'Item' in `@type` array) as strings in an object.
      * Ex: `{ abstractType: null, specificType: "Item" }`, `{ abstractType: "Experiment", specificType: "ExperimentHiC" }`
      */
-    static searchItemTypesFromHref = memoize(function(href, schemas){
+    static searchItemTypesFromHref(href, schemas){
         let specificType = 'Item';    // Default
         let abstractType = null;      // Will be equal to specificType if no parent type.
 
@@ -149,7 +107,7 @@ class ControlsAndResults extends React.PureComponent {
 
         abstractType = getAbstractTypeForType(specificType, schemas) || null;
         return { specificType, abstractType };
-    });
+    }
 
     constructor(props){
         super(props);
