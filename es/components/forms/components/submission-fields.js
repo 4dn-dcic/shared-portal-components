@@ -278,7 +278,6 @@ function (_React$PureComponent) {
               eventKey: val
             }, val || '');
           })));
-        // var myFilter = new RegExp("^(" + value +  ")(.+)", "i")
 
         case 'suggested_enum':
           return _react["default"].createElement("span", {

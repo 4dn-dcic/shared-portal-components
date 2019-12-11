@@ -156,16 +156,10 @@ export class BuildField extends React.PureComponent {
                     </DropdownButton>
                 </span>
             );
-            // var myFilter = new RegExp("^(" + value +  ")(.+)", "i")
             case 'suggested_enum'   : return (
                 <span className="input-wrapper">
-                    
                     <SearchAsYouTypeLocal searchList={suggestedEnumValues} value={value}
                         filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
-                    {/* <DropdownButton title={value || <span className="text-300">No value</span>}
-                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark">
-                        {_.map(suggestedEnumValues, (val) => this.buildSuggestedEnumEntry(val))}
-                    </DropdownButton> */}
                 </span>
             );
             case 'linked object'    : return <LinkedObj key="linked-item" {...this.props}/>;
