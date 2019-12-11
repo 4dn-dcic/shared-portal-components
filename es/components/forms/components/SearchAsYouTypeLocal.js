@@ -3,11 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SearchAsYouTypeLocal = void 0;
+exports.SearchSelectionMenu = exports.SearchAsYouTypeLocal = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _reactBootstrap = require("react-bootstrap");
 
@@ -21,17 +23,23 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -68,14 +76,14 @@ var CustomToggle = _react["default"].forwardRef(function (_ref, ref) {
 // Dropdown needs access to the DOM of the Menu to measure it
 
 
-var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
-  var filterMethod = _ref2.filterMethod,
-      onChangeFx = _ref2.onChangeFx,
-      toggleOpen = _ref2.toggleOpen,
-      children = _ref2.children,
-      style = _ref2.style,
-      className = _ref2.className,
-      labeledBy = _ref2['aria-labelledby'];
+var CustomMenu = _react["default"].forwardRef(function (props, ref) {
+  var filterMethod = props.filterMethod,
+      onChangeFx = props.onChangeFx,
+      toggleOpen = props.toggleOpen,
+      children = props.children,
+      style = props.style,
+      className = props.className,
+      labeledBy = props['aria-labelledby'];
 
   var _useState = (0, _react.useState)(''),
       _useState2 = _slicedToArray(_useState, 2),
@@ -164,8 +172,32 @@ var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
 
 var SearchAsYouTypeLocal =
 /*#__PURE__*/
-function (_React$Component) {
-  _inherits(SearchAsYouTypeLocal, _React$Component);
+function (_React$PureComponent) {
+  _inherits(SearchAsYouTypeLocal, _React$PureComponent);
+
+  _createClass(SearchAsYouTypeLocal, null, [{
+    key: "getRegexQuery",
+    value: function getRegexQuery(value, filterMethod) {
+      switch (filterMethod) {
+        case "includes":
+          return _util.valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)$";
+
+        case "startsWith":
+        default:
+          return "^" + _util.valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)$";
+      }
+    }
+  }, {
+    key: "filterOptions",
+    value: function filterOptions(currTextValue) {
+      var allResults = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      var filterMethod = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "startsWith";
+      var regexQuery = SearchAsYouTypeLocal.getRegexQuery(currTextValue, filterMethod);
+      return allResults.filter(function (optStr) {
+        return !!optStr.toLowerCase().match(regexQuery);
+      });
+    }
+  }]);
 
   function SearchAsYouTypeLocal(props) {
     var _this;
@@ -173,34 +205,191 @@ function (_React$Component) {
     _classCallCheck(this, SearchAsYouTypeLocal);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SearchAsYouTypeLocal).call(this, props));
+    _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
+    _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
     _this.state = {
-      dropOpen: false
+      currentTextValue: props.value || ""
     };
-    _this.toggleOpen = _this.toggleOpen.bind(_assertThisInitialized(_this));
+    _this.memoized = {
+      filterOptions: (0, _memoizeOne["default"])(SearchAsYouTypeLocal.filterOptions)
+    };
     return _this;
   }
 
   _createClass(SearchAsYouTypeLocal, [{
-    key: "toggleOpen",
-    value: function toggleOpen() {
-      var dropOpen = this.state.dropOpen;
+    key: "onTextInputChange",
+    value: function onTextInputChange(evt) {
+      var _this$props = this.props,
+          onChange = _this$props.onChange,
+          _this$props$allowCust = _this$props.allowCustomValue,
+          allowCustomValue = _this$props$allowCust === void 0 ? false : _this$props$allowCust;
+      var value = evt.target.value;
+
+      if (allowCustomValue) {
+        // IDK maybe get rid of later.
+        onChange(value);
+      }
+
+      console.log('ABCD', value, this.state.currentTextValue);
       this.setState({
-        dropOpen: !dropOpen
+        currentTextValue: value
+      });
+      return false;
+    }
+  }, {
+    key: "onDropdownSelect",
+    value: function onDropdownSelect(eventKey) {
+      var onChange = this.props.onChange;
+      onChange(eventKey);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props2 = this.props,
+          searchList = _this$props2.searchList,
+          _this$props2$filterMe = _this$props2.filterMethod,
+          filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
+          passProps = _objectWithoutProperties(_this$props2, ["searchList", "filterMethod"]);
+
+      var currentTextValue = this.state.currentTextValue;
+      var filteredOptions;
+      var optionsHeader;
+
+      if (!Array.isArray(searchList)) {
+        // Likely, schemas are not yet loaded?
+        filteredOptions = [];
+        optionsHeader = _react["default"].createElement("div", {
+          className: "text-center py-2"
+        }, _react["default"].createElement("i", {
+          className: "icon icon-spin icon-circle-notch fas"
+        }));
+      } else {
+        filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
+      }
+
+      return _react["default"].createElement(SearchSelectionMenu, _extends({}, passProps, {
+        options: filteredOptions,
+        value: currentTextValue,
+        optionsHeader: optionsHeader,
+        onTextInputChange: this.onTextInputChange,
+        onDropdownSelect: this.onDropdownSelect
+      }));
+    }
+  }]);
+
+  return SearchAsYouTypeLocal;
+}(_react["default"].PureComponent);
+
+exports.SearchAsYouTypeLocal = SearchAsYouTypeLocal;
+SearchAsYouTypeLocal.propTypes = {
+  searchList: _propTypes["default"].arrayOf(_propTypes["default"].string).isRequired,
+  value: _propTypes["default"].string,
+  onChange: _propTypes["default"].func.isRequired,
+  filterMethod: _propTypes["default"].string,
+  // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
+  allowCustomValue: _propTypes["default"].bool
+};
+
+var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
+  var value = props.value,
+      onTextInputChange = props.onTextInputChange,
+      onSelect = props.onSelect,
+      children = props.children,
+      style = props.style,
+      className = props.className,
+      _props$inputPlacehold = props.inputPlaceholder,
+      inputPlaceholder = _props$inputPlacehold === void 0 ? "Type to filter..." : _props$inputPlacehold,
+      _props$allowCustomVal = props.allowCustomValue,
+      allowCustomValue = _props$allowCustomVal === void 0 ? false : _props$allowCustomVal,
+      onKeyDown = props.onKeyDown,
+      labeledBy = props['aria-labelledby'],
+      optionsHeader = props.optionsHeader;
+  return _react["default"].createElement("div", {
+    ref: ref,
+    style: (style, {
+      overflowY: "hidden",
+      width: "240px"
+    }),
+    className: className,
+    "aria-labelledby": labeledBy
+  }, _react["default"].createElement("div", {
+    className: "d-flex align-items-center"
+  }, _react["default"].createElement("div", {
+    className: "col"
+  }, _react["default"].createElement(_reactBootstrap.FormControl, _extends({
+    autoFocus: true
+  }, {
+    value: value
+  }, {
+    onChange: onTextInputChange,
+    placeholder: inputPlaceholder,
+    tabIndex: "3"
+  }))), allowCustomValue && value.length > 0 ? _react["default"].createElement("div", {
+    className: "col-auto remove-button-container"
+  }, _react["default"].createElement("button", {
+    className: "btn-success btn",
+    type: "button",
+    onClick: null
+    /*() => onSubmitNewEntry()   ????? should be onSelect maybe; hook in onKeyDown for Enter btn to call onSelect also */
+
+  }, _react["default"].createElement("i", {
+    className: "icon icon-plus fas"
+  }))) : null), optionsHeader, _react["default"].createElement("ul", {
+    className: "list-unstyled mb-0",
+    style: {
+      overflowY: "scroll",
+      maxHeight: "250px"
+    }
+  }, children));
+});
+
+var SearchSelectionMenu =
+/*#__PURE__*/
+function (_React$PureComponent2) {
+  _inherits(SearchSelectionMenu, _React$PureComponent2);
+
+  function SearchSelectionMenu(props) {
+    var _this2;
+
+    _classCallCheck(this, SearchSelectionMenu);
+
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(SearchSelectionMenu).call(this, props));
+    _this2.onToggleOpen = _this2.onToggleOpen.bind(_assertThisInitialized(_this2));
+    _this2.state = {
+      dropOpen: false
+    };
+    return _this2;
+  }
+
+  _createClass(SearchSelectionMenu, [{
+    key: "onToggleOpen",
+    value: function onToggleOpen() {
+      this.setState(function (_ref2) {
+        var dropOpen = _ref2.dropOpen;
+        return {
+          dropOpen: !dropOpen
+        };
       });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          searchList = _this$props.searchList,
-          value = _this$props.value,
-          onChange = _this$props.onChange,
-          filterMethod = _this$props.filterMethod;
+      var _this$props3 = this.props,
+          _this$props3$value = _this$props3.value,
+          value = _this$props3$value === void 0 ? "" : _this$props3$value,
+          _this$props3$options = _this$props3.options,
+          options = _this$props3$options === void 0 ? [] : _this$props3$options,
+          _this$props3$optionRe = _this$props3.optionRenderFunction,
+          optionRenderFunction = _this$props3$optionRe === void 0 ? null : _this$props3$optionRe,
+          _this$props3$allowCus = _this$props3.allowCustomValue,
+          allowCustomValue = _this$props3$allowCus === void 0 ? false : _this$props3$allowCus,
+          onDropdownSelect = _this$props3.onDropdownSelect,
+          onTextInputChange = _this$props3.onTextInputChange;
       var dropOpen = this.state.dropOpen;
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
         drop: "down",
         flip: false,
-        onToggle: this.toggleOpen,
+        onToggle: this.onToggleOpen,
         show: dropOpen
       }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
         as: CustomToggle
@@ -211,35 +400,27 @@ function (_React$Component) {
           maxWidth: "240px",
           minHeight: "75px"
         },
-        as: CustomMenu,
+        as: SearchSelectionMenuBody,
         drop: "down",
         flip: false,
         show: dropOpen,
-        onChangeFx: onChange,
-        toggleOpen: this.toggleOpen,
-        filterMethod: filterMethod
-      }, searchList.map(function (string, i) {
+        onTextInputChange: onTextInputChange,
+        toggleOpen: this.onToggleOpen,
+        onSelect: onDropdownSelect,
+        allowCustomValue: allowCustomValue
+      }, options.map(function (optStr) {
+        var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(optStr) : optStr;
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
-          key: string,
-          onSelect: function onSelect(e) {
-            onChange(e);
-          },
-          eventKey: string,
-          className: "text-ellipsis-container ".concat(i === 0 ? "mt-1" : null),
+          key: optStr,
+          eventKey: optStr,
+          className: "text-ellipsis-container",
           tabIndex: "4"
-        }, string);
+        }, renderedOption);
       })));
     }
   }]);
 
-  return SearchAsYouTypeLocal;
-}(_react["default"].Component);
+  return SearchSelectionMenu;
+}(_react["default"].PureComponent);
 
-exports.SearchAsYouTypeLocal = SearchAsYouTypeLocal;
-SearchAsYouTypeLocal.propTypes = {
-  searchList: _propTypes["default"].arrayOf(_propTypes["default"].string).isRequired,
-  value: _propTypes["default"].string,
-  onChange: _propTypes["default"].func.isRequired,
-  filterMethod: _propTypes["default"].string // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
-
-};
+exports.SearchSelectionMenu = SearchSelectionMenu;
