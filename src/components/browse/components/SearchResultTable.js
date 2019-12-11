@@ -316,10 +316,11 @@ class LoadMoreAsYouScroll extends React.PureComponent {
 
     static propTypes = {
         'href' : PropTypes.string.isRequired,
+        'results' : PropTypes.array.isRequired,
         'limit' : PropTypes.number,
         'rowHeight' : PropTypes.number.isRequired,
         'isOwnPage' : PropTypes.bool.isRequired,
-        'maxHeight' : PropTypes.number
+        'maxHeight' : PropTypes.number,
     };
 
     static defaultProps = {
@@ -338,7 +339,6 @@ class LoadMoreAsYouScroll extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.getInitialFrom = this.getInitialFrom.bind(this);
         this.rebuiltHref = this.rebuiltHref.bind(this);
         this.handleLoad = _.throttle(this.handleLoad.bind(this), 3000);
         //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
@@ -359,22 +359,12 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         }
     }
 
-    getInitialFrom(){
-        const { href } = this.props;
-        if (typeof href === 'string'){
-            const parts = url.parse(href, true);
-            if (parts.query.limit && !isNaN(parts.query.from)) return parseInt(parts.query.from);
-        }
-        return 0;
-    }
-
     rebuiltHref(){
-        const { href, results } = this.props;
-        const parts = url.parse(href, true);
-        const q = parts.query;
-        const initialFrom = this.getInitialFrom();
-        q.from = initialFrom + results.length;
-        parts.search = '?' + queryString.stringify(q);
+        const { href, results = [] } = this.props;
+        const parts = url.parse(href, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
+        const { query } = parts;
+        query.from = results.length;
+        parts.search = '?' + queryString.stringify(query);
         return url.format(parts);
     }
 

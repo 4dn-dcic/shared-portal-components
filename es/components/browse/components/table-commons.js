@@ -5,8 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.sanitizeOutputValue = sanitizeOutputValue;
 exports.haveContextColumnsChanged = haveContextColumnsChanged;
+exports.defaultHiddenColumnMapFromColumns = defaultHiddenColumnMapFromColumns;
 exports.getColumnWidthFromDefinition = getColumnWidthFromDefinition;
-exports.HeadersRow = exports.ColumnSorterIcon = exports.ResultRowColumnBlockValue = exports.columnDefinitionsToScaledColumnDefinitions = exports.defaultHiddenColumnMapFromColumns = exports.columnsToColumnDefinitions = exports.TableRowToggleOpenButton = exports.basicColumnExtensionMap = exports.DEFAULT_WIDTH_MAP = void 0;
+exports.HeadersRow = exports.ColumnSorterIcon = exports.ResultRowColumnBlockValue = exports.columnDefinitionsToScaledColumnDefinitions = exports.columnsToColumnDefinitions = exports.TableRowToggleOpenButton = exports.basicColumnExtensionMap = exports.DEFAULT_WIDTH_MAP = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -348,11 +349,16 @@ var columnsToColumnDefinitions = (0, _memoizeOne["default"])(function (columns, 
 
   return _underscore["default"].sortBy(columnDefinitions, 'order');
 });
+/**
+ * @param {Object<string, Object>} columns - Object containing some column definitions/values.
+ */
+
 exports.columnsToColumnDefinitions = columnsToColumnDefinitions;
-var defaultHiddenColumnMapFromColumns = (0, _memoizeOne["default"])(function (columns) {
+
+function defaultHiddenColumnMapFromColumns(columns) {
   var hiddenColMap = {};
 
-  _underscore["default"].forEach(_underscore["default"].pairs(columns), function (_ref4) {
+  _underscore["default"].pairs(columns).forEach(function (_ref4) {
     var _ref5 = _slicedToArray(_ref4, 2),
         field = _ref5[0],
         columnDefinition = _ref5[1];
@@ -365,16 +371,18 @@ var defaultHiddenColumnMapFromColumns = (0, _memoizeOne["default"])(function (co
   });
 
   return hiddenColMap;
-}, function (newArgs, lastArgs) {
-  // We allow different object references to be considered equal as long as their values are equal.
-  return !haveContextColumnsChanged(lastArgs[0], newArgs[0]);
-});
+}
+/*, function(newArgs, lastArgs){
+    // We allow different object references to be considered equal as long as their values are equal.
+    return !haveContextColumnsChanged(lastArgs[0], newArgs[0]);
+}); */
+
 /**
  * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).
  * Used in 4DN ItemPageTable, otherwise is deprecated?
  */
 
-exports.defaultHiddenColumnMapFromColumns = defaultHiddenColumnMapFromColumns;
+
 var columnDefinitionsToScaledColumnDefinitions = (0, _memoizeOne["default"])(function (columnDefinitions) {
   return columnDefinitions.map(function (colDef) {
     var colDef2 = _underscore["default"].clone(colDef);

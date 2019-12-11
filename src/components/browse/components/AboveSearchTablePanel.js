@@ -8,6 +8,8 @@ import { patchedConsoleInstance as console } from './../../util/patched-console'
 import { load } from './../../util/ajax';
 import { getAbstractTypeForType } from './../../util/schema-transforms';
 
+
+
 /** TODO IMPROVE */
 
 class AboveSearchTablePanelStaticContentPane extends React.Component {

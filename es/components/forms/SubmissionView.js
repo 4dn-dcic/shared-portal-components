@@ -350,8 +350,7 @@ function (_React$PureComponent) {
           create = _this$state.create;
       var keyContext = {};
       var contextID = _util.object.itemUtil.atId(context) || null;
-
-      var parsedHref = _url["default"].parse(href, true);
+      var parsedHref = (0, _util.memoizedUrlParse)(href);
 
       var _context$Type = _slicedToArray(context['@type'], 1),
           principalType = _context$Type[0];
@@ -1727,7 +1726,7 @@ function (_React$PureComponent) {
         if (callbackHref) {
           nextURI = callbackHref;
         } else {
-          var parts = _url["default"].parse(href, true);
+          var parts = _underscore["default"].clone((0, _util.memoizedUrlParse)(href));
 
           var modifiedQuery = _underscore["default"].omit(parts.query, 'currentAction');
 

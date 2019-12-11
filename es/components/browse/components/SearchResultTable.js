@@ -468,7 +468,6 @@ function (_React$PureComponent3) {
     _classCallCheck(this, LoadMoreAsYouScroll);
 
     _this4 = _possibleConstructorReturn(this, _getPrototypeOf(LoadMoreAsYouScroll).call(this, props));
-    _this4.getInitialFrom = _this4.getInitialFrom.bind(_assertThisInitialized(_this4));
     _this4.rebuiltHref = _this4.rebuiltHref.bind(_assertThisInitialized(_this4));
     _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000); //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
     //this.handleScrollExt = this.handleScrollExt.bind(this);
@@ -496,31 +495,19 @@ function (_React$PureComponent3) {
       }
     }
   }, {
-    key: "getInitialFrom",
-    value: function getInitialFrom() {
-      var href = this.props.href;
-
-      if (typeof href === 'string') {
-        var parts = _url["default"].parse(href, true);
-
-        if (parts.query.limit && !isNaN(parts.query.from)) return parseInt(parts.query.from);
-      }
-
-      return 0;
-    }
-  }, {
     key: "rebuiltHref",
     value: function rebuiltHref() {
       var _this$props9 = this.props,
           href = _this$props9.href,
-          results = _this$props9.results;
+          _this$props9$results = _this$props9.results,
+          results = _this$props9$results === void 0 ? [] : _this$props9$results;
 
-      var parts = _url["default"].parse(href, true);
+      var parts = _url["default"].parse(href, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
 
-      var q = parts.query;
-      var initialFrom = this.getInitialFrom();
-      q.from = initialFrom + results.length;
-      parts.search = '?' + _querystring["default"].stringify(q);
+
+      var query = parts.query;
+      query.from = results.length;
+      parts.search = '?' + _querystring["default"].stringify(query);
       return _url["default"].format(parts);
     }
   }, {
@@ -636,6 +623,7 @@ function (_React$PureComponent3) {
 
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'href': _propTypes["default"].string.isRequired,
+  'results': _propTypes["default"].array.isRequired,
   'limit': _propTypes["default"].number,
   'rowHeight': _propTypes["default"].number.isRequired,
   'isOwnPage': _propTypes["default"].bool.isRequired,

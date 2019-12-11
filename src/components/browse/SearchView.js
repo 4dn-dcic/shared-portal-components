@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
 import _ from 'underscore';
@@ -22,6 +22,7 @@ import { SearchResultTable } from './components/SearchResultTable';
 import { FacetList, performFilteringQuery } from './components/FacetList';
 import { SearchResultDetailPane } from './components/SearchResultDetailPane';
 import { SortController } from './components/SortController';
+import { SelectedItemsController } from './components/SelectedItemsController';
 
 // eslint-disable-next-line no-unused-vars
 import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/typedefs';
@@ -39,7 +40,8 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/type
 export class SearchControllersContainer extends React.PureComponent {
 
     static defaultProps = {
-        'navigate' : navigate
+        'navigate' : navigate,
+        'columns' : null
     };
 
     constructor(props){
@@ -57,20 +59,68 @@ export class SearchControllersContainer extends React.PureComponent {
     }
 
     render(){
-        const { context } = this.props;
-        const defaultHiddenColumns = defaultHiddenColumnMapFromColumns(context.columns);
+        const { context, columns, columnExtensionMap, currentAction } = this.props;
 
-        return (
-            <CustomColumnController defaultHiddenColumns={defaultHiddenColumns}>
-                <SortController {..._.pick(this.props, 'href', 'context', 'navigate')}>
-                    <ControlsAndResults {...this.props} getTermStatus={this.getTermStatus} onFilter={this.onFilter} />
-                </SortController>
-            </CustomColumnController>
+        let controllersAndView = (
+            <ColumnCombiner {...{ context, columns, columnExtensionMap }}>
+                <CustomColumnController>
+                    <SortController {..._.pick(this.props, 'href', 'context', 'navigate')}>
+                        <ControlsAndResults {...this.props} getTermStatus={this.getTermStatus} onFilter={this.onFilter} />
+                    </SortController>
+                </CustomColumnController>
+            </ColumnCombiner>
         );
+
+        if (isSelectAction(currentAction)) {
+            controllersAndView = <SelectedItemsController>{ commonControllersAndView }</SelectedItemsController>;
+        }
+
+        return controllersAndView;
     }
 
 }
 
+/**
+ * Combines `props.columns` || `props.context.columns` with `props.columnExtensionMap` to generate
+ * final array of `columnDefinitions`.
+ *
+ * @param {{ columns: Object.<string, Object>?, context: { columns: Object.<string, Object> }, columnExtensionMap: Object.<string, Object> }} props - Props with column info.
+ * @returns {JSX.Element} Clone of children, passing in `columnDefinitions` {{ field: string, ... }[]} and `defaultHiddenColumns` {Object<string, bool>}.
+ */
+export const ColumnCombiner = React.memo(function ColumnCombiner(props){
+    const {
+        children,
+        columns: overridePropColumns = null,
+        columnExtensionMap,
+        ...passProps
+    } = props;
+    const { context : { columns: contextColumns } } = passProps;
+    const columns = overridePropColumns || contextColumns || null;
+
+    if (!columns) {
+        throw new Error("No columns available in context nor props. Please provide columns.");
+    }
+
+    const { columnDefinitions, defaultHiddenColumns } = useMemo(function(){
+        const columnDefinitions = columnsToColumnDefinitions(columns, columnExtensionMap);
+        // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
+        // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
+        const defaultHiddenColumns = defaultHiddenColumnMapFromColumns(columns);
+        return { columnDefinitions, defaultHiddenColumns };
+    }, [columns, columnExtensionMap]);
+
+    console.log("ABV", columnDefinitions);
+
+    const propsToPass = { ...passProps, columnDefinitions, defaultHiddenColumns };
+
+    return React.Children.map(children, function(child){
+        return React.cloneElement(child, propsToPass);
+    });
+});
+ColumnCombiner.defaultProps = {
+    "columns" : null,
+    "columnExtensionMap": basicColumnExtensionMap
+};
 
 
 class ControlsAndResults extends React.PureComponent {
@@ -85,6 +135,8 @@ class ControlsAndResults extends React.PureComponent {
     static searchItemTypesFromHref = memoize(function(href, schemas){
         let specificType = 'Item';    // Default
         let abstractType = null;      // Will be equal to specificType if no parent type.
+
+        // May or may not be props.href passed down from Redux (e.g. not if is EmbeddedSearchView)
         const urlParts = url.parse(href, true);
 
         // Non-zero chance of having array here - though shouldn't occur unless URL entered into browser manually
@@ -105,93 +157,12 @@ class ControlsAndResults extends React.PureComponent {
         this.handleClearFilters = this.handleClearFilters.bind(this);
         this.columnExtensionMapWithSelectButton = this.columnExtensionMapWithSelectButton.bind(this);
         this.renderSearchDetailPane = this.renderSearchDetailPane.bind(this);
-        this.handleSelectItemCompleteClick = this.handleSelectItemCompleteClick.bind(this);
-        this.handleSelectCancelClick = this.handleSelectCancelClick.bind(this);
-        this.state = {
-            selectedItems : new Map()
+
+        this.memoized = {
+            searchItemTypesFromHref : memoize(ControlsAndResults.searchItemTypesFromHref)
         };
 
         this.searchResultTableRef = React.createRef();
-    }
-    /**
-     * This function add/or removes the selected item into an Map in state,
-     * if `props.currentAction` is set to "multiselect" or "selection".
-     */
-    handleSelectItemClick(result, isMultiSelect, evt) {
-        this.setState(function({ selectedItems: prevItems }){
-            const nextItems = new Map(prevItems);
-            const resultID = itemUtil.atId(result);
-            if (nextItems.has(resultID)) {
-                nextItems.delete(resultID);
-            } else {
-                if (!isMultiSelect) {
-                    nextItems.clear();
-                }
-                nextItems.set(resultID, result);
-            }
-            return { selectedItems: nextItems };
-        });
-    }
-    /**
-     * This function sends selected items to parent window for if `props.currentAction` is set to "multiselect" or "singleselect".
-     */
-    handleSelectItemCompleteClick(evt){
-        const { selectedItems } = this.state;
-        const itemsWrappedWithID = [];
-        for (const [key, value] of selectedItems){
-            itemsWrappedWithID.push({ id: key, json: value });
-        }
-        this.sendDataToParentWindow(itemsWrappedWithID);
-    }
-    /**
-     * This function cancels the selection if `props.currentAction` is set to "multiselect".
-     */
-    handleSelectCancelClick(evt){
-        const { selectedItems } = this.state;
-        if (selectedItems.size > 0) {
-            if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
-                return;
-            }
-        }
-
-        window.dispatchEvent(new Event('fourfrontcancelclick'));
-        // CURRENT: If we have parent window, post a message to it as well.
-        if (window.opener){
-            window.opener.postMessage({ 'eventType': 'fourfrontcancelclick' }, '*');
-        } else {
-            console.error("Couldn't access opener window.");
-        }
-    }
-
-    /**
-     * Utility function to post message to parent window
-     * @param {Array} selectedItems: array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
-     * set selectedItems as empty array ([]) to close child window
-     */
-    sendDataToParentWindow(itemsListWrappedWithID) {
-        if (!itemsListWrappedWithID || itemsListWrappedWithID.length === 0) {
-            return;
-        }
-
-        const eventJSON = { 'items': itemsListWrappedWithID, 'eventType': 'fourfrontselectionclick' };
-
-        // Standard - postMessage
-        try {
-            window.opener.postMessage(eventJSON, '*');
-        } catch (err){
-            // Check for presence of parent window and alert if non-existent.
-            if (!(typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window)){
-                Alerts.queue({
-                    'title' : 'Failed to send data to parent window.',
-                    'message' : 'Please ensure there is a parent window to which this selection is being sent to. Alternatively, try to drag & drop the Item over instead.'
-                });
-            } else {
-                console.err('Unexpecter error -- browser may not support postMessage', err);
-            }
-        }
-
-        // Nonstandard - in case browser doesn't support postMessage but does support other cross-window events (unlikely).
-        window.dispatchEvent(new CustomEvent('fourfrontselectionclick', { 'detail' : eventJSON }));
     }
 
     columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType){
@@ -280,16 +251,25 @@ class ControlsAndResults extends React.PureComponent {
 
     render() {
         const {
-            context, schemas, hiddenColumns, columnExtensionMap, currentAction, href, facets: propFacets,
-            tableColumnClassName, facetColumnClassName
+            context, schemas, hiddenColumns, columnDefinitions, currentAction, href, facets: propFacets,
+            tableColumnClassName, facetColumnClassName,
+            selectedItems = null, onCompleteSelection, onCancelSelection
         } = this.props;
-        const { selectedItems } = this.state;
-        const results                         = context['@graph'];
+
+        const {
+            "@graph" : results, // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
+            facets : contextFacets,
+            filters,
+            total: totalResultCount = 0
+        } = context;
+
+
         // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
-        const facets                          = propFacets || context.facets;
-        const { specificType, abstractType }  = ControlsAndResults.searchItemTypesFromHref(href, schemas);
-        const selfExtendedColumnExtensionMap  = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
-        const columnDefinitions               = columnsToColumnDefinitions(context.columns || {}, selfExtendedColumnExtensionMap);
+        const facets = propFacets || contextFacets;
+        const { specificType, abstractType }  = this.memoized.searchItemTypesFromHref(href, schemas);
+
+        //const selfExtendedColumnExtensionMap  = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
+        //const columnDefinitions               = columnsToColumnDefinitions(context.columns || {}, selfExtendedColumnExtensionMap);
 
         const searchResultTableProps = _.extend(
             { context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions },
@@ -301,7 +281,7 @@ class ControlsAndResults extends React.PureComponent {
                 { facets.length ?
                     <div className={facetColumnClassName}>
                         <div className="above-results-table-row"/>{/* <-- temporary-ish */}
-                        <FacetList className="with-header-bg" facets={facets} filters={context.filters}
+                        <FacetList className="with-header-bg" facets={facets} filters={filters}
                             onClearFilters={this.handleClearFilters} itemTypeForSchemas={specificType}
                             showClearFiltersButton={this.isClearFiltersBtnVisible()}
                             {..._.pick(this.props, 'getTermStatus', 'schemas', 'session', 'onFilter',
@@ -309,14 +289,14 @@ class ControlsAndResults extends React.PureComponent {
                     </div>
                     : null }
                 <div className={tableColumnClassName}>
-                    <AboveSearchViewTableControls showTotalResults={context.total} parentForceUpdate={this.forceUpdateOnSelf}
+                    <AboveSearchViewTableControls showTotalResults={totalResultCount} parentForceUpdate={this.forceUpdateOnSelf}
                         {..._.pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns',
                             'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen', 'topLeftChildren')}
                         {...{ hiddenColumns, columnDefinitions }}/>
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
-                    {isSelectAction(currentAction) ?
+                    { isSelectAction(currentAction) && selectedItems !== null ?
                         <SelectStickyFooter {...{ context, schemas, selectedItems, currentAction }}
-                            onComplete={this.handleSelectItemCompleteClick} onCancel={this.handleSelectCancelClick} />
+                            onComplete={onCompleteSelection} onCancel={onCancelSelection} />
                         : null}
                 </div>
             </div>

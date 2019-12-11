@@ -12,6 +12,15 @@ import { navigate } from './../../../util/navigate';
 import * as analytics from './../../../util/analytics';
 import { responsiveGridState } from './../../../util/layout';
 
+/**
+ * Not too sure whether href in performFilteringQuery will
+ * always be the redux-provided props.href esp. in case of
+ * embedded search views. Since func is only executed onClick
+ * and not as part of view render, is (more) OK to use url.parse
+ * vs memoizedUrlParse IMO.
+ */
+// import { memoizedUrlParse } from './../../../util/misc';
+
 import { TermsFacet } from './TermsFacet';
 import { RangeFacet, getValueFromFilters as getRangeValueFromFilters } from './RangeFacet';
 import { FacetTermsList, mergeTerms, anyTermsSelected, countTermsSelected } from './FacetTermsList';

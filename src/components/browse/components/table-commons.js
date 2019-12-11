@@ -233,10 +233,12 @@ export const columnsToColumnDefinitions = memoize(function(columns, columnDefini
     return _.sortBy(columnDefinitions, 'order');
 });
 
-
-export const defaultHiddenColumnMapFromColumns = memoize(function(columns){
-    var hiddenColMap = {};
-    _.forEach(_.pairs(columns), function([ field, columnDefinition ]){
+/**
+ * @param {Object<string, Object>} columns - Object containing some column definitions/values.
+ */
+export function defaultHiddenColumnMapFromColumns(columns){
+    const hiddenColMap = {};
+    _.pairs(columns).forEach(function([ field, columnDefinition ]){
         if (columnDefinition.default_hidden){
             hiddenColMap[field] = true;
         } else {
@@ -244,10 +246,11 @@ export const defaultHiddenColumnMapFromColumns = memoize(function(columns){
         }
     });
     return hiddenColMap;
-}, function(newArgs, lastArgs){
+}
+/*, function(newArgs, lastArgs){
     // We allow different object references to be considered equal as long as their values are equal.
     return !haveContextColumnsChanged(lastArgs[0], newArgs[0]);
-});
+}); */
 
 /**
  * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).

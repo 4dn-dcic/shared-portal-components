@@ -36,13 +36,16 @@ export class CustomColumnController extends React.Component {
      * @param {{ hiddenColumns?: string[], defaultHiddenColumns }} props - Component props.
      * @returns {Object.<boolean>} Map of field names to boolean representing hidden or not.
      */
-    getAllHiddenColumns(props = this.props){
-        if (Array.isArray(props.hiddenColumns)){
-            return _.extend(_.object(_.map(props.hiddenColumns, function(field){
+    getAllHiddenColumns(){
+        const { hiddenColumns: propHiddenCols } = this.props;
+        const { hiddenColumns: stateHiddenCols } = this.state;
+        if (Array.isArray(propHiddenCols)){
+            return _.extend(_.object(propHiddenCols.map(function(field){
                 return [ field, true ];
-            })), this.state.hiddenColumns);
+            })), stateHiddenCols);
+        } else {
+            return stateHiddenCols;
         }
-        else return this.state.hiddenColumns;
     }
 
     addHiddenColumn(field){
@@ -68,14 +71,16 @@ export class CustomColumnController extends React.Component {
     }
 
     render(){
-        if (!React.isValidElement(this.props.children)) throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
-
-        var propsToPass = _.extend(_.omit(this.props, 'children'), {
+        const { children, ...propsToPass } = this.props;
+        if (!React.isValidElement(children)){
+            throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
+        }
+        _.extend(propsToPass, {
             'hiddenColumns'         : this.getAllHiddenColumns(),
             'addHiddenColumn'       : this.addHiddenColumn,
             'removeHiddenColumn'    : this.removeHiddenColumn
         });
-        return React.cloneElement(this.props.children, propsToPass);
+        return React.cloneElement(children, propsToPass);
     }
 
 }

@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import { Modal } from 'react-bootstrap';
 import ReactTooltip from 'react-tooltip';
 
-import { ajax, console, JWT, object, layout, schemaTransforms } from './../util';
+import { ajax, console, JWT, object, layout, schemaTransforms, memoizedUrlParse } from './../util';
 import { DropdownButton, DropdownItem } from './components/DropdownButton';
 import { Collapse } from './../ui/Collapse';
 import { Alerts } from './../ui/Alerts';
@@ -234,7 +234,7 @@ export default class SubmissionView extends React.PureComponent{
 
         const keyContext = {};
         const contextID = object.itemUtil.atId(context) || null;
-        const parsedHref = url.parse(href, true);
+        const parsedHref = memoizedUrlParse(href);
         let [ principalType ] = context['@type'];
 
         const searchViewTypeMatch = principalType.match(/^(\w+)(SearchResults)$/); // Returns null or [ "ItemTypeSearchResults", "ItemType", "SearchResults" ]
@@ -1292,7 +1292,7 @@ export default class SubmissionView extends React.PureComponent{
             if (callbackHref) {
                 nextURI = callbackHref;
             } else {
-                const parts = url.parse(href, true);
+                const parts = _.clone(memoizedUrlParse(href));
                 const modifiedQuery = _.omit(parts.query, 'currentAction');
                 const modifiedSearch = queryString.stringify(modifiedQuery);
 
