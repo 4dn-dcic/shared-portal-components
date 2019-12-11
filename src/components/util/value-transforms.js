@@ -55,4 +55,7 @@ export function hrefToFilename(href){
     return linkTitle = linkTitle.pop();
 }
 
-
+export function escapeRegExp(string) {
+    // escapes regex characters from strings
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
+}

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, FormControl } from 'react-bootstrap';
 
+import { valueTransforms } from './../../util';
+
 /*
 Custom Bootstrap Dropdown code adapted from:
 https://react-bootstrap.github.io/components/dropdowns/#custom-dropdown-components
@@ -38,18 +40,13 @@ const CustomMenu = React.forwardRef(
     ref) => {
         const [value, setValue] = useState('');
 
-        function escapeRegExp(string) { // todo: maybe move to util?
-            // escapes regex characters from strings
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
-        }
-
         function getRegexQuery() {
             switch (filterMethod) {
                 case "includes":
-                    return escapeRegExp(value.toLowerCase()) + "(.+)$";
+                    return valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)$";
                 case "startsWith":
                 default:
-                    return "^" + escapeRegExp(value.toLowerCase()) + "(.+)$";
+                    return "^" + valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)$";
             }
         }
 

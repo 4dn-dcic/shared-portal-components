@@ -10,6 +10,7 @@ exports.roundLargeNumber = roundLargeNumber;
 exports.roundDecimal = roundDecimal;
 exports.decorateNumberWithCommas = decorateNumberWithCommas;
 exports.hrefToFilename = hrefToFilename;
+exports.escapeRegExp = escapeRegExp;
 exports.numberLevels = exports.byteLevels = void 0;
 
 var _underscore = _interopRequireDefault(require("underscore"));
@@ -75,4 +76,9 @@ function decorateNumberWithCommas(num) {
 function hrefToFilename(href) {
   var linkTitle = href.split('/');
   return linkTitle = linkTitle.pop();
+}
+
+function escapeRegExp(string) {
+  // escapes regex characters from strings
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
 }

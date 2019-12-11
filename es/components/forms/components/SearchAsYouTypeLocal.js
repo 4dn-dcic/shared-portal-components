@@ -11,6 +11,8 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _reactBootstrap = require("react-bootstrap");
 
+var _util = require("./../../util");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -80,20 +82,14 @@ var CustomMenu = _react["default"].forwardRef(function (_ref2, ref) {
       value = _useState2[0],
       setValue = _useState2[1];
 
-  function escapeRegExp(string) {
-    // todo: maybe move to util?
-    // escapes regex characters from strings
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // handle escapable characters in regexp
-  }
-
   function getRegexQuery() {
     switch (filterMethod) {
       case "includes":
-        return escapeRegExp(value.toLowerCase()) + "(.+)$";
+        return _util.valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)$";
 
       case "startsWith":
       default:
-        return "^" + escapeRegExp(value.toLowerCase()) + "(.+)$";
+        return "^" + _util.valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)$";
     }
   }
 
