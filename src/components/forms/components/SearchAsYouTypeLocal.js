@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import { Dropdown, FormControl } from 'react-bootstrap';
@@ -167,6 +167,7 @@ export class SearchSelectionMenu extends React.PureComponent {
 const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
     const {
         value,
+        show = false,
         onTextInputChange,
         children,
         style,
@@ -182,17 +183,22 @@ const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
     return (
         <div ref={ref} style={style, { overflowY: "hidden", width: "240px", transform: "translate3d(0,0,0)", padding: 0 }}
             className={cls} aria-labelledby={labeledBy}>
-            <div className="inner-container" style={{ overflowY: "auto", maxHeight: "250px", paddingTop: 50 }}>
-                <div className="d-flex align-items-center text-input-container" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 50, backgroundColor: "#fafafa", borderBottom: "1px solid #eee" }}>
-                    <div className="px-3" style={{ width: "100%" }}>
-                        <FormControl autoFocus {...{ value }} onChange={onTextInputChange} placeholder={inputPlaceholder} tabIndex="3"/>
+            <div className="inner-container">
+                <div className="d-flex align-items-center text-input-container" style={{ borderBottom: "1px solid #eee" }}>
+                    <div className="px-3 py-3" style={{ width: "100%" }}>
+                        { show ?
+                            <input type="text" autoFocus value={value} onChange={onTextInputChange} placeholder={inputPlaceholder} tabIndex="3"
+                                className="form-control"/>
+                            : null }
                     </div>
                 </div>
-                <ul className="list-unstyled mb-0 py-2">
-                    { optionsHeader }
-                    { children }
-                    { optionsFooter }
-                </ul>
+                <div className="scrollable-list-container" style={{ overflowY: "auto", maxHeight: "250px" }}>
+                    <ul className="list-unstyled mb-0 py-2">
+                        { optionsHeader }
+                        { children }
+                        { optionsFooter }
+                    </ul>
+                </div>
             </div>
         </div>
     );

@@ -282,6 +282,8 @@ exports.SearchSelectionMenu = SearchSelectionMenu;
 
 var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
   var value = props.value,
+      _props$show = props.show,
+      show = _props$show === void 0 ? false : _props$show,
       onTextInputChange = props.onTextInputChange,
       children = props.children,
       style = props.style,
@@ -305,37 +307,32 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
     className: cls,
     "aria-labelledby": labeledBy
   }, _react["default"].createElement("div", {
-    className: "inner-container",
-    style: {
-      overflowY: "auto",
-      maxHeight: "250px",
-      paddingTop: 50
-    }
+    className: "inner-container"
   }, _react["default"].createElement("div", {
     className: "d-flex align-items-center text-input-container",
     style: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      height: 50,
-      backgroundColor: "#fafafa",
       borderBottom: "1px solid #eee"
     }
   }, _react["default"].createElement("div", {
-    className: "px-3",
+    className: "px-3 py-3",
     style: {
       width: "100%"
     }
-  }, _react["default"].createElement(_reactBootstrap.FormControl, _extends({
-    autoFocus: true
-  }, {
-    value: value
-  }, {
+  }, show ? _react["default"].createElement("input", {
+    type: "text",
+    autoFocus: true,
+    value: value,
     onChange: onTextInputChange,
     placeholder: inputPlaceholder,
-    tabIndex: "3"
-  })))), _react["default"].createElement("ul", {
+    tabIndex: "3",
+    className: "form-control"
+  }) : null)), _react["default"].createElement("div", {
+    className: "scrollable-list-container",
+    style: {
+      overflowY: "auto",
+      maxHeight: "250px"
+    }
+  }, _react["default"].createElement("ul", {
     className: "list-unstyled mb-0 py-2"
-  }, optionsHeader, children, optionsFooter)));
+  }, optionsHeader, children, optionsFooter))));
 });
