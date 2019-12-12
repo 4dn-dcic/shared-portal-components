@@ -30,6 +30,8 @@ var _rcProgress = require("rc-progress");
 
 var _LinkToSelector = require("./LinkToSelector");
 
+var _SearchAsYouTypeLocal = require("./SearchAsYouTypeLocal");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -101,8 +103,13 @@ function (_React$PureComponent) {
       } // check if this is an enum
 
 
-      if (fieldSchema["enum"] || fieldSchema.suggested_enum) {
+      if (Array.isArray(fieldSchema["enum"])) {
+        // not sure why this is here if suggested_enum doesn't even appear when is a field with that type
         fieldType = 'enum';
+      }
+
+      if (Array.isArray(fieldSchema.suggested_enum)) {
+        fieldType = "suggested_enum";
       } // handle a linkTo object on the the top level
 
 
@@ -123,7 +130,7 @@ function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(BuildField).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this), 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'buildEnumEntry', 'submitEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
+    _underscore["default"].bindAll(_assertThisInitialized(_this), 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
 
     _this.state = {
       'dropdownOpen': false
@@ -158,8 +165,6 @@ function (_React$PureComponent) {
   }, {
     key: "displayField",
     value: function displayField(fieldType) {
-      var _this2 = this;
-
       var _this$props = this.props,
           field = _this$props.field,
           value = _this$props.value,
@@ -267,10 +272,27 @@ function (_React$PureComponent) {
               className: "text-300"
             }, "No value"),
             onToggle: this.handleDropdownButtonToggle,
-            variant: "outline-dark"
-          }, _underscore["default"].map(enumValues, function (val) {
-            return _this2.buildEnumEntry(val);
+            variant: "outline-dark",
+            onSelect: this.submitEnumVal
+          }, enumValues.map(function (val) {
+            return _react["default"].createElement(_reactBootstrap.DropdownItem, {
+              key: val,
+              title: val || '',
+              eventKey: val
+            }, val || '');
           })));
+
+        case 'suggested_enum':
+          return _react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
+            searchList: enumValues,
+            value: value,
+            allowCustomValue: true,
+            filterMethod: "includes",
+            onChange: this.handleEnumChange,
+            maxResults: 3
+          }));
 
         case 'linked object':
           return _react["default"].createElement(LinkedObj, _extends({
@@ -300,21 +322,20 @@ function (_React$PureComponent) {
 
 
       return _react["default"].createElement("div", null, "No field for this case yet.");
-    } // create a dropdown item corresponding to one enum value
-
+    }
   }, {
-    key: "buildEnumEntry",
-    value: function buildEnumEntry(val) {
+    key: "buildSuggestedEnumEntry",
+    value: function buildSuggestedEnumEntry(val) {
       return _react["default"].createElement(_reactBootstrap.DropdownItem, {
         key: val,
         title: val || '',
         eventKey: val,
-        onSelect: this.submitEnumVal
+        onSelect: this.submitSuggestedEnumVal
       }, val || '');
     }
   }, {
-    key: "submitEnumVal",
-    value: function submitEnumVal(eventKey) {
+    key: "submitSuggestedEnumVal",
+    value: function submitSuggestedEnumVal(eventKey) {
       var _this$props2 = this.props,
           modifyNewContext = _this$props2.modifyNewContext,
           nestedField = _this$props2.nestedField,
@@ -340,14 +361,41 @@ function (_React$PureComponent) {
       modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
     }
   }, {
-    key: "handleChange",
-    value: function handleChange(e) {
+    key: "handleEnumChange",
+    value: function handleEnumChange(eventKey) {
       var _this$props3 = this.props,
-          fieldType = _this$props3.fieldType,
           modifyNewContext = _this$props3.modifyNewContext,
           nestedField = _this$props3.nestedField,
+          fieldType = _this$props3.fieldType,
           linkType = _this$props3.linkType,
-          arrayIdx = _this$props3.arrayIdx;
+          arrayIdx = _this$props3.arrayIdx,
+          schema = _this$props3.schema; //eventKey's type is always string, convert it to the proper type defined in schema
+
+      var value = eventKey;
+
+      if (schema && schema.type && typeof schema.type === 'string') {
+        if (schema.type === 'integer') {
+          value = parseInt(eventKey);
+        } else if (schema.type === 'float') {
+          value = parseFloat(eventKey);
+        } else if (schema.type === 'number') {
+          value = Number(eventKey);
+        } else if (schema.type === 'boolean') {
+          value = eventKey === 'true';
+        }
+      }
+
+      modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
+    }
+  }, {
+    key: "handleChange",
+    value: function handleChange(e) {
+      var _this$props4 = this.props,
+          fieldType = _this$props4.fieldType,
+          modifyNewContext = _this$props4.modifyNewContext,
+          nestedField = _this$props4.nestedField,
+          linkType = _this$props4.linkType,
+          arrayIdx = _this$props4.arrayIdx;
       var inputElement = e && e.target ? e.target : this.inputElementRef.current;
       var currValue = inputElement.value;
 
@@ -373,24 +421,24 @@ function (_React$PureComponent) {
   }, {
     key: "handleAliasChange",
     value: function handleAliasChange(currValue) {
-      var _this$props4 = this.props,
-          fieldType = _this$props4.fieldType,
-          modifyNewContext = _this$props4.modifyNewContext,
-          nestedField = _this$props4.nestedField,
-          linkType = _this$props4.linkType,
-          arrayIdx = _this$props4.arrayIdx;
-      modifyNewContext(nestedField, currValue, fieldType, linkType, arrayIdx);
-    } // call modifyNewContext from parent to delete the value in the field
-
-  }, {
-    key: "deleteField",
-    value: function deleteField(e) {
       var _this$props5 = this.props,
           fieldType = _this$props5.fieldType,
           modifyNewContext = _this$props5.modifyNewContext,
           nestedField = _this$props5.nestedField,
           linkType = _this$props5.linkType,
           arrayIdx = _this$props5.arrayIdx;
+      modifyNewContext(nestedField, currValue, fieldType, linkType, arrayIdx);
+    } // call modifyNewContext from parent to delete the value in the field
+
+  }, {
+    key: "deleteField",
+    value: function deleteField(e) {
+      var _this$props6 = this.props,
+          fieldType = _this$props6.fieldType,
+          modifyNewContext = _this$props6.modifyNewContext,
+          nestedField = _this$props6.nestedField,
+          linkType = _this$props6.linkType,
+          arrayIdx = _this$props6.arrayIdx;
       e.preventDefault();
       modifyNewContext(nestedField, null, fieldType, linkType, arrayIdx);
     } // this needs to live in BuildField for styling purposes
@@ -398,14 +446,14 @@ function (_React$PureComponent) {
   }, {
     key: "pushArrayValue",
     value: function pushArrayValue(e) {
-      var _this$props6 = this.props,
-          fieldType = _this$props6.fieldType,
-          value = _this$props6.value,
-          schema = _this$props6.schema,
-          modifyNewContext = _this$props6.modifyNewContext,
-          nestedField = _this$props6.nestedField,
-          linkType = _this$props6.linkType,
-          arrayIdx = _this$props6.arrayIdx;
+      var _this$props7 = this.props,
+          fieldType = _this$props7.fieldType,
+          value = _this$props7.value,
+          schema = _this$props7.schema,
+          modifyNewContext = _this$props7.modifyNewContext,
+          nestedField = _this$props7.nestedField,
+          linkType = _this$props7.linkType,
+          arrayIdx = _this$props7.arrayIdx;
       e && e.preventDefault();
 
       if (fieldType !== 'array') {
@@ -433,10 +481,10 @@ function (_React$PureComponent) {
   }, {
     key: "commonRowProps",
     value: function commonRowProps() {
-      var _this$props7 = this.props,
-          isArray = _this$props7.isArray,
-          fieldType = _this$props7.fieldType,
-          field = _this$props7.field;
+      var _this$props8 = this.props,
+          isArray = _this$props8.isArray,
+          fieldType = _this$props8.fieldType,
+          field = _this$props8.field;
       var dropdownOpen = this.state.dropdownOpen;
       return {
         'className': "field-row" + (dropdownOpen ? ' active-submission-row' : '') + (isArray ? ' in-array-field clearfix row' : ''),
@@ -468,11 +516,11 @@ function (_React$PureComponent) {
   }, {
     key: "wrapWithLabel",
     value: function wrapWithLabel() {
-      var _this$props8 = this.props,
-          fieldTip = _this$props8.fieldTip,
-          title = _this$props8.title,
-          fieldType = _this$props8.fieldType,
-          schema = _this$props8.schema;
+      var _this$props9 = this.props,
+          fieldTip = _this$props9.fieldTip,
+          title = _this$props9.title,
+          fieldType = _this$props9.fieldType,
+          schema = _this$props9.schema;
       return _react["default"].createElement("div", this.commonRowProps(), _react["default"].createElement("div", {
         className: "row"
       }, _react["default"].createElement("div", {
@@ -509,16 +557,16 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props9 = this.props,
-          value = _this$props9.value,
-          isArray = _this$props9.isArray,
-          field = _this$props9.field,
-          fieldType = _this$props9.fieldType,
-          arrayIdx = _this$props9.arrayIdx,
-          isLastItemInArray = _this$props9.isLastItemInArray,
-          fieldBeingSelected = _this$props9.fieldBeingSelected,
-          nestedField = _this$props9.nestedField,
-          fieldBeingSelectedArrayIdx = _this$props9.fieldBeingSelectedArrayIdx;
+      var _this$props10 = this.props,
+          value = _this$props10.value,
+          isArray = _this$props10.isArray,
+          field = _this$props10.field,
+          fieldType = _this$props10.fieldType,
+          arrayIdx = _this$props10.arrayIdx,
+          isLastItemInArray = _this$props10.isLastItemInArray,
+          fieldBeingSelected = _this$props10.fieldBeingSelected,
+          nestedField = _this$props10.nestedField,
+          fieldBeingSelectedArrayIdx = _this$props10.fieldBeingSelectedArrayIdx;
       // hardcoded fields you can't delete
       var showDelete = false;
       var disableDelete = false;
@@ -667,23 +715,23 @@ function (_React$PureComponent2) {
   }]);
 
   function LinkedObj(props) {
-    var _this3;
+    var _this2;
 
     _classCallCheck(this, LinkedObj);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(LinkedObj).call(this, props));
-    _this3.updateContext = _this3.updateContext.bind(_assertThisInitialized(_this3));
-    _this3.setSubmissionStateToLinkedToItem = _this3.setSubmissionStateToLinkedToItem.bind(_assertThisInitialized(_this3));
-    _this3.handleStartSelectItem = _this3.handleStartSelectItem.bind(_assertThisInitialized(_this3));
-    _this3.handleFinishSelectItem = _this3.handleFinishSelectItem.bind(_assertThisInitialized(_this3));
-    _this3.handleCreateNewItemClick = _this3.handleCreateNewItemClick.bind(_assertThisInitialized(_this3));
-    _this3.handleTextInputChange = _this3.handleTextInputChange.bind(_assertThisInitialized(_this3));
-    _this3.handleAcceptTypedID = _this3.handleAcceptTypedID.bind(_assertThisInitialized(_this3));
-    _this3.childWindowAlert = _this3.childWindowAlert.bind(_assertThisInitialized(_this3));
-    _this3.state = {
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(LinkedObj).call(this, props));
+    _this2.updateContext = _this2.updateContext.bind(_assertThisInitialized(_this2));
+    _this2.setSubmissionStateToLinkedToItem = _this2.setSubmissionStateToLinkedToItem.bind(_assertThisInitialized(_this2));
+    _this2.handleStartSelectItem = _this2.handleStartSelectItem.bind(_assertThisInitialized(_this2));
+    _this2.handleFinishSelectItem = _this2.handleFinishSelectItem.bind(_assertThisInitialized(_this2));
+    _this2.handleCreateNewItemClick = _this2.handleCreateNewItemClick.bind(_assertThisInitialized(_this2));
+    _this2.handleTextInputChange = _this2.handleTextInputChange.bind(_assertThisInitialized(_this2));
+    _this2.handleAcceptTypedID = _this2.handleAcceptTypedID.bind(_assertThisInitialized(_this2));
+    _this2.childWindowAlert = _this2.childWindowAlert.bind(_assertThisInitialized(_this2));
+    _this2.state = {
       'textInputValue': typeof props.value === 'string' && props.value || ''
     };
-    return _this3;
+    return _this2;
   }
 
   _createClass(LinkedObj, [{
@@ -706,13 +754,13 @@ function (_React$PureComponent2) {
   }, {
     key: "updateContext",
     value: function updateContext() {
-      var _this$props10 = this.props,
-          keyComplete = _this$props10.keyComplete,
-          value = _this$props10.value,
-          linkType = _this$props10.linkType,
-          arrayIdx = _this$props10.arrayIdx,
-          nestedField = _this$props10.nestedField,
-          modifyNewContext = _this$props10.modifyNewContext;
+      var _this$props11 = this.props,
+          keyComplete = _this$props11.keyComplete,
+          value = _this$props11.value,
+          linkType = _this$props11.linkType,
+          arrayIdx = _this$props11.arrayIdx,
+          nestedField = _this$props11.nestedField,
+          modifyNewContext = _this$props11.modifyNewContext;
 
       if (keyComplete[value] && !isNaN(value)) {
         modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
@@ -734,14 +782,14 @@ function (_React$PureComponent2) {
     value: function handleStartSelectItem(e) {
       e.preventDefault();
       if (!window) return;
-      var _this$props11 = this.props,
-          schema = _this$props11.schema,
-          nestedField = _this$props11.nestedField,
-          currType = _this$props11.currType,
-          linkType = _this$props11.linkType,
-          arrayIdx = _this$props11.arrayIdx,
-          selectObj = _this$props11.selectObj,
-          selectCancel = _this$props11.selectCancel;
+      var _this$props12 = this.props,
+          schema = _this$props12.schema,
+          nestedField = _this$props12.nestedField,
+          currType = _this$props12.currType,
+          linkType = _this$props12.linkType,
+          arrayIdx = _this$props12.arrayIdx,
+          selectObj = _this$props12.selectObj,
+          selectCancel = _this$props12.selectCancel;
       var itemType = schema.linkTo;
       selectObj(itemType, nestedField, arrayIdx);
     }
@@ -754,9 +802,9 @@ function (_React$PureComponent2) {
   }, {
     key: "handleFinishSelectItem",
     value: function handleFinishSelectItem(items) {
-      var _this$props12 = this.props,
-          selectComplete = _this$props12.selectComplete,
-          isMultiSelect = _this$props12.isMultiSelect;
+      var _this$props13 = this.props,
+          selectComplete = _this$props13.selectComplete,
+          isMultiSelect = _this$props13.isMultiSelect;
 
       if (!items || !Array.isArray(items) || items.length === 0 || !_underscore["default"].every(items, function (item) {
         return item.id && typeof item.id === 'string' && item.json;
@@ -807,14 +855,14 @@ function (_React$PureComponent2) {
     key: "handleCreateNewItemClick",
     value: function handleCreateNewItemClick(e) {
       e.preventDefault();
-      var _this$props13 = this.props,
-          fieldBeingSelected = _this$props13.fieldBeingSelected,
-          selectCancel = _this$props13.selectCancel,
-          modifyNewContext = _this$props13.modifyNewContext,
-          nestedField = _this$props13.nestedField,
-          linkType = _this$props13.linkType,
-          arrayIdx = _this$props13.arrayIdx,
-          schema = _this$props13.schema;
+      var _this$props14 = this.props,
+          fieldBeingSelected = _this$props14.fieldBeingSelected,
+          selectCancel = _this$props14.selectCancel,
+          modifyNewContext = _this$props14.modifyNewContext,
+          nestedField = _this$props14.nestedField,
+          linkType = _this$props14.linkType,
+          arrayIdx = _this$props14.arrayIdx,
+          schema = _this$props14.schema;
       if (fieldBeingSelected !== null) selectCancel();
       modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
     }
@@ -840,10 +888,10 @@ function (_React$PureComponent2) {
   }, {
     key: "childWindowAlert",
     value: function childWindowAlert() {
-      var _this$props14 = this.props,
-          schema = _this$props14.schema,
-          nestedField = _this$props14.nestedField,
-          isMultiSelect = _this$props14.isMultiSelect;
+      var _this$props15 = this.props,
+          schema = _this$props15.schema,
+          nestedField = _this$props15.nestedField,
+          isMultiSelect = _this$props15.isMultiSelect;
       var itemType = schema && schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
       // const message = (
@@ -869,13 +917,13 @@ function (_React$PureComponent2) {
   }, {
     key: "renderSelectInputField",
     value: function renderSelectInputField() {
-      var _this$props15 = this.props,
-          value = _this$props15.value,
-          selectCancel = _this$props15.selectCancel,
-          schema = _this$props15.schema,
-          currType = _this$props15.currType,
-          nestedField = _this$props15.nestedField,
-          isMultiSelect = _this$props15.isMultiSelect;
+      var _this$props16 = this.props,
+          value = _this$props16.value,
+          selectCancel = _this$props16.selectCancel,
+          schema = _this$props16.schema,
+          currType = _this$props16.currType,
+          nestedField = _this$props16.nestedField,
+          isMultiSelect = _this$props16.isMultiSelect;
       var textInputValue = this.state.textInputValue;
       var canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
       var extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
@@ -946,14 +994,14 @@ function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props16 = this.props,
-          value = _this$props16.value,
-          keyDisplay = _this$props16.keyDisplay,
-          keyComplete = _this$props16.keyComplete,
-          fieldBeingSelected = _this$props16.fieldBeingSelected,
-          nestedField = _this$props16.nestedField,
-          arrayIdx = _this$props16.arrayIdx,
-          fieldBeingSelectedArrayIdx = _this$props16.fieldBeingSelectedArrayIdx;
+      var _this$props17 = this.props,
+          value = _this$props17.value,
+          keyDisplay = _this$props17.keyDisplay,
+          keyComplete = _this$props17.keyComplete,
+          fieldBeingSelected = _this$props17.fieldBeingSelected,
+          nestedField = _this$props17.nestedField,
+          arrayIdx = _this$props17.arrayIdx,
+          fieldBeingSelectedArrayIdx = _this$props17.fieldBeingSelectedArrayIdx;
       var isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
 
       if (isSelecting) {
@@ -1076,6 +1124,10 @@ function (_React$Component) {
 
       if (itemSchema["enum"]) {
         fieldType = 'enum';
+      }
+
+      if (itemSchema.suggested_enum) {
+        fieldType = 'suggested_enum';
       } // handle a linkTo object on the the top level
 
 
@@ -1099,15 +1151,15 @@ function (_React$Component) {
   }]);
 
   function ArrayField(props) {
-    var _this4;
+    var _this3;
 
     _classCallCheck(this, ArrayField);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(ArrayField).call(this, props));
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(ArrayField).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this4), 'initiateArrayField', 'generateAddButton');
+    _underscore["default"].bindAll(_assertThisInitialized(_this3), 'initiateArrayField', 'generateAddButton');
 
-    return _this4;
+    return _this3;
   }
   /**
    * If empty array, add initial 'null' element. On Mount & Update.
@@ -1117,10 +1169,10 @@ function (_React$Component) {
   _createClass(ArrayField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props17 = this.props,
-          value = _this$props17.value,
-          field = _this$props17.field,
-          pushArrayValue = _this$props17.pushArrayValue;
+      var _this$props18 = this.props,
+          value = _this$props18.value,
+          field = _this$props18.field,
+          pushArrayValue = _this$props18.pushArrayValue;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -1130,14 +1182,14 @@ function (_React$Component) {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
       // We can't do a comparison of props.value here because parent property mutates yet stays part of same obj.
-      var _this$props18 = this.props,
-          value = _this$props18.value,
-          field = _this$props18.field,
-          pushArrayValue = _this$props18.pushArrayValue,
-          modifyNewContext = _this$props18.modifyNewContext,
-          nestedField = _this$props18.nestedField,
-          schema = _this$props18.schema,
-          linkType = _this$props18.linkType;
+      var _this$props19 = this.props,
+          value = _this$props19.value,
+          field = _this$props19.field,
+          pushArrayValue = _this$props19.pushArrayValue,
+          modifyNewContext = _this$props19.modifyNewContext,
+          nestedField = _this$props19.nestedField,
+          schema = _this$props19.schema,
+          linkType = _this$props19.linkType;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -1152,9 +1204,9 @@ function (_React$Component) {
   }, {
     key: "initiateArrayField",
     value: function initiateArrayField(arrayInfo, index, allItems) {
-      var _this$props19 = this.props,
-          propArrayIdx = _this$props19.arrayIdx,
-          schema = _this$props19.schema; // use arrayIdx as stand-in value for field
+      var _this$props20 = this.props,
+          propArrayIdx = _this$props20.arrayIdx,
+          schema = _this$props20.schema; // use arrayIdx as stand-in value for field
 
       var _arrayInfo = _slicedToArray(arrayInfo, 3),
           inArrValue = _arrayInfo[0],
@@ -1169,7 +1221,7 @@ function (_React$Component) {
 
       var title = fieldSchema.title || 'Item';
       var fieldType = ArrayField.typeOfItems(fieldSchema);
-      var enumValues = fieldSchema["enum"] ? fieldSchema["enum"] || [] : []; // check if this is an enum
+      var enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum || []; // check if this is an enum
 
       var arrayIdxList;
 
@@ -1209,10 +1261,10 @@ function (_React$Component) {
   }, {
     key: "generateAddButton",
     value: function generateAddButton() {
-      var _this$props20 = this.props,
-          _this$props20$value = _this$props20.value,
-          values = _this$props20$value === void 0 ? [] : _this$props20$value,
-          pushArrayValue = _this$props20.pushArrayValue;
+      var _this$props21 = this.props,
+          _this$props21$value = _this$props21.value,
+          values = _this$props21$value === void 0 ? [] : _this$props21$value,
+          pushArrayValue = _this$props21.pushArrayValue;
       return _react["default"].createElement("div", {
         className: "add-array-item-button-container"
       }, _react["default"].createElement("button", {
@@ -1226,9 +1278,9 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props21 = this.props,
-          propSchema = _this$props21.schema,
-          propValue = _this$props21.value;
+      var _this$props22 = this.props,
+          propSchema = _this$props22.schema,
+          propValue = _this$props22.value;
       var schema = propSchema.items || {};
       var values = propValue || [];
 
@@ -1259,7 +1311,7 @@ function (_React$PureComponent3) {
   function ObjectField() {
     var _getPrototypeOf2;
 
-    var _this5;
+    var _this4;
 
     _classCallCheck(this, ObjectField);
 
@@ -1267,9 +1319,9 @@ function (_React$PureComponent3) {
       args[_key] = arguments[_key];
     }
 
-    _this5 = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ObjectField)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this4 = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ObjectField)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty(_assertThisInitialized(_this5), "includeField", function (schema, field) {
+    _defineProperty(_assertThisInitialized(_this4), "includeField", function (schema, field) {
       if (!schema) return null;
 
       var schemaVal = _util.object.getNestedProperty(schema, ['properties', field], true);
@@ -1297,18 +1349,18 @@ function (_React$PureComponent3) {
       return schemaVal;
     });
 
-    return _this5;
+    return _this4;
   }
 
   _createClass(ObjectField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props22 = this.props,
-          value = _this$props22.value,
-          modifyNewContext = _this$props22.modifyNewContext,
-          nestedField = _this$props22.nestedField,
-          linkType = _this$props22.linkType,
-          arrayIdx = _this$props22.arrayIdx; // initialize with empty dictionary
+      var _this$props23 = this.props,
+          value = _this$props23.value,
+          modifyNewContext = _this$props23.modifyNewContext,
+          nestedField = _this$props23.nestedField,
+          linkType = _this$props23.linkType,
+          arrayIdx = _this$props23.arrayIdx; // initialize with empty dictionary
 
       modifyNewContext(nestedField, value || {}, 'object', linkType, arrayIdx);
     }
@@ -1324,18 +1376,18 @@ function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      var _this6 = this;
+      var _this5 = this;
 
-      var _this$props23 = this.props,
-          objectSchema = _this$props23.schema,
-          parentObject = _this$props23.value,
-          propNestedField = _this$props23.nestedField,
-          isMultiSelect = _this$props23.isMultiSelect;
+      var _this$props24 = this.props,
+          objectSchema = _this$props24.schema,
+          parentObject = _this$props24.value,
+          propNestedField = _this$props24.nestedField,
+          isMultiSelect = _this$props24.isMultiSelect;
       var allFieldsInSchema = objectSchema['properties'] ? _underscore["default"].keys(objectSchema['properties']) : [];
 
       var fieldsToBuild = _underscore["default"].filter(_underscore["default"].map(allFieldsInSchema, function (f) {
         // List of [field, fieldSchema] pairs.
-        var fieldSchemaToUseOrNull = _this6.includeField(objectSchema, f);
+        var fieldSchemaToUseOrNull = _this5.includeField(objectSchema, f);
 
         return fieldSchemaToUseOrNull && [f, fieldSchemaToUseOrNull] || null;
       }));
@@ -1366,7 +1418,9 @@ function (_React$PureComponent3) {
         var enumValues = []; // check if this is an enum
 
         if (fieldType === 'enum') {
-          enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum || [];
+          enumValues = fieldSchema["enum"] || [];
+        } else if (fieldType === "suggested_enum") {
+          enumValues = fieldSchema.suggested_enum || [];
         } // format field as <this_field>.<next_field> so top level modification
         // happens correctly
 
@@ -1409,13 +1463,13 @@ function (_React$Component2) {
   _inherits(AttachmentInput, _React$Component2);
 
   function AttachmentInput(props) {
-    var _this7;
+    var _this6;
 
     _classCallCheck(this, AttachmentInput);
 
-    _this7 = _possibleConstructorReturn(this, _getPrototypeOf(AttachmentInput).call(this, props));
-    _this7.handleChange = _this7.handleChange.bind(_assertThisInitialized(_this7));
-    return _this7;
+    _this6 = _possibleConstructorReturn(this, _getPrototypeOf(AttachmentInput).call(this, props));
+    _this6.handleChange = _this6.handleChange.bind(_assertThisInitialized(_this6));
+    return _this6;
   }
 
   _createClass(AttachmentInput, [{
@@ -1469,9 +1523,9 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props24 = this.props,
-          value = _this$props24.value,
-          field = _this$props24.field;
+      var _this$props25 = this.props,
+          value = _this$props25.value,
+          field = _this$props25.field;
       var attach_title;
 
       if (value && value.download) {
@@ -1522,29 +1576,29 @@ function (_React$Component3) {
   _inherits(S3FileInput, _React$Component3);
 
   function S3FileInput(props) {
-    var _this8;
+    var _this7;
 
     _classCallCheck(this, S3FileInput);
 
-    _this8 = _possibleConstructorReturn(this, _getPrototypeOf(S3FileInput).call(this, props));
+    _this7 = _possibleConstructorReturn(this, _getPrototypeOf(S3FileInput).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this8), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
+    _underscore["default"].bindAll(_assertThisInitialized(_this7), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
 
-    _this8.state = {
+    _this7.state = {
       'percentDone': null,
       'sizeUploaded': null,
       'newFile': false,
       'status': null
     };
-    return _this8;
+    return _this7;
   }
 
   _createClass(S3FileInput, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      var _this$props25 = this.props,
-          upload = _this$props25.upload,
-          uploadStatus = _this$props25.uploadStatus; // todo: rename upload to uploadManager?
+      var _this$props26 = this.props,
+          upload = _this$props26.upload,
+          uploadStatus = _this$props26.uploadStatus; // todo: rename upload to uploadManager?
 
       var pastUpload = pastProps.upload,
           pastUploadStatus = pastProps.uploadStatus;
@@ -1584,14 +1638,14 @@ function (_React$Component3) {
   }, {
     key: "handleChange",
     value: function handleChange(e) {
-      var _this9 = this;
+      var _this8 = this;
 
-      var _this$props26 = this.props,
-          modifyNewContext = _this$props26.modifyNewContext,
-          nestedField = _this$props26.nestedField,
-          linkType = _this$props26.linkType,
-          arrayIdx = _this$props26.arrayIdx,
-          currContext = _this$props26.currContext;
+      var _this$props27 = this.props,
+          modifyNewContext = _this$props27.modifyNewContext,
+          nestedField = _this$props27.nestedField,
+          linkType = _this$props27.linkType,
+          arrayIdx = _this$props27.arrayIdx,
+          currContext = _this$props27.currContext;
       var file = e.target.files[0];
       if (!file) return; // No file was chosen.
 
@@ -1623,7 +1677,7 @@ function (_React$Component3) {
 
           modifyNewContext(nestedField, filename, 'file upload', linkType, arrayIdx); // calling modifyFile changes the 'file' state of top level component
 
-          _this9.modifyFile(file);
+          _this8.modifyFile(file);
         } else {
           alert('Internal file extension conflict.');
         }
@@ -1637,7 +1691,7 @@ function (_React$Component3) {
   }, {
     key: "handleAsyncUpload",
     value: function handleAsyncUpload(upload_manager) {
-      var _this10 = this;
+      var _this9 = this;
 
       if (upload_manager === null) {
         return;
@@ -1646,19 +1700,19 @@ function (_React$Component3) {
       upload_manager.on('httpUploadProgress', function (evt) {
         var percentage = Math.round(evt.loaded * 100 / evt.total);
 
-        _this10.modifyRunningUploads(percentage, evt.total);
+        _this9.modifyRunningUploads(percentage, evt.total);
       }).send(function (err) {
         if (err) {
-          _this10.modifyRunningUploads(null, null);
+          _this9.modifyRunningUploads(null, null);
 
-          _this10.props.updateUpload(null, false, true);
+          _this9.props.updateUpload(null, false, true);
 
           alert("File upload failed!");
         } else {
-          _this10.modifyRunningUploads(null, null); // this will finish roundTwo for the file
+          _this9.modifyRunningUploads(null, null); // this will finish roundTwo for the file
 
 
-          _this10.props.updateUpload(null, true);
+          _this9.props.updateUpload(null, true);
         }
       });
     }
@@ -1695,11 +1749,11 @@ function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props27 = this.props,
-          value = _this$props27.value,
-          md5Progress = _this$props27.md5Progress,
-          upload = _this$props27.upload,
-          field = _this$props27.field;
+      var _this$props28 = this.props,
+          value = _this$props28.value,
+          md5Progress = _this$props28.md5Progress,
+          upload = _this$props28.upload,
+          field = _this$props28.field;
       var _this$state = this.state,
           newFile = _this$state.newFile,
           percentDone = _this$state.percentDone,
@@ -1860,15 +1914,15 @@ function (_React$Component4) {
   }]);
 
   function AliasInputField(props) {
-    var _this11;
+    var _this10;
 
     _classCallCheck(this, AliasInputField);
 
-    _this11 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputField).call(this, props));
+    _this10 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputField).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this11), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
+    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
 
-    return _this11;
+    return _this10;
   }
 
   _createClass(AliasInputField, [{
@@ -1920,13 +1974,13 @@ function (_React$Component4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props28 = this.props,
-          currentSubmittingUser = _this$props28.currentSubmittingUser,
-          errorMessage = _this$props28.errorMessage,
-          withinModal = _this$props28.withinModal,
-          value = _this$props28.value,
-          isValid = _this$props28.isValid,
-          showErrorMsg = _this$props28.showErrorMsg;
+      var _this$props29 = this.props,
+          currentSubmittingUser = _this$props29.currentSubmittingUser,
+          errorMessage = _this$props29.errorMessage,
+          withinModal = _this$props29.withinModal,
+          value = _this$props29.value,
+          isValid = _this$props29.isValid,
+          showErrorMsg = _this$props29.showErrorMsg;
       var parts = AliasInputField.splitInTwo(value);
       var submits_for_list = currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for || null;
       var initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
@@ -2034,30 +2088,30 @@ function (_React$PureComponent4) {
   _inherits(AliasInputFieldValidated, _React$PureComponent4);
 
   function AliasInputFieldValidated(props) {
-    var _this12;
+    var _this11;
 
     _classCallCheck(this, AliasInputFieldValidated);
 
-    _this12 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputFieldValidated).call(this, props));
-    _this12.doValidateAlias = _this12.doValidateAlias.bind(_assertThisInitialized(_this12));
-    _this12.onAliasChange = _this12.onAliasChange.bind(_assertThisInitialized(_this12));
-    _this12.request = null;
-    _this12.state = {
+    _this11 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputFieldValidated).call(this, props));
+    _this11.doValidateAlias = _this11.doValidateAlias.bind(_assertThisInitialized(_this11));
+    _this11.onAliasChange = _this11.onAliasChange.bind(_assertThisInitialized(_this11));
+    _this11.request = null;
+    _this11.state = {
       value: props.value || AliasInputField.defaultProps.value,
       isValid: null,
       errorMessage: null
     };
-    return _this12;
+    return _this11;
   }
 
   _createClass(AliasInputFieldValidated, [{
     key: "doValidateAlias",
     value: function doValidateAlias(alias) {
-      var _this13 = this;
+      var _this12 = this;
 
-      var _this$props29 = this.props,
-          onAliasChange = _this$props29.onAliasChange,
-          errorValue = _this$props29.errorValue;
+      var _this$props30 = this.props,
+          onAliasChange = _this$props30.onAliasChange,
+          errorValue = _this$props30.errorValue;
 
       if (this.request) {
         this.request.abort();
@@ -2067,19 +2121,19 @@ function (_React$PureComponent4) {
       var currReq = null;
 
       var cb = function (res) {
-        if (!_this13.request || _this13.request && _this13.request !== currReq) {
+        if (!_this12.request || _this12.request && _this12.request !== currReq) {
           // A newer request has been launched, cancel this
           // to prevent accidental overwrites or something.
           return;
         }
 
-        _this13.request = null;
+        _this12.request = null;
 
         if (res.code !== 404) {
           // Not valid - something exists already.
           onAliasChange(errorValue);
 
-          _this13.setState({
+          _this12.setState({
             errorMessage: "Alias " + alias + " already exists",
             isValid: false
           });
@@ -2089,7 +2143,7 @@ function (_React$PureComponent4) {
 
         onAliasChange(alias);
 
-        _this13.setState({
+        _this12.setState({
           isValid: true,
           errorMessage: null
         });
@@ -2100,21 +2154,21 @@ function (_React$PureComponent4) {
   }, {
     key: "onAliasChange",
     value: function (nextAlias) {
-      var _this14 = this;
+      var _this13 = this;
 
-      var _this$props30 = this.props,
-          onAliasChange = _this$props30.onAliasChange,
-          errorValue = _this$props30.errorValue,
-          _this$props30$skipVal = _this$props30.skipValidateAliases,
-          skipValidateAliases = _this$props30$skipVal === void 0 ? [] : _this$props30$skipVal,
-          _this$props30$rejectA = _this$props30.rejectAliases,
-          rejectAliases = _this$props30$rejectA === void 0 ? [] : _this$props30$rejectA;
+      var _this$props31 = this.props,
+          onAliasChange = _this$props31.onAliasChange,
+          errorValue = _this$props31.errorValue,
+          _this$props31$skipVal = _this$props31.skipValidateAliases,
+          skipValidateAliases = _this$props31$skipVal === void 0 ? [] : _this$props31$skipVal,
+          _this$props31$rejectA = _this$props31.rejectAliases,
+          rejectAliases = _this$props31$rejectA === void 0 ? [] : _this$props31$rejectA;
       this.request && this.request.abort();
       this.request = null;
       this.setState({
         value: nextAlias
       }, function () {
-        var value = _this14.state.value;
+        var value = _this13.state.value;
 
         var _value$split = value.split(':'),
             _value$split2 = _slicedToArray(_value$split, 2),
@@ -2124,7 +2178,7 @@ function (_React$PureComponent4) {
         if (!firstPart || !secondPart) {
           onAliasChange(null);
 
-          _this14.setState({
+          _this13.setState({
             errorMessage: "Part of alias is blank. Will be excluded."
           });
 
@@ -2136,7 +2190,7 @@ function (_React$PureComponent4) {
         if (!passedRegex) {
           onAliasChange(errorValue);
 
-          _this14.setState({
+          _this13.setState({
             errorMessage: "Aliases must be formatted as: <text>:<text> (e.g. dcic-lab:42)."
           });
 
@@ -2147,7 +2201,7 @@ function (_React$PureComponent4) {
           // Presume is saved in database as this, skip validation.
           onAliasChange("ERROR");
 
-          _this14.setState({
+          _this13.setState({
             errorMessage: "Alias rejected, make sure is not used already."
           });
 
@@ -2158,14 +2212,14 @@ function (_React$PureComponent4) {
           // Presume is saved in database as this, skip validation.
           onAliasChange(nextAlias);
 
-          _this14.setState({
+          _this13.setState({
             errorMessage: null
           });
 
           return;
         }
 
-        _this14.doValidateAlias(value);
+        _this13.doValidateAlias(value);
       });
     }
   }, {
@@ -2202,9 +2256,9 @@ function (_React$PureComponent5) {
   _createClass(InfoIcon, [{
     key: "fieldTypeDescriptor",
     value: function fieldTypeDescriptor() {
-      var _this$props31 = this.props,
-          fieldType = _this$props31.fieldType,
-          schema = _this$props31.schema;
+      var _this$props32 = this.props,
+          fieldType = _this$props32.fieldType,
+          schema = _this$props32.schema;
       if (typeof fieldType !== 'string' || fieldType.length === 0) return null;
 
       var type = _util.valueTransforms.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
@@ -2218,11 +2272,11 @@ function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props32 = this.props,
-          children = _this$props32.children,
-          title = _this$props32.title,
-          fieldType = _this$props32.fieldType,
-          className = _this$props32.className;
+      var _this$props33 = this.props,
+          children = _this$props33.children,
+          title = _this$props33.title,
+          fieldType = _this$props33.fieldType,
+          className = _this$props33.className;
       if (!children || typeof children !== 'string') return null;
       var tip = children;
 

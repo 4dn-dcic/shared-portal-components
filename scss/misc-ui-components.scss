@@ -1,7 +1,31 @@
 
+
+// Used by forms/components/Checkbox.js
 .checkbox.checkbox-with-label {
     > label {
         display: flex !important;
         align-items: center;
+    }
+}
+
+// Used by forms/components/SearchSelectionMenu.js
+
+.search-selection-menu.dropdown {
+    > div.search-selection-menu-body.dropdown-menu {
+        max-width: 300px;
+        overflow-x: hidden;
+        padding: 0; // Unset default menu padding, we have inner divs with own padding
+        .inner-container {
+            .text-input-container {
+                width: 100%;
+                border-bottom: 1px solid #eee;
+            }
+            .scrollable-list-container {
+                overflow-y: auto;
+                overflow-x: hidden;
+                max-height: 300px;
+                max-height: 33vh;
+            }
+        }
     }
 }

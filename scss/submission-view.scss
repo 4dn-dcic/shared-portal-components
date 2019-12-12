@@ -345,6 +345,11 @@ div.alias-input-field {
 				}
 			}
 
+			[data-field-type="suggested_enum"] 
+				.field-column.last-item-empty:not(:hover):not(.in-selection-field) {
+					opacity: 1; /* Fix for last item opacity/layering bug */
+			}
+
 			.field-column {
 				opacity: 1;
 				transition: opacity 0.33s;
