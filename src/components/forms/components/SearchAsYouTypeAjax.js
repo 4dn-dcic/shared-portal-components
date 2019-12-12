@@ -71,5 +71,14 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
 SearchAsYouTypeAjax.propTypes = {
     value: PropTypes.string,
     allowCustomValue: PropTypes.bool,
-    baseRequestURL: PropTypes.string
+    baseRequestURL: function(props, propName, componentName) {
+        console.log("attempting to validate baseRequestURL");
+        console.log("props: ", props);
+        console.log("propName: ", propName);
+        const regex = "^/search/?type=(.+)?$";
+        if (props[propName] && !props[propName].match(regex)) {
+            console.log(props[propName] + " did not validate");
+            return new Error(`Invalid prop '${propName}' supplied to ${componentName}. Validation failed.`);
+        }
+    }
 };
