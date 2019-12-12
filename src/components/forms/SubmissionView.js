@@ -2013,7 +2013,9 @@ class IndividualObjectView extends React.Component {
 
         // check if this is an enum
         if (fieldType === 'enum'){
-            enumValues = fieldSchema.enum || fieldSchema.suggested_enum;
+            enumValues = fieldSchema.enum || [];
+        } else if (fieldType === "suggested_enum") {
+            enumValues = fieldSchema.suggested_enum || [];
         }
 
         // check for linkTo if further down in object or array

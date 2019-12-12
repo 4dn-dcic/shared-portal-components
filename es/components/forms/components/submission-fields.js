@@ -103,9 +103,13 @@ function (_React$PureComponent) {
       } // check if this is an enum
 
 
-      if (fieldSchema["enum"] || fieldSchema.suggested_enum) {
+      if (Array.isArray(fieldSchema["enum"])) {
         // not sure why this is here if suggested_enum doesn't even appear when is a field with that type
         fieldType = 'enum';
+      }
+
+      if (Array.isArray(fieldSchema.suggested_enum)) {
+        fieldType = "suggested_enum";
       } // handle a linkTo object on the the top level
 
 
@@ -166,7 +170,6 @@ function (_React$PureComponent) {
           value = _this$props.value,
           disabled = _this$props.disabled,
           enumValues = _this$props.enumValues,
-          suggestedEnumValues = _this$props.suggestedEnumValues,
           currentSubmittingUser = _this$props.currentSubmittingUser,
           roundTwo = _this$props.roundTwo,
           currType = _this$props.currType,
@@ -283,7 +286,7 @@ function (_React$PureComponent) {
           return _react["default"].createElement("span", {
             className: "input-wrapper"
           }, _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
-            searchList: suggestedEnumValues,
+            searchList: enumValues,
             value: value,
             allowCustomValue: true,
             filterMethod: "includes",
@@ -1218,9 +1221,8 @@ function (_React$Component) {
 
       var title = fieldSchema.title || 'Item';
       var fieldType = ArrayField.typeOfItems(fieldSchema);
-      var enumValues = fieldSchema["enum"] ? fieldSchema["enum"] || [] : []; // check if this is an enum
+      var enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum || []; // check if this is an enum
 
-      var suggestedEnumValues = fieldSchema.suggested_enum ? fieldSchema.suggested_enum || [] : [];
       var arrayIdxList;
 
       if (propArrayIdx) {
@@ -1244,8 +1246,7 @@ function (_React$Component) {
         fieldTip: fieldTip,
         fieldType: fieldType,
         title: title,
-        enumValues: enumValues,
-        suggestedEnumValues: suggestedEnumValues
+        enumValues: enumValues
       }, _underscore["default"].pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel', 'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType'), {
         isArray: true,
         isLastItemInArray: allItems.length - 1 === index,
@@ -1417,7 +1418,9 @@ function (_React$PureComponent3) {
         var enumValues = []; // check if this is an enum
 
         if (fieldType === 'enum') {
-          enumValues = fieldSchema["enum"] || fieldSchema.suggested_enum || [];
+          enumValues = fieldSchema["enum"] || [];
+        } else if (fieldType === "suggested_enum") {
+          enumValues = fieldSchema.suggested_enum || [];
         } // format field as <this_field>.<next_field> so top level modification
         // happens correctly
 

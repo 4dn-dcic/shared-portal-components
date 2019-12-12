@@ -148,6 +148,7 @@ function (_React$PureComponent) {
       var currentTextValue = this.state.currentTextValue;
       var filteredOptions;
       var optionsHeader;
+      var optionsFooter;
 
       if (!Array.isArray(searchList)) {
         // Likely, schemas are not yet loaded?
@@ -159,12 +160,20 @@ function (_React$PureComponent) {
         }));
       } else {
         filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
+
+        if (filteredOptions.length === 0) {
+          optionsHeader = _react["default"].createElement("em", {
+            className: "d-block text-center px-4"
+          }, "Adding new entry");
+        }
       }
 
       return _react["default"].createElement(SearchSelectionMenu, _extends({}, passProps, {
-        options: filteredOptions,
-        currentTextValue: currentTextValue,
         optionsHeader: optionsHeader,
+        optionsFooter: optionsFooter,
+        currentTextValue: currentTextValue
+      }, {
+        options: filteredOptions,
         onTextInputChange: this.onTextInputChange,
         onDropdownSelect: this.onDropdownSelect
       }));
@@ -225,7 +234,9 @@ function (_React$PureComponent2) {
           _this$props3$optionRe = _this$props3.optionRenderFunction,
           optionRenderFunction = _this$props3$optionRe === void 0 ? null : _this$props3$optionRe,
           onDropdownSelect = _this$props3.onDropdownSelect,
-          onTextInputChange = _this$props3.onTextInputChange;
+          onTextInputChange = _this$props3.onTextInputChange,
+          optionsHeader = _this$props3.optionsHeader,
+          optionsFooter = _this$props3.optionsFooter;
       var dropOpen = this.state.dropOpen;
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
         drop: "down",
@@ -237,7 +248,7 @@ function (_React$PureComponent2) {
         as: CustomToggle
       }, value || _react["default"].createElement("span", {
         className: "text-300"
-      }, "No value")), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, {
+      }, "No value")), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
         style: {
           maxWidth: "240px",
           minHeight: "75px"
@@ -248,13 +259,17 @@ function (_React$PureComponent2) {
         show: dropOpen,
         onTextInputChange: onTextInputChange,
         toggleOpen: this.onToggleOpen
-      }, options.map(function (optStr) {
+      }, {
+        onTextInputChange: onTextInputChange,
+        optionsHeader: optionsHeader,
+        optionsFooter: optionsFooter
+      }), options.map(function (optStr) {
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(optStr) : optStr;
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
           key: optStr,
           eventKey: optStr,
           className: "text-ellipsis-container",
-          tabIndex: "4"
+          tabIndex: "3"
         }, renderedOption);
       })));
     }
@@ -267,29 +282,51 @@ exports.SearchSelectionMenu = SearchSelectionMenu;
 
 var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
   var value = props.value,
-      currentTextValue = props.currentTextValue,
       onTextInputChange = props.onTextInputChange,
-      onSelect = props.onSelect,
       children = props.children,
       style = props.style,
       className = props.className,
       _props$inputPlacehold = props.inputPlaceholder,
       inputPlaceholder = _props$inputPlacehold === void 0 ? "Type to filter..." : _props$inputPlacehold,
-      onKeyDown = props.onKeyDown,
       labeledBy = props['aria-labelledby'],
-      optionsHeader = props.optionsHeader;
+      _props$optionsHeader = props.optionsHeader,
+      optionsHeader = _props$optionsHeader === void 0 ? null : _props$optionsHeader,
+      _props$optionsFooter = props.optionsFooter,
+      optionsFooter = _props$optionsFooter === void 0 ? null : _props$optionsFooter;
+  var cls = "search-selection-menu" + (className ? " " + className : "");
   return _react["default"].createElement("div", {
     ref: ref,
     style: (style, {
       overflowY: "hidden",
-      width: "240px"
+      width: "240px",
+      transform: "translate3d(0,0,0)",
+      padding: 0
     }),
-    className: className,
+    className: cls,
     "aria-labelledby": labeledBy
   }, _react["default"].createElement("div", {
-    className: "d-flex align-items-center"
+    className: "inner-container",
+    style: {
+      overflowY: "auto",
+      maxHeight: "250px",
+      paddingTop: 50
+    }
   }, _react["default"].createElement("div", {
-    className: "col"
+    className: "d-flex align-items-center text-input-container",
+    style: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 50,
+      backgroundColor: "#fafafa",
+      borderBottom: "1px solid #eee"
+    }
+  }, _react["default"].createElement("div", {
+    className: "px-3",
+    style: {
+      width: "100%"
+    }
   }, _react["default"].createElement(_reactBootstrap.FormControl, _extends({
     autoFocus: true
   }, {
@@ -298,11 +335,7 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
     onChange: onTextInputChange,
     placeholder: inputPlaceholder,
     tabIndex: "3"
-  })))), optionsHeader, _react["default"].createElement("ul", {
-    className: "list-unstyled mb-0",
-    style: {
-      overflowY: "scroll",
-      maxHeight: "250px"
-    }
-  }, children));
+  })))), _react["default"].createElement("ul", {
+    className: "list-unstyled mb-0 py-2"
+  }, optionsHeader, children, optionsFooter)));
 });

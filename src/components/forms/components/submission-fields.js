@@ -47,8 +47,11 @@ export class BuildField extends React.PureComponent {
             }
         }
         // check if this is an enum
-        if (fieldSchema.enum || fieldSchema.suggested_enum){ // not sure why this is here if suggested_enum doesn't even appear when is a field with that type
+        if (Array.isArray(fieldSchema.enum)){ // not sure why this is here if suggested_enum doesn't even appear when is a field with that type
             fieldType = 'enum';
+        }
+        if (Array.isArray(fieldSchema.suggested_enum)){
+            fieldType = "suggested_enum";
         }
         // handle a linkTo object on the the top level
         if (fieldSchema.linkTo){
@@ -92,7 +95,7 @@ export class BuildField extends React.PureComponent {
      * @returns {JSX.Element} A JSX `<input>` element, a Bootstrap input element component, or custom React component which will render input fields.
      */
     displayField(fieldType){
-        const { field, value, disabled, enumValues, suggestedEnumValues, currentSubmittingUser, roundTwo, currType, currContext, fieldType : propFieldType } = this.props;
+        const { field, value, disabled, enumValues, currentSubmittingUser, roundTwo, currType, currContext, fieldType : propFieldType } = this.props;
         fieldType = fieldType || propFieldType;
         const inputProps = {
             'key'       :        field,
@@ -158,7 +161,7 @@ export class BuildField extends React.PureComponent {
             );
             case 'suggested_enum'   : return (
                 <span className="input-wrapper">
-                    <SearchAsYouTypeLocal searchList={suggestedEnumValues} value={value} allowCustomValue
+                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue
                         filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                 </span>
             );
@@ -738,7 +741,7 @@ const PreviewField = React.memo(function PreviewField(props){
 class ArrayField extends React.Component{
 
     static typeOfItems(itemSchema){
-        var fieldType = itemSchema.type ? itemSchema.type : "text";
+        let fieldType = itemSchema.type ? itemSchema.type : "text";
         // transform some types...
         if (fieldType === 'string'){
             fieldType = 'text';
@@ -810,8 +813,7 @@ class ArrayField extends React.Component{
         }
         const title = fieldSchema.title || 'Item';
         const fieldType = ArrayField.typeOfItems(fieldSchema);
-        const enumValues = fieldSchema.enum ? (fieldSchema.enum || []) : []; // check if this is an enum
-        const suggestedEnumValues = fieldSchema.suggested_enum ? (fieldSchema.suggested_enum || []) : [];
+        const enumValues = fieldSchema.enum || fieldSchema.suggested_enum || []; // check if this is an enum
 
         let arrayIdxList;
         if (propArrayIdx){
@@ -824,7 +826,7 @@ class ArrayField extends React.Component{
         return(
             <div key={arrayIdx} className={"array-field-container " + (arrayIdx % 2 === 0 ? 'even' : 'odd')} data-field-type={fieldType}>
                 <BuildField
-                    {...{ value, fieldTip, fieldType, title, enumValues, suggestedEnumValues }}
+                    {...{ value, fieldTip, fieldType, title, enumValues }}
                     { ..._.pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel',
                         'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx',
                         'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType' ) }
@@ -932,10 +934,14 @@ class ObjectField extends React.PureComponent {
             } else {
                 fieldValue = null;
             }
+
             let enumValues = [];
+
             // check if this is an enum
             if (fieldType === 'enum'){
-                enumValues = fieldSchema.enum || fieldSchema.suggested_enum || [];
+                enumValues = fieldSchema.enum || [];
+            } else if (fieldType === "suggested_enum") {
+                enumValues = fieldSchema.suggested_enum || [];
             }
             // format field as <this_field>.<next_field> so top level modification
             // happens correctly

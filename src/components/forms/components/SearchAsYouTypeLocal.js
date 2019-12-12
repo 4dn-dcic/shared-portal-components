@@ -76,6 +76,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
         const { currentTextValue } = this.state;
         let filteredOptions;
         let optionsHeader;
+        let optionsFooter;
 
         if (!Array.isArray(searchList)){
             // Likely, schemas are not yet loaded?
@@ -87,13 +88,14 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             );
         } else {
             filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
+            if (filteredOptions.length === 0) {
+                optionsHeader = <em className="d-block text-center px-4">Adding new entry</em>;
+            }
         }
 
         return (
-            <SearchSelectionMenu {...passProps}
+            <SearchSelectionMenu {...passProps} {...{ optionsHeader, optionsFooter, currentTextValue }}
                 options={filteredOptions}
-                currentTextValue={currentTextValue}
-                optionsHeader={optionsHeader}
                 onTextInputChange={this.onTextInputChange}
                 onDropdownSelect={this.onDropdownSelect}/>
         );
@@ -130,7 +132,9 @@ export class SearchSelectionMenu extends React.PureComponent {
             options = [],
             optionRenderFunction = null,
             onDropdownSelect,
-            onTextInputChange
+            onTextInputChange,
+            optionsHeader,
+            optionsFooter
         } = this.props;
         const { dropOpen } = this.state;
         return (
@@ -141,13 +145,14 @@ export class SearchSelectionMenu extends React.PureComponent {
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu style={{ maxWidth: "240px", minHeight: "75px" }} as={SearchSelectionMenuBody} drop="down"
-                    flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}>
+                    flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}
+                    {...{ onTextInputChange, optionsHeader, optionsFooter }}>
                     {
                         options.map(function(optStr, idx){
                             const renderedOption = typeof optionRenderFunction === "function" ?
                                 optionRenderFunction(optStr) : optStr;
                             return (
-                                <Dropdown.Item key={optStr} eventKey={optStr} className="text-ellipsis-container" tabIndex="4">
+                                <Dropdown.Item key={optStr} eventKey={optStr} className="text-ellipsis-container" tabIndex="3">
                                     { renderedOption }
                                 </Dropdown.Item>
                             );
@@ -162,33 +167,33 @@ export class SearchSelectionMenu extends React.PureComponent {
 const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
     const {
         value,
-        currentTextValue,
         onTextInputChange,
-        onSelect,
         children,
         style,
         className,
         inputPlaceholder = "Type to filter...",
-        onKeyDown,
         'aria-labelledby': labeledBy,
-        optionsHeader
+        optionsHeader = null,
+        optionsFooter = null
     } = props;
 
+    const cls = "search-selection-menu" + (className ? " " + className : "");
+
     return (
-        <div
-            ref={ref}
-            style={style, { overflowY: "hidden", width: "240px" }}
-            className={className}
-            aria-labelledby={labeledBy}>
-            <div className="d-flex align-items-center">
-                <div className="col">
-                    <FormControl autoFocus {...{ value }} onChange={onTextInputChange} placeholder={inputPlaceholder} tabIndex="3"/>
+        <div ref={ref} style={style, { overflowY: "hidden", width: "240px", transform: "translate3d(0,0,0)", padding: 0 }}
+            className={cls} aria-labelledby={labeledBy}>
+            <div className="inner-container" style={{ overflowY: "auto", maxHeight: "250px", paddingTop: 50 }}>
+                <div className="d-flex align-items-center text-input-container" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 50, backgroundColor: "#fafafa", borderBottom: "1px solid #eee" }}>
+                    <div className="px-3" style={{ width: "100%" }}>
+                        <FormControl autoFocus {...{ value }} onChange={onTextInputChange} placeholder={inputPlaceholder} tabIndex="3"/>
+                    </div>
                 </div>
+                <ul className="list-unstyled mb-0 py-2">
+                    { optionsHeader }
+                    { children }
+                    { optionsFooter }
+                </ul>
             </div>
-            { optionsHeader }
-            <ul className="list-unstyled mb-0" style={{ overflowY: "scroll", maxHeight: "250px" }}>
-                { children }
-            </ul>
         </div>
     );
 });
