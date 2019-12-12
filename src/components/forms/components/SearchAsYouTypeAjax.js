@@ -12,10 +12,20 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         this.state = {
             results : [],
             currentTextValue : this.props.value || "",
+            loading: true, // starts out by loading base RequestURL
         };
 
-        // this.onLoad = _.debounce(this.onLoad.bind(this), 500);
         this.makeFetch = _.debounce(this.makeFetch.bind(this), 500);
+        this.constructFetchURL = this.constructFetchURL.bind(this);
+    }
+
+    constructFetchURL() {
+        const { baseRequestURL = "/search/?type=Item" } = this.props;
+        const { currentTextValue } = this.state;
+
+        const startQuery = currentTextValue ? `&q=${currentTextValue}` : '';
+
+        return `${baseRequestURL} + ${startQuery} + &field=display_title&field=@id&limit=100`;
     }
 
     componentDidMount() {
@@ -23,10 +33,12 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         this.makeFetch();
     }
 
+    onLoadData(e) {
+
+    }
+
     async makeFetch() {
-        const { currentTextValue } = this.state;
-        const { baseRequestURL = "/search/?type=Item" } = this.props;
-        const response = await ajax.fetch(`${baseRequestURL}&q=${currentTextValue}&field=display_title&field=@id&limit=100`);
+        const response = await ajax.fetch(this.constructFetchURL());
         const data = await response.json();
         console.log(JSON.stringify(data));
     }
