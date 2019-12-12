@@ -1,21 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { debounce } from 'underscore';
+import { debounce as _debounce } from 'underscore';
 
 import { ajax } from '../../util/';
 
-import { SearchSelectionMenu } from './SearchSelectionMenu';
+// import { SearchSelectionMenu } from './SearchSelectionMenu';
 
 export class SearchAsYouTypeAjax extends React.PureComponent {
     constructor() {
         super(props);
         this.state = {
             results : [],
-            currentTextValue : this.props.value || "",
+            currentTextValue : props.value || "",
             loading: true, // starts out by loading base RequestURL
         };
 
-        this.makeFetch = _.debounce(this.makeFetch.bind(this), 500);
+        this.currentRequest = null;
+        this.onLoadData = _debounce(this.onLoadData.bind(this), 500);
         this.constructFetchURL = this.constructFetchURL.bind(this);
     }
 
@@ -30,43 +31,30 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
 
     componentDidMount() {
         // send a http request for all items (limit 100), update state with results
-        this.makeFetch();
+        this.onLoadData();
     }
 
-    onLoadData(e) {
-
+    async onLoadData() {
+        this.setState({ loading: true }, () => {
+            if (this.currentRequest) {
+                this.currentRequest.abort && this.currentRequest.abort();
+            }
+            const requestInThisScope = this.currentRequest = ajax.load(this.constructFetchURL(), (response) => {
+                if (requestInThisScope !== this.currentRequest) {
+                    return false; // some other request has been fired and is now set to theis request; cancel it
+                }
+                this.currentRequest = null;
+                this.setState({ loading: false, results: response['@graph'] });
+            });
+        });
     }
-
-    async makeFetch() {
-        const response = await ajax.fetch(this.constructFetchURL());
-        const data = await response.json();
-        console.log(JSON.stringify(data));
-    }
-
-    // onLoad(evt) {
-    //     this.setState({ loading: true }, ()=>{
-    //         if (this.currentRequest){
-    //             // XMLHttpRequest.abort() is not guaranteed to do anything --
-    //             // depends on XHR readyState, (maybe?) browser. But minor optimization
-    //             // if browser does something in response to it.
-    //             this.currentRequest.abort && this.currentRequest.abort();
-    //         }
-    //         const requestInThisScope = this.currentRequest = ajax.load(myURL, (response)=>{
-    //             if (requestInThisScope !== this.currentRequest) {
-    //                 return false; // Some other AJAX request has been fired and is now set
-    //                 // to this.currentRequest. Cancel out.
-    //             }
-    //             this.currentRequest = null;
-    //             this.setState({ loading: false, results: response['@graph'] });
-    //         });
-    //     });
-    // }
 
     onTextInputChange(evt){
         const { onChange, allowCustomValue = false } = this.props;
         const { value = null } = evt.target;
         if (allowCustomValue) {
             onChange(value);
+            this.onLoadData();
         }
         this.setState({ currentTextValue: value });
     }
@@ -83,6 +71,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
 SearchAsYouTypeAjax.propTypes = {
     value: PropTypes.string,
     allowCustomValue: PropTypes.bool,
+    onChange: PropTypes.func,
     baseRequestURL: function(props, propName, componentName) {
         console.log("attempting to validate baseRequestURL");
         console.log("props: ", props);
