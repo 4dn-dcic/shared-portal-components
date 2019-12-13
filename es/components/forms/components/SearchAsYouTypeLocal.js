@@ -79,7 +79,7 @@ function (_React$PureComponent) {
     _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
     _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
     _this.state = {
-      currentTextValue: props.value || ""
+      currentTextValue: props.initializeWithValue ? props.value || "" : ""
     };
     _this.memoized = {
       filterOptions: (0, _memoizeOne["default"])(SearchAsYouTypeLocal.filterOptions)
@@ -120,7 +120,8 @@ function (_React$PureComponent) {
           _this$props2$filterMe = _this$props2.filterMethod,
           filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
           propOptionsHeader = _this$props2.optionsHeader,
-          passProps = _objectWithoutProperties(_this$props2, ["searchList", "filterMethod", "optionsHeader"]);
+          allowCustomValue = _this$props2.allowCustomValue,
+          passProps = _objectWithoutProperties(_this$props2, ["searchList", "filterMethod", "optionsHeader", "allowCustomValue"]);
 
       var currentTextValue = this.state.currentTextValue;
       var filteredOptions;
@@ -137,10 +138,14 @@ function (_React$PureComponent) {
       } else {
         filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
 
-        if (filteredOptions.length === 0) {
+        if (filteredOptions.length === 0 && allowCustomValue) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-1"
           }, "Adding new entry"), optionsHeader);
+        } else if (filteredOptions.length === 0 && !allowCustomValue) {
+          optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
+            className: "d-block text-center px-4 py-1"
+          }, "No results found"), optionsHeader);
         }
       }
 
@@ -165,5 +170,6 @@ SearchAsYouTypeLocal.propTypes = {
   onChange: _propTypes["default"].func.isRequired,
   filterMethod: _propTypes["default"].string,
   // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
-  allowCustomValue: _propTypes["default"].bool
+  allowCustomValue: _propTypes["default"].bool,
+  initializeWithValue: _propTypes["default"].bool
 };

@@ -11,6 +11,11 @@
 // Used by forms/components/SearchSelectionMenu.js
 
 .search-selection-menu.dropdown {
+    button.btn.dropdown-toggle {
+        max-width: 100%;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
     > div.search-selection-menu-body.dropdown-menu {
         max-width: 300px;
         overflow-x: hidden;
@@ -29,3 +34,4 @@
         }
     }
 }
+

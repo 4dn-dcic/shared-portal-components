@@ -39,7 +39,7 @@ export class SearchSelectionMenu extends React.PureComponent {
                     { value || <span className="text-300">No value</span>}
                 </Dropdown.Toggle>
 
-                <Dropdown.Menu as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter }} drop="down"
+                <Dropdown.Menu as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }} drop="down"
                     flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}>
                     {
                         options.map(function(optStr, idx){
@@ -60,7 +60,7 @@ export class SearchSelectionMenu extends React.PureComponent {
 
 const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
     const {
-        value,
+        currentTextValue,
         show = false,
         onTextInputChange,
         children,
@@ -78,7 +78,7 @@ const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
             <div className="inner-container">
                 <div className="px-3 py-3 text-input-container">
                     { show ?
-                        <input type="text" autoFocus value={value} onChange={onTextInputChange} placeholder={inputPlaceholder} tabIndex="3"
+                        <input type="text" autoFocus value={currentTextValue} onChange={onTextInputChange} placeholder={inputPlaceholder} tabIndex="3"
                             className="form-control"/>
                         : null }
                 </div>

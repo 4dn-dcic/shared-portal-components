@@ -100,7 +100,8 @@ function (_React$PureComponent) {
       }, {
         onTextInputChange: onTextInputChange,
         optionsHeader: optionsHeader,
-        optionsFooter: optionsFooter
+        optionsFooter: optionsFooter,
+        currentTextValue: currentTextValue
       }, {
         drop: "down",
         flip: false,
@@ -125,7 +126,7 @@ function (_React$PureComponent) {
 exports.SearchSelectionMenu = SearchSelectionMenu;
 
 var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
-  var value = props.value,
+  var currentTextValue = props.currentTextValue,
       _props$show = props.show,
       show = _props$show === void 0 ? false : _props$show,
       onTextInputChange = props.onTextInputChange,
@@ -150,7 +151,7 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
   }, show ? _react["default"].createElement("input", {
     type: "text",
     autoFocus: true,
-    value: value,
+    value: currentTextValue,
     onChange: onTextInputChange,
     placeholder: inputPlaceholder,
     tabIndex: "3",
