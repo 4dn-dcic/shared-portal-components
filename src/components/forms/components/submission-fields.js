@@ -13,6 +13,7 @@ import { Alerts } from './../../ui/Alerts';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
 import { Line as ProgressBar } from 'rc-progress';
 import { LinkToSelector } from './LinkToSelector';
+import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 
 
 /**
@@ -46,8 +47,11 @@ export class BuildField extends React.PureComponent {
             }
         }
         // check if this is an enum
-        if (fieldSchema.enum || fieldSchema.suggested_enum){
+        if (Array.isArray(fieldSchema.enum)){ // not sure why this is here if suggested_enum doesn't even appear when is a field with that type
             fieldType = 'enum';
+        }
+        if (Array.isArray(fieldSchema.suggested_enum)){
+            fieldType = "suggested_enum";
         }
         // handle a linkTo object on the the top level
         if (fieldSchema.linkTo){
@@ -62,7 +66,8 @@ export class BuildField extends React.PureComponent {
         super(props);
         _.bindAll(this,
             'displayField', 'handleDropdownButtonToggle', 'handleAliasChange',
-            'buildEnumEntry', 'submitEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue',
+            'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal',
+            'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue',
             'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel'
         );
         this.state = {
@@ -142,9 +147,22 @@ export class BuildField extends React.PureComponent {
             case 'enum'             : return (
                 <span className="input-wrapper">
                     <DropdownButton title={value || <span className="text-300">No value</span>}
-                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark">
-                        {_.map(enumValues, (val) => this.buildEnumEntry(val))}
+                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
+                        onSelect={this.submitEnumVal}>
+                        {
+                            enumValues.map((val)=>
+                                <DropdownItem key={val} title={val || ''} eventKey={val}>
+                                    {val || ''}
+                                </DropdownItem>
+                            )
+                        }
                     </DropdownButton>
+                </span>
+            );
+            case 'suggested_enum'   : return (
+                <span className="input-wrapper">
+                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue
+                        filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                 </span>
             );
             case 'linked object'    : return <LinkedObj key="linked-item" {...this.props}/>;
@@ -157,16 +175,37 @@ export class BuildField extends React.PureComponent {
         return <div>No field for this case yet.</div>;
     }
 
-    // create a dropdown item corresponding to one enum value
-    buildEnumEntry(val){
+    buildSuggestedEnumEntry(val) {
         return (
-            <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.submitEnumVal}>
+            <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.submitSuggestedEnumVal}>
                 {val || ''}
             </DropdownItem>
         );
     }
 
-    submitEnumVal(eventKey){
+    submitSuggestedEnumVal(eventKey) {
+        const { modifyNewContext, nestedField, fieldType, linkType, arrayIdx, schema } = this.props;
+
+        //eventKey's type is always string, convert it to the proper type defined in schema
+        let value = eventKey;
+        if (schema && schema.type && (typeof schema.type === 'string')) {
+            if (schema.type === 'integer') {
+                value = parseInt(eventKey);
+            } else if (schema.type === 'float') {
+                value = parseFloat(eventKey);
+            } else if (schema.type === 'number') {
+                value = Number(eventKey);
+            } else if (schema.type === 'boolean') {
+                value = (eventKey === 'true');
+            } else {
+                //todo: define other conversion types
+            }
+        }
+
+        modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
+    }
+
+    handleEnumChange(eventKey){
         const { modifyNewContext, nestedField, fieldType, linkType, arrayIdx, schema } = this.props;
 
         //eventKey's type is always string, convert it to the proper type defined in schema
@@ -702,7 +741,7 @@ const PreviewField = React.memo(function PreviewField(props){
 class ArrayField extends React.Component{
 
     static typeOfItems(itemSchema){
-        var fieldType = itemSchema.type ? itemSchema.type : "text";
+        let fieldType = itemSchema.type ? itemSchema.type : "text";
         // transform some types...
         if (fieldType === 'string'){
             fieldType = 'text';
@@ -710,6 +749,9 @@ class ArrayField extends React.Component{
         // check if this is an enum
         if(itemSchema.enum){
             fieldType = 'enum';
+        }
+        if (itemSchema.suggested_enum) {
+            fieldType = 'suggested_enum';
         }
         // handle a linkTo object on the the top level
         if(itemSchema.linkTo){
@@ -771,7 +813,7 @@ class ArrayField extends React.Component{
         }
         const title = fieldSchema.title || 'Item';
         const fieldType = ArrayField.typeOfItems(fieldSchema);
-        const enumValues = fieldSchema.enum ? (fieldSchema.enum || []) : []; // check if this is an enum
+        const enumValues = fieldSchema.enum || fieldSchema.suggested_enum || []; // check if this is an enum
 
         let arrayIdxList;
         if (propArrayIdx){
@@ -892,10 +934,14 @@ class ObjectField extends React.PureComponent {
             } else {
                 fieldValue = null;
             }
+
             let enumValues = [];
+
             // check if this is an enum
             if (fieldType === 'enum'){
-                enumValues = fieldSchema.enum || fieldSchema.suggested_enum || [];
+                enumValues = fieldSchema.enum || [];
+            } else if (fieldType === "suggested_enum") {
+                enumValues = fieldSchema.suggested_enum || [];
             }
             // format field as <this_field>.<next_field> so top level modification
             // happens correctly
