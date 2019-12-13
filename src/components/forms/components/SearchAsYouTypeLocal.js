@@ -75,10 +75,17 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             );
         } else {
             filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
-            if (filteredOptions.length === 0) {
+            if (filteredOptions.length === 0 && allowCustomValue) {
                 optionsHeader = (
                     <React.Fragment>
                         <em className="d-block text-center px-4 py-1">Adding new entry</em>
+                        { optionsHeader }
+                    </React.Fragment>
+                );
+            } else if (filteredOptions.length === 0 && !allowCustomValue) {
+                optionsHeader = (
+                    <React.Fragment>
+                        <em className="d-block text-center px-4 py-1">No results found</em>
                         { optionsHeader }
                     </React.Fragment>
                 );
