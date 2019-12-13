@@ -31,7 +31,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
         this.onDropdownSelect = this.onDropdownSelect.bind(this);
 
         this.state = {
-            currentTextValue : ""
+            currentTextValue : props.initializeWithValue ? (props.value || "") : ""
         };
 
         this.memoized = {
@@ -59,6 +59,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             searchList,
             filterMethod = "startsWith",
             optionsHeader: propOptionsHeader,
+            allowCustomValue,
             ...passProps
         } = this.props;
         const { currentTextValue } = this.state;
@@ -105,7 +106,8 @@ SearchAsYouTypeLocal.propTypes = {
     value : PropTypes.string,
     onChange : PropTypes.func.isRequired,
     filterMethod : PropTypes.string, // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
-    allowCustomValue: PropTypes.bool
+    allowCustomValue: PropTypes.bool,
+    initializeWithValue: PropTypes.bool
 };
 
 
