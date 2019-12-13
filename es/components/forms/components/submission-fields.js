@@ -32,6 +32,8 @@ var _LinkToSelector = require("./LinkToSelector");
 
 var _SearchAsYouTypeLocal = require("./SearchAsYouTypeLocal");
 
+var _SearchAsYouTypeAjax = require("./SearchAsYouTypeAjax");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -285,13 +287,10 @@ function (_React$PureComponent) {
         case 'suggested_enum':
           return _react["default"].createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
-            searchList: enumValues,
+          }, _react["default"].createElement(_SearchAsYouTypeAjax.SearchAsYouTypeAjax, {
             value: value,
-            allowCustomValue: true,
-            filterMethod: "includes",
-            onChange: this.handleEnumChange,
-            maxResults: 3
+            allowCustomValue: false,
+            onChange: this.handleEnumChange
           }));
 
         case 'linked object':
