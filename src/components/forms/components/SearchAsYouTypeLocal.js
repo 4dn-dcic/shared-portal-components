@@ -31,7 +31,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
         this.onDropdownSelect = this.onDropdownSelect.bind(this);
 
         this.state = {
-            currentTextValue : props.value || ""
+            currentTextValue : ""
         };
 
         this.memoized = {

@@ -79,7 +79,7 @@ function (_React$PureComponent) {
     _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
     _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
     _this.state = {
-      currentTextValue: props.value || ""
+      currentTextValue: ""
     };
     _this.memoized = {
       filterOptions: (0, _memoizeOne["default"])(SearchAsYouTypeLocal.filterOptions)
