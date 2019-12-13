@@ -80,7 +80,9 @@ export class CustomColumnController extends React.Component {
             'addHiddenColumn'       : this.addHiddenColumn,
             'removeHiddenColumn'    : this.removeHiddenColumn
         });
-        return React.cloneElement(children, propsToPass);
+        return React.Children.map(children, function(child){
+            return React.cloneElement(child, propsToPass);
+        });
     }
 
 }

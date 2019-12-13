@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.generateNextHref = generateNextHref;
 exports.performFilteringQuery = performFilteringQuery;
 exports.FacetList = void 0;
 
@@ -87,6 +88,81 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
  */
 
 /**
+ * Returns a new href based on current href, current filters, a facet, and term to toggle.
+ * @todo Refactor maybe later. I dont remember what the sub-functions do too well. Could be made more clear.
+ */
+// TODO: FINISH
+function generateNextHref(currentHref, contextFilters, facet, term) {
+  var targetSearchHref = null;
+  var field = facet.field,
+      _facet$aggregation_ty = facet.aggregation_type,
+      aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty;
+
+  var _getStatusAndUnselect = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(toggleTerm, toggleFacet, contextFilters),
+      termStatus = _getStatusAndUnselect.status,
+      unselectHref = _getStatusAndUnselect.href;
+
+  var willUnselect = !!statusAndHref.href; // If present in context.filters, means is selected.
+
+  if (willUnselect) {
+    targetSearchHref = unselectHref;
+  } else {
+    if (aggregation_type === "stats") {
+      // Keep only 1, delete previous occurences
+      // This is only for "range" facets (aggregation_type=stats) where want to ensure that have multiple "date_created.to" values in URL for example.
+      var parts = _url["default"].parse(currentHref, true);
+
+      delete parts.query[field];
+
+      var queryStr = _queryString["default"].stringify(parts.query);
+
+      parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
+
+      var correctedHref = _url["default"].format(parts);
+
+      if (term.key === null) {
+        targetSearchHref = correctedHref; // Keep current, stripped down v.
+      } else {
+        targetSearchHref = (0, _searchFilters.buildSearchHref)(field, term.key, correctedHref);
+      }
+    } else {
+      targetSearchHref = (0, _searchFilters.buildSearchHref)(field, term.key, currentHref);
+    }
+  } // If we have a '#' in URL, add to target URL as well.
+
+
+  var hashFragmentIdx = currentHref.indexOf('#');
+
+  if (hashFragmentIdx > -1 && targetSearchHref.indexOf('#') === -1) {
+    targetSearchHref += currentHref.slice(hashFragmentIdx);
+  } // Ensure only 1 `type` filter is selected at once.
+  // Unselect any other type= filters if setting new one.
+
+
+  if (field === 'type' && !willUnselect) {
+    var _parts = _url["default"].parse(targetSearchHref, true);
+
+    if (Array.isArray(_parts.query.type)) {
+      var types = _parts.query.type;
+
+      if (types.length > 1) {
+        var queryParts = _underscore["default"].clone(_parts.query);
+
+        delete queryParts[""]; // Safety
+
+        queryParts.type = encodeURIComponent(term.key); // Only 1 Item type selected at once.
+
+        var searchString = _queryString["default"].stringify(queryParts);
+
+        _parts.search = searchString && searchString.length > 0 ? '?' + searchString : '';
+        targetSearchHref = _url["default"].format(_parts);
+      }
+    }
+  }
+
+  return targetSearchHref;
+}
+/**
  * Use this function as part of SearchView and BrowseView to be passed down to FacetList.
  * Should be bound to a component instance, with `this` providing 'href', 'context' (with 'filters' property), and 'navigate'.
  *
@@ -98,6 +174,8 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
  * @param {function} callback - Any function to execute afterwards.
  * @param {boolean} [skipNavigation=false] - If true, will return next targetSearchHref instead of going to it. Use to e.g. batch up filter changes on multiple fields.
  */
+
+
 function performFilteringQuery(props, facet, term, callback) {
   var skipNavigation = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
   var currentHref = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
@@ -114,6 +192,8 @@ function performFilteringQuery(props, facet, term, callback) {
   } else {
     if (facet.aggregation_type === "stats") {
       // Keep only 1, delete previous occurences
+      _patchedConsole.patchedConsoleInstance.log("TOUCH");
+
       var parts = _url["default"].parse(currentHref, true);
 
       delete parts.query[facet.field];
@@ -137,13 +217,13 @@ function performFilteringQuery(props, facet, term, callback) {
 
   if (facet.field === 'type') {
     if (!statusAndHref.href) {
-      var _parts = _url["default"].parse(targetSearchHref, true);
+      var _parts2 = _url["default"].parse(targetSearchHref, true);
 
-      if (Array.isArray(_parts.query.type)) {
-        var types = _parts.query.type;
+      if (Array.isArray(_parts2.query.type)) {
+        var types = _parts2.query.type;
 
         if (types.length > 1) {
-          var queryParts = _underscore["default"].clone(_parts.query);
+          var queryParts = _underscore["default"].clone(_parts2.query);
 
           delete queryParts[""]; // Safety
 
@@ -151,8 +231,8 @@ function performFilteringQuery(props, facet, term, callback) {
 
           var searchString = _queryString["default"].stringify(queryParts);
 
-          _parts.search = searchString && searchString.length > 0 ? '?' + searchString : '';
-          targetSearchHref = _url["default"].format(_parts);
+          _parts2.search = searchString && searchString.length > 0 ? '?' + searchString : '';
+          targetSearchHref = _url["default"].format(_parts2);
         }
       }
     }
@@ -285,8 +365,8 @@ function (_React$PureComponent) {
         var _facet$grouping = facet.grouping,
             grouping = _facet$grouping === void 0 ? null : _facet$grouping,
             facetField = facet.field,
-            _facet$aggregation_ty = facet.aggregation_type,
-            aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty; // Default Open if mounted and:
+            _facet$aggregation_ty2 = facet.aggregation_type,
+            aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2; // Default Open if mounted and:
 
         var defaultFacetOpen = !mounted ? false : !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1));
 

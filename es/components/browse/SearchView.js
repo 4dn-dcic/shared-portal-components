@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.StickyFooter = StickyFooter;
-exports.SearchView = exports.SearchControllersContainer = void 0;
+exports.SearchView = exports.WindowNavigationController = exports.SearchControllersContainer = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -58,15 +58,15 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -152,7 +152,8 @@ function (_React$PureComponent) {
   }]);
 
   return SearchControllersContainer;
-}(_react["default"].PureComponent);
+}(_react["default"].PureComponent); // TODO: FINISH
+
 
 exports.SearchControllersContainer = SearchControllersContainer;
 
@@ -161,10 +162,56 @@ _defineProperty(SearchControllersContainer, "defaultProps", {
   'columns': null
 });
 
-var ControlsAndResults =
+var WindowNavigationController =
 /*#__PURE__*/
 function (_React$PureComponent2) {
-  _inherits(ControlsAndResults, _React$PureComponent2);
+  _inherits(WindowNavigationController, _React$PureComponent2);
+
+  function WindowNavigationController(props) {
+    var _this2;
+
+    _classCallCheck(this, WindowNavigationController);
+
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(WindowNavigationController).call(this, props));
+    _this2.onFilter = _this2.onFilter.bind(_assertThisInitialized(_this2));
+    _this2.getTermStatus = _this2.getTermStatus.bind(_assertThisInitialized(_this2));
+    return _this2;
+  }
+
+  _createClass(WindowNavigationController, [{
+    key: "onFilter",
+    value: function onFilter(facet, term, callback) {
+      var skipNavigation = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      var currentHref = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+      (0, _FacetList.performFilteringQuery)(this.props, facet, term, callback, skipNavigation, currentHref);
+    }
+  }, {
+    key: "getTermStatus",
+    value: function getTermStatus(term, facet) {
+      return (0, _searchFilters.getTermFacetStatus)(term, facet, this.props);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props2 = this.props,
+          children = _this$props2.children,
+          passProps = _objectWithoutProperties(_this$props2, ["children"]);
+
+      return _react["default"].Children.map(children, function (child) {
+        return _react["default"].cloneElement(child, propsToPass);
+      });
+    }
+  }]);
+
+  return WindowNavigationController;
+}(_react["default"].PureComponent);
+
+exports.WindowNavigationController = WindowNavigationController;
+
+var ControlsAndResults =
+/*#__PURE__*/
+function (_React$PureComponent3) {
+  _inherits(ControlsAndResults, _React$PureComponent3);
 
   _createClass(ControlsAndResults, null, [{
     key: "searchItemTypesFromHref",
@@ -201,26 +248,26 @@ function (_React$PureComponent2) {
   }]);
 
   function ControlsAndResults(props) {
-    var _this2;
+    var _this3;
 
     _classCallCheck(this, ControlsAndResults);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ControlsAndResults).call(this, props));
-    _this2.forceUpdateOnSelf = _this2.forceUpdateOnSelf.bind(_assertThisInitialized(_this2));
-    _this2.handleClearFilters = _this2.handleClearFilters.bind(_assertThisInitialized(_this2));
-    _this2.columnExtensionMapWithSelectButton = _this2.columnExtensionMapWithSelectButton.bind(_assertThisInitialized(_this2));
-    _this2.renderSearchDetailPane = _this2.renderSearchDetailPane.bind(_assertThisInitialized(_this2));
-    _this2.memoized = {
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(ControlsAndResults).call(this, props));
+    _this3.forceUpdateOnSelf = _this3.forceUpdateOnSelf.bind(_assertThisInitialized(_this3));
+    _this3.handleClearFilters = _this3.handleClearFilters.bind(_assertThisInitialized(_this3));
+    _this3.columnExtensionMapWithSelectButton = _this3.columnExtensionMapWithSelectButton.bind(_assertThisInitialized(_this3));
+    _this3.renderSearchDetailPane = _this3.renderSearchDetailPane.bind(_assertThisInitialized(_this3));
+    _this3.memoized = {
       searchItemTypesFromHref: (0, _memoizeOne["default"])(ControlsAndResults.searchItemTypesFromHref)
     };
-    _this2.searchResultTableRef = _react["default"].createRef();
-    return _this2;
+    _this3.searchResultTableRef = _react["default"].createRef();
+    return _this3;
   }
 
   _createClass(ControlsAndResults, [{
     key: "columnExtensionMapWithSelectButton",
     value: function columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType) {
-      var _this3 = this;
+      var _this4 = this;
 
       var inSelectionMode = (0, _misc.isSelectAction)(currentAction);
 
@@ -241,13 +288,13 @@ function (_React$PureComponent2) {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
             //set select click handler according to currentAction type (selection or multiselect)
-            var selectedItems = _this3.state.selectedItems;
+            var selectedItems = _this4.state.selectedItems;
             var isChecked = selectedItems.has(_object.itemUtil.atId(result));
 
             var checkBoxControl = _react["default"].createElement("input", {
               type: "checkbox",
               checked: isChecked,
-              onChange: _this3.handleSelectItemClick.bind(_this3, result, currentAction === 'multiselect'),
+              onChange: _this4.handleSelectItemClick.bind(_this4, result, currentAction === 'multiselect'),
               className: "mr-2"
             });
 
@@ -278,10 +325,10 @@ function (_React$PureComponent2) {
       var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       evt.preventDefault();
       evt.stopPropagation();
-      var _this$props2 = this.props,
-          href = _this$props2.href,
-          context = _this$props2.context,
-          propNavigate = _this$props2.navigate;
+      var _this$props3 = this.props,
+          href = _this$props3.href,
+          context = _this$props3.context,
+          propNavigate = _this$props3.navigate;
       var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
 
       if (!clearFiltersURL) {
@@ -302,9 +349,9 @@ function (_React$PureComponent2) {
   }, {
     key: "isClearFiltersBtnVisible",
     value: function isClearFiltersBtnVisible() {
-      var _this$props3 = this.props,
-          href = _this$props3.href,
-          context = _this$props3.context;
+      var _this$props4 = this.props,
+          href = _this$props4.href,
+          context = _this$props4.context;
 
       var urlPartsQuery = _url["default"].parse(href, true).query;
 
@@ -317,10 +364,10 @@ function (_React$PureComponent2) {
   }, {
     key: "renderSearchDetailPane",
     value: function renderSearchDetailPane(result, rowNumber, containerWidth, propsFromTable) {
-      var _this$props4 = this.props,
-          renderDetailPane = _this$props4.renderDetailPane,
-          windowWidth = _this$props4.windowWidth,
-          schemas = _this$props4.schemas;
+      var _this$props5 = this.props,
+          renderDetailPane = _this$props5.renderDetailPane,
+          windowWidth = _this$props5.windowWidth,
+          schemas = _this$props5.schemas;
 
       if (typeof renderDetailPane === "function") {
         return renderDetailPane(result, rowNumber, containerWidth, _objectSpread({}, propsFromTable, {
@@ -340,20 +387,20 @@ function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props5 = this.props,
-          context = _this$props5.context,
-          schemas = _this$props5.schemas,
-          hiddenColumns = _this$props5.hiddenColumns,
-          columnDefinitions = _this$props5.columnDefinitions,
-          currentAction = _this$props5.currentAction,
-          href = _this$props5.href,
-          propFacets = _this$props5.facets,
-          tableColumnClassName = _this$props5.tableColumnClassName,
-          facetColumnClassName = _this$props5.facetColumnClassName,
-          _this$props5$selected = _this$props5.selectedItems,
-          selectedItems = _this$props5$selected === void 0 ? null : _this$props5$selected,
-          onCompleteSelection = _this$props5.onCompleteSelection,
-          onCancelSelection = _this$props5.onCancelSelection;
+      var _this$props6 = this.props,
+          context = _this$props6.context,
+          schemas = _this$props6.schemas,
+          hiddenColumns = _this$props6.hiddenColumns,
+          columnDefinitions = _this$props6.columnDefinitions,
+          currentAction = _this$props6.currentAction,
+          href = _this$props6.href,
+          propFacets = _this$props6.facets,
+          tableColumnClassName = _this$props6.tableColumnClassName,
+          facetColumnClassName = _this$props6.facetColumnClassName,
+          _this$props6$selected = _this$props6.selectedItems,
+          selectedItems = _this$props6$selected === void 0 ? null : _this$props6$selected,
+          onCompleteSelection = _this$props6.onCompleteSelection,
+          onCancelSelection = _this$props6.onCancelSelection;
       var results = context["@graph"],
           contextFacets = context.facets,
           filters = context.filters,
@@ -419,8 +466,8 @@ function (_React$PureComponent2) {
 
 var SearchView =
 /*#__PURE__*/
-function (_React$PureComponent3) {
-  _inherits(SearchView, _React$PureComponent3);
+function (_React$PureComponent4) {
+  _inherits(SearchView, _React$PureComponent4);
 
   function SearchView() {
     _classCallCheck(this, SearchView);
@@ -448,12 +495,12 @@ function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props6 = this.props,
-          propFacets = _this$props6.facets,
-          propNavigate = _this$props6.navigate,
-          href = _this$props6.href,
-          context = _this$props6.context,
-          schemas = _this$props6.schemas;
+      var _this$props7 = this.props,
+          propFacets = _this$props7.facets,
+          propNavigate = _this$props7.navigate,
+          href = _this$props7.href,
+          context = _this$props7.context,
+          schemas = _this$props7.schemas;
       var searchItemType = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context);
       return _react["default"].createElement("div", {
         className: "search-page-container",

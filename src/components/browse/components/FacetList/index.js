@@ -37,6 +37,66 @@ import { FacetOfFacets } from './FacetOfFacets';
  */
 
 
+/**
+ * Returns a new href based on current href, current filters, a facet, and term to toggle.
+ * @todo Refactor maybe later. I dont remember what the sub-functions do too well. Could be made more clear.
+ */
+// TODO: FINISH
+export function generateNextHref(currentHref, contextFilters, facet, term){
+    let targetSearchHref = null;
+
+    const { field, aggregation_type = "terms" } = facet;
+    const { status: termStatus, href: unselectHref } = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(toggleTerm, toggleFacet, contextFilters);
+    const willUnselect = !!(statusAndHref.href); // If present in context.filters, means is selected.
+
+    if (willUnselect) {
+        targetSearchHref = unselectHref;
+    } else {
+        if (aggregation_type === "stats") {
+            // Keep only 1, delete previous occurences
+            // This is only for "range" facets (aggregation_type=stats) where want to ensure that have multiple "date_created.to" values in URL for example.
+            const parts = url.parse(currentHref, true);
+            delete parts.query[field];
+            const queryStr = queryString.stringify(parts.query);
+            parts.search = queryStr && queryStr.length > 0 ? ('?' + queryStr) : '';
+            const correctedHref = url.format(parts);
+            if (term.key === null) {
+                targetSearchHref = correctedHref; // Keep current, stripped down v.
+            } else {
+                targetSearchHref = buildSearchHref(field, term.key, correctedHref);
+            }
+        } else {
+            targetSearchHref = buildSearchHref(field, term.key, currentHref);
+        }
+    }
+
+    // If we have a '#' in URL, add to target URL as well.
+    const hashFragmentIdx = currentHref.indexOf('#');
+    if (hashFragmentIdx > -1 && targetSearchHref.indexOf('#') === -1){
+        targetSearchHref += currentHref.slice(hashFragmentIdx);
+    }
+
+
+    // Ensure only 1 `type` filter is selected at once.
+    // Unselect any other type= filters if setting new one.
+    if (field === 'type' && !willUnselect){
+        const parts = url.parse(targetSearchHref, true);
+        if (Array.isArray(parts.query.type)){
+            const types = parts.query.type;
+            if (types.length > 1){
+                const queryParts = _.clone(parts.query);
+                delete queryParts[""]; // Safety
+                queryParts.type = encodeURIComponent(term.key); // Only 1 Item type selected at once.
+                const searchString = queryString.stringify(queryParts);
+                parts.search = searchString && searchString.length > 0 ? ('?' + searchString) : '';
+                targetSearchHref = url.format(parts);
+            }
+        }
+    }
+
+    return targetSearchHref;
+}
+
 
 
 /**
@@ -64,6 +124,7 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
         targetSearchHref = statusAndHref.href;
     } else {
         if (facet.aggregation_type === "stats") { // Keep only 1, delete previous occurences
+            console.log("TOUCH");
             const parts = url.parse(currentHref, true);
             delete parts.query[facet.field];
             const queryStr = queryString.stringify(parts.query);

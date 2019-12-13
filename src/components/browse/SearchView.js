@@ -80,6 +80,34 @@ export class SearchControllersContainer extends React.PureComponent {
 
 }
 
+// TODO: FINISH
+export class WindowNavigationController extends React.PureComponent {
+
+    constructor(props){
+        super(props);
+        this.onFilter = this.onFilter.bind(this);
+        this.getTermStatus = this.getTermStatus.bind(this);
+    }
+
+    onFilter(facet, term, callback, skipNavigation = false, currentHref = null){
+        performFilteringQuery(this.props, facet, term, callback, skipNavigation, currentHref);
+    }
+
+    getTermStatus(term, facet){
+        return getTermFacetStatus(term, facet, this.props);
+    }
+
+    render(){
+        const { children, ...passProps } = this.props;
+
+        return React.Children.map(children, function(child){
+            return React.cloneElement(child, propsToPass);
+        });
+    }
+}
+
+
+
 
 class ControlsAndResults extends React.PureComponent {
 

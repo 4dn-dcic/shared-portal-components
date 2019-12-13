@@ -145,7 +145,9 @@ function (_React$Component) {
         'removeHiddenColumn': this.removeHiddenColumn
       });
 
-      return _react["default"].cloneElement(children, propsToPass);
+      return _react["default"].Children.map(children, function (child) {
+        return _react["default"].cloneElement(child, propsToPass);
+      });
     }
   }]);
 
