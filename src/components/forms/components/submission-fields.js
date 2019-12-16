@@ -149,7 +149,7 @@ export class BuildField extends React.PureComponent {
                 <span className="input-wrapper">
                     <DropdownButton title={value || <span className="text-300">No value</span>}
                         onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
-                        onSelect={this.submitEnumVal}>
+                        onSelect={this.handleEnumChange}>
                         {
                             enumValues.map((val)=>
                                 <DropdownItem key={val} title={val || ''} eventKey={val}>

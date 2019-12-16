@@ -275,7 +275,7 @@ function (_React$PureComponent) {
             }, "No value"),
             onToggle: this.handleDropdownButtonToggle,
             variant: "outline-dark",
-            onSelect: this.submitEnumVal
+            onSelect: this.handleEnumChange
           }, enumValues.map(function (val) {
             return _react["default"].createElement(_reactBootstrap.DropdownItem, {
               key: val,

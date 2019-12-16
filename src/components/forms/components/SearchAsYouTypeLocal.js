@@ -31,7 +31,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
         this.onDropdownSelect = this.onDropdownSelect.bind(this);
 
         this.state = {
-            currentTextValue : props.value || ""
+            currentTextValue : props.initializeWithValue ? (props.value || "") : ""
         };
 
         this.memoized = {
@@ -59,6 +59,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             searchList,
             filterMethod = "startsWith",
             optionsHeader: propOptionsHeader,
+            allowCustomValue,
             ...passProps
         } = this.props;
         const { currentTextValue } = this.state;
@@ -75,10 +76,17 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             );
         } else {
             filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
-            if (filteredOptions.length === 0) {
+            if (filteredOptions.length === 0 && allowCustomValue) {
                 optionsHeader = (
                     <React.Fragment>
                         <em className="d-block text-center px-4 py-1">Adding new entry</em>
+                        { optionsHeader }
+                    </React.Fragment>
+                );
+            } else if (filteredOptions.length === 0 && !allowCustomValue) {
+                optionsHeader = (
+                    <React.Fragment>
+                        <em className="d-block text-center px-4 py-1">No results found</em>
                         { optionsHeader }
                     </React.Fragment>
                 );
@@ -98,7 +106,8 @@ SearchAsYouTypeLocal.propTypes = {
     value : PropTypes.string,
     onChange : PropTypes.func.isRequired,
     filterMethod : PropTypes.string, // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
-    allowCustomValue: PropTypes.bool
+    allowCustomValue: PropTypes.bool,
+    initializeWithValue: PropTypes.bool
 };
 
 
