@@ -328,7 +328,7 @@ function (_React$PureComponent) {
         field: facet.field + ".from"
       }), {
         key: fromVal
-      }, null, false);
+      });
     }
   }, {
     key: "performUpdateTo",
@@ -341,7 +341,7 @@ function (_React$PureComponent) {
         field: facet.field + ".to"
       }), {
         key: toVal
-      }, null, false);
+      });
     }
   }, {
     key: "resetFrom",

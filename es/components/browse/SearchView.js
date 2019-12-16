@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StickyFooter = StickyFooter;
-exports.SearchView = exports.WindowNavigationController = exports.SearchControllersContainer = void 0;
+exports.SearchControllersContainer = SearchControllersContainer;
+exports.SearchView = exports.WindowNavigationController = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -58,17 +58,17 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -86,7 +86,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 /**
  * Provides callbacks for FacetList to filter on term click and check if a term is selected by interfacing with the
@@ -97,105 +97,118 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  *
  * Passes other props down to ControlsAndResults.
  */
-var SearchControllersContainer =
-/*#__PURE__*/
-function (_React$PureComponent) {
-  _inherits(SearchControllersContainer, _React$PureComponent);
+function SearchControllersContainer(props) {
+  // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
+  // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
+  var context = props.context,
+      href = props.href,
+      _props$columns = props.columns,
+      columns = _props$columns === void 0 ? null : _props$columns,
+      columnExtensionMap = props.columnExtensionMap,
+      currentAction = props.currentAction,
+      _props$navigate = props.navigate,
+      propNavigate = _props$navigate === void 0 ? _navigate.navigate : _props$navigate; // All these controllers pass props down to their children.
+  // So we don't need to be repetitive here; i.e. may assume 'context' is available
+  // in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
 
-  function SearchControllersContainer(props) {
-    var _this;
+  var controllersAndView = _react["default"].createElement(WindowNavigationController, _extends({
+    href: href,
+    context: context
+  }, {
+    navigate: propNavigate
+  }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
+    columns: columns,
+    columnExtensionMap: columnExtensionMap
+  }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(ControlsAndResults, props)))));
 
-    _classCallCheck(this, SearchControllersContainer);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SearchControllersContainer).call(this, props));
-    _this.onFilter = _this.onFilter.bind(_assertThisInitialized(_this));
-    _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
-    return _this;
+  if ((0, _misc.isSelectAction)(currentAction)) {
+    controllersAndView = _react["default"].createElement(_SelectedItemsController.SelectedItemsController, null, controllersAndView);
   }
 
-  _createClass(SearchControllersContainer, [{
-    key: "onFilter",
-    value: function onFilter(facet, term, callback) {
-      var skipNavigation = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      var currentHref = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-      (0, _FacetList.performFilteringQuery)(this.props, facet, term, callback, skipNavigation, currentHref);
-    }
-  }, {
-    key: "getTermStatus",
-    value: function getTermStatus(term, facet) {
-      return (0, _searchFilters.getTermFacetStatus)(term, facet, this.props);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props = this.props,
-          context = _this$props.context,
-          columns = _this$props.columns,
-          columnExtensionMap = _this$props.columnExtensionMap,
-          currentAction = _this$props.currentAction;
+  return controllersAndView;
+}
 
-      var controllersAndView = _react["default"].createElement(_tableCommons.ColumnCombiner, {
-        context: context,
-        columns: columns,
-        columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, _underscore["default"].pick(this.props, 'href', 'context', 'navigate'), _react["default"].createElement(ControlsAndResults, _extends({}, this.props, {
-        getTermStatus: this.getTermStatus,
-        onFilter: this.onFilter
-      })))));
-
-      if ((0, _misc.isSelectAction)(currentAction)) {
-        controllersAndView = _react["default"].createElement(_SelectedItemsController.SelectedItemsController, null, controllersAndView);
-      }
-
-      return controllersAndView;
-    }
-  }]);
-
-  return SearchControllersContainer;
-}(_react["default"].PureComponent); // TODO: FINISH
-
-
-exports.SearchControllersContainer = SearchControllersContainer;
-
-_defineProperty(SearchControllersContainer, "defaultProps", {
+SearchControllersContainer.defaultProps = {
   'navigate': _navigate.navigate,
   'columns': null
-});
+}; // TODO: FINISH
 
 var WindowNavigationController =
 /*#__PURE__*/
-function (_React$PureComponent2) {
-  _inherits(WindowNavigationController, _React$PureComponent2);
+function (_React$PureComponent) {
+  _inherits(WindowNavigationController, _React$PureComponent);
 
   function WindowNavigationController(props) {
-    var _this2;
+    var _this;
 
     _classCallCheck(this, WindowNavigationController);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(WindowNavigationController).call(this, props));
-    _this2.onFilter = _this2.onFilter.bind(_assertThisInitialized(_this2));
-    _this2.getTermStatus = _this2.getTermStatus.bind(_assertThisInitialized(_this2));
-    return _this2;
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(WindowNavigationController).call(this, props));
+    _this.onFilter = _this.onFilter.bind(_assertThisInitialized(_this));
+    _this.onClearFilters = _this.onClearFilters.bind(_assertThisInitialized(_this));
+    _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
+    return _this;
   }
 
   _createClass(WindowNavigationController, [{
     key: "onFilter",
     value: function onFilter(facet, term, callback) {
-      var skipNavigation = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      var currentHref = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-      (0, _FacetList.performFilteringQuery)(this.props, facet, term, callback, skipNavigation, currentHref);
+      var _this$props = this.props,
+          href = _this$props.href,
+          _this$props$navigate = _this$props.navigate,
+          propNavigate = _this$props$navigate === void 0 ? _navigate.navigate : _this$props$navigate,
+          contextFilters = _this$props.context.filters;
+      return propNavigate((0, _FacetList.generateNextHref)(href, contextFilters, facet, term), {
+        'dontScrollToTop': true
+      }, typeof callback === "function" ? callback : null);
+    }
+  }, {
+    key: "onClearFilters",
+    value: function onClearFilters() {
+      var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var _this$props2 = this.props,
+          href = _this$props2.href,
+          _this$props2$navigate = _this$props2.navigate,
+          propNavigate = _this$props2$navigate === void 0 ? _navigate.navigate : _this$props2$navigate,
+          _this$props2$context$ = _this$props2.context.clear_filters,
+          clearFiltersURLOriginal = _this$props2$context$ === void 0 ? null : _this$props2$context$;
+      var clearFiltersURL = clearFiltersURLOriginal;
+
+      if (!clearFiltersURL) {
+        _patchedConsole.patchedConsoleInstance.error("No Clear Filters URL");
+
+        return;
+      } // If we have a '#' in URL, add to target URL as well.
+
+
+      var hashFragmentIdx = href.indexOf('#');
+
+      if (hashFragmentIdx > -1 && clearFiltersURL.indexOf('#') === -1) {
+        clearFiltersURL += href.slice(hashFragmentIdx);
+      }
+
+      propNavigate(clearFiltersURL, {}, typeof callback === 'function' ? callback : null);
     }
   }, {
     key: "getTermStatus",
     value: function getTermStatus(term, facet) {
-      return (0, _searchFilters.getTermFacetStatus)(term, facet, this.props);
+      var filters = this.props.context.filters;
+      return (0, _searchFilters.getTermFacetStatus)(term, facet, filters);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          children = _this$props2.children,
-          passProps = _objectWithoutProperties(_this$props2, ["children"]);
+      var _this$props3 = this.props,
+          children = _this$props3.children,
+          passProps = _objectWithoutProperties(_this$props3, ["children"]);
+
+      _patchedConsole.patchedConsoleInstance.log("PROPS", passProps);
+
+      var propsToPass = _objectSpread({}, passProps, {
+        onFilter: this.onFilter,
+        onClearFilters: this.onClearFilters,
+        getTermStatus: this.getTermStatus
+      });
 
       return _react["default"].Children.map(children, function (child) {
         return _react["default"].cloneElement(child, propsToPass);
@@ -210,8 +223,8 @@ exports.WindowNavigationController = WindowNavigationController;
 
 var ControlsAndResults =
 /*#__PURE__*/
-function (_React$PureComponent3) {
-  _inherits(ControlsAndResults, _React$PureComponent3);
+function (_React$PureComponent2) {
+  _inherits(ControlsAndResults, _React$PureComponent2);
 
   _createClass(ControlsAndResults, null, [{
     key: "searchItemTypesFromHref",
@@ -245,29 +258,40 @@ function (_React$PureComponent3) {
         abstractType: abstractType
       };
     }
+  }, {
+    key: "isClearFiltersBtnVisible",
+    value: function isClearFiltersBtnVisible(href, context) {
+      var urlPartsQuery = _url["default"].parse(href, true).query || {};
+      var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
+
+      var clearFiltersURLQuery = clearFiltersURL && _url["default"].parse(clearFiltersURL, true).query;
+
+      return !!(clearFiltersURLQuery && !_underscore["default"].isEqual(clearFiltersURLQuery, urlPartsQuery));
+    }
   }]);
 
   function ControlsAndResults(props) {
-    var _this3;
+    var _this2;
 
     _classCallCheck(this, ControlsAndResults);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(ControlsAndResults).call(this, props));
-    _this3.forceUpdateOnSelf = _this3.forceUpdateOnSelf.bind(_assertThisInitialized(_this3));
-    _this3.handleClearFilters = _this3.handleClearFilters.bind(_assertThisInitialized(_this3));
-    _this3.columnExtensionMapWithSelectButton = _this3.columnExtensionMapWithSelectButton.bind(_assertThisInitialized(_this3));
-    _this3.renderSearchDetailPane = _this3.renderSearchDetailPane.bind(_assertThisInitialized(_this3));
-    _this3.memoized = {
-      searchItemTypesFromHref: (0, _memoizeOne["default"])(ControlsAndResults.searchItemTypesFromHref)
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ControlsAndResults).call(this, props));
+    _this2.forceUpdateOnSelf = _this2.forceUpdateOnSelf.bind(_assertThisInitialized(_this2));
+    _this2.onClearFiltersClick = _this2.onClearFiltersClick.bind(_assertThisInitialized(_this2));
+    _this2.columnExtensionMapWithSelectButton = _this2.columnExtensionMapWithSelectButton.bind(_assertThisInitialized(_this2));
+    _this2.renderSearchDetailPane = _this2.renderSearchDetailPane.bind(_assertThisInitialized(_this2));
+    _this2.memoized = {
+      searchItemTypesFromHref: (0, _memoizeOne["default"])(ControlsAndResults.searchItemTypesFromHref),
+      isClearFiltersBtnVisible: (0, _memoizeOne["default"])(ControlsAndResults.isClearFiltersBtnVisible)
     };
-    _this3.searchResultTableRef = _react["default"].createRef();
-    return _this3;
+    _this2.searchResultTableRef = _react["default"].createRef();
+    return _this2;
   }
 
   _createClass(ControlsAndResults, [{
     key: "columnExtensionMapWithSelectButton",
     value: function columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType) {
-      var _this4 = this;
+      var _this3 = this;
 
       var inSelectionMode = (0, _misc.isSelectAction)(currentAction);
 
@@ -288,13 +312,13 @@ function (_React$PureComponent3) {
           'minColumnWidth': 120,
           'render': function render(result, columnDefinition, props, width) {
             //set select click handler according to currentAction type (selection or multiselect)
-            var selectedItems = _this4.state.selectedItems;
+            var selectedItems = _this3.state.selectedItems;
             var isChecked = selectedItems.has(_object.itemUtil.atId(result));
 
             var checkBoxControl = _react["default"].createElement("input", {
               type: "checkbox",
               checked: isChecked,
-              onChange: _this4.handleSelectItemClick.bind(_this4, result, currentAction === 'multiselect'),
+              onChange: _this3.handleSelectItemClick.bind(_this3, result, currentAction === 'multiselect'),
               className: "mr-2"
             });
 
@@ -320,54 +344,21 @@ function (_React$PureComponent3) {
       return dimContainer && dimContainer.resetWidths();
     }
   }, {
-    key: "handleClearFilters",
-    value: function handleClearFilters(evt) {
+    key: "onClearFiltersClick",
+    value: function onClearFiltersClick(evt) {
       var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var onClearFilters = this.props.onClearFilters;
       evt.preventDefault();
       evt.stopPropagation();
-      var _this$props3 = this.props,
-          href = _this$props3.href,
-          context = _this$props3.context,
-          propNavigate = _this$props3.navigate;
-      var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
-
-      if (!clearFiltersURL) {
-        _patchedConsole.patchedConsoleInstance.error("No Clear Filters URL");
-
-        return;
-      } // If we have a '#' in URL, add to target URL as well.
-
-
-      var hashFragmentIdx = href.indexOf('#');
-
-      if (hashFragmentIdx > -1 && clearFiltersURL.indexOf('#') === -1) {
-        clearFiltersURL += href.slice(hashFragmentIdx);
-      }
-
-      propNavigate(clearFiltersURL, {}, typeof callback === 'function' ? callback : null);
-    }
-  }, {
-    key: "isClearFiltersBtnVisible",
-    value: function isClearFiltersBtnVisible() {
-      var _this$props4 = this.props,
-          href = _this$props4.href,
-          context = _this$props4.context;
-
-      var urlPartsQuery = _url["default"].parse(href, true).query;
-
-      var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
-
-      var clearFiltersURLQuery = clearFiltersURL && _url["default"].parse(clearFiltersURL, true).query;
-
-      return !!(clearFiltersURLQuery && !_underscore["default"].isEqual(clearFiltersURLQuery, urlPartsQuery));
+      onClearFilters(callback);
     }
   }, {
     key: "renderSearchDetailPane",
     value: function renderSearchDetailPane(result, rowNumber, containerWidth, propsFromTable) {
-      var _this$props5 = this.props,
-          renderDetailPane = _this$props5.renderDetailPane,
-          windowWidth = _this$props5.windowWidth,
-          schemas = _this$props5.schemas;
+      var _this$props4 = this.props,
+          renderDetailPane = _this$props4.renderDetailPane,
+          windowWidth = _this$props4.windowWidth,
+          schemas = _this$props4.schemas;
 
       if (typeof renderDetailPane === "function") {
         return renderDetailPane(result, rowNumber, containerWidth, _objectSpread({}, propsFromTable, {
@@ -384,72 +375,115 @@ function (_React$PureComponent3) {
         windowWidth: windowWidth
       });
     }
+    /**
+     * Expands `this.props` and feeds them into appropriate places in view.
+     * Derives some info using memoized fxns.
+     */
+
   }, {
     key: "render",
     value: function render() {
-      var _this$props6 = this.props,
-          context = _this$props6.context,
-          schemas = _this$props6.schemas,
-          hiddenColumns = _this$props6.hiddenColumns,
-          columnDefinitions = _this$props6.columnDefinitions,
-          currentAction = _this$props6.currentAction,
-          href = _this$props6.href,
-          propFacets = _this$props6.facets,
-          tableColumnClassName = _this$props6.tableColumnClassName,
-          facetColumnClassName = _this$props6.facetColumnClassName,
-          _this$props6$selected = _this$props6.selectedItems,
-          selectedItems = _this$props6$selected === void 0 ? null : _this$props6$selected,
-          onCompleteSelection = _this$props6.onCompleteSelection,
-          onCancelSelection = _this$props6.onCancelSelection;
+      var _this$props5 = this.props,
+          context = _this$props5.context,
+          schemas = _this$props5.schemas,
+          currentAction = _this$props5.currentAction,
+          windowWidth = _this$props5.windowWidth,
+          windowHeight = _this$props5.windowHeight,
+          registerWindowOnScrollHandler = _this$props5.registerWindowOnScrollHandler,
+          session = _this$props5.session,
+          isFullscreen = _this$props5.isFullscreen,
+          toggleFullScreen = _this$props5.toggleFullScreen,
+          facets = _this$props5.facets,
+          facetColumnClassName = _this$props5.facetColumnClassName,
+          tableColumnClassName = _this$props5.tableColumnClassName,
+          termTransformFxn = _this$props5.termTransformFxn,
+          rowHeight = _this$props5.rowHeight,
+          separateSingleTermFacets = _this$props5.separateSingleTermFacets,
+          topLeftChildren = _this$props5.topLeftChildren,
+          href = _this$props5.href,
+          onFilter = _this$props5.onFilter,
+          hiddenColumns = _this$props5.hiddenColumns,
+          addHiddenColumn = _this$props5.addHiddenColumn,
+          removeHiddenColumn = _this$props5.removeHiddenColumn,
+          columnDefinitions = _this$props5.columnDefinitions,
+          _this$props5$selected = _this$props5.selectedItems,
+          selectedItems = _this$props5$selected === void 0 ? null : _this$props5$selected,
+          onCompleteSelection = _this$props5.onCompleteSelection,
+          onCancelSelection = _this$props5.onCancelSelection,
+          sortBy = _this$props5.sortBy,
+          sortColumn = _this$props5.sortColumn,
+          sortReverse = _this$props5.sortReverse; // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
+
       var results = context["@graph"],
-          contextFacets = context.facets,
           filters = context.filters,
           _context$total = context.total,
-          totalResultCount = _context$total === void 0 ? 0 : _context$total; // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
-
-      var facets = propFacets || contextFacets;
+          showTotalResults = _context$total === void 0 ? 0 : _context$total; // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
 
       var _this$memoized$search = this.memoized.searchItemTypesFromHref(href, schemas),
-          specificType = _this$memoized$search.specificType,
-          abstractType = _this$memoized$search.abstractType; //const selfExtendedColumnExtensionMap  = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
-      //const columnDefinitions               = columnsToColumnDefinitions(context.columns || {}, selfExtendedColumnExtensionMap);
+          itemTypeForSchemas = _this$memoized$search.specificType,
+          abstractType = _this$memoized$search.abstractType;
 
-
-      var searchResultTableProps = _underscore["default"].extend({
-        context: context,
-        href: href,
-        currentAction: currentAction,
-        schemas: schemas,
-        hiddenColumns: hiddenColumns,
-        results: results,
-        columnDefinitions: columnDefinitions
-      }, _underscore["default"].pick(this.props, 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'windowWidth', 'registerWindowOnScrollHandler', 'rowHeight'));
-
+      var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context);
       return _react["default"].createElement("div", {
         className: "row"
       }, facets.length ? _react["default"].createElement("div", {
         className: facetColumnClassName
       }, _react["default"].createElement("div", {
         className: "above-results-table-row"
-      }), _react["default"].createElement(_FacetList.FacetList, _extends({
-        className: "with-header-bg",
+      }), _react["default"].createElement(_FacetList.FacetList, _extends({}, {
         facets: facets,
         filters: filters,
-        onClearFilters: this.handleClearFilters,
-        itemTypeForSchemas: specificType,
-        showClearFiltersButton: this.isClearFiltersBtnVisible()
-      }, _underscore["default"].pick(this.props, 'getTermStatus', 'schemas', 'session', 'onFilter', 'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')))) : null, _react["default"].createElement("div", {
+        itemTypeForSchemas: itemTypeForSchemas,
+        schemas: schemas,
+        currentAction: currentAction,
+        showClearFiltersButton: showClearFiltersButton,
+        session: session,
+        onFilter: onFilter,
+        windowWidth: windowWidth,
+        windowHeight: windowHeight,
+        termTransformFxn: termTransformFxn,
+        separateSingleTermFacets: separateSingleTermFacets
+      }, {
+        className: "with-header-bg",
+        onClearFilters: this.onClearFiltersClick
+      }))) : null, _react["default"].createElement("div", {
         className: tableColumnClassName
-      }, _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({
-        showTotalResults: totalResultCount,
-        parentForceUpdate: this.forceUpdateOnSelf
-      }, _underscore["default"].pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns', 'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen', 'topLeftChildren'), {
+      }, _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({}, {
+        // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
+        // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
+        context: context,
+        showTotalResults: showTotalResults,
         hiddenColumns: hiddenColumns,
-        columnDefinitions: columnDefinitions
-      })), _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, searchResultTableProps, {
+        columnDefinitions: columnDefinitions,
+        addHiddenColumn: addHiddenColumn,
+        removeHiddenColumn: removeHiddenColumn,
+        isFullscreen: isFullscreen,
+        toggleFullScreen: toggleFullScreen,
+        currentAction: currentAction,
+        windowWidth: windowWidth,
+        windowHeight: windowHeight,
+        topLeftChildren: topLeftChildren
+      }, {
+        parentForceUpdate: this.forceUpdateOnSelf
+      })), _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
+        context: context,
+        href: href,
+        currentAction: currentAction,
+        schemas: schemas,
+        hiddenColumns: hiddenColumns,
+        results: results,
+        columnDefinitions: columnDefinitions,
+        sortBy: sortBy,
+        sortColumn: sortColumn,
+        sortReverse: sortReverse,
+        termTransformFxn: termTransformFxn,
+        windowWidth: windowWidth,
+        registerWindowOnScrollHandler: registerWindowOnScrollHandler,
+        rowHeight: rowHeight
+      }, {
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane
-      })), (0, _misc.isSelectAction)(currentAction) && selectedItems !== null ? _react["default"].createElement(SelectStickyFooter, _extends({
+      })), (0, _misc.isSelectAction)(currentAction) && selectedItems !== null ? _react["default"].createElement(_SelectedItemsController.SelectStickyFooter, _extends({
         context: context,
         schemas: schemas,
         selectedItems: selectedItems,
@@ -466,8 +500,8 @@ function (_React$PureComponent3) {
 
 var SearchView =
 /*#__PURE__*/
-function (_React$PureComponent4) {
-  _inherits(SearchView, _React$PureComponent4);
+function (_React$PureComponent3) {
+  _inherits(SearchView, _React$PureComponent3);
 
   function SearchView() {
     _classCallCheck(this, SearchView);
@@ -495,13 +529,16 @@ function (_React$PureComponent4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props7 = this.props,
-          propFacets = _this$props7.facets,
-          propNavigate = _this$props7.navigate,
-          href = _this$props7.href,
-          context = _this$props7.context,
-          schemas = _this$props7.schemas;
-      var searchItemType = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context);
+      var _this$props6 = this.props,
+          propFacets = _this$props6.facets,
+          _this$props6$navigate = _this$props6.navigate,
+          propNavigate = _this$props6$navigate === void 0 ? _navigate.navigate : _this$props6$navigate,
+          href = _this$props6.href,
+          context = _this$props6.context,
+          schemas = _this$props6.schemas;
+      var contextFacets = context.facets;
+      var searchItemType = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context); // TODO: Attempt to pass in ControlsAndResults as props.children.
+
       return _react["default"].createElement("div", {
         className: "search-page-container",
         "data-search-item-type": searchItemType
@@ -510,8 +547,8 @@ function (_React$PureComponent4) {
         context: context,
         schemas: schemas
       }), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
-        facets: propFacets || context.facets,
-        navigate: propNavigate || _navigate.navigate
+        facets: propFacets || contextFacets,
+        navigate: propNavigate
       })));
     }
   }]);
@@ -540,65 +577,3 @@ _defineProperty(SearchView, "defaultProps", {
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
   'separateSingleTermFacets': true
 });
-
-var SelectStickyFooter = _react["default"].memo(function (props) {
-  var context = props.context,
-      schemas = props.schemas,
-      selectedItems = props.selectedItems,
-      onComplete = props.onComplete,
-      onCancel = props.onCancel,
-      currentAction = props.currentAction;
-  var itemTypeFriendlyName = (0, _schemaTransforms.getTitleForType)((0, _schemaTransforms.getSchemaTypeFromSearchContext)(context), schemas);
-  var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
-  return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
-    className: "row selection-controls-footer"
-  }, _react["default"].createElement("div", {
-    className: "col mb-05 mt-05"
-  }, currentAction === 'multiselect' ? _react["default"].createElement("div", {
-    className: "row"
-  }, _react["default"].createElement("h3", {
-    className: "mt-0 mb-0 col-auto text-600"
-  }, selectedItems.size), _react["default"].createElement("h4", {
-    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
-  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("div", {
-    className: "row"
-  }, _react["default"].createElement("h4", {
-    className: "mt-0 mb-0 col-auto text-400"
-  }, selectedItemDisplayTitle), _react["default"].createElement("h4", {
-    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
-  }, "selected"))), _react["default"].createElement("div", {
-    className: "col-12 col-md-auto"
-  }, _react["default"].createElement("button", {
-    type: "button",
-    className: "btn btn-success",
-    onClick: onComplete,
-    disabled: selectedItems.size === 0,
-    "data-tip": "Select checked items and close window"
-  }, _react["default"].createElement("i", {
-    className: "icon icon-fw fas icon-check"
-  }), "\xA0 Apply"), _react["default"].createElement("button", {
-    type: "button",
-    className: "btn btn-outline-warning ml-1",
-    onClick: onCancel,
-    "data-tip": "Cancel selection and close window"
-  }, _react["default"].createElement("i", {
-    className: "icon icon-fw fas icon-times"
-  }), "\xA0 Cancel"))));
-});
-/**
- * General purpose sticky footer component
- * @param {*} props
- * TODO: Component can be moved to a separate file.
- */
-
-
-function StickyFooter(props) {
-  var children = props.children,
-      passProps = _objectWithoutProperties(props, ["children"]);
-
-  return _react["default"].createElement("div", _extends({
-    className: "sticky-page-footer"
-  }, passProps), _react["default"].createElement("div", {
-    className: "container"
-  }, children));
-}

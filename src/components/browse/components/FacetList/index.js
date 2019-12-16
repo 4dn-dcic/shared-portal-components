@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import _ from 'underscore';
 
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters } from './../../../util/search-filters';
+import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus } from './../../../util/search-filters';
 import { navigate } from './../../../util/navigate';
 import * as analytics from './../../../util/analytics';
 import { responsiveGridState } from './../../../util/layout';
@@ -41,13 +41,16 @@ import { FacetOfFacets } from './FacetOfFacets';
  * Returns a new href based on current href, current filters, a facet, and term to toggle.
  * @todo Refactor maybe later. I dont remember what the sub-functions do too well. Could be made more clear.
  */
-// TODO: FINISH
 export function generateNextHref(currentHref, contextFilters, facet, term){
     let targetSearchHref = null;
 
     const { field, aggregation_type = "terms" } = facet;
-    const { status: termStatus, href: unselectHref } = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(toggleTerm, toggleFacet, contextFilters);
-    const willUnselect = !!(statusAndHref.href); // If present in context.filters, means is selected.
+    const { status: termStatus, href: unselectHref } = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+    // If present in context.filters, means is selected OR omitted. We want to make sure is _neither_ of those here.
+    // Omitted and selected filters are both treated the same (as "active" filters, even if are exclusionary).
+    const willUnselect = !!(unselectHref);
+
+    console.log("ABCD", ...arguments);
 
     if (willUnselect) {
         targetSearchHref = unselectHref;
@@ -188,6 +191,8 @@ export class FacetList extends React.PureComponent {
 
     constructor(props){
         super(props);
+        this.onFilterExtended = this.onFilterExtended.bind(this);
+        this.getTermStatus = this.getTermStatus.bind(this);
         this.renderFacets = this.renderFacets.bind(this);
         this.state = {
             'mounted' : false
@@ -198,9 +203,39 @@ export class FacetList extends React.PureComponent {
         this.setState({ 'mounted' : true });
     }
 
+    /**
+     * Calls props.onFilter after sending analytics.
+     * N.B. When rangeFacet calls onFilter, it creates a `term` with `key` property
+     * as no 'terms' exist when aggregation_type === stats.
+     */
+    onFilterExtended(facet, term, callback){
+        const { onFilter, filters: contextFilters } = this.props;
+        const { field } = facet;
+        const { key: termKey } = term;
+
+        const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+        const isUnselecting = !!(statusAndHref.href);
+
+        analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
+            field,
+            'term'              : termKey,
+            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
+            'currentFilters'    : analytics.getStringifiedCurrentFilters(
+                contextFiltersToExpSetFilters(contextFilters || null)
+            ), // 'Existing' filters, or filters at time of action, go here.
+        });
+
+        return onFilter(...arguments);
+    }
+
+    getTermStatus(term, facet){
+        const { filters: contextFilters } = this.props;
+        return getTermFacetStatus(term, facet, contextFilters);
+    }
+
     renderFacets(){
         const {
-            facets, href, onFilter, schemas, getTermStatus, filters,
+            facets, href, onFilter, schemas, filters,
             itemTypeForSchemas, windowWidth, persistentCount, termTransformFxn, separateSingleTermFacets,
             windowHeight
         } = this.props;
@@ -222,8 +257,10 @@ export class FacetList extends React.PureComponent {
         );
 
         const commonProps = { // Passed to all Facets
-            onFilter, href, getTermStatus, filters, schemas, itemTypeForSchemas,
-            mounted, termTransformFxn, separateSingleTermFacets
+            href, filters, schemas, itemTypeForSchemas,
+            mounted, termTransformFxn, separateSingleTermFacets,
+            onFilter: this.onFilterExtended,
+            getTermStatus: this.getTermStatus
         };
 
         // We try to initially open some Facets depending on available screen size or props.

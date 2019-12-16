@@ -4,7 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.sendDataToParentWindow = sendDataToParentWindow;
-exports.SelectedItemsController = void 0;
+exports.StickyFooter = StickyFooter;
+exports.SelectStickyFooter = exports.SelectedItemsController = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -19,6 +20,8 @@ var _patchedConsole = require("./../../util/patched-console");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
@@ -230,5 +233,70 @@ function (_React$PureComponent) {
 
   return SelectedItemsController;
 }(_react["default"].PureComponent);
+/** Move to own file later maybe. Especially if functionality expands. */
+
 
 exports.SelectedItemsController = SelectedItemsController;
+
+var SelectStickyFooter = _react["default"].memo(function (props) {
+  var context = props.context,
+      schemas = props.schemas,
+      selectedItems = props.selectedItems,
+      onComplete = props.onComplete,
+      onCancel = props.onCancel,
+      currentAction = props.currentAction;
+  var itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context), schemas);
+  var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
+  return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
+    className: "row selection-controls-footer"
+  }, _react["default"].createElement("div", {
+    className: "col mb-05 mt-05"
+  }, currentAction === 'multiselect' ? _react["default"].createElement("div", {
+    className: "row"
+  }, _react["default"].createElement("h3", {
+    className: "mt-0 mb-0 col-auto text-600"
+  }, selectedItems.size), _react["default"].createElement("h4", {
+    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("div", {
+    className: "row"
+  }, _react["default"].createElement("h4", {
+    className: "mt-0 mb-0 col-auto text-400"
+  }, selectedItemDisplayTitle), _react["default"].createElement("h4", {
+    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+  }, "selected"))), _react["default"].createElement("div", {
+    className: "col-12 col-md-auto"
+  }, _react["default"].createElement("button", {
+    type: "button",
+    className: "btn btn-success",
+    onClick: onComplete,
+    disabled: selectedItems.size === 0,
+    "data-tip": "Select checked items and close window"
+  }, _react["default"].createElement("i", {
+    className: "icon icon-fw fas icon-check"
+  }), "\xA0 Apply"), _react["default"].createElement("button", {
+    type: "button",
+    className: "btn btn-outline-warning ml-1",
+    onClick: onCancel,
+    "data-tip": "Cancel selection and close window"
+  }, _react["default"].createElement("i", {
+    className: "icon icon-fw fas icon-times"
+  }), "\xA0 Cancel"))));
+});
+/**
+ * General purpose sticky footer component
+ * TODO: Component can be moved to a separate file.
+ */
+
+
+exports.SelectStickyFooter = SelectStickyFooter;
+
+function StickyFooter(_ref2) {
+  var children = _ref2.children,
+      passProps = _objectWithoutProperties(_ref2, ["children"]);
+
+  return _react["default"].createElement("div", _extends({
+    className: "sticky-page-footer"
+  }, passProps), _react["default"].createElement("div", {
+    className: "container"
+  }, children));
+}

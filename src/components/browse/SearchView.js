@@ -19,10 +19,10 @@ import { AboveSearchTablePanel } from './components/AboveSearchTablePanel';
 import { AboveSearchViewTableControls } from './components/above-table-controls/AboveSearchViewTableControls';
 import { CustomColumnController } from './components/CustomColumnController';
 import { SearchResultTable } from './components/SearchResultTable';
-import { FacetList, performFilteringQuery } from './components/FacetList';
+import { FacetList, generateNextHref, performFilteringQuery } from './components/FacetList';
 import { SearchResultDetailPane } from './components/SearchResultDetailPane';
 import { SortController } from './components/SortController';
-import { SelectedItemsController } from './components/SelectedItemsController';
+import { SelectedItemsController, SelectStickyFooter } from './components/SelectedItemsController';
 
 // eslint-disable-next-line no-unused-vars
 import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/typedefs';
@@ -37,48 +37,39 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/type
  *
  * Passes other props down to ControlsAndResults.
  */
-export class SearchControllersContainer extends React.PureComponent {
+export function SearchControllersContainer(props){
 
-    static defaultProps = {
-        'navigate' : navigate,
-        'columns' : null
-    };
+    // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
+    // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
+    const { context, href, columns = null, columnExtensionMap, currentAction, navigate: propNavigate = navigate } = props;
 
-    constructor(props){
-        super(props);
-        this.onFilter = this.onFilter.bind(this);
-        this.getTermStatus = this.getTermStatus.bind(this);
-    }
+    // All these controllers pass props down to their children.
+    // So we don't need to be repetitive here; i.e. may assume 'context' is available
+    // in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
 
-    onFilter(facet, term, callback, skipNavigation = false, currentHref = null){
-        performFilteringQuery(this.props, facet, term, callback, skipNavigation, currentHref);
-    }
-
-    getTermStatus(term, facet){
-        return getTermFacetStatus(term, facet, this.props);
-    }
-
-    render(){
-        const { context, columns, columnExtensionMap, currentAction } = this.props;
-
-        let controllersAndView = (
-            <ColumnCombiner {...{ context, columns, columnExtensionMap }}>
+    let controllersAndView = (
+        <WindowNavigationController {...{ href, context }} navigate={propNavigate}>
+            <ColumnCombiner {...{ columns, columnExtensionMap }}>
                 <CustomColumnController>
-                    <SortController {..._.pick(this.props, 'href', 'context', 'navigate')}>
-                        <ControlsAndResults {...this.props} getTermStatus={this.getTermStatus} onFilter={this.onFilter} />
+                    <SortController>
+                        <ControlsAndResults {...props} />
                     </SortController>
                 </CustomColumnController>
             </ColumnCombiner>
-        );
+        </WindowNavigationController>
+    );
 
-        if (isSelectAction(currentAction)) {
-            controllersAndView = <SelectedItemsController>{ controllersAndView }</SelectedItemsController>;
-        }
-
-        return controllersAndView;
+    if (isSelectAction(currentAction)) {
+        controllersAndView = <SelectedItemsController>{ controllersAndView }</SelectedItemsController>;
     }
 
+    return controllersAndView;
+
 }
+SearchControllersContainer.defaultProps = {
+    'navigate' : navigate,
+    'columns' : null
+};
 
 // TODO: FINISH
 export class WindowNavigationController extends React.PureComponent {
@@ -86,19 +77,63 @@ export class WindowNavigationController extends React.PureComponent {
     constructor(props){
         super(props);
         this.onFilter = this.onFilter.bind(this);
+        this.onClearFilters = this.onClearFilters.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
     }
 
-    onFilter(facet, term, callback, skipNavigation = false, currentHref = null){
-        performFilteringQuery(this.props, facet, term, callback, skipNavigation, currentHref);
+    onFilter(facet, term, callback){
+        const {
+            href,
+            navigate: propNavigate = navigate,
+            context: { filters : contextFilters }
+        } = this.props;
+
+        return propNavigate(
+            generateNextHref(href, contextFilters, facet, term),
+            { 'dontScrollToTop' : true },
+            typeof callback === "function" ? callback : null
+        );
+    }
+
+    onClearFilters(callback = null){
+        const {
+            href,
+            navigate: propNavigate = navigate,
+            context: { clear_filters : clearFiltersURLOriginal = null }
+        } = this.props;
+
+        let clearFiltersURL = clearFiltersURLOriginal;
+
+        if (!clearFiltersURL) {
+            console.error("No Clear Filters URL");
+            return;
+        }
+
+        // If we have a '#' in URL, add to target URL as well.
+        const hashFragmentIdx = href.indexOf('#');
+        if (hashFragmentIdx > -1 && clearFiltersURL.indexOf('#') === -1){
+            clearFiltersURL += href.slice(hashFragmentIdx);
+        }
+
+        propNavigate(clearFiltersURL, {}, typeof callback === 'function' ? callback : null);
     }
 
     getTermStatus(term, facet){
-        return getTermFacetStatus(term, facet, this.props);
+        const { context: { filters } } = this.props;
+        return getTermFacetStatus(term, facet, filters);
     }
 
     render(){
         const { children, ...passProps } = this.props;
+
+        console.log("PROPS", passProps);
+
+        const propsToPass = {
+            ...passProps,
+            onFilter: this.onFilter,
+            onClearFilters: this.onClearFilters,
+            getTermStatus: this.getTermStatus,
+        };
 
         return React.Children.map(children, function(child){
             return React.cloneElement(child, propsToPass);
@@ -137,15 +172,24 @@ class ControlsAndResults extends React.PureComponent {
         return { specificType, abstractType };
     }
 
+    static isClearFiltersBtnVisible(href, context){
+        const urlPartsQuery = url.parse(href, true).query || {};
+        const clearFiltersURL = (typeof context.clear_filters === 'string' && context.clear_filters) || null;
+        const clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
+
+        return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
+    }
+
     constructor(props){
         super(props);
         this.forceUpdateOnSelf = this.forceUpdateOnSelf.bind(this);
-        this.handleClearFilters = this.handleClearFilters.bind(this);
+        this.onClearFiltersClick = this.onClearFiltersClick.bind(this);
         this.columnExtensionMapWithSelectButton = this.columnExtensionMapWithSelectButton.bind(this);
         this.renderSearchDetailPane = this.renderSearchDetailPane.bind(this);
 
         this.memoized = {
-            searchItemTypesFromHref : memoize(ControlsAndResults.searchItemTypesFromHref)
+            searchItemTypesFromHref : memoize(ControlsAndResults.searchItemTypesFromHref),
+            isClearFiltersBtnVisible: memoize(ControlsAndResults.isClearFiltersBtnVisible)
         };
 
         this.searchResultTableRef = React.createRef();
@@ -199,32 +243,11 @@ class ControlsAndResults extends React.PureComponent {
         return dimContainer && dimContainer.resetWidths();
     }
 
-    handleClearFilters(evt, callback = null){
+    onClearFiltersClick(evt, callback = null){
+        const { onClearFilters } = this.props;
         evt.preventDefault();
         evt.stopPropagation();
-        const { href, context, navigate: propNavigate } = this.props;
-        let clearFiltersURL = (typeof context.clear_filters === 'string' && context.clear_filters) || null;
-        if (!clearFiltersURL) {
-            console.error("No Clear Filters URL");
-            return;
-        }
-
-        // If we have a '#' in URL, add to target URL as well.
-        const hashFragmentIdx = href.indexOf('#');
-        if (hashFragmentIdx > -1 && clearFiltersURL.indexOf('#') === -1){
-            clearFiltersURL += href.slice(hashFragmentIdx);
-        }
-
-        propNavigate(clearFiltersURL, {}, typeof callback === 'function' ? callback : null);
-    }
-
-    isClearFiltersBtnVisible(){
-        const { href, context } = this.props;
-        const urlPartsQuery = url.parse(href, true).query;
-        const clearFiltersURL = (typeof context.clear_filters === 'string' && context.clear_filters) || null;
-        const clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
-
-        return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
+        onClearFilters(callback);
     }
 
     renderSearchDetailPane(result, rowNumber, containerWidth, propsFromTable){
@@ -235,50 +258,67 @@ class ControlsAndResults extends React.PureComponent {
         return <SearchResultDetailPane {...{ result, rowNumber, containerWidth, schemas, windowWidth }} />;
     }
 
+    /**
+     * Expands `this.props` and feeds them into appropriate places in view.
+     * Derives some info using memoized fxns.
+     */
     render() {
         const {
-            context, schemas, hiddenColumns, columnDefinitions, currentAction, href, facets: propFacets,
-            tableColumnClassName, facetColumnClassName,
-            selectedItems = null, onCompleteSelection, onCancelSelection
+            // From Redux store or App.js:
+            context, schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session, isFullscreen, toggleFullScreen,
+
+            // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
+            facets, facetColumnClassName, tableColumnClassName, termTransformFxn, rowHeight,
+            separateSingleTermFacets, topLeftChildren,
+
+            // From WindowNavigationController (or similar) (possibly from Redux store re: href)
+            href, onFilter,
+
+            // From CustomColumnController:
+            hiddenColumns, addHiddenColumn, removeHiddenColumn,
+            // From ColumnCombiner:
+            columnDefinitions,
+            // From SelectedItemsController:
+            selectedItems = null, onCompleteSelection, onCancelSelection,
+            // From SortController:
+            sortBy, sortColumn, sortReverse
         } = this.props;
 
-        const {
-            "@graph" : results, // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
-            facets : contextFacets,
-            filters,
-            total: totalResultCount = 0
-        } = context;
+        // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
+        const { "@graph" : results, filters, total: showTotalResults = 0 } = context;
 
 
         // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
-        const facets = propFacets || contextFacets;
-        const { specificType, abstractType }  = this.memoized.searchItemTypesFromHref(href, schemas);
+        const { specificType: itemTypeForSchemas, abstractType }  = this.memoized.searchItemTypesFromHref(href, schemas);
+        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context);
 
-        //const selfExtendedColumnExtensionMap  = this.columnExtensionMapWithSelectButton(columnExtensionMap, currentAction, specificType, abstractType);
-        //const columnDefinitions               = columnsToColumnDefinitions(context.columns || {}, selfExtendedColumnExtensionMap);
+        const searchResultTableProps = {
+            context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions,
+            sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight
+        };
 
-        const searchResultTableProps = _.extend(
-            { context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions },
-            _.pick(this.props, 'sortBy', 'sortColumn', 'sortReverse', 'termTransformFxn', 'windowWidth', 'registerWindowOnScrollHandler', 'rowHeight')
-        );
+        const facetListProps = {
+            facets, filters, itemTypeForSchemas, schemas, currentAction, showClearFiltersButton,
+            session, onFilter, windowWidth, windowHeight, termTransformFxn, separateSingleTermFacets
+        };
+
+        const aboveTableControlsProps = {
+            // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
+            // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
+            context, showTotalResults, hiddenColumns, columnDefinitions, addHiddenColumn, removeHiddenColumn,
+            isFullscreen, toggleFullScreen, currentAction, windowWidth, windowHeight, topLeftChildren
+        };
 
         return (
             <div className="row">
                 { facets.length ?
                     <div className={facetColumnClassName}>
                         <div className="above-results-table-row"/>{/* <-- temporary-ish */}
-                        <FacetList className="with-header-bg" facets={facets} filters={filters}
-                            onClearFilters={this.handleClearFilters} itemTypeForSchemas={specificType}
-                            showClearFiltersButton={this.isClearFiltersBtnVisible()}
-                            {..._.pick(this.props, 'getTermStatus', 'schemas', 'session', 'onFilter',
-                                'currentAction', 'windowWidth', 'windowHeight', 'termTransformFxn', 'separateSingleTermFacets')} />
+                        <FacetList {...facetListProps} className="with-header-bg" onClearFilters={this.onClearFiltersClick} />
                     </div>
                     : null }
                 <div className={tableColumnClassName}>
-                    <AboveSearchViewTableControls showTotalResults={totalResultCount} parentForceUpdate={this.forceUpdateOnSelf}
-                        {..._.pick(this.props, 'addHiddenColumn', 'removeHiddenColumn', 'isFullscreen', 'context', 'columns',
-                            'currentAction', 'windowWidth', 'windowHeight', 'toggleFullScreen', 'topLeftChildren')}
-                        {...{ hiddenColumns, columnDefinitions }}/>
+                    <AboveSearchViewTableControls {...aboveTableControlsProps} parentForceUpdate={this.forceUpdateOnSelf} />
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
                     { isSelectAction(currentAction) && selectedItems !== null ?
                         <SelectStickyFooter {...{ context, schemas, selectedItems, currentAction }}
@@ -329,66 +369,21 @@ export class SearchView extends React.PureComponent {
      * For custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
      */
     render() {
-        const { facets : propFacets, navigate: propNavigate, href, context, schemas } = this.props;
+        const {
+            facets : propFacets,
+            navigate: propNavigate = navigate,
+            href, context, schemas
+        } = this.props;
+        const { facets: contextFacets } = context;
         const searchItemType = getSchemaTypeFromSearchContext(context);
+
+        // TODO: Attempt to pass in ControlsAndResults as props.children.
         return (
             <div className="search-page-container" data-search-item-type={searchItemType}>
                 <AboveSearchTablePanel {...{ href, context, schemas }} />
-                <SearchControllersContainer {...this.props} facets={propFacets || context.facets} navigate={propNavigate || navigate} />
+                <SearchControllersContainer {...this.props} facets={propFacets || contextFacets} navigate={propNavigate} />
             </div>
         );
     }
 }
 
-
-const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
-    const {
-        context, schemas, selectedItems,
-        onComplete, onCancel, currentAction
-    } = props;
-    const itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context), schemas);
-    const selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
-    return (
-        <StickyFooter>
-            <div className="row selection-controls-footer">
-                <div className="col mb-05 mt-05">
-                    {currentAction === 'multiselect' ?
-                        <div className="row">
-                            <h3 className="mt-0 mb-0 col-auto text-600">{ selectedItems.size }</h3>
-                            <h4 className="mt-0 mb-0 text-muted col-auto text-400 px-0">
-                                { itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's') } selected
-                            </h4>
-                        </div>
-                        :
-                        <div className="row">
-                            <h4 className="mt-0 mb-0 col-auto text-400">{ selectedItemDisplayTitle }</h4>
-                            <h4 className="mt-0 mb-0 text-muted col-auto text-400 px-0">selected</h4>
-                        </div>
-                    }
-                </div>
-                <div className="col-12 col-md-auto">
-                    <button type="button" className="btn btn-success" onClick={onComplete} disabled={selectedItems.size === 0} data-tip="Select checked items and close window">
-                        <i className="icon icon-fw fas icon-check"></i>&nbsp; Apply
-                    </button>
-                    <button type="button" className="btn btn-outline-warning ml-1" onClick={onCancel} data-tip="Cancel selection and close window">
-                        <i className="icon icon-fw fas icon-times"></i>&nbsp; Cancel
-                    </button>
-                </div>
-            </div>
-        </StickyFooter>
-    );
-});
-
-/**
- * General purpose sticky footer component
- * @param {*} props
- * TODO: Component can be moved to a separate file.
- */
-export function StickyFooter(props) {
-    const { children, ...passProps } = props;
-    return (
-        <div className="sticky-page-footer" {...passProps}>
-            <div className="container">{ children }</div>
-        </div>
-    );
-}

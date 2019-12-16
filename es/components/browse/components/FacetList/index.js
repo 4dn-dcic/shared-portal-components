@@ -91,18 +91,21 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
  * Returns a new href based on current href, current filters, a facet, and term to toggle.
  * @todo Refactor maybe later. I dont remember what the sub-functions do too well. Could be made more clear.
  */
-// TODO: FINISH
 function generateNextHref(currentHref, contextFilters, facet, term) {
   var targetSearchHref = null;
   var field = facet.field,
       _facet$aggregation_ty = facet.aggregation_type,
       aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty;
 
-  var _getStatusAndUnselect = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(toggleTerm, toggleFacet, contextFilters),
+  var _getStatusAndUnselect = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, contextFilters),
       termStatus = _getStatusAndUnselect.status,
-      unselectHref = _getStatusAndUnselect.href;
+      unselectHref = _getStatusAndUnselect.href; // If present in context.filters, means is selected OR omitted. We want to make sure is _neither_ of those here.
+  // Omitted and selected filters are both treated the same (as "active" filters, even if are exclusionary).
 
-  var willUnselect = !!statusAndHref.href; // If present in context.filters, means is selected.
+
+  var willUnselect = !!unselectHref;
+
+  _patchedConsole.patchedConsoleInstance.log.apply(_patchedConsole.patchedConsoleInstance, ["ABCD"].concat(Array.prototype.slice.call(arguments)));
 
   if (willUnselect) {
     targetSearchHref = unselectHref;
@@ -276,6 +279,8 @@ function (_React$PureComponent) {
     _classCallCheck(this, FacetList);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(FacetList).call(this, props));
+    _this.onFilterExtended = _this.onFilterExtended.bind(_assertThisInitialized(_this));
+    _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.renderFacets = _this.renderFacets.bind(_assertThisInitialized(_this));
     _this.state = {
       'mounted': false
@@ -290,22 +295,55 @@ function (_React$PureComponent) {
         'mounted': true
       });
     }
+    /**
+     * Calls props.onFilter after sending analytics.
+     * N.B. When rangeFacet calls onFilter, it creates a `term` with `key` property
+     * as no 'terms' exist when aggregation_type === stats.
+     */
+
+  }, {
+    key: "onFilterExtended",
+    value: function onFilterExtended(facet, term) {
+      var _this$props = this.props,
+          onFilter = _this$props.onFilter,
+          contextFilters = _this$props.filters;
+      var field = facet.field;
+      var termKey = term.key;
+      var statusAndHref = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, contextFilters);
+      var isUnselecting = !!statusAndHref.href;
+      analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
+        field: field,
+        'term': termKey,
+        'eventLabel': analytics.eventLabelFromChartNode({
+          field: field,
+          'term': termKey
+        }),
+        'currentFilters': analytics.getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
+
+      });
+      return onFilter.apply(void 0, arguments);
+    }
+  }, {
+    key: "getTermStatus",
+    value: function getTermStatus(term, facet) {
+      var contextFilters = this.props.filters;
+      return (0, _searchFilters.getTermFacetStatus)(term, facet, contextFilters);
+    }
   }, {
     key: "renderFacets",
     value: function renderFacets() {
-      var _this$props = this.props,
-          facets = _this$props.facets,
-          href = _this$props.href,
-          onFilter = _this$props.onFilter,
-          schemas = _this$props.schemas,
-          getTermStatus = _this$props.getTermStatus,
-          filters = _this$props.filters,
-          itemTypeForSchemas = _this$props.itemTypeForSchemas,
-          windowWidth = _this$props.windowWidth,
-          persistentCount = _this$props.persistentCount,
-          termTransformFxn = _this$props.termTransformFxn,
-          separateSingleTermFacets = _this$props.separateSingleTermFacets,
-          windowHeight = _this$props.windowHeight;
+      var _this$props2 = this.props,
+          facets = _this$props2.facets,
+          href = _this$props2.href,
+          onFilter = _this$props2.onFilter,
+          schemas = _this$props2.schemas,
+          filters = _this$props2.filters,
+          itemTypeForSchemas = _this$props2.itemTypeForSchemas,
+          windowWidth = _this$props2.windowWidth,
+          persistentCount = _this$props2.persistentCount,
+          termTransformFxn = _this$props2.termTransformFxn,
+          separateSingleTermFacets = _this$props2.separateSingleTermFacets,
+          windowHeight = _this$props2.windowHeight;
       var mounted = this.state.mounted; // Ensure each facets has an `order` property and default it to 0 if not.
       // And then sort by `order`.
 
@@ -324,15 +362,15 @@ function (_React$PureComponent) {
 
       var commonProps = {
         // Passed to all Facets
-        onFilter: onFilter,
         href: href,
-        getTermStatus: getTermStatus,
         filters: filters,
         schemas: schemas,
         itemTypeForSchemas: itemTypeForSchemas,
         mounted: mounted,
         termTransformFxn: termTransformFxn,
-        separateSingleTermFacets: separateSingleTermFacets
+        separateSingleTermFacets: separateSingleTermFacets,
+        onFilter: this.onFilterExtended,
+        getTermStatus: this.getTermStatus
       }; // We try to initially open some Facets depending on available screen size or props.
       // We might get rid of this feature at some point as the amount of Facets are likely to increase.
       // Or we could just set defaultFacetOpen = false if # facets > 10 or something.
@@ -488,14 +526,14 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          debug = _this$props2.debug,
-          facets = _this$props2.facets,
-          className = _this$props2.className,
-          title = _this$props2.title,
-          showClearFiltersButton = _this$props2.showClearFiltersButton,
-          onClearFilters = _this$props2.onClearFilters,
-          separateSingleTermFacets = _this$props2.separateSingleTermFacets;
+      var _this$props3 = this.props,
+          debug = _this$props3.debug,
+          facets = _this$props3.facets,
+          className = _this$props3.className,
+          title = _this$props3.title,
+          showClearFiltersButton = _this$props3.showClearFiltersButton,
+          onClearFilters = _this$props3.onClearFilters,
+          separateSingleTermFacets = _this$props3.separateSingleTermFacets;
       if (debug) _patchedConsole.patchedConsoleInstance.log('render facetlist');
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {

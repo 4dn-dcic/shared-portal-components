@@ -129,5 +129,53 @@ export class SelectedItemsController extends React.PureComponent {
 
 }
 
+/** Move to own file later maybe. Especially if functionality expands. */
+export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
+    const {
+        context, schemas, selectedItems,
+        onComplete, onCancel, currentAction
+    } = props;
+    const itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context), schemas);
+    const selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
+    return (
+        <StickyFooter>
+            <div className="row selection-controls-footer">
+                <div className="col mb-05 mt-05">
+                    {currentAction === 'multiselect' ?
+                        <div className="row">
+                            <h3 className="mt-0 mb-0 col-auto text-600">{ selectedItems.size }</h3>
+                            <h4 className="mt-0 mb-0 text-muted col-auto text-400 px-0">
+                                { itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's') } selected
+                            </h4>
+                        </div>
+                        :
+                        <div className="row">
+                            <h4 className="mt-0 mb-0 col-auto text-400">{ selectedItemDisplayTitle }</h4>
+                            <h4 className="mt-0 mb-0 text-muted col-auto text-400 px-0">selected</h4>
+                        </div>
+                    }
+                </div>
+                <div className="col-12 col-md-auto">
+                    <button type="button" className="btn btn-success" onClick={onComplete} disabled={selectedItems.size === 0} data-tip="Select checked items and close window">
+                        <i className="icon icon-fw fas icon-check"></i>&nbsp; Apply
+                    </button>
+                    <button type="button" className="btn btn-outline-warning ml-1" onClick={onCancel} data-tip="Cancel selection and close window">
+                        <i className="icon icon-fw fas icon-times"></i>&nbsp; Cancel
+                    </button>
+                </div>
+            </div>
+        </StickyFooter>
+    );
+});
 
-
+/**
+ * General purpose sticky footer component
+ * TODO: Component can be moved to a separate file.
+ */
+export function StickyFooter({ children, ...passProps }) {
+    return (
+        <div className="sticky-page-footer" {...passProps}>
+            <div className="container">{ children }</div>
+        </div>
+    );
+}
