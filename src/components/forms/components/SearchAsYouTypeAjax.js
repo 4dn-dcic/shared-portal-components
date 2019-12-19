@@ -70,13 +70,10 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 
     onTextInputChange(evt){
-        const { onChange, allowCustomValue = false } = this.props;
+        const { onChange } = this.props;
         const { value = null } = evt.target;
         // this.totalCount++;
         // console.log("this is keypress number: ",  this.totalCount);
-        if (allowCustomValue) {
-            onChange(value);
-        }
         this.setState({ currentTextValue: value });
         this.onLoadData(value);
     }
@@ -148,7 +145,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         const {
             filterMethod = "startsWith",
             optionsHeader: propOptionsHeader,
-            allowCustomValue,
             ...passProps
         } = this.props;
         const { currentTextValue, results = [], loading, error } = this.state;
@@ -165,7 +161,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
                 optionsHeader = (
                     <React.Fragment>
                         <em className="d-block text-center px-4 py-1">
-                            { allowCustomValue ? "Adding new entry" : "No results found" }
+                            { "No results found" }
                         </em>
                         { optionsHeader }
                     </React.Fragment>
@@ -193,7 +189,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
 }
 SearchAsYouTypeAjax.propTypes = {
     value: PropTypes.any,
-    allowCustomValue: PropTypes.bool,
     onChange: PropTypes.func,
     baseHref: function(props, propName, componentName) {
         const regex = "^/search/?type=(.+)?$";

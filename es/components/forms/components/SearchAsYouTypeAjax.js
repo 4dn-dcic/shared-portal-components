@@ -129,17 +129,10 @@ function (_React$PureComponent) {
   }, {
     key: "onTextInputChange",
     value: function onTextInputChange(evt) {
-      var _this$props = this.props,
-          onChange = _this$props.onChange,
-          _this$props$allowCust = _this$props.allowCustomValue,
-          allowCustomValue = _this$props$allowCust === void 0 ? false : _this$props$allowCust;
+      this.props.onChange;
       var _evt$target$value = evt.target.value,
           value = _evt$target$value === void 0 ? null : _evt$target$value; // this.totalCount++;
       // console.log("this is keypress number: ",  this.totalCount);
-
-      if (allowCustomValue) {
-        onChange(value);
-      }
 
       this.setState({
         currentTextValue: value
@@ -149,10 +142,10 @@ function (_React$PureComponent) {
   }, {
     key: "constructFetchURL",
     value: function constructFetchURL() {
-      var _this$props2 = this.props,
-          baseHref = _this$props2.baseHref,
-          _this$props2$fieldsTo = _this$props2.fieldsToRequest,
-          fieldsToRequest = _this$props2$fieldsTo === void 0 ? [] : _this$props2$fieldsTo;
+      var _this$props = this.props,
+          baseHref = _this$props.baseHref,
+          _this$props$fieldsToR = _this$props.fieldsToRequest,
+          fieldsToRequest = _this$props$fieldsToR === void 0 ? [] : _this$props$fieldsToR;
       var currentTextValue = this.state.currentTextValue;
       var commonFields = SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
       var requestHref = "".concat(baseHref).concat(currentTextValue ? "&q=" + encodeURIComponent(currentTextValue) : "", "&limit=100&") + commonFields.concat(fieldsToRequest).map(function (field) {
@@ -241,12 +234,11 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          _this$props3$filterMe = _this$props3.filterMethod,
-          filterMethod = _this$props3$filterMe === void 0 ? "startsWith" : _this$props3$filterMe,
-          propOptionsHeader = _this$props3.optionsHeader,
-          allowCustomValue = _this$props3.allowCustomValue,
-          passProps = _objectWithoutProperties(_this$props3, ["filterMethod", "optionsHeader", "allowCustomValue"]);
+      var _this$props2 = this.props,
+          _this$props2$filterMe = _this$props2.filterMethod,
+          filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
+          propOptionsHeader = _this$props2.optionsHeader,
+          passProps = _objectWithoutProperties(_this$props2, ["filterMethod", "optionsHeader"]);
 
       var _this$state = this.state,
           currentTextValue = _this$state.currentTextValue,
@@ -266,7 +258,7 @@ function (_React$PureComponent) {
         if (results.length === 0 && !error) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-1"
-          }, allowCustomValue ? "Adding new entry" : "No results found"), optionsHeader);
+          }, "No results found"), optionsHeader);
         } else if (error) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-1"
@@ -294,7 +286,6 @@ function (_React$PureComponent) {
 exports.SearchAsYouTypeAjax = SearchAsYouTypeAjax;
 SearchAsYouTypeAjax.propTypes = {
   value: _propTypes["default"].any,
-  allowCustomValue: _propTypes["default"].bool,
   onChange: _propTypes["default"].func,
   baseHref: function baseHref(props, propName, componentName) {
     if (props[propName] && !props[propName].match("^/search/?type=(.+)?$")) {
