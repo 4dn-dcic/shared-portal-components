@@ -138,14 +138,10 @@ function (_React$PureComponent) {
       } else {
         filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
 
-        if (filteredOptions.length === 0 && allowCustomValue) {
+        if (filteredOptions.length === 0) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-1"
-          }, "Adding new entry"), optionsHeader);
-        } else if (filteredOptions.length === 0 && !allowCustomValue) {
-          optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
-            className: "d-block text-center px-4 py-1"
-          }, "No results found"), optionsHeader);
+          }, allowCustomValue ? "Adding new entry" : "No results found"), optionsHeader);
         }
       }
 

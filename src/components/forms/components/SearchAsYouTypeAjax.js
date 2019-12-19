@@ -158,7 +158,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
                 optionsHeader = (
                     <React.Fragment>
                         <em className="d-block text-center px-4 py-1">
-                            <i className="fas icon-warning icon" />{ error }
+                            <i className="fas icon-warning icon" /> { error }
                         </em>
                         { optionsHeader }
                     </React.Fragment>

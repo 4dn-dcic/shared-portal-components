@@ -256,7 +256,7 @@ function (_React$PureComponent) {
             className: "d-block text-center px-4 py-1"
           }, _react["default"].createElement("i", {
             className: "fas icon-warning icon"
-          }), error), optionsHeader);
+          }), " ", error), optionsHeader);
         }
       }
 
