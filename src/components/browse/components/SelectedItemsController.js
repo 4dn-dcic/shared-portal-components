@@ -4,6 +4,8 @@ import React from 'react';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
+import { isSelectAction } from './../../util/misc';
+import { getSchemaTypeFromSearchContext, getTitleForType } from './../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 
 
@@ -49,9 +51,7 @@ export class SelectedItemsController extends React.PureComponent {
         this.handleSelectItemCompleteClick = this.handleSelectItemCompleteClick.bind(this);
         this.handleSelectCancelClick = this.handleSelectCancelClick.bind(this);
 
-        this.state = {
-            selectedItems : new Map()
-        };
+        this.state = { selectedItems : new Map() };
     }
 
     /**
@@ -106,6 +106,61 @@ export class SelectedItemsController extends React.PureComponent {
         }
     }
 
+    /**
+     * Extends columnExtensionMap's display_title render function.
+     * Adds in a checkbox element which controls selectedItems state entry.
+     *
+     * @todo
+     * Allow a boolean prop which controls whether we're extending columnExtensionMap
+     * or columnDefinitions, which would allow us to put this below ColumnCombiner also
+     * if desired.
+     * Alternatively, attempt to detect based on presence of props.columnDefinitions
+     * or props.columnExtensionMap, throwing error if neither available.
+     */
+    columnExtensionMapWithSelectButton(){
+        const { columnExtensionMap: originalColExtMap, currentAction = null } = this.props;
+        const inSelectionMode = isSelectAction(currentAction);
+
+        if (!inSelectionMode || !originalColExtMap){
+            return originalColExtMap;
+        }
+
+        const columnExtensionMap = _.clone(originalColExtMap); // Avoid modifying in place
+
+        const origDisplayTitleRenderFxn = (
+            (originalColExtMap.display_title && originalColExtMap.display_title.render) ||
+            basicColumnExtensionMap.display_title.render
+        );
+
+        // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
+        //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
+
+        if (inSelectionMode) {
+            // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
+            // Also add the popLink/target=_blank functionality to links
+            // Remove lab.display_title and type columns on selection
+            columnExtensionMap.display_title = _.extend({}, columnExtensionMap.display_title, {
+                'minColumnWidth' : 120,
+                'render' : (result, columnDefinition, props, width) => {
+                    //set select click handler according to currentAction type (selection or multiselect)
+                    const { selectedItems } = this.state;
+                    const isChecked = selectedItems.has(itemUtil.atId(result));
+                    const isMultiSelect = (currentAction === 'multiselect');
+                    const checkBoxControl = (
+                        <input type="checkbox" checked={isChecked} onChange={this.handleSelectItemClick.bind(this, result, isMultiSelect)} className="mr-2" />
+                    );
+                    const currentTitleBlock = origDisplayTitleRenderFxn(
+                        result, columnDefinition, _.extend({}, props, { currentAction }), width, true
+                    );
+                    const newChildren = currentTitleBlock.props.children.slice(0);
+                    newChildren.unshift(checkBoxControl);
+                    return React.cloneElement(currentTitleBlock, { 'children' : newChildren });
+                }
+            });
+        }
+        return columnExtensionMap;
+    }
+
     render(){
         const { children, ...propsToPass } = this.props;
         const { selectedItems } = this.state;
@@ -114,6 +169,7 @@ export class SelectedItemsController extends React.PureComponent {
         }
         _.extend(propsToPass, {
             selectedItems,
+            columnExtensionMap      : this.columnExtensionMapWithSelectButton(),
             onSelectItem            : this.handleSelectItemClick,
             onCancelSelection       : this.handleSelectCancelClick,
             onCompleteSelection     : this.handleSelectItemCompleteClick

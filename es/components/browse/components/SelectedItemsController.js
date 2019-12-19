@@ -15,6 +15,10 @@ var _Alerts = require("./../../ui/Alerts");
 
 var _object = require("./../../util/object");
 
+var _misc = require("./../../util/misc");
+
+var _schemaTransforms = require("./../../util/schema-transforms");
+
 var _patchedConsole = require("./../../util/patched-console");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -201,12 +205,77 @@ function (_React$PureComponent) {
         _patchedConsole.patchedConsoleInstance.error("Couldn't access opener window.");
       }
     }
+    /**
+     * Extends columnExtensionMap's display_title render function.
+     * Adds in a checkbox element which controls selectedItems state entry.
+     *
+     * @todo
+     * Allow a boolean prop which controls whether we're extending columnExtensionMap
+     * or columnDefinitions, which would allow us to put this below ColumnCombiner also
+     * if desired.
+     * Alternatively, attempt to detect based on presence of props.columnDefinitions
+     * or props.columnExtensionMap, throwing error if neither available.
+     */
+
+  }, {
+    key: "columnExtensionMapWithSelectButton",
+    value: function columnExtensionMapWithSelectButton() {
+      var _this2 = this;
+
+      var _this$props = this.props,
+          originalColExtMap = _this$props.columnExtensionMap,
+          _this$props$currentAc = _this$props.currentAction,
+          currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc;
+      var inSelectionMode = (0, _misc.isSelectAction)(currentAction);
+
+      if (!inSelectionMode || !originalColExtMap) {
+        return originalColExtMap;
+      }
+
+      var columnExtensionMap = _underscore["default"].clone(originalColExtMap); // Avoid modifying in place
+
+
+      var origDisplayTitleRenderFxn = originalColExtMap.display_title && originalColExtMap.display_title.render || basicColumnExtensionMap.display_title.render; // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
+      //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
+
+      if (inSelectionMode) {
+        // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
+        // Also add the popLink/target=_blank functionality to links
+        // Remove lab.display_title and type columns on selection
+        columnExtensionMap.display_title = _underscore["default"].extend({}, columnExtensionMap.display_title, {
+          'minColumnWidth': 120,
+          'render': function render(result, columnDefinition, props, width) {
+            //set select click handler according to currentAction type (selection or multiselect)
+            var selectedItems = _this2.state.selectedItems;
+            var isChecked = selectedItems.has(_object.itemUtil.atId(result));
+
+            var checkBoxControl = _react["default"].createElement("input", {
+              type: "checkbox",
+              checked: isChecked,
+              onChange: _this2.handleSelectItemClick.bind(_this2, result, currentAction === 'multiselect'),
+              className: "mr-2"
+            });
+
+            var currentTitleBlock = origDisplayTitleRenderFxn(result, columnDefinition, _underscore["default"].extend({}, props, {
+              currentAction: currentAction
+            }), width, true);
+            var newChildren = currentTitleBlock.props.children.slice(0);
+            newChildren.unshift(checkBoxControl);
+            return _react["default"].cloneElement(currentTitleBlock, {
+              'children': newChildren
+            });
+          }
+        });
+      }
+
+      return columnExtensionMap;
+    }
   }, {
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          children = _this$props.children,
-          propsToPass = _objectWithoutProperties(_this$props, ["children"]);
+      var _this$props2 = this.props,
+          children = _this$props2.children,
+          propsToPass = _objectWithoutProperties(_this$props2, ["children"]);
 
       var selectedItems = this.state.selectedItems;
 
@@ -216,6 +285,7 @@ function (_React$PureComponent) {
 
       _underscore["default"].extend(propsToPass, {
         selectedItems: selectedItems,
+        columnExtensionMap: this.columnExtensionMapWithSelectButton(),
         onSelectItem: this.handleSelectItemClick,
         onCancelSelection: this.handleSelectCancelClick,
         onCompleteSelection: this.handleSelectItemCompleteClick
@@ -245,7 +315,7 @@ var SelectStickyFooter = _react["default"].memo(function (props) {
       onComplete = props.onComplete,
       onCancel = props.onCancel,
       currentAction = props.currentAction;
-  var itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context), schemas);
+  var itemTypeFriendlyName = (0, _schemaTransforms.getTitleForType)((0, _schemaTransforms.getSchemaTypeFromSearchContext)(context), schemas);
   var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
   return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
     className: "row selection-controls-footer"

@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.generateNextHref = generateNextHref;
-exports.performFilteringQuery = performFilteringQuery;
 exports.FacetList = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -90,6 +89,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 /**
  * Returns a new href based on current href, current filters, a facet, and term to toggle.
  * @todo Refactor maybe later. I dont remember what the sub-functions do too well. Could be made more clear.
+ *
+ * @param {string} currentHref - Current search URL.
+ * @param {{ field: string, term: string, remove: string }[]} contextFilters - List of currently-applied filters from context.
+ * @param {{ field: string, aggregation_type: string }} facet - Facet definition for field for which a term was clicked on.
+ * @param {{ key: string }} term - Term clicked on.
  */
 function generateNextHref(currentHref, contextFilters, facet, term) {
   var targetSearchHref = null;
@@ -104,8 +108,6 @@ function generateNextHref(currentHref, contextFilters, facet, term) {
 
 
   var willUnselect = !!unselectHref;
-
-  _patchedConsole.patchedConsoleInstance.log.apply(_patchedConsole.patchedConsoleInstance, ["ABCD"].concat(Array.prototype.slice.call(arguments)));
 
   if (willUnselect) {
     targetSearchHref = unselectHref;
@@ -164,108 +166,6 @@ function generateNextHref(currentHref, contextFilters, facet, term) {
   }
 
   return targetSearchHref;
-}
-/**
- * Use this function as part of SearchView and BrowseView to be passed down to FacetList.
- * Should be bound to a component instance, with `this` providing 'href', 'context' (with 'filters' property), and 'navigate'.
- *
- * @todo deprecate somehow. Mixins havent been part of React standards for a while now...
- * @todo Keep in mind is only for TERMS filters. Would not work for date histograms..
- *
- * @param {string} field - Field for which a Facet term was clicked on.
- * @param {string} term - Term clicked on.
- * @param {function} callback - Any function to execute afterwards.
- * @param {boolean} [skipNavigation=false] - If true, will return next targetSearchHref instead of going to it. Use to e.g. batch up filter changes on multiple fields.
- */
-
-
-function performFilteringQuery(props, facet, term, callback) {
-  var skipNavigation = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-  var currentHref = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
-  var propHref = props.href,
-      propNavigate = props.navigate,
-      context = props.context;
-  var targetSearchHref;
-  currentHref = currentHref || propHref;
-  var statusAndHref = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, context.filters);
-  var isUnselecting = !!statusAndHref.href;
-
-  if (statusAndHref.href) {
-    targetSearchHref = statusAndHref.href;
-  } else {
-    if (facet.aggregation_type === "stats") {
-      // Keep only 1, delete previous occurences
-      _patchedConsole.patchedConsoleInstance.log("TOUCH");
-
-      var parts = _url["default"].parse(currentHref, true);
-
-      delete parts.query[facet.field];
-
-      var queryStr = _queryString["default"].stringify(parts.query);
-
-      parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
-      currentHref = _url["default"].format(parts);
-
-      if (term.key === null) {
-        targetSearchHref = currentHref; // Keep current, stripped down v.
-      } else {
-        targetSearchHref = (0, _searchFilters.buildSearchHref)(facet.field, term.key, currentHref);
-      }
-    } else {
-      targetSearchHref = (0, _searchFilters.buildSearchHref)(facet.field, term.key, currentHref);
-    }
-  } // Ensure only 1 type filter is selected at once.
-  // Unselect any other type= filters if setting new one.
-
-
-  if (facet.field === 'type') {
-    if (!statusAndHref.href) {
-      var _parts2 = _url["default"].parse(targetSearchHref, true);
-
-      if (Array.isArray(_parts2.query.type)) {
-        var types = _parts2.query.type;
-
-        if (types.length > 1) {
-          var queryParts = _underscore["default"].clone(_parts2.query);
-
-          delete queryParts[""]; // Safety
-
-          queryParts.type = encodeURIComponent(term.key); // Only 1 Item type selected at once.
-
-          var searchString = _queryString["default"].stringify(queryParts);
-
-          _parts2.search = searchString && searchString.length > 0 ? '?' + searchString : '';
-          targetSearchHref = _url["default"].format(_parts2);
-        }
-      }
-    }
-  } // If we have a '#' in URL, add to target URL as well.
-
-
-  var hashFragmentIdx = currentHref.indexOf('#');
-
-  if (hashFragmentIdx > -1 && targetSearchHref.indexOf('#') === -1) {
-    targetSearchHref += currentHref.slice(hashFragmentIdx);
-  }
-
-  analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
-    'field': facet.field,
-    'term': term.key,
-    'eventLabel': analytics.eventLabelFromChartNode({
-      'field': facet.field,
-      'term': term.key
-    }),
-    'currentFilters': analytics.getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(context.filters || null)) // 'Existing' filters, or filters at time of action, go here.
-
-  });
-
-  if (!skipNavigation) {
-    (propNavigate || _navigate.navigate)(targetSearchHref, {
-      'dontScrollToTop': true
-    }, callback);
-  } else {
-    return targetSearchHref;
-  }
 }
 
 var FacetList =
