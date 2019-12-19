@@ -150,8 +150,7 @@ function (_React$PureComponent) {
     key: "constructFetchURL",
     value: function constructFetchURL() {
       var _this$props2 = this.props,
-          _this$props2$baseHref = _this$props2.baseHref,
-          baseHref = _this$props2$baseHref === void 0 ? SearchAsYouTypeAjax.defaultProps.baseHref : _this$props2$baseHref,
+          baseHref = _this$props2.baseHref,
           _this$props2$fieldsTo = _this$props2.fieldsToRequest,
           fieldsToRequest = _this$props2$fieldsTo === void 0 ? [] : _this$props2$fieldsTo;
       var currentTextValue = this.state.currentTextValue;
@@ -330,9 +329,9 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
   // Another higher-order-component
   var onChangeProp = props.onChange,
       value = props.value,
-      itemTypeProp = props.itemTypeProp;
-  var itemType = itemType || itemTypeProp || "Item"; // "some logic based on SubmissionView props if itemType not already available"
-
+      itemType = props.itemType;
+  // maybe add some logic based on SubmissionView props if itemType not already available
+  var baseHref = itemType ? "/search/?type=" + itemType : SearchAsYouTypeAjax.defaultProps.baseHref;
   var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   return _react["default"].createElement(SearchAsYouTypeAjax, _extends({
@@ -341,7 +340,7 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
       // Should probably be a method on class, or similar approach so that doesn't get re-instantiated on each render
       return onChangeProp(resultItem['@id']);
     },
-    baseHref: "/search/?type=" + itemType,
+    baseHref: baseHref,
     optionRenderFunction: optionRenderFunction,
     fieldsToRequest: fieldsToRequest
   }, {

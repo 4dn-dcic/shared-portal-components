@@ -82,7 +82,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 
     constructFetchURL() {
-        const { baseHref = SearchAsYouTypeAjax.defaultProps.baseHref, fieldsToRequest = [] } = this.props;
+        const { baseHref, fieldsToRequest = [] } = this.props;
         const { currentTextValue } = this.state;
 
         const commonFields = SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
@@ -222,19 +222,21 @@ SearchAsYouTypeAjax.defaultProps = {
 
 
 export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-order-component
-    const { onChange : onChangeProp, value, itemTypeProp } = props;
+    const { onChange : onChangeProp, value, itemType } = props;
     function onChange(resultItem){ // Should probably be a method on class, or similar approach so that doesn't get re-instantiated on each render
         return onChangeProp(resultItem['@id']);
     }
-    const itemType = itemType || itemTypeProp || "Item"; // "some logic based on SubmissionView props if itemType not already available"
-    const baseHref = "/search/?type=" + itemType;
+    // maybe add some logic based on SubmissionView props if itemType not already available
+    const baseHref = itemType ? "/search/?type=" + itemType : SearchAsYouTypeAjax.defaultProps.baseHref;
 
     const optionRenderFunction = (
-        optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null
+        optionCustomizationsByType[itemType] &&
+        optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null
     ) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
 
     const fieldsToRequest = (
-        optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null
+        optionCustomizationsByType[itemType] &&
+        optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null
     ) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
 
     return (
