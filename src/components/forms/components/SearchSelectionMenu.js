@@ -22,6 +22,12 @@ export class SearchSelectionMenu extends React.PureComponent {
     onToggleOpen(){
         this.setState(function({ dropOpen }){
             return { dropOpen: !dropOpen };
+        }, ()=>{
+            const { onToggleOpen } = this.props;
+            const { dropOpen } = this.state;
+            if (typeof onToggleOpen === "function"){
+                onToggleOpen(dropOpen);
+            }
         });
     }
 

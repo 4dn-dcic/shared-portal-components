@@ -60,11 +60,20 @@ function (_React$PureComponent) {
   _createClass(SearchSelectionMenu, [{
     key: "onToggleOpen",
     value: function onToggleOpen() {
+      var _this2 = this;
+
       this.setState(function (_ref) {
         var dropOpen = _ref.dropOpen;
         return {
           dropOpen: !dropOpen
         };
+      }, function () {
+        var onToggleOpen = _this2.props.onToggleOpen;
+        var dropOpen = _this2.state.dropOpen;
+
+        if (typeof onToggleOpen === "function") {
+          onToggleOpen(dropOpen);
+        }
       });
     }
   }, {

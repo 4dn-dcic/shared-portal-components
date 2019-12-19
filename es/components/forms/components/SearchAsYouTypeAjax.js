@@ -14,6 +14,8 @@ var _underscore = require("underscore");
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
+var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
+
 var _util = require("./../../util/");
 
 var _util2 = require("./../../util");
@@ -92,10 +94,12 @@ function (_React$PureComponent) {
     // this.processedCount = 0; // todo: remove post-testing
 
     _this.currentRequest = null;
+    _this.hasBeenOpened = false;
     _this.onLoadData = (0, _underscore.debounce)(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
     _this.constructFetchURL = _this.constructFetchURL.bind(_assertThisInitialized(_this));
     _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
     _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
+    _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
     _this.memoized = {
       filterOptions: (0, _memoizeOne["default"])(SearchAsYouTypeAjax.filterOptions)
     };
@@ -103,10 +107,24 @@ function (_React$PureComponent) {
   }
 
   _createClass(SearchAsYouTypeAjax, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(pastProps, pastState) {
       // this.totalCount++;
+      var pastResults = pastState.results;
+      var results = this.state.results;
+
+      if (results !== pastResults) {
+        _reactTooltip["default"].rebuild();
+      }
+    }
+  }, {
+    key: "onToggleOpen",
+    value: function onToggleOpen(isOpen) {
+      // On first open only, start a load
+      if (!isOpen) return false;
+      if (this.hasBeenOpened) return false;
       this.onLoadData();
+      this.hasBeenOpened = true;
     }
   }, {
     key: "onTextInputChange",
@@ -132,12 +150,13 @@ function (_React$PureComponent) {
     key: "constructFetchURL",
     value: function constructFetchURL() {
       var _this$props2 = this.props,
-          _this$props2$baseRequ = _this$props2.baseRequestURL,
-          baseRequestURL = _this$props2$baseRequ === void 0 ? "/search/?type=Item" : _this$props2$baseRequ,
+          _this$props2$baseHref = _this$props2.baseHref,
+          baseHref = _this$props2$baseHref === void 0 ? SearchAsYouTypeAjax.defaultProps.baseHref : _this$props2$baseHref,
           _this$props2$fieldsTo = _this$props2.fieldsToRequest,
-          fieldsToRequest = _this$props2$fieldsTo === void 0 ? ["@id", "display_title"] : _this$props2$fieldsTo;
+          fieldsToRequest = _this$props2$fieldsTo === void 0 ? [] : _this$props2$fieldsTo;
       var currentTextValue = this.state.currentTextValue;
-      var requestHref = "".concat(baseRequestURL).concat(currentTextValue ? "&q=" + encodeURIComponent(currentTextValue) : "", "&limit=100&") + fieldsToRequest.map(function (field) {
+      var commonFields = SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
+      var requestHref = "".concat(baseHref).concat(currentTextValue ? "&q=" + encodeURIComponent(currentTextValue) : "", "&limit=100&") + commonFields.concat(fieldsToRequest).map(function (field) {
         return "field=" + encodeURIComponent(field);
       }).join('&');
       return requestHref;
@@ -190,8 +209,6 @@ function (_React$PureComponent) {
 
           if (graph.length === 0) {
             // handle case in which no results found
-            console.log(response);
-
             _this2.setState({
               loading: false,
               results: results,
@@ -265,6 +282,7 @@ function (_React$PureComponent) {
         currentTextValue: currentTextValue
       }, {
         options: results,
+        onToggleOpen: this.onToggleOpen,
         onTextInputChange: this.onTextInputChange,
         onDropdownSelect: this.onDropdownSelect
       }));
@@ -279,7 +297,7 @@ SearchAsYouTypeAjax.propTypes = {
   value: _propTypes["default"].any,
   allowCustomValue: _propTypes["default"].bool,
   onChange: _propTypes["default"].func,
-  baseRequestURL: function baseRequestURL(props, propName, componentName) {
+  baseHref: function baseHref(props, propName, componentName) {
     if (props[propName] && !props[propName].match("^/search/?type=(.+)?$")) {
       return new Error("Invalid prop '".concat(propName, "' supplied to ").concat(componentName, ". Validation failed."));
     }
@@ -288,54 +306,238 @@ SearchAsYouTypeAjax.propTypes = {
 };
 SearchAsYouTypeAjax.defaultProps = {
   "optionRenderFunction": function optionRenderFunction(result) {
-    return result.display_title;
+    var title = result.display_title,
+        atID = result["@id"],
+        description = result.description;
+    return _react["default"].createElement("div", {
+      "data-tip": description,
+      key: atID
+    }, _react["default"].createElement("h5", {
+      className: "text-300"
+    }, title), _react["default"].createElement("h6", {
+      className: "text-mono text-400"
+    }, atID));
   },
   "titleRenderFunction": function titleRenderFunction(result) {
     return result.display_title;
   },
-  "fieldsToRequest": ["display_title"]
+  "baseHref": "/search/?type=Item",
+  "fieldsToRequest": ["@id", "display_title", "description"] // additional fields aside from @id, display_title, and description; all already included
+
 };
 
 function SubmissionViewSearchAsYouTypeAjax(props) {
   // Another higher-order-component
-  //const itemType = "some logic based on SubmissionView props if itemType not already available"
-  // todo: + itemType;
-  var optionRenderFunction = null //optionCustomizationsByType[itemType] &&
-  //optionCustomizationsByType[itemType].render
-  || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
-  var fieldsToRequest = null //optionCustomizationsByType[itemType] &&
-  //optionCustomizationsByType[itemType].fieldsToRequest
-  || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
+  var onChangeProp = props.onChange,
+      value = props.value,
+      itemTypeProp = props.itemTypeProp;
+  var itemType = itemType || itemTypeProp || "Item"; // "some logic based on SubmissionView props if itemType not already available"
+
+  var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
+  var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   return _react["default"].createElement(SearchAsYouTypeAjax, _extends({
+    value: value,
     onChange: function (resultItem) {
       // Should probably be a method on class, or similar approach so that doesn't get re-instantiated on each render
-      return props.onChange(resultItem['@id']);
+      return onChangeProp(resultItem['@id']);
     },
-    baseHref: "/search/?type=Item",
+    baseHref: "/search/?type=" + itemType,
     optionRenderFunction: optionRenderFunction,
     fieldsToRequest: fieldsToRequest
   }, {
-    value: props.value,
     titleRenderFunction: submissionViewTitleRenderFunction
   }));
 }
 
 function submissionViewTitleRenderFunction(resultAtID) {
-  console.log('R3', resultAtID);
   return resultAtID;
+}
+
+function sexToIcon(sex, showTip) {
+  sex = sex.toLowerCase();
+
+  if (sex && typeof sex === "string") {
+    if (sex === "f") {
+      sex = _react["default"].createElement("i", {
+        className: "icon icon-fw icon-venus fas",
+        "data-tip": showTip ? "Sex: Female" : ""
+      });
+    } else if (sex === "m") {
+      sex = _react["default"].createElement("i", {
+        className: "icon icon-fw icon-mars fas",
+        "data-tip": showTip ? "Sex: Male" : ""
+      });
+    } else if (sex === "u") {
+      sex = _react["default"].createElement("i", {
+        className: "icon icon-fw icon-genderless fas",
+        "data-tip": showTip ? "Sex: Unknown" : ""
+      });
+    } else {
+      sex = _react["default"].createElement("i", {
+        className: "icon icon-fw icon-question fas",
+        "data-tip": showTip ? "Sex: N/A" : ""
+      });
+    }
+  }
+
+  return sex;
 }
 
 var optionCustomizationsByType = {
   "Institution": {
     "render": function render(result) {
       var title = result.display_title,
-          atID = result["@id"];
-      return _react["default"].createElement("div", null, _react["default"].createElement("h5", {
+          atID = result["@id"],
+          description = result.description;
+      return _react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, _react["default"].createElement("h5", {
         className: "text-300"
       }, title), _react["default"].createElement("h6", {
         className: "text-mono text-400"
       }, atID));
-    }
+    },
+    "fieldsToRequest": []
+  },
+  "Individual": {
+    "render": function render(result) {
+      var title = result.display_title,
+          atID = result["@id"],
+          description = result.description,
+          _result$sex = result.sex,
+          sex = _result$sex === void 0 ? null : _result$sex,
+          _result$age = result.age,
+          age = _result$age === void 0 ? null : _result$age,
+          _result$aliases = result.aliases,
+          aliases = _result$aliases === void 0 ? [] : _result$aliases;
+      return (// need to better align right col, and adjust relative widths
+        _react["default"].createElement("div", {
+          "data-tip": description,
+          key: atID,
+          className: "d-flex"
+        }, _react["default"].createElement("div", {
+          className: "col"
+        }, _react["default"].createElement("h5", {
+          className: "text-300"
+        }, title), _react["default"].createElement("h6", {
+          className: "text-mono text-400"
+        }, aliases)), _react["default"].createElement("div", {
+          className: "col"
+        }, _react["default"].createElement("h5", {
+          className: "text-300"
+        }, "Age: ", age || "N/A"), _react["default"].createElement("h6", {
+          className: "text-mono text-400"
+        }, " Sex: ", sexToIcon(sex, false), " ")))
+      );
+    },
+    "fieldsToRequest": ['sex', 'age', 'aliases', 'description']
+  },
+  "Cohort": {
+    "render": function render(result) {
+      var title = result.display_title,
+          atID = result["@id"],
+          description = result.description,
+          accession = result.accession;
+      return _react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, _react["default"].createElement("h5", {
+        className: "text-300"
+      }, title), _react["default"].createElement("h6", {
+        className: "text-mono text-400"
+      }, accession));
+    },
+    "fieldsToRequest": ['accession', 'status', 'date_created']
+  },
+  "User": {
+    "render": function render(result) {
+      var title = result.display_title,
+          atID = result["@id"],
+          description = result.description,
+          email = result.email,
+          role = result.role,
+          first_name = result.first_name,
+          last_name = result.last_name;
+      return _react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, _react["default"].createElement("h5", {
+        className: "text-300 w-100"
+      }, title, " (", first_name, " ", last_name, ")"), _react["default"].createElement("h6", {
+        className: "text-mono text-400"
+      }, email));
+    },
+    "fieldsToRequest": ['email', 'role', 'first_name', 'last_name', 'submits_for']
+  },
+  "Document": {
+    "render": function render(result) {
+      var title = result.display_title,
+          atID = result["@id"],
+          description = result.description,
+          status = result.status,
+          date_created = result.date_created,
+          submitted_by = result.submitted_by;
+      return _react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, _react["default"].createElement("h5", {
+        className: "text-300"
+      }, title), _react["default"].createElement("h6", {
+        className: "text-mono text-400"
+      }, atID));
+    },
+    "fieldsToRequest": ['status', 'description', 'date_created', 'submitted_by']
+  },
+  "Project": {
+    "render": function render(result) {
+      var title = result.display_title,
+          atID = result["@id"],
+          description = result.description,
+          status = result.status,
+          date_created = result.date_created,
+          submitted_by = result.submitted_by;
+      return _react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, _react["default"].createElement("h5", {
+        className: "text-300"
+      }, title), _react["default"].createElement("h6", {
+        className: "text-mono text-400"
+      }, atID), _react["default"].createElement("h7", {
+        className: "text-mono text-400"
+      }, submitted_by.display_title));
+    },
+    "fieldsToRequest": ['status', 'description', 'date_created', 'submitted_by']
+  },
+  // "Disorder" : { // todo: currently not in use on cgap
+  //     "render" : function(result){
+  //         const { display_title: title, "@id" : atID, description } = result;
+  //         return (
+  //             <div data-tip={description} key={atID}>
+  //                 <h5 className="text-300">{ title }</h5>
+  //                 <h6 className="text-mono text-400">{ atID }</h6>
+  //             </div>
+  //         );
+  //     },
+  //     "fieldsToRequest" : []
+  // },
+  "Phenotype": {
+    "render": function render(result) {
+      var title = result.display_title,
+          atID = result["@id"],
+          description = result.description,
+          hpo_id = result.hpo_id;
+      return _react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, _react["default"].createElement("h5", {
+        className: "text-300"
+      }, title), _react["default"].createElement("h6", {
+        className: "text-mono text-400"
+      }, hpo_id));
+    },
+    "fieldsToRequest": ["hpo_id"]
   }
 };
 exports.optionCustomizationsByType = optionCustomizationsByType;
