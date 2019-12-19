@@ -287,7 +287,7 @@ function (_React$PureComponent) {
         case 'suggested_enum':
           return _react["default"].createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement(_SearchAsYouTypeAjax.SearchAsYouTypeAjax, {
+          }, "Ajax version", _react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, {
             value: value,
             allowCustomValue: false,
             onChange: this.handleEnumChange

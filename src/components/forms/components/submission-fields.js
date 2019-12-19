@@ -14,7 +14,7 @@ import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionB
 import { Line as ProgressBar } from 'rc-progress';
 import { LinkToSelector } from './LinkToSelector';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
-import { SearchAsYouTypeAjax } from './SearchAsYouTypeAjax';
+import { SubmissionViewSearchAsYouTypeAjax } from './SearchAsYouTypeAjax';
 
 
 /**
@@ -162,8 +162,10 @@ export class BuildField extends React.PureComponent {
             );
             case 'suggested_enum'   : return (
                 <span className="input-wrapper">
-                    <SearchAsYouTypeAjax value={value} allowCustomValue={false} onChange={this.handleEnumChange} />
-                    {/* <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue
+                    Ajax version
+                    <SubmissionViewSearchAsYouTypeAjax value={value} allowCustomValue={false} onChange={this.handleEnumChange} />
+                    {/* Local version
+                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue={false}
                         filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/> */}
                 </span>
             );

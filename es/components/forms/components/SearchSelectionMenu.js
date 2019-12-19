@@ -37,6 +37,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var SearchSelectionMenu =
 /*#__PURE__*/
 function (_React$PureComponent) {
@@ -77,6 +79,7 @@ function (_React$PureComponent) {
           options = _this$props$options === void 0 ? [] : _this$props$options,
           _this$props$optionRen = _this$props.optionRenderFunction,
           optionRenderFunction = _this$props$optionRen === void 0 ? null : _this$props$optionRen,
+          titleRenderFunction = _this$props.titleRenderFunction,
           onDropdownSelect = _this$props.onDropdownSelect,
           onTextInputChange = _this$props.onTextInputChange,
           optionsHeader = _this$props.optionsHeader,
@@ -84,18 +87,20 @@ function (_React$PureComponent) {
           className = _this$props.className;
       var dropOpen = this.state.dropOpen;
       var cls = "search-selection-menu" + (className ? " " + className : "");
+
+      var showValue = value && titleRenderFunction(value) || _react["default"].createElement("span", {
+        className: "text-300"
+      }, "No value");
+
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
         drop: "down",
         flip: false,
         onToggle: this.onToggleOpen,
         show: dropOpen,
-        onSelect: onDropdownSelect,
         className: cls
       }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
         variant: "outline-dark"
-      }, value || _react["default"].createElement("span", {
-        className: "text-300"
-      }, "No value")), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
+      }, showValue), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
         as: SearchSelectionMenuBody
       }, {
         onTextInputChange: onTextInputChange,
@@ -108,11 +113,17 @@ function (_React$PureComponent) {
         show: dropOpen,
         onTextInputChange: onTextInputChange,
         toggleOpen: this.onToggleOpen
-      }), options.map(function (optStr) {
-        var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(optStr) : optStr;
+      }), options.map(function (option, idx) {
+        var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
-          key: optStr,
-          eventKey: optStr,
+          "data-index": idx,
+          onClick: function (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            onDropdownSelect(option);
+          },
+          key: idx,
+          eventKey: idx,
           className: "text-ellipsis-container",
           tabIndex: "3"
         }, renderedOption);
@@ -124,6 +135,12 @@ function (_React$PureComponent) {
 }(_react["default"].PureComponent);
 
 exports.SearchSelectionMenu = SearchSelectionMenu;
+
+_defineProperty(SearchSelectionMenu, "defaultProps", {
+  titleRenderFunction: function titleRenderFunction(option) {
+    return option;
+  }
+});
 
 var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
   var currentTextValue = props.currentTextValue,

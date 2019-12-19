@@ -4,6 +4,13 @@ import { Dropdown } from 'react-bootstrap';
 
 
 export class SearchSelectionMenu extends React.PureComponent {
+
+    static defaultProps = {
+        titleRenderFunction: function(option){
+            return option;
+        }
+    };
+
     constructor(props){
         super(props);
         this.onToggleOpen = this.onToggleOpen.bind(this);
@@ -24,6 +31,7 @@ export class SearchSelectionMenu extends React.PureComponent {
             value = "", // Saved value. Would be === to currentTextValue if allowCustomValue is true.
             options = [],
             optionRenderFunction = null,
+            titleRenderFunction,
             onDropdownSelect,
             onTextInputChange,
             optionsHeader,
@@ -32,21 +40,23 @@ export class SearchSelectionMenu extends React.PureComponent {
         } = this.props;
         const { dropOpen } = this.state;
         const cls = "search-selection-menu" + (className? " " + className : "");
+        const showValue = (value && titleRenderFunction(value)) || <span className="text-300">No value</span>;
         return (
-            <Dropdown drop="down" flip={false} onToggle={this.onToggleOpen} show={dropOpen} onSelect={onDropdownSelect} className={cls}>
-
-                <Dropdown.Toggle variant="outline-dark">
-                    { value || <span className="text-300">No value</span>}
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }} drop="down"
-                    flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}>
+            <Dropdown drop="down" flip={false} onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
+                <Dropdown.Toggle variant="outline-dark">{ showValue }</Dropdown.Toggle>
+                <Dropdown.Menu as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
+                    drop="down" flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}>
                     {
-                        options.map(function(optStr, idx){
+                        options.map(function(option, idx){
                             const renderedOption = typeof optionRenderFunction === "function" ?
-                                optionRenderFunction(optStr) : optStr;
+                                optionRenderFunction(option) : option;
+                            function onClick(evt){
+                                evt.preventDefault();
+                                evt.stopPropagation();
+                                onDropdownSelect(option);
+                            }
                             return (
-                                <Dropdown.Item key={optStr} eventKey={optStr} className="text-ellipsis-container" tabIndex="3">
+                                <Dropdown.Item data-index={idx} onClick={onClick} key={idx} eventKey={idx} className="text-ellipsis-container" tabIndex="3">
                                     { renderedOption }
                                 </Dropdown.Item>
                             );
