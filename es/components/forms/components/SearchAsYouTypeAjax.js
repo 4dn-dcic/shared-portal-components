@@ -20,6 +20,8 @@ var _util = require("./../../util/");
 
 var _util2 = require("./../../util");
 
+var _submissionFields = require("./submission-fields");
+
 var _SearchSelectionMenu = require("./SearchSelectionMenu");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -143,7 +145,8 @@ function (_React$PureComponent) {
     key: "constructFetchURL",
     value: function constructFetchURL() {
       var _this$props = this.props,
-          baseHref = _this$props.baseHref,
+          _this$props$baseHref = _this$props.baseHref,
+          baseHref = _this$props$baseHref === void 0 ? SearchAsYouTypeAjax.defaultProps.baseHref : _this$props$baseHref,
           _this$props$fieldsToR = _this$props.fieldsToRequest,
           fieldsToRequest = _this$props$fieldsToR === void 0 ? [] : _this$props$fieldsToR;
       var currentTextValue = this.state.currentTextValue;
@@ -320,23 +323,25 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
   // Another higher-order-component
   var onChangeProp = props.onChange,
       value = props.value,
-      itemType = props.itemType;
-  // maybe add some logic based on SubmissionView props if itemType not already available
-  var baseHref = itemType ? "/search/?type=" + itemType : SearchAsYouTypeAjax.defaultProps.baseHref;
+      _props$schema$linkTo = props.schema.linkTo,
+      linkTo = _props$schema$linkTo === void 0 ? "Item" : _props$schema$linkTo,
+      _props$itemType = props.itemType,
+      itemType = _props$itemType === void 0 ? linkTo : _props$itemType;
   var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
-  return _react["default"].createElement(SearchAsYouTypeAjax, _extends({
+  return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(SearchAsYouTypeAjax, _extends({
     value: value,
     onChange: function (resultItem) {
       // Should probably be a method on class, or similar approach so that doesn't get re-instantiated on each render
       return onChangeProp(resultItem['@id']);
-    },
-    baseHref: baseHref,
+    } // Add some logic based on schema.Linkto props if itemType not already available
+    ,
+    baseHref: "/search/?type=" + linkTo,
     optionRenderFunction: optionRenderFunction,
     fieldsToRequest: fieldsToRequest
   }, {
     titleRenderFunction: submissionViewTitleRenderFunction
-  }));
+  })));
 }
 
 function submissionViewTitleRenderFunction(resultAtID) {

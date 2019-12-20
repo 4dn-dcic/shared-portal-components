@@ -7,6 +7,7 @@ import ReactTooltip from 'react-tooltip';
 import { ajax } from './../../util/';
 import { valueTransforms } from './../../util';
 
+import { LinkedObj } from './submission-fields';
 import { SearchSelectionMenu } from './SearchSelectionMenu';
 
 export class SearchAsYouTypeAjax extends React.PureComponent {
@@ -79,7 +80,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 
     constructFetchURL() {
-        const { baseHref, fieldsToRequest = [] } = this.props;
+        const { baseHref = SearchAsYouTypeAjax.defaultProps.baseHref, fieldsToRequest = [] } = this.props;
         const { currentTextValue } = this.state;
 
         const commonFields = SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
@@ -217,12 +218,18 @@ SearchAsYouTypeAjax.defaultProps = {
 
 
 export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-order-component
-    const { onChange : onChangeProp, value, itemType } = props;
+    const {
+        onChange : onChangeProp,
+        value,
+        schema : { linkTo = "Item" },
+        itemType = linkTo
+    } = props;
+
     function onChange(resultItem){ // Should probably be a method on class, or similar approach so that doesn't get re-instantiated on each render
         return onChangeProp(resultItem['@id']);
     }
-    // maybe add some logic based on SubmissionView props if itemType not already available
-    const baseHref = itemType ? "/search/?type=" + itemType : SearchAsYouTypeAjax.defaultProps.baseHref;
+    // Add some logic based on schema.Linkto props if itemType not already available
+    const baseHref = "/search/?type=" + linkTo;
 
     const optionRenderFunction = (
         optionCustomizationsByType[itemType] &&
@@ -235,8 +242,11 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
     ) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
 
     return (
-        <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction, fieldsToRequest }}
-            titleRenderFunction={submissionViewTitleRenderFunction} />
+        <React.Fragment>
+            <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction, fieldsToRequest }}
+                titleRenderFunction={submissionViewTitleRenderFunction} />
+            {/* <LinkedObj key="linked-item" {...props}/>; */}
+        </React.Fragment>
     );
 }
 

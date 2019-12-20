@@ -12,7 +12,6 @@ import { ajax, console, object, valueTransforms } from './../../util';
 import { Alerts } from './../../ui/Alerts';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
 import { Line as ProgressBar } from 'rc-progress';
-import { LinkToSelector } from './LinkToSelector';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 import { SubmissionViewSearchAsYouTypeAjax } from './SearchAsYouTypeAjax';
 
@@ -147,29 +146,35 @@ export class BuildField extends React.PureComponent {
             );
             case 'enum'             : return (
                 <span className="input-wrapper">
-                    <DropdownButton title={value || <span className="text-300">No value</span>}
-                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
-                        onSelect={this.handleEnumChange}>
-                        {
-                            enumValues.map((val)=>
-                                <DropdownItem key={val} title={val || ''} eventKey={val}>
-                                    {val || ''}
-                                </DropdownItem>
-                            )
-                        }
-                    </DropdownButton>
+                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue={false}
+                        filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                 </span>
+                // <span className="input-wrapper">
+                //     <DropdownButton title={value || <span className="text-300">No value</span>}
+                //         onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
+                //         onSelect={this.handleEnumChange}>
+                //         {
+                //             enumValues.map((val)=>
+                //                 <DropdownItem key={val} title={val || ''} eventKey={val}>
+                //                     {val || ''}
+                //                 </DropdownItem>
+                //             )
+                //         }
+                //     </DropdownButton>
+                // </span>
             );
             case 'suggested_enum'   : return (
                 <span className="input-wrapper">
-                    Ajax version
-                    <SubmissionViewSearchAsYouTypeAjax value={value} allowCustomValue={false} onChange={this.handleEnumChange} />
-                    {/* Local version
-                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue={false}
-                        filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/> */}
+                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue={true}
+                        filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                 </span>
             );
-            case 'linked object'    : return <LinkedObj key="linked-item" {...this.props}/>;
+            case 'linked object'    : return (
+                <span className="input-wrapper">
+                    <SubmissionViewSearchAsYouTypeAjax value={value} allowCustomValue={false}
+                        onChange={this.handleEnumChange} {...this.props} />
+                </span>
+            );
             case 'array'            : return <ArrayField {...this.props} pushArrayValue={this.pushArrayValue} value={value || null} roundTwo={roundTwo} />;
             case 'object'           : return <ObjectField {...this.props} />;
             case 'attachment'       : return <div style={{ 'display':'inline' }}><AttachmentInput {...this.props}/></div>;
@@ -441,7 +446,7 @@ SquareButton.defaultProps = {
 //var linkedObjChildWindow = null; // Global var
 
 /** Case for a linked object. */
-class LinkedObj extends React.PureComponent {
+export class LinkedObj extends React.PureComponent {
 
     /**
      * @param {Object} props - Props passed from LinkedObj or BuildField.

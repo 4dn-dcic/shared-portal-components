@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.isValueNull = isValueNull;
-exports.AliasInputFieldValidated = exports.AliasInputField = exports.BuildField = void 0;
+exports.AliasInputFieldValidated = exports.AliasInputField = exports.LinkedObj = exports.BuildField = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -27,8 +27,6 @@ var _Alerts = require("./../../ui/Alerts");
 var _BasicStaticSectionBody = require("./../../static-pages/BasicStaticSectionBody");
 
 var _rcProgress = require("rc-progress");
-
-var _LinkToSelector = require("./LinkToSelector");
 
 var _SearchAsYouTypeLocal = require("./SearchAsYouTypeLocal");
 
@@ -269,34 +267,48 @@ function (_React$PureComponent) {
         case 'enum':
           return _react["default"].createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement(_reactBootstrap.DropdownButton, {
-            title: value || _react["default"].createElement("span", {
-              className: "text-300"
-            }, "No value"),
-            onToggle: this.handleDropdownButtonToggle,
-            variant: "outline-dark",
-            onSelect: this.handleEnumChange
-          }, enumValues.map(function (val) {
-            return _react["default"].createElement(_reactBootstrap.DropdownItem, {
-              key: val,
-              title: val || '',
-              eventKey: val
-            }, val || '');
-          })));
+          }, _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
+            searchList: enumValues,
+            value: value,
+            allowCustomValue: false,
+            filterMethod: "includes",
+            onChange: this.handleEnumChange,
+            maxResults: 3
+          })) // <span className="input-wrapper">
+          //     <DropdownButton title={value || <span className="text-300">No value</span>}
+          //         onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
+          //         onSelect={this.handleEnumChange}>
+          //         {
+          //             enumValues.map((val)=>
+          //                 <DropdownItem key={val} title={val || ''} eventKey={val}>
+          //                     {val || ''}
+          //                 </DropdownItem>
+          //             )
+          //         }
+          //     </DropdownButton>
+          // </span>
+          ;
 
         case 'suggested_enum':
           return _react["default"].createElement("span", {
             className: "input-wrapper"
-          }, "Ajax version", _react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, {
+          }, _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
+            searchList: enumValues,
             value: value,
-            allowCustomValue: false,
-            onChange: this.handleEnumChange
+            allowCustomValue: true,
+            filterMethod: "includes",
+            onChange: this.handleEnumChange,
+            maxResults: 3
           }));
 
         case 'linked object':
-          return _react["default"].createElement(LinkedObj, _extends({
-            key: "linked-item"
-          }, this.props));
+          return _react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, _react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, _extends({
+            value: value,
+            allowCustomValue: false,
+            onChange: this.handleEnumChange
+          }, this.props)));
 
         case 'array':
           return _react["default"].createElement(ArrayField, _extends({}, this.props, {
@@ -962,7 +974,7 @@ function (_React$PureComponent2) {
         style: {
           'marginRight': 9
         }
-      })), _react["default"].createElement(_LinkToSelector.LinkToSelector, {
+      })), _react["default"].createElement(LinkToSelector, {
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
         onCloseChildWindow: selectCancel,
@@ -1065,6 +1077,8 @@ function (_React$PureComponent2) {
 
   return LinkedObj;
 }(_react["default"].PureComponent);
+
+exports.LinkedObj = LinkedObj;
 
 var PreviewField = _react["default"].memo(function (props) {
   var value = props.value,
