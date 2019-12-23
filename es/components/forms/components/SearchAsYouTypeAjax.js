@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SubmissionViewSearchAsYouTypeAjax = SubmissionViewSearchAsYouTypeAjax;
-exports.optionCustomizationsByType = exports.SearchAsYouTypeAjax = void 0;
+exports.SquareButton = exports.LinkedObj = exports.optionCustomizationsByType = exports.SearchAsYouTypeAjax = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -16,17 +16,27 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
+var _Fade = require("./../../ui/Fade");
+
 var _util = require("./../../util/");
 
 var _util2 = require("./../../util");
 
-var _submissionFields = require("./submission-fields");
+var _LinkToSelector = require("./LinkToSelector");
 
 var _SearchSelectionMenu = require("./SearchSelectionMenu");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -97,7 +107,7 @@ function (_React$PureComponent) {
 
     _this.currentRequest = null;
     _this.hasBeenOpened = false;
-    _this.onLoadData = (0, _underscore.debounce)(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
+    _this.onLoadData = _underscore._.debounce(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
     _this.constructFetchURL = _this.constructFetchURL.bind(_assertThisInitialized(_this));
     _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
     _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
@@ -341,7 +351,9 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
     fieldsToRequest: fieldsToRequest
   }, {
     titleRenderFunction: submissionViewTitleRenderFunction
-  })));
+  })), _react["default"].createElement(LinkedObj, _extends({
+    key: "linked-item"
+  }, props)), ";");
 }
 
 function submissionViewTitleRenderFunction(resultAtID) {
@@ -535,4 +547,438 @@ var optionCustomizationsByType = {
     "fieldsToRequest": ["hpo_id"]
   }
 };
+/** Case for a linked object. */
+
 exports.optionCustomizationsByType = optionCustomizationsByType;
+
+var LinkedObj =
+/*#__PURE__*/
+function (_React$PureComponent2) {
+  _inherits(LinkedObj, _React$PureComponent2);
+
+  _createClass(LinkedObj, null, [{
+    key: "isInSelectionField",
+
+    /**
+     * @param {Object} props - Props passed from LinkedObj or BuildField.
+     * @param {string} props.nestedField - Field of LinkedObj
+     * @param {number[]|null} props.arrayIdx - Array index (if any) of this item, if any.
+     * @param {string} props.fieldBeingSelected - Field currently selected for linkedTo item selection.
+     * @param {number[]|null} props.fieldBeingSelectedArrayIdx - Array index (if any) of currently selected for linkedTo item selection.
+     * @returns {boolean} Whether is currently selected field/item or not.
+     */
+    value: function isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx) {
+      //if (!props) return false;
+      //const { fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = props;
+      if (!fieldBeingSelected || fieldBeingSelected !== nestedField) {
+        return false;
+      }
+
+      if (arrayIdx === null && fieldBeingSelectedArrayIdx === null) {
+        return true;
+      }
+
+      if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
+        return _underscore._.every(arrayIdx, function (arrIdx, arrIdxIdx) {
+          return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
+        });
+      }
+
+      return false;
+    }
+  }]);
+
+  function LinkedObj(props) {
+    var _this3;
+
+    _classCallCheck(this, LinkedObj);
+
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(LinkedObj).call(this, props));
+    _this3.updateContext = _this3.updateContext.bind(_assertThisInitialized(_this3));
+    _this3.setSubmissionStateToLinkedToItem = _this3.setSubmissionStateToLinkedToItem.bind(_assertThisInitialized(_this3));
+    _this3.handleStartSelectItem = _this3.handleStartSelectItem.bind(_assertThisInitialized(_this3));
+    _this3.handleFinishSelectItem = _this3.handleFinishSelectItem.bind(_assertThisInitialized(_this3));
+    _this3.handleCreateNewItemClick = _this3.handleCreateNewItemClick.bind(_assertThisInitialized(_this3));
+    _this3.handleTextInputChange = _this3.handleTextInputChange.bind(_assertThisInitialized(_this3));
+    _this3.handleAcceptTypedID = _this3.handleAcceptTypedID.bind(_assertThisInitialized(_this3));
+    _this3.childWindowAlert = _this3.childWindowAlert.bind(_assertThisInitialized(_this3)); //this.state = {
+    //    'textInputValue' : (typeof props.value === 'string' && props.value) || ''
+    //};
+
+    return _this3;
+  }
+
+  _createClass(LinkedObj, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.updateContext();
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate() {
+      this.updateContext();
+
+      _reactTooltip["default"].rebuild();
+    }
+    /**
+     * Mechanism for changing value of linked object in parent context
+     * from {number} keyIdx to {string} path of newly submitted object.
+     */
+
+  }, {
+    key: "updateContext",
+    value: function updateContext() {
+      var _this$props3 = this.props,
+          keyComplete = _this$props3.keyComplete,
+          value = _this$props3.value,
+          linkType = _this$props3.linkType,
+          arrayIdx = _this$props3.arrayIdx,
+          nestedField = _this$props3.nestedField,
+          modifyNewContext = _this$props3.modifyNewContext;
+
+      if (keyComplete[value] && !isNaN(value)) {
+        modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
+
+        _reactTooltip["default"].rebuild();
+      }
+    }
+  }, {
+    key: "setSubmissionStateToLinkedToItem",
+    value: function setSubmissionStateToLinkedToItem(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var intKey = parseInt(this.props.value);
+      if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
+      this.props.setSubmissionState('currKey', intKey);
+    }
+  }, {
+    key: "handleStartSelectItem",
+    value: function handleStartSelectItem(e) {
+      e.preventDefault();
+      if (!window) return;
+      var _this$props4 = this.props,
+          schema = _this$props4.schema,
+          nestedField = _this$props4.nestedField,
+          currType = _this$props4.currType,
+          linkType = _this$props4.linkType,
+          arrayIdx = _this$props4.arrayIdx,
+          selectObj = _this$props4.selectObj,
+          selectCancel = _this$props4.selectCancel;
+      var itemType = schema.linkTo;
+      selectObj(itemType, nestedField, arrayIdx);
+    }
+    /**
+     * Handles drop event for the (temporarily-existing-while-dragging-over) window drop receiver element.
+     * Grabs @ID of Item from evt.dataTransfer, attempting to grab from 'text/4dn-item-id', 'text/4dn-item-json', or 'text/plain'.
+     * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
+     */
+
+  }, {
+    key: "handleFinishSelectItem",
+    value: function handleFinishSelectItem(items) {
+      var _this$props5 = this.props,
+          selectComplete = _this$props5.selectComplete,
+          isMultiSelect = _this$props5.isMultiSelect;
+
+      if (!items || !Array.isArray(items) || items.length === 0 || !_underscore._.every(items, function (item) {
+        return item.id && typeof item.id === 'string' && item.json;
+      })) {
+        return;
+      }
+
+      var atIds;
+
+      if (!(isMultiSelect || false)) {
+        if (items.length > 1) {
+          console.warn('Multiple items selected but we only get a single item, since handler\'s not supporting multiple items!');
+        }
+
+        var _items = _slicedToArray(items, 1),
+            _items$ = _items[0],
+            atId = _items$.id,
+            itemContext = _items$.json;
+
+        atIds = [atId];
+      } else {
+        atIds = _underscore._.pluck(items, "id");
+      }
+
+      var invalidTitle = "Invalid Item Selected";
+
+      if (_underscore._.every(atIds, function (atId) {
+        var isValidAtId = object.isValidAtIDFormat(atId);
+        return atId && isValidAtId;
+      })) {
+        Alerts.deQueue({
+          'title': invalidTitle
+        });
+        selectComplete(atIds);
+      } else {
+        Alerts.queue({
+          'title': invalidTitle,
+          'message': "You have selected an item or link which doesn't have a valid 4DN ID or URL associated with it. Please try again.",
+          'style': 'danger'
+        });
+        throw new Error('No valid @id available.');
+      }
+    }
+  }, {
+    key: "handleCreateNewItemClick",
+    value: function handleCreateNewItemClick(e) {
+      e.preventDefault();
+      var _this$props6 = this.props,
+          fieldBeingSelected = _this$props6.fieldBeingSelected,
+          selectCancel = _this$props6.selectCancel,
+          modifyNewContext = _this$props6.modifyNewContext,
+          nestedField = _this$props6.nestedField,
+          linkType = _this$props6.linkType,
+          arrayIdx = _this$props6.arrayIdx,
+          schema = _this$props6.schema;
+      if (fieldBeingSelected !== null) selectCancel();
+      modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
+    }
+  }, {
+    key: "handleAcceptTypedID",
+    value: function handleAcceptTypedID(evt) {
+      console.log(evt);
+
+      if (!this || !this.state || !this.state.textInputValue) {
+        throw new Error('Invalid @id format.');
+      }
+
+      var atIds = [this.state.textInputValue];
+      this.props.selectComplete(atIds);
+    }
+  }, {
+    key: "handleTextInputChange",
+    value: function handleTextInputChange(evt) {
+      this.setState({
+        'textInputValue': evt.target.value
+      });
+    }
+  }, {
+    key: "childWindowAlert",
+    value: function childWindowAlert() {
+      var _this$props7 = this.props,
+          schema = _this$props7.schema,
+          nestedField = _this$props7.nestedField,
+          isMultiSelect = _this$props7.isMultiSelect;
+      var itemType = schema && schema.linkTo;
+      var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
+      // const message = (
+      //     <div>
+      //         { !isMultiSelect?
+      //             <p className="mb-0">
+      //                 Please either select an Item below and click <em>Apply</em> or <em>drag and drop</em> an Item (row) from this window into the submissions window.
+      //             </p>
+      //             :
+      //             <p className="mb-0">
+      //                 Please select the Item(s) you would like and then press <em>Apply</em> below.
+      //             </p>
+      //         }
+      //         <p className="mb-0">You may use facets on the left-hand side to narrow down results.</p>
+      //     </div>
+      // );
+      return {
+        title: 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
+        message: null,
+        style: 'info'
+      };
+    }
+  }, {
+    key: "renderSelectInputField",
+    value: function renderSelectInputField() {
+      var _this$props8 = this.props,
+          value = _this$props8.value,
+          selectCancel = _this$props8.selectCancel,
+          schema = _this$props8.schema,
+          currType = _this$props8.currType,
+          nestedField = _this$props8.nestedField,
+          isMultiSelect = _this$props8.isMultiSelect,
+          searchURL = _this$props8.searchURL;
+      var textInputValue = this.state.textInputValue;
+      var canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
+      var extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
+      var itemType = schema.linkTo;
+      var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
+      // let searchURL = '/search/?currentAction=' + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
+      // // check if we have any schema flags that will affect the searchUrl
+      // if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
+      //     // the field to facet on could be set dynamically
+      //     if (schema.ff_flag == "filter:valid_item_types"){
+      //         searchURL += '&valid_item_types=' + currType;
+      //     }
+      // }
+      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
+        className: "linked-object-text-input-container row flexrow"
+      }, _react["default"].createElement("div", {
+        className: "field-column col"
+      }, _react["default"].createElement("input", {
+        onChange: this.handleTextInputChange,
+        className: "form-control" + extClass,
+        inputMode: "latin",
+        type: "text",
+        placeholder: "Drag & drop Item from the search view or type in a valid @ID.",
+        value: this.state.textInputValue,
+        onDrop: this.handleDrop
+      })), canShowAcceptTypedInput ? _react["default"].createElement(SquareButton, {
+        show: true,
+        onClick: this.handleAcceptTypedID,
+        icon: "check fas",
+        bsStyle: "success",
+        tip: "Accept typed identifier and look it up in database."
+      }) : null, _react["default"].createElement(SquareButton, {
+        show: true,
+        onClick: selectCancel,
+        tip: "Cancel selection",
+        style: {
+          'marginRight': 9
+        }
+      })), _react["default"].createElement(_LinkToSelector.LinkToSelector, {
+        isSelecting: true,
+        onSelect: this.handleFinishSelectItem,
+        onCloseChildWindow: selectCancel,
+        childWindowAlert: this.childWindowAlert,
+        dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
+        searchURL: searchURL
+      }));
+    }
+  }, {
+    key: "renderEmptyField",
+    value: function renderEmptyField() {
+      return _react["default"].createElement("div", {
+        className: "linked-object-buttons-container"
+      }, _react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-outline-dark select-create-linked-item-button",
+        onClick: this.handleStartSelectItem
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-search fas"
+      }), " Select existing"), _react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-outline-dark select-create-linked-item-button",
+        onClick: this.handleCreateNewItemClick
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-file far"
+      }), " Create new"));
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props9 = this.props,
+          value = _this$props9.value,
+          keyDisplay = _this$props9.keyDisplay,
+          keyComplete = _this$props9.keyComplete,
+          fieldBeingSelected = _this$props9.fieldBeingSelected,
+          nestedField = _this$props9.nestedField,
+          arrayIdx = _this$props9.arrayIdx,
+          fieldBeingSelectedArrayIdx = _this$props9.fieldBeingSelectedArrayIdx;
+      var isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
+
+      if (isSelecting) {
+        return this.renderSelectInputField();
+      } // object chosen or being created
+
+
+      if (value) {
+        var thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)" : "<code>" + value + "</code>";
+
+        if (isNaN(value)) {
+          return _react["default"].createElement("div", {
+            className: "submitted-linked-object-display-container text-ellipsis-container"
+          }, _react["default"].createElement("i", {
+            className: "icon icon-fw icon-hdd far mr-05"
+          }), _react["default"].createElement("a", {
+            href: value,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            "data-tip": thisDisplay + " is already in the database",
+            "data-html": true
+          }, keyDisplay[value] || value), _react["default"].createElement("i", {
+            className: "icon icon-fw icon-external-link-alt ml-05 fas"
+          }));
+        } else {
+          // it's a custom object. Either render a link to editing the object
+          // or a pop-up link to the object if it's already submitted
+          var intKey = parseInt(value); // this is a fallback - shouldn't be int because value should be
+          // string once the obj is successfully submitted
+
+          if (keyComplete[intKey]) {
+            return _react["default"].createElement("div", null, _react["default"].createElement("a", {
+              href: keyComplete[intKey],
+              target: "_blank",
+              rel: "noopener noreferrer"
+            }, thisDisplay), _react["default"].createElement("i", {
+              className: "icon icon-fw icon-external-link-alt ml-05 fas"
+            }));
+          } else {
+            return _react["default"].createElement("div", {
+              className: "incomplete-linked-object-display-container text-ellipsis-container"
+            }, _react["default"].createElement("i", {
+              className: "icon icon-fw icon-sticky-note far"
+            }), "\xA0\xA0", _react["default"].createElement("a", {
+              href: "#",
+              onClick: this.setSubmissionStateToLinkedToItem,
+              "data-tip": "Continue editing/submitting"
+            }, thisDisplay), "\xA0", _react["default"].createElement("i", {
+              style: {
+                'fontSize': '0.85rem'
+              },
+              className: "icon icon-fw icon-pencil ml-05 fas"
+            }));
+          }
+        }
+      } else {
+        // nothing chosen/created yet
+        return this.renderEmptyField();
+      }
+    }
+  }]);
+
+  return LinkedObj;
+}(_react["default"].PureComponent);
+
+exports.LinkedObj = LinkedObj;
+
+var SquareButton = _react["default"].memo(function (props) {
+  var show = props.show,
+      disabled = props.disabled,
+      onClick = props.onClick,
+      tip = props.tip,
+      bsStyle = props.bsStyle,
+      className = props.className,
+      buttonContainerClassName = props.buttonContainerClassName,
+      icon = props.icon,
+      style = props.style;
+  var outerCls = "remove-button-container" + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
+  var btnCls = "btn" + (className ? " " + className : "");
+
+  if (bsStyle) {
+    btnCls += " btn-" + bsStyle;
+  }
+
+  return _react["default"].createElement("div", {
+    className: "remove-button-column" + (!show ? ' hidden' : ''),
+    style: style
+  }, _react["default"].createElement(_Fade.Fade, {
+    "in": show
+  }, _react["default"].createElement("div", {
+    className: outerCls
+  }, _react["default"].createElement("button", {
+    type: "button",
+    disabled: disabled || !show,
+    onClick: onClick,
+    "data-tip": tip,
+    tabIndex: 2,
+    className: btnCls
+  }, _react["default"].createElement("i", {
+    className: "icon icon-fw icon-" + icon
+  })))));
+});
+
+exports.SquareButton = SquareButton;
+SquareButton.defaultProps = {
+  'bsStyle': 'danger',
+  'icon': 'times fas',
+  'style': null
+};
