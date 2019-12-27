@@ -565,7 +565,8 @@ function (_React$PureComponent3) {
           propNavigate = _this$props5.navigate,
           href = _this$props5.href,
           context = _this$props5.context,
-          schemas = _this$props5.schemas;
+          schemas = _this$props5.schemas,
+          placeholderReplacementFxn = _this$props5.placeholderReplacementFxn;
       var searchItemType = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context);
       return _react["default"].createElement("div", {
         className: "search-page-container",
@@ -573,7 +574,8 @@ function (_React$PureComponent3) {
       }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
         href: href,
         context: context,
-        schemas: schemas
+        schemas: schemas,
+        placeholderReplacementFxn: placeholderReplacementFxn
       }), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
         facets: propFacets || context.facets,
         navigate: propNavigate || _navigate.navigate

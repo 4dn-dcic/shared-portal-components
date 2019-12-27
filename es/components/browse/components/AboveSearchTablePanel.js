@@ -19,7 +19,11 @@ var _ajax = require("./../../util/ajax");
 
 var _schemaTransforms = require("./../../util/schema-transforms");
 
+var _BasicStaticSectionBody = require("./../../static-pages/BasicStaticSectionBody");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -254,12 +258,17 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      // TODO: Add in custom front-end controls if/when applicable.
+      var _this$props2 = this.props,
+          context = _this$props2.context,
+          placeholderReplacementFxn = _this$props2.placeholderReplacementFxn; // TODO: Add in custom front-end controls if/when applicable.
       // If we migrate 'full screen', 'select x for download' etc buttons/controls here (desireable) we need to make sure it communicates with external state container for the SearchResultTable.
       // SearchResultTable would likely need to expose some functions which would be accessible via instance reference to SearchResultTable and passed up as callback props into this one.
+
       return _react["default"].createElement("div", {
         className: "above-table-panel"
-      }, _react["default"].createElement(AboveSearchTablePanelStaticContentPane, {
+      }, _react["default"].createElement(SearchHeaderSection, _extends({}, context.search_header, {
+        placeholderReplacementFxn: placeholderReplacementFxn
+      })), _react["default"].createElement(AboveSearchTablePanelStaticContentPane, {
         targetHref: this.routeStaticContentHref()
       }));
     }
@@ -280,3 +289,24 @@ AboveSearchTablePanel.defaultProps = {
   "mappingLocation": "/sysinfos/search-header-mappings/",
   "cacheMappingGlobally": true
 };
+
+var SearchHeaderSection = _react["default"].memo(function (props) {
+  var propTitle = props.title,
+      propContent = props.content,
+      filetype = props.filetype,
+      placeholderReplacementFxn = props.placeholderReplacementFxn;
+  var title = propTitle ? _react["default"].createElement("h4", {
+    className: "text-300"
+  }, propTitle) : null;
+  var content = propContent ? _react["default"].createElement(_BasicStaticSectionBody.BasicStaticSectionBody, _extends({
+    content: propContent,
+    placeholderReplacementFxn: placeholderReplacementFxn
+  }, {
+    filetype: filetype || 'txt'
+  })) : null;
+  return content ? _react["default"].createElement("div", {
+    className: "row mt-1"
+  }, _react["default"].createElement("div", {
+    className: "col-12 col-lg-9 pull-right"
+  }, title, content)) : null;
+});

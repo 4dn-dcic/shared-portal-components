@@ -363,11 +363,11 @@ export class SearchView extends React.PureComponent {
      * For custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
      */
     render() {
-        const { facets : propFacets, navigate: propNavigate, href, context, schemas } = this.props;
+        const { facets: propFacets, navigate: propNavigate, href, context, schemas, placeholderReplacementFxn } = this.props;
         const searchItemType = getSchemaTypeFromSearchContext(context);
         return (
             <div className="search-page-container" data-search-item-type={searchItemType}>
-                <AboveSearchTablePanel {...{ href, context, schemas }} />
+                <AboveSearchTablePanel {...{ href, context, schemas, placeholderReplacementFxn }} />
                 <SearchControllersContainer {...this.props} facets={propFacets || context.facets} navigate={propNavigate || navigate} />
             </div>
         );

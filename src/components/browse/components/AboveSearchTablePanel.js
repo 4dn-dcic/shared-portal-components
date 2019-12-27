@@ -7,6 +7,7 @@ import _ from 'underscore';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { load } from './../../util/ajax';
 import { getAbstractTypeForType } from './../../util/schema-transforms';
+import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
 
 /** TODO IMPROVE */
 
@@ -154,7 +155,8 @@ export class AboveSearchTablePanel extends React.PureComponent {
 
     }
 
-    render(){
+    render() {
+        const { context, placeholderReplacementFxn } = this.props;
 
         // TODO: Add in custom front-end controls if/when applicable.
         // If we migrate 'full screen', 'select x for download' etc buttons/controls here (desireable) we need to make sure it communicates with external state container for the SearchResultTable.
@@ -162,6 +164,7 @@ export class AboveSearchTablePanel extends React.PureComponent {
 
         return (
             <div className="above-table-panel">
+                <SearchHeaderSection {...context.search_header} placeholderReplacementFxn={placeholderReplacementFxn} />
                 <AboveSearchTablePanelStaticContentPane targetHref={this.routeStaticContentHref()} />
             </div>
         );
@@ -179,3 +182,19 @@ AboveSearchTablePanel.defaultProps = {
     "mappingLocation" : "/sysinfos/search-header-mappings/",
     "cacheMappingGlobally" : true
 };
+
+const SearchHeaderSection = React.memo(function (props) {
+    const { title: propTitle, content: propContent, filetype, placeholderReplacementFxn } = props;
+    const title = (propTitle ? <h4 className="text-300">{propTitle}</h4> : null);
+    const content = (propContent ? <BasicStaticSectionBody {...{ content: propContent, placeholderReplacementFxn }} filetype={filetype || 'txt'} /> : null);
+
+    return (
+        content ?
+            <div className="row mt-1">
+                <div className="col-12 col-lg-9 pull-right">
+                    {title}
+                    {content}
+                </div>
+            </div>
+            : null);
+});
