@@ -143,7 +143,6 @@ function (_React$PureComponent) {
   }, {
     key: "onTextInputChange",
     value: function onTextInputChange(evt) {
-      this.props.onChange;
       var _evt$target$value = evt.target.value,
           value = _evt$target$value === void 0 ? null : _evt$target$value; // this.totalCount++;
       // console.log("this is keypress number: ",  this.totalCount);
@@ -343,7 +342,9 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
   var baseHref = "/search/?type=" + linkTo;
   var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
-  return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(SearchAsYouTypeAjax, _extends({
+  return _react["default"].createElement("div", {
+    className: "d-flex flex-wrap"
+  }, _react["default"].createElement(SearchAsYouTypeAjax, _extends({
     value: value,
     onChange: function (resultItem) {
       // Should probably be a method on class, or similar approach so that doesn't get re-instantiated on each render
@@ -358,7 +359,7 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
     key: "linked-item"
   }, props, {
     baseHref: baseHref
-  })), ";");
+  })));
 }
 
 function submissionViewTitleRenderFunction(resultAtID) {

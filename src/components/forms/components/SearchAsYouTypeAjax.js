@@ -75,7 +75,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 
     onTextInputChange(evt){
-        const { onChange } = this.props;
         const { value = null } = evt.target;
         // this.totalCount++;
         // console.log("this is keypress number: ",  this.totalCount);
@@ -246,11 +245,11 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
     ) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
 
     return (
-        <React.Fragment>
+        <div className="d-flex flex-wrap">
             <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction, fieldsToRequest }}
                 titleRenderFunction={submissionViewTitleRenderFunction} />
-            <LinkedObj key="linked-item" {...props} baseHref={baseHref}/>;
-        </React.Fragment>
+            <LinkedObj key="linked-item" {...props} baseHref={baseHref} />
+        </div>
     );
 }
 
