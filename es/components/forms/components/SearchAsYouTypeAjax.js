@@ -876,19 +876,7 @@ function (_React$PureComponent2) {
         var thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)" : "<code>" + value + "</code>";
 
         if (isNaN(value)) {
-          return _react["default"].createElement("div", {
-            className: "submitted-linked-object-display-container text-ellipsis-container"
-          }, _react["default"].createElement("i", {
-            className: "icon icon-fw icon-hdd far mr-05"
-          }), _react["default"].createElement("a", {
-            href: value,
-            target: "_blank",
-            rel: "noopener noreferrer",
-            "data-tip": thisDisplay + " is already in the database",
-            "data-html": true
-          }, keyDisplay[value] || value), _react["default"].createElement("i", {
-            className: "icon icon-fw icon-external-link-alt ml-05 fas"
-          }));
+          return this.renderEmptyField();
         } else {
           // it's a custom object. Either render a link to editing the object
           // or a pop-up link to the object if it's already submitted
