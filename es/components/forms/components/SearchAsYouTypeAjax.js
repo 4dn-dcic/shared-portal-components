@@ -842,7 +842,7 @@ function (_React$PureComponent2) {
       }, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-outline-dark",
-        "data-tip": "Select Existing",
+        "data-tip": "Advanced Search",
         onClick: this.handleStartSelectItem
       }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-search fas"
