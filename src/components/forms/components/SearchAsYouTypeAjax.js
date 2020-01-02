@@ -6,8 +6,10 @@ import ReactTooltip from 'react-tooltip';
 
 import { Fade } from './../../ui/Fade';
 
-import { ajax } from './../../util/';
+import { ajax, object } from './../../util/';
 import { valueTransforms } from './../../util';
+
+import { Alerts } from './../../ui/Alerts';
 
 import { LinkToSelector } from './LinkToSelector';
 import { SearchSelectionMenu } from './SearchSelectionMenu';
@@ -476,10 +478,14 @@ export class LinkedObj extends React.PureComponent {
      * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
      */
     handleFinishSelectItem(items){
+        console.log("items", items);
         const { selectComplete, isMultiSelect } = this.props;
         if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) { return item.id && typeof item.id === 'string' && item.json; })) {
             return;
         }
+
+        console.log("selectComplete, ", selectComplete);
+        console.log("isMultiSelect, ", isMultiSelect);
 
         let atIds;
         if (!(isMultiSelect || false)) {
@@ -493,13 +499,16 @@ export class LinkedObj extends React.PureComponent {
             atIds = _.pluck(items, "id");
         }
 
+        console.log("atIds, ", atIds);
+
+        // Check validity of item IDs, and handle items with invalid IDs/URLs
         const invalidTitle = "Invalid Item Selected";
         if (_.every(atIds, function (atId) {
             const isValidAtId = object.isValidAtIDFormat(atId);
             return atId && isValidAtId;
         })) {
             Alerts.deQueue({ 'title': invalidTitle });
-            selectComplete(atIds);
+            selectComplete(atIds); // submit the values
         } else {
             Alerts.queue({
                 'title': invalidTitle,
@@ -557,40 +566,37 @@ export class LinkedObj extends React.PureComponent {
     }
 
     renderSelectInputField(){
-        const { value, selectCancel, schema, currType, nestedField, isMultiSelect, baseHref } = this.props;
+        const {
+            value,
+            selectCancel,
+            schema,
+            currType,
+            nestedField,
+            isMultiSelect,
+            baseHref
+        } = this.props;
         const { textInputValue } = this.state;
-        const canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
-        const extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
+        // const canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
+        // const extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
         const itemType = schema.linkTo;
         const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
         const dropMessage = "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'";
-        // search = '/search/?currentAction=' + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
-        console.log("this.props", this.props);
-        // // // check if we have any schema flags that will affect the searchUrl
-        // if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
-        //     // the field to facet on could be set dynamically
-        //     if (schema.ff_flag == "filter:valid_item_types"){
-        //         baseHref += '&valid_item_types=' + currType;
-        //     }
-        // }
 
-        return (
-            <React.Fragment>
-                <div className="linked-object-text-input-container row flexrow">
-                    <div className="field-column col">
-                        <input onChange={this.handleTextInputChange} className={"form-control" + extClass} inputMode="latin" type="text" placeholder="Drag & drop Item from the search view or type in a valid @ID." value={this.state.textInputValue} onDrop={this.handleDrop} />
-                    </div>
-                    { canShowAcceptTypedInput ?
-                        <SquareButton show onClick={this.handleAcceptTypedID} icon="check fas"
-                            bsStyle="success" tip="Accept typed identifier and look it up in database." />
-                        : null }
-                    <SquareButton show onClick={selectCancel} tip="Cancel selection" style={{ 'marginRight' : 9 }} />
-                </div>
-                <LinkToSelector isSelecting onSelect={this.handleFinishSelectItem} onCloseChildWindow={selectCancel}
-                    childWindowAlert={this.childWindowAlert} dropMessage={dropMessage} searchURL={baseHref} />
-            </React.Fragment>
-        );
+        let searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
+        console.log("this.props", this.props);
+
+        // check if we have any schema flags that will affect the searchUrl
+        if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
+            // the field to facet on could be set dynamically
+            if (schema.ff_flag == "filter:valid_item_types"){
+                searchURL += '&valid_item_types=' + currType;
+            }
+        }
+
+        return <LinkToSelector isSelecting onSelect={this.handleFinishSelectItem} onCloseChildWindow={selectCancel}
+            childWindowAlert={this.childWindowAlert} dropMessage={dropMessage} searchURL={searchURL} />;
     }
+
 
     renderEmptyField(){
         return (
@@ -616,48 +622,48 @@ export class LinkedObj extends React.PureComponent {
         }
 
         // object chosen or being created
-        // if (value){
-        //     const thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)"
-        //         : "<code>" + value + "</code>";
-        //     if (isNaN(value)) {
-        //         const tip = thisDisplay + " is already in the database";
-        //         return(
+        if (value){
+            const thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)"
+                : "<code>" + value + "</code>";
+            if (isNaN(value)) {
+                const tip = thisDisplay + " is already in the database";
+                return(
                     
-        //             <div className="submitted-linked-object-display-container text-ellipsis-container">
-        //                 <i className="icon icon-fw icon-hdd far mr-05" />
-        //                 <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip} data-html>
-        //                     { keyDisplay[value] || value }
-        //                 </a>
-        //                 <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
-        //             </div>
-        //         );
-        //     } else {
-        //         // it's a custom object. Either render a link to editing the object
-        //         // or a pop-up link to the object if it's already submitted
-        //         var intKey = parseInt(value);
-        //         // this is a fallback - shouldn't be int because value should be
-        //         // string once the obj is successfully submitted
-        //         if (keyComplete[intKey]){
-        //             return(
-        //                 <div>
-        //                     <a href={keyComplete[intKey]} target="_blank" rel="noopener noreferrer">{ thisDisplay }</a>
-        //                     <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
-        //                 </div>
-        //             );
-        //         } else {
-        //             return(
-        //                 <div className="incomplete-linked-object-display-container text-ellipsis-container">
-        //                     <i className="icon icon-fw icon-sticky-note far" />&nbsp;&nbsp;
-        //                     <a href="#" onClick={this.setSubmissionStateToLinkedToItem} data-tip="Continue editing/submitting">{ thisDisplay }</a>
-        //                     &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-pencil ml-05 fas"/>
-        //                 </div>
-        //             );
-        //         }
-        //     }
-        // } else {
+                    <div className="submitted-linked-object-display-container text-ellipsis-container">
+                        <i className="icon icon-fw icon-hdd far mr-05" />
+                        <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip} data-html>
+                            { keyDisplay[value] || value }
+                        </a>
+                        <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
+                    </div>
+                );
+            } else {
+                // it's a custom object. Either render a link to editing the object
+                // or a pop-up link to the object if it's already submitted
+                var intKey = parseInt(value);
+                // this is a fallback - shouldn't be int because value should be
+                // string once the obj is successfully submitted
+                if (keyComplete[intKey]){
+                    return(
+                        <div>
+                            <a href={keyComplete[intKey]} target="_blank" rel="noopener noreferrer">{ thisDisplay }</a>
+                            <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
+                        </div>
+                    );
+                } else {
+                    return(
+                        <div className="incomplete-linked-object-display-container text-ellipsis-container">
+                            <i className="icon icon-fw icon-sticky-note far" />&nbsp;&nbsp;
+                            <a href="#" onClick={this.setSubmissionStateToLinkedToItem} data-tip="Continue editing/submitting">{ thisDisplay }</a>
+                            &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-pencil ml-05 fas"/>
+                        </div>
+                    );
+                }
+            }
+        } else {
             // nothing chosen/created yet
             return this.renderEmptyField();
-        // }
+        }
     }
 }
 

@@ -22,6 +22,8 @@ var _util = require("./../../util/");
 
 var _util2 = require("./../../util");
 
+var _Alerts = require("./../../ui/Alerts");
+
 var _LinkToSelector = require("./LinkToSelector");
 
 var _SearchSelectionMenu = require("./SearchSelectionMenu");
@@ -679,6 +681,7 @@ function (_React$PureComponent2) {
   }, {
     key: "handleFinishSelectItem",
     value: function handleFinishSelectItem(items) {
+      console.log("items", items);
       var _this$props5 = this.props,
           selectComplete = _this$props5.selectComplete,
           isMultiSelect = _this$props5.isMultiSelect;
@@ -689,6 +692,8 @@ function (_React$PureComponent2) {
         return;
       }
 
+      console.log("selectComplete, ", selectComplete);
+      console.log("isMultiSelect, ", isMultiSelect);
       var atIds;
 
       if (!(isMultiSelect || false)) {
@@ -706,22 +711,27 @@ function (_React$PureComponent2) {
         atIds = _underscore._.pluck(items, "id");
       }
 
+      console.log("atIds, ", atIds); // Check validity of item IDs, and handle items with invalid IDs/URLs
+
       var invalidTitle = "Invalid Item Selected";
 
       if (_underscore._.every(atIds, function (atId) {
-        var isValidAtId = object.isValidAtIDFormat(atId);
+        var isValidAtId = _util.object.isValidAtIDFormat(atId);
+
         return atId && isValidAtId;
       })) {
-        Alerts.deQueue({
+        _Alerts.Alerts.deQueue({
           'title': invalidTitle
         });
-        selectComplete(atIds);
+
+        selectComplete(atIds); // submit the values
       } else {
-        Alerts.queue({
+        _Alerts.Alerts.queue({
           'title': invalidTitle,
           'message': "You have selected an item or link which doesn't have a valid 4DN ID or URL associated with it. Please try again.",
           'style': 'danger'
         });
+
         throw new Error('No valid @id available.');
       }
     }
@@ -799,53 +809,29 @@ function (_React$PureComponent2) {
           nestedField = _this$props8.nestedField,
           isMultiSelect = _this$props8.isMultiSelect,
           baseHref = _this$props8.baseHref;
-      var textInputValue = this.state.textInputValue;
-      var canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
-      var extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
+      this.state.textInputValue; // const canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
+      // const extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
+
       var itemType = schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
-      // search = '/search/?currentAction=' + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
-      console.log("this.props", this.props); // // // check if we have any schema flags that will affect the searchUrl
-      // if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
-      //     // the field to facet on could be set dynamically
-      //     if (schema.ff_flag == "filter:valid_item_types"){
-      //         baseHref += '&valid_item_types=' + currType;
-      //     }
-      // }
+      var searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
+      console.log("this.props", this.props); // check if we have any schema flags that will affect the searchUrl
 
-      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
-        className: "linked-object-text-input-container row flexrow"
-      }, _react["default"].createElement("div", {
-        className: "field-column col"
-      }, _react["default"].createElement("input", {
-        onChange: this.handleTextInputChange,
-        className: "form-control" + extClass,
-        inputMode: "latin",
-        type: "text",
-        placeholder: "Drag & drop Item from the search view or type in a valid @ID.",
-        value: this.state.textInputValue,
-        onDrop: this.handleDrop
-      })), canShowAcceptTypedInput ? _react["default"].createElement(SquareButton, {
-        show: true,
-        onClick: this.handleAcceptTypedID,
-        icon: "check fas",
-        bsStyle: "success",
-        tip: "Accept typed identifier and look it up in database."
-      }) : null, _react["default"].createElement(SquareButton, {
-        show: true,
-        onClick: selectCancel,
-        tip: "Cancel selection",
-        style: {
-          'marginRight': 9
+      if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
+        // the field to facet on could be set dynamically
+        if (schema.ff_flag == "filter:valid_item_types") {
+          searchURL += '&valid_item_types=' + currType;
         }
-      })), _react["default"].createElement(_LinkToSelector.LinkToSelector, {
+      }
+
+      return _react["default"].createElement(_LinkToSelector.LinkToSelector, {
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
         onCloseChildWindow: selectCancel,
         childWindowAlert: this.childWindowAlert,
         dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
-        searchURL: baseHref
-      }));
+        searchURL: searchURL
+      });
     }
   }, {
     key: "renderEmptyField",
@@ -884,48 +870,60 @@ function (_React$PureComponent2) {
       if (isSelecting) {
         return this.renderSelectInputField();
       } // object chosen or being created
-      // if (value){
-      //     const thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)"
-      //         : "<code>" + value + "</code>";
-      //     if (isNaN(value)) {
-      //         const tip = thisDisplay + " is already in the database";
-      //         return(
-      //             <div className="submitted-linked-object-display-container text-ellipsis-container">
-      //                 <i className="icon icon-fw icon-hdd far mr-05" />
-      //                 <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip} data-html>
-      //                     { keyDisplay[value] || value }
-      //                 </a>
-      //                 <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
-      //             </div>
-      //         );
-      //     } else {
-      //         // it's a custom object. Either render a link to editing the object
-      //         // or a pop-up link to the object if it's already submitted
-      //         var intKey = parseInt(value);
-      //         // this is a fallback - shouldn't be int because value should be
-      //         // string once the obj is successfully submitted
-      //         if (keyComplete[intKey]){
-      //             return(
-      //                 <div>
-      //                     <a href={keyComplete[intKey]} target="_blank" rel="noopener noreferrer">{ thisDisplay }</a>
-      //                     <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
-      //                 </div>
-      //             );
-      //         } else {
-      //             return(
-      //                 <div className="incomplete-linked-object-display-container text-ellipsis-container">
-      //                     <i className="icon icon-fw icon-sticky-note far" />&nbsp;&nbsp;
-      //                     <a href="#" onClick={this.setSubmissionStateToLinkedToItem} data-tip="Continue editing/submitting">{ thisDisplay }</a>
-      //                     &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-pencil ml-05 fas"/>
-      //                 </div>
-      //             );
-      //         }
-      //     }
-      // } else {
-      // nothing chosen/created yet
 
 
-      return this.renderEmptyField(); // }
+      if (value) {
+        var thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)" : "<code>" + value + "</code>";
+
+        if (isNaN(value)) {
+          return _react["default"].createElement("div", {
+            className: "submitted-linked-object-display-container text-ellipsis-container"
+          }, _react["default"].createElement("i", {
+            className: "icon icon-fw icon-hdd far mr-05"
+          }), _react["default"].createElement("a", {
+            href: value,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            "data-tip": thisDisplay + " is already in the database",
+            "data-html": true
+          }, keyDisplay[value] || value), _react["default"].createElement("i", {
+            className: "icon icon-fw icon-external-link-alt ml-05 fas"
+          }));
+        } else {
+          // it's a custom object. Either render a link to editing the object
+          // or a pop-up link to the object if it's already submitted
+          var intKey = parseInt(value); // this is a fallback - shouldn't be int because value should be
+          // string once the obj is successfully submitted
+
+          if (keyComplete[intKey]) {
+            return _react["default"].createElement("div", null, _react["default"].createElement("a", {
+              href: keyComplete[intKey],
+              target: "_blank",
+              rel: "noopener noreferrer"
+            }, thisDisplay), _react["default"].createElement("i", {
+              className: "icon icon-fw icon-external-link-alt ml-05 fas"
+            }));
+          } else {
+            return _react["default"].createElement("div", {
+              className: "incomplete-linked-object-display-container text-ellipsis-container"
+            }, _react["default"].createElement("i", {
+              className: "icon icon-fw icon-sticky-note far"
+            }), "\xA0\xA0", _react["default"].createElement("a", {
+              href: "#",
+              onClick: this.setSubmissionStateToLinkedToItem,
+              "data-tip": "Continue editing/submitting"
+            }, thisDisplay), "\xA0", _react["default"].createElement("i", {
+              style: {
+                'fontSize': '0.85rem'
+              },
+              className: "icon icon-fw icon-pencil ml-05 fas"
+            }));
+          }
+        }
+      } else {
+        // nothing chosen/created yet
+        return this.renderEmptyField();
+      }
     }
   }]);
 
