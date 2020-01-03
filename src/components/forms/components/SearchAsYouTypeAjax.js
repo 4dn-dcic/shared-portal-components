@@ -600,7 +600,7 @@ export class LinkedObj extends React.PureComponent {
     renderEmptyField(){
         return (
             <div className="linked-object-buttons-container">
-                <button type="button" className="btn btn-outline-dark"
+                <button type="button" className="btn btn-outline-dark ml-02 mr-02"
                     data-tip="Advanced Search" onClick={this.handleStartSelectItem}>
                     <i className="icon icon-fw icon-search fas"/>
                 </button>
