@@ -22,8 +22,6 @@ var _Checkbox = require("./Checkbox");
 
 var _util = require("./../../util");
 
-var _Alerts = require("./../../ui/Alerts");
-
 var _BasicStaticSectionBody = require("./../../static-pages/BasicStaticSectionBody");
 
 var _rcProgress = require("rc-progress");
@@ -274,20 +272,7 @@ function (_React$PureComponent) {
             filterMethod: "includes",
             onChange: this.handleEnumChange,
             maxResults: 3
-          })) // <span className="input-wrapper">
-          //     <DropdownButton title={value || <span className="text-300">No value</span>}
-          //         onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
-          //         onSelect={this.handleEnumChange}>
-          //         {
-          //             enumValues.map((val)=>
-          //                 <DropdownItem key={val} title={val || ''} eventKey={val}>
-          //                     {val || ''}
-          //                 </DropdownItem>
-          //             )
-          //         }
-          //     </DropdownButton>
-          // </span>
-          ;
+          }));
 
         case 'suggested_enum':
           return _react["default"].createElement("span", {
@@ -302,7 +287,7 @@ function (_React$PureComponent) {
           }));
 
         case 'linked object':
-          return _react["default"].createElement("span", {
+          return _react["default"].createElement("div", {
             className: "input-wrapper"
           }, _react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, _extends({
             value: value,

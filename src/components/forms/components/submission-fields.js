@@ -9,7 +9,6 @@ import { InputGroup, FormControl, DropdownItem, DropdownButton } from 'react-boo
 import { Fade } from './../../ui/Fade';
 import { Checkbox } from './Checkbox';
 import { ajax, console, object, valueTransforms } from './../../util';
-import { Alerts } from './../../ui/Alerts';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
 import { Line as ProgressBar } from 'rc-progress';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
@@ -149,19 +148,6 @@ export class BuildField extends React.PureComponent {
                     <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue={false}
                         filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                 </span>
-                // <span className="input-wrapper">
-                //     <DropdownButton title={value || <span className="text-300">No value</span>}
-                //         onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
-                //         onSelect={this.handleEnumChange}>
-                //         {
-                //             enumValues.map((val)=>
-                //                 <DropdownItem key={val} title={val || ''} eventKey={val}>
-                //                     {val || ''}
-                //                 </DropdownItem>
-                //             )
-                //         }
-                //     </DropdownButton>
-                // </span>
             );
             case 'suggested_enum'   : return (
                 <span className="input-wrapper">
@@ -170,10 +156,10 @@ export class BuildField extends React.PureComponent {
                 </span>
             );
             case 'linked object'    : return (
-                <span className="input-wrapper">
+                <div className="input-wrapper">
                     <SubmissionViewSearchAsYouTypeAjax value={value} allowCustomValue={false}
                         onChange={this.handleEnumChange} {...this.props} />
-                </span>
+                </div>
             );
             case 'array'            : return <ArrayField {...this.props} pushArrayValue={this.pushArrayValue} value={value || null} roundTwo={roundTwo} />;
             case 'object'           : return <ObjectField {...this.props} />;
