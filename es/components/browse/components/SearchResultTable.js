@@ -711,15 +711,14 @@ function (_React$Component) {
     }
   }, {
     key: "edgeHiddenContentWidths",
-    value: function edgeHiddenContentWidths() {
-      var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
+    value: function edgeHiddenContentWidths(_ref2) {
+      var fullRowWidth = _ref2.fullRowWidth,
+          tableContainerScrollLeft = _ref2.tableContainerScrollLeft,
+          tableContainerWidth = _ref2.tableContainerWidth;
       var edges = {
         'left': 0,
         'right': 0
       };
-      var fullRowWidth = props.fullRowWidth,
-          tableContainerScrollLeft = props.tableContainerScrollLeft,
-          tableContainerWidth = props.tableContainerWidth;
 
       if (fullRowWidth > tableContainerWidth) {
         if (tableContainerScrollLeft > 5) {
@@ -734,13 +733,8 @@ function (_React$Component) {
 
       return edges;
     }
-  }, {
-    key: "shadowStateClass",
-    value: function shadowStateClass(edges) {
-      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.props;
-      if (!edges) edges = this.edgeHiddenContentWidths();
-      return ShadowBorderLayer.shadowStateClass(edges.left, edges.right);
-    }
+    /** WHAT is this for? */
+
   }, {
     key: "tallDimensionClass",
     value: function tallDimensionClass() {
@@ -777,44 +771,6 @@ function (_React$Component) {
         this.scrolling = true;
         this.performScrollAction(direction);
       }
-    }
-  }, {
-    key: "edgeScrollButtonLeft",
-    value: function edgeScrollButtonLeft(leftEdgeContentWidth) {
-      if (!this.props.innerContainerElem) return null;
-      var className = "edge-scroll-button left-edge";
-
-      if (typeof leftEdgeContentWidth !== 'number' || leftEdgeContentWidth === 0) {
-        className += ' faded-out';
-      }
-
-      return _react["default"].createElement("div", {
-        className: className,
-        onMouseDown: this.handleLeftScrollButtonMouseDown,
-        onMouseUp: this.handleScrollButtonUp,
-        onMouseOut: this.handleScrollButtonUp
-      }, _react["default"].createElement("i", {
-        className: "icon icon-caret-left fas"
-      }));
-    }
-  }, {
-    key: "edgeScrollButtonRight",
-    value: function edgeScrollButtonRight(rightEdgeContentWidth) {
-      if (!this.props.innerContainerElem) return null;
-      var className = "edge-scroll-button right-edge";
-
-      if (typeof rightEdgeContentWidth !== 'number' || rightEdgeContentWidth === 0) {
-        className += ' faded-out';
-      }
-
-      return _react["default"].createElement("div", {
-        className: className,
-        onMouseDown: this.handleRightScrollButtonMouseDown,
-        onMouseUp: this.handleScrollButtonUp,
-        onMouseOut: this.handleScrollButtonUp
-      }, _react["default"].createElement("i", {
-        className: "icon icon-caret-right fas"
-      }));
     }
   }, {
     key: "performScrollAction",
@@ -858,11 +814,31 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      if (this.props.fullRowWidth <= this.props.tableContainerWidth) return null;
-      var edges = this.edgeHiddenContentWidths();
+      var _this$props12 = this.props,
+          tableContainerWidth = _this$props12.tableContainerWidth,
+          fullRowWidth = _this$props12.fullRowWidth,
+          _this$props12$vertica = _this$props12.verticallyCenterArrows,
+          verticallyCenterArrows = _this$props12$vertica === void 0 ? true : _this$props12$vertica;
+      if (fullRowWidth <= tableContainerWidth) return null;
+      var edges = this.edgeHiddenContentWidths(this.props);
+      var cls = "shadow-border-layer hidden-xs" + ShadowBorderLayer.shadowStateClass(edges.left, edges.right) + this.tallDimensionClass() + (verticallyCenterArrows ? ' fixed-position-arrows' : '');
       return _react["default"].createElement("div", {
-        className: "shadow-border-layer hidden-xs" + this.shadowStateClass(edges) + this.tallDimensionClass() + (this.props.isWindowPastTableTop ? ' fixed-position-arrows' : '')
-      }, this.edgeScrollButtonLeft(edges.left), this.edgeScrollButtonRight(edges.right));
+        className: cls
+      }, _react["default"].createElement("div", {
+        className: "edge-scroll-button left-edge" + (typeof edges.left !== 'number' || edges.left === 0 ? " faded-out" : ""),
+        onMouseDown: this.handleLeftScrollButtonMouseDown,
+        onMouseUp: this.handleScrollButtonUp,
+        onMouseOut: this.handleScrollButtonUp
+      }, _react["default"].createElement("i", {
+        className: "icon icon-caret-left fas"
+      })), _react["default"].createElement("div", {
+        className: "edge-scroll-button right-edge" + (typeof edges.right !== 'number' || edges.right === 0 ? " faded-out" : ""),
+        onMouseDown: this.handleRightScrollButtonMouseDown,
+        onMouseUp: this.handleScrollButtonUp,
+        onMouseOut: this.handleScrollButtonUp
+      }, _react["default"].createElement("i", {
+        className: "icon icon-caret-right fas"
+      })));
     }
   }]);
 
@@ -969,7 +945,7 @@ function (_React$PureComponent4) {
       'mounted': false,
       'widths': DimensioningContainer.resetHeaderColumnWidths(props.columnDefinitions, false, props.windowWidth),
       'results': props.results.slice(0),
-      'isWindowPastTableTop': false,
+      'isWindowPastTableTop': !props.isOwnPage || false,
       // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
       'openDetailPanes': {},
       'tableContainerScrollLeft': 0
@@ -977,6 +953,7 @@ function (_React$PureComponent4) {
     _this8.innerContainerRef = _react["default"].createRef();
     _this8.loadMoreAsYouScrollRef = _react["default"].createRef();
     _this8.outerContainerSizeInterval = null;
+    _this8.scrollHandlerUnsubscribeFxn = null;
     return _this8;
   }
 
@@ -985,10 +962,12 @@ function (_React$PureComponent4) {
     value: function componentDidMount() {
       var _this9 = this;
 
-      var _this$props12 = this.props,
-          columnDefinitions = _this$props12.columnDefinitions,
-          windowWidth = _this$props12.windowWidth,
-          registerWindowOnScrollHandler = _this$props12.registerWindowOnScrollHandler;
+      var _this$props13 = this.props,
+          columnDefinitions = _this$props13.columnDefinitions,
+          windowWidth = _this$props13.windowWidth,
+          registerWindowOnScrollHandler = _this$props13.registerWindowOnScrollHandler,
+          _this$props13$isOwnPa = _this$props13.isOwnPage,
+          isOwnPage = _this$props13$isOwnPa === void 0 ? true : _this$props13$isOwnPa;
 
       var nextState = _underscore["default"].extend(this.getTableDims(), {
         'mounted': true
@@ -1001,7 +980,7 @@ function (_React$PureComponent4) {
 
         if (innerContainerElem.offsetWidth < fullRowWidth) {
           nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
-          nextState.isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem);
+          nextState.isWindowPastTableTop = !isOwnPage || ShadowBorderLayer.isWindowPastTableTop(innerContainerElem);
         }
 
         innerContainerElem.addEventListener('scroll', this.onHorizontalScroll);
@@ -1011,8 +990,8 @@ function (_React$PureComponent4) {
 
 
       this.outerContainerSizeInterval = setInterval(function () {
-        _this9.setState(function (_ref2) {
-          var pastWidth = _ref2.tableContainerWidth;
+        _this9.setState(function (_ref3) {
+          var pastWidth = _ref3.tableContainerWidth;
 
           var tableContainerWidth = _this9.getTableContainerWidth();
 
@@ -1026,7 +1005,10 @@ function (_React$PureComponent4) {
         });
       }, 3000); // Register onScroll handler.
 
-      this.scrollHandlerUnsubscribeFxn = registerWindowOnScrollHandler(this.onVerticalScroll);
+      if (isOwnPage) {
+        this.scrollHandlerUnsubscribeFxn = registerWindowOnScrollHandler(this.onVerticalScroll);
+      }
+
       this.setState(nextState);
     }
   }, {
@@ -1048,10 +1030,10 @@ function (_React$PureComponent4) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
-      var _this$props13 = this.props,
-          propResults = _this$props13.results,
-          columnDefinitions = _this$props13.columnDefinitions,
-          windowWidth = _this$props13.windowWidth;
+      var _this$props14 = this.props,
+          propResults = _this$props14.results,
+          columnDefinitions = _this$props14.columnDefinitions,
+          windowWidth = _this$props14.windowWidth;
       var pastPropResults = pastProps.results,
           pastColDefs = pastProps.columnDefinitions,
           pastWindowWidth = pastProps.windowWidth;
@@ -1083,8 +1065,8 @@ function (_React$PureComponent4) {
     key: "toggleDetailPaneOpen",
     value: function toggleDetailPaneOpen(rowKey) {
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref3) {
-        var openDetailPanes = _ref3.openDetailPanes;
+      this.setState(function (_ref4) {
+        var openDetailPanes = _ref4.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (openDetailPanes[rowKey]) {
@@ -1101,8 +1083,8 @@ function (_React$PureComponent4) {
   }, {
     key: "setDetailHeight",
     value: function setDetailHeight(rowKey, height, cb) {
-      this.setState(function (_ref4) {
-        var openDetailPanes = _ref4.openDetailPanes;
+      this.setState(function (_ref5) {
+        var openDetailPanes = _ref5.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (typeof openDetailPanes[rowKey] === 'undefined') {
@@ -1254,10 +1236,10 @@ function (_React$PureComponent4) {
     value: function resetWidths() {
       var _this12 = this;
 
-      this.setState(function resetWidthStateChangeFxn(_ref5, _ref6) {
-        var mounted = _ref5.mounted;
-        var columnDefinitions = _ref6.columnDefinitions,
-            windowWidth = _ref6.windowWidth;
+      this.setState(function resetWidthStateChangeFxn(_ref6, _ref7) {
+        var mounted = _ref6.mounted;
+        var columnDefinitions = _ref7.columnDefinitions,
+            windowWidth = _ref7.windowWidth;
         return {
           "widths": DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth)
         };
@@ -1302,12 +1284,14 @@ function (_React$PureComponent4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props14 = this.props,
-          columnDefinitions = _this$props14.columnDefinitions,
-          windowWidth = _this$props14.windowWidth,
-          isOwnPage = _this$props14.isOwnPage,
-          _this$props14$maxHeig = _this$props14.maxHeight,
-          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig;
+      var _this$props15 = this.props,
+          columnDefinitions = _this$props15.columnDefinitions,
+          windowWidth = _this$props15.windowWidth,
+          isOwnPage = _this$props15.isOwnPage,
+          _this$props15$maxHeig = _this$props15.maxHeight,
+          maxHeight = _this$props15$maxHeig === void 0 ? 500 : _this$props15$maxHeig,
+          _this$props15$isIniti = _this$props15.isInitialContextLoading,
+          isInitialContextLoading = _this$props15$isIniti === void 0 ? false : _this$props15$isIniti;
       var _this$state2 = this.state,
           results = _this$state2.results,
           tableContainerWidth = _this$state2.tableContainerWidth,
@@ -1317,6 +1301,17 @@ function (_React$PureComponent4) {
           isWindowPastTableTop = _this$state2.isWindowPastTableTop,
           openDetailPanes = _this$state2.openDetailPanes,
           tableLeftOffset = _this$state2.tableLeftOffset;
+
+      if (isInitialContextLoading) {
+        // Only applicable for EmbeddedSearchView
+        return _react["default"].createElement("div", {
+          className: "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")
+        }, _react["default"].createElement("div", {
+          className: "search-results-container text-center py-5"
+        }, _react["default"].createElement("i", {
+          className: "icon icon-fw icon-spin icon-circle-notch fas"
+        })));
+      }
 
       var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
 
@@ -1380,8 +1375,8 @@ function (_React$PureComponent4) {
       })))), _react["default"].createElement(ShadowBorderLayer, _extends({
         tableContainerScrollLeft: tableContainerScrollLeft,
         tableContainerWidth: tableContainerWidth,
-        fullRowWidth: fullRowWidth,
         isWindowPastTableTop: isWindowPastTableTop,
+        fullRowWidth: fullRowWidth,
         innerContainerElem: innerContainerElem
       }, {
         setContainerScrollLeft: this.setContainerScrollLeft
@@ -1454,10 +1449,10 @@ function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-          hiddenColumns = _this$props15.hiddenColumns,
-          columnExtensionMap = _this$props15.columnExtensionMap,
-          columnDefinitions = _this$props15.columnDefinitions;
+      var _this$props16 = this.props,
+          hiddenColumns = _this$props16.hiddenColumns,
+          columnExtensionMap = _this$props16.columnExtensionMap,
+          columnDefinitions = _this$props16.columnDefinitions;
       var colDefs = columnDefinitions || (0, _tableCommons.columnsToColumnDefinitions)({
         'display_title': {
           'title': 'Title'

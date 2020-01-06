@@ -27,25 +27,23 @@ Object.defineProperty(exports, "SelectedItemsController", {
     return _SelectedItemsController.SelectedItemsController;
   }
 });
-exports.SearchView = void 0;
+exports.EmbeddedSearchView = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
+
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _navigate = require("./../util/navigate");
 
-var _misc = require("./../util/misc");
-
 var _patchedConsole = require("./../util/patched-console");
 
 var _tableCommons = require("./components/table-commons");
-
-var _AboveSearchTablePanel = require("./components/AboveSearchTablePanel");
 
 var _CustomColumnController = require("./components/CustomColumnController");
 
@@ -53,13 +51,17 @@ var _SortController = require("./components/SortController");
 
 var _SelectedItemsController = require("./components/SelectedItemsController");
 
-var _WindowNavigationController = require("./components/WindowNavigationController");
-
 var _ControlsAndResults = require("./components/ControlsAndResults");
 
 var _typedefs = require("./../util/typedefs");
 
+var _VirtualHrefController = require("./components/VirtualHrefController");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -91,19 +93,18 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-// TODO: Get rid of isOwnPage, only have 1 set of controllers (maybe w SelectedItemsController conditional)
-var SearchView =
+var EmbeddedSearchView =
 /*#__PURE__*/
 function (_React$PureComponent) {
-  _inherits(SearchView, _React$PureComponent);
+  _inherits(EmbeddedSearchView, _React$PureComponent);
 
-  function SearchView() {
-    _classCallCheck(this, SearchView);
+  function EmbeddedSearchView() {
+    _classCallCheck(this, EmbeddedSearchView);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(SearchView).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(EmbeddedSearchView).apply(this, arguments));
   }
 
-  _createClass(SearchView, [{
+  _createClass(EmbeddedSearchView, [{
     key: "componentDidMount",
 
     /**
@@ -126,88 +127,66 @@ function (_React$PureComponent) {
       var _this$props = this.props,
           href = _this$props.href,
           context = _this$props.context,
-          _this$props$schemas = _this$props.schemas,
-          schemas = _this$props$schemas === void 0 ? null : _this$props$schemas,
           _this$props$currentAc = _this$props.currentAction,
           currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc,
-          propFacets = _this$props.facets,
-          _this$props$navigate = _this$props.navigate,
-          propNavigate = _this$props$navigate === void 0 ? _navigate.navigate : _this$props$navigate,
+          searchHref = _this$props.searchHref,
+          _this$props$schemas = _this$props.schemas,
+          schemas = _this$props$schemas === void 0 ? null : _this$props$schemas,
           _this$props$columns = _this$props.columns,
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
+          facets = _this$props.facets,
+          _this$props$showAbove = _this$props.showAboveTableControls,
+          showAboveTableControls = _this$props$showAbove === void 0 ? false : _this$props$showAbove,
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap"]);
-
-      var contextFacets = context.facets; // All these controllers pass props down to their children.
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "schemas", "columns", "facets", "showAboveTableControls", "columnExtensionMap"]); //const { facets: contextFacets } = context;
+      // All these controllers pass props down to their children.
       // So we don't need to be repetitive here; i.e. may assume 'context' is available
       // in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
       // As well as in ControlsAndResults.
+      // We re-instantiate the VirtualHrefController if receive a new base searchHref.
+      // Alternatively, we could create componentDidUpdate in VirtualHrefController.
 
-      var childViewProps = _objectSpread({}, passProps, {
-        currentAction: currentAction,
-        schemas: schemas,
-        isOwnPage: true,
-        facets: propFacets || contextFacets
-      });
-
-      var controllersAndView = _react["default"].createElement(_tableCommons.ColumnCombiner, {
-        columns: columns,
-        columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))); // Default case
-
-
-      if ((0, _misc.isSelectAction)(currentAction)) {
-        // We don't allow "SelectionMode" unless is own page.
-        // Could consider changing later once use case exists.
-        controllersAndView = // SelectedItemsController must be above ColumnCombiner because it adjusts
-        // columnExtensionMap, rather than columnDefinitions. This can be easily changed
-        // though if desired.
-        _react["default"].createElement(_SelectedItemsController.SelectedItemsController, {
-          columnExtensionMap: columnExtensionMap,
-          currentAction: currentAction
-        }, controllersAndView);
-      }
 
       return _react["default"].createElement("div", {
-        className: "search-page-container"
-      }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
-        href: href,
-        context: context,
-        schemas: schemas
-      }), _react["default"].createElement(_WindowNavigationController.WindowNavigationController, _extends({
-        href: href,
-        context: context
+        className: "embedded-search-container"
+      }, _react["default"].createElement(_VirtualHrefController.VirtualHrefController, _extends({
+        searchHref: searchHref,
+        facets: facets
       }, {
-        navigate: propNavigate
-      }), controllersAndView));
+        key: searchHref
+      }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
+        columns: columns,
+        columnExtensionMap: columnExtensionMap
+      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, _objectSpread({}, passProps, {
+        showAboveTableControls: showAboveTableControls,
+        schemas: schemas
+      }), {
+        isOwnPage: false
+      })))))));
     }
   }]);
 
-  return SearchView;
+  return EmbeddedSearchView;
 }(_react["default"].PureComponent);
 
-exports.SearchView = SearchView;
+exports.EmbeddedSearchView = EmbeddedSearchView;
 
-_defineProperty(SearchView, "propTypes", {
+_defineProperty(EmbeddedSearchView, "propTypes", {
   'context': _propTypes["default"].object.isRequired,
   'columns': _propTypes["default"].object,
   'columnExtensionMap': _propTypes["default"].object,
-  'currentAction': _propTypes["default"].string,
-  'href': _propTypes["default"].string.isRequired,
+  'searchHref': _propTypes["default"].string.isRequired,
   'session': _propTypes["default"].bool.isRequired,
-  'navigate': _propTypes["default"].func,
   'schemas': _propTypes["default"].object,
   'facets': _propTypes["default"].array,
-  'isFullscreen': _propTypes["default"].bool.isRequired,
-  'toggleFullScreen': _propTypes["default"].func.isRequired,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
-  'isOwnPage': _propTypes["default"].bool
+  'showFacets': _propTypes["default"].bool
 });
 
-_defineProperty(SearchView, "defaultProps", {
-  'href': null,
+_defineProperty(EmbeddedSearchView, "defaultProps", {
+  'searchHref': null,
   // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
   // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
   'columns': null,
@@ -215,5 +194,5 @@ _defineProperty(SearchView, "defaultProps", {
   'currentAction': null,
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
   'separateSingleTermFacets': true,
-  'isOwnPage': true
+  'showFacets': false
 });

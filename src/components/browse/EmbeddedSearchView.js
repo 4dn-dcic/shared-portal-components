@@ -1,44 +1,39 @@
 'use strict';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import { navigate } from './../util/navigate';
-import { isSelectAction } from './../util/misc';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 
 import { basicColumnExtensionMap, ColumnCombiner } from './components/table-commons';
-import { AboveSearchTablePanel } from './components/AboveSearchTablePanel';
 import { CustomColumnController } from './components/CustomColumnController';
 import { SortController } from './components/SortController';
 import { SelectedItemsController } from './components/SelectedItemsController';
-import { WindowNavigationController } from './components/WindowNavigationController';
 import { ControlsAndResults } from './components/ControlsAndResults';
 
 // eslint-disable-next-line no-unused-vars
 import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/typedefs';
+import { VirtualHrefController } from './components/VirtualHrefController';
 
 export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnController };
 
-// TODO: Get rid of isOwnPage, only have 1 set of controllers (maybe w SelectedItemsController conditional)
-export class SearchView extends React.PureComponent {
+
+export class EmbeddedSearchView extends React.PureComponent {
 
     static propTypes = {
         'context'       : PropTypes.object.isRequired,
         'columns'       : PropTypes.object,
         'columnExtensionMap' : PropTypes.object,
-        'currentAction' : PropTypes.string,
-        'href'          : PropTypes.string.isRequired,
+        'searchHref'    : PropTypes.string.isRequired,
         'session'       : PropTypes.bool.isRequired,
-        'navigate'      : PropTypes.func,
         'schemas'       : PropTypes.object,
         'facets'        : PropTypes.array,
-        'isFullscreen'  : PropTypes.bool.isRequired,
-        'toggleFullScreen' : PropTypes.func.isRequired,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
-        'isOwnPage'     : PropTypes.bool
+        'showFacets'    : PropTypes.bool
     };
 
     /**
@@ -48,7 +43,7 @@ export class SearchView extends React.PureComponent {
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      */
     static defaultProps = {
-        'href'          : null,
+        'searchHref'    : null,
         // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
         // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
         'columns'       : null,
@@ -56,7 +51,7 @@ export class SearchView extends React.PureComponent {
         'currentAction' : null,
         'columnExtensionMap' : basicColumnExtensionMap,
         'separateSingleTermFacets' : true,
-        'isOwnPage'     : true
+        'showFacets'    : false
     };
 
     componentDidMount(){
@@ -69,63 +64,42 @@ export class SearchView extends React.PureComponent {
      */
     render() {
         const {
-            href,
-            context,
+            href,                   // From Redux store; is NOT passed down. Overriden instead.
+            context,                // From Redux store; is NOT passed down. Overriden instead.
+            currentAction = null,   // From App.js; is NOT passed down. Always should be null.
+            searchHref,
             schemas = null,
-            currentAction = null,
-            facets : propFacets,
-            navigate: propNavigate = navigate,
+            //facets : propFacets,
+            //navigate: propNavigate = navigate,
             columns = null,
+            facets,
+            showAboveTableControls = false,
             columnExtensionMap = basicColumnExtensionMap,
             //isOwnPage = true,
             ...passProps
         } = this.props;
 
-        const { facets: contextFacets } = context;
+        //const { facets: contextFacets } = context;
 
         // All these controllers pass props down to their children.
         // So we don't need to be repetitive here; i.e. may assume 'context' is available
         // in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
         // As well as in ControlsAndResults.
 
-        const childViewProps = {
-            ...passProps,
-            currentAction,
-            schemas,
-            isOwnPage: true,
-            facets: propFacets || contextFacets
-        };
-
-        let controllersAndView = (
-            <ColumnCombiner {...{ columns, columnExtensionMap }}>
-                <CustomColumnController>
-                    <SortController>
-                        <ControlsAndResults {...childViewProps} />
-                    </SortController>
-                </CustomColumnController>
-            </ColumnCombiner>
-        );
-
-        // Default case
-        if (isSelectAction(currentAction)){
-            // We don't allow "SelectionMode" unless is own page.
-            // Could consider changing later once use case exists.
-            controllersAndView = (
-                // SelectedItemsController must be above ColumnCombiner because it adjusts
-                // columnExtensionMap, rather than columnDefinitions. This can be easily changed
-                // though if desired.
-                <SelectedItemsController {...{ columnExtensionMap, currentAction }}>
-                    { controllersAndView }
-                </SelectedItemsController>
-            );
-        }
+        // We re-instantiate the VirtualHrefController if receive a new base searchHref.
+        // Alternatively, we could create componentDidUpdate in VirtualHrefController.
 
         return (
-            <div className="search-page-container">
-                <AboveSearchTablePanel {...{ href, context, schemas }} />
-                <WindowNavigationController {...{ href, context }} navigate={propNavigate}>
-                    { controllersAndView }
-                </WindowNavigationController>
+            <div className="embedded-search-container">
+                <VirtualHrefController {...{ searchHref, facets }} key={searchHref}>
+                    <ColumnCombiner {...{ columns, columnExtensionMap }}>
+                        <CustomColumnController>
+                            <SortController>
+                                <ControlsAndResults {...{ ...passProps, showAboveTableControls, schemas }} isOwnPage={false} />
+                            </SortController>
+                        </CustomColumnController>
+                    </ColumnCombiner>
+                </VirtualHrefController>
             </div>
         );
     }
