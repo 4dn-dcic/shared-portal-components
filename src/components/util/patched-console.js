@@ -19,7 +19,7 @@ export const patchedConsoleInstance = (function(){
 
     if (!isServerSide() && window.patchedConsole) return window.patchedConsole; // Re-use instance if available.
 
-    var PatchedConsole = function(){
+    const PatchedConsole = function(){
 
         /**
          * Check if `BUILDTYPE` constant is not on 'production'.
@@ -54,9 +54,9 @@ export const patchedConsoleInstance = (function(){
         this._nativeConsole = console;
         this._dummyFunc = function(){return false;};
 
-        this._setCustomMethods = function(){
+        this._setCustomMethods = () => {
             if (this._enabled && this._available && typeof this._nativeConsole.log !== 'undefined'){
-                this.timeLog = function(){
+                this.timeLog = () => {
                     // eslint-disable-next-line prefer-spread
                     this._nativeConsole.log.apply(
                         this._nativeConsole,
@@ -66,42 +66,43 @@ export const patchedConsoleInstance = (function(){
                             Array.prototype.slice.apply(arguments)
                         )
                     );
-                }.bind(this);
+                };
             } else {
                 this.timeLog = this._dummyFunc;
             }
-        }.bind(this);
+        };
 
-        this._patchMethods = function(){
-            this._nativeMethods.forEach(function(methodName){
+        this._patchMethods = () => {
+            this._nativeMethods.forEach((methodName) => {
                 if (!this._enabled || !this._available || typeof this._nativeConsole[methodName] === 'undefined') {
                     this[methodName] = this._dummyFunc;
                 } else {
                     this[methodName] = this._nativeConsole[methodName].bind(this._nativeConsole);
                 }
-            }.bind(this));
+            });
             this._setCustomMethods();
             return this;
-        }.bind(this);
+        };
 
         // Ability to override, e.g. on production.
-        this.on = function(){
+        this.on = () => {
             this._enabled = true;
             return this._patchMethods();
-        }.bind(this);
+        };
 
-        this.off = function(){
+        this.off = () => {
             this._enabled = false;
             return this._patchMethods();
-        }.bind(this);
+        };
 
         this._patchMethods();
     };
 
-    var patchedConsole = new PatchedConsole();
+    const patchedConsole = new PatchedConsole();
 
     if (!isServerSide()) {
         window.patchedConsole = patchedConsole;
     }
+
     return patchedConsole;
 })();
