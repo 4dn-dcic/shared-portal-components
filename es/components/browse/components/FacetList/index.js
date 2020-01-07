@@ -76,6 +76,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
  * It can work with AJAX-ed in back-end data, as is used for the Browse page, or
@@ -235,15 +237,16 @@ function (_React$PureComponent) {
       var _this$props2 = this.props,
           facets = _this$props2.facets,
           href = _this$props2.href,
-          onFilter = _this$props2.onFilter,
           schemas = _this$props2.schemas,
           filters = _this$props2.filters,
           itemTypeForSchemas = _this$props2.itemTypeForSchemas,
           windowWidth = _this$props2.windowWidth,
-          persistentCount = _this$props2.persistentCount,
+          windowHeight = _this$props2.windowHeight,
           termTransformFxn = _this$props2.termTransformFxn,
-          separateSingleTermFacets = _this$props2.separateSingleTermFacets,
-          windowHeight = _this$props2.windowHeight;
+          _this$props2$persiste = _this$props2.persistentCount,
+          persistentCount = _this$props2$persiste === void 0 ? _FacetTermsList.FacetTermsList.defaultProps.persistentCount : _this$props2$persiste,
+          _this$props2$separate = _this$props2.separateSingleTermFacets,
+          separateSingleTermFacets = _this$props2$separate === void 0 ? false : _this$props2$separate;
       var mounted = this.state.mounted; // Ensure each facets has an `order` property and default it to 0 if not.
       // And then sort by `order`.
 
@@ -284,8 +287,8 @@ function (_React$PureComponent) {
         if (facet.aggregation_type === "stats") {
           m.termCount = m.termCount + 2;
         } else {
-          m.termCount = m.termCount + Math.min( // Take into account 'view more' button
-          facet.terms.length, persistentCount || _FacetTermsList.FacetTermsList.defaultProps.persistentCount);
+          // Take into account 'view more' button
+          m.termCount = m.termCount + Math.min(facet.terms.length, persistentCount);
         }
 
         if (m.termCount > maxTermsToShow) m.end = true;
@@ -427,14 +430,18 @@ function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props3 = this.props,
-          debug = _this$props3.debug,
-          facets = _this$props3.facets,
+          _this$props3$facets = _this$props3.facets,
+          facets = _this$props3$facets === void 0 ? null : _this$props3$facets,
           className = _this$props3.className,
-          title = _this$props3.title,
-          showClearFiltersButton = _this$props3.showClearFiltersButton,
+          _this$props3$title = _this$props3.title,
+          title = _this$props3$title === void 0 ? "Properties" : _this$props3$title,
           onClearFilters = _this$props3.onClearFilters,
-          separateSingleTermFacets = _this$props3.separateSingleTermFacets;
-      if (debug) _patchedConsole.patchedConsoleInstance.log('render facetlist');
+          _this$props3$showClea = _this$props3.showClearFiltersButton,
+          showClearFiltersButton = _this$props3$showClea === void 0 ? false : _this$props3$showClea,
+          _this$props3$separate = _this$props3.separateSingleTermFacets,
+          separateSingleTermFacets = _this$props3$separate === void 0 ? false : _this$props3$separate,
+          _this$props3$maxBodyH = _this$props3.maxBodyHeight,
+          maxHeight = _this$props3$maxBodyH === void 0 ? null : _this$props3$maxBodyH;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
         return _react["default"].createElement("div", {
@@ -447,6 +454,12 @@ function (_React$PureComponent) {
 
       var clearButtonClassName = className && className.indexOf('with-header-bg') > -1 ? "btn-outline-white" : "btn-outline-default";
       var allFacetElements = this.renderFacets();
+      var bodyProps = {
+        className: "facets-body" + (typeof maxHeight === "number" ? " has-max-height" : ""),
+        style: typeof maxHeight === "number" ? {
+          maxHeight: maxHeight
+        } : null
+      };
       var staticFacetElements = [];
       var selectableFacetElements = [];
 
@@ -480,9 +493,7 @@ function (_React$PureComponent) {
         className: "btn clear-filters-btn btn-xs " + clearButtonClassName
       }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-times fas mr-03"
-      }), _react["default"].createElement("span", null, "Clear All")))), _react["default"].createElement("div", {
-        className: "facets-body"
-      }, selectableFacetElements, staticFacetElements.length > 0 ? _react["default"].createElement("div", {
+      }), _react["default"].createElement("span", null, "Clear All")))), _react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? _react["default"].createElement("div", {
         className: "row facet-list-separator"
       }, _react["default"].createElement("div", {
         className: "col-12"
@@ -494,7 +505,8 @@ function (_React$PureComponent) {
 }(_react["default"].PureComponent);
 
 exports.FacetList = FacetList;
-FacetList.propTypes = {
+
+_defineProperty(FacetList, "propTypes", {
   'facets': _propTypes["default"].arrayOf(_propTypes["default"].shape({
     'field': _propTypes["default"].string,
     // Nested field in experiment(_set), using dot-notation.
@@ -509,6 +521,12 @@ FacetList.propTypes = {
     'total': _propTypes["default"].number // # of experiment(_set)s
 
   })),
+  'filters': _propTypes["default"].arrayOf(_propTypes["default"].object).isRequired,
+  // context.filters
+  'itemTypeForSchemas': _propTypes["default"].string.isRequired,
+  // For tooltips
+  'showClearFiltersButton': _propTypes["default"].bool.isRequired,
+  'onClearFilters': _propTypes["default"].func.isRequired,
 
   /**
    * In lieu of facets, which are only generated by search.py, can
@@ -523,15 +541,11 @@ FacetList.propTypes = {
   'href': _propTypes["default"].string,
   'onFilter': _propTypes["default"].func,
   // What happens when Term is clicked.
-  'separateSingleTermFacets': _propTypes["default"].bool.isRequired
-};
-FacetList.defaultProps = {
-  'facets': null,
-  'title': "Properties",
-  'debug': false,
-  'showClearFiltersButton': false,
-  'separateSingleTermFacets': false,
+  'separateSingleTermFacets': _propTypes["default"].bool,
+  'maxBodyHeight': _propTypes["default"].number
+});
 
+_defineProperty(FacetList, "defaultProps", {
   /**
    * These 'default' functions don't do anything except show parameters passed.
    * Callback must be called because it changes Term's 'loading' state back to false.
@@ -563,10 +577,10 @@ FacetList.defaultProps = {
       'href': null
     };
   },
-  'itemTypeForSchemas': 'ExperimentSetReplicate',
+  // 'itemTypeForSchemas': 'ExperimentSetReplicate', - let PropType check catch lack of presence of this
   'termTransformFxn': function termTransformFxn(field, term) {
     arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     return term;
   }
-};
+});

@@ -74,13 +74,20 @@ export class ControlsAndResults extends React.PureComponent {
             context, schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session, isFullscreen, toggleFullScreen,
 
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
-            facets, facetColumnClassName, tableColumnClassName, termTransformFxn, rowHeight,
-            separateSingleTermFacets, topLeftChildren,
+            facets, termTransformFxn, rowHeight,
+            separateSingleTermFacets, topLeftChildren, navigate,
+            facetColumnClassName = "col-12 col-sm-5 col-lg-4 col-xl-3",
+            tableColumnClassName = "col-12 col-sm-7 col-lg-8 col-xl-9",
             showAboveTableControls = true,
+            defaultOpenIndices = null,
 
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
             href, onFilter,
+            isOwnPage = true,
             isInitialContextLoading = false,
+
+            // From EmbeddedSearchView/manual-entry, used if isOwnPage is true
+            maxHeight = SearchResultTable.defaultProps.maxHeight,
 
             // From CustomColumnController:
             hiddenColumns, addHiddenColumn, removeHiddenColumn,
@@ -103,15 +110,18 @@ export class ControlsAndResults extends React.PureComponent {
         const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context);
 
         const searchResultTableProps = {
-            context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions,
+            context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions, isOwnPage,
             sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
-            isInitialContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
+            defaultOpenIndices, maxHeight, isInitialContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 
         const facetListProps = {
             facets, filters, schemas, currentAction, showClearFiltersButton,
             session, onFilter, windowWidth, windowHeight, termTransformFxn, separateSingleTermFacets,
-            itemTypeForSchemas: searchItemType
+            itemTypeForSchemas: searchItemType,
+            className: "with-header-bg",
+            maxBodyHeight: (!isOwnPage && maxHeight) || null,
+            onClearFilters: this.onClearFiltersClick
         };
 
         const aboveTableControlsProps = {
@@ -125,8 +135,10 @@ export class ControlsAndResults extends React.PureComponent {
             <div className="row search-view-controls-and-results" data-search-item-type={searchItemType} data-search-abstract-type={searchAbstractItemType}>
                 { Array.isArray(facets) && facets.length ?
                     <div className={facetColumnClassName}>
-                        <div className="above-results-table-row"/>{/* <-- temporary-ish */}
-                        <FacetList {...facetListProps} className="with-header-bg" onClearFilters={this.onClearFiltersClick} />
+                        { showAboveTableControls? // temporary-ish
+                            <div className="above-results-table-row"/>
+                            : null }
+                        <FacetList {...facetListProps} />
                     </div>
                     : null }
                 <div className={tableColumnClassName}>

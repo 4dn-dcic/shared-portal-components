@@ -117,8 +117,13 @@ function (_React$PureComponent) {
       _reactTooltip["default"].rebuild();
     }
     /**
-     * TODO once we have @type : [..more stuff..], change to use instead of `getSchemaTypeFromSearchContext`.
-     * For custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
+     * All these controllers pass props down to their children.
+     * So we don't need to be repetitive here; i.e. may assume 'context' is available
+     * in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
+     * As well as in ControlsAndResults.
+     *
+     * We re-instantiate the VirtualHrefController if receive a new base searchHref.
+     * Alternatively, we could create componentDidUpdate in VirtualHrefController.
      */
 
   }, {
@@ -139,29 +144,31 @@ function (_React$PureComponent) {
           showAboveTableControls = _this$props$showAbove === void 0 ? false : _this$props$showAbove,
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "schemas", "columns", "facets", "showAboveTableControls", "columnExtensionMap"]); //const { facets: contextFacets } = context;
-      // All these controllers pass props down to their children.
-      // So we don't need to be repetitive here; i.e. may assume 'context' is available
-      // in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
-      // As well as in ControlsAndResults.
-      // We re-instantiate the VirtualHrefController if receive a new base searchHref.
-      // Alternatively, we could create componentDidUpdate in VirtualHrefController.
+          _this$props$onLoad = _this$props.onLoad,
+          onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "schemas", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
+
+      var tableColumnClassName = facets === null ? "col-12" : undefined;
+
+      var viewProps = _objectSpread({}, passProps, {
+        showAboveTableControls: showAboveTableControls,
+        schemas: schemas,
+        tableColumnClassName: tableColumnClassName
+      });
 
       return _react["default"].createElement("div", {
         className: "embedded-search-container"
       }, _react["default"].createElement(_VirtualHrefController.VirtualHrefController, _extends({
         searchHref: searchHref,
-        facets: facets
+        facets: facets,
+        onLoad: onLoad
       }, {
         key: searchHref
       }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, _objectSpread({}, passProps, {
-        showAboveTableControls: showAboveTableControls,
-        schemas: schemas
-      }), {
+      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
       })))))));
     }
@@ -173,7 +180,8 @@ function (_React$PureComponent) {
 exports.EmbeddedSearchView = EmbeddedSearchView;
 
 _defineProperty(EmbeddedSearchView, "propTypes", {
-  'context': _propTypes["default"].object.isRequired,
+  'context': _propTypes["default"].object,
+  // From Redux store; is NOT passed down. Overriden instead.
   'columns': _propTypes["default"].object,
   'columnExtensionMap': _propTypes["default"].object,
   'searchHref': _propTypes["default"].string.isRequired,
@@ -182,7 +190,8 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'facets': _propTypes["default"].array,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
-  'showFacets': _propTypes["default"].bool
+  'showFacets': _propTypes["default"].bool,
+  'onLoad': _propTypes["default"].func
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {

@@ -283,10 +283,10 @@ export const ColumnCombiner = React.memo(function ColumnCombiner(props){
         ...passProps
     } = props;
     const { context : { columns: contextColumns } } = passProps;
-    const columns = overridePropColumns || contextColumns || null;
+    const columns = overridePropColumns || contextColumns || [];
 
-    if (!columns) {
-        throw new Error("No columns available in context nor props. Please provide columns.");
+    if (columns.length === 0) {
+        console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
     }
 
     const { columnDefinitions, defaultHiddenColumns } = useMemo(function(){
@@ -296,8 +296,6 @@ export const ColumnCombiner = React.memo(function ColumnCombiner(props){
         const defaultHiddenColumns = defaultHiddenColumnMapFromColumns(columns);
         return { columnDefinitions, defaultHiddenColumns };
     }, [columns, columnExtensionMap]);
-
-    console.log("ABV", columnDefinitions);
 
     const propsToPass = { ...passProps, columnDefinitions, defaultHiddenColumns };
 

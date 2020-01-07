@@ -24,7 +24,7 @@ export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnCo
 export class EmbeddedSearchView extends React.PureComponent {
 
     static propTypes = {
-        'context'       : PropTypes.object.isRequired,
+        'context'       : PropTypes.object,                 // From Redux store; is NOT passed down. Overriden instead.
         'columns'       : PropTypes.object,
         'columnExtensionMap' : PropTypes.object,
         'searchHref'    : PropTypes.string.isRequired,
@@ -33,7 +33,8 @@ export class EmbeddedSearchView extends React.PureComponent {
         'facets'        : PropTypes.array,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
-        'showFacets'    : PropTypes.bool
+        'showFacets'    : PropTypes.bool,
+        'onLoad'        : PropTypes.func
     };
 
     /**
@@ -59,8 +60,13 @@ export class EmbeddedSearchView extends React.PureComponent {
     }
 
     /**
-     * TODO once we have @type : [..more stuff..], change to use instead of `getSchemaTypeFromSearchContext`.
-     * For custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
+     * All these controllers pass props down to their children.
+     * So we don't need to be repetitive here; i.e. may assume 'context' is available
+     * in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
+     * As well as in ControlsAndResults.
+     *
+     * We re-instantiate the VirtualHrefController if receive a new base searchHref.
+     * Alternatively, we could create componentDidUpdate in VirtualHrefController.
      */
     render() {
         const {
@@ -75,27 +81,21 @@ export class EmbeddedSearchView extends React.PureComponent {
             facets,
             showAboveTableControls = false,
             columnExtensionMap = basicColumnExtensionMap,
-            //isOwnPage = true,
+            onLoad = null,
             ...passProps
         } = this.props;
 
-        //const { facets: contextFacets } = context;
-
-        // All these controllers pass props down to their children.
-        // So we don't need to be repetitive here; i.e. may assume 'context' is available
-        // in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
-        // As well as in ControlsAndResults.
-
-        // We re-instantiate the VirtualHrefController if receive a new base searchHref.
-        // Alternatively, we could create componentDidUpdate in VirtualHrefController.
+        // If facets are null (hidden/excluded), set table col to be full width of container.
+        const tableColumnClassName = facets === null ? "col-12" : undefined;
+        const viewProps = { ...passProps, showAboveTableControls, schemas, tableColumnClassName };
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets }} key={searchHref}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad }} key={searchHref}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController>
                             <SortController>
-                                <ControlsAndResults {...{ ...passProps, showAboveTableControls, schemas }} isOwnPage={false} />
+                                <ControlsAndResults {...viewProps} isOwnPage={false} />
                             </SortController>
                         </CustomColumnController>
                     </ColumnCombiner>

@@ -542,3 +542,34 @@ $facetlist-term-block-height: default !default;
 
 }
 
+
+/** Contain FacetList when on EmbeddedSearchView **/
+
+@mixin facets-body-contained-height-style {
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+        background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #aaa;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+        margin-right: -1px;
+    }
+}
+
+.embedded-search-container .search-view-controls-and-results {
+	.facets-container.facets.with-header-bg {
+		.facets-body.has-max-height {
+			@include facets-body-contained-height-style;
+		}
+	}
+}
+

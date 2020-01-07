@@ -596,7 +596,7 @@ function (_React$PureComponent3) {
       var canLoad = context && context.total && LoadMoreAsYouScroll.canLoadMore(context.total, results) || false;
       return _react["default"].createElement(_reactInfinite["default"], {
         elementHeight: elementHeight,
-        containerHeight: maxHeight,
+        containerHeight: isOwnPage && maxHeight || undefined,
         useWindowAsScrollContainer: isOwnPage,
         onInfiniteLoad: this.handleLoad,
         isInfiniteLoading: isLoading,
@@ -877,6 +877,8 @@ function (_React$PureComponent4) {
       var maxColWidth = null;
 
       if (elementsFound && elementsFound.length > 0) {
+        // Can assume if offsetParent of 1 is null (it or parent is hidden), then is true for all.
+        if (!elementsFound[0].offsetParent) return maxColWidth;
         var headerElement = document.querySelector('div.search-headers-column-block[data-field="' + columnField + '"] .column-title');
         maxColWidth = Math.max(_underscore["default"].reduce(elementsFound, function (m, elem) {
           return Math.max(m, elem.offsetWidth);
@@ -892,7 +894,7 @@ function (_React$PureComponent4) {
       var windowWidth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       return columnDefinitions.map(function (colDef) {
         var w = DimensioningContainer.findLargestBlockWidth(colDef.field);
-        if (typeof w === 'number' && w < colDef.widthMap.lg) return w + padding;
+        if (typeof w === 'number' && w > 0 && w < colDef.widthMap.lg) return w + padding;
         return (0, _tableCommons.getColumnWidthFromDefinition)(colDef, true, windowWidth);
       });
     }
@@ -950,6 +952,11 @@ function (_React$PureComponent4) {
       'openDetailPanes': {},
       'tableContainerScrollLeft': 0
     };
+
+    if (_this8.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
+      _this8.state.openDetailPanes[_object.itemUtil.atId(_this8.state.results[0])] = true;
+    }
+
     _this8.innerContainerRef = _react["default"].createRef();
     _this8.loadMoreAsYouScrollRef = _react["default"].createRef();
     _this8.outerContainerSizeInterval = null;
@@ -1009,7 +1016,7 @@ function (_React$PureComponent4) {
         this.scrollHandlerUnsubscribeFxn = registerWindowOnScrollHandler(this.onVerticalScroll);
       }
 
-      this.setState(nextState);
+      this.setState(nextState, _reactTooltip["default"].rebuild);
     }
   }, {
     key: "componentWillUnmount",
@@ -1289,9 +1296,7 @@ function (_React$PureComponent4) {
           windowWidth = _this$props15.windowWidth,
           isOwnPage = _this$props15.isOwnPage,
           _this$props15$maxHeig = _this$props15.maxHeight,
-          maxHeight = _this$props15$maxHeig === void 0 ? 500 : _this$props15$maxHeig,
-          _this$props15$isIniti = _this$props15.isInitialContextLoading,
-          isInitialContextLoading = _this$props15$isIniti === void 0 ? false : _this$props15$isIniti;
+          maxHeight = _this$props15$maxHeig === void 0 ? 500 : _this$props15$maxHeig;
       var _this$state2 = this.state,
           results = _this$state2.results,
           tableContainerWidth = _this$state2.tableContainerWidth,
@@ -1301,17 +1306,6 @@ function (_React$PureComponent4) {
           isWindowPastTableTop = _this$state2.isWindowPastTableTop,
           openDetailPanes = _this$state2.openDetailPanes,
           tableLeftOffset = _this$state2.tableLeftOffset;
-
-      if (isInitialContextLoading) {
-        // Only applicable for EmbeddedSearchView
-        return _react["default"].createElement("div", {
-          className: "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")
-        }, _react["default"].createElement("div", {
-          className: "search-results-container text-center py-5"
-        }, _react["default"].createElement("i", {
-          className: "icon icon-fw icon-spin icon-circle-notch fas"
-        })));
-      }
 
       var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
 
@@ -1452,13 +1446,28 @@ function (_React$PureComponent5) {
       var _this$props16 = this.props,
           hiddenColumns = _this$props16.hiddenColumns,
           columnExtensionMap = _this$props16.columnExtensionMap,
-          columnDefinitions = _this$props16.columnDefinitions;
+          columnDefinitions = _this$props16.columnDefinitions,
+          _this$props16$isIniti = _this$props16.isInitialContextLoading,
+          isInitialContextLoading = _this$props16$isIniti === void 0 ? false : _this$props16$isIniti,
+          isOwnPage = _this$props16.isOwnPage;
       var colDefs = columnDefinitions || (0, _tableCommons.columnsToColumnDefinitions)({
         'display_title': {
           'title': 'Title'
         }
       }, columnExtensionMap);
-      return _react["default"].createElement(DimensioningContainer, _extends({}, _underscore["default"].omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap'), {
+
+      if (isInitialContextLoading) {
+        // Only applicable for EmbeddedSearchView
+        return _react["default"].createElement("div", {
+          className: "search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")
+        }, _react["default"].createElement("div", {
+          className: "search-results-container text-center py-5"
+        }, _react["default"].createElement("i", {
+          className: "icon icon-fw icon-spin icon-circle-notch fas icon-2x text-secondary"
+        })));
+      }
+
+      return _react["default"].createElement(DimensioningContainer, _extends({}, _underscore["default"].omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap', 'isInitialContextLoading'), {
         columnDefinitions: SearchResultTable.filterOutHiddenCols(colDefs, hiddenColumns),
         ref: this.dimensionContainerRef
       }));
@@ -1536,5 +1545,6 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'fullWidthContainerSelectorString': '.browse-page-container',
   'currentAction': null,
   'isOwnPage': true,
-  'maxHeight': 400
+  'maxHeight': 400 // Used only if isOwnPage is false
+
 });

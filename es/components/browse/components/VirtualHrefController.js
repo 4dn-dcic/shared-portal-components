@@ -11,6 +11,8 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
+var _url = _interopRequireDefault(require("url"));
+
 var _ajax = require("./../../util/ajax");
 
 var _navigate = require("./../../util/navigate");
@@ -80,17 +82,40 @@ function (_React$PureComponent) {
     _this.state = {
       "virtualHref": props.searchHref,
       "isInitialContextLoading": true,
-      "virtualContext": null
+      "virtualContext": undefined // Let downstream components use defaultProps to fallback
+
     };
     return _this;
   }
 
   _createClass(VirtualHrefController, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this$state = this.state,
+          virtualHref = _this$state.virtualHref,
+          virtualContext = _this$state.virtualContext;
+
+      if (!virtualContext && virtualHref) {
+        // No results yet loaded.
+        this.virtualNavigate(virtualHref);
+      }
+    }
+  }, {
     key: "virtualNavigate",
     value: function virtualNavigate(nextHref, navOpts, callback) {
       var _this2 = this;
 
+      var _this$props$onLoad = this.props.onLoad,
+          onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad;
+      var currentHref = this.state.virtualHref; // There is (very large) chance that `nextHref` does not have domain name, path, etc.
+      // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
+
+      var nextHrefFull = _url["default"].resolve(currentHref, nextHref);
+
       var scopedRequest;
+
+      _patchedConsole.patchedConsoleInstance.log('VIRTUAL NAVIGATE CALLED', nextHref, nextHrefFull, navOpts);
+
       this.setState({
         "isInitialContextLoading": true
       }, function () {
@@ -110,24 +135,28 @@ function (_React$PureComponent) {
           _this2.setState({
             virtualContext: nextContext,
             isInitialContextLoading: false,
-            virtualHref: nextHref
+            virtualHref: nextHrefFull
           }, function () {
             if (typeof callback === "function") {
               callback(nextContext);
             }
+
+            if (typeof onLoad === "function") {
+              onLoad(nextContext);
+            }
           });
         };
 
-        scopedRequest = _this2.currRequest = (0, _ajax.load)(nextHref, onLoadResponse, "GET", onLoadResponse);
+        scopedRequest = _this2.currRequest = (0, _ajax.load)(nextHrefFull, onLoadResponse, "GET", onLoadResponse);
       });
       return scopedRequest;
     }
   }, {
     key: "onFilter",
     value: function onFilter(facet, term, callback) {
-      var _this$state = this.state,
-          virtualHref = _this$state.virtualHref,
-          virtualContextFilters = _this$state.virtualContext.filters;
+      var _this$state2 = this.state,
+          virtualHref = _this$state2.virtualHref,
+          virtualContextFilters = _this$state2.virtualContext.filters;
       return this.virtualNavigate((0, _FacetList.generateNextHref)(virtualHref, virtualContextFilters, facet, term), {
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
@@ -161,17 +190,17 @@ function (_React$PureComponent) {
           propFacets = _this$props.facets,
           passProps = _objectWithoutProperties(_this$props, ["children", "facets"]);
 
-      var _this$state2 = this.state,
-          href = _this$state2.virtualHref,
-          context = _this$state2.virtualContext,
-          isInitialContextLoading = _this$state2.isInitialContextLoading;
+      var _this$state3 = this.state,
+          href = _this$state3.virtualHref,
+          context = _this$state3.virtualContext,
+          isInitialContextLoading = _this$state3.isInitialContextLoading;
 
       var propsToPass = _objectSpread({}, passProps, {
         href: href,
         context: context,
         isInitialContextLoading: isInitialContextLoading,
         // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
-        facets: propFacets === null ? null : facets || context.facets || null,
+        facets: propFacets === null ? null : propFacets || context && context.facets || null,
         navigate: this.virtualNavigate,
         onFilter: this.onFilter,
         onClearFilters: this.onClearFilters,

@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import url from 'url';
 import { load as ajaxLoad } from './../../util/ajax';
 import { navigate } from './../../util/navigate';
 import { getTermFacetStatus } from './../../util/search-filters';
@@ -35,15 +36,30 @@ export class VirtualHrefController extends React.PureComponent {
         this.state = {
             "virtualHref" : props.searchHref,
             "isInitialContextLoading" : true,
-            "virtualContext" : null
+            "virtualContext" : undefined // Let downstream components use defaultProps to fallback
         };
     }
 
+    componentDidMount(){
+        const { virtualHref, virtualContext } = this.state;
+        if (!virtualContext && virtualHref) { // No results yet loaded.
+            this.virtualNavigate(virtualHref);
+        }
+    }
+
     virtualNavigate(nextHref, navOpts, callback){
+        const { onLoad = null } = this.props;
+        const { virtualHref: currentHref } = this.state;
+
+        // There is (very large) chance that `nextHref` does not have domain name, path, etc.
+        // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
+        const nextHrefFull = url.resolve(currentHref, nextHref);
+
         let scopedRequest;
 
-        this.setState({ "isInitialContextLoading" : true }, ()=>{
+        console.log('VIRTUAL NAVIGATE CALLED', nextHref, nextHrefFull, navOpts);
 
+        this.setState({ "isInitialContextLoading" : true }, ()=>{
             const onLoadResponse = (nextContext) => {
                 const { total } = nextContext;
                 if (scopedRequest !== this.currRequest) {
@@ -56,15 +72,19 @@ export class VirtualHrefController extends React.PureComponent {
                 this.setState({
                     virtualContext: nextContext,
                     isInitialContextLoading: false,
-                    virtualHref: nextHref
+                    virtualHref: nextHrefFull
                 }, ()=>{
                     if (typeof callback === "function"){
                         callback(nextContext);
                     }
+                    if (typeof onLoad === "function"){
+                        onLoad(nextContext);
+                    }
                 });
             };
 
-            scopedRequest = this.currRequest = ajaxLoad(nextHref, onLoadResponse, "GET", onLoadResponse);
+            scopedRequest = this.currRequest = ajaxLoad(nextHrefFull, onLoadResponse, "GET", onLoadResponse);
+
         });
 
         return scopedRequest;
@@ -108,7 +128,7 @@ export class VirtualHrefController extends React.PureComponent {
             ...passProps,
             href, context, isInitialContextLoading,
             // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
-            facets: propFacets === null ? null : facets || context.facets || null,
+            facets: propFacets === null ? null : propFacets || (context && context.facets) || null,
             navigate: this.virtualNavigate,
             onFilter: this.onFilter,
             onClearFilters: this.onClearFilters,

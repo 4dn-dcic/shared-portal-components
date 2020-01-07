@@ -158,18 +158,27 @@ function (_React$PureComponent) {
           isFullscreen = _this$props2.isFullscreen,
           toggleFullScreen = _this$props2.toggleFullScreen,
           facets = _this$props2.facets,
-          facetColumnClassName = _this$props2.facetColumnClassName,
-          tableColumnClassName = _this$props2.tableColumnClassName,
           termTransformFxn = _this$props2.termTransformFxn,
           rowHeight = _this$props2.rowHeight,
           separateSingleTermFacets = _this$props2.separateSingleTermFacets,
           topLeftChildren = _this$props2.topLeftChildren,
+          navigate = _this$props2.navigate,
+          _this$props2$facetCol = _this$props2.facetColumnClassName,
+          facetColumnClassName = _this$props2$facetCol === void 0 ? "col-12 col-sm-5 col-lg-4 col-xl-3" : _this$props2$facetCol,
+          _this$props2$tableCol = _this$props2.tableColumnClassName,
+          tableColumnClassName = _this$props2$tableCol === void 0 ? "col-12 col-sm-7 col-lg-8 col-xl-9" : _this$props2$tableCol,
           _this$props2$showAbov = _this$props2.showAboveTableControls,
           showAboveTableControls = _this$props2$showAbov === void 0 ? true : _this$props2$showAbov,
+          _this$props2$defaultO = _this$props2.defaultOpenIndices,
+          defaultOpenIndices = _this$props2$defaultO === void 0 ? null : _this$props2$defaultO,
           href = _this$props2.href,
           onFilter = _this$props2.onFilter,
+          _this$props2$isOwnPag = _this$props2.isOwnPage,
+          isOwnPage = _this$props2$isOwnPag === void 0 ? true : _this$props2$isOwnPag,
           _this$props2$isInitia = _this$props2.isInitialContextLoading,
           isInitialContextLoading = _this$props2$isInitia === void 0 ? false : _this$props2$isInitia,
+          _this$props2$maxHeigh = _this$props2.maxHeight,
+          maxHeight = _this$props2$maxHeigh === void 0 ? _SearchResultTable.SearchResultTable.defaultProps.maxHeight : _this$props2$maxHeigh,
           hiddenColumns = _this$props2.hiddenColumns,
           addHiddenColumn = _this$props2.addHiddenColumn,
           removeHiddenColumn = _this$props2.removeHiddenColumn,
@@ -190,15 +199,7 @@ function (_React$PureComponent) {
       var searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas); // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
 
       var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context);
-      return _react["default"].createElement("div", {
-        className: "row search-view-controls-and-results",
-        "data-search-item-type": searchItemType,
-        "data-search-abstract-type": searchAbstractItemType
-      }, Array.isArray(facets) && facets.length ? _react["default"].createElement("div", {
-        className: facetColumnClassName
-      }, _react["default"].createElement("div", {
-        className: "above-results-table-row"
-      }), _react["default"].createElement(_FacetList.FacetList, _extends({}, {
+      var facetListProps = {
         facets: facets,
         filters: filters,
         schemas: schemas,
@@ -210,11 +211,21 @@ function (_React$PureComponent) {
         windowHeight: windowHeight,
         termTransformFxn: termTransformFxn,
         separateSingleTermFacets: separateSingleTermFacets,
-        itemTypeForSchemas: searchItemType
-      }, {
+        itemTypeForSchemas: searchItemType,
         className: "with-header-bg",
+        maxBodyHeight: !isOwnPage && maxHeight || null,
         onClearFilters: this.onClearFiltersClick
-      }))) : null, _react["default"].createElement("div", {
+      };
+      return _react["default"].createElement("div", {
+        className: "row search-view-controls-and-results",
+        "data-search-item-type": searchItemType,
+        "data-search-abstract-type": searchAbstractItemType
+      }, Array.isArray(facets) && facets.length ? _react["default"].createElement("div", {
+        className: facetColumnClassName
+      }, showAboveTableControls ? // temporary-ish
+      _react["default"].createElement("div", {
+        className: "above-results-table-row"
+      }) : null, _react["default"].createElement(_FacetList.FacetList, facetListProps)) : null, _react["default"].createElement("div", {
         className: tableColumnClassName
       }, showAboveTableControls ? _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({}, {
         // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
@@ -241,6 +252,7 @@ function (_React$PureComponent) {
         hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions,
+        isOwnPage: isOwnPage,
         sortBy: sortBy,
         sortColumn: sortColumn,
         sortReverse: sortReverse,
@@ -248,6 +260,8 @@ function (_React$PureComponent) {
         windowWidth: windowWidth,
         registerWindowOnScrollHandler: registerWindowOnScrollHandler,
         rowHeight: rowHeight,
+        defaultOpenIndices: defaultOpenIndices,
+        maxHeight: maxHeight,
         isInitialContextLoading: isInitialContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
 
       }, {

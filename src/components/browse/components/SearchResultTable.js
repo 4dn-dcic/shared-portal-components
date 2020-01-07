@@ -419,7 +419,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         return (
             <Infinite
                 elementHeight={elementHeight}
-                containerHeight={maxHeight}
+                containerHeight={(isOwnPage && maxHeight) || undefined}
                 useWindowAsScrollContainer={isOwnPage}
                 onInfiniteLoad={this.handleLoad}
                 isInfiniteLoading={isLoading}
@@ -601,16 +601,19 @@ class DimensioningContainer extends React.PureComponent {
 
     static findLargestBlockWidth(columnField){
         if (isServerSide() || !document.querySelectorAll) return null;
-        var elementsFound = document.querySelectorAll('div.search-result-column-block[data-field="' + columnField + '"] .value');
+        let elementsFound = document.querySelectorAll('div.search-result-column-block[data-field="' + columnField + '"] .value');
         if (elementsFound){
             elementsFound = [...elementsFound];
         }
 
-        var maxColWidth = null;
+        let maxColWidth = null;
 
         if (elementsFound && elementsFound.length > 0){
 
-            var headerElement = document.querySelector('div.search-headers-column-block[data-field="' + columnField + '"] .column-title');
+            // Can assume if offsetParent of 1 is null (it or parent is hidden), then is true for all.
+            if (!elementsFound[0].offsetParent) return maxColWidth;
+
+            const headerElement = document.querySelector('div.search-headers-column-block[data-field="' + columnField + '"] .column-title');
 
             maxColWidth = Math.max(
                 _.reduce(elementsFound, function(m, elem){
@@ -625,8 +628,8 @@ class DimensioningContainer extends React.PureComponent {
 
     static findAndDecreaseColumnWidths(columnDefinitions, padding = 30, windowWidth=null){
         return columnDefinitions.map(function(colDef){
-            var w = DimensioningContainer.findLargestBlockWidth(colDef.field);
-            if (typeof w === 'number' && w < colDef.widthMap.lg) return w + padding;
+            const w = DimensioningContainer.findLargestBlockWidth(colDef.field);
+            if (typeof w === 'number' && w > 0 && w < colDef.widthMap.lg) return w + padding;
             return getColumnWidthFromDefinition(colDef, true, windowWidth);
         });
     }
@@ -671,6 +674,10 @@ class DimensioningContainer extends React.PureComponent {
             'tableContainerScrollLeft' : 0
         };
 
+        if (this.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0){
+            this.state.openDetailPanes[ itemUtil.atId(this.state.results[0]) ] = true;
+        }
+
         this.innerContainerRef      = React.createRef();
         this.loadMoreAsYouScrollRef = React.createRef();
 
@@ -712,7 +719,7 @@ class DimensioningContainer extends React.PureComponent {
             this.scrollHandlerUnsubscribeFxn = registerWindowOnScrollHandler(this.onVerticalScroll);
         }
 
-        this.setState(nextState);
+        this.setState(nextState, ReactTooltip.rebuild);
     }
 
     componentWillUnmount(){
@@ -946,21 +953,8 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     render(){
-        const { columnDefinitions, windowWidth, isOwnPage, maxHeight = 500, isInitialContextLoading = false } = this.props;
+        const { columnDefinitions, windowWidth, isOwnPage, maxHeight = 500 } = this.props;
         const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, isWindowPastTableTop, openDetailPanes, tableLeftOffset } = this.state;
-
-        if (isInitialContextLoading) {
-            // Only applicable for EmbeddedSearchView
-            return (
-                <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")}>
-                    <div className="search-results-container text-center py-5">
-                        <i className="icon icon-fw icon-spin icon-circle-notch fas" />
-                    </div>
-                </div>
-            );
-        }
-
-
 
         const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
         const canLoadMore = this.canLoadMore();
@@ -1101,7 +1095,7 @@ export class SearchResultTable extends React.PureComponent {
         'fullWidthContainerSelectorString' : '.browse-page-container',
         'currentAction' : null,
         'isOwnPage' : true,
-        'maxHeight' : 400
+        'maxHeight' : 400 // Used only if isOwnPage is false
     };
 
     constructor(props){
@@ -1115,11 +1109,22 @@ export class SearchResultTable extends React.PureComponent {
     }
 
     render(){
-        const { hiddenColumns, columnExtensionMap, columnDefinitions } = this.props;
+        const { hiddenColumns, columnExtensionMap, columnDefinitions, isInitialContextLoading = false, isOwnPage } = this.props;
         const colDefs = columnDefinitions || columnsToColumnDefinitions({ 'display_title' : { 'title' : 'Title' } }, columnExtensionMap);
+
+        if (isInitialContextLoading) { // Only applicable for EmbeddedSearchView
+            return (
+                <div className={"search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")}>
+                    <div className="search-results-container text-center py-5">
+                        <i className="icon icon-fw icon-spin icon-circle-notch fas icon-2x text-secondary" />
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <DimensioningContainer
-                {..._.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap')}
+                {..._.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap', 'isInitialContextLoading')}
                 columnDefinitions={SearchResultTable.filterOutHiddenCols(colDefs, hiddenColumns)}
                 ref={this.dimensionContainerRef} />
         );
