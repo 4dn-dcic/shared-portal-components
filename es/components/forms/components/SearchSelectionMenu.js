@@ -108,7 +108,8 @@ function (_React$PureComponent) {
         show: dropOpen,
         className: cls
       }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
-        variant: "outline-dark"
+        variant: "outline-dark",
+        "data-tip": value
       }, showValue), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
         as: SearchSelectionMenuBody
       }, {
