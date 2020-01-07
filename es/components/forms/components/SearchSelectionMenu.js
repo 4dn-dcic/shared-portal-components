@@ -54,10 +54,17 @@ function (_React$PureComponent) {
     _this.state = {
       dropOpen: false
     };
+    _this.dropdown = _react["default"].createRef();
+    _this.shouldAlignDropRight = _this.shouldAlignDropRight.bind(_assertThisInitialized(_this));
     return _this;
   }
 
   _createClass(SearchSelectionMenu, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.shouldAlignDropRight();
+    }
+  }, {
     key: "onToggleOpen",
     value: function onToggleOpen() {
       var _this2 = this;
@@ -77,6 +84,13 @@ function (_React$PureComponent) {
       });
     }
   }, {
+    key: "shouldAlignDropRight",
+    value: function shouldAlignDropRight() {// todo: use ref to use with dom window methods (offset or getBoundingClientRect) to get the distance 
+      // from window edge. then if distance < certain threshold, align to right vs left. Update on component update, too
+      // const domNode = this.dropdown.current;
+      // console.log(domNode.getBoundingClientRect());
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
@@ -93,7 +107,9 @@ function (_React$PureComponent) {
           onTextInputChange = _this$props.onTextInputChange,
           optionsHeader = _this$props.optionsHeader,
           optionsFooter = _this$props.optionsFooter,
-          className = _this$props.className;
+          className = _this$props.className,
+          _this$props$alignRigh = _this$props.alignRight,
+          alignRight = _this$props$alignRigh === void 0 ? false : _this$props$alignRigh;
       var dropOpen = this.state.dropOpen;
       var cls = "search-selection-menu" + (className ? " " + className : "");
 
@@ -103,6 +119,7 @@ function (_React$PureComponent) {
 
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
         drop: "down",
+        alignRight: alignRight,
         flip: false,
         onToggle: this.onToggleOpen,
         show: dropOpen,
@@ -122,7 +139,9 @@ function (_React$PureComponent) {
         flip: false,
         show: dropOpen,
         onTextInputChange: onTextInputChange,
-        toggleOpen: this.onToggleOpen
+        toggleOpen: this.onToggleOpen,
+        alignRight: alignRight,
+        ref: this.dropdown
       }), options.map(function (option, idx) {
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {

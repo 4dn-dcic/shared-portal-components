@@ -286,6 +286,7 @@ function (_React$PureComponent) {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue
       }, {
+        alignRight: true,
         options: results,
         onToggleOpen: this.onToggleOpen,
         onTextInputChange: this.onTextInputChange,

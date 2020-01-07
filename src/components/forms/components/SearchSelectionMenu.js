@@ -17,6 +17,12 @@ export class SearchSelectionMenu extends React.PureComponent {
         this.state = {
             dropOpen: false
         };
+        this.dropdown = React.createRef();
+        this.shouldAlignDropRight = this.shouldAlignDropRight.bind(this);
+    }
+
+    componentDidMount() {
+        this.shouldAlignDropRight();
     }
 
     onToggleOpen(){
@@ -31,6 +37,13 @@ export class SearchSelectionMenu extends React.PureComponent {
         });
     }
 
+    shouldAlignDropRight() {
+        // todo: use ref to use with dom window methods (offset or getBoundingClientRect) to get the distance 
+        // from window edge. then if distance < certain threshold, align to right vs left. Update on component update, too
+        // const domNode = this.dropdown.current;
+        // console.log(domNode.getBoundingClientRect());
+    }
+
     render(){
         const {
             currentTextValue = "", // Temporary text value
@@ -42,16 +55,18 @@ export class SearchSelectionMenu extends React.PureComponent {
             onTextInputChange,
             optionsHeader,
             optionsFooter,
-            className
+            className,
+            alignRight = false // todo: decide if i hate this or not
         } = this.props;
         const { dropOpen } = this.state;
         const cls = "search-selection-menu" + (className? " " + className : "");
         const showValue = (value && titleRenderFunction(value)) || <span className="text-300">No value</span>;
         return (
-            <Dropdown drop="down" flip={false} onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
+            <Dropdown drop="down" alignRight={alignRight} flip={false} onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
                 <Dropdown.Toggle variant="outline-dark" data-tip={value}>{ showValue }</Dropdown.Toggle>
                 <Dropdown.Menu as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
-                    drop="down" flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}>
+                    drop="down" flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}
+                    alignRight={alignRight} ref={this.dropdown}>
                     {
                         options.map(function(option, idx){
                             const renderedOption = typeof optionRenderFunction === "function" ?
