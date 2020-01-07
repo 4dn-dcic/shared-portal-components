@@ -109,7 +109,9 @@ function (_React$PureComponent) {
           optionsFooter = _this$props.optionsFooter,
           className = _this$props.className,
           _this$props$alignRigh = _this$props.alignRight,
-          alignRight = _this$props$alignRigh === void 0 ? false : _this$props$alignRigh;
+          alignRight = _this$props$alignRigh === void 0 ? false : _this$props$alignRigh,
+          _this$props$showTips = _this$props.showTips,
+          showTips = _this$props$showTips === void 0 ? false : _this$props$showTips;
       var dropOpen = this.state.dropOpen;
       var cls = "search-selection-menu" + (className ? " " + className : "");
 
@@ -126,7 +128,7 @@ function (_React$PureComponent) {
         className: cls
       }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
         variant: "outline-dark",
-        "data-tip": value
+        "data-tip": showTips ? value : null
       }, showValue), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
         as: SearchSelectionMenuBody
       }, {

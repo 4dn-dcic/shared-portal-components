@@ -185,6 +185,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         return (
             <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue }}
                 alignRight={true}
+                showTips={true}
                 options={results}
                 onToggleOpen={this.onToggleOpen}
                 onTextInputChange={this.onTextInputChange}
