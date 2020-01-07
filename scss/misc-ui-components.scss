@@ -11,10 +11,13 @@
 // Used by forms/components/SearchSelectionMenu.js
 
 .search-selection-menu.dropdown {
+    max-width: calc(100% - 96px);
+    
     button.btn.dropdown-toggle {
         max-width: 100%;
         overflow-x: hidden;
         text-overflow: ellipsis;
+        direction: rtl; // Show the last few numbers of @IDs on overflow-ellipsis; might need to change if expanding use elsewhere
     }
     > div.search-selection-menu-body.dropdown-menu {
         max-width: 300px;
