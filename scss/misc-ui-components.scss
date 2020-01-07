@@ -8,11 +8,23 @@
     }
 }
 
-// Used by forms/components/SearchSelectionMenu.js
+// Used by forms/components/SearchAsYouType.js in LinkedObj class
+.linked-object-buttons-container {
+    // .adv-search {}
+    .create-new-obj {
+        margin-left: 2px;
+    }
+}
 
-.search-selection-menu.dropdown {
-    max-width: calc(100% - 96px);
-    
+// Used by forms/components/SearchSelectionMenu.js
+.search-selection-menu.dropdown {    
+    max-width: 100%;
+    margin-right: 2px;
+
+    @include media-breakpoint-up(lg) {
+        max-width: calc(100% - 96px);
+	}
+
     button.btn.dropdown-toggle {
         max-width: 100%;
         overflow-x: hidden;
