@@ -39,8 +39,7 @@ export class EditableField extends React.Component {
         children        : PropTypes.any,    // Rendered value of field, use custom formatting on a per-field basis. ToDo : create fallback.
         placeholder     : PropTypes.string,
         objectType      : PropTypes.string, // Class name of object being edited, e.g. User, Biosource, AccessKey, etc. for schema-based validation.
-        pattern         : PropTypes.any,    // Optional pattern to use in lieu of one derived from schema or default field pattern.
-                                            // If set to false, will skip (default or schema-based) validation.
+        pattern         : PropTypes.any,    // Optional pattern to use in lieu of one derived from schema or default field pattern. If set to false, will skip (default or schema-based) validation.
         required        : PropTypes.bool,   // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
         schemas         : PropTypes.object.isRequired,
         debug           : PropTypes.bool    // Verbose lifecycle log messages.
@@ -130,7 +129,8 @@ export class EditableField extends React.Component {
         });
     }
 
-    componentWillReceiveProps(newProps, newContext){
+    /** @todo Refactor to use memoization, didUpdate, derivedStateFromProps, or remove component entirely */
+    UNSAFE_componentWillReceiveProps(newProps){
         var newState = {},
             stateChangeCallback = null;
 
@@ -304,7 +304,7 @@ export class EditableField extends React.Component {
                 return (
                     <div className="invalid-feedback">
                         Only use digits &mdash; no dashes, spaces, or parantheses.
-                        Optionally may include leading '+' or extension.<br/>
+                        Optionally may include leading &apos;+&apos; or extension.<br/>
                         <b>e.g.:</b> <code>+######### x###</code>
                     </div>
                 );
@@ -437,15 +437,17 @@ export class EditableField extends React.Component {
     }
 
     renderActionIcon(type = 'edit'){
+        const { style, info, disabled, labelID } = this.props;
+        const { loading } = this.state;
 
-        var extClass = "right";
-        if (this.props.style === 'inline') extClass = "inline";
+        let extClass = "";
+        if (style === 'inline') extClass = "show-absolute ";
 
-        if (this.state.loading){
+        if (loading){
             switch (type){
                 case 'save' : return null;
                 case 'cancel' : return (
-                    <span className={extClass + " field-loading-icon"}>
+                    <span className={extClass + "field-loading-icon"}>
                         <i className="icon icon-spin icon-circle-notch icon-fw fas"></i>
                     </span>
                 );
@@ -454,29 +456,29 @@ export class EditableField extends React.Component {
 
         switch (type){
             case 'edit' :
-                if (this.props.disabled) {
-                    if (!this.props.info) return null;
+                if (disabled) {
+                    if (!info) return null;
                     // ToDo info popup or tooltip
                     return (
-                        <span className={extClass + " edit-button info disabled"}>
+                        <span className={extClass + "edit-button info disabled"}>
                             <i className="icon icon-info-circle icon-fw fas"/>
                         </span>
                     );
                 }
                 return (
-                    <a href={ "#edit-" + this.props.labelID } className={extClass + " edit-button"} onClick={ this.enterEditState } title="Edit">
-                        <i className="icon icon-pencil icon-fw fas"></i>
+                    <a href={ "#edit-" + labelID } className={extClass + "edit-button"} onClick={ this.enterEditState } title="Edit">
+                        <i className="icon icon-pencil-alt icon-fw fas"></i>
                     </a>
                 );
             case 'save' :
                 if (!this.isValid(false)) return null;
                 return (
-                    <a href={ "#save-" + this.props.labelID } className={extClass + " save-button"} onClick={this.saveEditState} title="Save">
+                    <a href={ "#save-" + labelID } className={extClass + "save-button"} onClick={this.saveEditState} title="Save">
                         <i className="icon icon-check fas icon-fw"></i>
                     </a>
                 );
             case 'cancel': return (
-                <a href="#" className={extClass + " cancel-button"} onClick={this.cancelEditState} title="Cancel">
+                <a href="#" className={extClass + "cancel-button"} onClick={this.cancelEditState} title="Cancel">
                     <i className="icon icon-times-circle far icon-fw"></i>
                 </a>
             );
@@ -484,22 +486,27 @@ export class EditableField extends React.Component {
     }
 
     renderSavedValue(){
-        var renderedValue = this.props.children || this.state.savedValue,
-            classes = ['value', 'saved'];
+        const { style, labelID, children, fallbackText } = this.props;
+        const { savedValue } = this.state;
+        const renderedValue = children || savedValue;
+        const classes = ['value', 'saved'];
 
-        switch (this.props.style){
+        switch (style){
 
             case 'row':
             case 'minimal':
-                if (this.props.style === 'row') classes.push('col-md-9');
+                classes.push("d-flex");
+                if (style === 'row'){
+                    classes.push('col-md-9');
+                }
                 return (
                     <div className={classes.join(' ')}>
-                        { this.renderActionIcon('edit') }
                         { this.isSet() ?
-                            <span id={ this.props.labelID } className="set">{ renderedValue }</span>
+                            <span id={labelID} className="set">{ renderedValue }</span>
                             :
-                            <span className="not-set">{ this.props.fallbackText || ('No ' + this.props.labelID) }</span>
+                            <span className="not-set">{ fallbackText || ('No ' + labelID) }</span>
                         }
+                        { this.renderActionIcon('edit') }
                     </div>
                 );
 
@@ -507,9 +514,9 @@ export class EditableField extends React.Component {
                 return (
                     <span className={classes.join(' ')}>
                         { this.isSet() ?
-                            <span id={ this.props.labelID } className="set">{ renderedValue }</span>
+                            <span id={labelID} className="set">{ renderedValue }</span>
                             :
-                            <span className="not-set">{ this.props.fallbackText || ('No ' + this.props.labelID) }</span>
+                            <span className="not-set">{ fallbackText || ('No ' + labelID) }</span>
                         }
                         { this.renderActionIcon('edit') }
                     </span>
@@ -519,26 +526,28 @@ export class EditableField extends React.Component {
     }
 
     renderSaved(){
-        if (this.props.style === 'row'){
+        const { style, info, disabled, labelID, label } = this.props;
+        const { loading } = this.state;
+        if (style === 'row'){
             return (
-                <div className={"row editable-field-entry " + this.props.labelID}>
+                <div className={"row editable-field-entry " + labelID}>
                     <div className="col col-md-3 text-right text-left-xs">
-                        <label htmlFor={ this.props.labelID }>{ this.props.label }</label>
+                        <label htmlFor={ labelID }>{ label }</label>
                     </div>
                     { this.renderSavedValue() }
                 </div>
             );
         }
-        if (this.props.style === 'minimal'){
+        if (style === 'minimal'){
             return (
-                <div className={"editable-field-entry " + this.props.labelID}>
+                <div className={"editable-field-entry " + labelID}>
                     { this.renderSavedValue() }
                 </div>
             );
         }
-        if (this.props.style === 'inline'){
+        if (style === 'inline'){
             return (
-                <span className={"editable-field-entry inline " + this.props.labelID}>
+                <span className={"editable-field-entry inline " + labelID}>
                     { this.renderSavedValue() }
                 </span>
             );
@@ -548,24 +557,26 @@ export class EditableField extends React.Component {
 
     /** Render an input field; for usage in this.renderEditing() */
     inputField(){
+        const { fieldType, labelID, placeholder, inputSize, disabled } = this.props;
+        const { value, required, validationPattern } = this.state;
         // ToDo : Select boxes, radios, checkboxes, etc.
-        var commonProps = {
-            'id'        : this.props.labelID,
-            'required'  : this.state.required,
-            'disabled'  : this.props.disabled || false,
+        const commonProps = {
+            'id'        : labelID,
+            'required'  : required,
+            'disabled'  : disabled || false,
             'ref'       : this.inputElementRef
         };
-        var commonPropsTextInput = _.extend({
-            'className'     : 'form-control input-' + this.props.inputSize,
-            'value'         : this.state.value || '',
+        const commonPropsTextInput = _.extend({
+            'className'     : 'form-control input-' + inputSize,
+            'value'         : value || '',
             'onChange'      : this.handleChange,
-            'name'          : this.props.labelID,
+            'name'          : labelID,
             'autoFocus'     : true,
-            'placeholder'   : this.props.placeholder,
-            'pattern'       : this.state.validationPattern
+            placeholder,
+            'pattern'       : validationPattern
         }, commonProps);
 
-        switch(this.props.fieldType){
+        switch(fieldType){
 
             case 'phone': return (
                 <span className="input-wrapper">
@@ -610,10 +621,10 @@ export class EditableField extends React.Component {
                     <div className="col col-md-3 text-right text-left-xs">
                         <label htmlFor={labelID }>{ label }</label>
                     </div>
-                    <div className="col col-md-9 value editing">
-                        { this.renderActionIcon('cancel') }
-                        { this.renderActionIcon('save') }
+                    <div className="col col-md-9 value editing d-flex">
                         { this.inputField() }
+                        { this.renderActionIcon('save') }
+                        { this.renderActionIcon('cancel') }
                     </div>
                 </div>
             );
@@ -622,10 +633,10 @@ export class EditableField extends React.Component {
         if (style == 'minimal') {
             return (
                 <div className={ outerBaseClass + labelID }>
-                    <div className="value editing">
-                        { this.renderActionIcon('cancel') }
-                        { this.renderActionIcon('save') }
+                    <div className="value editing d-flex">
                         { this.inputField() }
+                        { this.renderActionIcon('save') }
+                        { this.renderActionIcon('cancel') }
                     </div>
                 </div>
             );
@@ -645,8 +656,8 @@ export class EditableField extends React.Component {
                     { absoluteBox ? this.renderSavedValue() : null }
                     <span className="value editing clearfix" style={valStyle}>
                         { this.inputField() }
-                        { this.renderActionIcon('cancel') }
                         { this.renderActionIcon('save') }
+                        { this.renderActionIcon('cancel') }
                     </span>
                 </span>
             );
