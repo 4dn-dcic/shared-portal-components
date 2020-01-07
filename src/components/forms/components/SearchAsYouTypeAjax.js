@@ -209,8 +209,8 @@ SearchAsYouTypeAjax.defaultProps = {
         const { display_title: title, "@id" : atID, description } = result;
         return (
             <div data-tip={description} key={atID}>
-                <h5 className="text-300">{ title }</h5>
-                <h6 className="text-mono text-400">{ atID }</h6>
+                <h5 className="text-300 text-ellipsis-container">{ title }</h5>
+                <h6 className="text-mono text-400 text-ellipsis-container">{ atID }</h6>
             </div>
         );
     },
@@ -277,15 +277,7 @@ function sexToIcon(sex, showTip) {
 
 export const optionCustomizationsByType = {
     "Institution" : {
-        "render" : function(result){
-            const { display_title: title, "@id" : atID, description } = result;
-            return (
-                <div data-tip={description} key={atID}>
-                    <h5 className="text-300">{ title }</h5>
-                    <h6 className="text-mono text-400">{ atID }</h6>
-                </div>
-            );
-        },
+        // "render" is same as default
         "fieldsToRequest" : []
     },
     "Individual" : {
@@ -312,8 +304,8 @@ export const optionCustomizationsByType = {
             const { display_title: title, "@id" : atID, description, accession } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300">{ title }</h5>
-                    <h6 className="text-mono text-400">{ accession }</h6>
+                    <h5 className="text-300 text-ellipsis-container">{ title }</h5>
+                    <h6 className="text-mono text-400 text-ellipsis-container">{ accession }</h6>
                 </div>
             );
         },
@@ -338,8 +330,8 @@ export const optionCustomizationsByType = {
                 status, date_created, submitted_by } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300">{ title }</h5>
-                    <h6 className="text-mono text-400">{ atID }</h6>
+                    <h5 className="text-300 text-ellipsis-container">{ title }</h5>
+                    <h6 className="text-mono text-400 text-ellipsis-container">{ atID }</h6>
                 </div>
             );
         },
@@ -351,32 +343,19 @@ export const optionCustomizationsByType = {
                 status, date_created, submitted_by } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300">{ title }</h5>
-                    <h6 className="text-mono text-400">{ atID }</h6>
-                    <h7 className="text-mono text-400">{ submitted_by.display_title }</h7>
+                    <h5 className="text-300 text-ellipsis-container">{ title }</h5>
+                    <h6 className="text-mono text-400 text-ellipsis-container">{ atID }</h6>
                 </div>
             );
         },
         "fieldsToRequest" : ['status', 'description', 'date_created', 'submitted_by']
     },
-    // "Disorder" : { // todo: currently not in use on cgap
-    //     "render" : function(result){
-    //         const { display_title: title, "@id" : atID, description } = result;
-    //         return (
-    //             <div data-tip={description} key={atID}>
-    //                 <h5 className="text-300">{ title }</h5>
-    //                 <h6 className="text-mono text-400">{ atID }</h6>
-    //             </div>
-    //         );
-    //     },
-    //     "fieldsToRequest" : []
-    // },
     "Phenotype" : {
         "render" : function(result){
             const { display_title: title, "@id" : atID, description, hpo_id } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300">{ title }</h5>
+                    <h5 className="text-300 text-ellipsis-container">{ title }</h5>
                     <h6 className="text-mono text-400">{ hpo_id }</h6>
                 </div>
             );

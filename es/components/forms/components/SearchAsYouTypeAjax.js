@@ -319,9 +319,9 @@ SearchAsYouTypeAjax.defaultProps = {
       "data-tip": description,
       key: atID
     }, _react["default"].createElement("h5", {
-      className: "text-300"
+      className: "text-300 text-ellipsis-container"
     }, title), _react["default"].createElement("h6", {
-      className: "text-mono text-400"
+      className: "text-mono text-400 text-ellipsis-container"
     }, atID));
   },
   "titleRenderFunction": function titleRenderFunction(result) {
@@ -400,19 +400,7 @@ function sexToIcon(sex, showTip) {
 
 var optionCustomizationsByType = {
   "Institution": {
-    "render": function render(result) {
-      var title = result.display_title,
-          atID = result["@id"],
-          description = result.description;
-      return _react["default"].createElement("div", {
-        "data-tip": description,
-        key: atID
-      }, _react["default"].createElement("h5", {
-        className: "text-300"
-      }, title), _react["default"].createElement("h6", {
-        className: "text-mono text-400"
-      }, atID));
-    },
+    // "render" is same as default
     "fieldsToRequest": []
   },
   "Individual": {
@@ -458,9 +446,9 @@ var optionCustomizationsByType = {
         "data-tip": description,
         key: atID
       }, _react["default"].createElement("h5", {
-        className: "text-300"
+        className: "text-300 text-ellipsis-container"
       }, title), _react["default"].createElement("h6", {
-        className: "text-mono text-400"
+        className: "text-mono text-400 text-ellipsis-container"
       }, accession));
     },
     "fieldsToRequest": ['accession', 'status', 'date_created']
@@ -497,9 +485,9 @@ var optionCustomizationsByType = {
         "data-tip": description,
         key: atID
       }, _react["default"].createElement("h5", {
-        className: "text-300"
+        className: "text-300 text-ellipsis-container"
       }, title), _react["default"].createElement("h6", {
-        className: "text-mono text-400"
+        className: "text-mono text-400 text-ellipsis-container"
       }, atID));
     },
     "fieldsToRequest": ['status', 'description', 'date_created', 'submitted_by']
@@ -516,27 +504,13 @@ var optionCustomizationsByType = {
         "data-tip": description,
         key: atID
       }, _react["default"].createElement("h5", {
-        className: "text-300"
+        className: "text-300 text-ellipsis-container"
       }, title), _react["default"].createElement("h6", {
-        className: "text-mono text-400"
-      }, atID), _react["default"].createElement("h7", {
-        className: "text-mono text-400"
-      }, submitted_by.display_title));
+        className: "text-mono text-400 text-ellipsis-container"
+      }, atID));
     },
     "fieldsToRequest": ['status', 'description', 'date_created', 'submitted_by']
   },
-  // "Disorder" : { // todo: currently not in use on cgap
-  //     "render" : function(result){
-  //         const { display_title: title, "@id" : atID, description } = result;
-  //         return (
-  //             <div data-tip={description} key={atID}>
-  //                 <h5 className="text-300">{ title }</h5>
-  //                 <h6 className="text-mono text-400">{ atID }</h6>
-  //             </div>
-  //         );
-  //     },
-  //     "fieldsToRequest" : []
-  // },
   "Phenotype": {
     "render": function render(result) {
       var title = result.display_title,
@@ -547,7 +521,7 @@ var optionCustomizationsByType = {
         "data-tip": description,
         key: atID
       }, _react["default"].createElement("h5", {
-        className: "text-300"
+        className: "text-300 text-ellipsis-container"
       }, title), _react["default"].createElement("h6", {
         className: "text-mono text-400"
       }, hpo_id));
