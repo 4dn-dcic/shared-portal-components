@@ -158,6 +158,10 @@ $search-results-header-text-color: #fff !default;
 			}
 		}
 
+		> .inner-container > .scrollable-container > div {
+			overflow: auto !important;
+		}
+
 		.shadow-border-layer {
 			pointer-events: none;
 			> .edge-scroll-button {

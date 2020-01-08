@@ -1103,14 +1103,18 @@ export default class SubmissionView extends React.PureComponent{
                     if (roundTwo){
                         // there is a file
                         if (file && responseData.upload_credentials){
+
                             // add important info to result from finalizedContext
                             // that is not added from /types/file.py get_upload
-                            var creds = responseData.upload_credentials;
+                            const creds = responseData.upload_credentials;
 
-                            require.ensure(['../util/aws'], (require)=>{
-
-                                var awsUtil = require('../util/aws'),
-                                    upload_manager = awsUtil.s3UploadFile(file, creds);
+                            import(
+                                /* webpackChunkName: "aws-utils" */
+                                /* webpackMode: "lazy" */
+                                '../util/aws'
+                            ).then(({ s3UploadFile })=>{
+                                //const awsUtil = require('../util/aws');
+                                const upload_manager = s3UploadFile(file, creds);
 
                                 if (upload_manager === null){
                                     // bad upload manager. Cause an alert
@@ -1124,7 +1128,26 @@ export default class SubmissionView extends React.PureComponent{
                                     this.setState(stateToSet);
                                     this.updateUpload(upload_manager);
                                 }
-                            }, "aws-utils-bundle");
+                            });
+
+                            // require.ensure(['../util/aws'], (require)=>{
+
+                            //     const awsUtil = require('../util/aws');
+                            //     const upload_manager = awsUtil.s3UploadFile(file, creds);
+
+                            //     if (upload_manager === null){
+                            //         // bad upload manager. Cause an alert
+                            //         alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
+                            //     } else {
+                            //         // this will set off a chain of aync events.
+                            //         // first, md5 will be calculated and then the
+                            //         // file will be uploaded to s3. If all of this
+                            //         // is succesful, call finishRoundTwo.
+                            //         stateToSet.uploadStatus = null;
+                            //         this.setState(stateToSet);
+                            //         this.updateUpload(upload_manager);
+                            //     }
+                            // }, "aws-utils-bundle");
 
                         } else {
                             // state cleanup for this key

@@ -923,20 +923,6 @@ function (_React$Component2) {
 
 exports.HeadersRow = HeadersRow;
 
-_defineProperty(HeadersRow, "fullRowWidth", (0, _memoizeOne["default"])(function (columnDefinitions) {
-  var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var dynamicWidths = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-  var windowWidth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-  return _underscore["default"].reduce(columnDefinitions, function (fw, colDef, i) {
-    var w;
-    if (typeof colDef === 'number') w = colDef;else {
-      if (Array.isArray(dynamicWidths) && dynamicWidths[i]) w = dynamicWidths[i];else w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
-    }
-    if (typeof w !== 'number') w = 0;
-    return fw + w;
-  }, 0);
-}));
-
 _defineProperty(HeadersRow, "propTypes", {
   'columnDefinitions': _propTypes["default"].array.isRequired,
   //ResultRow.propTypes.columnDefinitions,

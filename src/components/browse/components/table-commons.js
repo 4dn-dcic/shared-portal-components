@@ -552,19 +552,6 @@ class HeadersRowColumn extends React.PureComponent {
 
 export class HeadersRow extends React.Component {
 
-    static fullRowWidth = memoize(function(columnDefinitions, mounted=true, dynamicWidths=null, windowWidth=null){
-        return _.reduce(columnDefinitions, function(fw, colDef, i){
-            var w;
-            if (typeof colDef === 'number') w = colDef;
-            else {
-                if (Array.isArray(dynamicWidths) && dynamicWidths[i]) w = dynamicWidths[i];
-                else w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
-            }
-            if (typeof w !== 'number') w = 0;
-            return fw + w;
-        }, 0);
-    });
-
     static propTypes = {
         'columnDefinitions' : PropTypes.array.isRequired,//ResultRow.propTypes.columnDefinitions,
         'mounted' : PropTypes.bool.isRequired,

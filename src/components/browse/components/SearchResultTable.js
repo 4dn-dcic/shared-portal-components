@@ -402,7 +402,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft, context, results,
             mounted: propMounted, isOwnPage, maxHeight
         } = this.props;
-
+        const { total = null } = context || {};
         const { mounted: stateMounted, isLoading } = this.state;
         if (!(propMounted || stateMounted)){
             return <div>{ children }</div>;
@@ -415,11 +415,11 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             }
             return rowHeight;
         });
-        const canLoad = (context && context.total && LoadMoreAsYouScroll.canLoadMore(context.total, results)) || false;
+        const canLoad = (total && LoadMoreAsYouScroll.canLoadMore(total, results)) || false;
         return (
             <Infinite
                 elementHeight={elementHeight}
-                containerHeight={(isOwnPage && maxHeight) || undefined}
+                containerHeight={(!isOwnPage && maxHeight) || undefined}
                 useWindowAsScrollContainer={isOwnPage}
                 onInfiniteLoad={this.handleLoad}
                 isInfiniteLoading={isLoading}
@@ -477,6 +477,7 @@ class ShadowBorderLayer extends React.Component {
     }
 
     shouldComponentUpdate(nextProps){
+        if (typeof nextProps.tableContainerWidth !== "number") return false;
         if (this.props.isWindowPastTableTop !== nextProps.isWindowPastTableTop) return true;
         var pastEdges = this.edgeHiddenContentWidths(this.props);
         var newEdges = this.edgeHiddenContentWidths(nextProps);
@@ -564,6 +565,7 @@ class ShadowBorderLayer extends React.Component {
 
     render(){
         const { tableContainerWidth, fullRowWidth, verticallyCenterArrows = true } = this.props;
+        if (!tableContainerWidth) return null;
         if (fullRowWidth <= tableContainerWidth) return null;
         const edges = this.edgeHiddenContentWidths(this.props);
         const cls = (
@@ -651,6 +653,19 @@ class DimensioningContainer extends React.PureComponent {
         return null;
     }
 
+    static fullRowWidth(columnDefinitions, mounted=true, dynamicWidths=null, windowWidth=null){
+        return _.reduce(columnDefinitions, function(fw, colDef, i){
+            var w;
+            if (typeof colDef === 'number') w = colDef;
+            else {
+                if (Array.isArray(dynamicWidths) && dynamicWidths[i]) w = dynamicWidths[i];
+                else w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
+            }
+            if (typeof w !== 'number') w = 0;
+            return fw + w;
+        }, 0);
+    }
+
     constructor(props){
         super(props);
         this.throttledUpdate = _.debounce(this.forceUpdate.bind(this), 500);
@@ -683,6 +698,10 @@ class DimensioningContainer extends React.PureComponent {
 
         this.outerContainerSizeInterval = null;
         this.scrollHandlerUnsubscribeFxn = null;
+
+        this.memoized = {
+            fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
+        };
     }
 
     componentDidMount(){
@@ -693,7 +712,7 @@ class DimensioningContainer extends React.PureComponent {
         const innerContainerElem = this.innerContainerRef.current;
 
         if (innerContainerElem){
-            const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, true, [], windowWidth);
+            const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, true, [], windowWidth);
             if (innerContainerElem.offsetWidth < fullRowWidth){
                 nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
                 nextState.isWindowPastTableTop = !isOwnPage || ShadowBorderLayer.isWindowPastTableTop(innerContainerElem);
@@ -956,7 +975,7 @@ class DimensioningContainer extends React.PureComponent {
         const { columnDefinitions, windowWidth, isOwnPage, maxHeight = 500 } = this.props;
         const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, isWindowPastTableTop, openDetailPanes, tableLeftOffset } = this.state;
 
-        const fullRowWidth = HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
+        const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
         const canLoadMore = this.canLoadMore();
         const innerContainerElem = this.innerContainerRef.current;
 
@@ -966,6 +985,7 @@ class DimensioningContainer extends React.PureComponent {
             mounted, results,
             headerColumnWidths: widths,
             setHeaderWidths: this.setHeaderWidths,
+            tableContainerScrollLeft,
             tableContainerWidth
         };
 
@@ -981,31 +1001,50 @@ class DimensioningContainer extends React.PureComponent {
             }
         );
 
+        const loadMoreAsYouScrollProps = {
+            ..._.pick(this.props, 'href', 'limit', 'rowHeight', 'context', 'onDuplicateResultsFoundCallback', 'schemas'),
+            results, openDetailPanes, maxHeight, isOwnPage,
+            tableContainerWidth, tableContainerScrollLeft, innerContainerElem, windowWidth, mounted,
+            setResults: this.setResults
+        };
+
+        let headersRow = null;
+        let shadowBorderLayer = null;
+        const anyResults = results.length > 0;
+
+        if (anyResults) {
+            headersRow = <HeadersRow {...headerRowCommonProps} />;
+            shadowBorderLayer = (
+                <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, isWindowPastTableTop, fullRowWidth, innerContainerElem }}
+                    setContainerScrollLeft={this.setContainerScrollLeft} />
+            );
+        }
+
         return (
             <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")}>
                 <div className={"search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')}>
-                    <HeadersRow {...headerRowCommonProps} tableContainerScrollLeft={tableContainerScrollLeft} />
-                    <div className="inner-container" ref={this.innerContainerRef} style={!isOwnPage ? { maxHeight } : null}>
-                        <div className="scrollable-container" style={{ minWidth : fullRowWidth + 6 }}>
-                            <LoadMoreAsYouScroll
-                                {..._.pick(this.props, 'href', 'limit', 'rowHeight', 'context',
-                                    'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas')}
-                                {..._.pick(this.state, 'results', 'mounted', 'openDetailPanes')}
-                                {...{ tableContainerWidth, tableContainerScrollLeft, innerContainerElem }}
-                                setResults={this.setResults} ref={this.loadMoreAsYouScrollRef}>
+                    { headersRow }
+                    <div className="inner-container" ref={this.innerContainerRef}>
+                        <div className="scrollable-container" style={anyResults ? { minWidth : fullRowWidth + 6 } : null}>
+                            <LoadMoreAsYouScroll {...loadMoreAsYouScrollProps} ref={this.loadMoreAsYouScrollRef}>
                                 {
-                                    results.map(function(r, idx){
-                                        const id = itemUtil.atId(r);
-                                        return <ResultRow {...resultRowCommonProps} result={r} rowNumber={idx} id={id} key={id} />;
-                                    })
+                                    !anyResults ? (
+                                        <div className="text-center py-5">
+                                            <h3 className="text-300">No Results</h3>
+                                        </div>
+                                    ) : (
+                                        results.map(function(r, idx){
+                                            const id = itemUtil.atId(r);
+                                            return <ResultRow {...resultRowCommonProps} result={r} rowNumber={idx} id={id} key={id} />;
+                                        })
+                                    )
                                 }
                             </LoadMoreAsYouScroll>
                         </div>
                     </div>
-                    <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, isWindowPastTableTop, fullRowWidth, innerContainerElem }}
-                        setContainerScrollLeft={this.setContainerScrollLeft} />
+                    { shadowBorderLayer }
                 </div>
-                { canLoadMore === false ?
+                { canLoadMore === false && anyResults ?
                     <div key="can-load-more" className="fin search-result-row">
                         <div className="inner">- <span>fin</span> -</div>
                     </div>

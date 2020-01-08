@@ -575,6 +575,8 @@ function (_React$PureComponent3) {
           propMounted = _this$props10.mounted,
           isOwnPage = _this$props10.isOwnPage,
           maxHeight = _this$props10.maxHeight;
+      var _ref2$total = (context || {}).total,
+          total = _ref2$total === void 0 ? null : _ref2$total;
       var _this$state = this.state,
           stateMounted = _this$state.mounted,
           isLoading = _this$state.isLoading;
@@ -593,10 +595,10 @@ function (_React$PureComponent3) {
 
         return rowHeight;
       });
-      var canLoad = context && context.total && LoadMoreAsYouScroll.canLoadMore(context.total, results) || false;
+      var canLoad = total && LoadMoreAsYouScroll.canLoadMore(total, results) || false;
       return _react["default"].createElement(_reactInfinite["default"], {
         elementHeight: elementHeight,
-        containerHeight: isOwnPage && maxHeight || undefined,
+        containerHeight: !isOwnPage && maxHeight || undefined,
         useWindowAsScrollContainer: isOwnPage,
         onInfiniteLoad: this.handleLoad,
         isInfiniteLoading: isLoading,
@@ -696,6 +698,7 @@ function (_React$Component) {
   _createClass(ShadowBorderLayer, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps) {
+      if (typeof nextProps.tableContainerWidth !== "number") return false;
       if (this.props.isWindowPastTableTop !== nextProps.isWindowPastTableTop) return true;
       var pastEdges = this.edgeHiddenContentWidths(this.props);
       var newEdges = this.edgeHiddenContentWidths(nextProps);
@@ -711,10 +714,10 @@ function (_React$Component) {
     }
   }, {
     key: "edgeHiddenContentWidths",
-    value: function edgeHiddenContentWidths(_ref2) {
-      var fullRowWidth = _ref2.fullRowWidth,
-          tableContainerScrollLeft = _ref2.tableContainerScrollLeft,
-          tableContainerWidth = _ref2.tableContainerWidth;
+    value: function edgeHiddenContentWidths(_ref3) {
+      var fullRowWidth = _ref3.fullRowWidth,
+          tableContainerScrollLeft = _ref3.tableContainerScrollLeft,
+          tableContainerWidth = _ref3.tableContainerWidth;
       var edges = {
         'left': 0,
         'right': 0
@@ -819,6 +822,7 @@ function (_React$Component) {
           fullRowWidth = _this$props12.fullRowWidth,
           _this$props12$vertica = _this$props12.verticallyCenterArrows,
           verticallyCenterArrows = _this$props12$vertica === void 0 ? true : _this$props12$vertica;
+      if (!tableContainerWidth) return null;
       if (fullRowWidth <= tableContainerWidth) return null;
       var edges = this.edgeHiddenContentWidths(this.props);
       var cls = "shadow-border-layer hidden-xs" + ShadowBorderLayer.shadowStateClass(edges.left, edges.right) + this.tallDimensionClass() + (verticallyCenterArrows ? ' fixed-position-arrows' : '');
@@ -923,6 +927,21 @@ function (_React$PureComponent4) {
 
       return null;
     }
+  }, {
+    key: "fullRowWidth",
+    value: function fullRowWidth(columnDefinitions) {
+      var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      var dynamicWidths = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var windowWidth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      return _underscore["default"].reduce(columnDefinitions, function (fw, colDef, i) {
+        var w;
+        if (typeof colDef === 'number') w = colDef;else {
+          if (Array.isArray(dynamicWidths) && dynamicWidths[i]) w = dynamicWidths[i];else w = (0, _tableCommons.getColumnWidthFromDefinition)(colDef, mounted, windowWidth);
+        }
+        if (typeof w !== 'number') w = 0;
+        return fw + w;
+      }, 0);
+    }
   }]);
 
   function DimensioningContainer(props) {
@@ -961,6 +980,9 @@ function (_React$PureComponent4) {
     _this8.loadMoreAsYouScrollRef = _react["default"].createRef();
     _this8.outerContainerSizeInterval = null;
     _this8.scrollHandlerUnsubscribeFxn = null;
+    _this8.memoized = {
+      fullRowWidth: (0, _memoizeOne["default"])(DimensioningContainer.fullRowWidth)
+    };
     return _this8;
   }
 
@@ -983,7 +1005,7 @@ function (_React$PureComponent4) {
       var innerContainerElem = this.innerContainerRef.current;
 
       if (innerContainerElem) {
-        var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, true, [], windowWidth);
+        var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, true, [], windowWidth);
 
         if (innerContainerElem.offsetWidth < fullRowWidth) {
           nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
@@ -997,8 +1019,8 @@ function (_React$PureComponent4) {
 
 
       this.outerContainerSizeInterval = setInterval(function () {
-        _this9.setState(function (_ref3) {
-          var pastWidth = _ref3.tableContainerWidth;
+        _this9.setState(function (_ref4) {
+          var pastWidth = _ref4.tableContainerWidth;
 
           var tableContainerWidth = _this9.getTableContainerWidth();
 
@@ -1072,8 +1094,8 @@ function (_React$PureComponent4) {
     key: "toggleDetailPaneOpen",
     value: function toggleDetailPaneOpen(rowKey) {
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref4) {
-        var openDetailPanes = _ref4.openDetailPanes;
+      this.setState(function (_ref5) {
+        var openDetailPanes = _ref5.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (openDetailPanes[rowKey]) {
@@ -1090,8 +1112,8 @@ function (_React$PureComponent4) {
   }, {
     key: "setDetailHeight",
     value: function setDetailHeight(rowKey, height, cb) {
-      this.setState(function (_ref5) {
-        var openDetailPanes = _ref5.openDetailPanes;
+      this.setState(function (_ref6) {
+        var openDetailPanes = _ref6.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (typeof openDetailPanes[rowKey] === 'undefined') {
@@ -1243,10 +1265,10 @@ function (_React$PureComponent4) {
     value: function resetWidths() {
       var _this12 = this;
 
-      this.setState(function resetWidthStateChangeFxn(_ref6, _ref7) {
-        var mounted = _ref6.mounted;
-        var columnDefinitions = _ref7.columnDefinitions,
-            windowWidth = _ref7.windowWidth;
+      this.setState(function resetWidthStateChangeFxn(_ref7, _ref8) {
+        var mounted = _ref7.mounted;
+        var columnDefinitions = _ref8.columnDefinitions,
+            windowWidth = _ref8.windowWidth;
         return {
           "widths": DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth)
         };
@@ -1306,9 +1328,7 @@ function (_React$PureComponent4) {
           isWindowPastTableTop = _this$state2.isWindowPastTableTop,
           openDetailPanes = _this$state2.openDetailPanes,
           tableLeftOffset = _this$state2.tableLeftOffset;
-
-      var fullRowWidth = _tableCommons.HeadersRow.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
-
+      var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
       var canLoadMore = this.canLoadMore();
       var innerContainerElem = this.innerContainerRef.current;
 
@@ -1317,6 +1337,7 @@ function (_React$PureComponent4) {
         results: results,
         headerColumnWidths: widths,
         setHeaderWidths: this.setHeaderWidths,
+        tableContainerScrollLeft: tableContainerScrollLeft,
         tableContainerWidth: tableContainerWidth
       });
 
@@ -1333,31 +1354,55 @@ function (_React$PureComponent4) {
         'setDetailHeight': this.setDetailHeight
       });
 
+      var loadMoreAsYouScrollProps = _objectSpread({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'context', 'onDuplicateResultsFoundCallback', 'schemas'), {
+        results: results,
+        openDetailPanes: openDetailPanes,
+        maxHeight: maxHeight,
+        isOwnPage: isOwnPage,
+        tableContainerWidth: tableContainerWidth,
+        tableContainerScrollLeft: tableContainerScrollLeft,
+        innerContainerElem: innerContainerElem,
+        windowWidth: windowWidth,
+        mounted: mounted,
+        setResults: this.setResults
+      });
+
+      var headersRow = null;
+      var shadowBorderLayer = null;
+      var anyResults = results.length > 0;
+
+      if (anyResults) {
+        headersRow = _react["default"].createElement(_tableCommons.HeadersRow, headerRowCommonProps);
+        shadowBorderLayer = _react["default"].createElement(ShadowBorderLayer, _extends({
+          tableContainerScrollLeft: tableContainerScrollLeft,
+          tableContainerWidth: tableContainerWidth,
+          isWindowPastTableTop: isWindowPastTableTop,
+          fullRowWidth: fullRowWidth,
+          innerContainerElem: innerContainerElem
+        }, {
+          setContainerScrollLeft: this.setContainerScrollLeft
+        }));
+      }
+
       return _react["default"].createElement("div", {
         className: "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")
       }, _react["default"].createElement("div", {
         className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
-      }, _react["default"].createElement(_tableCommons.HeadersRow, _extends({}, headerRowCommonProps, {
-        tableContainerScrollLeft: tableContainerScrollLeft
-      })), _react["default"].createElement("div", {
+      }, headersRow, _react["default"].createElement("div", {
         className: "inner-container",
-        ref: this.innerContainerRef,
-        style: !isOwnPage ? {
-          maxHeight: maxHeight
-        } : null
+        ref: this.innerContainerRef
       }, _react["default"].createElement("div", {
         className: "scrollable-container",
-        style: {
+        style: anyResults ? {
           minWidth: fullRowWidth + 6
-        }
-      }, _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'context', 'onDuplicateResultsFoundCallback', 'windowWidth', 'schemas'), _underscore["default"].pick(this.state, 'results', 'mounted', 'openDetailPanes'), {
-        tableContainerWidth: tableContainerWidth,
-        tableContainerScrollLeft: tableContainerScrollLeft,
-        innerContainerElem: innerContainerElem
-      }, {
-        setResults: this.setResults,
+        } : null
+      }, _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, loadMoreAsYouScrollProps, {
         ref: this.loadMoreAsYouScrollRef
-      }), results.map(function (r, idx) {
+      }), !anyResults ? _react["default"].createElement("div", {
+        className: "text-center py-5"
+      }, _react["default"].createElement("h3", {
+        className: "text-300"
+      }, "No Results")) : results.map(function (r, idx) {
         var id = _object.itemUtil.atId(r);
 
         return _react["default"].createElement(ResultRow, _extends({}, resultRowCommonProps, {
@@ -1366,15 +1411,7 @@ function (_React$PureComponent4) {
           id: id,
           key: id
         }));
-      })))), _react["default"].createElement(ShadowBorderLayer, _extends({
-        tableContainerScrollLeft: tableContainerScrollLeft,
-        tableContainerWidth: tableContainerWidth,
-        isWindowPastTableTop: isWindowPastTableTop,
-        fullRowWidth: fullRowWidth,
-        innerContainerElem: innerContainerElem
-      }, {
-        setContainerScrollLeft: this.setContainerScrollLeft
-      }))), canLoadMore === false ? _react["default"].createElement("div", {
+      })))), shadowBorderLayer), canLoadMore === false && anyResults ? _react["default"].createElement("div", {
         key: "can-load-more",
         className: "fin search-result-row"
       }, _react["default"].createElement("div", {
