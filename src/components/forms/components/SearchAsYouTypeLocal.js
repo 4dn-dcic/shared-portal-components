@@ -89,7 +89,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
         }
 
         return (
-            <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue }}
+            <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue, allowCustomValue }}
                 options={filteredOptions}
                 onTextInputChange={this.onTextInputChange}
                 onDropdownSelect={this.onDropdownSelect}/>

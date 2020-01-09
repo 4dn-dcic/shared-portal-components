@@ -147,7 +147,8 @@ function (_React$PureComponent) {
 
       return _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
-        currentTextValue: currentTextValue
+        currentTextValue: currentTextValue,
+        allowCustomValue: allowCustomValue
       }, {
         options: filteredOptions,
         onTextInputChange: this.onTextInputChange,

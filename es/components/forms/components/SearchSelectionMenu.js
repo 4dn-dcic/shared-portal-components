@@ -50,12 +50,13 @@ function (_React$PureComponent) {
     _classCallCheck(this, SearchSelectionMenu);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SearchSelectionMenu).call(this, props));
-    _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
     _this.state = {
       dropOpen: false
     };
     _this.dropdown = _react["default"].createRef();
+    _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
     _this.shouldAlignDropRight = _this.shouldAlignDropRight.bind(_assertThisInitialized(_this));
+    _this.onKeyDown = _this.onKeyDown.bind(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -84,6 +85,32 @@ function (_React$PureComponent) {
       });
     }
   }, {
+    key: "onKeyDown",
+    value: function onKeyDown(e) {
+      var _this$props = this.props,
+          options = _this$props.options,
+          allowCustomValue = _this$props.allowCustomValue;
+
+      if (e.key === "Enter") {
+        if (allowCustomValue) {
+          e.preventDefault();
+          this.onToggleOpen();
+        }
+      } else if (e.key === "ArrowDown" && options.length !== 0) {
+        // add focus to the first item in filtered items
+        var x = document.querySelector(".dropdown > .dropdown-menu.show .list-unstyled");
+
+        if (x.childNodes[0]) {
+          x.childNodes[0].focus();
+          e.preventDefault();
+        }
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        this.onToggleOpen();
+      } // otherwise handle as default
+
+    }
+  }, {
     key: "shouldAlignDropRight",
     value: function shouldAlignDropRight() {// todo: use ref to use with dom window methods (offset or getBoundingClientRect) to get the distance 
       // from window edge. then if distance < certain threshold, align to right vs left. Update on component update, too
@@ -93,25 +120,25 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          _this$props$currentTe = _this$props.currentTextValue,
-          currentTextValue = _this$props$currentTe === void 0 ? "" : _this$props$currentTe,
-          _this$props$value = _this$props.value,
-          value = _this$props$value === void 0 ? "" : _this$props$value,
-          _this$props$options = _this$props.options,
-          options = _this$props$options === void 0 ? [] : _this$props$options,
-          _this$props$optionRen = _this$props.optionRenderFunction,
-          optionRenderFunction = _this$props$optionRen === void 0 ? null : _this$props$optionRen,
-          titleRenderFunction = _this$props.titleRenderFunction,
-          onDropdownSelect = _this$props.onDropdownSelect,
-          onTextInputChange = _this$props.onTextInputChange,
-          optionsHeader = _this$props.optionsHeader,
-          optionsFooter = _this$props.optionsFooter,
-          className = _this$props.className,
-          _this$props$alignRigh = _this$props.alignRight,
-          alignRight = _this$props$alignRigh === void 0 ? false : _this$props$alignRigh,
-          _this$props$showTips = _this$props.showTips,
-          showTips = _this$props$showTips === void 0 ? false : _this$props$showTips;
+      var _this$props2 = this.props,
+          _this$props2$currentT = _this$props2.currentTextValue,
+          currentTextValue = _this$props2$currentT === void 0 ? "" : _this$props2$currentT,
+          _this$props2$value = _this$props2.value,
+          value = _this$props2$value === void 0 ? "" : _this$props2$value,
+          _this$props2$options = _this$props2.options,
+          options = _this$props2$options === void 0 ? [] : _this$props2$options,
+          _this$props2$optionRe = _this$props2.optionRenderFunction,
+          optionRenderFunction = _this$props2$optionRe === void 0 ? null : _this$props2$optionRe,
+          titleRenderFunction = _this$props2.titleRenderFunction,
+          onDropdownSelect = _this$props2.onDropdownSelect,
+          onTextInputChange = _this$props2.onTextInputChange,
+          optionsHeader = _this$props2.optionsHeader,
+          optionsFooter = _this$props2.optionsFooter,
+          className = _this$props2.className,
+          _this$props2$alignRig = _this$props2.alignRight,
+          alignRight = _this$props2$alignRig === void 0 ? false : _this$props2$alignRig,
+          _this$props2$showTips = _this$props2.showTips,
+          showTips = _this$props2$showTips === void 0 ? false : _this$props2$showTips;
       var dropOpen = this.state.dropOpen;
       var cls = "search-selection-menu" + (className ? " " + className : "");
 
@@ -143,7 +170,8 @@ function (_React$PureComponent) {
         onTextInputChange: onTextInputChange,
         toggleOpen: this.onToggleOpen,
         alignRight: alignRight,
-        ref: this.dropdown
+        ref: this.dropdown,
+        onKeyDown: this.onKeyDown
       }), options.map(function (option, idx) {
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
@@ -178,6 +206,7 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
       _props$show = props.show,
       show = _props$show === void 0 ? false : _props$show,
       onTextInputChange = props.onTextInputChange,
+      onKeyDown = props.onKeyDown,
       children = props.children,
       className = props.className,
       _props$inputPlacehold = props.inputPlaceholder,
@@ -201,6 +230,7 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
     autoFocus: true,
     value: currentTextValue,
     onChange: onTextInputChange,
+    onKeyDown: onKeyDown,
     placeholder: inputPlaceholder,
     tabIndex: "3",
     className: "form-control"

@@ -13,12 +13,13 @@ export class SearchSelectionMenu extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.onToggleOpen = this.onToggleOpen.bind(this);
         this.state = {
             dropOpen: false
         };
         this.dropdown = React.createRef();
+        this.onToggleOpen = this.onToggleOpen.bind(this);
         this.shouldAlignDropRight = this.shouldAlignDropRight.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
     }
 
     componentDidMount() {
@@ -35,6 +36,27 @@ export class SearchSelectionMenu extends React.PureComponent {
                 onToggleOpen(dropOpen);
             }
         });
+    }
+
+    onKeyDown(e) {
+        const { options, allowCustomValue } = this.props;
+        if (e.key === "Enter") {
+            if (allowCustomValue) {
+                e.preventDefault();
+                this.onToggleOpen();
+            }
+        } else if ((e.key === "ArrowDown") && options.length !== 0) {
+            // add focus to the first item in filtered items
+            const x = document.querySelector(".dropdown > .dropdown-menu.show .list-unstyled");
+            if (x.childNodes[0]) {
+                x.childNodes[0].focus();
+                e.preventDefault();
+            }
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            this.onToggleOpen();
+        }
+        // otherwise handle as default
     }
 
     shouldAlignDropRight() {
@@ -67,7 +89,7 @@ export class SearchSelectionMenu extends React.PureComponent {
                 <Dropdown.Toggle variant="outline-dark" data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
                 <Dropdown.Menu as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
                     drop="down" flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}
-                    alignRight={alignRight} ref={this.dropdown}>
+                    alignRight={alignRight} ref={this.dropdown} onKeyDown={this.onKeyDown}>
                     {
                         options.map(function(option, idx){
                             const renderedOption = typeof optionRenderFunction === "function" ?
@@ -95,6 +117,7 @@ const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
         currentTextValue,
         show = false,
         onTextInputChange,
+        onKeyDown,
         children,
         className,
         inputPlaceholder = "Type to filter...",
@@ -110,7 +133,8 @@ const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
             <div className="inner-container">
                 <div className="px-3 py-3 text-input-container">
                     { show ?
-                        <input type="text" autoFocus value={currentTextValue} onChange={onTextInputChange} placeholder={inputPlaceholder} tabIndex="3"
+                        <input type="text" autoFocus value={currentTextValue} onChange={onTextInputChange}
+                            onKeyDown={onKeyDown} placeholder={inputPlaceholder} tabIndex="3"
                             className="form-control"/>
                         : null }
                 </div>
