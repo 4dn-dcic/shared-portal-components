@@ -11,6 +11,8 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _reactBootstrap = require("react-bootstrap");
 
+var _ArrowScrollContainer = require("./ArrowScrollContainer");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -234,9 +236,9 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
     placeholder: inputPlaceholder,
     tabIndex: "3",
     className: "form-control"
-  }) : null), _react["default"].createElement("div", {
-    className: "scrollable-list-container"
-  }, _react["default"].createElement("ul", {
-    className: "list-unstyled mb-0 py-2"
-  }, optionsHeader, children, optionsFooter))));
+  }) : null), _react["default"].createElement(_ArrowScrollContainer.VerticalScrollContainer, {
+    header: optionsHeader,
+    footer: optionsFooter,
+    items: children
+  })));
 });

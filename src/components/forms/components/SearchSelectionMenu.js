@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
+import { VerticalScrollContainer } from './ArrowScrollContainer';
 
 
 export class SearchSelectionMenu extends React.PureComponent {
@@ -138,13 +139,7 @@ const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
                             className="form-control"/>
                         : null }
                 </div>
-                <div className="scrollable-list-container">
-                    <ul className="list-unstyled mb-0 py-2">
-                        { optionsHeader }
-                        { children }
-                        { optionsFooter }
-                    </ul>
-                </div>
+                <VerticalScrollContainer header={optionsHeader} footer={optionsFooter} items={children} />
             </div>
         </div>
     );
