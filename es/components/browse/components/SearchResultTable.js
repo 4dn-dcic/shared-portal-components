@@ -632,12 +632,7 @@ function (_React$PureComponent3) {
         }
 
         return rowHeight;
-      }); // Add height for the appended "fin" block
-
-      if (canLoadMore === false && anyResults && Array.isArray(elementHeight)) {
-        elementHeight.push(rowHeight);
-      }
-
+      });
       return _react["default"].createElement(_reactInfinite["default"], {
         className: "react-infinite-container",
         ref: this.infiniteComponentRef,
@@ -715,6 +710,26 @@ function (_React$Component) {
       if (hiddenRightEdgeContentWidth > 0) shadowBorderClassName += ' shadow-right';
       return shadowBorderClassName;
     }
+  }, {
+    key: "edgeHiddenContentWidths",
+    value: function edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth) {
+      var edges = {
+        'left': 0,
+        'right': 0
+      };
+
+      if (fullRowWidth > tableContainerWidth) {
+        if (tableContainerScrollLeft > 5) {
+          edges.left = tableContainerScrollLeft;
+        }
+
+        if (tableContainerScrollLeft + tableContainerWidth <= fullRowWidth - 5) {
+          edges.right = fullRowWidth - tableContainerWidth - tableContainerScrollLeft;
+        }
+      }
+
+      return edges;
+    }
   }]);
 
   function ShadowBorderLayer(props) {
@@ -728,76 +743,27 @@ function (_React$Component) {
     _this6.handleLeftScrollButtonMouseDown = _this6.handleScrollButtonMouseDown.bind(_assertThisInitialized(_this6), 'left');
     _this6.handleRightScrollButtonMouseDown = _this6.handleScrollButtonMouseDown.bind(_assertThisInitialized(_this6), 'right');
     _this6.handleScrollButtonUp = _this6.handleScrollButtonUp.bind(_assertThisInitialized(_this6));
-    _this6.lastDimClassName = null;
+    _this6.memoized = {
+      edgeHiddenContentWidths: (0, _memoizeOne["default"])(ShadowBorderLayer.edgeHiddenContentWidths)
+    };
     return _this6;
   }
 
   _createClass(ShadowBorderLayer, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps) {
+      var _this$props10 = this.props,
+          fullRowWidth = _this$props10.fullRowWidth,
+          tableContainerScrollLeft = _this$props10.tableContainerScrollLeft,
+          tableContainerWidth = _this$props10.tableContainerWidth;
+      var nxtRowWidth = nextProps.fullRowWidth,
+          nxtLeft = nextProps.tableContainerScrollLeft,
+          nxtTableWidth = nextProps.tableContainerWidth;
       if (typeof nextProps.tableContainerWidth !== "number") return false;
-      var pastEdges = this.edgeHiddenContentWidths(this.props);
-      var newEdges = this.edgeHiddenContentWidths(nextProps);
+      var pastEdges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
+      var newEdges = ShadowBorderLayer.edgeHiddenContentWidths(nxtRowWidth, nxtLeft, nxtTableWidth);
       if (newEdges.left !== pastEdges.left || newEdges.right !== pastEdges.right) return true;
-      var dimClassName = this.tallDimensionClass(nextProps);
-
-      if (this.lastDimClassName !== dimClassName) {
-        this.lastDimClassName = dimClassName;
-        return true;
-      }
-
       return false;
-    }
-  }, {
-    key: "edgeHiddenContentWidths",
-    value: function edgeHiddenContentWidths(_ref3) {
-      var fullRowWidth = _ref3.fullRowWidth,
-          tableContainerScrollLeft = _ref3.tableContainerScrollLeft,
-          tableContainerWidth = _ref3.tableContainerWidth;
-      var edges = {
-        'left': 0,
-        'right': 0
-      };
-
-      if (fullRowWidth > tableContainerWidth) {
-        if (tableContainerScrollLeft > 5) {
-          //shadowBorderClassName += ' shadow-left';
-          edges.left = tableContainerScrollLeft;
-        }
-
-        if (tableContainerScrollLeft + tableContainerWidth <= fullRowWidth - 5) {
-          edges.right = fullRowWidth - tableContainerWidth - tableContainerScrollLeft; //shadowBorderClassName += ' shadow-right';
-        }
-      }
-
-      return edges;
-    }
-    /** WHAT is this for? */
-
-  }, {
-    key: "tallDimensionClass",
-    value: function tallDimensionClass() {
-      var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
-      var cls;
-      var tableHeight = props.innerContainerElem && props.innerContainerElem.offsetHeight || 0;
-
-      if (tableHeight > 800) {
-        cls = ' tall';
-        /*
-        if (!isServerSide()){
-            var windowHeight = window.innerHeight;
-            var scrollTop = document && document.body && document.body.scrollTop;
-            var tableTopOffset = getElementOffset(props.innerContainerElem).top;
-            if (windowHeight / 2 + scrollTop > tableTopOffset){
-                cls += ' fixed-position-arrows';
-            }
-        }
-        */
-      } else {
-        cls = ' short';
-      }
-
-      return cls; //return this.lastDimClassName;
     }
   }, {
     key: "handleScrollButtonMouseDown",
@@ -817,13 +783,13 @@ function (_React$Component) {
       var _this7 = this;
 
       var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "right";
-      var _this$props10 = this.props,
-          horizontalScrollRateOnEdgeButton = _this$props10.horizontalScrollRateOnEdgeButton,
-          tableContainerWidth = _this$props10.tableContainerWidth,
-          fullRowWidth = _this$props10.fullRowWidth,
-          tableContainerScrollLeft = _this$props10.tableContainerScrollLeft,
-          getScrollContainer = _this$props10.getScrollContainer,
-          setContainerScrollLeft = _this$props10.setContainerScrollLeft;
+      var _this$props11 = this.props,
+          horizontalScrollRateOnEdgeButton = _this$props11.horizontalScrollRateOnEdgeButton,
+          tableContainerWidth = _this$props11.tableContainerWidth,
+          fullRowWidth = _this$props11.fullRowWidth,
+          tableContainerScrollLeft = _this$props11.tableContainerScrollLeft,
+          getScrollContainer = _this$props11.getScrollContainer,
+          setContainerScrollLeft = _this$props11.setContainerScrollLeft;
 
       var scrollAction = function (depth) {
         var scrollContainer = getScrollContainer();
@@ -856,15 +822,16 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props11 = this.props,
-          tableContainerWidth = _this$props11.tableContainerWidth,
-          fullRowWidth = _this$props11.fullRowWidth,
-          _this$props11$vertica = _this$props11.verticallyCenterArrows,
-          verticallyCenterArrows = _this$props11$vertica === void 0 ? true : _this$props11$vertica;
+      var _this$props12 = this.props,
+          tableContainerWidth = _this$props12.tableContainerWidth,
+          fullRowWidth = _this$props12.fullRowWidth,
+          tableContainerScrollLeft = _this$props12.tableContainerScrollLeft,
+          _this$props12$vertica = _this$props12.verticallyCenterArrows,
+          verticallyCenterArrows = _this$props12$vertica === void 0 ? true : _this$props12$vertica;
       if (!tableContainerWidth) return null;
       if (fullRowWidth <= tableContainerWidth) return null;
-      var edges = this.edgeHiddenContentWidths(this.props);
-      var cls = "shadow-border-layer hidden-xs" + ShadowBorderLayer.shadowStateClass(edges.left, edges.right) + this.tallDimensionClass() + (verticallyCenterArrows ? ' fixed-position-arrows' : '');
+      var edges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
+      var cls = "shadow-border-layer hidden-xs" + ShadowBorderLayer.shadowStateClass(edges.left, edges.right) + (verticallyCenterArrows ? ' fixed-position-arrows' : '');
       return _react["default"].createElement("div", {
         className: cls
       }, _react["default"].createElement("div", {
@@ -1016,8 +983,6 @@ function (_React$PureComponent4) {
     }
 
     _this8.outerRef = _react["default"].createRef();
-    _this8.innerContainerRef = _react["default"].createRef();
-    _this8.loadMoreAsYouScrollRef = _react["default"].createRef();
     _this8.outerContainerSizeInterval = null;
     _this8.scrollHandlerUnsubscribeFxn = null;
     _this8.memoized = {
@@ -1055,8 +1020,8 @@ function (_React$PureComponent4) {
 
       // Detect size changes and update
       this.outerContainerSizeInterval = setInterval(function () {
-        _this9.setState(function (_ref4) {
-          var pastWidth = _ref4.tableContainerWidth;
+        _this9.setState(function (_ref3) {
+          var pastWidth = _ref3.tableContainerWidth;
 
           var _this9$getTableDims = _this9.getTableDims(),
               tableContainerWidth = _this9$getTableDims.tableContainerWidth;
@@ -1100,11 +1065,11 @@ function (_React$PureComponent4) {
       var pastLoadedResults = pastState.results,
           pastMounted = pastState.mounted,
           pastWidths = pastState.widths;
-      var _this$props12 = this.props,
-          propResults = _this$props12.results,
-          columnDefinitions = _this$props12.columnDefinitions,
-          windowWidth = _this$props12.windowWidth,
-          isOwnPage = _this$props12.isOwnPage;
+      var _this$props13 = this.props,
+          propResults = _this$props13.results,
+          columnDefinitions = _this$props13.columnDefinitions,
+          windowWidth = _this$props13.windowWidth,
+          isOwnPage = _this$props13.isOwnPage;
       var pastPropResults = pastProps.results,
           pastColDefs = pastProps.columnDefinitions,
           pastWindowWidth = pastProps.windowWidth;
@@ -1156,8 +1121,8 @@ function (_React$PureComponent4) {
     key: "toggleDetailPaneOpen",
     value: function toggleDetailPaneOpen(rowKey) {
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref5) {
-        var openDetailPanes = _ref5.openDetailPanes;
+      this.setState(function (_ref4) {
+        var openDetailPanes = _ref4.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (openDetailPanes[rowKey]) {
@@ -1174,8 +1139,8 @@ function (_React$PureComponent4) {
   }, {
     key: "setDetailHeight",
     value: function setDetailHeight(rowKey, height, cb) {
-      this.setState(function (_ref6) {
-        var openDetailPanes = _ref6.openDetailPanes;
+      this.setState(function (_ref5) {
+        var openDetailPanes = _ref5.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (typeof openDetailPanes[rowKey] === 'undefined') {
@@ -1234,10 +1199,10 @@ function (_React$PureComponent4) {
     value: function resetWidths() {
       var _this10 = this;
 
-      this.setState(function resetWidthStateChangeFxn(_ref7, _ref8) {
-        var mounted = _ref7.mounted;
-        var columnDefinitions = _ref8.columnDefinitions,
-            windowWidth = _ref8.windowWidth;
+      this.setState(function resetWidthStateChangeFxn(_ref6, _ref7) {
+        var mounted = _ref6.mounted;
+        var columnDefinitions = _ref7.columnDefinitions,
+            windowWidth = _ref7.windowWidth;
         return {
           "widths": DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth)
         };
@@ -1282,12 +1247,12 @@ function (_React$PureComponent4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props13 = this.props,
-          columnDefinitions = _this$props13.columnDefinitions,
-          windowWidth = _this$props13.windowWidth,
-          isOwnPage = _this$props13.isOwnPage,
-          _this$props13$maxHeig = _this$props13.maxHeight,
-          maxHeight = _this$props13$maxHeig === void 0 ? 500 : _this$props13$maxHeig;
+      var _this$props14 = this.props,
+          columnDefinitions = _this$props14.columnDefinitions,
+          windowWidth = _this$props14.windowWidth,
+          isOwnPage = _this$props14.isOwnPage,
+          _this$props14$maxHeig = _this$props14.maxHeight,
+          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig;
       var _this$state3 = this.state,
           results = _this$state3.results,
           tableContainerWidth = _this$state3.tableContainerWidth,
@@ -1298,7 +1263,6 @@ function (_React$PureComponent4) {
           tableLeftOffset = _this$state3.tableLeftOffset;
       var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
       var canLoadMore = this.canLoadMore();
-      var innerContainerElem = this.innerContainerRef.current;
       var anyResults = results.length > 0;
 
       var headerRowCommonProps = _objectSpread({}, _underscore["default"].pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'), {
@@ -1332,7 +1296,6 @@ function (_React$PureComponent4) {
         anyResults: anyResults,
         tableContainerWidth: tableContainerWidth,
         tableContainerScrollLeft: tableContainerScrollLeft,
-        innerContainerElem: innerContainerElem,
         windowWidth: windowWidth,
         mounted: mounted,
         setResults: this.setResults
@@ -1346,8 +1309,7 @@ function (_React$PureComponent4) {
         shadowBorderLayer = _react["default"].createElement(ShadowBorderLayer, _extends({
           tableContainerScrollLeft: tableContainerScrollLeft,
           tableContainerWidth: tableContainerWidth,
-          fullRowWidth: fullRowWidth,
-          innerContainerElem: innerContainerElem
+          fullRowWidth: fullRowWidth
         }, {
           setContainerScrollLeft: this.setContainerScrollLeft,
           verticallyCenterArrows: isOwnPage,
@@ -1394,9 +1356,7 @@ function (_React$PureComponent4) {
         ref: this.outerRef
       }, _react["default"].createElement("div", {
         className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
-      }, headersRow, _react["default"].createElement(LoadMoreAsYouScroll, _extends({}, loadMoreAsYouScrollProps, {
-        ref: this.loadMoreAsYouScrollRef
-      }), renderChildren), shadowBorderLayer));
+      }, headersRow, _react["default"].createElement(LoadMoreAsYouScroll, loadMoreAsYouScrollProps, renderChildren), shadowBorderLayer));
     }
   }]);
 
@@ -1457,13 +1417,13 @@ function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props14 = this.props,
-          hiddenColumns = _this$props14.hiddenColumns,
-          columnExtensionMap = _this$props14.columnExtensionMap,
-          columnDefinitions = _this$props14.columnDefinitions,
-          _this$props14$isIniti = _this$props14.isInitialContextLoading,
-          isInitialContextLoading = _this$props14$isIniti === void 0 ? false : _this$props14$isIniti,
-          isOwnPage = _this$props14.isOwnPage;
+      var _this$props15 = this.props,
+          hiddenColumns = _this$props15.hiddenColumns,
+          columnExtensionMap = _this$props15.columnExtensionMap,
+          columnDefinitions = _this$props15.columnDefinitions,
+          _this$props15$isIniti = _this$props15.isInitialContextLoading,
+          isInitialContextLoading = _this$props15$isIniti === void 0 ? false : _this$props15$isIniti,
+          isOwnPage = _this$props15.isOwnPage;
       var colDefs = columnDefinitions || (0, _tableCommons.columnsToColumnDefinitions)({
         'display_title': {
           'title': 'Title'

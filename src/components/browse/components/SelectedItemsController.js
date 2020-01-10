@@ -164,9 +164,7 @@ export class SelectedItemsController extends React.PureComponent {
     render(){
         const { children, ...propsToPass } = this.props;
         const { selectedItems } = this.state;
-        if (!React.isValidElement(children)){
-            throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
-        }
+
         _.extend(propsToPass, {
             selectedItems,
             columnExtensionMap      : this.columnExtensionMapWithSelectButton(),

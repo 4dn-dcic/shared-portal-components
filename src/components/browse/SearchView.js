@@ -21,7 +21,7 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/type
 
 export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnController };
 
-// TODO: Get rid of isOwnPage, only have 1 set of controllers (maybe w SelectedItemsController conditional)
+
 export class SearchView extends React.PureComponent {
 
     static propTypes = {
@@ -97,19 +97,20 @@ export class SearchView extends React.PureComponent {
         };
 
         let controllersAndView = (
-            <ColumnCombiner {...{ columns, columnExtensionMap }}>
-                <CustomColumnController>
-                    <SortController>
-                        <ControlsAndResults {...childViewProps} />
-                    </SortController>
-                </CustomColumnController>
-            </ColumnCombiner>
+            <WindowNavigationController {...{ href, context }} navigate={propNavigate}>
+                <ColumnCombiner {...{ columns, columnExtensionMap }}>
+                    <CustomColumnController>
+                        <SortController>
+                            <ControlsAndResults {...childViewProps} />
+                        </SortController>
+                    </CustomColumnController>
+                </ColumnCombiner>
+            </WindowNavigationController>
         );
 
-        // Default case
         if (isSelectAction(currentAction)){
             // We don't allow "SelectionMode" unless is own page.
-            // Could consider changing later once use case exists.
+            // Could consider changing later once a use case exists.
             controllersAndView = (
                 // SelectedItemsController must be above ColumnCombiner because it adjusts
                 // columnExtensionMap, rather than columnDefinitions. This can be easily changed
@@ -123,9 +124,7 @@ export class SearchView extends React.PureComponent {
         return (
             <div className="search-page-container">
                 <AboveSearchTablePanel {...{ href, context, schemas }} />
-                <WindowNavigationController {...{ href, context }} navigate={propNavigate}>
-                    { controllersAndView }
-                </WindowNavigationController>
+                { controllersAndView }
             </div>
         );
     }

@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import { navigate } from './../util/navigate';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 
 import { basicColumnExtensionMap, ColumnCombiner } from './components/table-commons';
@@ -24,35 +23,29 @@ export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnCo
 export class EmbeddedSearchView extends React.PureComponent {
 
     static propTypes = {
-        'context'       : PropTypes.object,                 // From Redux store; is NOT passed down. Overriden instead.
+        'searchHref'    : PropTypes.string.isRequired,
+        // From Redux store; is NOT passed down. Overriden instead.
+        'context'       : PropTypes.object,
+        // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
+        // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
         'columns'       : PropTypes.object,
         'columnExtensionMap' : PropTypes.object,
-        'searchHref'    : PropTypes.string.isRequired,
         'session'       : PropTypes.bool.isRequired,
         'schemas'       : PropTypes.object,
         'facets'        : PropTypes.array,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
-        'showFacets'    : PropTypes.bool,
         'onLoad'        : PropTypes.func
     };
 
     /**
-     * @property {string} href - Current URI.
-     * @property {!string} [currentAction=null] - Current action, if any.
+     * @property {string} searchHref - Base URI to search on.
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      */
     static defaultProps = {
-        'searchHref'    : null,
-        // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
-        // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
-        'columns'       : null,
-        'navigate'      : navigate,
-        'currentAction' : null,
         'columnExtensionMap' : basicColumnExtensionMap,
-        'separateSingleTermFacets' : true,
-        'showFacets'    : false
+        'separateSingleTermFacets' : true
     };
 
     componentDidMount(){
@@ -70,13 +63,13 @@ export class EmbeddedSearchView extends React.PureComponent {
      */
     render() {
         const {
-            href,                   // From Redux store; is NOT passed down. Overriden instead.
-            context,                // From Redux store; is NOT passed down. Overriden instead.
-            currentAction = null,   // From App.js; is NOT passed down. Always should be null.
+            href,                   // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
+            context,                // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
+            currentAction = null,   // From App.js; is NOT passed down. Always should be null for embedded search views.
             searchHref,
             schemas = null,
             //facets : propFacets,
-            //navigate: propNavigate = navigate,
+            navigate: propNavigate,  // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             columns = null,
             facets,
             showAboveTableControls = false,

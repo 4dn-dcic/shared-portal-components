@@ -279,10 +279,6 @@ function (_React$PureComponent) {
 
       var selectedItems = this.state.selectedItems;
 
-      if (!_react["default"].isValidElement(children)) {
-        throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
-      }
-
       _underscore["default"].extend(propsToPass, {
         selectedItems: selectedItems,
         columnExtensionMap: this.columnExtensionMapWithSelectButton(),

@@ -223,7 +223,7 @@ $search-results-header-text-color: #fff !default;
 				}
 			}
 
-			&.tall.fixed-position-arrows {
+			&.fixed-position-arrows {
 				> .edge-scroll-button {
 					body.scrolled-past-80 & {
 						> i.icon {

@@ -39,8 +39,6 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
-var _navigate = require("./../util/navigate");
-
 var _patchedConsole = require("./../util/patched-console");
 
 var _tableCommons = require("./components/table-commons");
@@ -108,8 +106,7 @@ function (_React$PureComponent) {
     key: "componentDidMount",
 
     /**
-     * @property {string} href - Current URI.
-     * @property {!string} [currentAction=null] - Current action, if any.
+     * @property {string} searchHref - Base URI to search on.
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      */
@@ -137,6 +134,7 @@ function (_React$PureComponent) {
           searchHref = _this$props.searchHref,
           _this$props$schemas = _this$props.schemas,
           schemas = _this$props$schemas === void 0 ? null : _this$props$schemas,
+          propNavigate = _this$props.navigate,
           _this$props$columns = _this$props.columns,
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
           facets = _this$props.facets,
@@ -146,7 +144,7 @@ function (_React$PureComponent) {
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
           _this$props$onLoad = _this$props.onLoad,
           onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "schemas", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "schemas", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined;
@@ -180,28 +178,22 @@ function (_React$PureComponent) {
 exports.EmbeddedSearchView = EmbeddedSearchView;
 
 _defineProperty(EmbeddedSearchView, "propTypes", {
-  'context': _propTypes["default"].object,
+  'searchHref': _propTypes["default"].string.isRequired,
   // From Redux store; is NOT passed down. Overriden instead.
+  'context': _propTypes["default"].object,
+  // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
+  // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
   'columns': _propTypes["default"].object,
   'columnExtensionMap': _propTypes["default"].object,
-  'searchHref': _propTypes["default"].string.isRequired,
   'session': _propTypes["default"].bool.isRequired,
   'schemas': _propTypes["default"].object,
   'facets': _propTypes["default"].array,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
-  'showFacets': _propTypes["default"].bool,
   'onLoad': _propTypes["default"].func
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {
-  'searchHref': null,
-  // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
-  // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
-  'columns': null,
-  'navigate': _navigate.navigate,
-  'currentAction': null,
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
-  'separateSingleTermFacets': true,
-  'showFacets': false
+  'separateSingleTermFacets': true
 });

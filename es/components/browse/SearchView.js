@@ -91,7 +91,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-// TODO: Get rid of isOwnPage, only have 1 set of controllers (maybe w SelectedItemsController conditional)
 var SearchView =
 /*#__PURE__*/
 function (_React$PureComponent) {
@@ -151,15 +150,19 @@ function (_React$PureComponent) {
         facets: propFacets || contextFacets
       });
 
-      var controllersAndView = _react["default"].createElement(_tableCommons.ColumnCombiner, {
+      var controllersAndView = _react["default"].createElement(_WindowNavigationController.WindowNavigationController, _extends({
+        href: href,
+        context: context
+      }, {
+        navigate: propNavigate
+      }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))); // Default case
-
+      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
 
       if ((0, _misc.isSelectAction)(currentAction)) {
         // We don't allow "SelectionMode" unless is own page.
-        // Could consider changing later once use case exists.
+        // Could consider changing later once a use case exists.
         controllersAndView = // SelectedItemsController must be above ColumnCombiner because it adjusts
         // columnExtensionMap, rather than columnDefinitions. This can be easily changed
         // though if desired.
@@ -175,12 +178,7 @@ function (_React$PureComponent) {
         href: href,
         context: context,
         schemas: schemas
-      }), _react["default"].createElement(_WindowNavigationController.WindowNavigationController, _extends({
-        href: href,
-        context: context
-      }, {
-        navigate: propNavigate
-      }), controllersAndView));
+      }), controllersAndView);
     }
   }]);
 

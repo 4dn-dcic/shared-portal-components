@@ -449,11 +449,6 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             return rowHeight;
         });
 
-        // Add height for the appended "fin" block
-        if (canLoadMore === false && anyResults && Array.isArray(elementHeight)){
-            elementHeight.push(rowHeight);
-        }
-
         return (
             <Infinite
                 className="react-infinite-container"
@@ -496,6 +491,19 @@ class ShadowBorderLayer extends React.Component {
         return shadowBorderClassName;
     }
 
+    static edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth){
+        const edges = { 'left' : 0, 'right' : 0 };
+        if (fullRowWidth > tableContainerWidth){
+            if (tableContainerScrollLeft > 5){
+                edges.left = tableContainerScrollLeft;
+            }
+            if (tableContainerScrollLeft + tableContainerWidth <= fullRowWidth - 5){
+                edges.right = ((fullRowWidth - tableContainerWidth) - tableContainerScrollLeft);
+            }
+        }
+        return edges;
+    }
+
     static defaultProps = {
         'horizontalScrollRateOnEdgeButton' : 10
     };
@@ -507,58 +515,19 @@ class ShadowBorderLayer extends React.Component {
         this.handleLeftScrollButtonMouseDown = this.handleScrollButtonMouseDown.bind(this, 'left');
         this.handleRightScrollButtonMouseDown = this.handleScrollButtonMouseDown.bind(this, 'right');
         this.handleScrollButtonUp = this.handleScrollButtonUp.bind(this);
-        this.lastDimClassName = null;
+        this.memoized = {
+            edgeHiddenContentWidths: memoize(ShadowBorderLayer.edgeHiddenContentWidths)
+        };
     }
 
     shouldComponentUpdate(nextProps){
+        const { fullRowWidth, tableContainerScrollLeft, tableContainerWidth } = this.props;
+        const { fullRowWidth: nxtRowWidth, tableContainerScrollLeft: nxtLeft, tableContainerWidth: nxtTableWidth } = nextProps;
         if (typeof nextProps.tableContainerWidth !== "number") return false;
-        var pastEdges = this.edgeHiddenContentWidths(this.props);
-        var newEdges = this.edgeHiddenContentWidths(nextProps);
+        const pastEdges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
+        const newEdges = ShadowBorderLayer.edgeHiddenContentWidths(nxtRowWidth, nxtLeft, nxtTableWidth);
         if (newEdges.left !== pastEdges.left || newEdges.right !== pastEdges.right) return true;
-        var dimClassName = this.tallDimensionClass(nextProps);
-        if (this.lastDimClassName !== dimClassName){
-            this.lastDimClassName = dimClassName;
-            return true;
-        }
         return false;
-    }
-
-    edgeHiddenContentWidths({ fullRowWidth, tableContainerScrollLeft, tableContainerWidth }){
-        const edges = { 'left' : 0, 'right' : 0 };
-        if (fullRowWidth > tableContainerWidth){
-            if (tableContainerScrollLeft > 5){
-                //shadowBorderClassName += ' shadow-left';
-                edges.left = tableContainerScrollLeft;
-            }
-            if (tableContainerScrollLeft + tableContainerWidth <= fullRowWidth - 5){
-                edges.right = ((fullRowWidth - tableContainerWidth) - tableContainerScrollLeft);
-                //shadowBorderClassName += ' shadow-right';
-            }
-        }
-        return edges;
-    }
-
-    /** WHAT is this for? */
-    tallDimensionClass(props = this.props){
-        let cls;
-        const tableHeight = (props.innerContainerElem && props.innerContainerElem.offsetHeight) || 0;
-        if (tableHeight > 800){
-            cls = ' tall';
-            /*
-            if (!isServerSide()){
-                var windowHeight = window.innerHeight;
-                var scrollTop = document && document.body && document.body.scrollTop;
-                var tableTopOffset = getElementOffset(props.innerContainerElem).top;
-                if (windowHeight / 2 + scrollTop > tableTopOffset){
-                    cls += ' fixed-position-arrows';
-                }
-            }
-            */
-        } else {
-            cls = ' short';
-        }
-        return cls;
-        //return this.lastDimClassName;
     }
 
     handleScrollButtonMouseDown(direction = "right", evt){
@@ -599,14 +568,13 @@ class ShadowBorderLayer extends React.Component {
     }
 
     render(){
-        const { tableContainerWidth, fullRowWidth, verticallyCenterArrows = true } = this.props;
+        const { tableContainerWidth, fullRowWidth, tableContainerScrollLeft, verticallyCenterArrows = true } = this.props;
         if (!tableContainerWidth) return null;
         if (fullRowWidth <= tableContainerWidth) return null;
-        const edges = this.edgeHiddenContentWidths(this.props);
+        const edges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
         const cls = (
             "shadow-border-layer hidden-xs" +
             ShadowBorderLayer.shadowStateClass(edges.left, edges.right) +
-            this.tallDimensionClass() +
             (verticallyCenterArrows ? ' fixed-position-arrows' : '')
         );
         return (
@@ -728,10 +696,7 @@ class DimensioningContainer extends React.PureComponent {
             this.state.openDetailPanes[ itemUtil.atId(this.state.results[0]) ] = true;
         }
 
-        this.outerRef               = React.createRef();
-        this.innerContainerRef      = React.createRef();
-        this.loadMoreAsYouScrollRef = React.createRef();
-
+        this.outerRef = React.createRef();
         this.outerContainerSizeInterval = null;
         this.scrollHandlerUnsubscribeFxn = null;
 
@@ -938,7 +903,6 @@ class DimensioningContainer extends React.PureComponent {
 
         const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
         const canLoadMore = this.canLoadMore();
-        const innerContainerElem = this.innerContainerRef.current;
         const anyResults = results.length > 0;
 
         const headerRowCommonProps = {
@@ -966,7 +930,7 @@ class DimensioningContainer extends React.PureComponent {
         const loadMoreAsYouScrollProps = {
             ..._.pick(this.props, 'href', 'limit', 'rowHeight', 'context', 'onDuplicateResultsFoundCallback', 'schemas'),
             results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
-            tableContainerWidth, tableContainerScrollLeft, innerContainerElem, windowWidth, mounted,
+            tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
             setResults: this.setResults
         };
 
@@ -976,7 +940,7 @@ class DimensioningContainer extends React.PureComponent {
         if (anyResults) {
             headersRow = <HeadersRow {...headerRowCommonProps} />;
             shadowBorderLayer = (
-                <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, fullRowWidth, innerContainerElem }}
+                <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, fullRowWidth }}
                     setContainerScrollLeft={this.setContainerScrollLeft} verticallyCenterArrows={isOwnPage}
                     getScrollContainer={this.getScrollContainer} />
             );
@@ -1010,7 +974,7 @@ class DimensioningContainer extends React.PureComponent {
             <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")} ref={this.outerRef}>
                 <div className={"search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')}>
                     { headersRow }
-                    <LoadMoreAsYouScroll {...loadMoreAsYouScrollProps} ref={this.loadMoreAsYouScrollRef}>
+                    <LoadMoreAsYouScroll {...loadMoreAsYouScrollProps}>
                         { renderChildren }
                     </LoadMoreAsYouScroll>
                     { shadowBorderLayer }
