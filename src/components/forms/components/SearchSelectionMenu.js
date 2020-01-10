@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
-import { VerticalScrollContainer } from './ArrowScrollContainer';
+import { VerticalScrollContainer } from './VerticalScrollContainer';
 
 
 export class SearchSelectionMenu extends React.PureComponent {

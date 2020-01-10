@@ -11,7 +11,7 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _reactBootstrap = require("react-bootstrap");
 
-var _ArrowScrollContainer = require("./ArrowScrollContainer");
+var _VerticalScrollContainer = require("./VerticalScrollContainer");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -236,7 +236,7 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
     placeholder: inputPlaceholder,
     tabIndex: "3",
     className: "form-control"
-  }) : null), _react["default"].createElement(_ArrowScrollContainer.VerticalScrollContainer, {
+  }) : null), _react["default"].createElement(_VerticalScrollContainer.VerticalScrollContainer, {
     header: optionsHeader,
     footer: optionsFooter,
     items: children
