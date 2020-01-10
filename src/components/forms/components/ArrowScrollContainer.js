@@ -5,7 +5,7 @@ import { debounce } from 'underscore';
 export class VerticalScrollContainer extends React.PureComponent {
 
     static defaultProps = {
-        'scrollRate' : 10
+        'scrollRate' : 100
     }
 
     constructor(props) {
@@ -25,8 +25,8 @@ export class VerticalScrollContainer extends React.PureComponent {
         this.checkForOverflow = this.checkForOverflow.bind(this);
         this.checkForScrollPosition = this.checkForScrollPosition.bind(this);
 
-        this.debounceCheckforOverflow = debounce(this.checkForOverflow, 200, false);
-        this.debounceCheckForScrollPosition = debounce(this.checkForScrollPosition, 200, true);
+        this.debounceCheckforOverflow = debounce(this.checkForOverflow, 500, true);
+        this.debounceCheckForScrollPosition = debounce(this.checkForScrollPosition, 50, false);
     }
 
     componentDidMount() {
@@ -52,19 +52,19 @@ export class VerticalScrollContainer extends React.PureComponent {
     }
 
     checkForScrollPosition() {
+        // console.log("checking for scroll position");
         const { scrollTop, scrollHeight, clientHeight } = this.scrollContainer.current;
         // console.log(this.scrollContainer.current);
-        console.log("scrollHeight: ", scrollHeight);
-        console.log("clientHeight: ", clientHeight);
-        console.log("scrollTop", scrollTop);
+        // console.log("scrollHeight: ", scrollHeight);
+        // console.log("clientHeight: ", clientHeight);
+        // console.log("scrollTop", scrollTop);
         this.setState({
-            canScrollUp : scrollTop > 0,
+            canScrollUp : scrollTop >= 5,
             canScrollDown: scrollTop !== scrollHeight - clientHeight
         });
     }
 
     checkForOverflow() {
-        console.log("checkforoverflow");
         // take into account individual item heights
         // and see how many will fill the container
         const { scrollHeight, clientHeight } = this.scrollContainer.current;
@@ -73,36 +73,38 @@ export class VerticalScrollContainer extends React.PureComponent {
     }
 
     handleScrollUp(e) {
-        console.log("handleScrollUp");
-        this.scrolling = true;
-        this.performScrollAction("up");
+        const { scrollRate } = this.props;
+        this.performScrollAction(scrollRate);
+        this.checkForScrollPosition();
     }
 
     handleScrollDown(e) {
-        console.log("handleScrollDown");
-        this.scrolling = true;
-        this.performScrollAction("down");
+        const { scrollRate } = this.props;
+        this.performScrollAction(0 - scrollRate);
+        this.checkForScrollPosition();
     }
 
-    performScrollAction(direction) {
-        const { scrollRate } = this.props;
-        const nonAbsScrollRate = direction === "up" ? scrollRate : -scrollRate;
-        const scrollSettings = { behavior: 'smooth', up: nonAbsScrollRate };
-        this.scrollContainer.current.scrollBy(scrollSettings);
+    performScrollAction(scrollNum) {
+        const scrollSettings = { behavior: 'smooth', top: scrollNum };
+        this.scrollContainer.current.scrollBy(0, scrollSettings);
     }
 
     render() {
         const { items = [], header, footer } = this.props;
         const { hasOverflow, canScrollUp, canScrollDown } = this.state;
 
+        const showScrollUp = hasOverflow && canScrollUp;
+
         return (
             <div className="arrow-scroll-container">
-                { hasOverflow && canScrollUp ?
+                { showScrollUp ?
                     <button className="button-scroll arrow-up d-block text-center w-100"
                         style={{
                             boxShadow: "0 10px 10px 3px rgba(200,200,200,0.2)",
                             color: "#cccccc",
-                            border: "none"
+                            border: "unset",
+                            borderBottom: "#eeeeee solid 1px",
+                            backgroundColor: "#f8f8f8"
                         }}
                         onClick={this.handleScrollUp} type="button">
                         <i className="icon fas icon-angle-up"></i>
@@ -120,7 +122,9 @@ export class VerticalScrollContainer extends React.PureComponent {
                         style={{
                             boxShadow: "0 -10px 10px 30px rgba(200,200,200,0.2)",
                             color: "#cccccc",
-                            border: "none"
+                            border: "unset",
+                            borderTop: "#eeeeee solid 1px",
+                            backgroundColor: "#f8f8f8"
                         }} onClick={this.handleScrollDown} type="button">
                         <i className="icon fas icon-angle-down"></i>
                     </button>

@@ -55,8 +55,8 @@ function (_React$PureComponent) {
     _this.performScrollAction = _this.performScrollAction.bind(_assertThisInitialized(_this));
     _this.checkForOverflow = _this.checkForOverflow.bind(_assertThisInitialized(_this));
     _this.checkForScrollPosition = _this.checkForScrollPosition.bind(_assertThisInitialized(_this));
-    _this.debounceCheckforOverflow = (0, _underscore.debounce)(_this.checkForOverflow, 200, false);
-    _this.debounceCheckForScrollPosition = (0, _underscore.debounce)(_this.checkForScrollPosition, 200, true);
+    _this.debounceCheckforOverflow = (0, _underscore.debounce)(_this.checkForOverflow, 500, true);
+    _this.debounceCheckForScrollPosition = (0, _underscore.debounce)(_this.checkForScrollPosition, 50, false);
     return _this;
   }
 
@@ -89,25 +89,25 @@ function (_React$PureComponent) {
   }, {
     key: "checkForScrollPosition",
     value: function checkForScrollPosition() {
+      // console.log("checking for scroll position");
       var _this$scrollContainer = this.scrollContainer.current,
           scrollTop = _this$scrollContainer.scrollTop,
           scrollHeight = _this$scrollContainer.scrollHeight,
           clientHeight = _this$scrollContainer.clientHeight; // console.log(this.scrollContainer.current);
+      // console.log("scrollHeight: ", scrollHeight);
+      // console.log("clientHeight: ", clientHeight);
+      // console.log("scrollTop", scrollTop);
 
-      console.log("scrollHeight: ", scrollHeight);
-      console.log("clientHeight: ", clientHeight);
-      console.log("scrollTop", scrollTop);
       this.setState({
-        canScrollUp: scrollTop > 0,
+        canScrollUp: scrollTop >= 5,
         canScrollDown: scrollTop !== scrollHeight - clientHeight
       });
     }
   }, {
     key: "checkForOverflow",
     value: function checkForOverflow() {
-      console.log("checkforoverflow"); // take into account individual item heights
+      // take into account individual item heights
       // and see how many will fill the container
-
       var _this$scrollContainer2 = this.scrollContainer.current,
           scrollHeight = _this$scrollContainer2.scrollHeight,
           clientHeight = _this$scrollContainer2.clientHeight;
@@ -118,25 +118,23 @@ function (_React$PureComponent) {
   }, {
     key: "handleScrollUp",
     value: function handleScrollUp() {
-      console.log("handleScrollUp");
-      this.scrolling = true;
-      this.performScrollAction("up");
+      var scrollRate = this.props.scrollRate;
+      this.performScrollAction(scrollRate);
+      this.checkForScrollPosition();
     }
   }, {
     key: "handleScrollDown",
     value: function handleScrollDown() {
-      console.log("handleScrollDown");
-      this.scrolling = true;
-      this.performScrollAction("down");
+      var scrollRate = this.props.scrollRate;
+      this.performScrollAction(0 - scrollRate);
+      this.checkForScrollPosition();
     }
   }, {
     key: "performScrollAction",
-    value: function performScrollAction(direction) {
-      var scrollRate = this.props.scrollRate;
-      var nonAbsScrollRate = direction === "up" ? scrollRate : -scrollRate;
-      this.scrollContainer.current.scrollBy({
+    value: function performScrollAction(scrollNum) {
+      this.scrollContainer.current.scrollBy(0, {
         behavior: 'smooth',
-        up: nonAbsScrollRate
+        top: scrollNum
       });
     }
   }, {
@@ -158,7 +156,9 @@ function (_React$PureComponent) {
         style: {
           boxShadow: "0 10px 10px 3px rgba(200,200,200,0.2)",
           color: "#cccccc",
-          border: "none"
+          border: "unset",
+          borderBottom: "#eeeeee solid 1px",
+          backgroundColor: "#f8f8f8"
         },
         onClick: this.handleScrollUp,
         type: "button"
@@ -174,7 +174,9 @@ function (_React$PureComponent) {
         style: {
           boxShadow: "0 -10px 10px 30px rgba(200,200,200,0.2)",
           color: "#cccccc",
-          border: "none"
+          border: "unset",
+          borderTop: "#eeeeee solid 1px",
+          backgroundColor: "#f8f8f8"
         },
         onClick: this.handleScrollDown,
         type: "button"
@@ -190,7 +192,7 @@ function (_React$PureComponent) {
 exports.VerticalScrollContainer = VerticalScrollContainer;
 
 _defineProperty(VerticalScrollContainer, "defaultProps", {
-  'scrollRate': 10
+  'scrollRate': 100
 });
 
 VerticalScrollContainer.propTypes = {
