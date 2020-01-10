@@ -59,14 +59,13 @@ function (_React$PureComponent) {
       scrollingDirection: null
     };
     _this.scrollContainer = _react["default"].createRef();
-    _this.onMouseDownUp = _this.onMouseDownUp.bind(_assertThisInitialized(_this));
-    _this.onMouseDownDown = _this.onMouseDownDown.bind(_assertThisInitialized(_this));
+    _this.onMouseDownScrollUp = _this.onMouseDownScrollUp.bind(_assertThisInitialized(_this));
+    _this.onMouseDownScrollDown = _this.onMouseDownScrollDown.bind(_assertThisInitialized(_this));
     _this.onMouseUp = _this.onMouseUp.bind(_assertThisInitialized(_this));
-    _this.handleScrollDown = _this.handleScrollDown.bind(_assertThisInitialized(_this));
-    _this.handleScrollUp = _this.handleScrollUp.bind(_assertThisInitialized(_this));
     _this.performScrollAction = _this.performScrollAction.bind(_assertThisInitialized(_this));
     _this.checkForOverflow = _this.checkForOverflow.bind(_assertThisInitialized(_this));
     _this.checkForScrollPosition = _this.checkForScrollPosition.bind(_assertThisInitialized(_this));
+    _this.checkArrowKeyScrollPosition = _this.checkArrowKeyScrollPosition.bind(_assertThisInitialized(_this));
     _this.debounceCheckforOverflow = (0, _underscore.debounce)(_this.checkForOverflow, 500, true);
     _this.debounceCheckForScrollPosition = (0, _underscore.debounce)(_this.checkForScrollPosition, 100, false);
     return _this;
@@ -78,6 +77,7 @@ function (_React$PureComponent) {
       this.checkForOverflow();
       this.checkForScrollPosition();
       this.scrollContainer.current.addEventListener('scroll', this.debounceCheckForScrollPosition);
+      this.scrollContainer.current.addEventListener('keyup', this.checkArrowKeyScrollPosition);
     }
   }, {
     key: "componentDidUpdate",
@@ -96,7 +96,15 @@ function (_React$PureComponent) {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       this.scrollContainer.current.removeEventListener('scroll', this.debounceCheckForScrollPosition);
+      this.scrollContainer.current.removeEventListener('keyup', this.checkArrowKeyScrollPosition);
       this.debounceCheckforOverflow.cancel();
+    }
+  }, {
+    key: "checkArrowKeyScrollPosition",
+    value: function checkArrowKeyScrollPosition(e) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        this.debounceCheckForScrollPosition();
+      }
     }
   }, {
     key: "checkForScrollPosition",
@@ -128,8 +136,8 @@ function (_React$PureComponent) {
       });
     }
   }, {
-    key: "onMouseDownUp",
-    value: function onMouseDownUp() {
+    key: "onMouseDownScrollUp",
+    value: function onMouseDownScrollUp() {
       var _this2 = this;
 
       this.setState({
@@ -139,8 +147,8 @@ function (_React$PureComponent) {
       });
     }
   }, {
-    key: "onMouseDownDown",
-    value: function onMouseDownDown() {
+    key: "onMouseDownScrollDown",
+    value: function onMouseDownScrollDown() {
       var _this3 = this;
 
       this.setState({
@@ -155,19 +163,6 @@ function (_React$PureComponent) {
       this.setState({
         scrollingDirection: null
       });
-    }
-  }, {
-    key: "handleScrollUp",
-    value: function handleScrollUp() {
-      var scrollRate = this.props.scrollRate;
-      this.performScrollAction(scrollRate);
-      this.checkForScrollPosition();
-    }
-  }, {
-    key: "handleScrollDown",
-    value: function handleScrollDown() {
-      var scrollRate = this.props.scrollRate;
-      this.performScrollAction(0 - scrollRate);
       this.checkForScrollPosition();
     }
   }, {
@@ -198,9 +193,9 @@ function (_React$PureComponent) {
         className: "arrow-scroll-container"
       }, _react["default"].createElement(_Fade.Fade, {
         "in": hasOverflow && canScrollUp,
-        timeout: "200",
+        timeout: "500",
         mountOnEnter: true,
-        unMountOnExit: true
+        unmountOnExit: true
       }, _react["default"].createElement("button", {
         className: "button-scroll arrow-up d-block text-center w-100",
         style: {
@@ -210,7 +205,7 @@ function (_React$PureComponent) {
           borderBottom: "#eeeeee solid 1px",
           backgroundColor: "#f8f8f8"
         },
-        onMouseDown: this.onMouseDownUp,
+        onMouseDown: this.onMouseDownScrollUp,
         onMouseUp: this.onMouseUp,
         type: "button",
         disabled: !canScrollUp
@@ -220,11 +215,12 @@ function (_React$PureComponent) {
         className: "scrollable-list-container",
         ref: this.scrollContainer
       }, _react["default"].createElement("ul", {
-        className: "scroll-items list-unstyled mb-0 py-2"
+        className: "scroll-items list-unstyled my-0"
       }, header, items, footer)), _react["default"].createElement(_Fade.Fade, {
         "in": hasOverflow && canScrollDown,
+        timeout: "500",
         mountOnEnter: true,
-        unMountOnExit: true
+        unmountOnExit: true
       }, _react["default"].createElement("button", {
         className: "button-scroll arrow-down d-block text-center w-100",
         style: {
@@ -234,7 +230,7 @@ function (_React$PureComponent) {
           borderTop: "#eeeeee solid 1px",
           backgroundColor: "#f8f8f8"
         },
-        onMouseDown: this.onMouseDownDown,
+        onMouseDown: this.onMouseDownScrollDown,
         onMouseUp: this.onMouseUp,
         type: "button",
         disabled: !canScrollDown
