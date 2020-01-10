@@ -103,7 +103,7 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
     const passProps = _.omit(props, 'bsStyle', 'variant', 'filename', 'title', 'className', 'data-tip', 'size');
 
     return (
-        <a {...passProps} className={cls} download={action === 'Download' ? true : null} title={filename} data-tip={mimeType}>
+        <a {...passProps} className={cls} download={action === 'Download' ? filename || true : null} title={filename} data-tip={mimeType}>
             { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
         </a>
     );

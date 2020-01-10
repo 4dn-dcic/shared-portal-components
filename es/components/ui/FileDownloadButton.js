@@ -145,7 +145,7 @@ var ViewFileButton = _react["default"].memo(function (props) {
 
   return _react["default"].createElement("a", _extends({}, passProps, {
     className: cls,
-    download: action === 'Download' ? true : null,
+    download: action === 'Download' ? filename || true : null,
     title: filename,
     "data-tip": mimeType
   }), preLink, " ", action, " ", title || filename && _react["default"].createElement("span", {

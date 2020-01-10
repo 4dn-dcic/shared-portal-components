@@ -186,19 +186,36 @@ class ResultRow extends React.PureComponent {
         })).isRequired,
         'headerColumnWidths' : PropTypes.array,
         'renderDetailPane'  : PropTypes.func.isRequired,
-        'openDetailPanes' : PropTypes.object.isRequired,
+        'detailOpen' : PropTypes.bool.isRequired,
         'setDetailHeight' : PropTypes.func.isRequired,
         'id' : PropTypes.string.isRequired
     };
+
+    static getStyles(rowWidth, rowHeight){
+        return {
+            inner: { minHeight: rowHeight - 1 },
+            outer: { minWidth: rowWidth }
+        };
+    }
 
     constructor(props){
         super(props);
         //this.shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
         this.toggleDetailOpen = _.throttle(this.toggleDetailOpen.bind(this), 250);
-        this.isOpen = this.isOpen.bind(this);
         this.setDetailHeight = this.setDetailHeight.bind(this);
         this.handleDragStart = this.handleDragStart.bind(this);
+        this.memoized = {
+            getStyles: memoize(ResultRow.getStyles)
+        };
     }
+
+    // componentDidUpdate(pastProps){
+    //     _.keys(this.props).forEach((k)=>{
+    //         if (pastProps[k] !== this.props[k]){
+    //             console.log(k, this.props[k], pastProps[k]);
+    //         }
+    //     });
+    // }
 
     setDetailHeight(){
         const { id, setDetailHeight : parentSetDetailHeight } = this.props;
@@ -208,11 +225,6 @@ class ResultRow extends React.PureComponent {
     toggleDetailOpen(){
         const { id, toggleDetailPaneOpen } = this.props;
         toggleDetailPaneOpen(id);
-    }
-
-    isOpen(){
-        const { openDetailPanes, id } = this.props;
-        return openDetailPanes[id] || false;
     }
 
     /** Add some JSON data about the result item upon initiating dragstart. */
@@ -256,8 +268,7 @@ class ResultRow extends React.PureComponent {
     renderColumns(){
         // TODO (?) prop func to do this to control which columns get which props.
         // to make more reusable re: e.g. `selectedFiles` (= 4DN-specific).
-        const { columnDefinitions, selectedFiles } = this.props;
-        const detailOpen  = this.isOpen();
+        const { columnDefinitions, selectedFiles, detailOpen } = this.props;
         return _.map(columnDefinitions, (columnDefinition, columnNumber) => {
             const passedProps = _.extend(
                 // Contains required 'result', 'rowNumber', 'href', 'headerColumnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction
@@ -275,9 +286,9 @@ class ResultRow extends React.PureComponent {
     }
 
     render(){
-        const { rowNumber, currentAction, rowHeight } = this.props;
-        const detailOpen = this.isOpen();
+        const { rowNumber, currentAction, rowHeight, rowWidth, detailOpen } = this.props;
         const isDraggable = isSelectAction(currentAction);
+        const styles = this.memoized.getStyles(rowWidth, rowHeight);
 
         /**
          * Props passed to ResultDetail include:
@@ -286,13 +297,18 @@ class ResultRow extends React.PureComponent {
          * It should also contain selectedFiles if parent passes it down.
          */
         const detailProps = _.omit(this.props,
-            'openDetailPanes', 'mounted', 'headerColumnWidths', 'columnDefinitions',
+            'mounted', 'headerColumnWidths', 'columnDefinitions',
             'detailOpen', 'setDetailHeight'
         );
 
+        const cls = (
+            "search-result-row"
+            + " detail-" + (detailOpen ? 'open' : 'closed')
+            + (isDraggable ? ' is-draggable' : '')
+        );
+
         return (
-            <div className={"search-result-row detail-" + (detailOpen ? 'open' : 'closed') + (isDraggable ? ' is-draggable' : '')}
-                data-row-number={rowNumber} /* ref={(r)=>{
+            <div className={cls} data-row-number={rowNumber} style={styles.outer} /* ref={(r)=>{
                 // TODO POTENTIALLY: Use to set height on open/close icon & sticky title column.
                 var height = (r && r.offsetHeight) || null;
                 if (height && height !== this.rowFullHeight){
@@ -300,7 +316,7 @@ class ResultRow extends React.PureComponent {
                 }
             }}*/>
                 <div className="columns clearfix result-table-row" draggable={isDraggable}
-                    style={{ minHeight: rowHeight - 1 }} // Account for 1px border bottom on parent div
+                    style={styles.inner} // Account for 1px border bottom on parent div
                     onDragStart={isDraggable ? this.handleDragStart : null}>
                     { this.renderColumns() }
                 </div>
@@ -330,11 +346,25 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         'onDuplicateResultsFoundCallback' : function(){
             Alerts.queue({ 'title' : 'Results Refreshed', 'message' : 'Results have changed while loading and have been refreshed.', 'navigateDisappearThreshold' : 1 });
         },
-        'isOwnPage' : true
+        'isOwnPage' : true,
     };
 
     static canLoadMore(totalExpected, results){
         return totalExpected > results.length;
+    }
+
+    /**
+     * Used for memoization of styles that dont frequently change (prevent needless PureComponent updates).
+     * `scrollableStyle` is applied to Infinite's outermost div element/container.
+     */
+    static getStyles(maxHeight){
+        const styles = {};
+        styles.scrollableStyle = {
+            maxHeight,
+            height: null, // Unset, let maxHeight take over.
+            overflow: "auto" // Override "hidden scroll" default.
+        };
+        return styles;
     }
 
     constructor(props){
@@ -343,14 +373,15 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         this.handleLoad = _.throttle(this.handleLoad.bind(this), 3000);
         //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
         //this.handleScrollExt = this.handleScrollExt.bind(this);
-        this.state = {
-            'isLoading' : false,
-            'canLoad' : true
-        };
+        this.state = { 'isLoading' : false };
         if (typeof props.mounted === 'undefined'){
             this.state.mounted = false;
         }
+        this.memoized = {
+            getStyles: memoize(LoadMoreAsYouScroll.getStyles)
+        };
         this.lastIsScrolling = false;
+        this.infiniteComponentRef = React.createRef();
     }
 
     componentDidMount(){
@@ -400,24 +431,33 @@ class LoadMoreAsYouScroll extends React.PureComponent {
     render(){
         const {
             children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft, context, results,
-            mounted: propMounted, isOwnPage, maxHeight
+            mounted: propMounted, isOwnPage, maxHeight, canLoadMore, anyResults, fullRowWidth
         } = this.props;
-        const { total = null } = context || {};
         const { mounted: stateMounted, isLoading } = this.state;
         if (!(propMounted || stateMounted)){
-            return <div>{ children }</div>;
+            return (
+                <div className="react-infinite-container">
+                    <div>{ children }</div>
+                </div>
+            );
         }
         const elementHeight = _.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function(c){
             const savedHeight = openDetailPanes[c.props.id];
             if (savedHeight && typeof savedHeight === 'number'){
-                //console.log('height', openDetailPanes[c.props.id], rowHeight, 2 + openDetailPanes[c.props.id] + openRowHeight);
                 return openDetailPanes[c.props.id] + openRowHeight;
             }
             return rowHeight;
         });
-        const canLoad = (total && LoadMoreAsYouScroll.canLoadMore(total, results)) || false;
+
+        // Add height for the appended "fin" block
+        if (canLoadMore === false && anyResults && Array.isArray(elementHeight)){
+            elementHeight.push(rowHeight);
+        }
+
         return (
             <Infinite
+                className="react-infinite-container"
+                ref={this.infiniteComponentRef}
                 elementHeight={elementHeight}
                 containerHeight={(!isOwnPage && maxHeight) || undefined}
                 useWindowAsScrollContainer={isOwnPage}
@@ -425,22 +465,27 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                 isInfiniteLoading={isLoading}
                 timeScrollStateLastsForAfterUserScrolls={250}
                 //onChangeScrollState={this.handleScrollingStateChange}
-                loadingSpinnerDelegate={(
-                    <div className="search-result-row loading text-center" style={{
-                        'maxWidth' : tableContainerWidth,
-                        'transform' : style.translate3d(tableContainerScrollLeft)
-                    }}>
-                        <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
-                    </div>
-                )}
-                infiniteLoadBeginEdgeOffset={canLoad ? 200 : undefined}
+                loadingSpinnerDelegate={<LoadingSpinner {...{ tableContainerWidth, tableContainerScrollLeft }} />}
+                infiniteLoadBeginEdgeOffset={canLoadMore ? 200 : undefined}
                 preloadAdditionalHeight={Infinite.containerHeightScaleFactor(1.5)}
-                preloadBatchSize={Infinite.containerHeightScaleFactor(1.5)}>
+                preloadBatchSize={Infinite.containerHeightScaleFactor(1.5)}
+                styles={isOwnPage ? null : this.memoized.getStyles(maxHeight)}>
                 { children }
             </Infinite>
         );
     }
 }
+
+const LoadingSpinner = React.memo(function LoadingSpinner({ tableContainerWidth, tableContainerScrollLeft }){
+    return (
+        <div className="search-result-row loading text-center" style={{
+            'maxWidth' : tableContainerWidth,
+            'transform' : style.translate3d(tableContainerScrollLeft)
+        }}>
+            <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
+        </div>
+    );
+});
 
 class ShadowBorderLayer extends React.Component {
 
@@ -455,17 +500,6 @@ class ShadowBorderLayer extends React.Component {
         'horizontalScrollRateOnEdgeButton' : 10
     };
 
-    static isWindowPastTableTop(tableContainerElement, windowHeight = null, scrollTop = null, tableTopOffset = null){
-        if (isServerSide()) return false;
-        if (!windowHeight)      windowHeight    = window.innerHeight;
-        if (!scrollTop)         scrollTop       = getPageVerticalScrollPosition();
-        if (!tableTopOffset)    tableTopOffset  = getElementOffset(tableContainerElement).top;
-        if (windowHeight / 2 + scrollTop > tableTopOffset){
-            return true;
-        }
-        return false;
-    }
-
     constructor(props){
         super(props);
         this.scrolling = false;
@@ -478,7 +512,6 @@ class ShadowBorderLayer extends React.Component {
 
     shouldComponentUpdate(nextProps){
         if (typeof nextProps.tableContainerWidth !== "number") return false;
-        if (this.props.isWindowPastTableTop !== nextProps.isWindowPastTableTop) return true;
         var pastEdges = this.edgeHiddenContentWidths(this.props);
         var newEdges = this.edgeHiddenContentWidths(nextProps);
         if (newEdges.left !== pastEdges.left || newEdges.right !== pastEdges.right) return true;
@@ -536,12 +569,14 @@ class ShadowBorderLayer extends React.Component {
     }
 
     performScrollAction(direction = "right"){
-        const { horizontalScrollRateOnEdgeButton, tableContainerWidth, fullRowWidth, innerContainerElem, setContainerScrollLeft } = this.props;
+        const { horizontalScrollRateOnEdgeButton, tableContainerWidth, fullRowWidth, tableContainerScrollLeft, getScrollContainer, setContainerScrollLeft } = this.props;
         const scrollAction = (depth) => {
-            var change = (direction === 'right' ? 1 : -1) * horizontalScrollRateOnEdgeButton;
-            var maxScrollLeft = fullRowWidth - tableContainerWidth;
-            var leftOffset = Math.max(0, Math.min(maxScrollLeft, innerContainerElem.scrollLeft + change));
-            innerContainerElem.scrollLeft = leftOffset;
+            const scrollContainer = getScrollContainer();
+            if (!scrollContainer) return;
+            const change = (direction === 'right' ? 1 : -1) * horizontalScrollRateOnEdgeButton;
+            const maxScrollLeft = fullRowWidth - tableContainerWidth;
+            const leftOffset = Math.max(0, Math.min(maxScrollLeft, scrollContainer.scrollLeft + change));
+            scrollContainer.scrollLeft = leftOffset;
             setContainerScrollLeft(leftOffset);
 
             if (depth >= 10000){
@@ -668,12 +703,13 @@ class DimensioningContainer extends React.PureComponent {
 
     constructor(props){
         super(props);
+        this.getScrollContainer = this.getScrollContainer.bind(this);
+        this.getScrollableElement = this.getScrollableElement.bind(this);
         this.throttledUpdate = _.debounce(this.forceUpdate.bind(this), 500);
         this.toggleDetailPaneOpen = _.throttle(this.toggleDetailPaneOpen.bind(this), 500);
         this.setDetailHeight = this.setDetailHeight.bind(this);
         this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this); //_.throttle(this.setContainerScrollLeft.bind(this), 100);
         this.onHorizontalScroll = this.onHorizontalScroll.bind(this);
-        this.onVerticalScroll = _.throttle(this.onVerticalScroll.bind(this), 200);
         this.setHeaderWidths = _.throttle(this.setHeaderWidths.bind(this), 300);
         this.getTableDims = this.getTableDims.bind(this);
         this.resetWidths = this.resetWidths.bind(this);
@@ -683,7 +719,6 @@ class DimensioningContainer extends React.PureComponent {
             'mounted'   : false,
             'widths'    : DimensioningContainer.resetHeaderColumnWidths(props.columnDefinitions, false, props.windowWidth),
             'results'   : props.results.slice(0),
-            'isWindowPastTableTop' : !props.isOwnPage || false,
             // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
             'openDetailPanes' : {},
             'tableContainerScrollLeft' : 0
@@ -693,6 +728,7 @@ class DimensioningContainer extends React.PureComponent {
             this.state.openDetailPanes[ itemUtil.atId(this.state.results[0]) ] = true;
         }
 
+        this.outerRef               = React.createRef();
         this.innerContainerRef      = React.createRef();
         this.loadMoreAsYouScrollRef = React.createRef();
 
@@ -704,39 +740,38 @@ class DimensioningContainer extends React.PureComponent {
         };
     }
 
-    componentDidMount(){
-        const { columnDefinitions, windowWidth, registerWindowOnScrollHandler, isOwnPage = true } = this.props;
-        const nextState = _.extend(this.getTableDims(), {
-            'mounted' : true
-        });
-        const innerContainerElem = this.innerContainerRef.current;
+    getScrollContainer(){
+        const outerContainerElem = this.outerRef.current;
+        // THIS IS SUBJECT TO CHANGE RE: REACT-INFINITE LIBRARY. ACCESSING IN SUCH WAY IS ANTI-PATTERN TO BEGIN WITH...
+        // React-infinite hasn't been updated as of mid-2018 (as of January 2020) so certain newer patterns aren't being utilized,
+        // such as forwardRef. Theoretically it might be worth considering making PRs to the library if can be more certain they'd be
+        // reviewed and merged..
 
-        if (innerContainerElem){
-            const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, true, [], windowWidth);
-            if (innerContainerElem.offsetWidth < fullRowWidth){
-                nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
-                nextState.isWindowPastTableTop = !isOwnPage || ShadowBorderLayer.isWindowPastTableTop(innerContainerElem);
-            }
-            innerContainerElem.addEventListener('scroll', this.onHorizontalScroll);
-        } else {
-            nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
+        //const scrollContainer = infiniteComponent && infiniteComponent.scrollable;
+        const scrollContainer = outerContainerElem.querySelector(".react-infinite-container");
+        if (!scrollContainer) {
+            throw new Error("Could not get scroll container from React-Infinite. Check to see if library has been updated");
         }
+        return scrollContainer;
+    }
+
+    getScrollableElement(){
+        return this.getScrollContainer().children[0];
+    }
+
+    componentDidMount(){
+        const nextState = { 'mounted' : true };
 
         // Detect size changes and update
         this.outerContainerSizeInterval = setInterval(()=>{
             this.setState(({ tableContainerWidth: pastWidth }) => {
-                const tableContainerWidth = this.getTableContainerWidth();
+                const { tableContainerWidth } = this.getTableDims();
                 if (pastWidth !== tableContainerWidth){
                     return { tableContainerWidth };
                 }
                 return null;
             });
         }, 3000);
-
-        // Register onScroll handler.
-        if (isOwnPage) {
-            this.scrollHandlerUnsubscribeFxn = registerWindowOnScrollHandler(this.onVerticalScroll);
-        }
 
         this.setState(nextState, ReactTooltip.rebuild);
     }
@@ -750,15 +785,18 @@ class DimensioningContainer extends React.PureComponent {
             clearInterval(this.outerContainerSizeInterval);
             this.outerContainerSizeInterval = null;
         }
-        const innerContainerElem = this.innerContainerRef.current;
-        innerContainerElem && innerContainerElem.removeEventListener('scroll', this.onHorizontalScroll);
+        const scrollContainer = this.getScrollContainer();
+        scrollContainer && scrollContainer.removeEventListener('scroll', this.onHorizontalScroll);
     }
 
     componentDidUpdate(pastProps, pastState){
-        const { results: propResults, columnDefinitions, windowWidth } = this.props;
+        const { results: loadedResults, mounted, widths } = this.state;
+        const { results: pastLoadedResults, mounted: pastMounted, widths: pastWidths } = pastState;
+        const { results: propResults, columnDefinitions, windowWidth, isOwnPage } = this.props;
         const { results: pastPropResults, columnDefinitions: pastColDefs, windowWidth: pastWindowWidth } = pastProps;
+        const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
 
-        if (pastState.results !== this.state.results){
+        if (pastLoadedResults !== loadedResults){
             ReactTooltip.rebuild();
         }
 
@@ -776,6 +814,26 @@ class DimensioningContainer extends React.PureComponent {
         } else if (pastWindowWidth !== windowWidth){
             this.setState(this.getTableDims());
         }
+
+        if (pastMounted === false && mounted === true){
+            // This used to be in componentDidMount, however X-axis scroll container is now react-infinite elem
+            // which doesn't appear until after mount
+
+            const scrollContainer = this.getScrollContainer();
+            const nextState = this.getTableDims(scrollContainer);
+
+            if (scrollContainer){
+                if (scrollContainer.offsetWidth < fullRowWidth){
+                    nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
+                }
+                scrollContainer.addEventListener('scroll', this.onHorizontalScroll);
+            } else {
+                nextState.widths = DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth);
+            }
+
+            this.setState(nextState, ReactTooltip.rebuild);
+        }
+
     }
 
     toggleDetailPaneOpen(rowKey, cb = null){
@@ -809,126 +867,29 @@ class DimensioningContainer extends React.PureComponent {
         const { tableContainerScrollLeft } = this.state;
         const innerElem = e.target;
         const nextScrollLeft = innerElem.scrollLeft; // Grabbing this val here rather than within raf() fxn acts kind of like a throttle (?).
-        e.stopPropagation();
-        e.preventDefault();
 
         if (nextScrollLeft === tableContainerScrollLeft) { // Shouldn't occur but presence of this seems to improve smoothness (?)
             return false;
         }
 
-        raf(()=>{
-            this.setContainerScrollLeft(nextScrollLeft || 0);
-        });
+        this.setContainerScrollLeft(nextScrollLeft || 0);
 
         return false;
     }
 
-    onVerticalScroll(e){
-        //if (!document || !window || !this.refs.innerContainer) return null;
-
-        setTimeout(()=>{
-
-            // Means this callback was finally (after setTimeout) called after `innerContainer` or `this` have been dismounted -- negligible occurence.
-            const innerContainerElem = this.innerContainerRef.current;
-            if (!innerContainerElem) return null;
-
-            const { windowHeight, windowWidth } = this.props;
-            const scrollTop = getPageVerticalScrollPosition();
-            const tableTopOffset = getElementOffset(innerContainerElem).top;
-
-            //var isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem, windowHeight, scrollTop, tableTopOffset);
-
-
-            var done = false;
-
-            // Resize to full width.
-            /*
-            if (typeof this.props.fullWidthInitOffset === 'number' && typeof this.props.fullWidthContainerSelectorString === 'string'
-                && !isServerSide() && document && document.body && document.querySelector
-            ){
-                var bodyWidth = document.body.offsetWidth || window.innerWidth;
-                if (bodyWidth > 1200) {
-                    var extraWidth = bodyWidth - 1180;
-                    var distanceToTopOfTable = tableTopOffset - scrollTop + this.props.stickyHeaderTopOffset;
-                    var pageTableContainer = document.querySelector(this.props.fullWidthContainerSelectorString);
-                    if (pageTableContainer){
-                        if (distanceToTopOfTable <= 5){
-                            pageTableContainer.style.transition = "none";
-                            pageTableContainer.style.marginLeft = pageTableContainer.style.marginRight = -(extraWidth / 2) + 'px';
-                            if (this.lastDistanceToTopOfTable !== distanceToTopOfTable || !this.state.isWindowPastTableTop){
-                                vizUtil.requestAnimationFrame(()=>{
-                                    this.setState({ 'isWindowPastTableTop' : true });
-                                });
-                            }
-                            done = true;
-                        } else if (distanceToTopOfTable > 5 && distanceToTopOfTable <= this.props.fullWidthInitOffset){
-
-                            //var fullWidthInitOffset = Math.min(this.props.fullWidthInitOffset, tableTopOffset + this.props.stickyHeaderTopOffset);
-                            //var difScale = (fullWidthInitOffset - distanceToTopOfTable) / fullWidthInitOffset;
-                            //pageTableContainer.style.transition = "margin-left .33s, margin-right .33s";
-                            //pageTableContainer.style.marginLeft = pageTableContainer.style.marginRight = -((extraWidth * difScale) / 2) + 'px';
-                            //if (this.lastDistanceToTopOfTable !== distanceToTopOfTable || !this.state.isWindowPastTableTop){
-                            //    this.setState({ 'isWindowPastTableTop' : true });
-                            //}
-
-                        } else if (distanceToTopOfTable > this.props.fullWidthInitOffset){
-                            pageTableContainer.style.transition = "margin-left .6s, margin-right .6s";
-                            pageTableContainer.style.marginLeft = pageTableContainer.style.marginRight = '0px';
-                            if ((this.lastDistanceToTopOfTable <= this.props.fullWidthInitOffset) || this.state.isWindowPastTableTop){
-                                vizUtil.requestAnimationFrame(()=>{
-                                    this.setState({ 'isWindowPastTableTop' : false });
-                                });
-                            }
-                            done = true;
-                        }
-                        this.lastDistanceToTopOfTable = distanceToTopOfTable;
-
-                    }
-                    //console.log('V',scrollTop, tableTopOffset, distanceToTopOfTable);
-                }
-            }
-            */
-
-            if (!done){
-                var isWindowPastTableTop = ShadowBorderLayer.isWindowPastTableTop(innerContainerElem, windowHeight, scrollTop, tableTopOffset);
-                if (isWindowPastTableTop !== this.state.isWindowPastTableTop){
-                    this.setState({ 'isWindowPastTableTop' : isWindowPastTableTop });
-                }
-            }
-
-
-        }, 0);
-
-
-    }
-
-    getTableLeftOffset(){
-        const innerContainerElem = this.innerContainerRef.current;
-        return (innerContainerElem && getElementOffset(innerContainerElem).left) || null;
-    }
-
-    getTableContainerWidth(){
-        const innerContainerElem = this.innerContainerRef.current;
-        return (innerContainerElem && innerContainerElem.offsetWidth) || null;
-    }
-
-    getTableScrollLeft(){
-        const innerContainerElem = this.innerContainerRef.current;
-        return (innerContainerElem && typeof innerContainerElem.scrollLeft === 'number') ? innerContainerElem.scrollLeft : null;
-    }
-
-    getTableDims(){
+    getTableDims(scrollContainer){
+        scrollContainer = scrollContainer || this.getScrollContainer();
         if (!SearchResultTable.isDesktopClientside(this.props.windowWidth)){
             return {
-                'tableContainerWidth'       : this.getTableContainerWidth(),
+                'tableContainerWidth'       : (scrollContainer && scrollContainer.offsetWidth) || null,
                 'tableContainerScrollLeft'  : null,
                 'tableLeftOffset'           : null
             };
         }
         return {
-            'tableContainerWidth'       : this.getTableContainerWidth(),
-            'tableContainerScrollLeft'  : this.getTableScrollLeft(),
-            'tableLeftOffset'           : this.getTableLeftOffset()
+            'tableContainerWidth'       : (scrollContainer && scrollContainer.offsetWidth) || null,
+            'tableContainerScrollLeft'  : (scrollContainer && typeof scrollContainer.scrollLeft === 'number') ? scrollContainer.scrollLeft : null,
+            'tableLeftOffset'           : (scrollContainer && getElementOffset(scrollContainer).left) || null
         };
     }
 
@@ -973,11 +934,12 @@ class DimensioningContainer extends React.PureComponent {
 
     render(){
         const { columnDefinitions, windowWidth, isOwnPage, maxHeight = 500 } = this.props;
-        const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, isWindowPastTableTop, openDetailPanes, tableLeftOffset } = this.state;
+        const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, openDetailPanes, tableLeftOffset } = this.state;
 
         const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
         const canLoadMore = this.canLoadMore();
         const innerContainerElem = this.innerContainerRef.current;
+        const anyResults = results.length > 0;
 
         const headerRowCommonProps = {
             ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse',
@@ -992,64 +954,67 @@ class DimensioningContainer extends React.PureComponent {
         const resultRowCommonProps = _.extend(
             _.pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn', 'rowHeight'),
             {
-                columnDefinitions, openDetailPanes, tableContainerWidth, tableContainerScrollLeft, windowWidth,
+                columnDefinitions, tableContainerWidth, tableContainerScrollLeft, windowWidth,
                 'mounted' : mounted || false,
                 'headerColumnWidths' : widths,
                 'rowWidth' : fullRowWidth,
                 'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
-                'setDetailHeight' : this.setDetailHeight
+                'setDetailHeight' : this.setDetailHeight,
             }
         );
 
         const loadMoreAsYouScrollProps = {
             ..._.pick(this.props, 'href', 'limit', 'rowHeight', 'context', 'onDuplicateResultsFoundCallback', 'schemas'),
-            results, openDetailPanes, maxHeight, isOwnPage,
+            results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, innerContainerElem, windowWidth, mounted,
             setResults: this.setResults
         };
 
         let headersRow = null;
         let shadowBorderLayer = null;
-        const anyResults = results.length > 0;
 
         if (anyResults) {
             headersRow = <HeadersRow {...headerRowCommonProps} />;
             shadowBorderLayer = (
-                <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, isWindowPastTableTop, fullRowWidth, innerContainerElem }}
-                    setContainerScrollLeft={this.setContainerScrollLeft} />
+                <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, fullRowWidth, innerContainerElem }}
+                    setContainerScrollLeft={this.setContainerScrollLeft} verticallyCenterArrows={isOwnPage}
+                    getScrollContainer={this.getScrollContainer} />
+            );
+        }
+
+        const renderChildren = !anyResults ? (
+            <div className="text-center py-5">
+                <h3 className="text-300">No Results</h3>
+            </div>
+        ) : results.map(function(result, idx){
+            const id = itemUtil.atId(result);
+            const detailOpen = openDetailPanes[id] || false;
+            // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
+            // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
+            // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
+            return (
+                <ResultRow {...resultRowCommonProps} {...{ result, id, detailOpen }} rowNumber={idx} key={id}
+                    tableContainerScrollLeft={detailOpen ? tableContainerScrollLeft : 0}/>
+            );
+        });
+
+        if (anyResults && !canLoadMore) {
+            renderChildren.push(
+                <div key="can-load-more" className="fin search-result-row" style={{ transform: style.translate3d(tableContainerScrollLeft) }}>
+                    <div className="inner">- <span>fin</span> -</div>
+                </div>
             );
         }
 
         return (
-            <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")}>
+            <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")} ref={this.outerRef}>
                 <div className={"search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')}>
                     { headersRow }
-                    <div className="inner-container" ref={this.innerContainerRef}>
-                        <div className="scrollable-container" style={anyResults ? { minWidth : fullRowWidth + 6 } : null}>
-                            <LoadMoreAsYouScroll {...loadMoreAsYouScrollProps} ref={this.loadMoreAsYouScrollRef}>
-                                {
-                                    !anyResults ? (
-                                        <div className="text-center py-5">
-                                            <h3 className="text-300">No Results</h3>
-                                        </div>
-                                    ) : (
-                                        results.map(function(r, idx){
-                                            const id = itemUtil.atId(r);
-                                            return <ResultRow {...resultRowCommonProps} result={r} rowNumber={idx} id={id} key={id} />;
-                                        })
-                                    )
-                                }
-                            </LoadMoreAsYouScroll>
-                        </div>
-                    </div>
+                    <LoadMoreAsYouScroll {...loadMoreAsYouScrollProps} ref={this.loadMoreAsYouScrollRef}>
+                        { renderChildren }
+                    </LoadMoreAsYouScroll>
                     { shadowBorderLayer }
                 </div>
-                { canLoadMore === false && anyResults ?
-                    <div key="can-load-more" className="fin search-result-row">
-                        <div className="inner">- <span>fin</span> -</div>
-                    </div>
-                    : <div key="can-load-more" className="search-result-row empty-block"/>
-                }
             </div>
         );
     }
