@@ -8,6 +8,9 @@ import { Fade } from './../../ui/Fade';
 /*
 Button scrolling code adapted from:
 https://tj.ie/scrollable-container-controls-with-react/
+
+This component is used by:
+    - SearchSelectionMenu.js
 */
 export class VerticalScrollContainer extends React.PureComponent {
 
@@ -43,6 +46,7 @@ export class VerticalScrollContainer extends React.PureComponent {
         this.checkForOverflow();
         this.checkForScrollPosition();
 
+        // handle both arrow key and touch screen scroll
         this.scrollContainer.current.addEventListener('scroll', this.debounceCheckForScrollPosition);
         this.scrollContainer.current.addEventListener('keyup', this.checkArrowKeyScrollPosition);
     }
@@ -64,18 +68,15 @@ export class VerticalScrollContainer extends React.PureComponent {
     }
 
     checkArrowKeyScrollPosition(e) {
+        // for lists scrollable via arrowkey, update button state after keypress ends
         if (e.key === "ArrowDown" || e.key === "ArrowUp") {
             this.debounceCheckForScrollPosition();
         }
     }
 
     checkForScrollPosition() {
-        // console.log("checking for scroll position");
+        // updates state when clientHeight touches the top or bottom bounds of scrollHeight
         const { scrollTop, scrollHeight, clientHeight } = this.scrollContainer.current;
-        // console.log(this.scrollContainer.current);
-        // console.log("scrollHeight: ", scrollHeight);
-        // console.log("clientHeight: ", clientHeight);
-        // console.log("scrollTop", scrollTop);
         this.setState({
             canScrollUp : scrollTop >= 5,
             canScrollDown: scrollTop !== scrollHeight - clientHeight
@@ -83,8 +84,7 @@ export class VerticalScrollContainer extends React.PureComponent {
     }
 
     checkForOverflow() {
-        // take into account individual item heights
-        // and see how many will fill the container
+        // compare height of all items (scrollHeight) to height of containing div (clientHeight)
         const { scrollHeight, clientHeight } = this.scrollContainer.current;
         const hasOverflow = scrollHeight > clientHeight;
         this.setState({ hasOverflow });

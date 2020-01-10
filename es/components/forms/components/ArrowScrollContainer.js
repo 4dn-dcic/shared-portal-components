@@ -40,6 +40,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /*
 Button scrolling code adapted from:
 https://tj.ie/scrollable-container-controls-with-react/
+
+This component is used by:
+    - SearchSelectionMenu.js
 */
 var VerticalScrollContainer =
 /*#__PURE__*/
@@ -75,7 +78,8 @@ function (_React$PureComponent) {
     key: "componentDidMount",
     value: function componentDidMount() {
       this.checkForOverflow();
-      this.checkForScrollPosition();
+      this.checkForScrollPosition(); // handle both arrow key and touch screen scroll
+
       this.scrollContainer.current.addEventListener('scroll', this.debounceCheckForScrollPosition);
       this.scrollContainer.current.addEventListener('keyup', this.checkArrowKeyScrollPosition);
     }
@@ -102,6 +106,7 @@ function (_React$PureComponent) {
   }, {
     key: "checkArrowKeyScrollPosition",
     value: function checkArrowKeyScrollPosition(e) {
+      // for lists scrollable via arrowkey, update button state after keypress ends
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         this.debounceCheckForScrollPosition();
       }
@@ -109,15 +114,11 @@ function (_React$PureComponent) {
   }, {
     key: "checkForScrollPosition",
     value: function checkForScrollPosition() {
-      // console.log("checking for scroll position");
+      // updates state when clientHeight touches the top or bottom bounds of scrollHeight
       var _this$scrollContainer = this.scrollContainer.current,
           scrollTop = _this$scrollContainer.scrollTop,
           scrollHeight = _this$scrollContainer.scrollHeight,
-          clientHeight = _this$scrollContainer.clientHeight; // console.log(this.scrollContainer.current);
-      // console.log("scrollHeight: ", scrollHeight);
-      // console.log("clientHeight: ", clientHeight);
-      // console.log("scrollTop", scrollTop);
-
+          clientHeight = _this$scrollContainer.clientHeight;
       this.setState({
         canScrollUp: scrollTop >= 5,
         canScrollDown: scrollTop !== scrollHeight - clientHeight
@@ -126,8 +127,7 @@ function (_React$PureComponent) {
   }, {
     key: "checkForOverflow",
     value: function checkForOverflow() {
-      // take into account individual item heights
-      // and see how many will fill the container
+      // compare height of all items (scrollHeight) to height of containing div (clientHeight)
       var _this$scrollContainer2 = this.scrollContainer.current,
           scrollHeight = _this$scrollContainer2.scrollHeight,
           clientHeight = _this$scrollContainer2.clientHeight;
