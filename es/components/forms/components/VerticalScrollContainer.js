@@ -190,24 +190,17 @@ function (_React$PureComponent) {
           canScrollUp = _this$state.canScrollUp,
           canScrollDown = _this$state.canScrollDown;
       return _react["default"].createElement("div", {
-        className: "arrow-scroll-container"
+        className: "vertical-scroll-container"
       }, _react["default"].createElement(_Fade.Fade, {
         "in": hasOverflow && canScrollUp,
         timeout: "500",
         mountOnEnter: true,
         unmountOnExit: true
       }, _react["default"].createElement("button", {
+        type: "button",
         className: "button-scroll arrow-up d-block text-center w-100",
-        style: {
-          boxShadow: "0 10px 10px 3px rgba(200,200,200,0.2)",
-          color: "#cccccc",
-          border: "unset",
-          borderBottom: "#eeeeee solid 1px",
-          backgroundColor: "#f8f8f8"
-        },
         onMouseDown: this.onMouseDownScrollUp,
         onMouseUp: this.onMouseUp,
-        type: "button",
         disabled: !canScrollUp
       }, _react["default"].createElement("i", {
         className: "icon fas icon-angle-up"
@@ -222,17 +215,10 @@ function (_React$PureComponent) {
         mountOnEnter: true,
         unmountOnExit: true
       }, _react["default"].createElement("button", {
+        type: "button",
         className: "button-scroll arrow-down d-block text-center w-100",
-        style: {
-          boxShadow: "0 -10px 10px 30px rgba(200,200,200,0.2)",
-          color: "#cccccc",
-          border: "unset",
-          borderTop: "#eeeeee solid 1px",
-          backgroundColor: "#f8f8f8"
-        },
         onMouseDown: this.onMouseDownScrollDown,
         onMouseUp: this.onMouseUp,
-        type: "button",
         disabled: !canScrollDown
       }, _react["default"].createElement("i", {
         className: "icon fas icon-angle-down"

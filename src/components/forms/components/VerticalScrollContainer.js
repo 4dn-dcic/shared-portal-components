@@ -123,17 +123,10 @@ export class VerticalScrollContainer extends React.PureComponent {
         const { hasOverflow, canScrollUp, canScrollDown } = this.state;
 
         return (
-            <div className="arrow-scroll-container">
+            <div className="vertical-scroll-container">
                 <Fade in={hasOverflow && canScrollUp} timeout="500" mountOnEnter={true} unmountOnExit={true}>
-                    <button className="button-scroll arrow-up d-block text-center w-100"
-                        style={{
-                            boxShadow: "0 10px 10px 3px rgba(200,200,200,0.2)",
-                            color: "#cccccc",
-                            border: "unset",
-                            borderBottom: "#eeeeee solid 1px",
-                            backgroundColor: "#f8f8f8"
-                        }}
-                        onMouseDown={this.onMouseDownScrollUp} onMouseUp={this.onMouseUp} type="button" disabled={!canScrollUp}>
+                    <button type="button" className="button-scroll arrow-up d-block text-center w-100"
+                        onMouseDown={this.onMouseDownScrollUp} onMouseUp={this.onMouseUp} disabled={!canScrollUp}>
                         <i className="icon fas icon-angle-up"></i>
                     </button>
                 </Fade>
@@ -145,14 +138,8 @@ export class VerticalScrollContainer extends React.PureComponent {
                     </ul>
                 </div>
                 <Fade in={hasOverflow && canScrollDown} timeout="500" mountOnEnter={true} unmountOnExit={true}>
-                    <button className="button-scroll arrow-down d-block text-center w-100"
-                        style={{
-                            boxShadow: "0 -10px 10px 30px rgba(200,200,200,0.2)",
-                            color: "#cccccc",
-                            border: "unset",
-                            borderTop: "#eeeeee solid 1px",
-                            backgroundColor: "#f8f8f8"
-                        }} onMouseDown={this.onMouseDownScrollDown} onMouseUp={this.onMouseUp} type="button" disabled={!canScrollDown}>
+                    <button type="button" className="button-scroll arrow-down d-block text-center w-100"
+                        onMouseDown={this.onMouseDownScrollDown} onMouseUp={this.onMouseUp} disabled={!canScrollDown}>
                         <i className="icon fas icon-angle-down"></i>
                     </button>
                 </Fade>

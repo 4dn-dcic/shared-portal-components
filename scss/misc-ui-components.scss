@@ -40,15 +40,32 @@
                 width: 100%;
                 border-bottom: 1px solid #eee;
             }
-            .scrollable-list-container {
-                overflow-y: auto;
-                overflow-x: hidden;
-                max-height: 300px;
-                max-height: 33vh;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-                ::-webkit-scrollbar {
-                    display: none;
+            .vertical-scroll-container {
+                button.button-scroll {
+                    color: #cccccc;
+                    border: unset;
+                    background-color: #f8f8f8;
+
+                    &.arrow-up {
+                        box-shadow: 0 10px 10px 3px rgba(200,200,200,0.2);
+                        border-bottom: #eeeeee solid 1px;
+                    }
+                    &.arrow-down {
+                        box-shadow: 0 -10px 10px 30px rgba(200,200,200,0.2);
+                        border-top: #eeeeee solid 1px;
+                    }
+                }
+
+                .scrollable-list-container {
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                    max-height: 300px;
+                    max-height: 33vh;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                    ::-webkit-scrollbar {
+                        display: none;
+                    }
                 }
             }
         }
