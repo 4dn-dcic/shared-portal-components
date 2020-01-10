@@ -11,6 +11,10 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = require("underscore");
 
+var _utilities = require("./../../viz/utilities");
+
+var _Fade = require("./../../ui/Fade");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -33,6 +37,10 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+/*
+Button scrolling code adapted from:
+https://tj.ie/scrollable-container-controls-with-react/
+*/
 var VerticalScrollContainer =
 /*#__PURE__*/
 function (_React$PureComponent) {
@@ -47,16 +55,20 @@ function (_React$PureComponent) {
     _this.state = {
       hasOverflow: false,
       canScrollUp: false,
-      canScrollDown: false
+      canScrollDown: false,
+      scrollingDirection: null
     };
     _this.scrollContainer = _react["default"].createRef();
+    _this.onMouseDownUp = _this.onMouseDownUp.bind(_assertThisInitialized(_this));
+    _this.onMouseDownDown = _this.onMouseDownDown.bind(_assertThisInitialized(_this));
+    _this.onMouseUp = _this.onMouseUp.bind(_assertThisInitialized(_this));
     _this.handleScrollDown = _this.handleScrollDown.bind(_assertThisInitialized(_this));
     _this.handleScrollUp = _this.handleScrollUp.bind(_assertThisInitialized(_this));
     _this.performScrollAction = _this.performScrollAction.bind(_assertThisInitialized(_this));
     _this.checkForOverflow = _this.checkForOverflow.bind(_assertThisInitialized(_this));
     _this.checkForScrollPosition = _this.checkForScrollPosition.bind(_assertThisInitialized(_this));
     _this.debounceCheckforOverflow = (0, _underscore.debounce)(_this.checkForOverflow, 500, true);
-    _this.debounceCheckForScrollPosition = (0, _underscore.debounce)(_this.checkForScrollPosition, 50, false);
+    _this.debounceCheckForScrollPosition = (0, _underscore.debounce)(_this.checkForScrollPosition, 100, false);
     return _this;
   }
 
@@ -116,6 +128,35 @@ function (_React$PureComponent) {
       });
     }
   }, {
+    key: "onMouseDownUp",
+    value: function onMouseDownUp() {
+      var _this2 = this;
+
+      this.setState({
+        scrollingDirection: -1
+      }, function () {
+        (0, _utilities.requestAnimationFrame)(_this2.performScrollAction);
+      });
+    }
+  }, {
+    key: "onMouseDownDown",
+    value: function onMouseDownDown() {
+      var _this3 = this;
+
+      this.setState({
+        scrollingDirection: 1
+      }, function () {
+        (0, _utilities.requestAnimationFrame)(_this3.performScrollAction);
+      });
+    }
+  }, {
+    key: "onMouseUp",
+    value: function onMouseUp() {
+      this.setState({
+        scrollingDirection: null
+      });
+    }
+  }, {
     key: "handleScrollUp",
     value: function handleScrollUp() {
       var scrollRate = this.props.scrollRate;
@@ -132,10 +173,14 @@ function (_React$PureComponent) {
   }, {
     key: "performScrollAction",
     value: function performScrollAction(scrollNum) {
-      this.scrollContainer.current.scrollBy(0, {
+      var _this$state$scrolling = this.state.scrollingDirection,
+          scrollingDirection = _this$state$scrolling === void 0 ? null : _this$state$scrolling;
+      if (scrollingDirection === null) return false;
+      this.scrollContainer.current.scrollBy({
         behavior: 'smooth',
-        top: scrollNum
+        top: scrollNum * scrollingDirection
       });
+      (0, _utilities.requestAnimationFrame)(this.performScrollAction);
     }
   }, {
     key: "render",
@@ -151,7 +196,12 @@ function (_React$PureComponent) {
           canScrollDown = _this$state.canScrollDown;
       return _react["default"].createElement("div", {
         className: "arrow-scroll-container"
-      }, hasOverflow && canScrollUp ? _react["default"].createElement("button", {
+      }, _react["default"].createElement(_Fade.Fade, {
+        "in": hasOverflow && canScrollUp,
+        timeout: "200",
+        mountOnEnter: true,
+        unMountOnExit: true
+      }, _react["default"].createElement("button", {
         className: "button-scroll arrow-up d-block text-center w-100",
         style: {
           boxShadow: "0 10px 10px 3px rgba(200,200,200,0.2)",
@@ -160,16 +210,22 @@ function (_React$PureComponent) {
           borderBottom: "#eeeeee solid 1px",
           backgroundColor: "#f8f8f8"
         },
-        onClick: this.handleScrollUp,
-        type: "button"
+        onMouseDown: this.onMouseDownUp,
+        onMouseUp: this.onMouseUp,
+        type: "button",
+        disabled: !canScrollUp
       }, _react["default"].createElement("i", {
         className: "icon fas icon-angle-up"
-      })) : null, _react["default"].createElement("div", {
+      }))), _react["default"].createElement("div", {
         className: "scrollable-list-container",
         ref: this.scrollContainer
       }, _react["default"].createElement("ul", {
         className: "scroll-items list-unstyled mb-0 py-2"
-      }, header, items, footer)), hasOverflow && canScrollDown ? _react["default"].createElement("button", {
+      }, header, items, footer)), _react["default"].createElement(_Fade.Fade, {
+        "in": hasOverflow && canScrollDown,
+        mountOnEnter: true,
+        unMountOnExit: true
+      }, _react["default"].createElement("button", {
         className: "button-scroll arrow-down d-block text-center w-100",
         style: {
           boxShadow: "0 -10px 10px 30px rgba(200,200,200,0.2)",
@@ -178,11 +234,13 @@ function (_React$PureComponent) {
           borderTop: "#eeeeee solid 1px",
           backgroundColor: "#f8f8f8"
         },
-        onClick: this.handleScrollDown,
-        type: "button"
+        onMouseDown: this.onMouseDownDown,
+        onMouseUp: this.onMouseUp,
+        type: "button",
+        disabled: !canScrollDown
       }, _react["default"].createElement("i", {
         className: "icon fas icon-angle-down"
-      })) : null);
+      }))));
     }
   }]);
 
@@ -192,7 +250,7 @@ function (_React$PureComponent) {
 exports.VerticalScrollContainer = VerticalScrollContainer;
 
 _defineProperty(VerticalScrollContainer, "defaultProps", {
-  'scrollRate': 100
+  'scrollRate': 10
 });
 
 VerticalScrollContainer.propTypes = {
