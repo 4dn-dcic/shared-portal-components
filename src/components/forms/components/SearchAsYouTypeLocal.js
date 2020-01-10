@@ -70,7 +70,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             // Likely, schemas are not yet loaded?
             filteredOptions = [];
             optionsHeader = (
-                <div className="text-center py-2">
+                <div className="text-center py-3">
                     <i className="icon icon-spin icon-circle-notch fas"/>
                 </div>
             );
@@ -79,7 +79,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             if (filteredOptions.length === 0) {
                 optionsHeader = (
                     <React.Fragment>
-                        <em className="d-block text-center px-4 py-1">
+                        <em className="d-block text-center px-4 py-3">
                             { allowCustomValue ? "Adding new entry" : "No results found" }
                         </em>
                         { optionsHeader }

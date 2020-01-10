@@ -156,7 +156,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
 
         if (loading && !error) {
             optionsHeader = (
-                <div className="text-center py-2">
+                <div className="text-center py-3">
                     <i className="icon icon-spin icon-circle-notch fas"/>
                 </div>
             );
@@ -164,7 +164,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
             if (results.length === 0 && !error) {
                 optionsHeader = (
                     <React.Fragment>
-                        <em className="d-block text-center px-4 py-1">
+                        <em className="d-block text-center px-4 py-3">
                             { "No results found" }
                         </em>
                         { optionsHeader }
@@ -173,7 +173,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
             } else if (error) {
                 optionsHeader = (
                     <React.Fragment>
-                        <em className="d-block text-center px-4 py-1">
+                        <em className="d-block text-center px-4 py-3">
                             <i className="fas icon-warning icon" /> { error }
                         </em>
                         { optionsHeader }

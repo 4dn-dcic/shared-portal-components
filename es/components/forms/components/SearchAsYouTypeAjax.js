@@ -264,18 +264,18 @@ function (_React$PureComponent) {
 
       if (loading && !error) {
         optionsHeader = _react["default"].createElement("div", {
-          className: "text-center py-2"
+          className: "text-center py-3"
         }, _react["default"].createElement("i", {
           className: "icon icon-spin icon-circle-notch fas"
         }));
       } else {
         if (results.length === 0 && !error) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
-            className: "d-block text-center px-4 py-1"
+            className: "d-block text-center px-4 py-3"
           }, "No results found"), optionsHeader);
         } else if (error) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
-            className: "d-block text-center px-4 py-1"
+            className: "d-block text-center px-4 py-3"
           }, _react["default"].createElement("i", {
             className: "fas icon-warning icon"
           }), " ", error), optionsHeader);
