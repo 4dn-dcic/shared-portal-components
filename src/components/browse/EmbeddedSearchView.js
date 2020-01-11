@@ -38,6 +38,15 @@ export class EmbeddedSearchView extends React.PureComponent {
         'onLoad'        : PropTypes.func
     };
 
+    static listToObj(hideFacetStrs){
+        const obj = {};
+        hideFacetStrs.forEach(function(field){
+            obj[field] = true;
+            obj[field + "!"] = true;
+        });
+        return obj;
+    }
+
     /**
      * @property {string} searchHref - Base URI to search on.
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
@@ -45,11 +54,28 @@ export class EmbeddedSearchView extends React.PureComponent {
      */
     static defaultProps = {
         'columnExtensionMap' : basicColumnExtensionMap,
-        'separateSingleTermFacets' : true
+        'separateSingleTermFacets' : true,
+        'hideFacets': ["type", "validation_errors.name"]
     };
+
+    constructor(props){
+        super(props);
+        this.filterFacetFxn = this.filterFacetFxn.bind(this);
+        this.memoized = {
+            listToObj: memoize(EmbeddedSearchView.listToObj)
+        };
+    }
 
     componentDidMount(){
         ReactTooltip.rebuild();
+    }
+
+    filterFacetFxn(facet){
+        const { hideFacets = null } = this.props;
+        if (!hideFacets) return true;
+        const idMap = this.memoized.listToObj(hideFacets);
+        if (idMap[facet.field]) return false;
+        return true;
     }
 
     /**
@@ -75,16 +101,18 @@ export class EmbeddedSearchView extends React.PureComponent {
             showAboveTableControls = false,
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
+            filterFacetFxn: propFacetFilterFxn = null,
             ...passProps
         } = this.props;
 
         // If facets are null (hidden/excluded), set table col to be full width of container.
         const tableColumnClassName = facets === null ? "col-12" : undefined;
         const viewProps = { ...passProps, showAboveTableControls, schemas, tableColumnClassName };
+        const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad }} key={searchHref}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn }} key={searchHref}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController>
                             <SortController>

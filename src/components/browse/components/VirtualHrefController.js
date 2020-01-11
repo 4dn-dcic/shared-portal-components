@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
+import memoize from 'memoize-one';
 import _ from 'underscore';
 import url from 'url';
 import { load as ajaxLoad } from './../../util/ajax';
@@ -27,11 +27,18 @@ export class VirtualHrefController extends React.PureComponent {
         "initialHref" : "/search/?type=Item"
     };
 
+    static transformedFacets(facets, filterFacetFxn){
+        return facets.filter(filterFacetFxn);
+    }
+
     constructor(props){
         super(props);
         this.onFilter = this.onFilter.bind(this);
         this.onClearFilters = this.onClearFilters.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
+        this.memoized = {
+            transformedFacets: memoize(VirtualHrefController.transformedFacets)
+        };
 
         this.state = {
             "virtualHref" : props.searchHref,
@@ -117,18 +124,23 @@ export class VirtualHrefController extends React.PureComponent {
     }
 
     render(){
-        const { children, facets: propFacets, ...passProps } = this.props;
+        const { children, facets: propFacets, filterFacetFxn = null, ...passProps } = this.props;
         const {
             virtualHref: href,
             virtualContext: context,
             isInitialContextLoading
         } = this.state;
 
+        // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
+        let facets = propFacets === null ? null : propFacets || (context && context.facets) || null;
+
+        if (typeof filterFacetFxn === "function" && Array.isArray(facets)){
+            facets = this.memoized.transformedFacets(facets, filterFacetFxn);
+        }
+
         const propsToPass = {
             ...passProps,
-            href, context, isInitialContextLoading,
-            // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
-            facets: propFacets === null ? null : propFacets || (context && context.facets) || null,
+            href, context, isInitialContextLoading, facets,
             navigate: this.virtualNavigate,
             onFilter: this.onFilter,
             onClearFilters: this.onClearFilters,

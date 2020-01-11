@@ -7,7 +7,7 @@ exports.VirtualHrefController = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _propTypes = _interopRequireDefault(require("prop-types"));
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
@@ -43,15 +43,15 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -70,6 +70,13 @@ var VirtualHrefController =
 function (_React$PureComponent) {
   _inherits(VirtualHrefController, _React$PureComponent);
 
+  _createClass(VirtualHrefController, null, [{
+    key: "transformedFacets",
+    value: function transformedFacets(facets, filterFacetFxn) {
+      return facets.filter(filterFacetFxn);
+    }
+  }]);
+
   function VirtualHrefController(props) {
     var _this;
 
@@ -79,6 +86,9 @@ function (_React$PureComponent) {
     _this.onFilter = _this.onFilter.bind(_assertThisInitialized(_this));
     _this.onClearFilters = _this.onClearFilters.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
+    _this.memoized = {
+      transformedFacets: (0, _memoizeOne["default"])(VirtualHrefController.transformedFacets)
+    };
     _this.state = {
       "virtualHref": props.searchHref,
       "isInitialContextLoading": true,
@@ -188,19 +198,26 @@ function (_React$PureComponent) {
       var _this$props = this.props,
           children = _this$props.children,
           propFacets = _this$props.facets,
-          passProps = _objectWithoutProperties(_this$props, ["children", "facets"]);
+          _this$props$filterFac = _this$props.filterFacetFxn,
+          filterFacetFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
+          passProps = _objectWithoutProperties(_this$props, ["children", "facets", "filterFacetFxn"]);
 
       var _this$state3 = this.state,
           href = _this$state3.virtualHref,
           context = _this$state3.virtualContext,
-          isInitialContextLoading = _this$state3.isInitialContextLoading;
+          isInitialContextLoading = _this$state3.isInitialContextLoading; // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
+
+      var facets = propFacets === null ? null : propFacets || context && context.facets || null;
+
+      if (typeof filterFacetFxn === "function" && Array.isArray(facets)) {
+        facets = this.memoized.transformedFacets(facets, filterFacetFxn);
+      }
 
       var propsToPass = _objectSpread({}, passProps, {
         href: href,
         context: context,
         isInitialContextLoading: isInitialContextLoading,
-        // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
-        facets: propFacets === null ? null : propFacets || context && context.facets || null,
+        facets: facets,
         navigate: this.virtualNavigate,
         onFilter: this.onFilter,
         onClearFilters: this.onClearFilters,

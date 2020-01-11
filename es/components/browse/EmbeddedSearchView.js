@@ -75,15 +75,15 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -96,22 +96,51 @@ var EmbeddedSearchView =
 function (_React$PureComponent) {
   _inherits(EmbeddedSearchView, _React$PureComponent);
 
-  function EmbeddedSearchView() {
-    _classCallCheck(this, EmbeddedSearchView);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(EmbeddedSearchView).apply(this, arguments));
-  }
-
-  _createClass(EmbeddedSearchView, [{
-    key: "componentDidMount",
-
+  _createClass(EmbeddedSearchView, null, [{
+    key: "listToObj",
+    value: function listToObj(hideFacetStrs) {
+      var obj = {};
+      hideFacetStrs.forEach(function (field) {
+        obj[field] = true;
+        obj[field + "!"] = true;
+      });
+      return obj;
+    }
     /**
      * @property {string} searchHref - Base URI to search on.
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      */
+
+  }]);
+
+  function EmbeddedSearchView(props) {
+    var _this;
+
+    _classCallCheck(this, EmbeddedSearchView);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(EmbeddedSearchView).call(this, props));
+    _this.filterFacetFxn = _this.filterFacetFxn.bind(_assertThisInitialized(_this));
+    _this.memoized = {
+      listToObj: (0, _memoizeOne["default"])(EmbeddedSearchView.listToObj)
+    };
+    return _this;
+  }
+
+  _createClass(EmbeddedSearchView, [{
+    key: "componentDidMount",
     value: function componentDidMount() {
       _reactTooltip["default"].rebuild();
+    }
+  }, {
+    key: "filterFacetFxn",
+    value: function filterFacetFxn(facet) {
+      var _this$props$hideFacet = this.props.hideFacets,
+          hideFacets = _this$props$hideFacet === void 0 ? null : _this$props$hideFacet;
+      if (!hideFacets) return true;
+      var idMap = this.memoized.listToObj(hideFacets);
+      if (idMap[facet.field]) return false;
+      return true;
     }
     /**
      * All these controllers pass props down to their children.
@@ -144,7 +173,9 @@ function (_React$PureComponent) {
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
           _this$props$onLoad = _this$props.onLoad,
           onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "schemas", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          _this$props$filterFac = _this$props.filterFacetFxn,
+          propFacetFilterFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "schemas", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined;
@@ -155,12 +186,14 @@ function (_React$PureComponent) {
         tableColumnClassName: tableColumnClassName
       });
 
+      var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
       return _react["default"].createElement("div", {
         className: "embedded-search-container"
       }, _react["default"].createElement(_VirtualHrefController.VirtualHrefController, _extends({
         searchHref: searchHref,
         facets: facets,
-        onLoad: onLoad
+        onLoad: onLoad,
+        filterFacetFxn: filterFacetFxn
       }, {
         key: searchHref
       }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
@@ -195,5 +228,6 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
-  'separateSingleTermFacets': true
+  'separateSingleTermFacets': true,
+  'hideFacets': ["type", "validation_errors.name"]
 });
