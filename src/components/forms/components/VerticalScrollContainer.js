@@ -15,7 +15,7 @@ This component is used by:
 export class VerticalScrollContainer extends React.PureComponent {
 
     static defaultProps = {
-        'scrollRate' : 10
+        'scrollRate' : 40
     }
 
     constructor(props) {

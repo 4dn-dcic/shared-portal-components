@@ -233,7 +233,7 @@ function (_React$PureComponent) {
 exports.VerticalScrollContainer = VerticalScrollContainer;
 
 _defineProperty(VerticalScrollContainer, "defaultProps", {
-  'scrollRate': 10
+  'scrollRate': 40
 });
 
 VerticalScrollContainer.propTypes = {
