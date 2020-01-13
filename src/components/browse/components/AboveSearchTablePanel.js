@@ -188,13 +188,12 @@ const SearchHeaderSection = React.memo(function (props) {
     const title = (propTitle ? <h4 className="text-300">{propTitle}</h4> : null);
     const content = (propContent ? <BasicStaticSectionBody {...{ content: propContent, placeholderReplacementFxn }} filetype={filetype || 'txt'} /> : null);
 
-    return (
-        content ?
-            <div className="row mt-1">
-                <div className="col-12 col-lg-9 pull-right">
-                    {title}
-                    {content}
-                </div>
+    return content ? (
+        <div className="row mt-1">
+            <div className="col-12 col-lg-9 pull-right">
+                {title}
+                {content}
             </div>
-            : null);
+        </div>
+    ) : null;
 });

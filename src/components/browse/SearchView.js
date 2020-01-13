@@ -338,7 +338,9 @@ export class SearchView extends React.PureComponent {
         'isFullscreen'  : PropTypes.bool.isRequired,
         'toggleFullScreen' : PropTypes.func.isRequired,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
-        'renderDetailPane' : PropTypes.func
+        'renderDetailPane' : PropTypes.func,
+        'schemas'       : PropTypes.object,
+        'placeholderReplacementFxn' : PropTypes.func // Passed down to AboveSearchTablePanel StaticSection
     };
 
     /**

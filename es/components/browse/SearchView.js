@@ -598,7 +598,10 @@ _defineProperty(SearchView, "propTypes", {
   'isFullscreen': _propTypes["default"].bool.isRequired,
   'toggleFullScreen': _propTypes["default"].func.isRequired,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
-  'renderDetailPane': _propTypes["default"].func
+  'renderDetailPane': _propTypes["default"].func,
+  'schemas': _propTypes["default"].object,
+  'placeholderReplacementFxn': _propTypes["default"].func // Passed down to AboveSearchTablePanel StaticSection
+
 });
 
 _defineProperty(SearchView, "defaultProps", {
