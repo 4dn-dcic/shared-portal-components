@@ -86,15 +86,27 @@ function (_React$PureComponent) {
     }
   }, {
     key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps) {
+    value: function componentDidUpdate(prevProps, prevState) {
       var _this$props$items = this.props.items,
           items = _this$props$items === void 0 ? [] : _this$props$items;
+      var _this$state = this.state,
+          canScrollUp = _this$state.canScrollUp,
+          canScrollDown = _this$state.canScrollDown,
+          scrollingDirection = _this$state.scrollingDirection;
       var _prevProps$items = prevProps.items,
           prevItems = _prevProps$items === void 0 ? [] : _prevProps$items;
+      var couldScrollUp = prevState.canScrollUp,
+          couldScrollDown = prevState.canScrollDown;
 
       if (prevItems.length !== items.length) {
         this.checkForOverflow();
         this.checkForScrollPosition();
+      } else if ( // fix for this bug: https://gyazo.com/a0bc3353ddcb6066c5d494e5a7e6d837 that occurs when a button component
+      // unmounts as a result of reaching top/bottom of scroll container without calling onMouseUp (mouse is on button until unmounted)
+      (couldScrollUp && !canScrollUp || couldScrollDown && !canScrollDown) && scrollingDirection !== null) {
+        this.setState({
+          scrollingDirection: null
+        });
       }
     }
   }, {
@@ -187,10 +199,10 @@ function (_React$PureComponent) {
           items = _this$props$items2 === void 0 ? [] : _this$props$items2,
           header = _this$props.header,
           footer = _this$props.footer;
-      var _this$state = this.state,
-          hasOverflow = _this$state.hasOverflow,
-          canScrollUp = _this$state.canScrollUp,
-          canScrollDown = _this$state.canScrollDown;
+      var _this$state2 = this.state,
+          hasOverflow = _this$state2.hasOverflow,
+          canScrollUp = _this$state2.canScrollUp,
+          canScrollDown = _this$state2.canScrollDown;
       return _react["default"].createElement("div", {
         className: "vertical-scroll-container"
       }, _react["default"].createElement(_Fade.Fade, {

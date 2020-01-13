@@ -52,12 +52,20 @@ export class VerticalScrollContainer extends React.PureComponent {
         this.scrollContainer.current.addEventListener('keyup', this.checkArrowKeyScrollPosition);
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
         const { items = [] } = this.props;
+        const { canScrollUp, canScrollDown, scrollingDirection } = this.state;
         const { items : prevItems = [] } = prevProps;
+        const { canScrollUp : couldScrollUp, canScrollDown : couldScrollDown } = prevState;
         if (prevItems.length !== items.length) {
             this.checkForOverflow();
             this.checkForScrollPosition();
+        } else if (
+            // fix for this bug: https://gyazo.com/a0bc3353ddcb6066c5d494e5a7e6d837 that occurs when a button component
+            // unmounts as a result of reaching top/bottom of scroll container without calling onMouseUp (mouse is on button until unmounted)
+            (couldScrollUp && !canScrollUp || couldScrollDown && !canScrollDown ) && scrollingDirection !== null
+        ) {
+            this.setState({ scrollingDirection : null });
         }
     }
 
