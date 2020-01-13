@@ -563,18 +563,14 @@ function (_React$PureComponent3) {
       var _this$props5 = this.props,
           propFacets = _this$props5.facets,
           propNavigate = _this$props5.navigate,
-          href = _this$props5.href,
           context = _this$props5.context,
-          schemas = _this$props5.schemas,
           placeholderReplacementFxn = _this$props5.placeholderReplacementFxn;
       var searchItemType = (0, _schemaTransforms.getSchemaTypeFromSearchContext)(context);
       return _react["default"].createElement("div", {
         className: "search-page-container",
         "data-search-item-type": searchItemType
       }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
-        href: href,
         context: context,
-        schemas: schemas,
         placeholderReplacementFxn: placeholderReplacementFxn
       }), _react["default"].createElement(SearchControllersContainer, _extends({}, this.props, {
         facets: propFacets || context.facets,
