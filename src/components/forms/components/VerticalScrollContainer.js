@@ -40,6 +40,7 @@ export class VerticalScrollContainer extends React.PureComponent {
 
         this.debounceCheckforOverflow = debounce(this.checkForOverflow, 500, true);
         this.debounceCheckForScrollPosition = debounce(this.checkForScrollPosition, 100, false);
+        this.debounceCheckForScrollPositionImmediate = debounce(this.checkForScrollPosition, 100, true);
     }
 
     componentDidMount() {
@@ -127,7 +128,7 @@ export class VerticalScrollContainer extends React.PureComponent {
             <div className="vertical-scroll-container">
                 <Fade in={hasOverflow && canScrollUp} timeout="500" mountOnEnter={true} unmountOnExit={true}>
                     <button type="button" className="button-scroll arrow-up d-block text-center w-100"
-                        onMouseDown={this.onMouseDownScrollUp} onMouseUp={this.onMouseUp} disabled={!canScrollUp}>
+                        onMouseOver={this.onMouseDownScrollUp} onMouseOut={this.onMouseUp} disabled={!canScrollUp}>
                         <i className="icon fas icon-angle-up"></i>
                     </button>
                 </Fade>
@@ -140,7 +141,7 @@ export class VerticalScrollContainer extends React.PureComponent {
                 </div>
                 <Fade in={hasOverflow && canScrollDown} timeout="500" mountOnEnter={true} unmountOnExit={true}>
                     <button type="button" className="button-scroll arrow-down d-block text-center w-100"
-                        onMouseDown={this.onMouseDownScrollDown} onMouseUp={this.onMouseUp} disabled={!canScrollDown}>
+                        onMouseOver={this.onMouseDownScrollDown} onMouseOut={this.onMouseUp} disabled={!canScrollDown}>
                         <i className="icon fas icon-angle-down"></i>
                     </button>
                 </Fade>

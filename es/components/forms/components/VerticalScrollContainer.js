@@ -71,6 +71,7 @@ function (_React$PureComponent) {
     _this.checkArrowKeyScrollPosition = _this.checkArrowKeyScrollPosition.bind(_assertThisInitialized(_this));
     _this.debounceCheckforOverflow = (0, _underscore.debounce)(_this.checkForOverflow, 500, true);
     _this.debounceCheckForScrollPosition = (0, _underscore.debounce)(_this.checkForScrollPosition, 100, false);
+    _this.debounceCheckForScrollPositionImmediate = (0, _underscore.debounce)(_this.checkForScrollPosition, 100, true);
     return _this;
   }
 
@@ -200,8 +201,8 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("button", {
         type: "button",
         className: "button-scroll arrow-up d-block text-center w-100",
-        onMouseDown: this.onMouseDownScrollUp,
-        onMouseUp: this.onMouseUp,
+        onMouseOver: this.onMouseDownScrollUp,
+        onMouseOut: this.onMouseUp,
         disabled: !canScrollUp
       }, _react["default"].createElement("i", {
         className: "icon fas icon-angle-up"
@@ -218,8 +219,8 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("button", {
         type: "button",
         className: "button-scroll arrow-down d-block text-center w-100",
-        onMouseDown: this.onMouseDownScrollDown,
-        onMouseUp: this.onMouseUp,
+        onMouseOver: this.onMouseDownScrollDown,
+        onMouseOut: this.onMouseUp,
         disabled: !canScrollDown
       }, _react["default"].createElement("i", {
         className: "icon fas icon-angle-down"
