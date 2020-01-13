@@ -30,10 +30,13 @@ export class VerticalScrollContainer extends React.PureComponent {
 
         this.scrollContainer = React.createRef();
 
-        this.onMouseDownScrollUp = this.onMouseDownScrollUp.bind(this);
-        this.onMouseDownScrollDown = this.onMouseDownScrollDown.bind(this);
+        this.onMouseDownJumpToTop = this.onMouseDownJumpToTop.bind(this);
+        this.onMouseDownJumpToBottom = this.onMouseDownJumpToBottom.bind(this);
+        this.onMouseOverScrollDown = this.onMouseOverScrollDown.bind(this);
+        this.onMouseOverScrollUp = this.onMouseOverScrollUp.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.performScrollAction = this.performScrollAction.bind(this);
+        this.performJumpToAction = this.performJumpToAction.bind(this);
         this.checkForOverflow = this.checkForOverflow.bind(this);
         this.checkForScrollPosition = this.checkForScrollPosition.bind(this);
         this.checkArrowKeyScrollPosition = this.checkArrowKeyScrollPosition.bind(this);
@@ -99,19 +102,45 @@ export class VerticalScrollContainer extends React.PureComponent {
         this.setState({ hasOverflow });
     }
 
-    onMouseDownScrollUp(){
+    onMouseOverScrollUp(){
         this.setState({ scrollingDirection : -1 }, () => {
             raf(this.performScrollAction);
         });
     }
 
-    onMouseDownScrollDown(){
+    onMouseDownJumpToTop(){
+        this.setState({ scrollingDirection : -1 }, () => {
+            raf(this.performJumpToAction);
+        });
+    }
+
+    onMouseOverScrollDown(){
         this.setState({ scrollingDirection : 1 }, () => {
             raf(this.performScrollAction);
         });
     }
 
+    onMouseDownJumpToBottom(){
+        this.setState({ scrollingDirection : 1 }, () => {
+            raf(this.performJumpToAction);
+        });
+    }
+
     onMouseUp(){
+        this.setState({ scrollingDirection : null });
+        this.checkForScrollPosition();
+    }
+
+    performJumpToAction() {
+        const { scrollingDirection = null } = this.state;
+        const scrollableHeight =  this.scrollContainer.current.scrollHeight;
+
+        const scrollSettings = { behavior: 'smooth', top: scrollableHeight * scrollingDirection };
+
+        if (scrollingDirection === null) return false;
+
+        this.scrollContainer.current.scrollBy(scrollSettings);
+
         this.setState({ scrollingDirection : null });
         this.checkForScrollPosition();
     }
@@ -136,7 +165,8 @@ export class VerticalScrollContainer extends React.PureComponent {
             <div className="vertical-scroll-container">
                 <Fade in={hasOverflow && canScrollUp} timeout="500" mountOnEnter={true} unmountOnExit={true}>
                     <button type="button" className="button-scroll arrow-up d-block text-center w-100"
-                        onMouseOver={this.onMouseDownScrollUp} onMouseOut={this.onMouseUp} disabled={!canScrollUp}>
+                        onClick={this.onMouseDownJumpToTop} disabled={!canScrollUp}
+                        onMouseOver={this.onMouseOverScrollUp} onMouseOut={this.onMouseUp}>
                         <i className="icon fas icon-angle-up"></i>
                     </button>
                 </Fade>
@@ -149,7 +179,8 @@ export class VerticalScrollContainer extends React.PureComponent {
                 </div>
                 <Fade in={hasOverflow && canScrollDown} timeout="500" mountOnEnter={true} unmountOnExit={true}>
                     <button type="button" className="button-scroll arrow-down d-block text-center w-100"
-                        onMouseOver={this.onMouseDownScrollDown} onMouseOut={this.onMouseUp} disabled={!canScrollDown}>
+                        onClick={this.onMouseDownJumpToBottom} disabled={!canScrollDown}
+                        onMouseOver={this.onMouseOverScrollDown} onMouseOut={this.onMouseUp}>
                         <i className="icon fas icon-angle-down"></i>
                     </button>
                 </Fade>

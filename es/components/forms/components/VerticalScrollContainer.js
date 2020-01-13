@@ -62,10 +62,13 @@ function (_React$PureComponent) {
       scrollingDirection: null
     };
     _this.scrollContainer = _react["default"].createRef();
-    _this.onMouseDownScrollUp = _this.onMouseDownScrollUp.bind(_assertThisInitialized(_this));
-    _this.onMouseDownScrollDown = _this.onMouseDownScrollDown.bind(_assertThisInitialized(_this));
+    _this.onMouseDownJumpToTop = _this.onMouseDownJumpToTop.bind(_assertThisInitialized(_this));
+    _this.onMouseDownJumpToBottom = _this.onMouseDownJumpToBottom.bind(_assertThisInitialized(_this));
+    _this.onMouseOverScrollDown = _this.onMouseOverScrollDown.bind(_assertThisInitialized(_this));
+    _this.onMouseOverScrollUp = _this.onMouseOverScrollUp.bind(_assertThisInitialized(_this));
     _this.onMouseUp = _this.onMouseUp.bind(_assertThisInitialized(_this));
     _this.performScrollAction = _this.performScrollAction.bind(_assertThisInitialized(_this));
+    _this.performJumpToAction = _this.performJumpToAction.bind(_assertThisInitialized(_this));
     _this.checkForOverflow = _this.checkForOverflow.bind(_assertThisInitialized(_this));
     _this.checkForScrollPosition = _this.checkForScrollPosition.bind(_assertThisInitialized(_this));
     _this.checkArrowKeyScrollPosition = _this.checkArrowKeyScrollPosition.bind(_assertThisInitialized(_this));
@@ -149,8 +152,8 @@ function (_React$PureComponent) {
       });
     }
   }, {
-    key: "onMouseDownScrollUp",
-    value: function onMouseDownScrollUp() {
+    key: "onMouseOverScrollUp",
+    value: function onMouseOverScrollUp() {
       var _this2 = this;
 
       this.setState({
@@ -160,14 +163,36 @@ function (_React$PureComponent) {
       });
     }
   }, {
-    key: "onMouseDownScrollDown",
-    value: function onMouseDownScrollDown() {
+    key: "onMouseDownJumpToTop",
+    value: function onMouseDownJumpToTop() {
       var _this3 = this;
+
+      this.setState({
+        scrollingDirection: -1
+      }, function () {
+        (0, _utilities.requestAnimationFrame)(_this3.performJumpToAction);
+      });
+    }
+  }, {
+    key: "onMouseOverScrollDown",
+    value: function onMouseOverScrollDown() {
+      var _this4 = this;
 
       this.setState({
         scrollingDirection: 1
       }, function () {
-        (0, _utilities.requestAnimationFrame)(_this3.performScrollAction);
+        (0, _utilities.requestAnimationFrame)(_this4.performScrollAction);
+      });
+    }
+  }, {
+    key: "onMouseDownJumpToBottom",
+    value: function onMouseDownJumpToBottom() {
+      var _this5 = this;
+
+      this.setState({
+        scrollingDirection: 1
+      }, function () {
+        (0, _utilities.requestAnimationFrame)(_this5.performJumpToAction);
       });
     }
   }, {
@@ -179,11 +204,27 @@ function (_React$PureComponent) {
       this.checkForScrollPosition();
     }
   }, {
+    key: "performJumpToAction",
+    value: function performJumpToAction() {
+      var _this$state$scrolling = this.state.scrollingDirection,
+          scrollingDirection = _this$state$scrolling === void 0 ? null : _this$state$scrolling;
+      var scrollableHeight = this.scrollContainer.current.scrollHeight;
+      if (scrollingDirection === null) return false;
+      this.scrollContainer.current.scrollBy({
+        behavior: 'smooth',
+        top: scrollableHeight * scrollingDirection
+      });
+      this.setState({
+        scrollingDirection: null
+      });
+      this.checkForScrollPosition();
+    }
+  }, {
     key: "performScrollAction",
     value: function performScrollAction() {
       var scrollRate = this.props.scrollRate;
-      var _this$state$scrolling = this.state.scrollingDirection,
-          scrollingDirection = _this$state$scrolling === void 0 ? null : _this$state$scrolling;
+      var _this$state$scrolling2 = this.state.scrollingDirection,
+          scrollingDirection = _this$state$scrolling2 === void 0 ? null : _this$state$scrolling2;
       if (scrollingDirection === null) return false;
       this.scrollContainer.current.scrollBy({
         behavior: 'smooth',
@@ -213,9 +254,10 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("button", {
         type: "button",
         className: "button-scroll arrow-up d-block text-center w-100",
-        onMouseOver: this.onMouseDownScrollUp,
-        onMouseOut: this.onMouseUp,
-        disabled: !canScrollUp
+        onClick: this.onMouseDownJumpToTop,
+        disabled: !canScrollUp,
+        onMouseOver: this.onMouseOverScrollUp,
+        onMouseOut: this.onMouseUp
       }, _react["default"].createElement("i", {
         className: "icon fas icon-angle-up"
       }))), _react["default"].createElement("div", {
@@ -231,9 +273,10 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("button", {
         type: "button",
         className: "button-scroll arrow-down d-block text-center w-100",
-        onMouseOver: this.onMouseDownScrollDown,
-        onMouseOut: this.onMouseUp,
-        disabled: !canScrollDown
+        onClick: this.onMouseDownJumpToBottom,
+        disabled: !canScrollDown,
+        onMouseOver: this.onMouseOverScrollDown,
+        onMouseOut: this.onMouseUp
       }, _react["default"].createElement("i", {
         className: "icon fas icon-angle-down"
       }))));
