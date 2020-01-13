@@ -167,13 +167,14 @@ function (_React$PureComponent) {
     }
   }, {
     key: "performScrollAction",
-    value: function performScrollAction(scrollNum) {
+    value: function performScrollAction() {
+      var scrollRate = this.props.scrollRate;
       var _this$state$scrolling = this.state.scrollingDirection,
           scrollingDirection = _this$state$scrolling === void 0 ? null : _this$state$scrolling;
       if (scrollingDirection === null) return false;
       this.scrollContainer.current.scrollBy({
         behavior: 'smooth',
-        top: scrollNum * scrollingDirection
+        top: scrollRate * scrollingDirection
       });
       (0, _utilities.requestAnimationFrame)(this.performScrollAction);
     }

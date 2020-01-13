@@ -107,9 +107,10 @@ export class VerticalScrollContainer extends React.PureComponent {
         this.checkForScrollPosition();
     }
 
-    performScrollAction(scrollNum) {
+    performScrollAction() {
+        const { scrollRate } = this.props;
         const { scrollingDirection = null } = this.state;
-        const scrollSettings = { behavior: 'smooth', top: scrollNum * scrollingDirection };
+        const scrollSettings = { behavior: 'smooth', top: scrollRate * scrollingDirection };
 
         if (scrollingDirection === null) return false;
 
