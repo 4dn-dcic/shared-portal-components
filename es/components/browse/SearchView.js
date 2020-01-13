@@ -136,7 +136,8 @@ function (_React$PureComponent) {
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap"]);
+          placeholderReplacementFxn = _this$props.placeholderReplacementFxn,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn"]);
 
       var contextFacets = context.facets; // All these controllers pass props down to their children.
       // So we don't need to be repetitive here; i.e. may assume 'context' is available
@@ -175,9 +176,8 @@ function (_React$PureComponent) {
       return _react["default"].createElement("div", {
         className: "search-page-container"
       }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
-        href: href,
         context: context,
-        schemas: schemas
+        placeholderReplacementFxn: placeholderReplacementFxn
       }), controllersAndView);
     }
   }]);
@@ -195,13 +195,15 @@ _defineProperty(SearchView, "propTypes", {
   'href': _propTypes["default"].string.isRequired,
   'session': _propTypes["default"].bool.isRequired,
   'navigate': _propTypes["default"].func,
-  'schemas': _propTypes["default"].object,
   'facets': _propTypes["default"].array,
   'isFullscreen': _propTypes["default"].bool.isRequired,
   'toggleFullScreen': _propTypes["default"].func.isRequired,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
-  'isOwnPage': _propTypes["default"].bool
+  'isOwnPage': _propTypes["default"].bool,
+  'schemas': _propTypes["default"].object,
+  'placeholderReplacementFxn': _propTypes["default"].func // Passed down to AboveSearchTablePanel StaticSection
+
 });
 
 _defineProperty(SearchView, "defaultProps", {

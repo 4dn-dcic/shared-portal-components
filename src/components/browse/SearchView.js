@@ -32,13 +32,14 @@ export class SearchView extends React.PureComponent {
         'href'          : PropTypes.string.isRequired,
         'session'       : PropTypes.bool.isRequired,
         'navigate'      : PropTypes.func,
-        'schemas'       : PropTypes.object,
         'facets'        : PropTypes.array,
         'isFullscreen'  : PropTypes.bool.isRequired,
         'toggleFullScreen' : PropTypes.func.isRequired,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
-        'isOwnPage'     : PropTypes.bool
+        'isOwnPage'     : PropTypes.bool,
+        'schemas'       : PropTypes.object,
+        'placeholderReplacementFxn' : PropTypes.func // Passed down to AboveSearchTablePanel StaticSection
     };
 
     /**
@@ -77,6 +78,7 @@ export class SearchView extends React.PureComponent {
             navigate: propNavigate = navigate,
             columns = null,
             columnExtensionMap = basicColumnExtensionMap,
+            placeholderReplacementFxn,
             //isOwnPage = true,
             ...passProps
         } = this.props;
@@ -123,7 +125,7 @@ export class SearchView extends React.PureComponent {
 
         return (
             <div className="search-page-container">
-                <AboveSearchTablePanel {...{ href, context, schemas }} />
+                <AboveSearchTablePanel {...{ context, placeholderReplacementFxn }} />
                 { controllersAndView }
             </div>
         );
