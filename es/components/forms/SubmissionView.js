@@ -52,6 +52,10 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -350,8 +354,7 @@ function (_React$PureComponent) {
           create = _this$state.create;
       var keyContext = {};
       var contextID = _util.object.itemUtil.atId(context) || null;
-
-      var parsedHref = _url["default"].parse(href, true);
+      var parsedHref = (0, _util.memoizedUrlParse)(href);
 
       var _context$Type = _slicedToArray(context['@type'], 1),
           principalType = _context$Type[0];
@@ -497,7 +500,7 @@ function (_React$PureComponent) {
       // given type. let the user choose one.
 
 
-      if (itemTypeHierarchy[ambiguousType] && !init) {
+      if ((ambiguousType === "Item" || itemTypeHierarchy[ambiguousType]) && !init) {
         // ambiguous linkTo type found
         this.setState({
           ambiguousType: ambiguousType,
@@ -1487,10 +1490,12 @@ function (_React$PureComponent) {
                 // add important info to result from finalizedContext
                 // that is not added from /types/file.py get_upload
                 var creds = responseData.upload_credentials;
-
-                require.ensure(['../util/aws'], function (require) {
-                  var awsUtil = require('../util/aws'),
-                      upload_manager = awsUtil.s3UploadFile(file, creds);
+                Promise.resolve().then(function () {
+                  return _interopRequireWildcard(require('../util/aws'));
+                }).then(function (_ref6) {
+                  var s3UploadFile = _ref6.s3UploadFile;
+                  //const awsUtil = require('../util/aws');
+                  var upload_manager = s3UploadFile(file, creds);
 
                   if (upload_manager === null) {
                     // bad upload manager. Cause an alert
@@ -1506,7 +1511,7 @@ function (_React$PureComponent) {
 
                     _this6.updateUpload(upload_manager);
                   }
-                }, "aws-utils-bundle");
+                });
               } else {
                 // state cleanup for this key
                 _this6.finishRoundTwo();
@@ -1614,11 +1619,11 @@ function (_React$PureComponent) {
     value: function finishRoundTwo() {
       var _this7 = this;
 
-      this.setState(function (_ref6) {
-        var currKey = _ref6.currKey,
-            keyValid = _ref6.keyValid,
-            _ref6$roundTwoKeys = _ref6.roundTwoKeys,
-            roundTwoKeys = _ref6$roundTwoKeys === void 0 ? [] : _ref6$roundTwoKeys;
+      this.setState(function (_ref7) {
+        var currKey = _ref7.currKey,
+            keyValid = _ref7.keyValid,
+            _ref7$roundTwoKeys = _ref7.roundTwoKeys,
+            roundTwoKeys = _ref7$roundTwoKeys === void 0 ? [] : _ref7$roundTwoKeys;
 
         var validationCopy = _underscore["default"].clone(keyValid);
 
@@ -1661,21 +1666,21 @@ function (_React$PureComponent) {
   }, {
     key: "cancelCreateNewObject",
     value: function cancelCreateNewObject() {
-      this.setState(function (_ref7) {
-        var creatingIdx = _ref7.creatingIdx,
-            keyContext = _ref7.keyContext,
-            currKey = _ref7.currKey,
-            creatingLinkForField = _ref7.creatingLinkForField;
+      this.setState(function (_ref8) {
+        var creatingIdx = _ref8.creatingIdx,
+            keyContext = _ref8.keyContext,
+            currKey = _ref8.currKey,
+            creatingLinkForField = _ref8.creatingLinkForField;
         if (!creatingIdx) return null;
 
         var nextKeyContext = _underscore["default"].clone(keyContext);
 
         var currentContextPointer = nextKeyContext[currKey];
 
-        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref8) {
-          var _ref9 = _slicedToArray(_ref8, 2),
-              field = _ref9[0],
-              idx = _ref9[1];
+        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref9) {
+          var _ref10 = _slicedToArray(_ref9, 2),
+              field = _ref10[0],
+              idx = _ref10[1];
 
           if (field === (typeof creatingLinkForField === 'string' && creatingLinkForField)) {
             // Unset value to null
@@ -1727,7 +1732,7 @@ function (_React$PureComponent) {
         if (callbackHref) {
           nextURI = callbackHref;
         } else {
-          var parts = _url["default"].parse(href, true);
+          var parts = _underscore["default"].clone((0, _util.memoizedUrlParse)(href));
 
           var modifiedQuery = _underscore["default"].omit(parts.query, 'currentAction');
 
@@ -2105,8 +2110,8 @@ function (_React$PureComponent2) {
     key: "toggleOpen",
     value: function toggleOpen(e) {
       e.preventDefault();
-      this.setState(function (_ref10) {
-        var open = _ref10.open;
+      this.setState(function (_ref11) {
+        var open = _ref11.open;
         return {
           'open': !open
         };
@@ -2259,6 +2264,16 @@ function (_React$Component) {
 
       var itemTypeHierarchy = _util.schemaTransforms.schemasToItemTypeHierarchy(schemas);
 
+      var specificItemTypeOptions = null;
+
+      if (ambiguousType === "Item") {
+        specificItemTypeOptions = _underscore["default"].keys(schemas).filter(function (itemType) {
+          return !schemas[itemType].isAbstract;
+        });
+      } else if (ambiguousType !== null) {
+        specificItemTypeOptions = _underscore["default"].keys(itemTypeHierarchy[ambiguousType]);
+      }
+
       var ambiguousDescrip = null;
 
       if (ambiguousSelected !== null && schemas[ambiguousSelected].description) {
@@ -2269,16 +2284,16 @@ function (_React$Component) {
         show: true,
         onHide: this.onHide,
         className: "submission-view-modal"
-      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, null, 'Multiple object types found for your new ' + ambiguousType)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
+      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, {
+        className: "text-500"
+      }, "Multiple instantiable types found for your new ", _react["default"].createElement("strong", null, ambiguousType))), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
         onKeyDown: this.onContainerKeyDown.bind(this, submitAmbiguousType)
-      }, _react["default"].createElement("p", null, "Please select a specific object type from the menu below."), _react["default"].createElement("div", {
+      }, _react["default"].createElement("p", null, "Please select a specific Item type from the menu below."), _react["default"].createElement("div", {
         className: "input-wrapper mb-15"
       }, _react["default"].createElement(_DropdownButton.DropdownButton, {
         id: "dropdown-type-select",
         title: ambiguousSelected || "No value"
-      }, ambiguousType !== null ? _underscore["default"].map(_underscore["default"].keys(itemTypeHierarchy[ambiguousType]), function (val) {
-        return buildAmbiguousEnumEntry(val);
-      }) : null)), ambiguousDescrip ? _react["default"].createElement("div", {
+      }, specificItemTypeOptions.map(buildAmbiguousEnumEntry))), ambiguousDescrip ? _react["default"].createElement("div", {
         className: "mb-15 mt-15"
       }, _react["default"].createElement("h5", {
         className: "text-500 mb-02"
@@ -2884,8 +2899,8 @@ function (_React$PureComponent3) {
     key: "handleToggle",
     value: function handleToggle(e) {
       e.preventDefault();
-      this.setState(function (_ref11) {
-        var open = _ref11.open;
+      this.setState(function (_ref12) {
+        var open = _ref12.open;
         return {
           'open': !open
         };

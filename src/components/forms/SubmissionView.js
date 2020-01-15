@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import { Modal } from 'react-bootstrap';
 import ReactTooltip from 'react-tooltip';
 
-import { ajax, console, JWT, object, layout, schemaTransforms } from './../util';
+import { ajax, console, JWT, object, layout, schemaTransforms, memoizedUrlParse } from './../util';
 import { DropdownButton, DropdownItem } from './components/DropdownButton';
 import { Collapse } from './../ui/Collapse';
 import { Alerts } from './../ui/Alerts';
@@ -234,7 +234,7 @@ export default class SubmissionView extends React.PureComponent{
 
         const keyContext = {};
         const contextID = object.itemUtil.atId(context) || null;
-        const parsedHref = url.parse(href, true);
+        const parsedHref = memoizedUrlParse(href);
         let [ principalType ] = context['@type'];
 
         const searchViewTypeMatch = principalType.match(/^(\w+)(SearchResults)$/); // Returns null or [ "ItemTypeSearchResults", "ItemType", "SearchResults" ]
@@ -348,7 +348,7 @@ export default class SubmissionView extends React.PureComponent{
         // check to see if we have an ambiguous linkTo type.
         // this means there could be multiple types of linked objects for a
         // given type. let the user choose one.
-        if (itemTypeHierarchy[ambiguousType] && !init){
+        if ((ambiguousType === "Item" || itemTypeHierarchy[ambiguousType]) && !init){
             // ambiguous linkTo type found
             this.setState({
                 ambiguousType,
@@ -413,7 +413,7 @@ export default class SubmissionView extends React.PureComponent{
     }
 
     /** Simple function to generate enum entries for ambiguous types */
-    buildAmbiguousEnumEntry(val){
+    buildAmbiguousEnumEntry(val, idx, all){
         return(
             <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.handleTypeSelection}>
                 {val || ''}
@@ -1103,14 +1103,18 @@ export default class SubmissionView extends React.PureComponent{
                     if (roundTwo){
                         // there is a file
                         if (file && responseData.upload_credentials){
+
                             // add important info to result from finalizedContext
                             // that is not added from /types/file.py get_upload
-                            var creds = responseData.upload_credentials;
+                            const creds = responseData.upload_credentials;
 
-                            require.ensure(['../util/aws'], (require)=>{
-
-                                var awsUtil = require('../util/aws'),
-                                    upload_manager = awsUtil.s3UploadFile(file, creds);
+                            import(
+                                /* webpackChunkName: "aws-utils" */
+                                /* webpackMode: "lazy" */
+                                '../util/aws'
+                            ).then(({ s3UploadFile })=>{
+                                //const awsUtil = require('../util/aws');
+                                const upload_manager = s3UploadFile(file, creds);
 
                                 if (upload_manager === null){
                                     // bad upload manager. Cause an alert
@@ -1124,7 +1128,7 @@ export default class SubmissionView extends React.PureComponent{
                                     this.setState(stateToSet);
                                     this.updateUpload(upload_manager);
                                 }
-                            }, "aws-utils-bundle");
+                            });
 
                         } else {
                             // state cleanup for this key
@@ -1292,7 +1296,7 @@ export default class SubmissionView extends React.PureComponent{
             if (callbackHref) {
                 nextURI = callbackHref;
             } else {
-                const parts = url.parse(href, true);
+                const parts = _.clone(memoizedUrlParse(href));
                 const modifiedQuery = _.omit(parts.query, 'currentAction');
                 const modifiedSearch = queryString.stringify(modifiedQuery);
 
@@ -1658,6 +1662,17 @@ class TypeSelectModal extends React.Component {
         if (!show) return null;
 
         const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
+
+        let specificItemTypeOptions = null;
+
+        if (ambiguousType === "Item"){
+            specificItemTypeOptions = _.keys(schemas).filter(function(itemType){
+                return !(schemas[itemType].isAbstract);
+            });
+        } else if (ambiguousType !== null) {
+            specificItemTypeOptions = _.keys(itemTypeHierarchy[ambiguousType]);
+        }
+
         let ambiguousDescrip = null;
         if (ambiguousSelected !== null && schemas[ambiguousSelected].description){
             ambiguousDescrip = schemas[ambiguousSelected].description;
@@ -1665,17 +1680,16 @@ class TypeSelectModal extends React.Component {
         return (
             <Modal show onHide={this.onHide} className="submission-view-modal">
                 <Modal.Header>
-                    <Modal.Title>{'Multiple object types found for your new ' + ambiguousType}</Modal.Title>
+                    <Modal.Title className="text-500">
+                        Multiple instantiable types found for your new <strong>{ ambiguousType }</strong>
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div onKeyDown={this.onContainerKeyDown.bind(this, submitAmbiguousType)}>
-                        <p>Please select a specific object type from the menu below.</p>
+                        <p>Please select a specific Item type from the menu below.</p>
                         <div className="input-wrapper mb-15">
                             <DropdownButton id="dropdown-type-select" title={ambiguousSelected || "No value"}>
-                                { ambiguousType !== null ?
-                                    _.map(_.keys(itemTypeHierarchy[ambiguousType]), (val) => buildAmbiguousEnumEntry(val) )
-                                    : null
-                                }
+                                { specificItemTypeOptions.map(buildAmbiguousEnumEntry) }
                             </DropdownButton>
                         </div>
                         { ambiguousDescrip ?
