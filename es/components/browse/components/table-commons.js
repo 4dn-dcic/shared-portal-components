@@ -167,7 +167,6 @@ var basicColumnExtensionMap = {
       if (!Array.isArray(result['@type'])) return null;
       var leafItemType = (0, _schemaTransforms.getItemType)(result);
       var itemTypeTitle = (0, _schemaTransforms.getTitleForType)(leafItemType, props.schemas || null);
-      console.log("ABCD", result, props);
       return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         className: "icon-container"
       }, _react["default"].createElement("i", {

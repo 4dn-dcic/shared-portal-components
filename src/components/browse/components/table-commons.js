@@ -81,9 +81,6 @@ export const basicColumnExtensionMap = {
             if (!Array.isArray(result['@type'])) return null;
             const leafItemType = getItemType(result);
             const itemTypeTitle = getTitleForType(leafItemType, props.schemas || null);
-
-            console.log("ABCD", result, props);
-
             const onClick = function(e){
                 // Preserve search query, if any, but remove filters (which are usually per-type).
                 if (!props.href || props.href.indexOf('/search/') === -1) return;
