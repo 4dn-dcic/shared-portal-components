@@ -963,6 +963,37 @@ function (_React$PureComponent2) {
 
       return _react["default"].createElement("span", null, item); // Fallback
     }
+  }, {
+    key: "columnDefinitions",
+    value: function columnDefinitions(context, schemas, columnDefinitionMap) {
+      var colDefsFromSchema = (0, _schemaTransforms.flattenSchemaPropertyToColumnDefinition)(schemas ? (0, _object.tipsFromSchema)(schemas, context) : {}, 0, schemas);
+      return _underscore["default"].extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
+    }
+  }, {
+    key: "generatedKeysLists",
+    value: function generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys) {
+      var sortKeys = _underscore["default"].difference(_underscore["default"].keys(context).sort(), excludedKeys.sort()); // Sort applicable persistent keys by original persistent keys sort order.
+
+
+      var stickyKeysObj = _underscore["default"].object(_underscore["default"].intersection(sortKeys, stickyKeys.slice(0).sort()).map(function (key) {
+        return [key, true];
+      }));
+
+      var orderedStickyKeys = [];
+      stickyKeys.forEach(function (key) {
+        if (stickyKeysObj[key] === true) orderedStickyKeys.push(key);
+      });
+
+      var extraKeys = _underscore["default"].difference(sortKeys, stickyKeys.slice(0).sort());
+
+      var collapsibleKeys = _underscore["default"].intersection(extraKeys.sort(), alwaysCollapsibleKeys.slice(0).sort());
+
+      extraKeys = _underscore["default"].difference(extraKeys, collapsibleKeys);
+      return {
+        'persistentKeys': orderedStickyKeys.concat(extraKeys),
+        'collapsibleKeys': collapsibleKeys
+      };
+    }
   }]);
 
   function Detail(props) {
@@ -972,6 +1003,10 @@ function (_React$PureComponent2) {
 
     _this4 = _possibleConstructorReturn(this, _getPrototypeOf(Detail).call(this, props));
     _this4.renderDetailRow = _this4.renderDetailRow.bind(_assertThisInitialized(_this4));
+    _this4.memoized = {
+      columnDefinitions: (0, _memoizeOne["default"])(Detail.columnDefinitions),
+      generatedKeysLists: (0, _memoizeOne["default"])(Detail.generatedKeysLists)
+    };
     return _this4;
   }
 
@@ -982,9 +1017,9 @@ function (_React$PureComponent2) {
           context = _this$props3.context,
           popLink = _this$props3.popLink,
           schemas = _this$props3.schemas,
-          columnDefinitionMap = _this$props3.columnDefinitionMap,
+          columnDefinitions = _this$props3.columnDefinitions,
           termTransformFxn = _this$props3.termTransformFxn;
-      var colDefs = Detail.columnDefinitions(context, schemas, columnDefinitionMap);
+      var colDefs = this.memoized.columnDefinitions(context, schemas, columnDefinitions);
       return _react["default"].createElement(DetailRow, {
         key: key,
         label: Detail.formKey(colDefs, key),
@@ -1007,9 +1042,9 @@ function (_React$PureComponent2) {
           alwaysCollapsibleKeys = _this$props4.alwaysCollapsibleKeys,
           open = _this$props4.open;
 
-      var _Detail$generatedKeys = Detail.generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys),
-          persistentKeys = _Detail$generatedKeys.persistentKeys,
-          collapsibleKeys = _Detail$generatedKeys.collapsibleKeys;
+      var _this$memoized$genera = this.memoized.generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys),
+          persistentKeys = _this$memoized$genera.persistentKeys,
+          collapsibleKeys = _this$memoized$genera.collapsibleKeys;
 
       return _react["default"].createElement("div", {
         className: "overflow-hidden"
@@ -1096,35 +1131,6 @@ _defineProperty(Detail, "defaultProps", {
     return term;
   }
 });
-
-_defineProperty(Detail, "columnDefinitions", (0, _memoizeOne["default"])(function (context, schemas, columnDefinitionMap) {
-  var colDefsFromSchema = (0, _schemaTransforms.flattenSchemaPropertyToColumnDefinition)(schemas ? (0, _object.tipsFromSchema)(schemas, context) : {}, 0, schemas);
-  return _underscore["default"].extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
-}));
-
-_defineProperty(Detail, "generatedKeysLists", (0, _memoizeOne["default"])(function (context, excludedKeys, stickyKeys, alwaysCollapsibleKeys) {
-  var sortKeys = _underscore["default"].difference(_underscore["default"].keys(context).sort(), excludedKeys.sort()); // Sort applicable persistent keys by original persistent keys sort order.
-
-
-  var stickyKeysObj = _underscore["default"].object(_underscore["default"].intersection(sortKeys, stickyKeys.slice(0).sort()).map(function (key) {
-    return [key, true];
-  }));
-
-  var orderedStickyKeys = [];
-  stickyKeys.forEach(function (key) {
-    if (stickyKeysObj[key] === true) orderedStickyKeys.push(key);
-  });
-
-  var extraKeys = _underscore["default"].difference(sortKeys, stickyKeys.slice(0).sort());
-
-  var collapsibleKeys = _underscore["default"].intersection(extraKeys.sort(), alwaysCollapsibleKeys.slice(0).sort());
-
-  extraKeys = _underscore["default"].difference(extraKeys, collapsibleKeys);
-  return {
-    'persistentKeys': orderedStickyKeys.concat(extraKeys),
-    'collapsibleKeys': collapsibleKeys
-  };
-}));
 
 var ToggleJSONButton = _react["default"].memo(function (_ref3) {
   var onClick = _ref3.onClick,
@@ -1260,7 +1266,7 @@ function (_React$PureComponent3) {
           showingJSON: showingJSON
         }))));
       } else {
-        var colDefs = _underscore["default"].extend({}, keyTitleDescriptionMap || {}, columnDefinitionMap || {});
+        var colDefs = _underscore["default"].extend({}, columnDefinitionMap || {}, keyTitleDescriptionMap || {});
 
         var isCollapsed;
         if (typeof propCollapsed === 'boolean') isCollapsed = propCollapsed;else isCollapsed = collapsed;

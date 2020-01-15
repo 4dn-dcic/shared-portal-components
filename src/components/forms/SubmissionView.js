@@ -348,7 +348,7 @@ export default class SubmissionView extends React.PureComponent{
         // check to see if we have an ambiguous linkTo type.
         // this means there could be multiple types of linked objects for a
         // given type. let the user choose one.
-        if (itemTypeHierarchy[ambiguousType] && !init){
+        if ((ambiguousType === "Item" || itemTypeHierarchy[ambiguousType]) && !init){
             // ambiguous linkTo type found
             this.setState({
                 ambiguousType,
@@ -413,7 +413,7 @@ export default class SubmissionView extends React.PureComponent{
     }
 
     /** Simple function to generate enum entries for ambiguous types */
-    buildAmbiguousEnumEntry(val){
+    buildAmbiguousEnumEntry(val, idx, all){
         return(
             <DropdownItem key={val} title={val || ''} eventKey={val} onSelect={this.handleTypeSelection}>
                 {val || ''}
@@ -1130,25 +1130,6 @@ export default class SubmissionView extends React.PureComponent{
                                 }
                             });
 
-                            // require.ensure(['../util/aws'], (require)=>{
-
-                            //     const awsUtil = require('../util/aws');
-                            //     const upload_manager = awsUtil.s3UploadFile(file, creds);
-
-                            //     if (upload_manager === null){
-                            //         // bad upload manager. Cause an alert
-                            //         alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
-                            //     } else {
-                            //         // this will set off a chain of aync events.
-                            //         // first, md5 will be calculated and then the
-                            //         // file will be uploaded to s3. If all of this
-                            //         // is succesful, call finishRoundTwo.
-                            //         stateToSet.uploadStatus = null;
-                            //         this.setState(stateToSet);
-                            //         this.updateUpload(upload_manager);
-                            //     }
-                            // }, "aws-utils-bundle");
-
                         } else {
                             // state cleanup for this key
                             this.finishRoundTwo();
@@ -1681,6 +1662,17 @@ class TypeSelectModal extends React.Component {
         if (!show) return null;
 
         const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
+
+        let specificItemTypeOptions = null;
+
+        if (ambiguousType === "Item"){
+            specificItemTypeOptions = _.keys(schemas).filter(function(itemType){
+                return !(schemas[itemType].isAbstract);
+            });
+        } else if (ambiguousType !== null) {
+            specificItemTypeOptions = _.keys(itemTypeHierarchy[ambiguousType]);
+        }
+
         let ambiguousDescrip = null;
         if (ambiguousSelected !== null && schemas[ambiguousSelected].description){
             ambiguousDescrip = schemas[ambiguousSelected].description;
@@ -1688,17 +1680,16 @@ class TypeSelectModal extends React.Component {
         return (
             <Modal show onHide={this.onHide} className="submission-view-modal">
                 <Modal.Header>
-                    <Modal.Title>{'Multiple object types found for your new ' + ambiguousType}</Modal.Title>
+                    <Modal.Title className="text-500">
+                        Multiple instantiable types found for your new <strong>{ ambiguousType }</strong>
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div onKeyDown={this.onContainerKeyDown.bind(this, submitAmbiguousType)}>
-                        <p>Please select a specific object type from the menu below.</p>
+                        <p>Please select a specific Item type from the menu below.</p>
                         <div className="input-wrapper mb-15">
                             <DropdownButton id="dropdown-type-select" title={ambiguousSelected || "No value"}>
-                                { ambiguousType !== null ?
-                                    _.map(_.keys(itemTypeHierarchy[ambiguousType]), (val) => buildAmbiguousEnumEntry(val) )
-                                    : null
-                                }
+                                { specificItemTypeOptions.map(buildAmbiguousEnumEntry) }
                             </DropdownButton>
                         </div>
                         { ambiguousDescrip ?

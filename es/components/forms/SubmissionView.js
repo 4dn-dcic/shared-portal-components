@@ -500,7 +500,7 @@ function (_React$PureComponent) {
       // given type. let the user choose one.
 
 
-      if (itemTypeHierarchy[ambiguousType] && !init) {
+      if ((ambiguousType === "Item" || itemTypeHierarchy[ambiguousType]) && !init) {
         // ambiguous linkTo type found
         this.setState({
           ambiguousType: ambiguousType,
@@ -1511,22 +1511,7 @@ function (_React$PureComponent) {
 
                     _this6.updateUpload(upload_manager);
                   }
-                }); // require.ensure(['../util/aws'], (require)=>{
-                //     const awsUtil = require('../util/aws');
-                //     const upload_manager = awsUtil.s3UploadFile(file, creds);
-                //     if (upload_manager === null){
-                //         // bad upload manager. Cause an alert
-                //         alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
-                //     } else {
-                //         // this will set off a chain of aync events.
-                //         // first, md5 will be calculated and then the
-                //         // file will be uploaded to s3. If all of this
-                //         // is succesful, call finishRoundTwo.
-                //         stateToSet.uploadStatus = null;
-                //         this.setState(stateToSet);
-                //         this.updateUpload(upload_manager);
-                //     }
-                // }, "aws-utils-bundle");
+                });
               } else {
                 // state cleanup for this key
                 _this6.finishRoundTwo();
@@ -2279,6 +2264,16 @@ function (_React$Component) {
 
       var itemTypeHierarchy = _util.schemaTransforms.schemasToItemTypeHierarchy(schemas);
 
+      var specificItemTypeOptions = null;
+
+      if (ambiguousType === "Item") {
+        specificItemTypeOptions = _underscore["default"].keys(schemas).filter(function (itemType) {
+          return !schemas[itemType].isAbstract;
+        });
+      } else if (ambiguousType !== null) {
+        specificItemTypeOptions = _underscore["default"].keys(itemTypeHierarchy[ambiguousType]);
+      }
+
       var ambiguousDescrip = null;
 
       if (ambiguousSelected !== null && schemas[ambiguousSelected].description) {
@@ -2289,16 +2284,16 @@ function (_React$Component) {
         show: true,
         onHide: this.onHide,
         className: "submission-view-modal"
-      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, null, 'Multiple object types found for your new ' + ambiguousType)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
+      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, {
+        className: "text-500"
+      }, "Multiple instantiable types found for your new ", _react["default"].createElement("strong", null, ambiguousType))), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
         onKeyDown: this.onContainerKeyDown.bind(this, submitAmbiguousType)
-      }, _react["default"].createElement("p", null, "Please select a specific object type from the menu below."), _react["default"].createElement("div", {
+      }, _react["default"].createElement("p", null, "Please select a specific Item type from the menu below."), _react["default"].createElement("div", {
         className: "input-wrapper mb-15"
       }, _react["default"].createElement(_DropdownButton.DropdownButton, {
         id: "dropdown-type-select",
         title: ambiguousSelected || "No value"
-      }, ambiguousType !== null ? _underscore["default"].map(_underscore["default"].keys(itemTypeHierarchy[ambiguousType]), function (val) {
-        return buildAmbiguousEnumEntry(val);
-      }) : null)), ambiguousDescrip ? _react["default"].createElement("div", {
+      }, specificItemTypeOptions.map(buildAmbiguousEnumEntry))), ambiguousDescrip ? _react["default"].createElement("div", {
         className: "mb-15 mt-15"
       }, _react["default"].createElement("h5", {
         className: "text-500 mb-02"
