@@ -351,8 +351,6 @@ function (_React$Component) {
           parent = _this$props2.parent,
           onSave = _this$props2.onSave;
 
-      _util.console.log("TTT", onSave);
-
       var errorFallback = function (res) {
         // ToDo display (bigger?) errors
         _util.console.error("Error: ", res);
@@ -411,8 +409,6 @@ function (_React$Component) {
               }, 0);
 
               if (typeof onSave === 'function') {
-                _util.console.log('TTT3');
-
                 onSave(nextContext);
               }
             });

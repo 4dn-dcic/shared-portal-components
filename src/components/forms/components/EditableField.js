@@ -320,8 +320,6 @@ export class EditableField extends React.Component {
     save(successCallback = null, errorCallback = null){
         const { labelID, endpoint, context, parent, onSave } = this.props;
 
-        console.log("TTT", onSave);
-
         const errorFallback = (res) => {
             // ToDo display (bigger?) errors
             console.error("Error: ", res);
@@ -362,7 +360,6 @@ export class EditableField extends React.Component {
                             });
                         },0);
                         if (typeof onSave === 'function'){
-                            console.log('TTT3');
                             onSave(nextContext);
                         }
                     });

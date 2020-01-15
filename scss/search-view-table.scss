@@ -212,13 +212,11 @@ $search-results-header-text-color: #fff !default;
 				}
 			}
 
-			&.short {
-				> .edge-scroll-button {
-					body.scrolled-past-top & {
-						> i.icon {
-							margin-top: -5px;
-							top: 50%;
-						}
+			> .edge-scroll-button {
+				body.scrolled-past-top & {
+					> i.icon {
+						margin-top: -5px;
+						top: 50%;
 					}
 				}
 			}

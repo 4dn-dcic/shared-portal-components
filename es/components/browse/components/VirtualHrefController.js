@@ -237,5 +237,5 @@ function (_React$PureComponent) {
 exports.VirtualHrefController = VirtualHrefController;
 
 _defineProperty(VirtualHrefController, "defaultProps", {
-  "initialHref": "/search/?type=Item"
+  "searchHref": "/search/?type=Item"
 });

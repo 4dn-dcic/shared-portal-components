@@ -47,6 +47,10 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
@@ -63,16 +67,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -82,6 +76,12 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var DEFAULT_WIDTH_MAP = {
   'lg': 200,
@@ -103,8 +103,6 @@ var basicColumnExtensionMap = {
     'render': function (result, columnDefinition, props, termTransformFxn, width) {
       var href = props.href,
           rowNumber = props.rowNumber,
-          currentAction = props.currentAction,
-          propNavigate = props.navigate,
           detailOpen = props.detailOpen,
           toggleDetailOpen = props.toggleDetailOpen;
 
@@ -123,7 +121,9 @@ var basicColumnExtensionMap = {
           'list': (0, _analytics.hrefToListName)(href),
           'position': rowNumber + 1
         }, function () {
-          (propNavigate || _navigate.navigate)(link);
+          // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
+          // to VirtualHrefController.virtualNavigate and would not bring you to new page.
+          (0, _navigate.navigate)(link);
         });
         return false;
       }
@@ -167,6 +167,7 @@ var basicColumnExtensionMap = {
       if (!Array.isArray(result['@type'])) return null;
       var leafItemType = (0, _schemaTransforms.getItemType)(result);
       var itemTypeTitle = (0, _schemaTransforms.getTitleForType)(leafItemType, props.schemas || null);
+      console.log("ABCD", result, props);
       return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         className: "icon-container"
       }, _react["default"].createElement("i", {
@@ -177,14 +178,17 @@ var basicColumnExtensionMap = {
           e.preventDefault();
           e.stopPropagation();
 
-          var urlParts = _url["default"].parse(props.href, true),
-              query = {
+          var urlParts = _url["default"].parse(props.href, true);
+
+          var query = _objectSpread({}, urlParts.query, {
             'type': leafItemType
-          };
+          });
 
           if (urlParts.query.q) query.q = urlParts.query.q;
 
-          var nextHref = '/search/?' + _querystring["default"].stringify(query);
+          var nextHref = '/search/?' + _querystring["default"].stringify(query); // We use props.navigate here first which may refer to VirtualHrefController.virtualNavigate
+          // since we're navigating to a search href here.
+
 
           (props.navigate || _navigate.navigate)(nextHref);
         },
@@ -298,19 +302,27 @@ var TableRowToggleOpenButton = _react["default"].memo(function (_ref) {
 exports.TableRowToggleOpenButton = TableRowToggleOpenButton;
 
 function haveContextColumnsChanged(cols1, cols2) {
+  console.log("TTT", cols1, cols2);
   if (cols1 === cols2) return false;
   if (cols1 && !cols2) return true;
   if (!cols1 && cols2) return true;
 
-  var pKeys = _underscore["default"].keys(cols1),
-      pKeysLen = pKeys.length,
-      nKeys = _underscore["default"].keys(cols2),
-      i;
+  var pastKeys = _underscore["default"].keys(cols1);
 
-  if (pKeysLen !== nKeys.length) return true;
+  var nextKeys = _underscore["default"].keys(cols2);
+
+  var pKeysLen = pastKeys.length;
+  var i;
+
+  if (pKeysLen !== nextKeys.length) {
+    return true;
+  }
+
+  pastKeys.sort();
+  nextKeys.sort();
 
   for (i = 0; i < pKeysLen; i++) {
-    if (pKeys[i] !== nKeys[i]) return true;
+    if (pastKeys[i] !== nextKeys[i]) return true;
   }
 
   return false;
@@ -418,50 +430,83 @@ var columnDefinitionsToScaledColumnDefinitions = (0, _memoizeOne["default"])(fun
 
 exports.columnDefinitionsToScaledColumnDefinitions = columnDefinitionsToScaledColumnDefinitions;
 
-var ColumnCombiner = _react["default"].memo(function (props) {
-  var children = props.children,
-      _props$columns = props.columns,
-      overridePropColumns = _props$columns === void 0 ? null : _props$columns,
-      columnExtensionMap = props.columnExtensionMap,
-      passProps = _objectWithoutProperties(props, ["children", "columns", "columnExtensionMap"]);
+var ColumnCombiner =
+/*#__PURE__*/
+function (_React$PureComponent) {
+  _inherits(ColumnCombiner, _React$PureComponent);
 
-  var contextColumns = passProps.context.columns;
-  var columns = overridePropColumns || contextColumns || [];
+  _createClass(ColumnCombiner, null, [{
+    key: "getDefinitionsAndHiddenColumns",
+    value: function getDefinitionsAndHiddenColumns(columns, columnExtensionMap) {
+      // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
+      // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
+      return {
+        columnDefinitions: columnsToColumnDefinitions(columns, columnExtensionMap),
+        defaultHiddenColumns: defaultHiddenColumnMapFromColumns(columns)
+      };
+    }
+  }]);
 
-  if (columns.length === 0) {
-    console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
+  function ColumnCombiner(props) {
+    var _this;
+
+    _classCallCheck(this, ColumnCombiner);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ColumnCombiner).call(this, props));
+    _this.memoized = {
+      getDefinitionsAndHiddenColumns: (0, _memoizeOne["default"])(ColumnCombiner.getDefinitionsAndHiddenColumns, // Fxn to memoize
+      function (nextArgSet, prevArgSet) {
+        // Custom "param equality" fxn. If returns false, memoized function is called.
+        var _nextArgSet = _slicedToArray(nextArgSet, 2),
+            nextColumns = _nextArgSet[0],
+            nextColDefMap = _nextArgSet[1];
+
+        var _prevArgSet = _slicedToArray(prevArgSet, 2),
+            prevColumns = _prevArgSet[0],
+            prevColDefMap = _prevArgSet[1];
+
+        if (prevColDefMap !== nextColDefMap) {
+          return false; // Update
+        } // Semi-deep comparison of column keys (fields) -- if using undefined columns,
+        // will use columns from context/search response, which will be under a new object
+        // reference after each filter, sort, etc call. This allows us to preserve the custom
+        // columns we've selected _unless_ Item type or something else changes which changes the
+        // column set that comes down from back-end response.
+
+
+        return !haveContextColumnsChanged(prevColumns, nextColumns);
+      })
+    };
+    return _this;
   }
 
-  var _useMemo = (0, _react.useMemo)(function () {
-    var columnDefinitions = columnsToColumnDefinitions(columns, columnExtensionMap); // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
-    // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
+  _createClass(ColumnCombiner, [{
+    key: "render",
+    value: function render() {
+      var _this$props = this.props,
+          children = _this$props.children,
+          _this$props$columns = _this$props.columns,
+          overridePropColumns = _this$props$columns === void 0 ? null : _this$props$columns,
+          columnExtensionMap = _this$props.columnExtensionMap,
+          passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap"]);
 
-    var defaultHiddenColumns = defaultHiddenColumnMapFromColumns(columns);
-    return {
-      columnDefinitions: columnDefinitions,
-      defaultHiddenColumns: defaultHiddenColumns
-    };
-  }, [columns, columnExtensionMap]),
-      columnDefinitions = _useMemo.columnDefinitions,
-      defaultHiddenColumns = _useMemo.defaultHiddenColumns;
+      var contextColumns = passProps.context.columns;
+      var columns = overridePropColumns || contextColumns || [];
 
-  var propsToPass = _objectSpread({}, passProps, {
-    columnDefinitions: columnDefinitions,
-    defaultHiddenColumns: defaultHiddenColumns
-  });
+      if (columns.length === 0) {
+        console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
+      }
 
-  return _react["default"].Children.map(children, function (child) {
-    return _react["default"].cloneElement(child, propsToPass);
-  });
-});
+      var propsToPass = _objectSpread({}, passProps, {}, this.memoized.getDefinitionsAndHiddenColumns(columns, columnExtensionMap));
 
-exports.ColumnCombiner = ColumnCombiner;
-ColumnCombiner.defaultProps = {
-  "columns": null,
-  // Passed in as prop or defaults to context.columns
-  "columnExtensionMap": basicColumnExtensionMap,
-  "context": {}
-};
+      return _react["default"].Children.map(children, function (child) {
+        return _react["default"].cloneElement(child, propsToPass);
+      });
+    }
+  }]);
+
+  return ColumnCombiner;
+}(_react["default"].PureComponent);
 /**
  * Determine the typical column width, given current browser width. Defaults to large width if server-side.
  *
@@ -471,6 +516,16 @@ ColumnCombiner.defaultProps = {
  * @param {number} [windowWidth=null] - Current window width.
  * @returns {string|number} Width for div column block to be used at current screen/browser size.
  */
+
+
+exports.ColumnCombiner = ColumnCombiner;
+
+_defineProperty(ColumnCombiner, "defaultProps", {
+  "columns": null,
+  // Passed in as prop or defaults to context.columns
+  "columnExtensionMap": basicColumnExtensionMap,
+  "context": {}
+});
 
 function getColumnWidthFromDefinition(columnDefinition) {
   var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -553,25 +608,25 @@ function (_React$Component) {
   }]);
 
   function ResultRowColumnBlockValue(props) {
-    var _this;
+    var _this2;
 
     _classCallCheck(this, ResultRowColumnBlockValue);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ResultRowColumnBlockValue).call(this, props));
-    _this.memoized = {
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ResultRowColumnBlockValue).call(this, props));
+    _this2.memoized = {
       transformIfNeeded: (0, _memoizeOne["default"])(ResultRowColumnBlockValue.transformIfNeeded)
     };
-    return _this;
+    return _this2;
   }
 
   _createClass(ResultRowColumnBlockValue, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps, nextState) {
-      var _this$props = this.props,
-          columnDefinition = _this$props.columnDefinition,
-          schemas = _this$props.schemas,
-          result = _this$props.result,
-          className = _this$props.className;
+      var _this$props2 = this.props,
+          columnDefinition = _this$props2.columnDefinition,
+          schemas = _this$props2.schemas,
+          result = _this$props2.result,
+          className = _this$props2.className;
 
       if (nextProps.columnNumber === 0 || nextProps.columnDefinition.field !== columnDefinition.field || nextProps.schemas !== schemas || _object.itemUtil.atId(nextProps.result) !== _object.itemUtil.atId(result) || nextProps.className !== className || typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state)) {
         return true;
@@ -582,12 +637,12 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          result = _this$props2.result,
-          columnDefinition = _this$props2.columnDefinition,
-          propTooltip = _this$props2.tooltip,
-          className = _this$props2.className,
-          termTransformFxn = _this$props2.termTransformFxn;
+      var _this$props3 = this.props,
+          result = _this$props3.result,
+          columnDefinition = _this$props3.columnDefinition,
+          propTooltip = _this$props3.tooltip,
+          className = _this$props3.className,
+          termTransformFxn = _this$props3.termTransformFxn;
       var renderFxn = columnDefinition.render || this.memoized.transformIfNeeded;
       var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore["default"].omit(this.props, 'columnDefinition', 'result'), termTransformFxn));
       var tooltip;
@@ -641,8 +696,8 @@ _defineProperty(ResultRowColumnBlockValue, "defaultProps", {
 
 var ColumnSorterIcon =
 /*#__PURE__*/
-function (_React$PureComponent) {
-  _inherits(ColumnSorterIcon, _React$PureComponent);
+function (_React$PureComponent2) {
+  _inherits(ColumnSorterIcon, _React$PureComponent2);
 
   _createClass(ColumnSorterIcon, null, [{
     key: "icon",
@@ -657,33 +712,33 @@ function (_React$PureComponent) {
   }]);
 
   function ColumnSorterIcon(props) {
-    var _this2;
+    var _this3;
 
     _classCallCheck(this, ColumnSorterIcon);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
-    _this2.sortClickFxn = _this2.sortClickFxn.bind(_assertThisInitialized(_this2));
-    return _this2;
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
+    _this3.sortClickFxn = _this3.sortClickFxn.bind(_assertThisInitialized(_this3));
+    return _this3;
   }
 
   _createClass(ColumnSorterIcon, [{
     key: "sortClickFxn",
     value: function sortClickFxn(e) {
-      var _this$props3 = this.props,
-          value = _this$props3.value,
-          descend = _this$props3.descend,
-          currentSortColumn = _this$props3.currentSortColumn,
-          sortByFxn = _this$props3.sortByFxn;
+      var _this$props4 = this.props,
+          value = _this$props4.value,
+          descend = _this$props4.descend,
+          currentSortColumn = _this$props4.currentSortColumn,
+          sortByFxn = _this$props4.sortByFxn;
       e.preventDefault();
       sortByFxn(value, currentSortColumn === value && !descend);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-          value = _this$props4.value,
-          descend = _this$props4.descend,
-          currentSortColumn = _this$props4.currentSortColumn;
+      var _this$props5 = this.props,
+          value = _this$props5.value,
+          descend = _this$props5.descend,
+          currentSortColumn = _this$props5.currentSortColumn;
 
       if (typeof value !== 'string' || value.length === 0) {
         return null;
@@ -716,52 +771,52 @@ _defineProperty(ColumnSorterIcon, "defaultProps", {
 
 var HeadersRowColumn =
 /*#__PURE__*/
-function (_React$PureComponent2) {
-  _inherits(HeadersRowColumn, _React$PureComponent2);
+function (_React$PureComponent3) {
+  _inherits(HeadersRowColumn, _React$PureComponent3);
 
   function HeadersRowColumn(props) {
-    var _this3;
+    var _this4;
 
     _classCallCheck(this, HeadersRowColumn);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this3), 'onDrag', 'onStop');
+    _underscore["default"].bindAll(_assertThisInitialized(_this4), 'onDrag', 'onStop');
 
-    _this3.memoized = {
+    _this4.memoized = {
       showTooltip: (0, _memoizeOne["default"])(function (colWidth, titleStr) {
         return (colWidth - 40) / 7 < (titleStr || "").length;
       })
     };
-    return _this3;
+    return _this4;
   }
 
   _createClass(HeadersRowColumn, [{
     key: "onDrag",
     value: function onDrag(event, res) {
-      var _this$props5 = this.props,
-          index = _this$props5.index,
-          onAdjusterDrag = _this$props5.onAdjusterDrag;
+      var _this$props6 = this.props,
+          index = _this$props6.index,
+          onAdjusterDrag = _this$props6.onAdjusterDrag;
       onAdjusterDrag(index, event, res);
     }
   }, {
     key: "onStop",
     value: function onStop(event, res) {
-      var _this$props6 = this.props,
-          index = _this$props6.index,
-          setHeaderWidths = _this$props6.setHeaderWidths;
+      var _this$props7 = this.props,
+          index = _this$props7.index,
+          setHeaderWidths = _this$props7.setHeaderWidths;
       setHeaderWidths(index, event, res);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props7 = this.props,
-          sortColumn = _this$props7.sortColumn,
-          sortBy = _this$props7.sortBy,
-          sortReverse = _this$props7.sortReverse,
-          width = _this$props7.width,
-          colDef = _this$props7.colDef,
-          headerColumnWidths = _this$props7.headerColumnWidths;
+      var _this$props8 = this.props,
+          sortColumn = _this$props8.sortColumn,
+          sortBy = _this$props8.sortBy,
+          sortReverse = _this$props8.sortReverse,
+          width = _this$props8.width,
+          colDef = _this$props8.colDef,
+          headerColumnWidths = _this$props8.headerColumnWidths;
       var noSort = colDef.noSort,
           colTitle = colDef.colTitle,
           title = colDef.title,
@@ -813,18 +868,18 @@ function (_React$Component2) {
   _inherits(HeadersRow, _React$Component2);
 
   function HeadersRow(props) {
-    var _this4;
+    var _this5;
 
     _classCallCheck(this, HeadersRow);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRow).call(this, props));
-    _this4.throttledSetHeaderWidths = _underscore["default"].debounce(_underscore["default"].throttle(_this4.setHeaderWidths.bind(_assertThisInitialized(_this4)), 1000), 350);
-    _this4.setHeaderWidths = _this4.setHeaderWidths.bind(_assertThisInitialized(_this4));
-    _this4.onAdjusterDrag = _this4.onAdjusterDrag.bind(_assertThisInitialized(_this4));
-    _this4.state = {
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRow).call(this, props));
+    _this5.throttledSetHeaderWidths = _underscore["default"].debounce(_underscore["default"].throttle(_this5.setHeaderWidths.bind(_assertThisInitialized(_this5)), 1000), 350);
+    _this5.setHeaderWidths = _this5.setHeaderWidths.bind(_assertThisInitialized(_this5));
+    _this5.onAdjusterDrag = _this5.onAdjusterDrag.bind(_assertThisInitialized(_this5));
+    _this5.state = {
       'widths': props.headerColumnWidths && props.headerColumnWidths.slice(0) || null
     };
-    return _this4;
+    return _this5;
   }
 
   _createClass(HeadersRow, [{
@@ -855,11 +910,11 @@ function (_React$Component2) {
   }, {
     key: "getWidthFor",
     value: function getWidthFor(idx) {
-      var _this$props8 = this.props,
-          headerColumnWidths = _this$props8.headerColumnWidths,
-          mounted = _this$props8.mounted,
-          columnDefinitions = _this$props8.columnDefinitions,
-          windowWidth = _this$props8.windowWidth;
+      var _this$props9 = this.props,
+          headerColumnWidths = _this$props9.headerColumnWidths,
+          mounted = _this$props9.mounted,
+          columnDefinitions = _this$props9.columnDefinitions,
+          windowWidth = _this$props9.windowWidth;
       var widths = this.state.widths;
       return Array.isArray(widths) && widths[idx] || Array.isArray(headerColumnWidths) && headerColumnWidths[idx] || getColumnWidthFromDefinition(columnDefinitions[idx], mounted, windowWidth);
     }
@@ -880,17 +935,17 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this5 = this;
+      var _this6 = this;
 
-      var _this$props9 = this.props,
-          tableLeftOffset = _this$props9.tableLeftOffset,
-          tableContainerWidth = _this$props9.tableContainerWidth,
-          columnDefinitions = _this$props9.columnDefinitions,
-          stickyHeaderTopOffset = _this$props9.stickyHeaderTopOffset,
-          renderDetailPane = _this$props9.renderDetailPane,
-          headerColumnWidths = _this$props9.headerColumnWidths,
-          width = _this$props9.width,
-          tableContainerScrollLeft = _this$props9.tableContainerScrollLeft;
+      var _this$props10 = this.props,
+          tableLeftOffset = _this$props10.tableLeftOffset,
+          tableContainerWidth = _this$props10.tableContainerWidth,
+          columnDefinitions = _this$props10.columnDefinitions,
+          stickyHeaderTopOffset = _this$props10.stickyHeaderTopOffset,
+          renderDetailPane = _this$props10.renderDetailPane,
+          headerColumnWidths = _this$props10.headerColumnWidths,
+          width = _this$props10.width,
+          tableContainerScrollLeft = _this$props10.tableContainerScrollLeft;
       var widths = this.state.widths;
       var outerClassName = "search-headers-row" + (headerColumnWidths && widths ? '' : ' non-adjustable') + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '');
       return _react["default"].createElement("div", {
@@ -906,12 +961,12 @@ function (_React$Component2) {
 
         }
       }, _underscore["default"].map(columnDefinitions, function (colDef, i) {
-        return _react["default"].createElement(HeadersRowColumn, _extends({}, _underscore["default"].pick(_this5.props, 'sortColumn', 'sortReverse', 'sortBy', 'headerColumnWidths'), {
+        return _react["default"].createElement(HeadersRowColumn, _extends({}, _underscore["default"].pick(_this6.props, 'sortColumn', 'sortReverse', 'sortBy', 'headerColumnWidths'), {
           colDef: colDef,
           index: i,
-          onAdjusterDrag: _this5.onAdjusterDrag,
-          setHeaderWidths: _this5.setHeaderWidths,
-          width: _this5.getWidthFor(i),
+          onAdjusterDrag: _this6.onAdjusterDrag,
+          setHeaderWidths: _this6.setHeaderWidths,
+          width: _this6.getWidthFor(i),
           key: colDef.field
         }));
       })));

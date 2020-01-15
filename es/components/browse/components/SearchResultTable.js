@@ -558,7 +558,9 @@ function (_React$PureComponent3) {
           var _this5$props = _this5.props,
               onDuplicateResultsFoundCallback = _this5$props.onDuplicateResultsFoundCallback,
               results = _this5$props.results,
-              setResults = _this5$props.setResults; // Check if have same result, if so, refresh all results (something has changed on back-end)
+              setResults = _this5$props.setResults,
+              _this5$props$navigate = _this5$props.navigate,
+              navigate = _this5$props$navigate === void 0 ? _navigate.navigate : _this5$props$navigate; // Check if have same result, if so, refresh all results (something has changed on back-end)
 
           var oldKeys = _underscore["default"].map(results, _object.itemUtil.atId);
 
@@ -572,7 +574,7 @@ function (_React$PureComponent3) {
             _this5.setState({
               'isLoading': false
             }, function () {
-              (0, _navigate.navigate)('', {
+              navigate('', {
                 'inPlace': true
               }, onDuplicateResultsFoundCallback);
             });
@@ -826,12 +828,12 @@ function (_React$Component) {
           tableContainerWidth = _this$props12.tableContainerWidth,
           fullRowWidth = _this$props12.fullRowWidth,
           tableContainerScrollLeft = _this$props12.tableContainerScrollLeft,
-          _this$props12$vertica = _this$props12.verticallyCenterArrows,
-          verticallyCenterArrows = _this$props12$vertica === void 0 ? true : _this$props12$vertica;
+          _this$props12$fixedPo = _this$props12.fixedPositionArrows,
+          fixedPositionArrows = _this$props12$fixedPo === void 0 ? true : _this$props12$fixedPo;
       if (!tableContainerWidth) return null;
       if (fullRowWidth <= tableContainerWidth) return null;
       var edges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
-      var cls = "shadow-border-layer hidden-xs" + ShadowBorderLayer.shadowStateClass(edges.left, edges.right) + (verticallyCenterArrows ? ' fixed-position-arrows' : '');
+      var cls = "shadow-border-layer hidden-xs" + ShadowBorderLayer.shadowStateClass(edges.left, edges.right) + (fixedPositionArrows ? ' fixed-position-arrows' : '');
       return _react["default"].createElement("div", {
         className: cls
       }, _react["default"].createElement("div", {
@@ -1250,7 +1252,12 @@ function (_React$PureComponent4) {
       var _this$props14 = this.props,
           columnDefinitions = _this$props14.columnDefinitions,
           windowWidth = _this$props14.windowWidth,
-          isOwnPage = _this$props14.isOwnPage,
+          context = _this$props14.context,
+          _this$props14$isOwnPa = _this$props14.isOwnPage,
+          isOwnPage = _this$props14$isOwnPa === void 0 ? true : _this$props14$isOwnPa,
+          navigate = _this$props14.navigate,
+          _this$props14$rowHeig = _this$props14.rowHeight,
+          rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
           _this$props14$maxHeig = _this$props14.maxHeight,
           maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig;
       var _this$state3 = this.state,
@@ -1259,22 +1266,25 @@ function (_React$PureComponent4) {
           tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
           mounted = _this$state3.mounted,
           widths = _this$state3.widths,
-          openDetailPanes = _this$state3.openDetailPanes,
-          tableLeftOffset = _this$state3.tableLeftOffset;
+          openDetailPanes = _this$state3.openDetailPanes;
       var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
       var canLoadMore = this.canLoadMore();
       var anyResults = results.length > 0;
 
-      var headerRowCommonProps = _objectSpread({}, _underscore["default"].pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'), {
+      var headerRowCommonProps = _objectSpread({}, _underscore["default"].pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'windowWidth'), {
         mounted: mounted,
         results: results,
+        rowHeight: rowHeight,
         headerColumnWidths: widths,
         setHeaderWidths: this.setHeaderWidths,
         tableContainerScrollLeft: tableContainerScrollLeft,
         tableContainerWidth: tableContainerWidth
       });
 
-      var resultRowCommonProps = _underscore["default"].extend(_underscore["default"].pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn', 'rowHeight'), {
+      var resultRowCommonProps = _underscore["default"].extend(_underscore["default"].pick(this.props, 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'), {
+        context: context,
+        rowHeight: rowHeight,
+        navigate: navigate,
         columnDefinitions: columnDefinitions,
         tableContainerWidth: tableContainerWidth,
         tableContainerScrollLeft: tableContainerScrollLeft,
@@ -1286,7 +1296,9 @@ function (_React$PureComponent4) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      var loadMoreAsYouScrollProps = _objectSpread({}, _underscore["default"].pick(this.props, 'href', 'limit', 'rowHeight', 'context', 'onDuplicateResultsFoundCallback', 'schemas'), {
+      var loadMoreAsYouScrollProps = _objectSpread({}, _underscore["default"].pick(this.props, 'href', 'limit', 'onDuplicateResultsFoundCallback', 'schemas'), {
+        context: context,
+        rowHeight: rowHeight,
         results: results,
         openDetailPanes: openDetailPanes,
         maxHeight: maxHeight,
@@ -1312,7 +1324,7 @@ function (_React$PureComponent4) {
           fullRowWidth: fullRowWidth
         }, {
           setContainerScrollLeft: this.setContainerScrollLeft,
-          verticallyCenterArrows: isOwnPage,
+          fixedPositionArrows: isOwnPage,
           getScrollContainer: this.getScrollContainer
         }));
       }

@@ -24,7 +24,7 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/t
 export class VirtualHrefController extends React.PureComponent {
 
     static defaultProps = {
-        "initialHref" : "/search/?type=Item"
+        "searchHref" : "/search/?type=Item"
     };
 
     static transformedFacets(facets, filterFacetFxn){

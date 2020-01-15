@@ -14,7 +14,7 @@ import Infinite from 'react-infinite';
 import { Detail } from './../../ui/ItemDetailList';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { isServerSide, isSelectAction } from './../../util/misc';
-import { navigate } from './../../util/navigate';
+import { navigate as globalPageNavigate } from './../../util/navigate';
 import { itemUtil } from './../../util/object';
 import { load } from './../../util/ajax';
 import { getPageVerticalScrollPosition, getElementOffset, responsiveGridState } from './../../util/layout';
@@ -403,7 +403,12 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         const nextHref = this.rebuiltHref();
         const loadCallback = (resp) => {
             if (resp && resp['@graph'] && resp['@graph'].length > 0){
-                const { onDuplicateResultsFoundCallback, results, setResults } = this.props;
+                const {
+                    onDuplicateResultsFoundCallback,
+                    results,
+                    setResults,
+                    navigate = globalPageNavigate // Use VirtualHrefController.virtualNavigate if is passed in.
+                } = this.props;
                 // Check if have same result, if so, refresh all results (something has changed on back-end)
                 const oldKeys = _.map(results, itemUtil.atId);
                 const newKeys = _.map(resp['@graph'], itemUtil.atId);
@@ -568,14 +573,14 @@ class ShadowBorderLayer extends React.Component {
     }
 
     render(){
-        const { tableContainerWidth, fullRowWidth, tableContainerScrollLeft, verticallyCenterArrows = true } = this.props;
+        const { tableContainerWidth, fullRowWidth, tableContainerScrollLeft, fixedPositionArrows = true } = this.props;
         if (!tableContainerWidth) return null;
         if (fullRowWidth <= tableContainerWidth) return null;
         const edges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
         const cls = (
             "shadow-border-layer hidden-xs" +
             ShadowBorderLayer.shadowStateClass(edges.left, edges.right) +
-            (verticallyCenterArrows ? ' fixed-position-arrows' : '')
+            (fixedPositionArrows ? ' fixed-position-arrows' : '')
         );
         return (
             <div className={cls}>
@@ -898,8 +903,16 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     render(){
-        const { columnDefinitions, windowWidth, isOwnPage, maxHeight = 500 } = this.props;
-        const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, openDetailPanes, tableLeftOffset } = this.state;
+        const {
+            columnDefinitions,
+            windowWidth,
+            context, // May be page context or virtualContext
+            isOwnPage = true,
+            navigate,
+            rowHeight = 47, // Must be aligned in CSS stylesheets
+            maxHeight = 500 // Only used if not isOwnPage
+        } = this.props;
+        const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, openDetailPanes } = this.state;
 
         const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
         const canLoadMore = this.canLoadMore();
@@ -907,8 +920,8 @@ class DimensioningContainer extends React.PureComponent {
 
         const headerRowCommonProps = {
             ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse',
-                'defaultMinColumnWidth', 'rowHeight', 'renderDetailPane', 'windowWidth'),
-            mounted, results,
+                'defaultMinColumnWidth', 'renderDetailPane', 'windowWidth'),
+            mounted, results, rowHeight,
             headerColumnWidths: widths,
             setHeaderWidths: this.setHeaderWidths,
             tableContainerScrollLeft,
@@ -916,8 +929,9 @@ class DimensioningContainer extends React.PureComponent {
         };
 
         const resultRowCommonProps = _.extend(
-            _.pick(this.props, 'context', 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn', 'rowHeight'),
+            _.pick(this.props, 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'),
             {
+                context, rowHeight, navigate,
                 columnDefinitions, tableContainerWidth, tableContainerScrollLeft, windowWidth,
                 'mounted' : mounted || false,
                 'headerColumnWidths' : widths,
@@ -928,7 +942,8 @@ class DimensioningContainer extends React.PureComponent {
         );
 
         const loadMoreAsYouScrollProps = {
-            ..._.pick(this.props, 'href', 'limit', 'rowHeight', 'context', 'onDuplicateResultsFoundCallback', 'schemas'),
+            ..._.pick(this.props, 'href', 'limit', 'onDuplicateResultsFoundCallback', 'schemas'),
+            context, rowHeight,
             results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
             setResults: this.setResults
@@ -941,7 +956,7 @@ class DimensioningContainer extends React.PureComponent {
             headersRow = <HeadersRow {...headerRowCommonProps} />;
             shadowBorderLayer = (
                 <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, fullRowWidth }}
-                    setContainerScrollLeft={this.setContainerScrollLeft} verticallyCenterArrows={isOwnPage}
+                    setContainerScrollLeft={this.setContainerScrollLeft} fixedPositionArrows={isOwnPage}
                     getScrollContainer={this.getScrollContainer} />
             );
         }

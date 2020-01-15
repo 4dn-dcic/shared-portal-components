@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
 import _ from 'underscore';
@@ -110,7 +110,7 @@ export class ControlsAndResults extends React.PureComponent {
         const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context);
 
         const searchResultTableProps = {
-            context, href, currentAction, schemas, hiddenColumns, results, columnDefinitions, isOwnPage,
+            context, href, navigate, currentAction, schemas, hiddenColumns, results, columnDefinitions, isOwnPage,
             sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, isInitialContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
