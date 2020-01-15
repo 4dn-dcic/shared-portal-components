@@ -301,7 +301,6 @@ var TableRowToggleOpenButton = _react["default"].memo(function (_ref) {
 exports.TableRowToggleOpenButton = TableRowToggleOpenButton;
 
 function haveContextColumnsChanged(cols1, cols2) {
-  console.log("TTT", cols1, cols2);
   if (cols1 === cols2) return false;
   if (cols1 && !cols2) return true;
   if (!cols1 && cols2) return true;
