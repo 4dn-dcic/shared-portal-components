@@ -98,6 +98,13 @@ function (_React$PureComponent) {
 
   _createClass(EmbeddedSearchView, null, [{
     key: "listToObj",
+
+    /**
+     * @property {string} searchHref - Base URI to search on.
+     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
+     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
+     * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
+     */
     value: function listToObj(hideFacetStrs) {
       var obj = {};
       hideFacetStrs.forEach(function (field) {
@@ -106,12 +113,6 @@ function (_React$PureComponent) {
       });
       return obj;
     }
-    /**
-     * @property {string} searchHref - Base URI to search on.
-     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
-     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
-     */
-
   }]);
 
   function EmbeddedSearchView(props) {
@@ -223,7 +224,8 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'facets': _propTypes["default"].array,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
-  'onLoad': _propTypes["default"].func
+  'onLoad': _propTypes["default"].func,
+  'hideFacets': _propTypes["default"].arrayOf(_propTypes["default"].string)
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {

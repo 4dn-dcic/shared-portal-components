@@ -22,6 +22,12 @@ export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnCo
 
 export class EmbeddedSearchView extends React.PureComponent {
 
+    /**
+     * @property {string} searchHref - Base URI to search on.
+     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
+     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
+     * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
+     */
     static propTypes = {
         'searchHref'    : PropTypes.string.isRequired,
         // From Redux store; is NOT passed down. Overriden instead.
@@ -35,7 +41,8 @@ export class EmbeddedSearchView extends React.PureComponent {
         'facets'        : PropTypes.array,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
-        'onLoad'        : PropTypes.func
+        'onLoad'        : PropTypes.func,
+        'hideFacets'    : PropTypes.arrayOf(PropTypes.string)
     };
 
     static listToObj(hideFacetStrs){
@@ -47,11 +54,6 @@ export class EmbeddedSearchView extends React.PureComponent {
         return obj;
     }
 
-    /**
-     * @property {string} searchHref - Base URI to search on.
-     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
-     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
-     */
     static defaultProps = {
         'columnExtensionMap' : basicColumnExtensionMap,
         'separateSingleTermFacets' : true,

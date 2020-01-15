@@ -86,6 +86,7 @@ function (_React$PureComponent) {
     _this.onFilter = _this.onFilter.bind(_assertThisInitialized(_this));
     _this.onClearFilters = _this.onClearFilters.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
+    _this.virtualNavigate = _this.virtualNavigate.bind(_assertThisInitialized(_this));
     _this.memoized = {
       transformedFacets: (0, _memoizeOne["default"])(VirtualHrefController.transformedFacets)
     };

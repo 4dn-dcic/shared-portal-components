@@ -36,6 +36,7 @@ export class VirtualHrefController extends React.PureComponent {
         this.onFilter = this.onFilter.bind(this);
         this.onClearFilters = this.onClearFilters.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
+        this.virtualNavigate = this.virtualNavigate.bind(this);
         this.memoized = {
             transformedFacets: memoize(VirtualHrefController.transformedFacets)
         };
