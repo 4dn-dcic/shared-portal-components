@@ -827,14 +827,14 @@ function (_React$PureComponent2) {
         className: "linked-object-buttons-container"
       }, _react["default"].createElement("button", {
         type: "button",
-        className: "btn btn-outline-dark adv-search",
+        className: "btn btn-outline-secondary adv-search",
         "data-tip": "Advanced Search",
         onClick: this.handleStartSelectItem
       }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-search fas"
       })), _react["default"].createElement("button", {
         type: "button",
-        className: "btn btn-outline-dark create-new-obj",
+        className: "btn btn-outline-secondary create-new-obj",
         "data-tip": "Create New",
         onClick: this.handleCreateNewItemClick
       }, _react["default"].createElement("i", {

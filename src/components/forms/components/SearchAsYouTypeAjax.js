@@ -589,11 +589,11 @@ export class LinkedObj extends React.PureComponent {
     renderEmptyField(){
         return (
             <div className="linked-object-buttons-container">
-                <button type="button" className="btn btn-outline-dark adv-search"
+                <button type="button" className="btn btn-outline-secondary adv-search"
                     data-tip="Advanced Search" onClick={this.handleStartSelectItem}>
                     <i className="icon icon-fw icon-search fas"/>
                 </button>
-                <button type="button" className="btn btn-outline-dark create-new-obj"
+                <button type="button" className="btn btn-outline-secondary create-new-obj"
                     data-tip="Create New" onClick={this.handleCreateNewItemClick}>
                     <i className="icon icon-fw icon-file far"/>
                 </button>
