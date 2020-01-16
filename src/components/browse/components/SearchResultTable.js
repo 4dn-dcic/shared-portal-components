@@ -128,17 +128,25 @@ class ResultDetail extends React.PureComponent{
     }
 
     render(){
-        const { open, rowNumber, result, tableContainerWidth, tableContainerScrollLeft, renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight } = this.props;
+        const {
+            open, rowNumber, result, isOwnPage = true,
+            tableContainerWidth, tableContainerScrollLeft,
+            renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight
+        } = this.props;
         const { closing } = this.state;
+
+        // Account for vertical scrollbar decreasing width of container.
+        const useWidth = isOwnPage ? tableContainerWidth : tableContainerWidth - 30;
+
         return (
             <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} ref={this.detailRef}>
                 { open ?
                     <div className="result-table-detail" style={{
-                        'width' : tableContainerWidth,
-                        'transform' : style.translate3d(tableContainerScrollLeft)
+                        width : useWidth,
+                        transform : style.translate3d(tableContainerScrollLeft)
                     }}>
                         { renderDetailPane(
-                            result, rowNumber, tableContainerWidth,
+                            result, rowNumber, useWidth,
                             { open, tableContainerScrollLeft, toggleDetailOpen, setDetailHeight, detailPaneHeight, setDetailHeightFromPane : this.setDetailHeightFromPane }
                         ) }
                         <div className="close-button-container text-center" onClick={toggleDetailOpen} data-tip="Collapse Details">
@@ -735,9 +743,9 @@ class DimensioningContainer extends React.PureComponent {
         // Detect size changes and update
         this.outerContainerSizeInterval = setInterval(()=>{
             this.setState(({ tableContainerWidth: pastWidth }) => {
-                const { tableContainerWidth } = this.getTableDims();
-                if (pastWidth !== tableContainerWidth){
-                    return { tableContainerWidth };
+                const currDims = this.getTableDims();
+                if (pastWidth !== currDims.tableContainerWidth){
+                    return currDims;
                 }
                 return null;
             });
@@ -834,12 +842,24 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     onHorizontalScroll(e){
-        const { tableContainerScrollLeft } = this.state;
+        const { tableContainerScrollLeft, tableContainerWidth, mounted, widths } = this.state;
         const innerElem = e.target;
-        const nextScrollLeft = innerElem.scrollLeft; // Grabbing this val here rather than within raf() fxn acts kind of like a throttle (?).
+        let nextScrollLeft = innerElem.scrollLeft; // Grabbing this val here rather than within raf() fxn acts kind of like a throttle (?).
 
         if (nextScrollLeft === tableContainerScrollLeft) { // Shouldn't occur but presence of this seems to improve smoothness (?)
             return false;
+        }
+
+        // Bound it, test again
+        // const { columnDefinitions, windowWidth } = this.props;
+        // const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
+        // nextScrollLeft = Math.min(
+        //     nextScrollLeft,
+        //     (fullRowWidth - tableContainerWidth)
+        // );
+
+        if (nextScrollLeft < 0) {
+            nextScrollLeft = 0; // Might occur right after changing column widths or something.
         }
 
         this.setContainerScrollLeft(nextScrollLeft || 0);
@@ -931,7 +951,7 @@ class DimensioningContainer extends React.PureComponent {
         const resultRowCommonProps = _.extend(
             _.pick(this.props, 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'),
             {
-                context, rowHeight, navigate,
+                context, rowHeight, navigate, isOwnPage,
                 columnDefinitions, tableContainerWidth, tableContainerScrollLeft, windowWidth,
                 'mounted' : mounted || false,
                 'headerColumnWidths' : widths,

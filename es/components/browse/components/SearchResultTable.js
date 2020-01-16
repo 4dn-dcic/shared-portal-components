@@ -201,23 +201,27 @@ function (_React$PureComponent) {
           open = _this$props2.open,
           rowNumber = _this$props2.rowNumber,
           result = _this$props2.result,
+          _this$props2$isOwnPag = _this$props2.isOwnPage,
+          isOwnPage = _this$props2$isOwnPag === void 0 ? true : _this$props2$isOwnPag,
           tableContainerWidth = _this$props2.tableContainerWidth,
           tableContainerScrollLeft = _this$props2.tableContainerScrollLeft,
           renderDetailPane = _this$props2.renderDetailPane,
           toggleDetailOpen = _this$props2.toggleDetailOpen,
           setDetailHeight = _this$props2.setDetailHeight,
           detailPaneHeight = _this$props2.detailPaneHeight;
-      var closing = this.state.closing;
+      var closing = this.state.closing; // Account for vertical scrollbar decreasing width of container.
+
+      var useWidth = isOwnPage ? tableContainerWidth : tableContainerWidth - 30;
       return _react["default"].createElement("div", {
         className: "result-table-detail-container detail-" + (open || closing ? 'open' : 'closed'),
         ref: this.detailRef
       }, open ? _react["default"].createElement("div", {
         className: "result-table-detail",
         style: {
-          'width': tableContainerWidth,
-          'transform': _utilities.style.translate3d(tableContainerScrollLeft)
+          width: useWidth,
+          transform: _utilities.style.translate3d(tableContainerScrollLeft)
         }
-      }, renderDetailPane(result, rowNumber, tableContainerWidth, {
+      }, renderDetailPane(result, rowNumber, useWidth, {
         open: open,
         tableContainerScrollLeft: tableContainerScrollLeft,
         toggleDetailOpen: toggleDetailOpen,
@@ -1025,13 +1029,10 @@ function (_React$PureComponent4) {
         _this9.setState(function (_ref3) {
           var pastWidth = _ref3.tableContainerWidth;
 
-          var _this9$getTableDims = _this9.getTableDims(),
-              tableContainerWidth = _this9$getTableDims.tableContainerWidth;
+          var currDims = _this9.getTableDims();
 
-          if (pastWidth !== tableContainerWidth) {
-            return {
-              tableContainerWidth: tableContainerWidth
-            };
+          if (pastWidth !== currDims.tableContainerWidth) {
+            return currDims;
           }
 
           return null;
@@ -1165,13 +1166,28 @@ function (_React$PureComponent4) {
   }, {
     key: "onHorizontalScroll",
     value: function onHorizontalScroll(e) {
-      var tableContainerScrollLeft = this.state.tableContainerScrollLeft;
+      var _this$state3 = this.state,
+          tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
+          tableContainerWidth = _this$state3.tableContainerWidth,
+          mounted = _this$state3.mounted,
+          widths = _this$state3.widths;
       var innerElem = e.target;
       var nextScrollLeft = innerElem.scrollLeft; // Grabbing this val here rather than within raf() fxn acts kind of like a throttle (?).
 
       if (nextScrollLeft === tableContainerScrollLeft) {
         // Shouldn't occur but presence of this seems to improve smoothness (?)
         return false;
+      } // Bound it, test again
+      // const { columnDefinitions, windowWidth } = this.props;
+      // const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
+      // nextScrollLeft = Math.min(
+      //     nextScrollLeft,
+      //     (fullRowWidth - tableContainerWidth)
+      // );
+
+
+      if (nextScrollLeft < 0) {
+        nextScrollLeft = 0; // Might occur right after changing column widths or something.
       }
 
       this.setContainerScrollLeft(nextScrollLeft || 0);
@@ -1260,13 +1276,13 @@ function (_React$PureComponent4) {
           rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
           _this$props14$maxHeig = _this$props14.maxHeight,
           maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig;
-      var _this$state3 = this.state,
-          results = _this$state3.results,
-          tableContainerWidth = _this$state3.tableContainerWidth,
-          tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
-          mounted = _this$state3.mounted,
-          widths = _this$state3.widths,
-          openDetailPanes = _this$state3.openDetailPanes;
+      var _this$state4 = this.state,
+          results = _this$state4.results,
+          tableContainerWidth = _this$state4.tableContainerWidth,
+          tableContainerScrollLeft = _this$state4.tableContainerScrollLeft,
+          mounted = _this$state4.mounted,
+          widths = _this$state4.widths,
+          openDetailPanes = _this$state4.openDetailPanes;
       var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
       var canLoadMore = this.canLoadMore();
       var anyResults = results.length > 0;
@@ -1285,6 +1301,7 @@ function (_React$PureComponent4) {
         context: context,
         rowHeight: rowHeight,
         navigate: navigate,
+        isOwnPage: isOwnPage,
         columnDefinitions: columnDefinitions,
         tableContainerWidth: tableContainerWidth,
         tableContainerScrollLeft: tableContainerScrollLeft,
