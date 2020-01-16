@@ -172,6 +172,8 @@ function (_React$PureComponent) {
           roundTwo = _this$props.roundTwo,
           currType = _this$props.currType,
           currContext = _this$props.currContext,
+          keyDisplay = _this$props.keyDisplay,
+          selectComplete = _this$props.selectComplete,
           propFieldType = _this$props.fieldType;
       fieldType = fieldType || propFieldType;
       var inputProps = {
@@ -291,9 +293,10 @@ function (_React$PureComponent) {
             className: "input-wrapper"
           }, _react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, _extends({
             value: value,
-            allowCustomValue: false,
-            onChange: this.handleEnumChange
-          }, this.props)));
+            allowCustomValue: false
+          }, this.props, {
+            idToTitleMap: keyDisplay
+          })));
 
         case 'array':
           return _react["default"].createElement(ArrayField, _extends({}, this.props, {
@@ -355,6 +358,11 @@ function (_React$PureComponent) {
       }
 
       modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
+    }
+  }, {
+    key: "handleDropdownLinkToChange",
+    value: function handleDropdownLinkToChange(resultItem) {
+      modifyNewContext(nestedField, resultItem['@id'], fieldType, linkType, arrayIdx, null, resultItem.display_title);
     }
   }, {
     key: "handleEnumChange",

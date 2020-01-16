@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.SubmissionViewSearchAsYouTypeAjax = SubmissionViewSearchAsYouTypeAjax;
 exports.SquareButton = exports.LinkedObj = exports.optionCustomizationsByType = exports.SearchAsYouTypeAjax = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
@@ -29,6 +29,10 @@ var _LinkToSelector = require("./LinkToSelector");
 var _SearchSelectionMenu = require("./SearchSelectionMenu");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -334,38 +338,44 @@ SearchAsYouTypeAjax.defaultProps = {
 
 function SubmissionViewSearchAsYouTypeAjax(props) {
   // Another higher-order-component
-  var onChangeProp = props.onChange,
+  var selectComplete = props.selectComplete,
+      nestedField = props.nestedField,
       value = props.value,
+      arrayIdx = props.arrayIdx,
       _props$schema$linkTo = props.schema.linkTo,
       linkTo = _props$schema$linkTo === void 0 ? "Item" : _props$schema$linkTo,
       _props$itemType = props.itemType,
-      itemType = _props$itemType === void 0 ? linkTo : _props$itemType;
-  // Add some logic based on schema.Linkto props if itemType not already available
+      itemType = _props$itemType === void 0 ? linkTo : _props$itemType,
+      _props$idToTitleMap = props.idToTitleMap,
+      idToTitleMap = _props$idToTitleMap === void 0 ? null : _props$idToTitleMap; // Add some logic based on schema.Linkto props if itemType not already available
+
   var baseHref = "/search/?type=" + linkTo;
   var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
+  var onChange = (0, _react.useMemo)(function () {
+    return function (resultItem) {
+      return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx);
+    };
+  }, [selectComplete, nestedField]);
+  var titleRenderFunction = (0, _react.useMemo)(function () {
+    return function (resultAtID) {
+      return idToTitleMap[resultAtID] || resultAtID;
+    };
+  }, [idToTitleMap]);
   return _react["default"].createElement("div", {
     className: "d-flex flex-wrap"
-  }, _react["default"].createElement(SearchAsYouTypeAjax, _extends({
+  }, _react["default"].createElement(SearchAsYouTypeAjax, {
     value: value,
-    onChange: function (resultItem) {
-      // Should probably be a method on class, or similar approach so that doesn't get re-instantiated on each render
-      return onChangeProp(resultItem['@id']);
-    },
+    onChange: onChange,
     baseHref: baseHref,
     optionRenderFunction: optionRenderFunction,
-    fieldsToRequest: fieldsToRequest
-  }, {
-    titleRenderFunction: submissionViewTitleRenderFunction
-  })), _react["default"].createElement(LinkedObj, _extends({
+    fieldsToRequest: fieldsToRequest,
+    titleRenderFunction: titleRenderFunction
+  }), _react["default"].createElement(LinkedObj, _extends({
     key: "linked-item"
   }, props, {
     baseHref: baseHref
   })));
-}
-
-function submissionViewTitleRenderFunction(resultAtID) {
-  return resultAtID;
 }
 
 function sexToIcon(sex, showTip) {

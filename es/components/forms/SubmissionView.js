@@ -52,12 +52,6 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -65,6 +59,12 @@ function _nonIterableRest() { throw new TypeError("Invalid attempt to destructur
 function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -305,12 +305,13 @@ function (_React$PureComponent) {
 
   }, {
     key: "modifyKeyContext",
-    value: function modifyKeyContext(objKey, newContext) {
+    value: function modifyKeyContext(objKey, newContext, keyTitle) {
       this.setState(function (_ref) {
         var keyContext = _ref.keyContext,
             keyValid = _ref.keyValid,
             prevKeyHierarchy = _ref.keyHierarchy,
-            keyComplete = _ref.keyComplete;
+            keyComplete = _ref.keyComplete,
+            keyDisplay = _ref.keyDisplay;
 
         var contextCopy = _util.object.deepClone(keyContext);
 
@@ -321,7 +322,8 @@ function (_React$PureComponent) {
         validCopy[objKey] = SubmissionView.findValidationState(objKey, prevKeyHierarchy, keyContext, keyComplete);
         return {
           'keyContext': contextCopy,
-          'keyValid': validCopy
+          'keyValid': validCopy,
+          'keyDisplay': _objectSpread({}, keyDisplay, _defineProperty({}, objKey, keyTitle))
         };
       }, _reactTooltip["default"].rebuild);
     }
@@ -2431,6 +2433,7 @@ function (_React$Component2) {
     value: function modifyNewContext(field, value, fieldType) {
       var arrayIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       var type = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
+      var valueTitle = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
 
       if (fieldType === 'new linked object') {
         value = this.props.keyIter + 1;
@@ -2494,7 +2497,7 @@ function (_React$Component2) {
         this.props.initCreateObj(type, value, field, false, field);
       } else {
         // actually change value
-        this.props.modifyKeyContext(this.props.currKey, contextCopy);
+        this.props.modifyKeyContext(this.props.currKey, contextCopy, valueTitle);
       }
 
       if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title') {
@@ -2611,12 +2614,25 @@ function (_React$Component2) {
   }, {
     key: "selectComplete",
     value: function selectComplete(atIds) {
+      var customSelectField = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var customArrayIdx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
-          selectField = _this$state7.selectField,
-          selectArrayIdx = _this$state7.selectArrayIdx,
-          selectType = _this$state7.selectType;
-      if (!selectField) throw new Error('No field being selected for');
+          stateSelectField = _this$state7.selectField,
+          stateSelectArrayIdx = _this$state7.selectArrayIdx,
+          stateSelectType = _this$state7.selectType;
+      var selectField = customSelectField || stateSelectField;
+      var selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
+
+      if (!Array.isArray(atIds) && typeof atIds === "string") {
+        atIds = [atIds];
+      }
+
+      if (!selectField) {
+        throw new Error('No field being selected for');
+      }
+
       var isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
       var cloneSelectArrayIdx = isMultiSelect ? _toConsumableArray(selectArrayIdx) : null;
       var _iteratorNormalCompletion = true;
@@ -2632,7 +2648,7 @@ function (_React$Component2) {
 
           if (!isRepeat) {
             //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-            this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
+            this.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
 
             if (isMultiSelect) {
               cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { _ } from 'underscore';
 import memoize from 'memoize-one';
@@ -224,15 +224,15 @@ SearchAsYouTypeAjax.defaultProps = {
 
 export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-order-component
     const {
-        onChange : onChangeProp,
+        selectComplete,
+        nestedField,
         value,
+        arrayIdx,
         schema : { linkTo = "Item" },
-        itemType = linkTo
+        itemType = linkTo,
+        idToTitleMap = null
     } = props;
 
-    function onChange(resultItem){ // Should probably be a method on class, or similar approach so that doesn't get re-instantiated on each render
-        return onChangeProp(resultItem['@id']);
-    }
     // Add some logic based on schema.Linkto props if itemType not already available
     const baseHref = "/search/?type=" + linkTo;
 
@@ -246,18 +246,26 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
         optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null
     ) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
 
+    const onChange = useMemo(function(){
+        return function(resultItem){
+            return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx);
+        };
+    }, [ selectComplete, nestedField ]);
+
+    const titleRenderFunction = useMemo(function(){
+        return function(resultAtID){
+            return idToTitleMap[resultAtID] || resultAtID;
+        };
+    }, [ idToTitleMap ]);
+
     return (
         <div className="d-flex flex-wrap">
-            <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction, fieldsToRequest }}
-                titleRenderFunction={submissionViewTitleRenderFunction} />
+            <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction, fieldsToRequest, titleRenderFunction }}/>
             <LinkedObj key="linked-item" {...props} baseHref={baseHref} />
         </div>
     );
 }
 
-function submissionViewTitleRenderFunction(resultAtID){
-    return resultAtID;
-}
 
 function sexToIcon(sex, showTip) {
     sex = sex.toLowerCase();

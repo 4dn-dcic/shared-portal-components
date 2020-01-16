@@ -94,7 +94,7 @@ export class BuildField extends React.PureComponent {
      * @returns {JSX.Element} A JSX `<input>` element, a Bootstrap input element component, or custom React component which will render input fields.
      */
     displayField(fieldType){
-        const { field, value, disabled, enumValues, currentSubmittingUser, roundTwo, currType, currContext, fieldType : propFieldType } = this.props;
+        const { field, value, disabled, enumValues, currentSubmittingUser, roundTwo, currType, currContext, keyDisplay, selectComplete, fieldType : propFieldType } = this.props;
         fieldType = fieldType || propFieldType;
         const inputProps = {
             'key'       :        field,
@@ -107,7 +107,7 @@ export class BuildField extends React.PureComponent {
             'placeholder'       : "No value",
             'data-field-type'   : fieldType
         };
-
+        
         // Unique per-type overrides
 
         if (currType === 'StaticSection' && field === 'body'){
@@ -158,7 +158,7 @@ export class BuildField extends React.PureComponent {
             case 'linked object'    : return (
                 <div className="input-wrapper">
                     <SubmissionViewSearchAsYouTypeAjax value={value} allowCustomValue={false}
-                        onChange={this.handleEnumChange} {...this.props} />
+                        {...this.props} idToTitleMap={keyDisplay} />
                 </div>
             );
             case 'array'            : return <ArrayField {...this.props} pushArrayValue={this.pushArrayValue} value={value || null} roundTwo={roundTwo} />;
@@ -198,6 +198,10 @@ export class BuildField extends React.PureComponent {
         }
 
         modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
+    }
+
+    handleDropdownLinkToChange(resultItem){
+        modifyNewContext(nestedField, resultItem['@id'], fieldType, linkType, arrayIdx, null, resultItem.display_title);
     }
 
     handleEnumChange(eventKey){

@@ -204,8 +204,8 @@ export default class SubmissionView extends React.PureComponent{
      * @param {number} objKey - Key of Item being modified.
      * @param {Object} newContext - New Context/representation for this Item to be saved.
      */
-    modifyKeyContext(objKey, newContext){
-        this.setState(({ keyContext, keyValid, keyHierarchy : prevKeyHierarchy, keyComplete }) => {
+    modifyKeyContext(objKey, newContext, keyTitle){
+        this.setState(({ keyContext, keyValid, keyHierarchy : prevKeyHierarchy, keyComplete, keyDisplay }) => {
             const contextCopy = object.deepClone(keyContext);
             const validCopy   = object.deepClone(keyValid);
             contextCopy[objKey] = newContext;
@@ -214,7 +214,8 @@ export default class SubmissionView extends React.PureComponent{
             validCopy[objKey] = SubmissionView.findValidationState(objKey, prevKeyHierarchy, keyContext, keyComplete);
             return {
                 'keyContext': contextCopy,
-                'keyValid': validCopy
+                'keyValid': validCopy,
+                'keyDisplay' : { ...keyDisplay, [objKey] : keyTitle }
             };
         }, ReactTooltip.rebuild);
     }
@@ -1793,7 +1794,7 @@ class IndividualObjectView extends React.Component {
      * @param {!number} arrayIdx    Index in array of value when entire value for property is an array.
      * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
      */
-    modifyNewContext(field, value, fieldType, newLink, arrayIdx=null, type=null){
+    modifyNewContext(field, value, fieldType, newLink, arrayIdx=null, type=null, valueTitle=null){
         if(fieldType === 'new linked object'){
             value = this.props.keyIter + 1;
             if(this.props.roundTwo){
@@ -1847,7 +1848,7 @@ class IndividualObjectView extends React.Component {
             this.props.initCreateObj(type, value, field, false, field);
         } else {
             // actually change value
-            this.props.modifyKeyContext(this.props.currKey, contextCopy);
+            this.props.modifyKeyContext(this.props.currKey, contextCopy, valueTitle);
         }
 
         if(splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title'){
@@ -1934,11 +1935,25 @@ class IndividualObjectView extends React.Component {
      * object selection state, modifies context, and initializes the fetchAndValidateItem
      * process.
      */
-    selectComplete(atIds) {
+    selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null) {
         const { currContext } = this.props;
-        const { selectField, selectArrayIdx, selectType } = this.state;
+        const {
+            selectField: stateSelectField,
+            selectArrayIdx: stateSelectArrayIdx,
+            selectType: stateSelectType
+        } = this.state;
 
-        if (!selectField) throw new Error('No field being selected for');
+        const selectField = customSelectField || stateSelectField;
+        const selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
+        const selectType = customSelectType || stateSelectType;
+
+        if (!Array.isArray(atIds) && typeof atIds === "string"){
+            atIds = [atIds];
+        }
+
+        if (!selectField){
+            throw new Error('No field being selected for');
+        }
 
         const isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
         const cloneSelectArrayIdx = isMultiSelect ? [...selectArrayIdx] : null;
