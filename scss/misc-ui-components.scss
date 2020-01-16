@@ -66,6 +66,11 @@
                     ::-webkit-scrollbar {
                         display: none;
                     }
+
+                    .dropdown-item:active {
+                        background-color: #ddd;
+                    }
+
                 }
             }
         }
