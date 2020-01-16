@@ -17,19 +17,19 @@
 }
 
 // Used by forms/components/SearchSelectionMenu.js
-.search-selection-menu.dropdown {    
-    max-width: 100%;
+.search-selection-menu.dropdown {
     margin-right: 2px;
-
-    @include media-breakpoint-up(lg) {
-        max-width: calc(100% - 96px);
-	}
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0px;
+    flex-basis: 0px;
 
     button.btn.dropdown-toggle {
         max-width: 100%;
+        width: 100%;
         overflow-x: hidden;
         text-overflow: ellipsis;
-        direction: rtl; // Show the last few numbers of @IDs on overflow-ellipsis; might need to change if expanding use elsewhere
+        text-align: left;
     }
     > div.search-selection-menu-body.dropdown-menu {
         max-width: 300px;

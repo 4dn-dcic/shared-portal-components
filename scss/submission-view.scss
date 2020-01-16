@@ -386,7 +386,7 @@ div.alias-input-field {
 				width: 45px;
 				flex: 0 0 45px;
 				&.hidden {
-					display: none;
+					visibility: hidden;
 				}
 				.remove-button-container {
 					width: 100%;
