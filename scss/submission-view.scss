@@ -414,10 +414,14 @@ div.alias-input-field {
 				}
 			}
 
-			//button:not(.btn-xs):not(.btn-sm):not(.btn-large):not(.btn-xlarge){
-			//	height: 34px;
-			//	padding-bottom: 7px;
-			//}
+			/* Override bootstrap hover styles for this page */
+			.btn.btn-outline-secondary:hover,
+			.btn.btn-outline-secondary:active,
+			.btn.btn-outline-secondary:focus {
+				border-color: #3e3e3e;
+				background-color: #3e3e3e;
+				color: #ffffff;
+			}
 			
 
 			// Override array-containing field style to have no padding as it recursively will render field items with their own padding (so don't double-pad).
