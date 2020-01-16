@@ -435,10 +435,14 @@ div.alias-input-field {
 						min-height: 50px;
 
 						&:not(:last-child){
-							border-bottom: 1px dotted #f4f4f4;
+							border-bottom: 2px solid #eeeeee;
 							&[data-field-type="object"]{
 								border-bottom: 2px solid #f4f4f4;
 							}
+						}
+
+						&.odd {
+							background-color: #fdfdfd;
 						}
 
 						// Row in field of in-array object rows
