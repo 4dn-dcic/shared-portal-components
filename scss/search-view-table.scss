@@ -112,7 +112,7 @@ $search-results-header-text-color: #fff !default;
 
 @mixin generic-results-flex-description-container {
 	.flex-description-container {
-		margin-top: 16px;
+		padding-top: 16px;
 		> .flexible-description-box {
 			margin-left: 28px;
 		}
@@ -391,7 +391,9 @@ $search-results-header-text-color: #fff !default;
 			.result-table-detail-container {
 				border-top: 1px solid rgba(0,0,0,0.075);
 				position: relative;
-				background: #fdfdfd;
+				background: #f5f5f5;
+				border-bottom: 1px solid;
+				border-bottom-color: #808080;
 
 				&.detail-closed {
 					display: none;
@@ -400,9 +402,10 @@ $search-results-header-text-color: #fff !default;
 					padding-left: 47px;
 					padding-right: 0px;
 
-					border-bottom: 1px solid;
+					background-color: #fff;
+					//border-bottom: 1px solid;
 					transition: border-bottom .3s ease-out;
-					border-bottom-color: #808080;
+					//border-bottom-color: #808080;
 
 					//transition: height .35s ease, transform .1s ease;
 					@include font-size(0.85rem);
