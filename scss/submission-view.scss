@@ -345,20 +345,11 @@ div.alias-input-field {
 				}
 			}
 
-			[data-field-type="suggested_enum"] 
-				.field-column.last-item-empty:not(:hover):not(.in-selection-field) {
-					opacity: 1; /* Fix for last item opacity/layering bug */
-			}
-
 			.field-column {
 				opacity: 1;
 				transition: opacity 0.33s;
 				flex: 1 1 0;
 				min-width: 0px;
-
-				&.last-item-empty:not(:hover):not(.in-selection-field) {
-					opacity: 0.7;
-				}
 
 				/* LinkTo selector fields when showing selection window */
 				&.in-selection-field {
@@ -452,6 +443,10 @@ div.alias-input-field {
 							padding-bottom: 8px;
 							display: flex;
 							flex-wrap: nowrap;
+
+							.field-column.last-item-empty:not(:hover):not(.in-selection-field) {
+								opacity: 0.7;
+							}
 							
 							&[data-field-type="object"] {
 								padding-top: 0;
@@ -474,6 +469,19 @@ div.alias-input-field {
 								}
 							}
 
+							&[data-field-type="object"],
+							&[data-field-type="linked object"],
+							&[data-field-type="enum"],
+							&[data-field-type="suggested_enum"] {
+								
+								> .field-column.last-item-empty:not(:hover):not(.in-selection-field) {
+									.dropdown-toggle,
+									.linked-object-buttons-container,
+									.submission-field-title {
+										opacity: 0.7;
+									}
+								}
+							}
 						}
 					}
 
