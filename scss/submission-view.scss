@@ -444,9 +444,6 @@ div.alias-input-field {
 							display: flex;
 							flex-wrap: nowrap;
 
-							.field-column.last-item-empty:not(:hover):not(.in-selection-field) {
-								opacity: 0.7;
-							}
 							
 							&[data-field-type="object"] {
 								padding-top: 0;
@@ -477,9 +474,16 @@ div.alias-input-field {
 								> .field-column.last-item-empty:not(:hover):not(.in-selection-field) {
 									.dropdown-toggle,
 									.linked-object-buttons-container,
-									.submission-field-title {
+									.submission-field-title,
+									.form-control {
 										opacity: 0.7;
 									}
+								}
+							}
+
+							&[data-field-type="text"] {
+								.field-column.last-item-empty:not(:hover):not(.in-selection-field) {
+									opacity: 0.7;
 								}
 							}
 						}
