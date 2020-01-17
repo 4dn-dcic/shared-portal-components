@@ -481,7 +481,13 @@ div.alias-input-field {
 								}
 							}
 
-							&[data-field-type="text"] {
+							&[data-field-type="text"],
+							&[data-field-type="html"],
+							&[data-field-type="code"],
+							&[data-field-type="integer"],
+							&[data-field-type="number"],
+							&[data-field-type="boolean"],
+							&[data-field-type="textarea"] {
 								.field-column.last-item-empty:not(:hover):not(.in-selection-field) {
 									opacity: 0.7;
 								}
