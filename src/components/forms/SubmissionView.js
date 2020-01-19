@@ -384,7 +384,10 @@ export default class SubmissionView extends React.PureComponent{
                 'creatingLinkForField'  : parentField
             }, extraState));
         } else { // schema doesn't support aliases
-            const fallbackAlias = 'My ' + type + ' ' + newIdx;
+            let fallbackAlias = "New " + type;
+            if (newIdx && newIdx > 0){
+                fallbackAlias += " (" + (newIdx + 1) + ")";
+            }
             this.createObj(type, newIdx, newLink, fallbackAlias, extraState);
         }
     }
@@ -509,7 +512,7 @@ export default class SubmissionView extends React.PureComponent{
      * use the lasst alias in the aliases field (an array).
      */
     modifyAlias(){
-        this.setState(function({ keyDisplay, keyTypes, currKey, keyContext, edit, create }){
+        this.setState(function({ keyDisplay, keyTypes, currKey, keyContext, edit, create }, { context: propContext }){
             const currAlias = keyDisplay[currKey];
             const aliases = keyContext[currKey].aliases || null;
             // Try to get 'alias' > 'name' > 'title' > then fallback to 'My ItemType currKey'
@@ -518,7 +521,7 @@ export default class SubmissionView extends React.PureComponent{
             if (name) {
                 nextKeyDisplay[currKey] = name;
             } else if (currKey === 0) {
-                nextKeyDisplay[currKey] = SubmissionView.principalTitle(null, edit, create, keyTypes[currKey]);
+                nextKeyDisplay[currKey] = SubmissionView.principalTitle(propContext, edit, create, keyTypes[currKey]);
             } else {
                 nextKeyDisplay[currKey] = 'My ' + keyTypes[currKey] + ' ' + currKey;
             }

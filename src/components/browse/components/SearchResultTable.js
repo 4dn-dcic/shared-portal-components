@@ -19,7 +19,7 @@ import { itemUtil } from './../../util/object';
 import { load } from './../../util/ajax';
 import { getPageVerticalScrollPosition, getElementOffset, responsiveGridState } from './../../util/layout';
 import { getItemTypeTitle } from './../../util/schema-transforms';
-import { requestAnimationFrame as raf, style } from './../../viz/utilities';
+import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style } from './../../viz/utilities';
 import { Alerts } from './../../ui/Alerts';
 
 import {
@@ -105,6 +105,7 @@ class ResultDetail extends React.PureComponent{
             domElem = this.detailRef && this.detailRef.current;
             height = domElem && parseInt(domElem.offsetHeight);
             if (typeof height === 'number' && !isNaN(height)){
+                height += 2; // Account for border top & bottom of outer container
                 this.lastFoundHeight = height;
             }
         }
@@ -139,9 +140,9 @@ class ResultDetail extends React.PureComponent{
         const useWidth = isOwnPage ? tableContainerWidth : tableContainerWidth - 30;
 
         return (
-            <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} ref={this.detailRef}>
+            <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} style={{ minHeight: detailPaneHeight }}>
                 { open ?
-                    <div className="result-table-detail" style={{
+                    <div className="result-table-detail" ref={this.detailRef} style={{
                         width : useWidth,
                         transform : style.translate3d(tableContainerScrollLeft)
                     }}>
@@ -454,7 +455,9 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                 </div>
             );
         }
+
         const elementHeight = _.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function(c){
+            // openRowHeight + openDetailPane height
             const savedHeight = openDetailPanes[c.props.id];
             if (savedHeight && typeof savedHeight === 'number'){
                 return openDetailPanes[c.props.id] + openRowHeight;
@@ -473,7 +476,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                 isInfiniteLoading={isLoading}
                 timeScrollStateLastsForAfterUserScrolls={250}
                 //onChangeScrollState={this.handleScrollingStateChange}
-                loadingSpinnerDelegate={<LoadingSpinner {...{ tableContainerWidth, tableContainerScrollLeft }} />}
+                loadingSpinnerDelegate={<LoadingSpinner width={tableContainerWidth} tableContainerScrollLeft={tableContainerScrollLeft} />}
                 infiniteLoadBeginEdgeOffset={canLoadMore ? 200 : undefined}
                 preloadAdditionalHeight={Infinite.containerHeightScaleFactor(1.5)}
                 preloadBatchSize={Infinite.containerHeightScaleFactor(1.5)}
@@ -484,10 +487,10 @@ class LoadMoreAsYouScroll extends React.PureComponent {
     }
 }
 
-const LoadingSpinner = React.memo(function LoadingSpinner({ tableContainerWidth, tableContainerScrollLeft }){
+const LoadingSpinner = React.memo(function LoadingSpinner({ width, tableContainerScrollLeft }){
     return (
         <div className="search-result-row loading text-center" style={{
-            'maxWidth' : tableContainerWidth,
+            'maxWidth' : width,
             'transform' : style.translate3d(tableContainerScrollLeft)
         }}>
             <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
@@ -689,7 +692,8 @@ class DimensioningContainer extends React.PureComponent {
         this.throttledUpdate = _.debounce(this.forceUpdate.bind(this), 500);
         this.toggleDetailPaneOpen = _.throttle(this.toggleDetailPaneOpen.bind(this), 500);
         this.setDetailHeight = this.setDetailHeight.bind(this);
-        this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this); //_.throttle(this.setContainerScrollLeft.bind(this), 100);
+        //this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this);
+        this.setContainerScrollLeft = _.throttle(this.setContainerScrollLeft.bind(this), 250);
         this.onHorizontalScroll = this.onHorizontalScroll.bind(this);
         this.setHeaderWidths = _.throttle(this.setHeaderWidths.bind(this), 300);
         this.getTableDims = this.getTableDims.bind(this);
@@ -842,14 +846,9 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     onHorizontalScroll(e){
-        const { tableContainerScrollLeft, tableContainerWidth, mounted, widths } = this.state;
         const innerElem = e.target;
-        let nextScrollLeft = innerElem.scrollLeft; // Grabbing this val here rather than within raf() fxn acts kind of like a throttle (?).
 
-        if (nextScrollLeft === tableContainerScrollLeft) { // Shouldn't occur but presence of this seems to improve smoothness (?)
-            return false;
-        }
-
+        // ( Shouldn't need to do commented out stuff if layout is within width )
         // Bound it, test again
         // const { columnDefinitions, windowWidth } = this.props;
         // const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
@@ -858,11 +857,27 @@ class DimensioningContainer extends React.PureComponent {
         //     (fullRowWidth - tableContainerWidth)
         // );
 
-        if (nextScrollLeft < 0) {
-            nextScrollLeft = 0; // Might occur right after changing column widths or something.
+        if (this.horizScrollRAF){
+            caf(this.horizScrollRAF);
         }
 
-        this.setContainerScrollLeft(nextScrollLeft || 0);
+        this.horizScrollRAF = raf(()=>{
+            const { tableContainerScrollLeft } = this.state;
+            let nextScrollLeft = innerElem.scrollLeft;
+
+            if (nextScrollLeft < 0) {
+                nextScrollLeft = 0; // Might occur right after changing column widths or something.
+            }
+
+            const headersElem = innerElem.parentElement.childNodes[0].childNodes[0];
+            headersElem.style.left = `-${nextScrollLeft}px`;
+
+            if (nextScrollLeft !== tableContainerScrollLeft) { // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
+                this.setContainerScrollLeft(nextScrollLeft);
+            }
+
+            delete this.horizScrollRAF;
+        });
 
         return false;
     }
@@ -999,8 +1014,14 @@ class DimensioningContainer extends React.PureComponent {
 
         if (anyResults && !canLoadMore) {
             renderChildren.push(
-                <div key="can-load-more" className="fin search-result-row" style={{ transform: style.translate3d(tableContainerScrollLeft) }}>
-                    <div className="inner">- <span>fin</span> -</div>
+                <div className="fin search-result-row" key="fin-last-item" style={{
+                    // Account for vertical scrollbar decreasing width of container.
+                    width: tableContainerWidth - (isOwnPage ? 0 : 30),
+                    transform: style.translate3d(tableContainerScrollLeft)
+                }}>
+                    <div className="inner">
+                        - <span>fin</span> -
+                    </div>
                 </div>
             );
         }

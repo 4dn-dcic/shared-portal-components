@@ -167,6 +167,8 @@ function (_React$PureComponent) {
         height = domElem && parseInt(domElem.offsetHeight);
 
         if (typeof height === 'number' && !isNaN(height)) {
+          height += 2; // Account for border top & bottom of outer container
+
           this.lastFoundHeight = height;
         }
       }
@@ -214,9 +216,12 @@ function (_React$PureComponent) {
       var useWidth = isOwnPage ? tableContainerWidth : tableContainerWidth - 30;
       return _react["default"].createElement("div", {
         className: "result-table-detail-container detail-" + (open || closing ? 'open' : 'closed'),
-        ref: this.detailRef
+        style: {
+          minHeight: detailPaneHeight
+        }
       }, open ? _react["default"].createElement("div", {
         className: "result-table-detail",
+        ref: this.detailRef,
         style: {
           width: useWidth,
           transform: _utilities.style.translate3d(tableContainerScrollLeft)
@@ -631,6 +636,7 @@ function (_React$PureComponent3) {
       }
 
       var elementHeight = _underscore["default"].keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
+        // openRowHeight + openDetailPane height
         var savedHeight = openDetailPanes[c.props.id];
 
         if (savedHeight && typeof savedHeight === 'number') {
@@ -650,7 +656,7 @@ function (_React$PureComponent3) {
         timeScrollStateLastsForAfterUserScrolls: 250 //onChangeScrollState={this.handleScrollingStateChange}
         ,
         loadingSpinnerDelegate: _react["default"].createElement(LoadingSpinner, {
-          tableContainerWidth: tableContainerWidth,
+          width: tableContainerWidth,
           tableContainerScrollLeft: tableContainerScrollLeft
         }),
         infiniteLoadBeginEdgeOffset: canLoadMore ? 200 : undefined,
@@ -688,12 +694,12 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
 });
 
 var LoadingSpinner = _react["default"].memo(function (_ref2) {
-  var tableContainerWidth = _ref2.tableContainerWidth,
+  var width = _ref2.width,
       tableContainerScrollLeft = _ref2.tableContainerScrollLeft;
   return _react["default"].createElement("div", {
     className: "search-result-row loading text-center",
     style: {
-      'maxWidth': tableContainerWidth,
+      'maxWidth': width,
       'transform': _utilities.style.translate3d(tableContainerScrollLeft)
     }
   }, _react["default"].createElement("i", {
@@ -966,9 +972,9 @@ function (_React$PureComponent4) {
     _this8.getScrollableElement = _this8.getScrollableElement.bind(_assertThisInitialized(_this8));
     _this8.throttledUpdate = _underscore["default"].debounce(_this8.forceUpdate.bind(_assertThisInitialized(_this8)), 500);
     _this8.toggleDetailPaneOpen = _underscore["default"].throttle(_this8.toggleDetailPaneOpen.bind(_assertThisInitialized(_this8)), 500);
-    _this8.setDetailHeight = _this8.setDetailHeight.bind(_assertThisInitialized(_this8));
-    _this8.setContainerScrollLeft = _this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8)); //_.throttle(this.setContainerScrollLeft.bind(this), 100);
+    _this8.setDetailHeight = _this8.setDetailHeight.bind(_assertThisInitialized(_this8)); //this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this);
 
+    _this8.setContainerScrollLeft = _underscore["default"].throttle(_this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8)), 250);
     _this8.onHorizontalScroll = _this8.onHorizontalScroll.bind(_assertThisInitialized(_this8));
     _this8.setHeaderWidths = _underscore["default"].throttle(_this8.setHeaderWidths.bind(_assertThisInitialized(_this8)), 300);
     _this8.getTableDims = _this8.getTableDims.bind(_assertThisInitialized(_this8));
@@ -1166,18 +1172,10 @@ function (_React$PureComponent4) {
   }, {
     key: "onHorizontalScroll",
     value: function onHorizontalScroll(e) {
-      var _this$state3 = this.state,
-          tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
-          tableContainerWidth = _this$state3.tableContainerWidth,
-          mounted = _this$state3.mounted,
-          widths = _this$state3.widths;
-      var innerElem = e.target;
-      var nextScrollLeft = innerElem.scrollLeft; // Grabbing this val here rather than within raf() fxn acts kind of like a throttle (?).
+      var _this10 = this;
 
-      if (nextScrollLeft === tableContainerScrollLeft) {
-        // Shouldn't occur but presence of this seems to improve smoothness (?)
-        return false;
-      } // Bound it, test again
+      var innerElem = e.target; // ( Shouldn't need to do commented out stuff if layout is within width )
+      // Bound it, test again
       // const { columnDefinitions, windowWidth } = this.props;
       // const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
       // nextScrollLeft = Math.min(
@@ -1185,12 +1183,28 @@ function (_React$PureComponent4) {
       //     (fullRowWidth - tableContainerWidth)
       // );
 
-
-      if (nextScrollLeft < 0) {
-        nextScrollLeft = 0; // Might occur right after changing column widths or something.
+      if (this.horizScrollRAF) {
+        (0, _utilities.cancelAnimationFrame)(this.horizScrollRAF);
       }
 
-      this.setContainerScrollLeft(nextScrollLeft || 0);
+      this.horizScrollRAF = (0, _utilities.requestAnimationFrame)(function () {
+        var tableContainerScrollLeft = _this10.state.tableContainerScrollLeft;
+        var nextScrollLeft = innerElem.scrollLeft;
+
+        if (nextScrollLeft < 0) {
+          nextScrollLeft = 0; // Might occur right after changing column widths or something.
+        }
+
+        var headersElem = innerElem.parentElement.childNodes[0].childNodes[0];
+        headersElem.style.left = "-".concat(nextScrollLeft, "px");
+
+        if (nextScrollLeft !== tableContainerScrollLeft) {
+          // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
+          _this10.setContainerScrollLeft(nextScrollLeft);
+        }
+
+        delete _this10.horizScrollRAF;
+      });
       return false;
     }
   }, {
@@ -1215,7 +1229,7 @@ function (_React$PureComponent4) {
   }, {
     key: "resetWidths",
     value: function resetWidths() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.setState(function resetWidthStateChangeFxn(_ref6, _ref7) {
         var mounted = _ref6.mounted;
@@ -1226,11 +1240,11 @@ function (_React$PureComponent4) {
         };
       }, function resetWidthStateChangeFxnCallback() {
         (0, _utilities.requestAnimationFrame)(function () {
-          var _this10$props = _this10.props,
-              columnDefinitions = _this10$props.columnDefinitions,
-              windowWidth = _this10$props.windowWidth; // 2. Upon render into DOM, decrease col sizes.
+          var _this11$props = _this11.props,
+              columnDefinitions = _this11$props.columnDefinitions,
+              windowWidth = _this11$props.windowWidth; // 2. Upon render into DOM, decrease col sizes.
 
-          _this10.setState(_underscore["default"].extend(_this10.getTableDims(), {
+          _this11.setState(_underscore["default"].extend(_this11.getTableDims(), {
             'widths': DimensioningContainer.findAndDecreaseColumnWidths(columnDefinitions, 30, windowWidth)
           }));
         });
@@ -1276,13 +1290,13 @@ function (_React$PureComponent4) {
           rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
           _this$props14$maxHeig = _this$props14.maxHeight,
           maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig;
-      var _this$state4 = this.state,
-          results = _this$state4.results,
-          tableContainerWidth = _this$state4.tableContainerWidth,
-          tableContainerScrollLeft = _this$state4.tableContainerScrollLeft,
-          mounted = _this$state4.mounted,
-          widths = _this$state4.widths,
-          openDetailPanes = _this$state4.openDetailPanes;
+      var _this$state3 = this.state,
+          results = _this$state3.results,
+          tableContainerWidth = _this$state3.tableContainerWidth,
+          tableContainerScrollLeft = _this$state3.tableContainerScrollLeft,
+          mounted = _this$state3.mounted,
+          widths = _this$state3.widths,
+          openDetailPanes = _this$state3.openDetailPanes;
       var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, widths, windowWidth);
       var canLoadMore = this.canLoadMore();
       var anyResults = results.length > 0;
@@ -1370,9 +1384,11 @@ function (_React$PureComponent4) {
 
       if (anyResults && !canLoadMore) {
         renderChildren.push(_react["default"].createElement("div", {
-          key: "can-load-more",
           className: "fin search-result-row",
+          key: "fin-last-item",
           style: {
+            // Account for vertical scrollbar decreasing width of container.
+            width: tableContainerWidth - (isOwnPage ? 0 : 30),
             transform: _utilities.style.translate3d(tableContainerScrollLeft)
           }
         }, _react["default"].createElement("div", {
@@ -1428,14 +1444,14 @@ function (_React$PureComponent5) {
   }]);
 
   function SearchResultTable(props) {
-    var _this11;
+    var _this12;
 
     _classCallCheck(this, SearchResultTable);
 
-    _this11 = _possibleConstructorReturn(this, _getPrototypeOf(SearchResultTable).call(this, props));
-    _this11.getDimensionContainer = _this11.getDimensionContainer.bind(_assertThisInitialized(_this11));
-    _this11.dimensionContainerRef = _react["default"].createRef();
-    return _this11;
+    _this12 = _possibleConstructorReturn(this, _getPrototypeOf(SearchResultTable).call(this, props));
+    _this12.getDimensionContainer = _this12.getDimensionContainer.bind(_assertThisInitialized(_this12));
+    _this12.dimensionContainerRef = _react["default"].createRef();
+    return _this12;
   }
 
   _createClass(SearchResultTable, [{

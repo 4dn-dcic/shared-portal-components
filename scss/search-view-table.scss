@@ -151,6 +151,7 @@ $search-results-header-text-color: #fff !default;
 
 	.search-results-container {
 		position: relative;
+		transform: translate3d(0,0,0); // New coordplane/topleft for position:fixed children
 
 		&:not(.fully-loaded){
 			::-webkit-scrollbar {
@@ -401,10 +402,11 @@ $search-results-header-text-color: #fff !default;
 				.result-table-detail {
 					padding-left: 47px;
 					padding-right: 0px;
+					// position: fixed;
 
 					background-color: #fff;
 					//border-bottom: 1px solid;
-					transition: border-bottom .3s ease-out;
+					transition: transform .3s ease-out;
 					//border-bottom-color: #808080;
 
 					//transition: height .35s ease, transform .1s ease;
@@ -436,11 +438,17 @@ $search-results-header-text-color: #fff !default;
 				text-align: center;
 				border-bottom-color: transparent;
 				line-height: $search-results-result-row-height;
+				height: $search-results-result-row-height + 1px;
 				font-style: italic;
 				border-bottom: none;
 				background-color: #fff;
+				position: relative;
+				transition: transform .3s ease;
+				width: 100%; // overriden by px value after mount. Should visually remain same.
 				> .inner {
-					transition: transform .5s ease;
+					// position: fixed;
+					width: inherit;
+					height: inherit;
 					> span {
 						font-family: serif;
 					}
