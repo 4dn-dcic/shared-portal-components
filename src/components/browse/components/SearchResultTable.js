@@ -12,6 +12,7 @@ import ReactTooltip from 'react-tooltip';
 import Infinite from 'react-infinite';
 
 import { Detail } from './../../ui/ItemDetailList';
+import * as analytics from './../../util/analytics';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { isServerSide, isSelectAction } from './../../util/misc';
 import { navigate as globalPageNavigate } from './../../util/navigate';
@@ -411,16 +412,20 @@ class LoadMoreAsYouScroll extends React.PureComponent {
     handleLoad(){
         const nextHref = this.rebuiltHref();
         const loadCallback = (resp) => {
-            if (resp && resp['@graph'] && resp['@graph'].length > 0){
+
+            const { '@graph' : nextResults = [] } = resp || {};
+
+            if (nextResults.length > 0){
                 const {
+                    isOwnPage = true,
                     onDuplicateResultsFoundCallback,
-                    results,
+                    results: existingResults,
                     setResults,
                     navigate = globalPageNavigate // Use VirtualHrefController.virtualNavigate if is passed in.
                 } = this.props;
                 // Check if have same result, if so, refresh all results (something has changed on back-end)
-                const oldKeys = _.map(results, itemUtil.atId);
-                const newKeys = _.map(resp['@graph'], itemUtil.atId);
+                const oldKeys = _.map(existingResults, itemUtil.atId);
+                const newKeys = _.map(nextResults, itemUtil.atId);
                 const keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
                 if (keyIntersection.length > 0){
                     console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
@@ -429,7 +434,13 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                     });
                 } else {
                     this.setState({ 'isLoading' : false }, ()=>{
-                        setResults(results.slice(0).concat(resp['@graph']));
+                        analytics.impressionListOfItems(
+                            nextResults,
+                            nextHref,
+                            isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View - " + analytics.hrefToListName(nextHref)
+                        );
+                        analytics.event('SearchResultTable', "Loaded More Results");
+                        setResults(existingResults.slice(0).concat(nextResults));
                     });
                 }
             } else {
@@ -706,7 +717,8 @@ class DimensioningContainer extends React.PureComponent {
             'results'   : props.results.slice(0),
             // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
             'openDetailPanes' : {},
-            'tableContainerScrollLeft' : 0
+            'tableContainerScrollLeft' : 0,
+            'tableContainerWidth' : 0
         };
 
         if (this.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0){
@@ -1133,10 +1145,10 @@ export class SearchResultTable extends React.PureComponent {
     }
 
     render(){
-        const { hiddenColumns, columnExtensionMap, columnDefinitions, isInitialContextLoading = false, isOwnPage } = this.props;
+        const { hiddenColumns, columnExtensionMap, columnDefinitions, isContextLoading = false, isOwnPage } = this.props;
         const colDefs = columnDefinitions || columnsToColumnDefinitions({ 'display_title' : { 'title' : 'Title' } }, columnExtensionMap);
 
-        if (isInitialContextLoading) { // Only applicable for EmbeddedSearchView
+        if (isContextLoading) { // Only applicable for EmbeddedSearchView
             return (
                 <div className={"search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")}>
                     <div className="search-results-container text-center py-5">
@@ -1148,7 +1160,7 @@ export class SearchResultTable extends React.PureComponent {
 
         return (
             <DimensioningContainer
-                {..._.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap', 'isInitialContextLoading')}
+                {..._.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap', 'isContextLoading')}
                 columnDefinitions={SearchResultTable.filterOutHiddenCols(colDefs, hiddenColumns)}
                 ref={this.dimensionContainerRef} />
         );

@@ -24,6 +24,8 @@ var _reactInfinite = _interopRequireDefault(require("react-infinite"));
 
 var _ItemDetailList = require("./../../ui/ItemDetailList");
 
+var analytics = _interopRequireWildcard(require("./../../util/analytics"));
+
 var _patchedConsole = require("./../../util/patched-console");
 
 var _misc = require("./../../util/misc");
@@ -43,6 +45,10 @@ var _utilities = require("./../../viz/utilities");
 var _Alerts = require("./../../ui/Alerts");
 
 var _tableCommons = require("./table-commons");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -563,17 +569,22 @@ function (_React$PureComponent3) {
       var nextHref = this.rebuiltHref();
 
       var loadCallback = function (resp) {
-        if (resp && resp['@graph'] && resp['@graph'].length > 0) {
+        var _ref2$Graph = (resp || {})['@graph'],
+            nextResults = _ref2$Graph === void 0 ? [] : _ref2$Graph;
+
+        if (nextResults.length > 0) {
           var _this5$props = _this5.props,
+              _this5$props$isOwnPag = _this5$props.isOwnPage,
+              isOwnPage = _this5$props$isOwnPag === void 0 ? true : _this5$props$isOwnPag,
               onDuplicateResultsFoundCallback = _this5$props.onDuplicateResultsFoundCallback,
-              results = _this5$props.results,
+              existingResults = _this5$props.results,
               setResults = _this5$props.setResults,
               _this5$props$navigate = _this5$props.navigate,
               navigate = _this5$props$navigate === void 0 ? _navigate.navigate : _this5$props$navigate; // Check if have same result, if so, refresh all results (something has changed on back-end)
 
-          var oldKeys = _underscore["default"].map(results, _object.itemUtil.atId);
+          var oldKeys = _underscore["default"].map(existingResults, _object.itemUtil.atId);
 
-          var newKeys = _underscore["default"].map(resp['@graph'], _object.itemUtil.atId);
+          var newKeys = _underscore["default"].map(nextResults, _object.itemUtil.atId);
 
           var keyIntersection = _underscore["default"].intersection(oldKeys.sort(), newKeys.sort());
 
@@ -591,7 +602,9 @@ function (_React$PureComponent3) {
             _this5.setState({
               'isLoading': false
             }, function () {
-              setResults(results.slice(0).concat(resp['@graph']));
+              analytics.impressionListOfItems(nextResults, nextHref, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View - " + analytics.hrefToListName(nextHref));
+              analytics.event('SearchResultTable', "Loaded More Results");
+              setResults(existingResults.slice(0).concat(nextResults));
             });
           }
         } else {
@@ -693,9 +706,9 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   'isOwnPage': true
 });
 
-var LoadingSpinner = _react["default"].memo(function (_ref2) {
-  var width = _ref2.width,
-      tableContainerScrollLeft = _ref2.tableContainerScrollLeft;
+var LoadingSpinner = _react["default"].memo(function (_ref3) {
+  var width = _ref3.width,
+      tableContainerScrollLeft = _ref3.tableContainerScrollLeft;
   return _react["default"].createElement("div", {
     className: "search-result-row loading text-center",
     style: {
@@ -987,7 +1000,8 @@ function (_React$PureComponent4) {
       'results': props.results.slice(0),
       // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
       'openDetailPanes': {},
-      'tableContainerScrollLeft': 0
+      'tableContainerScrollLeft': 0,
+      'tableContainerWidth': 0
     };
 
     if (_this8.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
@@ -1032,8 +1046,8 @@ function (_React$PureComponent4) {
 
       // Detect size changes and update
       this.outerContainerSizeInterval = setInterval(function () {
-        _this9.setState(function (_ref3) {
-          var pastWidth = _ref3.tableContainerWidth;
+        _this9.setState(function (_ref4) {
+          var pastWidth = _ref4.tableContainerWidth;
 
           var currDims = _this9.getTableDims();
 
@@ -1130,8 +1144,8 @@ function (_React$PureComponent4) {
     key: "toggleDetailPaneOpen",
     value: function toggleDetailPaneOpen(rowKey) {
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref4) {
-        var openDetailPanes = _ref4.openDetailPanes;
+      this.setState(function (_ref5) {
+        var openDetailPanes = _ref5.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (openDetailPanes[rowKey]) {
@@ -1148,8 +1162,8 @@ function (_React$PureComponent4) {
   }, {
     key: "setDetailHeight",
     value: function setDetailHeight(rowKey, height, cb) {
-      this.setState(function (_ref5) {
-        var openDetailPanes = _ref5.openDetailPanes;
+      this.setState(function (_ref6) {
+        var openDetailPanes = _ref6.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (typeof openDetailPanes[rowKey] === 'undefined') {
@@ -1231,10 +1245,10 @@ function (_React$PureComponent4) {
     value: function resetWidths() {
       var _this11 = this;
 
-      this.setState(function resetWidthStateChangeFxn(_ref6, _ref7) {
-        var mounted = _ref6.mounted;
-        var columnDefinitions = _ref7.columnDefinitions,
-            windowWidth = _ref7.windowWidth;
+      this.setState(function resetWidthStateChangeFxn(_ref7, _ref8) {
+        var mounted = _ref7.mounted;
+        var columnDefinitions = _ref8.columnDefinitions,
+            windowWidth = _ref8.windowWidth;
         return {
           "widths": DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth)
         };
@@ -1466,8 +1480,8 @@ function (_React$PureComponent5) {
           hiddenColumns = _this$props15.hiddenColumns,
           columnExtensionMap = _this$props15.columnExtensionMap,
           columnDefinitions = _this$props15.columnDefinitions,
-          _this$props15$isIniti = _this$props15.isInitialContextLoading,
-          isInitialContextLoading = _this$props15$isIniti === void 0 ? false : _this$props15$isIniti,
+          _this$props15$isConte = _this$props15.isContextLoading,
+          isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
           isOwnPage = _this$props15.isOwnPage;
       var colDefs = columnDefinitions || (0, _tableCommons.columnsToColumnDefinitions)({
         'display_title': {
@@ -1475,7 +1489,7 @@ function (_React$PureComponent5) {
         }
       }, columnExtensionMap);
 
-      if (isInitialContextLoading) {
+      if (isContextLoading) {
         // Only applicable for EmbeddedSearchView
         return _react["default"].createElement("div", {
           className: "search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")
@@ -1486,7 +1500,7 @@ function (_React$PureComponent5) {
         })));
       }
 
-      return _react["default"].createElement(DimensioningContainer, _extends({}, _underscore["default"].omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap', 'isInitialContextLoading'), {
+      return _react["default"].createElement(DimensioningContainer, _extends({}, _underscore["default"].omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap', 'isContextLoading'), {
         columnDefinitions: SearchResultTable.filterOutHiddenCols(colDefs, hiddenColumns),
         ref: this.dimensionContainerRef
       }));

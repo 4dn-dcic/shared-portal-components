@@ -13,6 +13,8 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _url = _interopRequireDefault(require("url"));
 
+var analytics = _interopRequireWildcard(require("./../../util/analytics"));
+
 var _ajax = require("./../../util/ajax");
 
 var _navigate = require("./../../util/navigate");
@@ -92,7 +94,7 @@ function (_React$PureComponent) {
     };
     _this.state = {
       "virtualHref": props.searchHref,
-      "isInitialContextLoading": true,
+      "isContextLoading": true,
       "virtualContext": undefined // Let downstream components use defaultProps to fallback
 
     };
@@ -118,7 +120,10 @@ function (_React$PureComponent) {
 
       var _this$props$onLoad = this.props.onLoad,
           onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad;
-      var currentHref = this.state.virtualHref; // There is (very large) chance that `nextHref` does not have domain name, path, etc.
+      var _this$state2 = this.state,
+          currentHref = _this$state2.virtualHref,
+          _this$state2$virtualC = _this$state2.virtualContext,
+          existingContext = _this$state2$virtualC === void 0 ? null : _this$state2$virtualC; // There is (very large) chance that `nextHref` does not have domain name, path, etc.
       // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
 
       var nextHrefFull = _url["default"].resolve(currentHref, nextHref);
@@ -128,10 +133,11 @@ function (_React$PureComponent) {
       _patchedConsole.patchedConsoleInstance.log('VIRTUAL NAVIGATE CALLED', nextHref, nextHrefFull, navOpts);
 
       this.setState({
-        "isInitialContextLoading": true
+        "isContextLoading": true
       }, function () {
         var onLoadResponse = function (nextContext) {
-          var total = nextContext.total;
+          var total = nextContext.total,
+              initialResults = nextContext['@graph'];
 
           if (scopedRequest !== _this2.currRequest) {
             _patchedConsole.patchedConsoleInstance.warn("This is no longer the current request");
@@ -143,9 +149,17 @@ function (_React$PureComponent) {
             throw new Error("Did not get back a search response");
           }
 
+          if (typeof existingContext === "undefined") {
+            // First time we've loaded response context. Register analytics event.
+            if (Array.isArray(initialResults)) {
+              analytics.impressionListOfItems(initialResults, nextHrefFull, "Embedded Search View - " + analytics.hrefToListName(nextHrefFull));
+              analytics.event("VirtualHrefController", "Initial Results Loaded");
+            }
+          }
+
           _this2.setState({
             virtualContext: nextContext,
-            isInitialContextLoading: false,
+            isContextLoading: false,
             virtualHref: nextHrefFull
           }, function () {
             if (typeof callback === "function") {
@@ -165,9 +179,9 @@ function (_React$PureComponent) {
   }, {
     key: "onFilter",
     value: function onFilter(facet, term, callback) {
-      var _this$state2 = this.state,
-          virtualHref = _this$state2.virtualHref,
-          virtualContextFilters = _this$state2.virtualContext.filters;
+      var _this$state3 = this.state,
+          virtualHref = _this$state3.virtualHref,
+          virtualContextFilters = _this$state3.virtualContext.filters;
       return this.virtualNavigate((0, _FacetList.generateNextHref)(virtualHref, virtualContextFilters, facet, term), {
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
@@ -203,10 +217,10 @@ function (_React$PureComponent) {
           filterFacetFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
           passProps = _objectWithoutProperties(_this$props, ["children", "facets", "filterFacetFxn"]);
 
-      var _this$state3 = this.state,
-          href = _this$state3.virtualHref,
-          context = _this$state3.virtualContext,
-          isInitialContextLoading = _this$state3.isInitialContextLoading; // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
+      var _this$state4 = this.state,
+          href = _this$state4.virtualHref,
+          context = _this$state4.virtualContext,
+          isContextLoading = _this$state4.isContextLoading; // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
 
       var facets = propFacets === null ? null : propFacets || context && context.facets || null;
 
@@ -217,7 +231,7 @@ function (_React$PureComponent) {
       var propsToPass = _objectSpread({}, passProps, {
         href: href,
         context: context,
-        isInitialContextLoading: isInitialContextLoading,
+        isContextLoading: isContextLoading,
         facets: facets,
         navigate: this.virtualNavigate,
         onFilter: this.onFilter,

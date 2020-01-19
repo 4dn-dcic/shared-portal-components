@@ -84,7 +84,7 @@ export class ControlsAndResults extends React.PureComponent {
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
             href, onFilter,
             isOwnPage = true,
-            isInitialContextLoading = false,
+            isContextLoading = false,
 
             // From EmbeddedSearchView/manual-entry, used if isOwnPage is true
             maxHeight = SearchResultTable.defaultProps.maxHeight,
@@ -112,7 +112,7 @@ export class ControlsAndResults extends React.PureComponent {
         const searchResultTableProps = {
             context, href, navigate, currentAction, schemas, hiddenColumns, results, columnDefinitions, isOwnPage,
             sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
-            defaultOpenIndices, maxHeight, isInitialContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
+            defaultOpenIndices, maxHeight, isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 
         const facetListProps = {

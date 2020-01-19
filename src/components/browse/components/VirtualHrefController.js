@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import url from 'url';
+import * as analytics from './../../util/analytics';
 import { load as ajaxLoad } from './../../util/ajax';
 import { navigate } from './../../util/navigate';
 import { getTermFacetStatus } from './../../util/search-filters';
@@ -43,7 +44,7 @@ export class VirtualHrefController extends React.PureComponent {
 
         this.state = {
             "virtualHref" : props.searchHref,
-            "isInitialContextLoading" : true,
+            "isContextLoading" : true,
             "virtualContext" : undefined // Let downstream components use defaultProps to fallback
         };
     }
@@ -57,7 +58,7 @@ export class VirtualHrefController extends React.PureComponent {
 
     virtualNavigate(nextHref, navOpts, callback){
         const { onLoad = null } = this.props;
-        const { virtualHref: currentHref } = this.state;
+        const { virtualHref: currentHref, virtualContext: existingContext = null } = this.state;
 
         // There is (very large) chance that `nextHref` does not have domain name, path, etc.
         // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
@@ -67,9 +68,9 @@ export class VirtualHrefController extends React.PureComponent {
 
         console.log('VIRTUAL NAVIGATE CALLED', nextHref, nextHrefFull, navOpts);
 
-        this.setState({ "isInitialContextLoading" : true }, ()=>{
+        this.setState({ "isContextLoading" : true }, ()=>{
             const onLoadResponse = (nextContext) => {
-                const { total } = nextContext;
+                const { total, '@graph' : initialResults } = nextContext;
                 if (scopedRequest !== this.currRequest) {
                     console.warn("This is no longer the current request");
                     return false;
@@ -77,9 +78,18 @@ export class VirtualHrefController extends React.PureComponent {
                 if (typeof total !== "number") {
                     throw new Error("Did not get back a search response");
                 }
+
+                if (typeof existingContext === "undefined"){
+                    // First time we've loaded response context. Register analytics event.
+                    if (Array.isArray(initialResults)){
+                        analytics.impressionListOfItems(initialResults, nextHrefFull, "Embedded Search View - " + analytics.hrefToListName(nextHrefFull));
+                        analytics.event("VirtualHrefController", "Initial Results Loaded");
+                    }
+                }
+
                 this.setState({
                     virtualContext: nextContext,
-                    isInitialContextLoading: false,
+                    isContextLoading: false,
                     virtualHref: nextHrefFull
                 }, ()=>{
                     if (typeof callback === "function"){
@@ -129,7 +139,7 @@ export class VirtualHrefController extends React.PureComponent {
         const {
             virtualHref: href,
             virtualContext: context,
-            isInitialContextLoading
+            isContextLoading
         } = this.state;
 
         // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
@@ -141,7 +151,7 @@ export class VirtualHrefController extends React.PureComponent {
 
         const propsToPass = {
             ...passProps,
-            href, context, isInitialContextLoading, facets,
+            href, context, isContextLoading, facets,
             navigate: this.virtualNavigate,
             onFilter: this.onFilter,
             onClearFilters: this.onClearFilters,

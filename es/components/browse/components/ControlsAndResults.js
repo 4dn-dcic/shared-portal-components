@@ -171,8 +171,8 @@ function (_React$PureComponent) {
           onFilter = _this$props2.onFilter,
           _this$props2$isOwnPag = _this$props2.isOwnPage,
           isOwnPage = _this$props2$isOwnPag === void 0 ? true : _this$props2$isOwnPag,
-          _this$props2$isInitia = _this$props2.isInitialContextLoading,
-          isInitialContextLoading = _this$props2$isInitia === void 0 ? false : _this$props2$isInitia,
+          _this$props2$isContex = _this$props2.isContextLoading,
+          isContextLoading = _this$props2$isContex === void 0 ? false : _this$props2$isContex,
           _this$props2$maxHeigh = _this$props2.maxHeight,
           maxHeight = _this$props2$maxHeigh === void 0 ? _SearchResultTable.SearchResultTable.defaultProps.maxHeight : _this$props2$maxHeigh,
           hiddenColumns = _this$props2.hiddenColumns,
@@ -259,7 +259,7 @@ function (_React$PureComponent) {
         rowHeight: rowHeight,
         defaultOpenIndices: defaultOpenIndices,
         maxHeight: maxHeight,
-        isInitialContextLoading: isInitialContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
+        isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
 
       }, {
         ref: this.searchResultTableRef,

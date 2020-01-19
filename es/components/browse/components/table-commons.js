@@ -102,9 +102,10 @@ var basicColumnExtensionMap = {
     'order': -100,
     'render': function (result, columnDefinition, props, termTransformFxn, width) {
       var href = props.href,
+          context = props.context,
           rowNumber = props.rowNumber,
           detailOpen = props.detailOpen,
-          toggleDetailOpen = props.toggleDetailOpen;
+          toggleDetailOpen = props.toggleDetailOpen; // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
 
       var title = _object.itemUtil.getTitleStringFromContext(result);
 
@@ -118,13 +119,13 @@ var basicColumnExtensionMap = {
         evt.preventDefault();
         evt.stopPropagation();
         (0, _analytics.productClick)(result, {
-          'list': (0, _analytics.hrefToListName)(href),
-          'position': rowNumber + 1
+          list: (0, _analytics.hrefToListName)(href),
+          position: rowNumber + 1
         }, function () {
           // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
           // to VirtualHrefController.virtualNavigate and would not bring you to new page.
           (0, _navigate.navigate)(link);
-        });
+        }, context);
         return false;
       }
 

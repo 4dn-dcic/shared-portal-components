@@ -30,7 +30,8 @@ export const basicColumnExtensionMap = {
         'minColumnWidth' : 90,
         'order' : -100,
         'render' : function renderDisplayTitleColumn(result, columnDefinition, props, termTransformFxn, width){
-            const { href, rowNumber, detailOpen, toggleDetailOpen } = props;
+            const { href, context, rowNumber, detailOpen, toggleDetailOpen } = props;
+            // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
             let title = itemUtil.getTitleStringFromContext(result);
             const link = itemUtil.atId(result);
             let tooltip;
@@ -40,14 +41,16 @@ export const basicColumnExtensionMap = {
             function handleClick(evt){
                 evt.preventDefault();
                 evt.stopPropagation();
-                trackProductClick(result, {
-                    'list'      : hrefToListName(href),
-                    'position'  : rowNumber + 1
-                }, function(){
-                    // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
-                    // to VirtualHrefController.virtualNavigate and would not bring you to new page.
-                    globalPageNavigate(link);
-                });
+                trackProductClick(
+                    result,
+                    { list : hrefToListName(href), position: rowNumber + 1 },
+                    function(){
+                        // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
+                        // to VirtualHrefController.virtualNavigate and would not bring you to new page.
+                        globalPageNavigate(link);
+                    },
+                    context
+                );
                 return false;
             }
 
