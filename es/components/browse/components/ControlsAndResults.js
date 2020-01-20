@@ -187,14 +187,16 @@ function (_React$PureComponent) {
           sortColumn = _this$props2.sortColumn,
           sortReverse = _this$props2.sortReverse; // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
 
-      var results = context["@graph"],
-          filters = context.filters,
-          _context$total = context.total,
-          showTotalResults = _context$total === void 0 ? 0 : _context$total;
-      var searchItemType = this.memoized.getSchemaTypeFromSearchContext(context);
+      var _ref = context || {},
+          results = _ref["@graph"],
+          filters = _ref.filters,
+          _ref$total = _ref.total,
+          showTotalResults = _ref$total === void 0 ? 0 : _ref$total;
+
+      var searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
       var searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas); // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
 
-      var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context);
+      var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context || {});
       var facetListProps = {
         facets: facets,
         filters: filters,

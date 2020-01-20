@@ -489,7 +489,9 @@ function (_React$PureComponent) {
           columnExtensionMap = _this$props.columnExtensionMap,
           passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap"]);
 
-      var contextColumns = passProps.context.columns;
+      var _passProps$context = passProps.context;
+      _passProps$context = _passProps$context === void 0 ? {} : _passProps$context;
+      var contextColumns = _passProps$context.columns;
       var columns = overridePropColumns || contextColumns || [];
 
       if (columns.length === 0) {
@@ -522,8 +524,7 @@ exports.ColumnCombiner = ColumnCombiner;
 _defineProperty(ColumnCombiner, "defaultProps", {
   "columns": null,
   // Passed in as prop or defaults to context.columns
-  "columnExtensionMap": basicColumnExtensionMap,
-  "context": {}
+  "columnExtensionMap": basicColumnExtensionMap
 });
 
 function getColumnWidthFromDefinition(columnDefinition) {

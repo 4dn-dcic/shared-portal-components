@@ -460,16 +460,28 @@ $search-results-header-text-color: #fff !default;
 
 	} // .search-results-container
 
-	&.is-within-page {
-
-	}
-
 	&.is-own-page {
 		.search-headers-row {
 			position: sticky;
 			top: 0px; // May be overriden
 		}
 	}
+
+	&.is-within-page {
+		transition: filter .5s ease-out, opacity 0.25s ease-out;
+		&[data-context-loading="true"]{
+			opacity: 0.75;
+			filter: saturate(0.5);
+			pointer-events: none;
+		}
+	}
+
+	// + .search-results-is-loading-container[data-context-loaded="true"] {
+	// 	position: absolute;
+	// 	left: 0;
+	// 	right: 0;
+	// 	top: 0;
+	// }
 
 } // .search-results-outer-container
 

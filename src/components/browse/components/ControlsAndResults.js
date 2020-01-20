@@ -101,13 +101,13 @@ export class ControlsAndResults extends React.PureComponent {
         } = this.props;
 
         // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
-        const { "@graph" : results, filters, total: showTotalResults = 0 } = context;
-        const searchItemType = this.memoized.getSchemaTypeFromSearchContext(context);
+        const { "@graph" : results, filters, total: showTotalResults = 0 } = context || {};
+        const searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
         const searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
 
         // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
 
-        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context);
+        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context || {});
 
         const searchResultTableProps = {
             context, href, navigate, currentAction, schemas, hiddenColumns, results, columnDefinitions, isOwnPage,

@@ -304,8 +304,7 @@ export class ColumnCombiner extends React.PureComponent {
 
     static defaultProps = {
         "columns" : null, // Passed in as prop or defaults to context.columns
-        "columnExtensionMap": basicColumnExtensionMap,
-        "context" : {}
+        "columnExtensionMap": basicColumnExtensionMap
     };
 
     constructor(props){
@@ -339,7 +338,7 @@ export class ColumnCombiner extends React.PureComponent {
             columnExtensionMap,
             ...passProps
         } = this.props;
-        const { context : { columns: contextColumns } } = passProps;
+        const { context : { columns: contextColumns } = {} } = passProps;
         const columns = overridePropColumns || contextColumns || [];
 
         if (columns.length === 0) {

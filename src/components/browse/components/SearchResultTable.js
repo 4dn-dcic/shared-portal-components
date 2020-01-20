@@ -957,7 +957,8 @@ class DimensioningContainer extends React.PureComponent {
             isOwnPage = true,
             navigate,
             rowHeight = 47, // Must be aligned in CSS stylesheets
-            maxHeight = 500 // Only used if not isOwnPage
+            maxHeight = 500, // Only used if not isOwnPage
+            isContextLoading = false
         } = this.props;
         const { results, tableContainerWidth, tableContainerScrollLeft, mounted, widths, openDetailPanes } = this.state;
 
@@ -1039,7 +1040,8 @@ class DimensioningContainer extends React.PureComponent {
         }
 
         return (
-            <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")} ref={this.outerRef}>
+            <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")}
+                ref={this.outerRef} data-context-loading={isContextLoading}>
                 <div className={"search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')}>
                     { headersRow }
                     <LoadMoreAsYouScroll {...loadMoreAsYouScrollProps}>
@@ -1114,7 +1116,8 @@ export class SearchResultTable extends React.PureComponent {
         })),
         'termTransformFxn' : PropTypes.func.isRequired,
         'isOwnPage' : PropTypes.bool,
-        'maxHeight' : PropTypes.number //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
+        'maxHeight' : PropTypes.number, //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
+        'isContextLoading' : PropTypes.bool
     };
 
     static defaultProps = {
@@ -1131,7 +1134,8 @@ export class SearchResultTable extends React.PureComponent {
         'fullWidthContainerSelectorString' : '.browse-page-container',
         'currentAction' : null,
         'isOwnPage' : true,
-        'maxHeight' : 400 // Used only if isOwnPage is false
+        'maxHeight' : 400, // Used only if isOwnPage is false
+        'isContextLoading' : false // Used only if isOwnPage is false
     };
 
     constructor(props){
@@ -1145,10 +1149,12 @@ export class SearchResultTable extends React.PureComponent {
     }
 
     render(){
-        const { hiddenColumns, columnExtensionMap, columnDefinitions, isContextLoading = false, isOwnPage } = this.props;
+        const { context, hiddenColumns, columnExtensionMap, columnDefinitions, isContextLoading = false, isOwnPage } = this.props;
         const colDefs = columnDefinitions || columnsToColumnDefinitions({ 'display_title' : { 'title' : 'Title' } }, columnExtensionMap);
 
-        if (isContextLoading) { // Only applicable for EmbeddedSearchView
+        if (isContextLoading && !context) {
+            // Initial context (pre-sort, filter, etc) loading.
+            // Only applicable for EmbeddedSearchView
             return (
                 <div className={"search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")}>
                     <div className="search-results-container text-center py-5">
@@ -1160,7 +1166,7 @@ export class SearchResultTable extends React.PureComponent {
 
         return (
             <DimensioningContainer
-                {..._.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap', 'isContextLoading')}
+                {..._.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap')}
                 columnDefinitions={SearchResultTable.filterOutHiddenCols(colDefs, hiddenColumns)}
                 ref={this.dimensionContainerRef} />
         );

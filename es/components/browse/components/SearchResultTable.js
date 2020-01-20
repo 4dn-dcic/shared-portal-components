@@ -1303,7 +1303,9 @@ function (_React$PureComponent4) {
           _this$props14$rowHeig = _this$props14.rowHeight,
           rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
           _this$props14$maxHeig = _this$props14.maxHeight,
-          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig;
+          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig,
+          _this$props14$isConte = _this$props14.isContextLoading,
+          isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte;
       var _this$state3 = this.state,
           results = _this$state3.results,
           tableContainerWidth = _this$state3.tableContainerWidth,
@@ -1412,7 +1414,8 @@ function (_React$PureComponent4) {
 
       return _react["default"].createElement("div", {
         className: "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page"),
-        ref: this.outerRef
+        ref: this.outerRef,
+        "data-context-loading": isContextLoading
       }, _react["default"].createElement("div", {
         className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
       }, headersRow, _react["default"].createElement(LoadMoreAsYouScroll, loadMoreAsYouScrollProps, renderChildren), shadowBorderLayer));
@@ -1477,6 +1480,7 @@ function (_React$PureComponent5) {
     key: "render",
     value: function render() {
       var _this$props15 = this.props,
+          context = _this$props15.context,
           hiddenColumns = _this$props15.hiddenColumns,
           columnExtensionMap = _this$props15.columnExtensionMap,
           columnDefinitions = _this$props15.columnDefinitions,
@@ -1489,7 +1493,8 @@ function (_React$PureComponent5) {
         }
       }, columnExtensionMap);
 
-      if (isContextLoading) {
+      if (isContextLoading && !context) {
+        // Initial context (pre-sort, filter, etc) loading.
         // Only applicable for EmbeddedSearchView
         return _react["default"].createElement("div", {
           className: "search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")
@@ -1500,7 +1505,7 @@ function (_React$PureComponent5) {
         })));
       }
 
-      return _react["default"].createElement(DimensioningContainer, _extends({}, _underscore["default"].omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap', 'isContextLoading'), {
+      return _react["default"].createElement(DimensioningContainer, _extends({}, _underscore["default"].omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap'), {
         columnDefinitions: SearchResultTable.filterOutHiddenCols(colDefs, hiddenColumns),
         ref: this.dimensionContainerRef
       }));
@@ -1554,8 +1559,9 @@ _defineProperty(SearchResultTable, "propTypes", {
   })),
   'termTransformFxn': _propTypes["default"].func.isRequired,
   'isOwnPage': _propTypes["default"].bool,
-  'maxHeight': _propTypes["default"].number //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
-
+  'maxHeight': _propTypes["default"].number,
+  //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
+  'isContextLoading': _propTypes["default"].bool
 });
 
 _defineProperty(SearchResultTable, "defaultProps", {
@@ -1578,6 +1584,8 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'fullWidthContainerSelectorString': '.browse-page-container',
   'currentAction': null,
   'isOwnPage': true,
-  'maxHeight': 400 // Used only if isOwnPage is false
+  'maxHeight': 400,
+  // Used only if isOwnPage is false
+  'isContextLoading': false // Used only if isOwnPage is false
 
 });
