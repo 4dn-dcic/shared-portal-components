@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
 import _ from 'underscore';
@@ -9,7 +9,7 @@ import queryString from 'querystring';
 import Draggable from 'react-draggable';
 
 import { LocalizedTime } from './../../ui/LocalizedTime';
-import { navigate } from './../../util/navigate';
+import { navigate as globalPageNavigate } from './../../util/navigate';
 import { getItemType, getTitleForType } from './../../util/schema-transforms';
 import { getNestedProperty, itemUtil } from './../../util/object';
 import { responsiveGridState } from './../../util/layout';
@@ -30,7 +30,8 @@ export const basicColumnExtensionMap = {
         'minColumnWidth' : 90,
         'order' : -100,
         'render' : function renderDisplayTitleColumn(result, columnDefinition, props, termTransformFxn, width){
-            const { href, rowNumber, currentAction, navigate: propNavigate, detailOpen, toggleDetailOpen } = props;
+            const { href, context, rowNumber, detailOpen, toggleDetailOpen } = props;
+            // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
             let title = itemUtil.getTitleStringFromContext(result);
             const link = itemUtil.atId(result);
             let tooltip;
@@ -40,12 +41,16 @@ export const basicColumnExtensionMap = {
             function handleClick(evt){
                 evt.preventDefault();
                 evt.stopPropagation();
-                trackProductClick(result, {
-                    'list'      : hrefToListName(href),
-                    'position'  : rowNumber + 1
-                }, function(){
-                    (propNavigate || navigate)(link);
-                });
+                trackProductClick(
+                    result,
+                    { list : hrefToListName(href), position: rowNumber + 1 },
+                    function(){
+                        // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
+                        // to VirtualHrefController.virtualNavigate and would not bring you to new page.
+                        globalPageNavigate(link);
+                    },
+                    context
+                );
                 return false;
             }
 
@@ -84,11 +89,13 @@ export const basicColumnExtensionMap = {
                 if (!props.href || props.href.indexOf('/search/') === -1) return;
                 e.preventDefault();
                 e.stopPropagation();
-                var urlParts = url.parse(props.href, true),
-                    query = { 'type' : leafItemType };
+                const urlParts = url.parse(props.href, true);
+                const query = { ...urlParts.query, 'type' : leafItemType };
                 if (urlParts.query.q) query.q = urlParts.query.q;
-                var nextHref = '/search/?' + queryString.stringify(query);
-                (props.navigate || navigate)(nextHref);
+                const nextHref = '/search/?' + queryString.stringify(query);
+                // We use props.navigate here first which may refer to VirtualHrefController.virtualNavigate
+                // since we're navigating to a search href here.
+                (props.navigate || globalPageNavigate)(nextHref);
             };
 
             return (
@@ -183,17 +190,25 @@ export const TableRowToggleOpenButton = React.memo(function TableRowToggleOpenBu
  * @returns {boolean} If context columns have changed, which should be about same as if type has changed.
  */
 export function haveContextColumnsChanged(cols1, cols2){
+
     if (cols1 === cols2) return false;
     if (cols1 && !cols2) return true;
     if (!cols1 && cols2) return true;
-    var pKeys       = _.keys(cols1),
-        pKeysLen    = pKeys.length,
-        nKeys       = _.keys(cols2),
-        i;
 
-    if (pKeysLen !== nKeys.length) return true;
+    const pastKeys = _.keys(cols1);
+    const nextKeys = _.keys(cols2);
+    const pKeysLen = pastKeys.length;
+    let i;
+
+    if (pKeysLen !== nextKeys.length){
+        return true;
+    }
+
+    pastKeys.sort();
+    nextKeys.sort();
+
     for (i = 0; i < pKeysLen; i++){
-        if (pKeys[i] !== nKeys[i]) return true;
+        if (pastKeys[i] !== nextKeys[i]) return true;
     }
     return false;
 }
@@ -233,10 +248,12 @@ export const columnsToColumnDefinitions = memoize(function(columns, columnDefini
     return _.sortBy(columnDefinitions, 'order');
 });
 
-
-export const defaultHiddenColumnMapFromColumns = memoize(function(columns){
-    var hiddenColMap = {};
-    _.forEach(_.pairs(columns), function([ field, columnDefinition ]){
+/**
+ * @param {Object<string, Object>} columns - Object containing some column definitions/values.
+ */
+export function defaultHiddenColumnMapFromColumns(columns){
+    const hiddenColMap = {};
+    _.pairs(columns).forEach(function([ field, columnDefinition ]){
         if (columnDefinition.default_hidden){
             hiddenColMap[field] = true;
         } else {
@@ -244,10 +261,11 @@ export const defaultHiddenColumnMapFromColumns = memoize(function(columns){
         }
     });
     return hiddenColMap;
-}, function(newArgs, lastArgs){
+}
+/*, function(newArgs, lastArgs){
     // We allow different object references to be considered equal as long as their values are equal.
     return !haveContextColumnsChanged(lastArgs[0], newArgs[0]);
-});
+}); */
 
 /**
  * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).
@@ -263,6 +281,81 @@ export const columnDefinitionsToScaledColumnDefinitions = memoize(function(colum
         return colDef2;
     });
 });
+
+
+/**
+ * Combines `props.columns` || `props.context.columns` with `props.columnExtensionMap` to generate
+ * final array of `columnDefinitions`.
+ *
+ * @param {{ columns: Object.<string, Object>?, context: { columns: Object.<string, Object> }, columnExtensionMap: Object.<string, Object> }} props - Props with column info.
+ * @returns {JSX.Element} Clone of children, passing in `columnDefinitions` {{ field: string, ... }[]} and `defaultHiddenColumns` {Object<string, bool>}.
+ */
+
+export class ColumnCombiner extends React.PureComponent {
+
+    static getDefinitionsAndHiddenColumns(columns, columnExtensionMap){
+        // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
+        // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
+        return {
+            columnDefinitions: columnsToColumnDefinitions(columns, columnExtensionMap),
+            defaultHiddenColumns: defaultHiddenColumnMapFromColumns(columns)
+        };
+    }
+
+    static defaultProps = {
+        "columns" : null, // Passed in as prop or defaults to context.columns
+        "columnExtensionMap": basicColumnExtensionMap,
+        "context" : {}
+    };
+
+    constructor(props){
+        super(props);
+        this.memoized = {
+            getDefinitionsAndHiddenColumns: memoize(
+                ColumnCombiner.getDefinitionsAndHiddenColumns, // Fxn to memoize
+                function(nextArgSet, prevArgSet){ // Custom "param equality" fxn. If returns false, memoized function is called.
+                    const [ nextColumns, nextColDefMap ] = nextArgSet;
+                    const [ prevColumns, prevColDefMap ] = prevArgSet;
+
+                    if (prevColDefMap !== nextColDefMap) {
+                        return false; // Update
+                    }
+
+                    // Semi-deep comparison of column keys (fields) -- if using undefined columns,
+                    // will use columns from context/search response, which will be under a new object
+                    // reference after each filter, sort, etc call. This allows us to preserve the custom
+                    // columns we've selected _unless_ Item type or something else changes which changes the
+                    // column set that comes down from back-end response.
+                    return !haveContextColumnsChanged(prevColumns, nextColumns);
+                }
+            )
+        };
+    }
+
+    render(){
+        const {
+            children,
+            columns: overridePropColumns = null,
+            columnExtensionMap,
+            ...passProps
+        } = this.props;
+        const { context : { columns: contextColumns } } = passProps;
+        const columns = overridePropColumns || contextColumns || [];
+
+        if (columns.length === 0) {
+            console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
+        }
+
+        const propsToPass = {
+            ...passProps,
+            ...this.memoized.getDefinitionsAndHiddenColumns(columns, columnExtensionMap)
+        };
+
+        return React.Children.map(children, function(child){
+            return React.cloneElement(child, propsToPass);
+        });
+    }
+}
 
 
 /**
@@ -506,19 +599,6 @@ class HeadersRowColumn extends React.PureComponent {
 
 
 export class HeadersRow extends React.Component {
-
-    static fullRowWidth = memoize(function(columnDefinitions, mounted=true, dynamicWidths=null, windowWidth=null){
-        return _.reduce(columnDefinitions, function(fw, colDef, i){
-            var w;
-            if (typeof colDef === 'number') w = colDef;
-            else {
-                if (Array.isArray(dynamicWidths) && dynamicWidths[i]) w = dynamicWidths[i];
-                else w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
-            }
-            if (typeof w !== 'number') w = 0;
-            return fw + w;
-        }, 0);
-    });
 
     static propTypes = {
         'columnDefinitions' : PropTypes.array.isRequired,//ResultRow.propTypes.columnDefinitions,

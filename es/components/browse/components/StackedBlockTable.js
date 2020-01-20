@@ -147,15 +147,30 @@ function (_React$PureComponent2) {
           collapsed = _this$props2.collapsed,
           title = _this$props2.title,
           showMoreExtTitle = _this$props2.showMoreExtTitle,
-          handleCollapseToggle = _this$props2.handleCollapseToggle;
+          handleCollapseToggle = _this$props2.handleCollapseToggle,
+          _this$props2$preventE = _this$props2.preventExpand,
+          preventExpand = _this$props2$preventE === void 0 ? false : _this$props2$preventE;
       var collapsibleChildrenLen = collapsibleChildren.length;
       if (collapsibleChildrenLen === 0) return null;
-      var titleStr = (collapsed ? "Show " + collapsibleChildrenLen + " More" : "Show Fewer") + (title ? ' ' + title : '');
+
+      if (preventExpand) {
+        // Show information label instead of button.
+        return _react["default"].createElement("div", {
+          className: "view-more-button"
+        }, _react["default"].createElement("i", {
+          className: "icon fas icon-plus mr-1 ml-02 small"
+        }), collapsibleChildrenLen + " More" + (title ? ' ' + title : ''), showMoreExtTitle ? _react["default"].createElement("span", {
+          className: "ext text-400"
+        }, " ", showMoreExtTitle) : null);
+      }
+
+      var titleStr = (collapsed ? preventExpand ? collapsibleChildrenLen + " More" : "Show ".concat(collapsibleChildrenLen, " More") : "Show Fewer") + (title ? ' ' + title : '');
+      var cls = "view-more-button" + (preventExpand ? "" : " clickable");
       return _react["default"].createElement("div", {
-        className: "view-more-button",
-        onClick: handleCollapseToggle
+        className: cls,
+        onClick: preventExpand ? null : handleCollapseToggle
       }, _react["default"].createElement("i", {
-        className: "icon fas icon-" + (collapsed ? 'plus' : 'minus')
+        className: "mr-1 icon fas icon-" + (collapsed ? 'plus' : 'minus')
       }), titleStr, showMoreExtTitle ? _react["default"].createElement("span", {
         className: "ext text-400"
       }, " ", showMoreExtTitle) : null);
@@ -174,7 +189,8 @@ exports.StackedBlockListViewMoreButton = StackedBlockListViewMoreButton;
 _defineProperty(StackedBlockListViewMoreButton, "propTypes", {
   'collapsibleChildren': _propTypes["default"].array,
   'collapsed': _propTypes["default"].bool,
-  'handleCollapseToggle': _propTypes["default"].func // + those from parent .List
+  'handleCollapseToggle': _propTypes["default"].func,
+  'preventExpand': _propTypes["default"].bool // + those from parent .List
 
 });
 
@@ -350,7 +366,7 @@ function (_React$PureComponent4) {
         );
         */
 
-        _underscore["default"].forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed'], function (prop) {
+        _underscore["default"].forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
             childProps[prop] = _this4.props[prop];
           }
@@ -591,7 +607,8 @@ _defineProperty(StackedBlockTable, "propTypes", {
     'visibleTitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element, _propTypes["default"].func]),
     'initialWidth': _propTypes["default"].number
   })).isRequired,
-  'width': _propTypes["default"].number.isRequired
+  'width': _propTypes["default"].number.isRequired,
+  'preventExpand': _propTypes["default"].bool
 });
 
 _defineProperty(StackedBlockTable, "defaultProps", {
@@ -621,6 +638,7 @@ _defineProperty(StackedBlockTable, "defaultProps", {
   'defaultInitialColumnWidth': 120,
   'collapseLimit': 4,
   'collapseShow': 3,
+  'preventExpand': false,
   'collapseLongLists': true,
   'defaultCollapsed': true
 });

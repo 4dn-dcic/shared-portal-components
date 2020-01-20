@@ -13,6 +13,7 @@ exports.eventLabelFromChartNodes = eventLabelFromChartNodes;
 exports.getStringifiedCurrentFilters = getStringifiedCurrentFilters;
 exports.getGoogleAnalyticsTrackingData = getGoogleAnalyticsTrackingData;
 exports.hrefToListName = hrefToListName;
+exports.impressionListOfItems = impressionListOfItems;
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
@@ -46,17 +47,40 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
 var defaultOptions = {
   'isAnalyticsScriptOnPage': true,
   'enhancedEcommercePlugin': true,
   'itemToProductTransform': function itemToProductTransform(item) {
     // 4DN-specific, override from own data model.
+    var itemID = item["@id"],
+        itemUUID = item.uuid,
+        itemType = item["@type"],
+        display_title = item.display_title,
+        title = item.title,
+        _item$lab = item.lab;
+    _item$lab = _item$lab === void 0 ? {} : _item$lab;
+    var labTitle = _item$lab.display_title,
+        _item$submitted_by = item.submitted_by;
+    _item$submitted_by = _item$submitted_by === void 0 ? {} : _item$submitted_by;
+    var submitterTitle = _item$submitted_by.display_title,
+        _item$file_size = item.file_size,
+        file_size = _item$file_size === void 0 ? null : _item$file_size;
     return {
-      'id': item.accession || object.atIdFromObject(item) || item.uuid,
-      'name': item.display_title || item.title || null,
-      'category': item['@type'].slice().reverse().slice(1).join('/'),
-      'brand': item.lab && item.lab.display_title || item.submitted_by && item.submitted_by.display_title || item.lab || item.submitted_by || null,
-      'price': item && item.file_size || null
+      'id': itemID || itemUUID,
+      'name': display_title || title || null,
+      'category': Array.isArray(itemType) ? itemType.slice().reverse().slice(1).join('/') : "Unknown",
+      'brand': labTitle || submitterTitle || null,
+      'price': file_size
     };
   },
   // Google Analytics allows custom dimensions to be sent along w/ events, however they are named incrementally w/o customization.
@@ -66,7 +90,8 @@ var defaultOptions = {
     'name': 'dimension2',
     'field': 'dimension3',
     'term': 'dimension4'
-  }
+  },
+  'reduxStore': null
 };
 var state = null;
 /** Calls `ga`, ensuring it is present on window. */
@@ -91,15 +116,21 @@ function ga2() {
 
 function initializeGoogleAnalytics() {
   var trackingID = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var appOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   if (trackingID === null || typeof trackingID !== 'string') {
     throw new Error("No tracking ID provided");
   }
 
   if ((0, _misc.isServerSide)()) return false;
-  options = _underscore["default"].extend({}, defaultOptions, options);
+
+  var _appOptions$initialCo = appOptions.initialContext,
+      initialContext = _appOptions$initialCo === void 0 ? null : _appOptions$initialCo,
+      _appOptions$initialHr = appOptions.initialHref,
+      initialHref = _appOptions$initialHr === void 0 ? null : _appOptions$initialHr,
+      appOpts = _objectWithoutProperties(appOptions, ["initialContext", "initialHref"]);
+
+  var options = _objectSpread({}, defaultOptions, {}, appOpts);
 
   if (!options.isAnalyticsScriptOnPage) {
     // If true, we already have <script src="...analytics.js">, e.g. in app.js so should skip this.
@@ -116,7 +147,7 @@ function initializeGoogleAnalytics() {
   }
 
   if (typeof window.ga === 'undefined') {
-    _patchedConsole.patchedConsoleInstance.error("Google Analytics is not initialized. Fine if this appears in a test.");
+    _patchedConsole.patchedConsoleInstance.error("Google Analytics is not initialized. Fine if this appears in a test. EXITING INITIALIZATION.");
 
     return false;
   }
@@ -132,7 +163,10 @@ function initializeGoogleAnalytics() {
     _patchedConsole.patchedConsoleInstance.info("Initialized google analytics : Enhanced ECommerce Plugin");
   }
 
-  registerPageView(null, context);
+  if (initialContext) {
+    registerPageView(initialHref, initialContext);
+  }
+
   return true;
 }
 
@@ -149,24 +183,34 @@ var lastRegisteredPageViewRealPathNameAndSearch = null;
 
 function registerPageView() {
   var href = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   if (!shouldTrack()) return false; // Set href from window if not provided. Safe to use because we're not server-side.
 
   if (!href) href = window.location && window.location.href; // Take heed of this notice if it is visible somewhere.
 
   if (!href) {
     _patchedConsole.patchedConsoleInstance.error("No HREF defined, check.. something. Will still send pageview event.");
-  } // Options to send with GA pageview event.
+  }
 
+  context = context || state.reduxStore && state.reduxStore.getState().context || null; // Options to send with GA pageview event.
 
   var parts = _url["default"].parse(href, true);
 
   var pageViewObject = {
-    'hitType': 'pageview'
+    hitType: 'pageview'
   };
 
   // Store orig href in case we need it later
-
+  var _ref = context || {},
+      _ref$accession = _ref.accession,
+      ctxAccession = _ref$accession === void 0 ? null : _ref$accession,
+      _ref$Type = _ref['@type'],
+      itemType = _ref$Type === void 0 ? [] : _ref$Type,
+      ctxUUID = _ref.uuid,
+      _ref$Graph = _ref['@graph'],
+      searchResponseResults = _ref$Graph === void 0 ? null : _ref$Graph,
+      _ref$filters = _ref.filters,
+      searchResponseFilters = _ref$filters === void 0 ? null : _ref$filters;
   /**
    * Convert pathname with a 'UUID', 'Accession', or 'name' to having a
    * literal "uuid", "accession", or "name" and track the display_title, title, or accession as a
@@ -176,31 +220,39 @@ function registerPageView() {
    * @param {string} pathName - Path part of href being navigated to. Use url.parse to get.
    * @return {string} Adjusted pathName.
    */
+
+
   function adjustPageViewPath(pathName) {
     var pathParts = pathName.split('/').filter(function (pathPart) {
       // Gen path array to adjust href further if needed.
       return pathPart.length > 0;
     });
+
+    var _pathParts = _slicedToArray(pathParts, 2),
+        possibleItemTypePathPart = _pathParts[0],
+        possibleItemUniqueKeyPathPath = _pathParts[1];
+
     var newPathName = null;
 
-    if (pathParts[1] && typeof pathParts[1] === 'string') {
+    if (possibleItemUniqueKeyPathPath && typeof possibleItemUniqueKeyPathPath === 'string' && itemType.indexOf("Item") > -1) {
       // Remove Accession, UUID, and Name from URL and save it to 'name' dimension instead.
-      if (typeof context.accession === 'string' && pathParts[1] === context.accession || object.isAccessionRegex(pathParts[1])) {
+      if (typeof ctxAccession === 'string' && possibleItemUniqueKeyPathPath === ctxAccession || object.isAccessionRegex(possibleItemUniqueKeyPathPath)) {
         // We gots an accessionable Item. Lets remove its Accession from the path to get nicer Behavior Flows in GA.
         // And let product tracking / Shopping Behavior handle Item details.
         pathParts[1] = 'accession';
         newPathName = '/' + pathParts.join('/') + '/';
-        pageViewObject[state.dimensionMap.name] = context.accession || pathParts[1];
-      } else if (context.last_name && context.first_name || context['@type'] && context['@type'].indexOf('User') > -1 && pathParts[0] === 'users' && context.uuid && pathParts[1] === context.uuid) {
+        pageViewObject[state.dimensionMap.name] = ctxAccession || possibleItemUniqueKeyPathPath;
+      } else if (context.last_name && context.first_name || itemType.indexOf('User') > -1 && possibleItemTypePathPart === 'users' && ctxUUID && possibleItemUniqueKeyPathPath === ctxUUID) {
         // Save User name.
         pathParts[1] = 'uuid';
         newPathName = '/' + pathParts.join('/') + '/';
-        pageViewObject[state.dimensionMap.name] = context.title || context.uuid;
-      } else if (typeof context.uuid === 'string' && pathParts[1] === context.uuid) {
+        pageViewObject[state.dimensionMap.name] = context.title || ctxUUID;
+      } else if (typeof ctxUUID === 'string' && possibleItemUniqueKeyPathPath === ctxUUID) {
         pathParts[1] = 'uuid';
         newPathName = '/' + pathParts.join('/') + '/';
-        pageViewObject[state.dimensionMap.name] = context.display_title || context.uuid;
-      } else if (typeof context.name === 'string' && pathParts[1] === context.name) {
+        pageViewObject[state.dimensionMap.name] = context.display_title || ctxUUID;
+      } else if (typeof context.name === 'string' && possibleItemUniqueKeyPathPath === context.name) {
+        // Most likely case for Lab, Project, etc.
         pathParts[1] = 'name';
         newPathName = '/' + pathParts.join('/') + '/';
         pageViewObject[state.dimensionMap.name] = context.display_title || context.name;
@@ -241,29 +293,27 @@ function registerPageView() {
       return false;
     }
 
-    if (Array.isArray(context['@graph'])) {
+    if (Array.isArray(searchResponseResults)) {
       // We have a results page of some kind. Likely, browse, search, or collection.
       // If browse or search page, get current filters and add to pageview event for 'dimension1'.
-      var filtersToRegister = context && context.filters && (0, _searchFilters.contextFiltersToExpSetFilters)(context.filters) || null;
-
-      if (filtersToRegister) {
-        pageViewObject[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(filtersToRegister);
+      if (searchResponseFilters) {
+        pageViewObject[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(searchResponseFilters);
       }
 
-      if (context['@graph'].length > 0) {
+      if (searchResponseResults.length > 0) {
         // We have some results, lets impression them as product list views.
-        return impressionListOfItems(context['@graph'], parts, context);
+        return impressionListOfItems(searchResponseResults, parts, null, context);
       }
 
       return false;
-    } else if (typeof context.accession === 'string') {
+    } else if (itemType.indexOf("Item") > -1) {
       // We got an Item view, lets track some details about it.
       var productObj = state && state.itemToProductTransform(context);
 
-      _patchedConsole.patchedConsoleInstance.info("Item with an accession. Will track as product:", productObj);
+      _patchedConsole.patchedConsoleInstance.info("Item Page View (probably). Will track as product:", productObj);
 
-      if (context && context.filters) {
-        pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(context.filters));
+      if (searchResponseFilters) {
+        pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(searchResponseFilters));
       }
 
       ga2('ec:addProduct', productObj);
@@ -284,12 +334,13 @@ function registerPageView() {
   lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
   ga2('set', 'page', href); // Set it as current page
 
-  registerProductView();
+  pageViewObject.location = href; // Don't need to do re: 'set' 'page', but redundant for safety.
 
   pageViewObject.hitCallback = function () {
     _patchedConsole.patchedConsoleInstance.info('Successfuly sent pageview event.', href, pageViewObject);
   };
 
+  registerProductView();
   ga2('send', 'pageview', pageViewObject);
   return true;
 }
@@ -328,10 +379,10 @@ function event(category, action) {
   }); // Convert internal dimension names to Google Analytics ones.
 
 
-  _underscore["default"].forEach(_underscore["default"].pairs(eventObj), function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        key = _ref2[0],
-        value = _ref2[1];
+  _underscore["default"].pairs(eventObj).forEach(function (_ref2) {
+    var _ref3 = _slicedToArray(_ref2, 2),
+        key = _ref3[0],
+        value = _ref3[1];
 
     if (typeof state.dimensionMap[key] !== 'undefined') {
       eventObj[state.dimensionMap[key]] = value;
@@ -362,6 +413,8 @@ function productClick(item) {
     return true;
   }
 
+  context = context || state.reduxStore && state.reduxStore.getState().context || null;
+
   var pObj = _underscore["default"].extend(state.itemToProductTransform(item), extraData);
 
   var href = extraData.href || window.location.href;
@@ -382,10 +435,10 @@ function productClick(item) {
   ga2('ec:addProduct', _underscore["default"].omit(pObj, 'list'));
   ga2('ec:setAction', 'click', _underscore["default"].pick(pObj, 'list')); // Convert internal dimension names to Google Analytics ones.
 
-  _underscore["default"].forEach(_underscore["default"].pairs(eventObj), function (_ref3) {
-    var _ref4 = _slicedToArray(_ref3, 2),
-        key = _ref4[0],
-        value = _ref4[1];
+  _underscore["default"].forEach(_underscore["default"].pairs(eventObj), function (_ref4) {
+    var _ref5 = _slicedToArray(_ref4, 2),
+        key = _ref5[0],
+        value = _ref5[1];
 
     if (typeof state.dimensionMap[key] !== 'undefined') {
       eventObj[state.dimensionMap[key]] = value;
@@ -478,7 +531,9 @@ function getGoogleAnalyticsTrackingData() {
     }
   }
 }
-/** Generates a list name for analytics "list" property based on href */
+/**
+ * Generates a list name for analytics "list" property based on href pathname.
+ */
 
 
 function hrefToListName(href) {
@@ -494,7 +549,7 @@ function hrefToListName(href) {
     strippedPathName = strippedPathName.slice(0, -1);
   }
 
-  if (hrefParts.search && (hrefParts.search.indexOf('currentAction=selection') || hrefParts.search.indexOf('currentAction=multiselect'))) {
+  if (hrefParts.search && (hrefParts.search.indexOf('currentAction=selection') > -1 || hrefParts.search.indexOf('currentAction=multiselect') > -1)) {
     strippedPathName += " - Selection Action";
   }
 
@@ -514,22 +569,24 @@ function shouldTrack() {
   } // 2. TODO: Make sure not logged in as admin on a production site.
 
 
-  var userDetails = JWT.getUserDetails();
-
-  if (userDetails && Array.isArray(userDetails.groups) && userDetails.groups.indexOf('admin') > -1) {
+  if (JWT.getUserGroups().indexOf('admin') > -1) {
     var urlParts = _url["default"].parse(window.location.href);
 
     if (urlParts.host.indexOf('4dnucleome.org') > -1) {
       _patchedConsole.patchedConsoleInstance.warn("Logged in as admin on 4dnucleome.org - will NOT track.");
 
       return false;
+    } else {
+      _patchedConsole.patchedConsoleInstance.info("Logged in as admin but not on 4dnucleome.org - WILL track (for testing)."); // Too verbose ?
+
     }
   }
 
   return true;
 }
 /**
- * @private
+ * Exported, but use with care. There must be an event or pageview sent immediately afterwards.
+ *
  * @returns {Object[]} Representation of what was sent.
  */
 
@@ -537,6 +594,7 @@ function shouldTrack() {
 function impressionListOfItems(itemList, href) {
   var listName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var context = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+  context = context || state.reduxStore && state.reduxStore.getState().context || null;
   var from = 0;
 
   if (typeof href === 'string') {
@@ -554,9 +612,7 @@ function impressionListOfItems(itemList, href) {
     commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(filtersToRegister);
   }
 
-  _patchedConsole.patchedConsoleInstance.info("Will impression " + itemList.length + ' items.');
-
-  return _underscore["default"].map(itemList, function (item, i) {
+  var resultsImpressioned = _underscore["default"].map(itemList, function (item, i) {
     var pObj = _underscore["default"].extend(state.itemToProductTransform(item), commonProductObj, {
       'position': from + i + 1
     });
@@ -564,4 +620,8 @@ function impressionListOfItems(itemList, href) {
     ga2('ec:addImpression', pObj);
     return pObj;
   });
+
+  _patchedConsole.patchedConsoleInstance.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1));
+
+  return resultsImpressioned;
 }

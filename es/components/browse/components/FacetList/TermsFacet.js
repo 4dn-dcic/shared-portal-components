@@ -121,22 +121,20 @@ function (_React$PureComponent) {
   }, {
     key: "handleTermClick",
     value: function handleTermClick(facet, term, e, callback) {
-      var _this$props2 = this.props,
-          onFilter = _this$props2.onFilter,
-          href = _this$props2.href;
-      onFilter(facet, term, callback, false, href);
+      var onFilter = this.props.onFilter;
+      onFilter(facet, term, callback);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          facet = _this$props3.facet,
-          terms = _this$props3.terms,
-          getTermStatus = _this$props3.getTermStatus,
-          extraClassname = _this$props3.extraClassname,
-          termTransformFxn = _this$props3.termTransformFxn,
-          separateSingleTermFacets = _this$props3.separateSingleTermFacets,
-          isStatic = _this$props3.isStatic;
+      var _this$props2 = this.props,
+          facet = _this$props2.facet,
+          terms = _this$props2.terms,
+          getTermStatus = _this$props2.getTermStatus,
+          extraClassname = _this$props2.extraClassname,
+          termTransformFxn = _this$props2.termTransformFxn,
+          separateSingleTermFacets = _this$props2.separateSingleTermFacets,
+          isStatic = _this$props2.isStatic;
       var filtering = this.state.filtering;
 
       var _ref = facet || {},

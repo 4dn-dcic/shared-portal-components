@@ -201,9 +201,7 @@ export class RangeFacet extends React.PureComponent {
         const { fromVal } = this.state;
         onFilter(
             { ...facet, field: facet.field + ".from" },
-            { key: fromVal },
-            null,
-            false
+            { key: fromVal }
         );
     }
 
@@ -212,9 +210,7 @@ export class RangeFacet extends React.PureComponent {
         const { toVal } = this.state;
         onFilter(
             { ...facet, field: facet.field + ".to" },
-            { key: toVal },
-            null,
-            false
+            { key: toVal }
         );
     }
 

@@ -144,9 +144,11 @@ function (_React$Component) {
         };
       });
     }
+    /** @todo Refactor to use memoization, didUpdate, derivedStateFromProps, or remove component entirely */
+
   }, {
-    key: "componentWillReceiveProps",
-    value: function componentWillReceiveProps(newProps) {
+    key: "UNSAFE_componentWillReceiveProps",
+    value: function UNSAFE_componentWillReceiveProps(newProps) {
       var newState = {},
           stateChangeCallback = null; // Reset value/savedValue if props.context or props.labelID changes for some reason.
 
@@ -349,8 +351,6 @@ function (_React$Component) {
           parent = _this$props2.parent,
           onSave = _this$props2.onSave;
 
-      _util.console.log("TTT", onSave);
-
       var errorFallback = function (res) {
         // ToDo display (bigger?) errors
         _util.console.error("Error: ", res);
@@ -409,8 +409,6 @@ function (_React$Component) {
               }, 0);
 
               if (typeof onSave === 'function') {
-                _util.console.log('TTT3');
-
                 onSave(nextContext);
               }
             });
@@ -511,17 +509,23 @@ function (_React$Component) {
     key: "renderActionIcon",
     value: function renderActionIcon() {
       var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'edit';
-      var extClass = "right";
-      if (this.props.style === 'inline') extClass = "inline";
+      var _this$props3 = this.props,
+          style = _this$props3.style,
+          info = _this$props3.info,
+          disabled = _this$props3.disabled,
+          labelID = _this$props3.labelID;
+      var loading = this.state.loading;
+      var extClass = "";
+      if (style === 'inline') extClass = "show-absolute ";
 
-      if (this.state.loading) {
+      if (loading) {
         switch (type) {
           case 'save':
             return null;
 
           case 'cancel':
             return _react["default"].createElement("span", {
-              className: extClass + " field-loading-icon"
+              className: extClass + "field-loading-icon"
             }, _react["default"].createElement("i", {
               className: "icon icon-spin icon-circle-notch icon-fw fas"
             }));
@@ -530,30 +534,30 @@ function (_React$Component) {
 
       switch (type) {
         case 'edit':
-          if (this.props.disabled) {
-            if (!this.props.info) return null; // ToDo info popup or tooltip
+          if (disabled) {
+            if (!info) return null; // ToDo info popup or tooltip
 
             return _react["default"].createElement("span", {
-              className: extClass + " edit-button info disabled"
+              className: extClass + "edit-button info disabled"
             }, _react["default"].createElement("i", {
               className: "icon icon-info-circle icon-fw fas"
             }));
           }
 
           return _react["default"].createElement("a", {
-            href: "#edit-" + this.props.labelID,
-            className: extClass + " edit-button",
+            href: "#edit-" + labelID,
+            className: extClass + "edit-button",
             onClick: this.enterEditState,
             title: "Edit"
           }, _react["default"].createElement("i", {
-            className: "icon icon-pencil icon-fw fas"
+            className: "icon icon-pencil-alt icon-fw fas"
           }));
 
         case 'save':
           if (!this.isValid(false)) return null;
           return _react["default"].createElement("a", {
-            href: "#save-" + this.props.labelID,
-            className: extClass + " save-button",
+            href: "#save-" + labelID,
+            className: extClass + "save-button",
             onClick: this.saveEditState,
             title: "Save"
           }, _react["default"].createElement("i", {
@@ -563,7 +567,7 @@ function (_React$Component) {
         case 'cancel':
           return _react["default"].createElement("a", {
             href: "#",
-            className: extClass + " cancel-button",
+            className: extClass + "cancel-button",
             onClick: this.cancelEditState,
             title: "Cancel"
           }, _react["default"].createElement("i", {
@@ -574,31 +578,42 @@ function (_React$Component) {
   }, {
     key: "renderSavedValue",
     value: function renderSavedValue() {
-      var renderedValue = this.props.children || this.state.savedValue,
-          classes = ['value', 'saved'];
+      var _this$props4 = this.props,
+          style = _this$props4.style,
+          labelID = _this$props4.labelID,
+          children = _this$props4.children,
+          fallbackText = _this$props4.fallbackText;
+      var savedValue = this.state.savedValue;
+      var renderedValue = children || savedValue;
+      var classes = ['value', 'saved'];
 
-      switch (this.props.style) {
+      switch (style) {
         case 'row':
         case 'minimal':
-          if (this.props.style === 'row') classes.push('col-md-9');
+          classes.push("d-flex");
+
+          if (style === 'row') {
+            classes.push('col-md-9');
+          }
+
           return _react["default"].createElement("div", {
             className: classes.join(' ')
-          }, this.renderActionIcon('edit'), this.isSet() ? _react["default"].createElement("span", {
-            id: this.props.labelID,
+          }, this.isSet() ? _react["default"].createElement("span", {
+            id: labelID,
             className: "set"
           }, renderedValue) : _react["default"].createElement("span", {
             className: "not-set"
-          }, this.props.fallbackText || 'No ' + this.props.labelID));
+          }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'));
 
         case 'inline':
           return _react["default"].createElement("span", {
             className: classes.join(' ')
           }, this.isSet() ? _react["default"].createElement("span", {
-            id: this.props.labelID,
+            id: labelID,
             className: "set"
           }, renderedValue) : _react["default"].createElement("span", {
             className: "not-set"
-          }, this.props.fallbackText || 'No ' + this.props.labelID), this.renderActionIcon('edit'));
+          }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'));
       }
 
       return null;
@@ -606,25 +621,33 @@ function (_React$Component) {
   }, {
     key: "renderSaved",
     value: function renderSaved() {
-      if (this.props.style === 'row') {
+      var _this$props5 = this.props,
+          style = _this$props5.style,
+          info = _this$props5.info,
+          disabled = _this$props5.disabled,
+          labelID = _this$props5.labelID,
+          label = _this$props5.label;
+      this.state.loading;
+
+      if (style === 'row') {
         return _react["default"].createElement("div", {
-          className: "row editable-field-entry " + this.props.labelID
+          className: "row editable-field-entry " + labelID
         }, _react["default"].createElement("div", {
           className: "col col-md-3 text-right text-left-xs"
         }, _react["default"].createElement("label", {
-          htmlFor: this.props.labelID
-        }, this.props.label)), this.renderSavedValue());
+          htmlFor: labelID
+        }, label)), this.renderSavedValue());
       }
 
-      if (this.props.style === 'minimal') {
+      if (style === 'minimal') {
         return _react["default"].createElement("div", {
-          className: "editable-field-entry " + this.props.labelID
+          className: "editable-field-entry " + labelID
         }, this.renderSavedValue());
       }
 
-      if (this.props.style === 'inline') {
+      if (style === 'inline') {
         return _react["default"].createElement("span", {
-          className: "editable-field-entry inline " + this.props.labelID
+          className: "editable-field-entry inline " + labelID
         }, this.renderSavedValue());
       }
     }
@@ -633,25 +656,35 @@ function (_React$Component) {
   }, {
     key: "inputField",
     value: function inputField() {
-      // ToDo : Select boxes, radios, checkboxes, etc.
+      var _this$props6 = this.props,
+          fieldType = _this$props6.fieldType,
+          labelID = _this$props6.labelID,
+          placeholder = _this$props6.placeholder,
+          inputSize = _this$props6.inputSize,
+          disabled = _this$props6.disabled;
+      var _this$state2 = this.state,
+          value = _this$state2.value,
+          required = _this$state2.required,
+          validationPattern = _this$state2.validationPattern; // ToDo : Select boxes, radios, checkboxes, etc.
+
       var commonProps = {
-        'id': this.props.labelID,
-        'required': this.state.required,
-        'disabled': this.props.disabled || false,
+        'id': labelID,
+        'required': required,
+        'disabled': disabled || false,
         'ref': this.inputElementRef
       };
 
       var commonPropsTextInput = _underscore["default"].extend({
-        'className': 'form-control input-' + this.props.inputSize,
-        'value': this.state.value || '',
+        'className': 'form-control input-' + inputSize,
+        'value': value || '',
         'onChange': this.handleChange,
-        'name': this.props.labelID,
+        'name': labelID,
         'autoFocus': true,
-        'placeholder': this.props.placeholder,
-        'pattern': this.state.validationPattern
+        placeholder: placeholder,
+        'pattern': validationPattern
       }, commonProps);
 
-      switch (this.props.fieldType) {
+      switch (fieldType) {
         case 'phone':
           return _react["default"].createElement("span", {
             className: "input-wrapper"
@@ -695,15 +728,15 @@ function (_React$Component) {
   }, {
     key: "renderEditing",
     value: function renderEditing() {
-      var _this$props3 = this.props,
-          inputSize = _this$props3.inputSize,
-          style = _this$props3.style,
-          labelID = _this$props3.labelID,
-          label = _this$props3.label,
-          absoluteBox = _this$props3.absoluteBox,
-          _this$state2 = this.state,
-          leanTo = _this$state2.leanTo,
-          leanOffset = _this$state2.leanOffset,
+      var _this$props7 = this.props,
+          inputSize = _this$props7.inputSize,
+          style = _this$props7.style,
+          labelID = _this$props7.labelID,
+          label = _this$props7.label,
+          absoluteBox = _this$props7.absoluteBox,
+          _this$state3 = this.state,
+          leanTo = _this$state3.leanTo,
+          leanOffset = _this$state3.leanOffset,
           outerBaseClass = "editable-field-entry editing has-feedback was-validated" + (!this.isValid(true) ? ' has-error ' : ' has-success ') + ('input-size-' + inputSize + ' ');
 
       if (style == 'row') {
@@ -714,16 +747,16 @@ function (_React$Component) {
         }, _react["default"].createElement("label", {
           htmlFor: labelID
         }, label)), _react["default"].createElement("div", {
-          className: "col col-md-9 value editing"
-        }, this.renderActionIcon('cancel'), this.renderActionIcon('save'), this.inputField()));
+          className: "col col-md-9 value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
 
       if (style == 'minimal') {
         return _react["default"].createElement("div", {
           className: outerBaseClass + labelID
         }, _react["default"].createElement("div", {
-          className: "value editing"
-        }, this.renderActionIcon('cancel'), this.renderActionIcon('save'), this.inputField()));
+          className: "value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
 
       if (style == 'inline') {
@@ -743,7 +776,7 @@ function (_React$Component) {
         }, absoluteBox ? this.renderSavedValue() : null, _react["default"].createElement("span", {
           className: "value editing clearfix",
           style: valStyle
-        }, this.inputField(), this.renderActionIcon('cancel'), this.renderActionIcon('save')));
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
     }
   }, {
@@ -805,8 +838,7 @@ _defineProperty(EditableField, "propTypes", {
   objectType: _propTypes["default"].string,
   // Class name of object being edited, e.g. User, Biosource, AccessKey, etc. for schema-based validation.
   pattern: _propTypes["default"].any,
-  // Optional pattern to use in lieu of one derived from schema or default field pattern.
-  // If set to false, will skip (default or schema-based) validation.
+  // Optional pattern to use in lieu of one derived from schema or default field pattern. If set to false, will skip (default or schema-based) validation.
   required: _propTypes["default"].bool,
   // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
   schemas: _propTypes["default"].object.isRequired,
@@ -851,20 +883,20 @@ function (_React$PureComponent) {
     value: function adjustedChildren() {
       var _this6 = this;
 
-      var _this$props4 = this.props,
-          children = _this$props4.children,
-          endpoint = _this$props4.endpoint,
-          href = _this$props4.href,
-          objectType = _this$props4.objectType,
-          schemas = _this$props4.schemas,
-          disabled = _this$props4.disabled,
-          inputSize = _this$props4.inputSize,
-          style = _this$props4.style,
-          absoluteBox = _this$props4.absoluteBox,
-          context = _this$props4.context,
-          parent = _this$props4.parent,
-          windowWidth = _this$props4.windowWidth,
-          onSave = _this$props4.onSave; // Add shared props to children EditableField elements.
+      var _this$props8 = this.props,
+          children = _this$props8.children,
+          endpoint = _this$props8.endpoint,
+          href = _this$props8.href,
+          objectType = _this$props8.objectType,
+          schemas = _this$props8.schemas,
+          disabled = _this$props8.disabled,
+          inputSize = _this$props8.inputSize,
+          style = _this$props8.style,
+          absoluteBox = _this$props8.absoluteBox,
+          context = _this$props8.context,
+          parent = _this$props8.parent,
+          windowWidth = _this$props8.windowWidth,
+          onSave = _this$props8.onSave; // Add shared props to children EditableField elements.
 
       return _react["default"].Children.map(children, function (child) {
         if (child.type && child.type.displayName === 'EditableField') {
@@ -891,12 +923,12 @@ function (_React$PureComponent) {
   }, {
     key: "fullClassName",
     value: function fullClassName() {
-      var _this$props5 = this.props,
-          className = _this$props5.className,
-          style = _this$props5.style,
-          inputSize = _this$props5.inputSize,
-          parent = _this$props5.parent,
-          children = _this$props5.children,
+      var _this$props9 = this.props,
+          className = _this$props9.className,
+          style = _this$props9.style,
+          inputSize = _this$props9.inputSize,
+          parent = _this$props9.parent,
+          children = _this$props9.children,
           stateHolder = parent || this,
           childIDs = FieldSet.extractChildrenIds(children); // Fallback to using self as state holder.
 

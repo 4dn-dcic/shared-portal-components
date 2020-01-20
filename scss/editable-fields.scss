@@ -103,14 +103,6 @@ div.fieldset.editable-fields {
 			padding: 0 6px;
 			line-height: 100%;
 			height: 100%;
-			vertical-align: middle;
-			&.right { display: block; }
-
-			> i.icon {
-				vertical-align: inherit;
-				height: inherit;
-				line-height: inherit;
-			}
 		}
 
 		.cancel-button,
@@ -135,20 +127,15 @@ div.fieldset.editable-fields {
 		}
 
 		.field-loading-icon {
-			color : #bbb;
-		}
-
-		&.editing .field-loading-icon {
 			padding-top: 9px;
 			margin-bottom: -10px;
+			color : #bbb;
 		}
 
 		.edit-button {
 			color: transparent;
-			&.right {
-				transform: translateY(2px);
-			}
-			&.inline {
+			transform: translateY(2px);
+			&.show-absolute {
 				position: absolute;
 				margin-top: -5px;
 				padding: 0;

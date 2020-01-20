@@ -463,14 +463,16 @@ function determineIfTermFacetSelected(term, facet, props) {
  *
  * @param {{ key: string }} term - Object for term option
  * @param {{ field: string }} facet - Object for facet, containing field
- * @param {Object} props - Props from FacetList. Should have context.filters.
+ * @param {Object<string, { field: string, term: string, remove: string }>} contextFilters - from `context.filters`.
  * @returns {string} - returns one of 'selected', 'omitted' or 'none' values
  */
 
 
-function getTermFacetStatus(term, facet, props) {
-  var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, props.context.filters);
-  return statusAndHref.status;
+function getTermFacetStatus(term, facet, contextFilters) {
+  var _getStatusAndUnselect = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters),
+      status = _getStatusAndUnselect.status;
+
+  return status;
 }
 /** @deprecated */
 

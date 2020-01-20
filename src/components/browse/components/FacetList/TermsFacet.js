@@ -69,8 +69,8 @@ export class TermsFacet extends React.PureComponent {
      * @todo Allow to specify interval for histogram & date_histogram in schema instead of hard-coding 'month' interval.
      */
     handleTermClick(facet, term, e, callback) {
-        const { onFilter, href } = this.props;
-        onFilter(facet, term, callback, false, href);
+        const { onFilter } = this.props;
+        onFilter(facet, term, callback);
     }
 
     render() {

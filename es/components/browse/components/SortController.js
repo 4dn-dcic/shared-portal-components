@@ -29,15 +29,15 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -50,15 +50,58 @@ var SortController =
 function (_React$PureComponent) {
   _inherits(SortController, _React$PureComponent);
 
-  /**
-   * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
-   *
-   * @static
-   * @param {string} href - Current page href, with query.
-   * @returns {Object} { 'page' : int, 'limit' : int }
-   *
-   * @memberof SortController
-   */
+  _createClass(SortController, null, [{
+    key: "getPageAndLimitFromURL",
+
+    /**
+     * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
+     *
+     * @static
+     * @param {string} href - Current page href, with query.
+     * @returns {Object} { 'page' : int, 'limit' : int }
+     *
+     * @memberof SortController
+     */
+    value: function getPageAndLimitFromURL(href) {
+      var _url$parse = _url["default"].parse(href, true),
+          query = _url$parse.query;
+
+      var limit = parseInt(query.limit || 25);
+      var from = parseInt(query.from || 0);
+      if (isNaN(limit)) limit = 25;
+      if (isNaN(from)) from = 0;
+      return {
+        'page': from / limit + 1,
+        'limit': limit
+      };
+    }
+  }, {
+    key: "getSortColumnAndReverseFromContext",
+    value: function getSortColumnAndReverseFromContext(context) {
+      var defaults = {
+        'sortColumn': null,
+        'sortReverse': false
+      };
+      if (!context || !context.sort) return defaults;
+
+      var sortKey = _underscore["default"].keys(context.sort);
+
+      if (sortKey.length > 0) {
+        // Use first if multiple.
+        // eslint-disable-next-line prefer-destructuring
+        sortKey = sortKey[0];
+      } else {
+        return defaults;
+      }
+
+      var reverse = context.sort[sortKey].order === 'desc';
+      return {
+        'sortColumn': sortKey,
+        'sortReverse': reverse
+      };
+    }
+  }]);
+
   function SortController(props) {
     var _this;
 
@@ -70,6 +113,10 @@ function (_React$PureComponent) {
       'changingPage': false
     }; // 'changingPage' = historical name, analogous of 'loading'
 
+    _this.memoized = {
+      getPageAndLimitFromURL: (0, _memoizeOne["default"])(SortController.getPageAndLimitFromURL),
+      getSortColumnAndReverseFromContext: (0, _memoizeOne["default"])(SortController.getSortColumnAndReverseFromContext)
+    };
     return _this;
   }
 
@@ -84,9 +131,9 @@ function (_React$PureComponent) {
       if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
       if (typeof href !== 'string') throw new Error("Browse doesn't have props.href.");
 
-      var _url$parse = _url["default"].parse(href, true),
-          query = _url$parse.query,
-          urlParts = _objectWithoutProperties(_url$parse, ["query"]);
+      var _url$parse2 = _url["default"].parse(href, true),
+          query = _url$parse2.query,
+          urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
 
       if (key) {
         query.sort = (reverse ? '-' : '') + key;
@@ -105,10 +152,7 @@ function (_React$PureComponent) {
           'replace': true
         }, function () {
           _this2.setState({
-            //'sortColumn' : key,
-            //'sortReverse' : reverse,
-            'changingPage': false //'page' : 1
-
+            'changingPage': false
           });
         });
       });
@@ -121,14 +165,14 @@ function (_React$PureComponent) {
           context = _this$props2.context,
           href = _this$props2.href;
 
-      var _SortController$getSo = SortController.getSortColumnAndReverseFromContext(context),
-          sortColumn = _SortController$getSo.sortColumn,
-          sortReverse = _SortController$getSo.sortReverse; // The below `page` and `limit` aren't used any longer (I think).
+      var _this$memoized$getSor = this.memoized.getSortColumnAndReverseFromContext(context),
+          sortColumn = _this$memoized$getSor.sortColumn,
+          sortReverse = _this$memoized$getSor.sortReverse; // The below `page` and `limit` aren't used any longer (I think).
 
 
-      var _SortController$getPa = SortController.getPageAndLimitFromURL(href),
-          page = _SortController$getPa.page,
-          limit = _SortController$getPa.limit;
+      var _this$memoized$getPag = this.memoized.getPageAndLimitFromURL(href),
+          page = _this$memoized$getPag.page,
+          limit = _this$memoized$getPag.limit;
 
       var propsToPass = _underscore["default"].extend(_underscore["default"].omit(this.props, 'children'), {
         'sortBy': this.sortBy
@@ -139,9 +183,9 @@ function (_React$PureComponent) {
         limit: limit
       });
 
-      return _react["default"].createElement("div", null, _react["default"].Children.map(children, function (c) {
+      return _react["default"].Children.map(children, function (c) {
         return _react["default"].cloneElement(c, propsToPass);
-      }));
+      });
     }
   }]);
 
@@ -163,41 +207,3 @@ _defineProperty(SortController, "defaultProps", {
     if (typeof _navigate2.navigate === 'function') return _navigate2.navigate.apply(_navigate2.navigate, arguments);
   }
 });
-
-_defineProperty(SortController, "getPageAndLimitFromURL", (0, _memoizeOne["default"])(function (href) {
-  var _url$parse2 = _url["default"].parse(href, true),
-      query = _url$parse2.query;
-
-  var limit = parseInt(query.limit || 25);
-  var from = parseInt(query.from || 0);
-  if (isNaN(limit)) limit = 25;
-  if (isNaN(from)) from = 0;
-  return {
-    'page': from / limit + 1,
-    'limit': limit
-  };
-}));
-
-_defineProperty(SortController, "getSortColumnAndReverseFromContext", (0, _memoizeOne["default"])(function (context) {
-  var defaults = {
-    'sortColumn': null,
-    'sortReverse': false
-  };
-  if (!context || !context.sort) return defaults;
-
-  var sortKey = _underscore["default"].keys(context.sort);
-
-  if (sortKey.length > 0) {
-    // Use first if multiple.
-    // eslint-disable-next-line prefer-destructuring
-    sortKey = sortKey[0];
-  } else {
-    return defaults;
-  }
-
-  var reverse = context.sort[sortKey].order === 'desc';
-  return {
-    'sortColumn': sortKey,
-    'sortReverse': reverse
-  };
-}));

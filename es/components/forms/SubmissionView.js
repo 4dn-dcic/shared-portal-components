@@ -543,7 +543,13 @@ function (_React$PureComponent) {
         }, extraState));
       } else {
         // schema doesn't support aliases
-        this.createObj(type, newIdx, newLink, 'My ' + type + ' ' + newIdx, extraState);
+        var fallbackAlias = "New " + type;
+
+        if (newIdx && newIdx > 0) {
+          fallbackAlias += " (" + (newIdx + 1) + ")";
+        }
+
+        this.createObj(type, newIdx, newLink, fallbackAlias, extraState);
       }
     }
     /**
@@ -709,13 +715,14 @@ function (_React$PureComponent) {
   }, {
     key: "modifyAlias",
     value: function modifyAlias() {
-      this.setState(function (_ref2) {
+      this.setState(function (_ref2, _ref3) {
         var keyDisplay = _ref2.keyDisplay,
             keyTypes = _ref2.keyTypes,
             currKey = _ref2.currKey,
             keyContext = _ref2.keyContext,
             edit = _ref2.edit,
             create = _ref2.create;
+        var propContext = _ref3.context;
         var currAlias = keyDisplay[currKey];
         var aliases = keyContext[currKey].aliases || null; // Try to get 'alias' > 'name' > 'title' > then fallback to 'My ItemType currKey'
 
@@ -726,7 +733,7 @@ function (_React$PureComponent) {
         if (name) {
           nextKeyDisplay[currKey] = name;
         } else if (currKey === 0) {
-          nextKeyDisplay[currKey] = SubmissionView.principalTitle(null, edit, create, keyTypes[currKey]);
+          nextKeyDisplay[currKey] = SubmissionView.principalTitle(propContext, edit, create, keyTypes[currKey]);
         } else {
           nextKeyDisplay[currKey] = 'My ' + keyTypes[currKey] + ' ' + currKey;
         }
@@ -854,15 +861,15 @@ function (_React$PureComponent) {
   }, {
     key: "removeObj",
     value: function removeObj(key) {
-      this.setState(function (_ref3) {
-        var keyContext = _ref3.keyContext,
-            keyValid = _ref3.keyValid,
-            keyTypes = _ref3.keyTypes,
-            keyComplete = _ref3.keyComplete,
-            keyLinkBookmarks = _ref3.keyLinkBookmarks,
-            keyLinks = _ref3.keyLinks,
-            roundTwoKeys = _ref3.roundTwoKeys,
-            keyHierarchy = _ref3.keyHierarchy;
+      this.setState(function (_ref4) {
+        var keyContext = _ref4.keyContext,
+            keyValid = _ref4.keyValid,
+            keyTypes = _ref4.keyTypes,
+            keyComplete = _ref4.keyComplete,
+            keyLinkBookmarks = _ref4.keyLinkBookmarks,
+            keyLinks = _ref4.keyLinks,
+            roundTwoKeys = _ref4.roundTwoKeys,
+            keyHierarchy = _ref4.keyHierarchy;
 
         var contextCopy = _util.object.deepClone(keyContext);
 
@@ -947,11 +954,11 @@ function (_React$PureComponent) {
 
   }, {
     key: "initExistingObj",
-    value: function initExistingObj(_ref4) {
-      var path = _ref4.path,
-          display = _ref4.display,
-          type = _ref4.type,
-          field = _ref4.field;
+    value: function initExistingObj(_ref5) {
+      var path = _ref5.path,
+          display = _ref5.display,
+          type = _ref5.type,
+          field = _ref5.field;
       this.addExistingObj(path, display, type, field, true);
     }
     /**
@@ -967,12 +974,12 @@ function (_React$PureComponent) {
     key: "addExistingObj",
     value: function addExistingObj(path, display, type, field) {
       var init = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-      this.setState(function (_ref5) {
-        var currKey = _ref5.currKey,
-            prevKeyHierarchy = _ref5.keyHierarchy,
-            prevKeyDisplay = _ref5.keyDisplay,
-            prevKeyTypes = _ref5.keyTypes,
-            prevKeyLinks = _ref5.keyLinks;
+      this.setState(function (_ref6) {
+        var currKey = _ref6.currKey,
+            prevKeyHierarchy = _ref6.keyHierarchy,
+            prevKeyDisplay = _ref6.keyDisplay,
+            prevKeyTypes = _ref6.keyTypes,
+            prevKeyLinks = _ref6.keyLinks;
         var parentKeyIdx = init ? 0 : currKey;
 
         var keyDisplay = _underscore["default"].clone(prevKeyDisplay);
@@ -1492,8 +1499,8 @@ function (_React$PureComponent) {
                 var creds = responseData.upload_credentials;
                 Promise.resolve().then(function () {
                   return _interopRequireWildcard(require('../util/aws'));
-                }).then(function (_ref6) {
-                  var s3UploadFile = _ref6.s3UploadFile;
+                }).then(function (_ref7) {
+                  var s3UploadFile = _ref7.s3UploadFile;
                   //const awsUtil = require('../util/aws');
                   var upload_manager = s3UploadFile(file, creds);
 
@@ -1619,11 +1626,11 @@ function (_React$PureComponent) {
     value: function finishRoundTwo() {
       var _this7 = this;
 
-      this.setState(function (_ref7) {
-        var currKey = _ref7.currKey,
-            keyValid = _ref7.keyValid,
-            _ref7$roundTwoKeys = _ref7.roundTwoKeys,
-            roundTwoKeys = _ref7$roundTwoKeys === void 0 ? [] : _ref7$roundTwoKeys;
+      this.setState(function (_ref8) {
+        var currKey = _ref8.currKey,
+            keyValid = _ref8.keyValid,
+            _ref8$roundTwoKeys = _ref8.roundTwoKeys,
+            roundTwoKeys = _ref8$roundTwoKeys === void 0 ? [] : _ref8$roundTwoKeys;
 
         var validationCopy = _underscore["default"].clone(keyValid);
 
@@ -1666,21 +1673,21 @@ function (_React$PureComponent) {
   }, {
     key: "cancelCreateNewObject",
     value: function cancelCreateNewObject() {
-      this.setState(function (_ref8) {
-        var creatingIdx = _ref8.creatingIdx,
-            keyContext = _ref8.keyContext,
-            currKey = _ref8.currKey,
-            creatingLinkForField = _ref8.creatingLinkForField;
+      this.setState(function (_ref9) {
+        var creatingIdx = _ref9.creatingIdx,
+            keyContext = _ref9.keyContext,
+            currKey = _ref9.currKey,
+            creatingLinkForField = _ref9.creatingLinkForField;
         if (!creatingIdx) return null;
 
         var nextKeyContext = _underscore["default"].clone(keyContext);
 
         var currentContextPointer = nextKeyContext[currKey];
 
-        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref9) {
-          var _ref10 = _slicedToArray(_ref9, 2),
-              field = _ref10[0],
-              idx = _ref10[1];
+        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref10) {
+          var _ref11 = _slicedToArray(_ref10, 2),
+              field = _ref11[0],
+              idx = _ref11[1];
 
           if (field === (typeof creatingLinkForField === 'string' && creatingLinkForField)) {
             // Unset value to null
@@ -2110,8 +2117,8 @@ function (_React$PureComponent2) {
     key: "toggleOpen",
     value: function toggleOpen(e) {
       e.preventDefault();
-      this.setState(function (_ref11) {
-        var open = _ref11.open;
+      this.setState(function (_ref12) {
+        var open = _ref12.open;
         return {
           'open': !open
         };
@@ -2899,8 +2906,8 @@ function (_React$PureComponent3) {
     key: "handleToggle",
     value: function handleToggle(e) {
       e.preventDefault();
-      this.setState(function (_ref12) {
-        var open = _ref12.open;
+      this.setState(function (_ref13) {
+        var open = _ref13.open;
         return {
           'open': !open
         };

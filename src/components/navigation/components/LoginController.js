@@ -86,13 +86,26 @@ export class LoginController extends React.PureComponent {
 
     componentDidMount () {
         const { auth0ClientID, auth0Domain, auth0Options } = this.props;
-        require.ensure(["auth0-lock"], (require) => {
+
+        import(
+            /* webpackChunkName: "auth0-lock-bundle" */
+            /* webpackMode: "lazy" */
+            "auth0-lock"
+        ).then(({ default: Auth0LockImport })=>{
+            Auth0Lock = Auth0LockImport;
             // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
             // We import it here in separate bundle instead to avoid issues during server-side render.
-            Auth0Lock = require("auth0-lock").default;
             this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
             this.lock.on("authenticated", this.loginCallback);
-        }, "auth0-lock-bundle");
+        });
+
+        // require.ensure(["auth0-lock"], (require) => {
+        //     // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+        //     // We import it here in separate bundle instead to avoid issues during server-side render.
+        //     Auth0Lock = require("auth0-lock").default;
+        //     this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
+        //     this.lock.on("authenticated", this.loginCallback);
+        // }, "auth0-lock-bundle");
     }
 
     showLock(evtKey, e){

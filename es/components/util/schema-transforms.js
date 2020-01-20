@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getSchemaProperty = getSchemaProperty;
 exports.lookupFieldTitle = lookupFieldTitle;
+exports.getSchemaTypeFromSearchContext = getSchemaTypeFromSearchContext;
+exports.getAllSchemaTypesFromSearchContext = getAllSchemaTypesFromSearchContext;
 exports.flattenSchemaPropertyToColumnDefinition = flattenSchemaPropertyToColumnDefinition;
 exports.getAbstractTypeForType = getAbstractTypeForType;
 exports.getItemType = getItemType;
@@ -13,7 +15,7 @@ exports.getTitleForType = getTitleForType;
 exports.getSchemaForItemType = getSchemaForItemType;
 exports.getItemTypeTitle = getItemTypeTitle;
 exports.getBaseItemTypeTitle = getBaseItemTypeTitle;
-exports.schemasToItemTypeHierarchy = exports.getSchemaTypeFromSearchContext = void 0;
+exports.schemasToItemTypeHierarchy = void 0;
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
@@ -93,22 +95,31 @@ function lookupFieldTitle(field, schemas) {
  * Helper function which gets the most relevant `@type` for search page context from the
  * current search filters. If none specified or is set to "Item", then null is returned.
  *
- * @memoized Can be safely assumed there is one search context per page view at any time (might change in future, in which case, unmemoize prly)
  * @param {Item} context - Current Item or backend response JSON representation.
  * @returns {string|null} Type most relevant for current search, or `null`.
  */
 
 
-var getSchemaTypeFromSearchContext = (0, _memoizeOne["default"])(function (context) {
-  var thisTypeFilter = _underscore["default"].find(context.filters || [], function (_ref) {
+function getSchemaTypeFromSearchContext(context) {
+  return getAllSchemaTypesFromSearchContext(context)[0] || null;
+}
+
+function getAllSchemaTypesFromSearchContext(context) {
+  var thisTypeFilters = _underscore["default"].filter(context.filters || [], function (_ref) {
     var field = _ref.field,
         term = _ref.term;
     if (field === 'type' && term !== 'Item') return true;
     return false;
   }) || null;
-  var thisType = (thisTypeFilter || {}).term;
-  return thisType || null;
-});
+
+  if (!Array.isArray(thisTypeFilters) || thisTypeFilters.length === 0) {
+    return [];
+  }
+
+  return thisTypeFilters.map(function (typeFilter) {
+    return typeFilter.term;
+  });
+}
 /**
  * Converts a nested object from this form: "key" : { ..., "items" : { ..., "properties" : { "property" : { ...details... } } } }
  * To this form: "key" : { ... }, "key.property" : { ...details... }, ...
@@ -118,7 +129,6 @@ var getSchemaTypeFromSearchContext = (0, _memoizeOne["default"])(function (conte
  * @returns {Object} Object with period-delimited keys instead of nested value to represent nested schema structure.
  */
 
-exports.getSchemaTypeFromSearchContext = getSchemaTypeFromSearchContext;
 
 function flattenSchemaPropertyToColumnDefinition(tips) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
