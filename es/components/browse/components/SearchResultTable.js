@@ -516,7 +516,6 @@ function (_React$PureComponent3) {
     _classCallCheck(this, LoadMoreAsYouScroll);
 
     _this4 = _possibleConstructorReturn(this, _getPrototypeOf(LoadMoreAsYouScroll).call(this, props));
-    _this4.rebuiltHref = _this4.rebuiltHref.bind(_assertThisInitialized(_this4));
     _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000); //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
     //this.handleScrollExt = this.handleScrollExt.bind(this);
 
@@ -533,6 +532,7 @@ function (_React$PureComponent3) {
     };
     _this4.lastIsScrolling = false;
     _this4.infiniteComponentRef = _react["default"].createRef();
+    _this4.currRequest = null;
     return _this4;
   }
 
@@ -546,42 +546,49 @@ function (_React$PureComponent3) {
       }
     }
   }, {
-    key: "rebuiltHref",
-    value: function rebuiltHref() {
-      var _this$props8 = this.props,
-          href = _this$props8.href,
-          _this$props8$results = _this$props8.results,
-          results = _this$props8$results === void 0 ? [] : _this$props8$results;
-
-      var parts = _url["default"].parse(href, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-
-
-      var query = parts.query;
-      query.from = results.length;
-      parts.search = '?' + _querystring["default"].stringify(query);
-      return _url["default"].format(parts);
-    }
-  }, {
     key: "handleLoad",
     value: function handleLoad() {
       var _this5 = this;
 
-      var nextHref = this.rebuiltHref();
+      var _this$props8 = this.props,
+          origHref = _this$props8.href,
+          _this$props8$results = _this$props8.results,
+          existingResults = _this$props8$results === void 0 ? [] : _this$props8$results,
+          _this$props8$isOwnPag = _this$props8.isOwnPage,
+          isOwnPage = _this$props8$isOwnPag === void 0 ? true : _this$props8$isOwnPag,
+          onDuplicateResultsFoundCallback = _this$props8.onDuplicateResultsFoundCallback,
+          setResults = _this$props8.setResults,
+          _this$props8$navigate = _this$props8.navigate,
+          navigate = _this$props8$navigate === void 0 ? _navigate.navigate : _this$props8$navigate;
+
+      var parts = _url["default"].parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
+
+
+      var query = parts.query;
+      query.from = existingResults.length;
+      parts.search = '?' + _querystring["default"].stringify(query);
+
+      var nextHref = _url["default"].format(parts);
+
+      var requestInThisScope = null;
+
+      if (this.currRequest) {
+        this.currRequest.abort();
+      }
 
       var loadCallback = function (resp) {
+        if (requestInThisScope !== _this5.currRequest) {
+          // Shouldn't occur - extra redundancy
+          _patchedConsole.patchedConsoleInstance.warn("Throwing out outdated load-more-as-you-scroll request.");
+
+          return false;
+        }
+
         var _ref2$Graph = (resp || {})['@graph'],
             nextResults = _ref2$Graph === void 0 ? [] : _ref2$Graph;
 
         if (nextResults.length > 0) {
-          var _this5$props = _this5.props,
-              _this5$props$isOwnPag = _this5$props.isOwnPage,
-              isOwnPage = _this5$props$isOwnPag === void 0 ? true : _this5$props$isOwnPag,
-              onDuplicateResultsFoundCallback = _this5$props.onDuplicateResultsFoundCallback,
-              existingResults = _this5$props.results,
-              setResults = _this5$props.setResults,
-              _this5$props$navigate = _this5$props.navigate,
-              navigate = _this5$props$navigate === void 0 ? _navigate.navigate : _this5$props$navigate; // Check if have same result, if so, refresh all results (something has changed on back-end)
-
+          // Check if have same result, if so, refresh all results (something has changed on back-end)
           var oldKeys = _underscore["default"].map(existingResults, _object.itemUtil.atId);
 
           var newKeys = _underscore["default"].map(nextResults, _object.itemUtil.atId);
@@ -612,12 +619,14 @@ function (_React$PureComponent3) {
             'isLoading': false
           });
         }
+
+        _this5.currRequest = null;
       };
 
       this.setState({
         'isLoading': true
       }, function () {
-        (0, _ajax.load)(nextHref, loadCallback, 'GET', loadCallback);
+        _this5.currRequest = requestInThisScope = (0, _ajax.load)(nextHref, loadCallback, 'GET', loadCallback);
       });
     }
   }, {
@@ -630,14 +639,10 @@ function (_React$PureComponent3) {
           openRowHeight = _this$props9.openRowHeight,
           tableContainerWidth = _this$props9.tableContainerWidth,
           tableContainerScrollLeft = _this$props9.tableContainerScrollLeft,
-          context = _this$props9.context,
-          results = _this$props9.results,
           propMounted = _this$props9.mounted,
           isOwnPage = _this$props9.isOwnPage,
           maxHeight = _this$props9.maxHeight,
-          canLoadMore = _this$props9.canLoadMore,
-          anyResults = _this$props9.anyResults,
-          fullRowWidth = _this$props9.fullRowWidth;
+          canLoadMore = _this$props9.canLoadMore;
       var _this$state = this.state,
           stateMounted = _this$state.mounted,
           isLoading = _this$state.isLoading;
@@ -686,14 +691,29 @@ function (_React$PureComponent3) {
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'href': _propTypes["default"].string.isRequired,
   'results': _propTypes["default"].array.isRequired,
-  'limit': _propTypes["default"].number,
+  // From parent
   'rowHeight': _propTypes["default"].number.isRequired,
   'isOwnPage': _propTypes["default"].bool.isRequired,
-  'maxHeight': _propTypes["default"].number
+  'maxHeight': _propTypes["default"].number,
+  'tableContainerScrollLeft': _propTypes["default"].number.isRequired,
+  // From parent
+  'tableContainerWidth': _propTypes["default"].number.isRequired,
+  // From parent
+  'setResults': _propTypes["default"].func.isRequired,
+  // From parent
+  'openDetailPanes': _propTypes["default"].objectOf(_propTypes["default"].oneOfType([_propTypes["default"].number, _propTypes["default"].bool])).isRequired,
+  // From parent
+  'canLoadMore': _propTypes["default"].bool.isRequired,
+  // From parent
+  'children': _propTypes["default"].arrayOf(_propTypes["default"].element).isRequired,
+  // From parent
+  'mounted': _propTypes["default"].bool,
+  'onDuplicateResultsFoundCallback': _propTypes["default"].func,
+  'navigate': _propTypes["default"].func,
+  'openRowHeight': _propTypes["default"].number
 });
 
 _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
-  'limit': 25,
   'debouncePointerEvents': 150,
   'openRowHeight': 57,
   'onDuplicateResultsFoundCallback': function onDuplicateResultsFoundCallback() {
@@ -973,6 +993,23 @@ function (_React$PureComponent4) {
         return fw + w;
       }, 0);
     }
+  }, {
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(_ref4, _ref5) {
+      var ctxResults = _ref4.results;
+      var originalResults = _ref5.originalResults;
+
+      if (ctxResults !== originalResults) {
+        // `context` has changed upstream, reset results and detail panes.
+        return {
+          'results': ctxResults.slice(0),
+          'openDetailPanes': {},
+          'originalResults': ctxResults
+        };
+      }
+
+      return null;
+    }
   }]);
 
   function DimensioningContainer(props) {
@@ -1001,7 +1038,9 @@ function (_React$PureComponent4) {
       // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
       'openDetailPanes': {},
       'tableContainerScrollLeft': 0,
-      'tableContainerWidth': 0
+      'tableContainerWidth': 0,
+      'originalResults': props.results // Reference to original results in order to utilize getDerivedStateFromProps.
+
     };
 
     if (_this8.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
@@ -1046,8 +1085,8 @@ function (_React$PureComponent4) {
 
       // Detect size changes and update
       this.outerContainerSizeInterval = setInterval(function () {
-        _this9.setState(function (_ref4) {
-          var pastWidth = _ref4.tableContainerWidth;
+        _this9.setState(function (_ref6) {
+          var pastWidth = _ref6.tableContainerWidth;
 
           var currDims = _this9.getTableDims();
 
@@ -1100,16 +1139,11 @@ function (_React$PureComponent4) {
 
       if (pastLoadedResults !== loadedResults) {
         _reactTooltip["default"].rebuild();
-      } // Is presumed neither of these can occur at same time.
+      } // Is presumed neither of these can occur at same time. One requires modifying/dragging the column dividers
+      // while other requires dragging window boundaries (or other UI mechanism/action)
 
 
-      if (propResults !== pastPropResults) {
-        // `context`, and likely query, filters, session, or sort has changed
-        this.setState({
-          'results': propResults.slice(0),
-          'openDetailPanes': {}
-        });
-      } else if (pastColDefs.length !== columnDefinitions.length
+      if (pastColDefs.length !== columnDefinitions.length
       /* || this.props.results !== pastProps.results*/
       ) {
           //
@@ -1144,8 +1178,8 @@ function (_React$PureComponent4) {
     key: "toggleDetailPaneOpen",
     value: function toggleDetailPaneOpen(rowKey) {
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref5) {
-        var openDetailPanes = _ref5.openDetailPanes;
+      this.setState(function (_ref7) {
+        var openDetailPanes = _ref7.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (openDetailPanes[rowKey]) {
@@ -1162,8 +1196,8 @@ function (_React$PureComponent4) {
   }, {
     key: "setDetailHeight",
     value: function setDetailHeight(rowKey, height, cb) {
-      this.setState(function (_ref6) {
-        var openDetailPanes = _ref6.openDetailPanes;
+      this.setState(function (_ref8) {
+        var openDetailPanes = _ref8.openDetailPanes;
         openDetailPanes = _underscore["default"].clone(openDetailPanes);
 
         if (typeof openDetailPanes[rowKey] === 'undefined') {
@@ -1245,10 +1279,10 @@ function (_React$PureComponent4) {
     value: function resetWidths() {
       var _this11 = this;
 
-      this.setState(function resetWidthStateChangeFxn(_ref7, _ref8) {
-        var mounted = _ref7.mounted;
-        var columnDefinitions = _ref8.columnDefinitions,
-            windowWidth = _ref8.windowWidth;
+      this.setState(function resetWidthStateChangeFxn(_ref9, _ref10) {
+        var mounted = _ref9.mounted;
+        var columnDefinitions = _ref10.columnDefinitions,
+            windowWidth = _ref10.windowWidth;
         return {
           "widths": DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth)
         };
@@ -1282,30 +1316,33 @@ function (_React$PureComponent4) {
   }, {
     key: "canLoadMore",
     value: function canLoadMore() {
-      var _this$props$context = this.props.context;
-      _this$props$context = _this$props$context === void 0 ? {} : _this$props$context;
-      var _this$props$context$t = _this$props$context.total,
-          total = _this$props$context$t === void 0 ? 0 : _this$props$context$t;
+      var _this$props14 = this.props,
+          _this$props14$context = _this$props14.context;
+      _this$props14$context = _this$props14$context === void 0 ? {} : _this$props14$context;
+      var _this$props14$context2 = _this$props14$context.total,
+          total = _this$props14$context2 === void 0 ? 0 : _this$props14$context2,
+          _this$props14$isConte = _this$props14.isContextLoading,
+          isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte;
       var _this$state$results = this.state.results,
           results = _this$state$results === void 0 ? [] : _this$state$results;
-      return LoadMoreAsYouScroll.canLoadMore(total, results);
+      return !isContextLoading && LoadMoreAsYouScroll.canLoadMore(total, results);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props14 = this.props,
-          columnDefinitions = _this$props14.columnDefinitions,
-          windowWidth = _this$props14.windowWidth,
-          context = _this$props14.context,
-          _this$props14$isOwnPa = _this$props14.isOwnPage,
-          isOwnPage = _this$props14$isOwnPa === void 0 ? true : _this$props14$isOwnPa,
-          navigate = _this$props14.navigate,
-          _this$props14$rowHeig = _this$props14.rowHeight,
-          rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
-          _this$props14$maxHeig = _this$props14.maxHeight,
-          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig,
-          _this$props14$isConte = _this$props14.isContextLoading,
-          isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte;
+      var _this$props15 = this.props,
+          columnDefinitions = _this$props15.columnDefinitions,
+          windowWidth = _this$props15.windowWidth,
+          context = _this$props15.context,
+          _this$props15$isOwnPa = _this$props15.isOwnPage,
+          isOwnPage = _this$props15$isOwnPa === void 0 ? true : _this$props15$isOwnPa,
+          navigate = _this$props15.navigate,
+          _this$props15$rowHeig = _this$props15.rowHeight,
+          rowHeight = _this$props15$rowHeig === void 0 ? 47 : _this$props15$rowHeig,
+          _this$props15$maxHeig = _this$props15.maxHeight,
+          maxHeight = _this$props15$maxHeig === void 0 ? 500 : _this$props15$maxHeig,
+          _this$props15$isConte = _this$props15.isContextLoading,
+          isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte;
       var _this$state3 = this.state,
           results = _this$state3.results,
           tableContainerWidth = _this$state3.tableContainerWidth,
@@ -1343,7 +1380,7 @@ function (_React$PureComponent4) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      var loadMoreAsYouScrollProps = _objectSpread({}, _underscore["default"].pick(this.props, 'href', 'limit', 'onDuplicateResultsFoundCallback', 'schemas'), {
+      var loadMoreAsYouScrollProps = _objectSpread({}, _underscore["default"].pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate'), {
         context: context,
         rowHeight: rowHeight,
         results: results,
@@ -1479,14 +1516,14 @@ function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-          context = _this$props15.context,
-          hiddenColumns = _this$props15.hiddenColumns,
-          columnExtensionMap = _this$props15.columnExtensionMap,
-          columnDefinitions = _this$props15.columnDefinitions,
-          _this$props15$isConte = _this$props15.isContextLoading,
-          isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
-          isOwnPage = _this$props15.isOwnPage;
+      var _this$props16 = this.props,
+          context = _this$props16.context,
+          hiddenColumns = _this$props16.hiddenColumns,
+          columnExtensionMap = _this$props16.columnExtensionMap,
+          columnDefinitions = _this$props16.columnDefinitions,
+          _this$props16$isConte = _this$props16.isContextLoading,
+          isContextLoading = _this$props16$isConte === void 0 ? false : _this$props16$isConte,
+          isOwnPage = _this$props16.isOwnPage;
       var colDefs = columnDefinitions || (0, _tableCommons.columnsToColumnDefinitions)({
         'display_title': {
           'title': 'Title'
@@ -1531,7 +1568,6 @@ _defineProperty(SearchResultTable, "filterOutHiddenCols", (0, _memoizeOne["defau
 _defineProperty(SearchResultTable, "propTypes", {
   'results': _propTypes["default"].arrayOf(ResultRow.propTypes.result).isRequired,
   'href': _propTypes["default"].string.isRequired,
-  'limit': _propTypes["default"].number,
   'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].object),
   'defaultWidthMap': _propTypes["default"].shape({
     'lg': _propTypes["default"].number.isRequired,
@@ -1576,7 +1612,6 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'defaultWidthMap': _tableCommons.DEFAULT_WIDTH_MAP,
   'defaultMinColumnWidth': 55,
   'hiddenColumns': null,
-  'limit': 25,
   // This value (the default or if passed in) should be aligned to value in CSS.
   // Value in CSS is decremented by 1px to account for border height.
   'rowHeight': 47,

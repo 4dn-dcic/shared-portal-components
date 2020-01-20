@@ -342,15 +342,23 @@ class LoadMoreAsYouScroll extends React.PureComponent {
 
     static propTypes = {
         'href' : PropTypes.string.isRequired,
-        'results' : PropTypes.array.isRequired,
-        'limit' : PropTypes.number,
+        'results' : PropTypes.array.isRequired,                     // From parent
         'rowHeight' : PropTypes.number.isRequired,
         'isOwnPage' : PropTypes.bool.isRequired,
         'maxHeight' : PropTypes.number,
+        'tableContainerScrollLeft' : PropTypes.number.isRequired,   // From parent
+        'tableContainerWidth' : PropTypes.number.isRequired,        // From parent
+        'setResults' : PropTypes.func.isRequired,                   // From parent
+        'openDetailPanes' : PropTypes.objectOf(PropTypes.oneOfType([ PropTypes.number, PropTypes.bool ])).isRequired, // From parent
+        'canLoadMore' : PropTypes.bool.isRequired,                  // From parent
+        'children' : PropTypes.arrayOf(PropTypes.element).isRequired, // From parent
+        'mounted' : PropTypes.bool,
+        'onDuplicateResultsFoundCallback' : PropTypes.func,
+        'navigate' : PropTypes.func,
+        'openRowHeight' : PropTypes.number
     };
 
     static defaultProps = {
-        'limit' : 25,
         'debouncePointerEvents' : 150,
         'openRowHeight' : 57,
         'onDuplicateResultsFoundCallback' : function(){
@@ -379,7 +387,6 @@ class LoadMoreAsYouScroll extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.rebuiltHref = this.rebuiltHref.bind(this);
         this.handleLoad = _.throttle(this.handleLoad.bind(this), 3000);
         //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
         //this.handleScrollExt = this.handleScrollExt.bind(this);
@@ -392,6 +399,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         };
         this.lastIsScrolling = false;
         this.infiniteComponentRef = React.createRef();
+        this.currRequest = null;
     }
 
     componentDidMount(){
@@ -400,29 +408,37 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         }
     }
 
-    rebuiltHref(){
-        const { href, results = [] } = this.props;
-        const parts = url.parse(href, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-        const { query } = parts;
-        query.from = results.length;
-        parts.search = '?' + queryString.stringify(query);
-        return url.format(parts);
-    }
-
     handleLoad(){
-        const nextHref = this.rebuiltHref();
+        const {
+            href: origHref,
+            results: existingResults = [],
+            isOwnPage = true,
+            onDuplicateResultsFoundCallback,
+            setResults,
+            navigate = globalPageNavigate // Use VirtualHrefController.virtualNavigate if is passed in.
+        } = this.props;
+        const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
+        const { query } = parts;
+        query.from = existingResults.length;
+        parts.search = '?' + queryString.stringify(query);
+        const nextHref = url.format(parts);
+
+        let requestInThisScope = null;
+
+        if (this.currRequest) {
+            this.currRequest.abort();
+        }
+
         const loadCallback = (resp) => {
+
+            if (requestInThisScope !== this.currRequest){ // Shouldn't occur - extra redundancy
+                console.warn("Throwing out outdated load-more-as-you-scroll request.");
+                return false;
+            }
 
             const { '@graph' : nextResults = [] } = resp || {};
 
             if (nextResults.length > 0){
-                const {
-                    isOwnPage = true,
-                    onDuplicateResultsFoundCallback,
-                    results: existingResults,
-                    setResults,
-                    navigate = globalPageNavigate // Use VirtualHrefController.virtualNavigate if is passed in.
-                } = this.props;
                 // Check if have same result, if so, refresh all results (something has changed on back-end)
                 const oldKeys = _.map(existingResults, itemUtil.atId);
                 const newKeys = _.map(nextResults, itemUtil.atId);
@@ -446,17 +462,19 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             } else {
                 this.setState({  'isLoading' : false });
             }
+
+            this.currRequest = null;
         };
 
         this.setState({ 'isLoading' : true }, ()=>{
-            load(nextHref, loadCallback, 'GET', loadCallback);
+            this.currRequest = requestInThisScope = load(nextHref, loadCallback, 'GET', loadCallback);
         });
     }
 
     render(){
         const {
-            children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft, context, results,
-            mounted: propMounted, isOwnPage, maxHeight, canLoadMore, anyResults, fullRowWidth
+            children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft,
+            mounted: propMounted, isOwnPage, maxHeight, canLoadMore
         } = this.props;
         const { mounted: stateMounted, isLoading } = this.state;
         if (!(propMounted || stateMounted)){
@@ -696,6 +714,18 @@ class DimensioningContainer extends React.PureComponent {
         }, 0);
     }
 
+    static getDerivedStateFromProps({ results: ctxResults }, { originalResults }){
+        if (ctxResults !== originalResults) {
+            // `context` has changed upstream, reset results and detail panes.
+            return {
+                'results' : ctxResults.slice(0),
+                'openDetailPanes' : {},
+                'originalResults' : ctxResults
+            };
+        }
+        return null;
+    }
+
     constructor(props){
         super(props);
         this.getScrollContainer = this.getScrollContainer.bind(this);
@@ -718,7 +748,8 @@ class DimensioningContainer extends React.PureComponent {
             // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
             'openDetailPanes' : {},
             'tableContainerScrollLeft' : 0,
-            'tableContainerWidth' : 0
+            'tableContainerWidth' : 0,
+            'originalResults' : props.results // Reference to original results in order to utilize getDerivedStateFromProps.
         };
 
         if (this.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0){
@@ -794,13 +825,9 @@ class DimensioningContainer extends React.PureComponent {
             ReactTooltip.rebuild();
         }
 
-        // Is presumed neither of these can occur at same time.
-        if (propResults !== pastPropResults) { // `context`, and likely query, filters, session, or sort has changed
-            this.setState({
-                'results' : propResults.slice(0),
-                'openDetailPanes' : {}
-            });
-        } else if (pastColDefs.length !== columnDefinitions.length/* || this.props.results !== pastProps.results*/){ //
+        // Is presumed neither of these can occur at same time. One requires modifying/dragging the column dividers
+        // while other requires dragging window boundaries (or other UI mechanism/action)
+        if (pastColDefs.length !== columnDefinitions.length/* || this.props.results !== pastProps.results*/){ //
             // We have a list of widths in state; if new col is added, these are no longer aligned, so we reset.
             // We may optioanlly (currently disabled) also do this if _original_ results have changed as extra glitter to decrease some widths re: col values.
             // (if done when state.results have changed, it would occur way too many times to be performant (state.results changes as-you-scroll))
@@ -944,9 +971,9 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     canLoadMore(){
-        const { context : { total = 0 } = {} } = this.props;
+        const { context : { total = 0 } = {}, isContextLoading = false } = this.props;
         const { results = [] } = this.state;
-        return LoadMoreAsYouScroll.canLoadMore(total, results);
+        return !isContextLoading && LoadMoreAsYouScroll.canLoadMore(total, results);
     }
 
     render(){
@@ -990,7 +1017,7 @@ class DimensioningContainer extends React.PureComponent {
         );
 
         const loadMoreAsYouScrollProps = {
-            ..._.pick(this.props, 'href', 'limit', 'onDuplicateResultsFoundCallback', 'schemas'),
+            ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate'),
             context, rowHeight,
             results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
@@ -1096,7 +1123,6 @@ export class SearchResultTable extends React.PureComponent {
     static propTypes = {
         'results'           : PropTypes.arrayOf(ResultRow.propTypes.result).isRequired,
         'href'              : PropTypes.string.isRequired,
-        'limit'             : PropTypes.number,
         'columnDefinitions' : PropTypes.arrayOf(PropTypes.object),
         'defaultWidthMap'   : PropTypes.shape({ 'lg' : PropTypes.number.isRequired, 'md' : PropTypes.number.isRequired, 'sm' : PropTypes.number.isRequired }).isRequired,
         'hiddenColumns'     : PropTypes.objectOf(PropTypes.bool),
@@ -1126,7 +1152,6 @@ export class SearchResultTable extends React.PureComponent {
         'defaultWidthMap' : DEFAULT_WIDTH_MAP,
         'defaultMinColumnWidth' : 55,
         'hiddenColumns' : null,
-        'limit' : 25,
         // This value (the default or if passed in) should be aligned to value in CSS.
         // Value in CSS is decremented by 1px to account for border height.
         'rowHeight' : 47,
