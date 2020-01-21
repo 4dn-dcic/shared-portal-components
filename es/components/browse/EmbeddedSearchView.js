@@ -162,8 +162,6 @@ function (_React$PureComponent) {
           _this$props$currentAc = _this$props.currentAction,
           currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc,
           searchHref = _this$props.searchHref,
-          _this$props$schemas = _this$props.schemas,
-          schemas = _this$props$schemas === void 0 ? null : _this$props$schemas,
           propNavigate = _this$props.navigate,
           _this$props$columns = _this$props.columns,
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
@@ -176,14 +174,13 @@ function (_React$PureComponent) {
           onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
           _this$props$filterFac = _this$props.filterFacetFxn,
           propFacetFilterFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "schemas", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined;
 
       var viewProps = _objectSpread({}, passProps, {
         showAboveTableControls: showAboveTableControls,
-        schemas: schemas,
         tableColumnClassName: tableColumnClassName
       });
 

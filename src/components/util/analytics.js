@@ -150,8 +150,18 @@ export function registerPageView(href = null, context = null){
         '@type': itemType = [], // Should be present on all context responses.
         uuid: ctxUUID,
         '@graph' : searchResponseResults = null,
-        filters: searchResponseFilters = null
+        filters: searchResponseFilters = null,
+        display_title: itemTitle = null,
+        title: fallbackTitle = null,
+        code = null
     } = context || {};
+
+    // Should be present on all Item responses - except Errors (HTTPForbidden, etc.).
+    // Errors would have 'title' such as 'Forbidden'. Or maybe 'Browse'.
+
+    const title = itemTitle || fallbackTitle || null;
+
+    pageViewObject[state.dimensionMap.name] = title || ctxAccession || context.name || ctxUUID || "UNKNOWN NAME";
 
     /**
      * Convert pathname with a 'UUID', 'Accession', or 'name' to having a
@@ -168,31 +178,27 @@ export function registerPageView(href = null, context = null){
         });
         const [ possibleItemTypePathPart, possibleItemUniqueKeyPathPath ] = pathParts;
         let newPathName = null;
-        if (possibleItemUniqueKeyPathPath && typeof possibleItemUniqueKeyPathPath === 'string' && itemType.indexOf("Item") > -1){
-            // Remove Accession, UUID, and Name from URL and save it to 'name' dimension instead.
-            if ( (typeof ctxAccession === 'string' && possibleItemUniqueKeyPathPath === ctxAccession) || object.isAccessionRegex(possibleItemUniqueKeyPathPath) ){
+
+        if (possibleItemUniqueKeyPathPath && typeof possibleItemUniqueKeyPathPath === 'string'){
+            // Remove Accession, UUID, and Name from URL and save it to Item name dimension instead.
+            if (
+                (typeof ctxAccession === 'string' && possibleItemUniqueKeyPathPath === ctxAccession)
+                || object.isAccessionRegex(possibleItemUniqueKeyPathPath)
+            ){
                 // We gots an accessionable Item. Lets remove its Accession from the path to get nicer Behavior Flows in GA.
                 // And let product tracking / Shopping Behavior handle Item details.
                 pathParts[1] = 'accession';
                 newPathName = '/' + pathParts.join('/') + '/';
-                pageViewObject[state.dimensionMap.name] = ctxAccession || possibleItemUniqueKeyPathPath;
             } else if (
-                (context.last_name && context.first_name) || (itemType.indexOf('User') > -1) &&
-                (possibleItemTypePathPart === 'users' && (ctxUUID && possibleItemUniqueKeyPathPath === ctxUUID))
+                (typeof ctxUUID === 'string' && possibleItemUniqueKeyPathPath === ctxUUID)
+                || object.isUUID(possibleItemUniqueKeyPathPath)
             ){
-                // Save User name.
                 pathParts[1] = 'uuid';
                 newPathName = '/' + pathParts.join('/') + '/';
-                pageViewObject[state.dimensionMap.name] = context.title || ctxUUID;
-            } else if (typeof ctxUUID === 'string' && possibleItemUniqueKeyPathPath === ctxUUID){
-                pathParts[1] = 'uuid';
-                newPathName = '/' + pathParts.join('/') + '/';
-                pageViewObject[state.dimensionMap.name] = context.display_title || ctxUUID;
             } else if (typeof context.name === 'string' && possibleItemUniqueKeyPathPath === context.name){
                 // Most likely case for Lab, Project, etc.
                 pathParts[1] = 'name';
                 newPathName = '/' + pathParts.join('/') + '/';
-                pageViewObject[state.dimensionMap.name] = context.display_title || context.name;
             } else {
                 newPathName = pathName;
             }
@@ -271,6 +277,12 @@ export function registerPageView(href = null, context = null){
     };
     registerProductView();
     ga2('send', 'pageview', pageViewObject);
+
+    if (code === 403) {
+        // HTTPForbidden Access Denied - save original URL
+        event("Navigation", "HTTPForbidden", { eventLabel: parts.pathname });
+    }
+
     return true;
 }
 

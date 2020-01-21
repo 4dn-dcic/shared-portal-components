@@ -95,7 +95,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             context,                // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             currentAction = null,   // From App.js; is NOT passed down. Always should be null for embedded search views.
             searchHref,
-            schemas = null,
+            // schemas = null,
             //facets : propFacets,
             navigate: propNavigate,  // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             columns = null,
@@ -109,7 +109,7 @@ export class EmbeddedSearchView extends React.PureComponent {
 
         // If facets are null (hidden/excluded), set table col to be full width of container.
         const tableColumnClassName = facets === null ? "col-12" : undefined;
-        const viewProps = { ...passProps, showAboveTableControls, schemas, tableColumnClassName };
+        const viewProps = { ...passProps, showAboveTableControls, tableColumnClassName };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
         return (

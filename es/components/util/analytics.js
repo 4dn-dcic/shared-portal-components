@@ -210,7 +210,17 @@ function registerPageView() {
       _ref$Graph = _ref['@graph'],
       searchResponseResults = _ref$Graph === void 0 ? null : _ref$Graph,
       _ref$filters = _ref.filters,
-      searchResponseFilters = _ref$filters === void 0 ? null : _ref$filters;
+      searchResponseFilters = _ref$filters === void 0 ? null : _ref$filters,
+      _ref$display_title = _ref.display_title,
+      itemTitle = _ref$display_title === void 0 ? null : _ref$display_title,
+      _ref$title = _ref.title,
+      fallbackTitle = _ref$title === void 0 ? null : _ref$title,
+      _ref$code = _ref.code,
+      code = _ref$code === void 0 ? null : _ref$code; // Should be present on all Item responses - except Errors (HTTPForbidden, etc.).
+  // Errors would have 'title' such as 'Forbidden'. Or maybe 'Browse'.
+
+
+  pageViewObject[state.dimensionMap.name] = itemTitle || fallbackTitle || null || ctxAccession || context.name || ctxUUID || "UNKNOWN NAME";
   /**
    * Convert pathname with a 'UUID', 'Accession', or 'name' to having a
    * literal "uuid", "accession", or "name" and track the display_title, title, or accession as a
@@ -220,7 +230,6 @@ function registerPageView() {
    * @param {string} pathName - Path part of href being navigated to. Use url.parse to get.
    * @return {string} Adjusted pathName.
    */
-
 
   function adjustPageViewPath(pathName) {
     var pathParts = pathName.split('/').filter(function (pathPart) {
@@ -234,28 +243,20 @@ function registerPageView() {
 
     var newPathName = null;
 
-    if (possibleItemUniqueKeyPathPath && typeof possibleItemUniqueKeyPathPath === 'string' && itemType.indexOf("Item") > -1) {
-      // Remove Accession, UUID, and Name from URL and save it to 'name' dimension instead.
+    if (possibleItemUniqueKeyPathPath && typeof possibleItemUniqueKeyPathPath === 'string') {
+      // Remove Accession, UUID, and Name from URL and save it to Item name dimension instead.
       if (typeof ctxAccession === 'string' && possibleItemUniqueKeyPathPath === ctxAccession || object.isAccessionRegex(possibleItemUniqueKeyPathPath)) {
         // We gots an accessionable Item. Lets remove its Accession from the path to get nicer Behavior Flows in GA.
         // And let product tracking / Shopping Behavior handle Item details.
         pathParts[1] = 'accession';
         newPathName = '/' + pathParts.join('/') + '/';
-        pageViewObject[state.dimensionMap.name] = ctxAccession || possibleItemUniqueKeyPathPath;
-      } else if (context.last_name && context.first_name || itemType.indexOf('User') > -1 && possibleItemTypePathPart === 'users' && ctxUUID && possibleItemUniqueKeyPathPath === ctxUUID) {
-        // Save User name.
+      } else if (typeof ctxUUID === 'string' && possibleItemUniqueKeyPathPath === ctxUUID || object.isUUID(possibleItemUniqueKeyPathPath)) {
         pathParts[1] = 'uuid';
         newPathName = '/' + pathParts.join('/') + '/';
-        pageViewObject[state.dimensionMap.name] = context.title || ctxUUID;
-      } else if (typeof ctxUUID === 'string' && possibleItemUniqueKeyPathPath === ctxUUID) {
-        pathParts[1] = 'uuid';
-        newPathName = '/' + pathParts.join('/') + '/';
-        pageViewObject[state.dimensionMap.name] = context.display_title || ctxUUID;
       } else if (typeof context.name === 'string' && possibleItemUniqueKeyPathPath === context.name) {
         // Most likely case for Lab, Project, etc.
         pathParts[1] = 'name';
         newPathName = '/' + pathParts.join('/') + '/';
-        pageViewObject[state.dimensionMap.name] = context.display_title || context.name;
       } else {
         newPathName = pathName;
       }
@@ -342,6 +343,14 @@ function registerPageView() {
 
   registerProductView();
   ga2('send', 'pageview', pageViewObject);
+
+  if (code === 403) {
+    // HTTPForbidden Access Denied - save original URL
+    event("Navigation", "HTTPForbidden", {
+      eventLabel: parts.pathname
+    });
+  }
+
   return true;
 }
 /**
