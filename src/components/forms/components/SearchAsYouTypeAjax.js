@@ -42,8 +42,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
             loading: true, // starts out by loading base RequestURL
             error: null,
         };
-        // this.totalCount = 0; // todo: remove post-testing
-        // this.processedCount = 0; // todo: remove post-testing
         this.currentRequest = null;
         this.hasBeenOpened = false;
         this.onLoadData = _.debounce(this.onLoadData.bind(this), 500, false);
@@ -58,7 +56,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
-        // this.totalCount++;
         const { results: pastResults } = pastState;
         const { results } = this.state;
         if (results !== pastResults) {
@@ -149,11 +146,14 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         const {
             filterMethod = "startsWith",
             optionsHeader: propOptionsHeader,
-            ...passProps
+            value,
+            keyComplete = {},
+            ...leftoverProps
         } = this.props;
         const { currentTextValue, results = [], loading, error } = this.state;
         let optionsHeader = propOptionsHeader;
 
+        const passProps = { ...leftoverProps, keyComplete, value };
         if (loading && !error) {
             optionsHeader = (
                 <div className="text-center py-3">
@@ -182,14 +182,25 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
             }
         }
 
+        var intKey = parseInt(value);
+        const hideButton = value && !isNaN(value) && !keyComplete[intKey]; // if in the middle of editing a custom linked object for this field
+
         return (
-            <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue }}
-                alignRight={true}
-                showTips={true}
-                options={results}
-                onToggleOpen={this.onToggleOpen}
-                onTextInputChange={this.onTextInputChange}
-                onDropdownSelect={this.onDropdownSelect}/>
+            <div className="d-flex flex-wrap">
+                {
+                    hideButton ? null : (
+                        <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue }}
+                            alignRight={true}
+                            showTips={true}
+                            options={results}
+                            onToggleOpen={this.onToggleOpen}
+                            onTextInputChange={this.onTextInputChange}
+                            onDropdownSelect={this.onDropdownSelect}
+                        />
+                    )
+                }
+                <LinkedObj key="linked-item" {...passProps} />
+            </div>
         );
     }
 }
@@ -230,7 +241,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
         arrayIdx,
         schema : { linkTo = "Item" },
         itemType = linkTo,
-        idToTitleMap = null
+        idToTitleMap = null,
     } = props;
 
     // Add some logic based on schema.Linkto props if itemType not already available
@@ -248,6 +259,8 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
 
     const onChange = useMemo(function(){
         return function(resultItem){
+            console.log("calling SubmissionViewSearchAsYouType onchange");
+            console.log("resultItem, ", resultItem);
             return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx);
         };
     }, [ selectComplete, nestedField ]);
@@ -258,12 +271,8 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
         };
     }, [ idToTitleMap ]);
 
-    return (
-        <div className="d-flex flex-wrap">
-            <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction, fieldsToRequest, titleRenderFunction }}/>
-            <LinkedObj key="linked-item" {...props} baseHref={baseHref} />
-        </div>
-    );
+    return <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction,
+        fieldsToRequest, titleRenderFunction, selectComplete }} {...props} />;
 }
 
 
@@ -448,6 +457,7 @@ export class LinkedObj extends React.PureComponent {
         var intKey = parseInt(this.props.value);
         if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
         this.props.setSubmissionState('currKey', intKey);
+        console.log(`called LinkedObj.setSubmissionStateToLinkedToItem`);
     }
 
     handleStartSelectItem(e){
@@ -457,6 +467,7 @@ export class LinkedObj extends React.PureComponent {
         const { schema, nestedField, currType, linkType, arrayIdx, selectObj, selectCancel } = this.props;
         const itemType = schema.linkTo;
 
+        console.log(`calling LinkedObj.handleStartSelectItem -> selectObj(itemType=${itemType}, nestedField=${nestedField}, arrayIdx=${arrayIdx})`);
         selectObj(itemType, nestedField, arrayIdx);
     }
 
@@ -466,14 +477,13 @@ export class LinkedObj extends React.PureComponent {
      * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
      */
     handleFinishSelectItem(items){
-        console.log("items", items);
+        console.log(`calling handleFinishSelectItem(items={obj})`);
+        console.log("items: ", items);
+        console.log(`props: selectComplete=${selectComplete}, isMultiSelect=${isMultiSelect}`);
         const { selectComplete, isMultiSelect } = this.props;
         if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) { return item.id && typeof item.id === 'string' && item.json; })) {
             return;
         }
-
-        console.log("selectComplete, ", selectComplete);
-        console.log("isMultiSelect, ", isMultiSelect);
 
         let atIds;
         if (!(isMultiSelect || false)) {
@@ -487,8 +497,6 @@ export class LinkedObj extends React.PureComponent {
             atIds = _.pluck(items, "id");
         }
 
-        console.log("atIds, ", atIds);
-
         // Check validity of item IDs, and handle items with invalid IDs/URLs
         const invalidTitle = "Invalid Item Selected";
         if (_.every(atIds, function (atId) {
@@ -496,6 +504,7 @@ export class LinkedObj extends React.PureComponent {
             return atId && isValidAtId;
         })) {
             Alerts.deQueue({ 'title': invalidTitle });
+            console.log(`calling selectComplete(${atIds})`);
             selectComplete(atIds); // submit the values
         } else {
             Alerts.queue({
@@ -505,17 +514,21 @@ export class LinkedObj extends React.PureComponent {
             });
             throw new Error('No valid @id available.');
         }
+
+        console.log(`called LinkedObj.handleFinishSelectItem`);
     }
 
     handleCreateNewItemClick(e){
+        console.log("called LinkedObj.handleNewItemClick");
         e.preventDefault();
-        const { fieldBeingSelected, selectCancel, modifyNewContext, nestedField, linkType, arrayIdx, schema } = this.props;
+        const { fieldBeingSelected, selectCancel, modifyNewContext, nestedField, linkType,
+            arrayIdx, schema } = this.props;
         if (fieldBeingSelected !== null) selectCancel();
         modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
     }
 
     handleAcceptTypedID(evt){
-        console.log(evt);
+        console.log(`calling LinkedObj.handleAcceptTypedID(evt=${evt})`);
         if (!this || !this.state || !this.state.textInputValue){
             throw new Error('Invalid @id format.');
         }
@@ -586,7 +599,7 @@ export class LinkedObj extends React.PureComponent {
     }
 
 
-    renderEmptyField(){
+    renderButtons(){
         return (
             <div className="linked-object-buttons-container">
                 <button type="button" className="btn btn-outline-secondary adv-search"
@@ -595,14 +608,14 @@ export class LinkedObj extends React.PureComponent {
                 </button>
                 <button type="button" className="btn btn-outline-secondary create-new-obj"
                     data-tip="Create New" onClick={this.handleCreateNewItemClick}>
-                    <i className="icon icon-fw icon-file far"/>
+                    <i className="icon icon-fw icon-file-medical fas"/>
                 </button>
             </div>
         );
     }
 
     render(){
-        const { value, keyDisplay, keyComplete, fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = this.props;
+        const { value, keyDisplay = {}, keyComplete, fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = this.props;
         const isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
 
         if (isSelecting){
@@ -614,7 +627,7 @@ export class LinkedObj extends React.PureComponent {
             const thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)"
                 : "<code>" + value + "</code>";
             if (isNaN(value)) {
-                return this.renderEmptyField();
+                return this.renderButtons();
             } else {
                 // it's a custom object. Either render a link to editing the object
                 // or a pop-up link to the object if it's already submitted
@@ -640,7 +653,7 @@ export class LinkedObj extends React.PureComponent {
             }
         } else {
             // nothing chosen/created yet
-            return this.renderEmptyField();
+            return this.renderButtons();
         }
     }
 }

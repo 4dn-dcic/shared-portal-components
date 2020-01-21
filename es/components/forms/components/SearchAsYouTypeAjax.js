@@ -46,6 +46,12 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -108,9 +114,7 @@ function (_React$PureComponent) {
       loading: true,
       // starts out by loading base RequestURL
       error: null
-    }; // this.totalCount = 0; // todo: remove post-testing
-    // this.processedCount = 0; // todo: remove post-testing
-
+    };
     _this.currentRequest = null;
     _this.hasBeenOpened = false;
     _this.onLoadData = _underscore._.debounce(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
@@ -127,7 +131,6 @@ function (_React$PureComponent) {
   _createClass(SearchAsYouTypeAjax, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
-      // this.totalCount++;
       var pastResults = pastState.results;
       var results = this.state.results;
 
@@ -256,7 +259,10 @@ function (_React$PureComponent) {
           _this$props2$filterMe = _this$props2.filterMethod,
           filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
           propOptionsHeader = _this$props2.optionsHeader,
-          passProps = _objectWithoutProperties(_this$props2, ["filterMethod", "optionsHeader"]);
+          value = _this$props2.value,
+          _this$props2$keyCompl = _this$props2.keyComplete,
+          keyComplete = _this$props2$keyCompl === void 0 ? {} : _this$props2$keyCompl,
+          leftoverProps = _objectWithoutProperties(_this$props2, ["filterMethod", "optionsHeader", "value", "keyComplete"]);
 
       var _this$state = this.state,
           currentTextValue = _this$state.currentTextValue,
@@ -265,6 +271,11 @@ function (_React$PureComponent) {
           loading = _this$state.loading,
           error = _this$state.error;
       var optionsHeader = propOptionsHeader;
+
+      var passProps = _objectSpread({}, leftoverProps, {
+        keyComplete: keyComplete,
+        value: value
+      });
 
       if (loading && !error) {
         optionsHeader = _react["default"].createElement("div", {
@@ -286,7 +297,12 @@ function (_React$PureComponent) {
         }
       }
 
-      return _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
+      var intKey = parseInt(value);
+      var hideButton = value && !isNaN(value) && !keyComplete[intKey]; // if in the middle of editing a custom linked object for this field
+
+      return _react["default"].createElement("div", {
+        className: "d-flex flex-wrap"
+      }, hideButton ? null : _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue
       }, {
@@ -296,7 +312,9 @@ function (_React$PureComponent) {
         onToggleOpen: this.onToggleOpen,
         onTextInputChange: this.onTextInputChange,
         onDropdownSelect: this.onDropdownSelect
-      }));
+      })), _react["default"].createElement(LinkedObj, _extends({
+        key: "linked-item"
+      }, passProps)));
     }
   }]);
 
@@ -349,11 +367,12 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
       _props$idToTitleMap = props.idToTitleMap,
       idToTitleMap = _props$idToTitleMap === void 0 ? null : _props$idToTitleMap; // Add some logic based on schema.Linkto props if itemType not already available
 
-  var baseHref = "/search/?type=" + linkTo;
   var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   var onChange = (0, _react.useMemo)(function () {
     return function (resultItem) {
+      console.log("calling SubmissionViewSearchAsYouType onchange");
+      console.log("resultItem, ", resultItem);
       return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx);
     };
   }, [selectComplete, nestedField]);
@@ -362,20 +381,15 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
       return idToTitleMap[resultAtID] || resultAtID;
     };
   }, [idToTitleMap]);
-  return _react["default"].createElement("div", {
-    className: "d-flex flex-wrap"
-  }, _react["default"].createElement(SearchAsYouTypeAjax, {
+  return _react["default"].createElement(SearchAsYouTypeAjax, _extends({
     value: value,
     onChange: onChange,
-    baseHref: baseHref,
+    baseHref: "/search/?type=" + linkTo,
     optionRenderFunction: optionRenderFunction,
     fieldsToRequest: fieldsToRequest,
-    titleRenderFunction: titleRenderFunction
-  }), _react["default"].createElement(LinkedObj, _extends({
-    key: "linked-item"
-  }, props, {
-    baseHref: baseHref
-  })));
+    titleRenderFunction: titleRenderFunction,
+    selectComplete: selectComplete
+  }, props));
 }
 
 function sexToIcon(sex, showTip) {
@@ -642,6 +656,7 @@ function (_React$PureComponent2) {
       var intKey = parseInt(this.props.value);
       if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
       this.props.setSubmissionState('currKey', intKey);
+      console.log("called LinkedObj.setSubmissionStateToLinkedToItem");
     }
   }, {
     key: "handleStartSelectItem",
@@ -657,6 +672,7 @@ function (_React$PureComponent2) {
           selectObj = _this$props4.selectObj,
           selectCancel = _this$props4.selectCancel;
       var itemType = schema.linkTo;
+      console.log("calling LinkedObj.handleStartSelectItem -> selectObj(itemType=".concat(itemType, ", nestedField=").concat(nestedField, ", arrayIdx=").concat(arrayIdx, ")"));
       selectObj(itemType, nestedField, arrayIdx);
     }
     /**
@@ -668,7 +684,9 @@ function (_React$PureComponent2) {
   }, {
     key: "handleFinishSelectItem",
     value: function handleFinishSelectItem(items) {
-      console.log("items", items);
+      console.log("calling handleFinishSelectItem(items={obj})");
+      console.log("items: ", items);
+      console.log("props: selectComplete=".concat(selectComplete, ", isMultiSelect=").concat(isMultiSelect));
       var _this$props5 = this.props,
           selectComplete = _this$props5.selectComplete,
           isMultiSelect = _this$props5.isMultiSelect;
@@ -679,8 +697,6 @@ function (_React$PureComponent2) {
         return;
       }
 
-      console.log("selectComplete, ", selectComplete);
-      console.log("isMultiSelect, ", isMultiSelect);
       var atIds;
 
       if (!(isMultiSelect || false)) {
@@ -696,9 +712,8 @@ function (_React$PureComponent2) {
         atIds = [atId];
       } else {
         atIds = _underscore._.pluck(items, "id");
-      }
+      } // Check validity of item IDs, and handle items with invalid IDs/URLs
 
-      console.log("atIds, ", atIds); // Check validity of item IDs, and handle items with invalid IDs/URLs
 
       var invalidTitle = "Invalid Item Selected";
 
@@ -711,6 +726,7 @@ function (_React$PureComponent2) {
           'title': invalidTitle
         });
 
+        console.log("calling selectComplete(".concat(atIds, ")"));
         selectComplete(atIds); // submit the values
       } else {
         _Alerts.Alerts.queue({
@@ -721,10 +737,13 @@ function (_React$PureComponent2) {
 
         throw new Error('No valid @id available.');
       }
+
+      console.log("called LinkedObj.handleFinishSelectItem");
     }
   }, {
     key: "handleCreateNewItemClick",
     value: function handleCreateNewItemClick(e) {
+      console.log("called LinkedObj.handleNewItemClick");
       e.preventDefault();
       var _this$props6 = this.props,
           fieldBeingSelected = _this$props6.fieldBeingSelected,
@@ -740,7 +759,7 @@ function (_React$PureComponent2) {
   }, {
     key: "handleAcceptTypedID",
     value: function handleAcceptTypedID(evt) {
-      console.log(evt);
+      console.log("calling LinkedObj.handleAcceptTypedID(evt=".concat(evt, ")"));
 
       if (!this || !this.state || !this.state.textInputValue) {
         throw new Error('Invalid @id format.');
@@ -821,8 +840,8 @@ function (_React$PureComponent2) {
       });
     }
   }, {
-    key: "renderEmptyField",
-    value: function renderEmptyField() {
+    key: "renderButtons",
+    value: function renderButtons() {
       return _react["default"].createElement("div", {
         className: "linked-object-buttons-container"
       }, _react["default"].createElement("button", {
@@ -838,7 +857,7 @@ function (_React$PureComponent2) {
         "data-tip": "Create New",
         onClick: this.handleCreateNewItemClick
       }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-file far"
+        className: "icon icon-fw icon-file-medical fas"
       })));
     }
   }, {
@@ -846,7 +865,8 @@ function (_React$PureComponent2) {
     value: function render() {
       var _this$props9 = this.props,
           value = _this$props9.value,
-          keyDisplay = _this$props9.keyDisplay,
+          _this$props9$keyDispl = _this$props9.keyDisplay,
+          keyDisplay = _this$props9$keyDispl === void 0 ? {} : _this$props9$keyDispl,
           keyComplete = _this$props9.keyComplete,
           fieldBeingSelected = _this$props9.fieldBeingSelected,
           nestedField = _this$props9.nestedField,
@@ -863,7 +883,7 @@ function (_React$PureComponent2) {
         var thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)" : "<code>" + value + "</code>";
 
         if (isNaN(value)) {
-          return this.renderEmptyField();
+          return this.renderButtons();
         } else {
           // it's a custom object. Either render a link to editing the object
           // or a pop-up link to the object if it's already submitted
@@ -897,7 +917,7 @@ function (_React$PureComponent2) {
         }
       } else {
         // nothing chosen/created yet
-        return this.renderEmptyField();
+        return this.renderButtons();
       }
     }
   }]);

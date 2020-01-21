@@ -257,6 +257,8 @@ export default class SubmissionView extends React.PureComponent{
             ...gatherLinkToTitlesFromContextEmbedded(context),
             "0" : SubmissionView.principalTitle(context, edit, create, principalType),
         };
+
+        console.log('PTYPE', principalType, keyDisplay);
         const keyLinkBookmarks = {};
         const bookmarksList = [];
         const schema = schemas[principalType];
@@ -510,7 +512,7 @@ export default class SubmissionView extends React.PureComponent{
      * use the lasst alias in the aliases field (an array).
      */
     modifyAlias(){
-        this.setState(function({ keyDisplay, keyTypes, currKey, keyContext, edit, create }){
+        this.setState(function({ keyDisplay, keyTypes, currKey, keyContext, edit, create }, { context: propContext }){
             const currAlias = keyDisplay[currKey];
             const aliases = keyContext[currKey].aliases || null;
             // Try to get 'alias' > 'name' > 'title' > then fallback to 'My ItemType currKey'
@@ -519,7 +521,7 @@ export default class SubmissionView extends React.PureComponent{
             if (name) {
                 nextKeyDisplay[currKey] = name;
             } else if (currKey === 0) {
-                nextKeyDisplay[currKey] = SubmissionView.principalTitle(null, edit, create, keyTypes[currKey]);
+                nextKeyDisplay[currKey] = SubmissionView.principalTitle(propContext, edit, create, keyTypes[currKey]);
             } else {
                 nextKeyDisplay[currKey] = 'My ' + keyTypes[currKey] + ' ' + currKey;
             }
@@ -734,6 +736,7 @@ export default class SubmissionView extends React.PureComponent{
      * remove any hanging Alert error messages from validation.
      */
     setSubmissionState(key, value){
+        console.log(`calling setSubmissionState(key = ${key}, value = ${value}`);
         const { currKey, upload, md5Progress, keyValid, errorCount, roundTwo, keyHierarchy, keyContext, keyComplete } = this.state;
         var stateToSet = {};
         if (typeof this.state[key] !== 'undefined'){
@@ -850,6 +853,8 @@ export default class SubmissionView extends React.PureComponent{
     }
 
     realPostNewContext(e){
+        console.log("real posting new context");
+        console.log("submitting object with currkey: ", this.state.currKey);
         e.preventDefault();
         this.submitObject(this.state.currKey);
     }
@@ -1191,6 +1196,9 @@ export default class SubmissionView extends React.PureComponent{
                                 this.setState(stateToSet);
                             }
                         } else {
+                            console.log("stateToSet: ", stateToSet);
+                            console.log("keyDisplay, ", keyDisplay);
+                            console.log("inKey: , ", inKey);
                             alert(keyDisplay[inKey] + ' was successfully submitted.');
                             this.setState(stateToSet);
                         }
@@ -1208,6 +1216,7 @@ export default class SubmissionView extends React.PureComponent{
                 submitProcessContd(myLab, myAward);
             });
         } else {
+            console.log("submitting process continued");
             submitProcessContd();
         }
     }
@@ -1772,6 +1781,11 @@ class IndividualObjectView extends React.Component {
         };
     }
 
+    componentDidUpdate(pastProps, pastState) {
+        console.log("previous state = ", pastState);
+        console.log("new state = ", this.state);
+    }
+
     /**
      * Takes a field and value and modifies the keyContext held in parent.
      * Also uses the fieldType, which is unique among BuildField children,
@@ -1795,6 +1809,12 @@ class IndividualObjectView extends React.Component {
      * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
      */
     modifyNewContext(field, value, fieldType, newLink, arrayIdx=null, type=null, valueTitle=null){
+        console.log(`calling modifyNewContext(field=${field}, value=${value}, fieldType=${fieldType}, newLink=${newLink}, arrayIdx=${arrayIdx}, type=${type}, valueTitle=${valueTitle})`);
+        console.log("value", value);
+        if (value instanceof Array) {
+            value.forEach((item) => console.log(item));
+        }
+
         if(fieldType === 'new linked object'){
             value = this.props.keyIter + 1;
             if(this.props.roundTwo){
@@ -1927,6 +1947,7 @@ class IndividualObjectView extends React.Component {
      * and hide the object navigation tree.
      */
     selectObj(collection, field, arrayIdx=null){
+        console.log(`calling selectObj(collection=${collection}, field=${field}, arrayIdx=${arrayIdx})`);
         this.setState({ 'selectField' : field, 'selectArrayIdx': arrayIdx, 'selectType' : collection });
     }
 
@@ -1936,6 +1957,7 @@ class IndividualObjectView extends React.Component {
      * process.
      */
     selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null) {
+        console.log(`calling selectComplete(atIds=${atIds}, customSelectField=${customSelectField}, customSelecttype=${customSelectType}, customArrayIdx=${customArrayIdx}`);
         const { currContext } = this.props;
         const {
             selectField: stateSelectField,

@@ -136,7 +136,7 @@ const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
                     { show ?
                         <input type="text" autoFocus value={currentTextValue} onChange={onTextInputChange}
                             onKeyDown={onKeyDown} placeholder={inputPlaceholder} tabIndex="3"
-                            className="form-control"/>
+                            className="form-control" />
                         : null }
                 </div>
                 <VerticalScrollContainer header={optionsHeader} footer={optionsFooter} items={children} />
