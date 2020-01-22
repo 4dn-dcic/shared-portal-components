@@ -263,6 +263,7 @@ function registerPageView() {
     } else {
       newPathName = pathName;
     } // Add 'q' and 'type' params back to pathname; they'll be parsed and filtered out by Google Analytics to be used for 'search query' and 'search category' analytics.
+    // Other URL params are extracted out and supplied via "current filters" / "dimension1" as JSON.
 
 
     if (parts.query && (parts.query.q || parts.query.type)) {
@@ -314,7 +315,7 @@ function registerPageView() {
       _patchedConsole.patchedConsoleInstance.info("Item Page View (probably). Will track as product:", productObj);
 
       if (searchResponseFilters) {
-        pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(searchResponseFilters));
+        pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(searchResponseFilters);
       }
 
       ga2('ec:addProduct', productObj);
@@ -456,7 +457,10 @@ function productClick(item) {
   }); // Add current filters.
 
 
-  eventObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(context && context.filters || null));
+  if (context && context.filters) {
+    eventObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+  }
+
   ga2('send', eventObj);
   return true;
 }
@@ -512,8 +516,11 @@ function eventLabelFromChartNodes(nodes) {
  */
 
 
-function getStringifiedCurrentFilters(expSetFilters) {
-  return JSON.stringify(expSetFilters, _underscore["default"].keys(expSetFilters).sort());
+function getStringifiedCurrentFilters(contextFilters) {
+  if (!contextFilters) return null; // Deprecated naming and data structure; we can refactor to get rid of notion of expset filters.
+
+  var expSetFilters = (0, _searchFilters.contextFiltersToExpSetFilters)(contextFilters);
+  return JSON.stringify((0, _searchFilters.expSetFiltersToJSON)(expSetFilters), _underscore["default"].keys(expSetFilters).sort());
 }
 
 function getGoogleAnalyticsTrackingData() {
@@ -612,13 +619,12 @@ function impressionListOfItems(itemList, href) {
     if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
   }
 
-  var filtersToRegister = context && context.filters && (0, _searchFilters.contextFiltersToExpSetFilters)(context.filters) || null;
   var commonProductObj = {
     "list": listName || hrefToListName(href)
   };
 
-  if (filtersToRegister) {
-    commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(filtersToRegister);
+  if (context && context.filters) {
+    commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
   }
 
   var resultsImpressioned = _underscore["default"].map(itemList, function (item, i) {

@@ -5,7 +5,7 @@ import url from 'url';
 import queryString from 'query-string';
 import { isServerSide } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
-import { contextFiltersToExpSetFilters } from './search-filters';
+import { contextFiltersToExpSetFilters, expSetFiltersToJSON } from './search-filters';
 import * as object from './object';
 import * as JWT from './json-web-token';
 
@@ -207,6 +207,7 @@ export function registerPageView(href = null, context = null){
         }
 
         // Add 'q' and 'type' params back to pathname; they'll be parsed and filtered out by Google Analytics to be used for 'search query' and 'search category' analytics.
+        // Other URL params are extracted out and supplied via "current filters" / "dimension1" as JSON.
         if (parts.query && (parts.query.q || parts.query.type)) {
             const qs = queryString.stringify({ 'q' : parts.query.q, 'type' : parts.query.type });
             newPathName = pathName + (qs ? '?' + qs : '');
@@ -249,9 +250,7 @@ export function registerPageView(href = null, context = null){
             const productObj = state && state.itemToProductTransform(context);
             console.info("Item Page View (probably). Will track as product:", productObj);
             if (searchResponseFilters){
-                pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(
-                    contextFiltersToExpSetFilters(searchResponseFilters)
-                );
+                pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(searchResponseFilters);
             }
 
             ga2('ec:addProduct', productObj);
@@ -372,9 +371,9 @@ export function productClick(item, extraData = {}, callback = null, context = nu
     });
 
     // Add current filters.
-    eventObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(
-        contextFiltersToExpSetFilters((context && context.filters) || null)
-    );
+    if (context && context.filters){
+        eventObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+    }
 
     ga2('send', eventObj);
     return true;
@@ -428,8 +427,11 @@ export function eventLabelFromChartNodes(nodes){
  * @param {Object} expSetFilters - expSetFilters object.
  * @returns {string} Stringified JSON to be saved to analytics.
  */
-export function getStringifiedCurrentFilters(expSetFilters){
-    return JSON.stringify(expSetFilters, _.keys(expSetFilters).sort());
+export function getStringifiedCurrentFilters(contextFilters){
+    if (!contextFilters) return null;
+    // Deprecated naming and data structure; we can refactor to get rid of notion of expset filters.
+    const expSetFilters = contextFiltersToExpSetFilters(contextFilters);
+    return JSON.stringify( expSetFiltersToJSON(expSetFilters), _.keys(expSetFilters).sort() );
 }
 
 
@@ -513,10 +515,9 @@ export function impressionListOfItems(itemList, href, listName = null, context =
         if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
     }
 
-    const filtersToRegister = (context && context.filters && contextFiltersToExpSetFilters(context.filters)) || null;
     const commonProductObj = { "list" : listName || hrefToListName(href) };
-    if (filtersToRegister) {
-        commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(filtersToRegister);
+    if (context && context.filters) {
+        commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
     }
 
     const resultsImpressioned = _.map(itemList, function(item, i){
