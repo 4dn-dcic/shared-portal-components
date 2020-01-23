@@ -122,8 +122,7 @@ function (_React$PureComponent) {
           onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad;
       var _this$state2 = this.state,
           currentHref = _this$state2.virtualHref,
-          _this$state2$virtualC = _this$state2.virtualContext,
-          existingContext = _this$state2$virtualC === void 0 ? null : _this$state2$virtualC; // There is (very large) chance that `nextHref` does not have domain name, path, etc.
+          existingContext = _this$state2.virtualContext; // There is (very large) chance that `nextHref` does not have domain name, path, etc.
       // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
 
       var nextHrefFull = _url["default"].resolve(currentHref, nextHref);
@@ -152,8 +151,11 @@ function (_React$PureComponent) {
           if (typeof existingContext === "undefined") {
             // First time we've loaded response context. Register analytics event.
             if (Array.isArray(initialResults)) {
-              analytics.impressionListOfItems(initialResults, nextHrefFull, "Embedded Search View - " + analytics.hrefToListName(nextHrefFull));
-              analytics.event("VirtualHrefController", "Initial Results Loaded");
+              analytics.impressionListOfItems(initialResults, nextHrefFull, "Embedded Search View");
+              var evtObj = analytics.eventObjectFromCtx(existingContext);
+              delete evtObj.name;
+              evtObj.eventValue = initialResults.length;
+              analytics.event("VirtualHrefController", "Initial Results Loaded", evtObj);
             }
           }
 

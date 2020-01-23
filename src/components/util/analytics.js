@@ -27,22 +27,30 @@ const defaultOptions = {
             // Only for files
             file_size = null
         } = item;
-        return {
+        const prodItem = {
             'id'            : itemID || itemUUID,
             'name'          : display_title || title || null,
             'category'      : Array.isArray(itemType) ? itemType.slice().reverse().slice(1).join('/') : "Unknown",
             'brand'         : labTitle || submitterTitle || null,
             'price'         : file_size
         };
+        if (file_size && state.dimensionMap.filesize) {
+            prodItem[state.dimensionMap.filesize] = file_size;
+        }
+        return prodItem;
     },
     // Google Analytics allows custom dimensions to be sent along w/ events, however they are named incrementally w/o customization.
     // Here we track own keywords/keys and transform to Google-Analytics incremented keys.
+    // WE RE-USE THIS MAPPING FOR METRIC INDICES ALSO
     'dimensionMap' : {
         'currentFilters'    : 'dimension1',
         'name'              : 'dimension2',
         'field'             : 'dimension3',
-        'term'              : 'dimension4'
+        'term'              : 'dimension4',
+        'filesize'          : 'metric1',
+        'downloads'         : 'metric2'
     },
+    'anonymizeTypes'     : ["User"],
     'reduxStore' : null
 };
 
@@ -104,7 +112,13 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
 
     if (options.enhancedEcommercePlugin){
         ga2('require', 'ec');
-        console.info("Initialized google analytics : Enhanced ECommerce Plugin");
+        console.info("Initialized google analytics: Enhanced ECommerce Plugin");
+    }
+
+    const { uuid: userUUID } = JWT.getUserDetails() || {};
+    if (userUUID) {
+        ga2('set', 'userId', userUUID);
+        console.log("Initialized google analytics: Set session for UUID", userUUID);
     }
 
     if (initialContext){
@@ -142,7 +156,7 @@ export function registerPageView(href = null, context = null){
 
     // Options to send with GA pageview event.
     const parts = url.parse(href, true);
-    const pageViewObject = { hitType : 'pageview' };
+    const pageViewObject = { ...eventObjectFromCtx(context), hitType : 'pageview' };
     const origHref = href; // Store orig href in case we need it later
 
     const {
@@ -151,17 +165,11 @@ export function registerPageView(href = null, context = null){
         uuid: ctxUUID,
         '@graph' : searchResponseResults = null,
         filters: searchResponseFilters = null,
-        display_title: itemTitle = null,
-        title: fallbackTitle = null,
         code = null
     } = context || {};
 
     // Should be present on all Item responses - except Errors (HTTPForbidden, etc.).
     // Errors would have 'title' such as 'Forbidden'. Or maybe 'Browse'.
-
-    const title = itemTitle || fallbackTitle || null;
-
-    pageViewObject[state.dimensionMap.name] = title || ctxAccession || context.name || ctxUUID || "UNKNOWN NAME";
 
     /**
      * Convert pathname with a 'UUID', 'Accession', or 'name' to having a
@@ -246,8 +254,9 @@ export function registerPageView(href = null, context = null){
 
             return false;
         } else if (itemType.indexOf("Item") > -1){
+
             // We got an Item view, lets track some details about it.
-            const productObj = state && state.itemToProductTransform(context);
+            const productObj = itemToProductTransform(context);
             console.info("Item Page View (probably). Will track as product:", productObj);
             if (searchResponseFilters){
                 pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(searchResponseFilters);
@@ -270,11 +279,15 @@ export function registerPageView(href = null, context = null){
 
     lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
     ga2('set', 'page', href); // Set it as current page
+    if (shouldAnonymize(itemType)){ // Override page title
+        pageViewObject.title = ctxAccession || ctxUUID || "[Anonymized Title]";
+    }
     pageViewObject.location = href; // Don't need to do re: 'set' 'page', but redundant for safety.
     pageViewObject.hitCallback = function(){
         console.info('Successfuly sent pageview event.', href, pageViewObject);
     };
     registerProductView();
+
     ga2('send', 'pageview', pageViewObject);
 
     if (code === 403) {
@@ -283,6 +296,26 @@ export function registerPageView(href = null, context = null){
     }
 
     return true;
+}
+
+export function eventObjectFromCtx(context){
+    if (!context) return {};
+    const {
+        '@type' : ctxTypes,
+        filters = null,
+        display_title, title, accession,
+        uuid, name,
+    } = context || {};
+    // `display_title` should be present on all Item responses - except Errors (HTTPForbidden, etc.).
+    // Errors would have 'title' such as 'Forbidden'. Or maybe 'Browse'.
+    const eventObj = { name: display_title || title || accession || name || uuid || "UNKNOWN NAME" };
+    if (shouldAnonymize(ctxTypes)){
+        eventObj.name = accession || uuid || "[Anonymized Title]";
+    }
+    if (filters) { // If search response context, add these.
+        eventObj.currentFilters = getStringifiedCurrentFilters(filters);
+    }
+    return eventObj;
 }
 
 /**
@@ -336,6 +369,15 @@ export function event(category, action, fields = {}){
     setTimeout(function(){ ga2('send', eventObj); }, 0);
 }
 
+export function setUserID(userUUID){
+    if (!shouldTrack()) {
+        return false;
+    }
+    ga2('set', 'userId', userUUID);
+    console.info("Set analytics user id to", userUUID);
+    return true;
+}
+
 
 export function productClick(item, extraData = {}, callback = null, context = null){
     if (!shouldTrack()) {
@@ -343,11 +385,12 @@ export function productClick(item, extraData = {}, callback = null, context = nu
         return true;
     }
     context = context || (state.reduxStore && state.reduxStore.getState().context) || null;
-    const pObj = _.extend(state.itemToProductTransform(item), extraData);
+    const pObj = _.extend(itemToProductTransform(item), extraData);
     const href = extraData.href || window.location.href;
     const eventObj = {
+        ...eventObjectFromCtx(context),
         'hitType' : 'event',
-        'eventCategory' : pObj.list || hrefToListName(href) || 'Search Results',
+        'eventCategory' : 'Search Result Click',
         'eventAction' : 'click',
         'eventLabel' : pObj.id || pObj.name,
         'hitCallback' : function(){
@@ -355,11 +398,10 @@ export function productClick(item, extraData = {}, callback = null, context = nu
             if (typeof callback === 'function'){
                 callback();
             }
-        },
-        'name' : pObj.name || pObj.id,
+        }
     };
 
-    ga2('ec:addProduct', _.omit(pObj, 'list'));
+    ga2('ec:addProduct', pObj);
     ga2('ec:setAction', 'click',  _.pick(pObj, 'list'));
 
     // Convert internal dimension names to Google Analytics ones.
@@ -370,13 +412,30 @@ export function productClick(item, extraData = {}, callback = null, context = nu
         }
     });
 
-    // Add current filters.
-    if (context && context.filters){
-        eventObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
-    }
-
     ga2('send', eventObj);
     return true;
+}
+
+/**
+ * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
+ * Does _NOT_ also send a GA event. This must be done outside of func.
+ */
+export function productsAddToCart(items, extraData = {}){
+    if (items && !Array.isArray(items)){
+        items = [items];
+    }
+    let count = 0;
+    items.forEach(function(item){
+        const pObj = _.extend(itemToProductTransform(item), extraData);
+        if (typeof pObj.id !== "string") {
+            console.error("No product id available, cannot track", pObj);
+            return;
+        }
+        ga2('ec:addProduct', { ...pObj, quantity: 1 });
+        count++;
+    });
+    console.info(`Added ${count} items to cart.`);
+    ga2('ec:setAction', 'add');
 }
 
 
@@ -502,6 +561,29 @@ function shouldTrack(){
     return true;
 }
 
+function shouldAnonymize(itemTypes){
+    const anonymizeMap = {};
+    state.anonymizeTypes.forEach(function(anonType){
+        anonymizeMap[anonType] = true;
+    });
+    let i = itemTypes.length;
+    for (i = itemTypes.length; i > -1; i--){
+        if (anonymizeMap[itemTypes[i]]){
+            return true;
+        }
+    }
+    return false;
+}
+
+function itemToProductTransform(item){
+    const { '@type' : itemTypes, accession, uuid } = item;
+    const prodItem = state.itemToProductTransform(item);
+    if (shouldAnonymize(itemTypes)){
+        prodItem.name = accession || uuid || "[Anonymized Title]";
+    }
+    return prodItem;
+}
+
 /**
  * Exported, but use with care. There must be an event or pageview sent immediately afterwards.
  *
@@ -520,8 +602,8 @@ export function impressionListOfItems(itemList, href, listName = null, context =
         commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
     }
 
-    const resultsImpressioned = _.map(itemList, function(item, i){
-        const pObj = _.extend(state.itemToProductTransform(item), commonProductObj, { 'position' : from + i + 1 });
+    const resultsImpressioned = itemList.map(function(item, i){
+        const pObj = _.extend(itemToProductTransform(item), commonProductObj, { 'position' : from + i + 1 });
         ga2('ec:addImpression', pObj);
         return pObj;
     });

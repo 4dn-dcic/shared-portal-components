@@ -58,7 +58,7 @@ export class VirtualHrefController extends React.PureComponent {
 
     virtualNavigate(nextHref, navOpts, callback){
         const { onLoad = null } = this.props;
-        const { virtualHref: currentHref, virtualContext: existingContext = null } = this.state;
+        const { virtualHref: currentHref, virtualContext: existingContext } = this.state;
 
         // There is (very large) chance that `nextHref` does not have domain name, path, etc.
         // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
@@ -82,8 +82,11 @@ export class VirtualHrefController extends React.PureComponent {
                 if (typeof existingContext === "undefined"){
                     // First time we've loaded response context. Register analytics event.
                     if (Array.isArray(initialResults)){
-                        analytics.impressionListOfItems(initialResults, nextHrefFull, "Embedded Search View - " + analytics.hrefToListName(nextHrefFull));
-                        analytics.event("VirtualHrefController", "Initial Results Loaded");
+                        analytics.impressionListOfItems(initialResults, nextHrefFull, "Embedded Search View");
+                        const evtObj = analytics.eventObjectFromCtx(existingContext);
+                        delete evtObj.name;
+                        evtObj.eventValue = initialResults.length;
+                        analytics.event("VirtualHrefController", "Initial Results Loaded", evtObj);
                     }
                 }
 

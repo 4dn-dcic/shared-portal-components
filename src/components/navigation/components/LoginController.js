@@ -10,7 +10,7 @@ import * as JWT from './../../util/json-web-token';
 import { navigate } from './../../util/navigate';
 import { load, fetch } from './../../util/ajax';
 import { itemUtil } from './../../util/object';
-import { event as trackEvent } from './../../util/analytics';
+import { event as trackEvent, setUserID } from './../../util/analytics';
 
 /** Imported in componentDidMount. */
 let Auth0Lock = null;
@@ -62,12 +62,7 @@ export class LoginController extends React.PureComponent {
             }
         },
         'onLogin' : function(profile){
-            const isAdmin = Array.isArray(profile.groups) && profile.groups.indexOf('admin') > -1;
-            if (!isAdmin){ // Exclude admins from analytics tracking
-                trackEvent('Authentication', 'UILogin', {
-                    'eventLabel' : (profile.lab && itemUtil.atId(profile.lab)) || 'No Lab'
-                });
-            }
+            console.log("Logged in", profile);
         }
     };
 
@@ -114,7 +109,7 @@ export class LoginController extends React.PureComponent {
     }
 
     loginCallback(authResult, successCallback, errorCallback){
-        const { updateUserInfo } = this.props;
+        const { updateUserInfo, onLogin } = this.props;
 
         // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
         // to see if this is a valid user account or some random person who just logged into their Google account.
@@ -162,6 +157,18 @@ export class LoginController extends React.PureComponent {
                             if (typeof successCallback === 'function'){
                                 successCallback(profile);
                             }
+                            if (typeof onLogin === 'function'){
+                                onLogin(profile);
+                            }
+
+                            const { uuid: userUUID, lab } = profile;
+                            setUserID(userUUID);
+                            trackEvent('Authentication', 'UILogin', {
+                                eventLabel : "Authenticated ClientSide",
+                                name: userUUID,
+                                userId: userUUID
+                            });
+
                             // Refresh the content/context of our page now that we have a JWT stored as a cookie!
                             // It will return same page but with any auth'd page actions.
                             navigate('', { "inPlace" : true });
@@ -178,6 +185,7 @@ export class LoginController extends React.PureComponent {
 
                     this.setState({ "isLoading" : false });
                     Alerts.deQueue(Alerts.LoggedOut);
+                    setUserID(null);
 
                     // If is programatically called with error CB, let error CB handle everything.
                     var errorCallbackFxn = typeof errorCallback === 'function' ? errorCallback : this.loginErrorCallback;
@@ -234,6 +242,7 @@ export class LoginController extends React.PureComponent {
             (err) => {
                 this.setState({ 'isRegistrationModalVisible' : false });
                 JWT.remove(); // Cleanup any remaining JWT, just in case.
+                setUserID(null);
                 Alerts.queue(Alerts.LoginFailed);
             }
         );
@@ -272,6 +281,7 @@ export class LogoutController extends React.PureComponent {
      */
     performLogout(evt = null){
         const { updateUserInfo } = this.props;
+        const { uuid } = JWT.getUserDetails() || {};
 
         if (evt && evt.preventDefault){
             evt.preventDefault();
@@ -281,6 +291,9 @@ export class LogoutController extends React.PureComponent {
         // Removes both idToken (cookie) and userInfo (localStorage)
         JWT.remove();
 
+        // Remove from analytics session
+        setUserID(null);
+
         // Refetch page context without our old JWT to hide any forbidden content.
         updateUserInfo();
         navigate('', { 'inPlace':true });
@@ -289,6 +302,11 @@ export class LogoutController extends React.PureComponent {
             // Dummy click event to close dropdown menu, bypasses document.body.onClick handler (app.js -> App.prototype.handeClick)
             document.dispatchEvent(new MouseEvent('click'));
         }
+
+        trackEvent('Authentication', 'UILogout', {
+            eventLabel : "Logged Out ClientSide",
+            userId: uuid
+        });
     }
 
     render(){

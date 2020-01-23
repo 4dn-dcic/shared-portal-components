@@ -437,8 +437,9 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             }
 
             const { '@graph' : nextResults = [] } = resp || {};
+            const nextResultsLen = nextResults.length;
 
-            if (nextResults.length > 0){
+            if (nextResultsLen > 0){
                 // Check if have same result, if so, refresh all results (something has changed on back-end)
                 const oldKeys = _.map(existingResults, itemUtil.atId);
                 const newKeys = _.map(nextResults, itemUtil.atId);
@@ -453,9 +454,9 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                         analytics.impressionListOfItems(
                             nextResults,
                             nextHref,
-                            isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View - " + analytics.hrefToListName(nextHref)
+                            isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View"
                         );
-                        analytics.event('SearchResultTable', "Loaded More Results");
+                        analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextResultsLen });
                         setResults(existingResults.slice(0).concat(nextResults));
                     });
                 }

@@ -586,8 +586,9 @@ function (_React$PureComponent3) {
 
         var _ref2$Graph = (resp || {})['@graph'],
             nextResults = _ref2$Graph === void 0 ? [] : _ref2$Graph;
+        var nextResultsLen = nextResults.length;
 
-        if (nextResults.length > 0) {
+        if (nextResultsLen > 0) {
           // Check if have same result, if so, refresh all results (something has changed on back-end)
           var oldKeys = _underscore["default"].map(existingResults, _object.itemUtil.atId);
 
@@ -609,8 +610,10 @@ function (_React$PureComponent3) {
             _this5.setState({
               'isLoading': false
             }, function () {
-              analytics.impressionListOfItems(nextResults, nextHref, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View - " + analytics.hrefToListName(nextHref));
-              analytics.event('SearchResultTable', "Loaded More Results");
+              analytics.impressionListOfItems(nextResults, nextHref, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View");
+              analytics.event('SearchResultTable', "Loaded More Results", {
+                eventValue: nextResultsLen
+              });
               setResults(existingResults.slice(0).concat(nextResults));
             });
           }
