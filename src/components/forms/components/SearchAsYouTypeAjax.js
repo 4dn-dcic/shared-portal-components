@@ -226,6 +226,7 @@ SearchAsYouTypeAjax.defaultProps = {
         );
     },
     "titleRenderFunction": function(result){
+        console.log("calling defualt title render function. result:", result);
         return result.display_title;
     },
     "baseHref" : "/search/?type=Item",
@@ -247,6 +248,8 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
     // Add some logic based on schema.Linkto props if itemType not already available
     const baseHref = "/search/?type=" + linkTo;
 
+    console.log("idToTitleMap: ", idToTitleMap);
+
     const optionRenderFunction = (
         optionCustomizationsByType[itemType] &&
         optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null
@@ -261,12 +264,13 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
         return function(resultItem){
             console.log("calling SubmissionViewSearchAsYouType onchange");
             console.log("resultItem, ", resultItem);
-            return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx);
+            return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title);
         };
     }, [ selectComplete, nestedField ]);
 
     const titleRenderFunction = useMemo(function(){
         return function(resultAtID){
+            console.log("calling memoized titleRenderFunction... resultAtID", resultAtID, idToTitleMap);
             return idToTitleMap[resultAtID] || resultAtID;
         };
     }, [ idToTitleMap ]);
@@ -523,6 +527,8 @@ export class LinkedObj extends React.PureComponent {
         e.preventDefault();
         const { fieldBeingSelected, selectCancel, modifyNewContext, nestedField, linkType,
             arrayIdx, schema } = this.props;
+
+        console.log("called LinkedObj.handleNewItemClick - this.props", this.props);
         if (fieldBeingSelected !== null) selectCancel();
         modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
     }
@@ -624,8 +630,8 @@ export class LinkedObj extends React.PureComponent {
 
         // object chosen or being created
         if (value){
-            const thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)"
-                : "<code>" + value + "</code>";
+            const thisDisplay = keyDisplay[value] ? (<>{keyDisplay[value]}<code>{value}</code></ >)
+                : (<code>{value}</code>);
             if (isNaN(value)) {
                 return this.renderButtons();
             } else {
@@ -644,9 +650,9 @@ export class LinkedObj extends React.PureComponent {
                 } else {
                     return(
                         <div className="incomplete-linked-object-display-container text-ellipsis-container">
-                            <i className="icon icon-fw icon-sticky-note far" />&nbsp;&nbsp;
+                            <i className="icon icon-fw icon-edit far" />&nbsp;&nbsp;
                             <a href="#" onClick={this.setSubmissionStateToLinkedToItem} data-tip="Continue editing/submitting">{ thisDisplay }</a>
-                            &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-pencil ml-05 fas"/>
+                            &nbsp;
                         </div>
                     );
                 }

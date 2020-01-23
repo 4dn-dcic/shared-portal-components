@@ -347,6 +347,7 @@ SearchAsYouTypeAjax.defaultProps = {
     }, atID));
   },
   "titleRenderFunction": function titleRenderFunction(result) {
+    console.log("calling defualt title render function. result:", result);
     return result.display_title;
   },
   "baseHref": "/search/?type=Item",
@@ -367,17 +368,19 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
       _props$idToTitleMap = props.idToTitleMap,
       idToTitleMap = _props$idToTitleMap === void 0 ? null : _props$idToTitleMap; // Add some logic based on schema.Linkto props if itemType not already available
 
+  console.log("idToTitleMap: ", idToTitleMap);
   var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   var onChange = (0, _react.useMemo)(function () {
     return function (resultItem) {
       console.log("calling SubmissionViewSearchAsYouType onchange");
       console.log("resultItem, ", resultItem);
-      return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx);
+      return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title);
     };
   }, [selectComplete, nestedField]);
   var titleRenderFunction = (0, _react.useMemo)(function () {
     return function (resultAtID) {
+      console.log("calling memoized titleRenderFunction... resultAtID", resultAtID, idToTitleMap);
       return idToTitleMap[resultAtID] || resultAtID;
     };
   }, [idToTitleMap]);
@@ -753,6 +756,7 @@ function (_React$PureComponent2) {
           linkType = _this$props6.linkType,
           arrayIdx = _this$props6.arrayIdx,
           schema = _this$props6.schema;
+      console.log("called LinkedObj.handleNewItemClick - this.props", this.props);
       if (fieldBeingSelected !== null) selectCancel();
       modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
     }
@@ -880,7 +884,7 @@ function (_React$PureComponent2) {
 
 
       if (value) {
-        var thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)" : "<code>" + value + "</code>";
+        var thisDisplay = keyDisplay[value] ? _react["default"].createElement(_react["default"].Fragment, null, keyDisplay[value], _react["default"].createElement("code", null, value)) : _react["default"].createElement("code", null, value);
 
         if (isNaN(value)) {
           return this.renderButtons();
@@ -902,17 +906,12 @@ function (_React$PureComponent2) {
             return _react["default"].createElement("div", {
               className: "incomplete-linked-object-display-container text-ellipsis-container"
             }, _react["default"].createElement("i", {
-              className: "icon icon-fw icon-sticky-note far"
+              className: "icon icon-fw icon-edit far"
             }), "\xA0\xA0", _react["default"].createElement("a", {
               href: "#",
               onClick: this.setSubmissionStateToLinkedToItem,
               "data-tip": "Continue editing/submitting"
-            }, thisDisplay), "\xA0", _react["default"].createElement("i", {
-              style: {
-                'fontSize': '0.85rem'
-              },
-              className: "icon icon-fw icon-pencil ml-05 fas"
-            }));
+            }, thisDisplay), "\xA0");
           }
         }
       } else {
