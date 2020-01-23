@@ -301,11 +301,19 @@ function (_React$PureComponent) {
      *
      * @param {number} objKey - Key of Item being modified.
      * @param {Object} newContext - New Context/representation for this Item to be saved.
+     * @param {string} keyTitle - Display title of item being modified
      */
 
   }, {
     key: "modifyKeyContext",
     value: function modifyKeyContext(objKey, newContext, keyTitle) {
+      _util.console.log("log1: ----------"); // console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
+      // console.log("log1: calling modifyKeyContext -- objKey,", objKey);
+      // console.log("log1: calling modifyKeyContext -- newContext, ", newContext);
+      // console.log("log1: calling modifyKeyContext -- keyTitle,", keyTitle );
+      // const { keyContext, keyValid, keyHierarchy, keyComplete, keyDisplay } = this.state;
+
+
       this.setState(function (_ref) {
         var keyContext = _ref.keyContext,
             keyValid = _ref.keyValid,
@@ -317,14 +325,31 @@ function (_React$PureComponent) {
 
         var validCopy = _util.object.deepClone(keyValid);
 
-        contextCopy[objKey] = newContext; // TODO maybe get rid of this state.keyValid and just use memoized static function.
+        contextCopy[objKey] = newContext; // console.log("log1: keyContext", keyContext);
+        // console.log("log1: keyValid ", keyValid);
+        // console.log("log1: prevKeyHeirarchy", prevKeyHierarchy);
+        // console.log("log1: keyComplete", keyComplete);
 
-        validCopy[objKey] = SubmissionView.findValidationState(objKey, prevKeyHierarchy, keyContext, keyComplete);
-        return {
-          'keyContext': contextCopy,
-          'keyValid': validCopy,
-          'keyDisplay': _objectSpread({}, keyDisplay, _defineProperty({}, objKey, keyTitle))
-        };
+        _util.console.log("log1: keyTitle", keyTitle);
+
+        _util.console.log("log1: keyDisplay", keyDisplay[objKey]); // TODO maybe get rid of this state.keyValid and just use memoized static function.
+        // ensure new object is valid
+
+
+        validCopy[objKey] = SubmissionView.findValidationState(objKey, prevKeyHierarchy, keyContext, keyComplete); // make sure there's something to replace keydisplay with
+
+        if (keyTitle) {
+          return {
+            'keyContext': contextCopy,
+            'keyValid': validCopy,
+            'keyDisplay': _objectSpread({}, keyDisplay, _defineProperty({}, objKey, keyTitle))
+          };
+        } else {
+          return {
+            'keyContext': contextCopy,
+            'keyValid': validCopy
+          };
+        }
       }, _reactTooltip["default"].rebuild);
     }
     /**
@@ -2454,21 +2479,16 @@ function (_React$Component2) {
 
   }, {
     key: "modifyNewContext",
-    value: function modifyNewContext(field, value, fieldType, newLink) {
+    value: function modifyNewContext(field, value, fieldType) {
       var arrayIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       var type = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
       var valueTitle = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
 
-      _util.console.log("calling modifyNewContext(field=".concat(field, ", value=").concat(value, ", fieldType=").concat(fieldType, ", newLink=").concat(newLink, ", arrayIdx=").concat(arrayIdx, ", type=").concat(type, ", valueTitle=").concat(valueTitle, ")"));
-
-      _util.console.log("value", value);
-
-      if (value instanceof Array) {
-        value.forEach(function (item) {
-          return _util.console.log(item);
-        });
-      }
-
+      // console.log(`log1: calling modifyNewContext(field=${field}, value=${value}, fieldType=${fieldType}, newLink=${newLink}, arrayIdx=${arrayIdx}, type=${type}, valueTitle=${valueTitle})`);
+      // console.log("log1: value", value);
+      // if (value && typeof value === "object" && !(value instanceof Array)) {
+      //     Object.keys(value).forEach((key) => console.log(value[key]));
+      // }
       if (fieldType === 'new linked object') {
         value = this.props.keyIter + 1;
 
@@ -2488,10 +2508,12 @@ function (_React$Component2) {
       var arrayIdxPointer = 0;
       var contextCopy = this.props.currContext;
       var pointer = contextCopy;
-      var prevValue = null;
+      var prevValue = null; // console.log("log1: splitField: ", splitField);
 
       for (var i = 0; i < splitField.length - 1; i++) {
+        // console.log("log1: starting loop with pointer at ", pointer);
         if (pointer[splitField[i]]) {
+          // console.log("log1: setting pointer to ,", pointer[splitField[i]]);
           pointer = pointer[splitField[i]];
         } else {
           _util.console.error('PROBLEM CREATING NEW CONTEXT WITH: ', field, value);
@@ -2523,13 +2545,16 @@ function (_React$Component2) {
       }
 
       if (fieldType === 'linked object') {
+        // console.log("log1: found a linked object... checking object removal");
         this.checkObjectRemoval(value, prevValue);
       }
 
       if (fieldType === 'new linked object') {
+        // console.log("log1: found a new linked object, initCreatingObject");
         // value is new key index in this case
         this.props.initCreateObj(type, value, field, false, field);
       } else {
+        // console.log("log1: not a existing linked object or new linked object... modifyingKeyContext");
         // actually change value
         this.props.modifyKeyContext(this.props.currKey, contextCopy, valueTitle);
       }
@@ -2654,6 +2679,7 @@ function (_React$Component2) {
       var customSelectField = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var customArrayIdx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      var displayTitle = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 
       _util.console.log("calling selectComplete(atIds=".concat(atIds, ", customSelectField=").concat(customSelectField, ", customSelecttype=").concat(customSelectType, ", customArrayIdx=").concat(customArrayIdx));
 
@@ -2664,6 +2690,7 @@ function (_React$Component2) {
           stateSelectType = _this$state7.selectType;
       var selectField = customSelectField || stateSelectField;
       var selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
+      var selectType = customSelectType || stateSelectType;
 
       if (!Array.isArray(atIds) && typeof atIds === "string") {
         atIds = [atIds];
@@ -2674,7 +2701,15 @@ function (_React$Component2) {
       }
 
       var isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
-      var cloneSelectArrayIdx = isMultiSelect ? _toConsumableArray(selectArrayIdx) : null;
+      var cloneSelectArrayIdx = isMultiSelect ? _toConsumableArray(selectArrayIdx) : null; // split fields out for accessing separately in certain cases
+
+      var splitField = selectField.split(".");
+
+      if (splitField.length > 1) {
+        // if there are subembedded objects... find them
+        _util.console.log("splitting and checking field:", currContext[splitField[0]]);
+      }
+
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
@@ -2682,19 +2717,27 @@ function (_React$Component2) {
       try {
         for (var _iterator = atIds[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var atId = _step.value;
-          var current = selectField && currContext[selectField];
+          var currentlySelectedIds = selectField && currContext[selectField];
 
-          var isRepeat = Array.isArray(current) && _underscore["default"].contains(current, atId);
+          var isRepeat = Array.isArray(currentlySelectedIds) && _underscore["default"].contains(currentlySelectedIds, atId);
+
+          _util.console.log("current: ", selectField);
+
+          _util.console.log("currContext: ", currContext);
+
+          _util.console.log("currContext[selectField]: ", currContext[selectField]);
+
+          _util.console.log("isMultiSelect: ", isMultiSelect);
 
           if (!isRepeat) {
             //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-            this.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
+            this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
 
             if (isMultiSelect) {
               cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
             }
           } else {
-            this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx);
+            this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx, selectType, displayTitle);
           }
         }
       } catch (err) {
