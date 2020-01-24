@@ -23,17 +23,20 @@ const defaultOptions = {
             display_title, title,
             // Not always present, esp. if not signed in.
             lab: { display_title: ownLabTitle } = {},
-            // Only for files
-            file_size = null,
+            // Only for files (we dont increment file_size unless part of download)
             file_type_detailed = null,
+            track_and_facet_info: { experiment_type: tfi_expType } = {},
             // For exps or expsets, try to grab experiment_type
             experiment_type: { display_title: exp_expType } = {},
             experiments_in_set: [ { experiment_type: { display_title: set_expType } = {} } ] = [{}],
-            from_experiment = null
+            from_experiment = null,
+            from_experiment_set = null
         } = item;
         const labTitle = ownLabTitle || (
             from_experiment && from_experiment.from_experiment_set && from_experiment.from_experiment_set.lab &&
             from_experiment.from_experiment_set.lab.display_title
+        ) || (
+            from_experiment_set && from_experiment_set.lab && from_experiment_set.lab.display_title
         ) || null;
         const prodItem = {
             'id'            : itemID || itemUUID,
@@ -42,16 +45,15 @@ const defaultOptions = {
             'brand'         : labTitle,
             [state.dimensionMap.name] : display_title || title || null
         };
-        if (file_size && state.dimensionMap.filesize) {
-            prodItem[state.dimensionMap.filesize] = file_size;
-        }
         if (typeof file_type_detailed === "string"){ // We set file format as "variant"
             const [ , fileTypeMatch, fileFormatMatch ] = file_type_detailed.match(/(.*?)\s(\(.*?\))/);
             if (fileFormatMatch){
                 prodItem.variant = fileFormatMatch.slice(1,-1);
             }
         }
-        if (from_experiment && from_experiment.experiment_type && from_experiment.experiment_type.display_title){
+        if (tfi_expType) {
+            prodItem[state.dimensionMap.experimentType] = tfi_expType;
+        } else if (from_experiment && from_experiment.experiment_type && from_experiment.experiment_type.display_title){
             prodItem[state.dimensionMap.experimentType] = from_experiment.experiment_type.display_title;
         } else if (exp_expType || set_expType){
             prodItem[state.dimensionMap.experimentType] = exp_expType || set_expType;
@@ -278,9 +280,6 @@ export function registerPageView(href = null, context = null){
             // We got an Item view, lets track some details about it.
             const productObj = itemToProductTransform(context);
             console.info("Item Page View (probably). Will track as product:", productObj);
-            if (searchResponseFilters){
-                pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(searchResponseFilters);
-            }
 
             ga2('ec:addProduct', productObj);
             ga2('ec:setAction', 'detail', productObj);
@@ -451,12 +450,22 @@ export function productsAddToCart(items, extraData = {}){
             console.error("No product id available, cannot track", pObj);
             return;
         }
-        console.log('TTT', pObj);
+        console.log('TTT', JSON.stringify(pObj));
         ga2('ec:addProduct', { ...pObj, quantity: 1 });
         count++;
     });
     console.info(`Added ${count} items to cart.`);
     ga2('ec:setAction', 'add');
+}
+
+export function productAddDetailViewed(item, context = null, extraData = {}){
+    const productObj = _.extend(itemToProductTransform(item), extraData);
+    console.info("Item Details Viewed. Will track as product:", productObj);
+    if (context && context.filters){
+        productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+    }
+    ga2('ec:addProduct', productObj);
+    ga2('ec:setAction', 'detail', productObj);
 }
 
 

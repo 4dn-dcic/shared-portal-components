@@ -191,12 +191,24 @@ function (_React$PureComponent) {
     value: function componentDidUpdate(pastProps) {
       var _this$props = this.props,
           open = _this$props.open,
-          setDetailHeight = _this$props.setDetailHeight;
+          setDetailHeight = _this$props.setDetailHeight,
+          result = _this$props.result,
+          context = _this$props.context,
+          rowNumber = _this$props.rowNumber,
+          href = _this$props.href;
       var pastOpen = pastProps.open;
 
       if (pastOpen !== open) {
         if (open && typeof setDetailHeight === 'function') {
           this.setDetailHeightFromPane();
+          var display_title = result.display_title;
+          analytics.productAddDetailViewed(result, context, {
+            position: rowNumber,
+            list: analytics.hrefToListName(href)
+          });
+          analytics.event("SearchResult DetailPane", "Opened", {
+            eventLabel: display_title
+          });
         } else if (!open && typeof setDetailHeight === 'function') {
           setDetailHeight(null); // Unset back to default (rowHeight)
         }
@@ -477,7 +489,8 @@ _defineProperty(ResultRow, "propTypes", {
   'renderDetailPane': _propTypes["default"].func.isRequired,
   'detailOpen': _propTypes["default"].bool.isRequired,
   'setDetailHeight': _propTypes["default"].func.isRequired,
-  'id': _propTypes["default"].string.isRequired
+  'id': _propTypes["default"].string.isRequired,
+  'context': _propTypes["default"].object.isRequired
 });
 
 var LoadMoreAsYouScroll =

@@ -119,11 +119,13 @@ export class CustomColumnSelector extends React.PureComponent {
 
     handleOptionVisibilityChange(field, evt){
         const { hiddenColumns, removeHiddenColumn, addHiddenColumn } = this.props;
-        if (hiddenColumns[field] === true){
-            removeHiddenColumn(field);
-        } else {
-            addHiddenColumn(field);
-        }
+        setTimeout(function(){
+            if (hiddenColumns[field] === true){
+                removeHiddenColumn(field);
+            } else {
+                addHiddenColumn(field);
+            }
+        }, 0);
     }
 
     render(){

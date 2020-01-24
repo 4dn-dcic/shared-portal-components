@@ -202,12 +202,13 @@ function (_React$PureComponent) {
           hiddenColumns = _this$props3.hiddenColumns,
           removeHiddenColumn = _this$props3.removeHiddenColumn,
           addHiddenColumn = _this$props3.addHiddenColumn;
-
-      if (hiddenColumns[field] === true) {
-        removeHiddenColumn(field);
-      } else {
-        addHiddenColumn(field);
-      }
+      setTimeout(function () {
+        if (hiddenColumns[field] === true) {
+          removeHiddenColumn(field);
+        } else {
+          addHiddenColumn(field);
+        }
+      }, 0);
     }
   }, {
     key: "render",

@@ -10,6 +10,7 @@ exports.event = event;
 exports.setUserID = setUserID;
 exports.productClick = productClick;
 exports.productsAddToCart = productsAddToCart;
+exports.productAddDetailViewed = productAddDetailViewed;
 exports.exception = exception;
 exports.eventLabelFromChartNode = eventLabelFromChartNode;
 exports.eventLabelFromChartNodes = eventLabelFromChartNodes;
@@ -73,10 +74,11 @@ var defaultOptions = {
         _item$lab = item.lab;
     _item$lab = _item$lab === void 0 ? {} : _item$lab;
     var ownLabTitle = _item$lab.display_title,
-        _item$file_size = item.file_size,
-        file_size = _item$file_size === void 0 ? null : _item$file_size,
         _item$file_type_detai = item.file_type_detailed,
         file_type_detailed = _item$file_type_detai === void 0 ? null : _item$file_type_detai,
+        _item$track_and_facet = item.track_and_facet_info;
+    _item$track_and_facet = _item$track_and_facet === void 0 ? {} : _item$track_and_facet;
+    var tfi_expType = _item$track_and_facet.experiment_type,
         _item$experiment_type = item.experiment_type;
     _item$experiment_type = _item$experiment_type === void 0 ? {} : _item$experiment_type;
     var exp_expType = _item$experiment_type.display_title,
@@ -89,8 +91,10 @@ var defaultOptions = {
     _item$experiments_in_3 = _item$experiments_in_3 === void 0 ? {} : _item$experiments_in_3;
     var set_expType = _item$experiments_in_3.display_title,
         _item$from_experiment = item.from_experiment,
-        from_experiment = _item$from_experiment === void 0 ? null : _item$from_experiment;
-    var labTitle = ownLabTitle || from_experiment && from_experiment.from_experiment_set && from_experiment.from_experiment_set.lab && from_experiment.from_experiment_set.lab.display_title || null;
+        from_experiment = _item$from_experiment === void 0 ? null : _item$from_experiment,
+        _item$from_experiment2 = item.from_experiment_set,
+        from_experiment_set = _item$from_experiment2 === void 0 ? null : _item$from_experiment2;
+    var labTitle = ownLabTitle || from_experiment && from_experiment.from_experiment_set && from_experiment.from_experiment_set.lab && from_experiment.from_experiment_set.lab.display_title || from_experiment_set && from_experiment_set.lab && from_experiment_set.lab.display_title || null;
 
     var prodItem = _defineProperty({
       'id': itemID || itemUUID,
@@ -98,10 +102,6 @@ var defaultOptions = {
       'category': Array.isArray(itemType) ? itemType.slice().reverse().slice(1).join('/') : "Unknown",
       'brand': labTitle
     }, state.dimensionMap.name, display_title || title || null);
-
-    if (file_size && state.dimensionMap.filesize) {
-      prodItem[state.dimensionMap.filesize] = file_size;
-    }
 
     if (typeof file_type_detailed === "string") {
       // We set file format as "variant"
@@ -115,7 +115,9 @@ var defaultOptions = {
       }
     }
 
-    if (from_experiment && from_experiment.experiment_type && from_experiment.experiment_type.display_title) {
+    if (tfi_expType) {
+      prodItem[state.dimensionMap.experimentType] = tfi_expType;
+    } else if (from_experiment && from_experiment.experiment_type && from_experiment.experiment_type.display_title) {
       prodItem[state.dimensionMap.experimentType] = from_experiment.experiment_type.display_title;
     } else if (exp_expType || set_expType) {
       prodItem[state.dimensionMap.experimentType] = exp_expType || set_expType;
@@ -363,10 +365,6 @@ function registerPageView() {
 
       _patchedConsole.patchedConsoleInstance.info("Item Page View (probably). Will track as product:", productObj);
 
-      if (searchResponseFilters) {
-        pageViewObject[state.dimensionMap.currentFilters] = productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(searchResponseFilters);
-      }
-
       ga2('ec:addProduct', productObj);
       ga2('ec:setAction', 'detail', productObj);
       return productObj;
@@ -580,7 +578,7 @@ function productsAddToCart(items) {
       return;
     }
 
-    _patchedConsole.patchedConsoleInstance.log('TTT', pObj);
+    _patchedConsole.patchedConsoleInstance.log('TTT', JSON.stringify(pObj));
 
     ga2('ec:addProduct', _objectSpread({}, pObj, {
       quantity: 1
@@ -591,6 +589,22 @@ function productsAddToCart(items) {
   _patchedConsole.patchedConsoleInstance.info("Added ".concat(count, " items to cart."));
 
   ga2('ec:setAction', 'add');
+}
+
+function productAddDetailViewed(item) {
+  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  var extraData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  var productObj = _underscore["default"].extend(itemToProductTransform(item), extraData);
+
+  _patchedConsole.patchedConsoleInstance.info("Item Details Viewed. Will track as product:", productObj);
+
+  if (context && context.filters) {
+    productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+  }
+
+  ga2('ec:addProduct', productObj);
+  ga2('ec:setAction', 'detail', productObj);
 }
 /**
  * @see https://developers.google.com/analytics/devguides/collection/analyticsjs/exceptions

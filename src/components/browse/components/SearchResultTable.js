@@ -118,11 +118,15 @@ class ResultDetail extends React.PureComponent{
     }
 
     componentDidUpdate(pastProps){
-        const { open, setDetailHeight } = this.props;
+        const { open, setDetailHeight, result, context, rowNumber, href } = this.props;
         const { open: pastOpen } = pastProps;
         if (pastOpen !== open){
             if (open && typeof setDetailHeight === 'function'){
                 this.setDetailHeightFromPane();
+                const { display_title } = result;
+                analytics.productAddDetailViewed(result, context, { position: rowNumber, list: analytics.hrefToListName(href)  });
+                analytics.event("SearchResult DetailPane", "Opened", { eventLabel: display_title });
+
             } else if (!open && typeof setDetailHeight === 'function') {
                 setDetailHeight(null); // Unset back to default (rowHeight)
             }
@@ -198,7 +202,8 @@ class ResultRow extends React.PureComponent {
         'renderDetailPane'  : PropTypes.func.isRequired,
         'detailOpen' : PropTypes.bool.isRequired,
         'setDetailHeight' : PropTypes.func.isRequired,
-        'id' : PropTypes.string.isRequired
+        'id' : PropTypes.string.isRequired,
+        'context' : PropTypes.object.isRequired
     };
 
     static getStyles(rowWidth, rowHeight){
