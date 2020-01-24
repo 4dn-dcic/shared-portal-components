@@ -42,6 +42,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -49,16 +59,6 @@ function _nonIterableRest() { throw new TypeError("Invalid attempt to destructur
 function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
 var defaultOptions = {
   'isAnalyticsScriptOnPage': true,
@@ -72,22 +72,53 @@ var defaultOptions = {
         title = item.title,
         _item$lab = item.lab;
     _item$lab = _item$lab === void 0 ? {} : _item$lab;
-    var labTitle = _item$lab.display_title,
-        _item$submitted_by = item.submitted_by;
-    _item$submitted_by = _item$submitted_by === void 0 ? {} : _item$submitted_by;
-    var submitterTitle = _item$submitted_by.display_title,
+    var ownLabTitle = _item$lab.display_title,
         _item$file_size = item.file_size,
-        file_size = _item$file_size === void 0 ? null : _item$file_size;
-    var prodItem = {
+        file_size = _item$file_size === void 0 ? null : _item$file_size,
+        _item$file_type_detai = item.file_type_detailed,
+        file_type_detailed = _item$file_type_detai === void 0 ? null : _item$file_type_detai,
+        _item$experiment_type = item.experiment_type;
+    _item$experiment_type = _item$experiment_type === void 0 ? {} : _item$experiment_type;
+    var exp_expType = _item$experiment_type.display_title,
+        _item$experiments_in_ = item.experiments_in_set;
+    _item$experiments_in_ = _item$experiments_in_ === void 0 ? [{}] : _item$experiments_in_;
+
+    var _item$experiments_in_2 = _slicedToArray(_item$experiments_in_, 1),
+        _item$experiments_in_3 = _item$experiments_in_2[0].experiment_type;
+
+    _item$experiments_in_3 = _item$experiments_in_3 === void 0 ? {} : _item$experiments_in_3;
+    var set_expType = _item$experiments_in_3.display_title,
+        _item$from_experiment = item.from_experiment,
+        from_experiment = _item$from_experiment === void 0 ? null : _item$from_experiment;
+    var labTitle = ownLabTitle || from_experiment && from_experiment.from_experiment_set && from_experiment.from_experiment_set.lab && from_experiment.from_experiment_set.lab.display_title || null;
+
+    var prodItem = _defineProperty({
       'id': itemID || itemUUID,
       'name': display_title || title || null,
       'category': Array.isArray(itemType) ? itemType.slice().reverse().slice(1).join('/') : "Unknown",
-      'brand': labTitle || submitterTitle || null,
-      'price': file_size
-    };
+      'brand': labTitle
+    }, state.dimensionMap.name, display_title || title || null);
 
     if (file_size && state.dimensionMap.filesize) {
       prodItem[state.dimensionMap.filesize] = file_size;
+    }
+
+    if (typeof file_type_detailed === "string") {
+      // We set file format as "variant"
+      var _file_type_detailed$m = file_type_detailed.match(/(.*?)\s(\(.*?\))/),
+          _file_type_detailed$m2 = _slicedToArray(_file_type_detailed$m, 3),
+          fileTypeMatch = _file_type_detailed$m2[1],
+          fileFormatMatch = _file_type_detailed$m2[2];
+
+      if (fileFormatMatch) {
+        prodItem.variant = fileFormatMatch.slice(1, -1);
+      }
+    }
+
+    if (from_experiment && from_experiment.experiment_type && from_experiment.experiment_type.display_title) {
+      prodItem[state.dimensionMap.experimentType] = from_experiment.experiment_type.display_title;
+    } else if (exp_expType || set_expType) {
+      prodItem[state.dimensionMap.experimentType] = exp_expType || set_expType;
     }
 
     return prodItem;
@@ -100,6 +131,7 @@ var defaultOptions = {
     'name': 'dimension2',
     'field': 'dimension3',
     'term': 'dimension4',
+    'experimentType': 'dimension5',
     'filesize': 'metric1',
     'downloads': 'metric2'
   },
@@ -547,6 +579,8 @@ function productsAddToCart(items) {
 
       return;
     }
+
+    _patchedConsole.patchedConsoleInstance.log('TTT', pObj);
 
     ga2('ec:addProduct', _objectSpread({}, pObj, {
       quantity: 1

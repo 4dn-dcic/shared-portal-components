@@ -22,20 +22,39 @@ const defaultOptions = {
             "@type" : itemType,
             display_title, title,
             // Not always present, esp. if not signed in.
-            lab: { display_title: labTitle } = {},
-            submitted_by: { display_title: submitterTitle } = {},
+            lab: { display_title: ownLabTitle } = {},
             // Only for files
-            file_size = null
+            file_size = null,
+            file_type_detailed = null,
+            // For exps or expsets, try to grab experiment_type
+            experiment_type: { display_title: exp_expType } = {},
+            experiments_in_set: [ { experiment_type: { display_title: set_expType } = {} } ] = [{}],
+            from_experiment = null
         } = item;
+        const labTitle = ownLabTitle || (
+            from_experiment && from_experiment.from_experiment_set && from_experiment.from_experiment_set.lab &&
+            from_experiment.from_experiment_set.lab.display_title
+        ) || null;
         const prodItem = {
             'id'            : itemID || itemUUID,
             'name'          : display_title || title || null,
             'category'      : Array.isArray(itemType) ? itemType.slice().reverse().slice(1).join('/') : "Unknown",
-            'brand'         : labTitle || submitterTitle || null,
-            'price'         : file_size
+            'brand'         : labTitle,
+            [state.dimensionMap.name] : display_title || title || null
         };
         if (file_size && state.dimensionMap.filesize) {
             prodItem[state.dimensionMap.filesize] = file_size;
+        }
+        if (typeof file_type_detailed === "string"){ // We set file format as "variant"
+            const [ , fileTypeMatch, fileFormatMatch ] = file_type_detailed.match(/(.*?)\s(\(.*?\))/);
+            if (fileFormatMatch){
+                prodItem.variant = fileFormatMatch.slice(1,-1);
+            }
+        }
+        if (from_experiment && from_experiment.experiment_type && from_experiment.experiment_type.display_title){
+            prodItem[state.dimensionMap.experimentType] = from_experiment.experiment_type.display_title;
+        } else if (exp_expType || set_expType){
+            prodItem[state.dimensionMap.experimentType] = exp_expType || set_expType;
         }
         return prodItem;
     },
@@ -47,6 +66,7 @@ const defaultOptions = {
         'name'              : 'dimension2',
         'field'             : 'dimension3',
         'term'              : 'dimension4',
+        'experimentType'    : 'dimension5',
         'filesize'          : 'metric1',
         'downloads'         : 'metric2'
     },
@@ -431,6 +451,7 @@ export function productsAddToCart(items, extraData = {}){
             console.error("No product id available, cannot track", pObj);
             return;
         }
+        console.log('TTT', pObj);
         ga2('ec:addProduct', { ...pObj, quantity: 1 });
         count++;
     });
