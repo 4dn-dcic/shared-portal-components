@@ -135,19 +135,20 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
         if (clientID){
             // Used on backend to associate downloads with user sessions when possible.
             JWT.cookieStore.set('clientIdentifier', clientID, { path : '/' });
+            console.info("GA: Loaded Tracker & Updated Client ID Cookie");
         }
     });
-    console.info("Initialized google analytics.");
+    console.info("GA: Initialized");
 
     if (options.enhancedEcommercePlugin){
         ga2('require', 'ec');
-        console.info("Initialized google analytics: Enhanced ECommerce Plugin");
+        console.info("GA: Enhanced ECommerce Plugin");
     }
 
     const { uuid: userUUID } = JWT.getUserDetails() || {};
     if (userUUID) {
         ga2('set', 'userId', userUUID);
-        console.log("Initialized google analytics: Set session for UUID", userUUID);
+        console.log("GA: Set session for UUID", userUUID);
     }
 
     if (initialContext){

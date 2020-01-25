@@ -211,15 +211,17 @@ function initializeGoogleAnalytics() {
       JWT.cookieStore.set('clientIdentifier', clientID, {
         path: '/'
       });
+
+      _patchedConsole.patchedConsoleInstance.info("GA: Loaded Tracker & Updated Client ID Cookie");
     }
   });
 
-  _patchedConsole.patchedConsoleInstance.info("Initialized google analytics.");
+  _patchedConsole.patchedConsoleInstance.info("GA: Initialized");
 
   if (options.enhancedEcommercePlugin) {
     ga2('require', 'ec');
 
-    _patchedConsole.patchedConsoleInstance.info("Initialized google analytics: Enhanced ECommerce Plugin");
+    _patchedConsole.patchedConsoleInstance.info("GA: Enhanced ECommerce Plugin");
   }
 
   var _ref = JWT.getUserDetails() || {},
@@ -228,7 +230,7 @@ function initializeGoogleAnalytics() {
   if (userUUID) {
     ga2('set', 'userId', userUUID);
 
-    _patchedConsole.patchedConsoleInstance.log("Initialized google analytics: Set session for UUID", userUUID);
+    _patchedConsole.patchedConsoleInstance.log("GA: Set session for UUID", userUUID);
   }
 
   if (initialContext) {
