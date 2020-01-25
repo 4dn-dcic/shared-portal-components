@@ -130,6 +130,13 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
     state = _.clone(options);
 
     ga2('create', trackingID, 'auto');
+    ga2(function(tracker){
+        const clientID = tracker.get('clientId');
+        if (clientID){
+            // Used on backend to associate downloads with user sessions when possible.
+            JWT.cookieStore.set('clientIdentifier', clientID, { path : '/' });
+        }
+    });
     console.info("Initialized google analytics.");
 
     if (options.enhancedEcommercePlugin){
@@ -464,7 +471,7 @@ export function productsRemoveFromCart(items, extraData = {}){
  */
 export function productsCheckout(items, extraData = {}){
     if (!shouldTrack()) return false;
-    const { step, option, ...extData } = extraData || {};
+    const { step = 1, option = null, ...extData } = extraData || {};
     const count = addProductsEE(items, extData);
     console.info(`Checked out ${count} items.`);
     ga2('ec:setAction', 'checkout', { step, option });

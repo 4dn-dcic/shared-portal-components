@@ -203,6 +203,16 @@ function initializeGoogleAnalytics() {
 
   state = _underscore["default"].clone(options);
   ga2('create', trackingID, 'auto');
+  ga2(function (tracker) {
+    var clientID = tracker.get('clientId');
+
+    if (clientID) {
+      // Used on backend to associate downloads with user sessions when possible.
+      JWT.cookieStore.set('clientIdentifier', clientID, {
+        path: '/'
+      });
+    }
+  });
 
   _patchedConsole.patchedConsoleInstance.info("Initialized google analytics.");
 
@@ -598,8 +608,10 @@ function productsCheckout(items) {
   if (!shouldTrack()) return false;
 
   var _ref8 = extraData || {},
-      step = _ref8.step,
-      option = _ref8.option,
+      _ref8$step = _ref8.step,
+      step = _ref8$step === void 0 ? 1 : _ref8$step,
+      _ref8$option = _ref8.option,
+      option = _ref8$option === void 0 ? null : _ref8$option,
       extData = _objectWithoutProperties(_ref8, ["step", "option"]);
 
   var count = addProductsEE(items, extData);
