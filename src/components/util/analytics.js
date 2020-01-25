@@ -641,6 +641,22 @@ function addProductsEE(items, extData = {}){
     }
     let count = 0;
     items.forEach(function(item){
+        const {
+            display_title,
+            '@id' : id,
+            '@type' : itemType,
+            error
+        } = item;
+        if (!id || !display_title || !Array.isArray(itemType)) {
+            if (error) {
+                // Likely no view permissions, ok.
+                return false;
+            }
+            const errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
+            exception(errMsg);
+            console.error(errMsg, item);
+            return false;
+        }
         const pObj = _.extend(itemToProductTransform(item), extData);
         if (typeof pObj.id !== "string") {
             console.error("No product id available, cannot track", pObj);
@@ -675,8 +691,8 @@ export function impressionListOfItems(itemList, href = null, listName = null, co
 
     const resultsImpressioned = itemList.filter(function(item){
         // Ensure we have permissions, can get product SKU, etc.
-        const { display_title, '@id': id, error = null } = item;
-        if (!id && !display_title) {
+        const { display_title, '@id': id, error = null, '@type' : itemType } = item;
+        if (!id || !display_title || !Array.isArray(itemType)) {
             if (error) {
                 // Likely no view permissions, ok.
                 return false;
@@ -693,6 +709,6 @@ export function impressionListOfItems(itemList, href = null, listName = null, co
         return pObj;
     });
 
-    console.info(`Impressioned ${resultsImpressioned.length} items starting at position ${from + 1}`);
+    console.info(`Impressioned ${resultsImpressioned.length} items starting at position ${from + 1} in list "${commonProductObj.list}"`);
     return resultsImpressioned;
 }

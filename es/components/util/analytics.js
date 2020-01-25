@@ -817,6 +817,25 @@ function addProductsEE(items) {
 
   var count = 0;
   items.forEach(function (item) {
+    var display_title = item.display_title,
+        id = item['@id'],
+        itemType = item['@type'],
+        error = item.error;
+
+    if (!id || !display_title || !Array.isArray(itemType)) {
+      if (error) {
+        // Likely no view permissions, ok.
+        return false;
+      }
+
+      var errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
+      exception(errMsg);
+
+      _patchedConsole.patchedConsoleInstance.error(errMsg, item);
+
+      return false;
+    }
+
     var pObj = _underscore["default"].extend(itemToProductTransform(item), extData);
 
     if (typeof pObj.id !== "string") {
@@ -867,9 +886,10 @@ function impressionListOfItems(itemList) {
     var display_title = item.display_title,
         id = item['@id'],
         _item$error = item.error,
-        error = _item$error === void 0 ? null : _item$error;
+        error = _item$error === void 0 ? null : _item$error,
+        itemType = item['@type'];
 
-    if (!id && !display_title) {
+    if (!id || !display_title || !Array.isArray(itemType)) {
       if (error) {
         // Likely no view permissions, ok.
         return false;
@@ -893,7 +913,7 @@ function impressionListOfItems(itemList) {
     return pObj;
   });
 
-  _patchedConsole.patchedConsoleInstance.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1));
+  _patchedConsole.patchedConsoleInstance.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1, " in list \"").concat(commonProductObj.list, "\""));
 
   return resultsImpressioned;
 }
