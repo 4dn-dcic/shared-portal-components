@@ -48,7 +48,7 @@ const defaultOptions = {
         if (typeof file_type_detailed === "string"){ // We set file format as "variant"
             const [ , fileTypeMatch, fileFormatMatch ] = file_type_detailed.match(/(.*?)\s(\(.*?\))/);
             if (fileFormatMatch){
-                prodItem.variant = fileFormatMatch.slice(1,-1);
+                prodItem.variant = fileTypeMatch;
             }
         }
         if (tfi_expType) {
@@ -406,10 +406,11 @@ export function productClick(item, extraData = {}, callback = null, context = nu
     context = context || (state.reduxStore && state.reduxStore.getState().context) || null;
     const pObj = _.extend(itemToProductTransform(item), extraData);
     const href = extraData.href || window.location.href;
+    const evtFromCtx = eventObjectFromCtx(context);
     const eventObj = {
-        ...eventObjectFromCtx(context),
+        ...evtFromCtx,
         'hitType' : 'event',
-        'eventCategory' : 'Search Result Click',
+        'eventCategory' : evtFromCtx.currentFilters ? 'Search Result Link' : 'Product List Link',
         'eventAction' : 'click',
         'eventLabel' : pObj.id || pObj.name,
         'hitCallback' : function(){
@@ -419,6 +420,10 @@ export function productClick(item, extraData = {}, callback = null, context = nu
             }
         }
     };
+
+    if (!pObj.list) {
+        pObj.list = hrefToListName(href);
+    }
 
     ga2('ec:addProduct', pObj);
     ga2('ec:setAction', 'click',  _.pick(pObj, 'list'));
@@ -440,25 +445,33 @@ export function productClick(item, extraData = {}, callback = null, context = nu
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
 export function productsAddToCart(items, extraData = {}){
-    if (items && !Array.isArray(items)){
-        items = [items];
-    }
-    let count = 0;
-    items.forEach(function(item){
-        const pObj = _.extend(itemToProductTransform(item), extraData);
-        if (typeof pObj.id !== "string") {
-            console.error("No product id available, cannot track", pObj);
-            return;
-        }
-        console.log('TTT', JSON.stringify(pObj));
-        ga2('ec:addProduct', { ...pObj, quantity: 1 });
-        count++;
-    });
-    console.info(`Added ${count} items to cart.`);
+    if (!shouldTrack()) return false;
+    const count = addProductsEE(items, extraData);
+    console.info(`Adding ${count} items to cart.`);
     ga2('ec:setAction', 'add');
 }
 
+export function productsRemoveFromCart(items, extraData = {}){
+    if (!shouldTrack()) return false;
+    const count = addProductsEE(items, extraData);
+    console.info(`Removing ${count} items from cart.`);
+    ga2('ec:setAction', 'remove');
+}
+
+/**
+ * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
+ * Does _NOT_ also send a GA event. This must be done outside of func.
+ */
+export function productsCheckout(items, extraData = {}){
+    if (!shouldTrack()) return false;
+    const { step, option, ...extData } = extraData || {};
+    const count = addProductsEE(items, extData);
+    console.info(`Checked out ${count} items.`);
+    ga2('ec:setAction', 'checkout', { step, option });
+}
+
 export function productAddDetailViewed(item, context = null, extraData = {}){
+    if (!shouldTrack()) return false;
     const productObj = _.extend(itemToProductTransform(item), extraData);
     console.info("Item Details Viewed. Will track as product:", productObj);
     if (context && context.filters){
@@ -614,25 +627,59 @@ function itemToProductTransform(item){
     return prodItem;
 }
 
+function addProductsEE(items, extData = {}){
+    if (items && !Array.isArray(items)){
+        items = [items];
+    }
+    let count = 0;
+    items.forEach(function(item){
+        const pObj = _.extend(itemToProductTransform(item), extData);
+        if (typeof pObj.id !== "string") {
+            console.error("No product id available, cannot track", pObj);
+            return;
+        }
+        ga2('ec:addProduct', { ...pObj, quantity: 1 });
+        count++;
+    });
+    return count;
+}
+
 /**
  * Exported, but use with care. There must be an event or pageview sent immediately afterwards.
  *
  * @returns {Object[]} Representation of what was sent.
  */
-export function impressionListOfItems(itemList, href, listName = null, context = null){
-    context = context || (state.reduxStore && state.reduxStore.getState().context) || null;
+export function impressionListOfItems(itemList, href = null, listName = null, context = null){
+    if (!shouldTrack()) return false;
+    context = context || (state && state.reduxStore && state.reduxStore.getState().context) || null;
     var from = 0;
     if (typeof href === 'string'){ // Convert to URL parts.
         href = url.parse(href, true);
         if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
     }
 
-    const commonProductObj = { "list" : listName || hrefToListName(href) };
+    href = href || window.location.href;
+
+    const commonProductObj = { "list" : listName || (href && hrefToListName(href)) };
     if (context && context.filters) {
         commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
     }
 
-    const resultsImpressioned = itemList.map(function(item, i){
+    const resultsImpressioned = itemList.filter(function(item){
+        // Ensure we have permissions, can get product SKU, etc.
+        const { display_title, '@id': id, error = null } = item;
+        if (!id && !display_title) {
+            if (error) {
+                // Likely no view permissions, ok.
+                return false;
+            }
+            const errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
+            exception(errMsg);
+            console.error(errMsg, item);
+            return false;
+        }
+        return true;
+    }).map(function(item, i){
         const pObj = _.extend(itemToProductTransform(item), commonProductObj, { 'position' : from + i + 1 });
         ga2('ec:addImpression', pObj);
         return pObj;

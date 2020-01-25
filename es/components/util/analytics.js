@@ -10,6 +10,8 @@ exports.event = event;
 exports.setUserID = setUserID;
 exports.productClick = productClick;
 exports.productsAddToCart = productsAddToCart;
+exports.productsRemoveFromCart = productsRemoveFromCart;
+exports.productsCheckout = productsCheckout;
 exports.productAddDetailViewed = productAddDetailViewed;
 exports.exception = exception;
 exports.eventLabelFromChartNode = eventLabelFromChartNode;
@@ -111,7 +113,7 @@ var defaultOptions = {
           fileFormatMatch = _file_type_detailed$m2[2];
 
       if (fileFormatMatch) {
-        prodItem.variant = fileFormatMatch.slice(1, -1);
+        prodItem.variant = fileTypeMatch;
       }
     }
 
@@ -522,11 +524,12 @@ function productClick(item) {
 
   var pObj = _underscore["default"].extend(itemToProductTransform(item), extraData);
 
-  extraData.href || window.location.href;
+  var href = extraData.href || window.location.href;
+  var evtFromCtx = eventObjectFromCtx(context);
 
-  var eventObj = _objectSpread({}, eventObjectFromCtx(context), {
+  var eventObj = _objectSpread({}, evtFromCtx, {
     'hitType': 'event',
-    'eventCategory': 'Search Result Click',
+    'eventCategory': evtFromCtx.currentFilters ? 'Search Result Link' : 'Product List Link',
     'eventAction': 'click',
     'eventLabel': pObj.id || pObj.name,
     'hitCallback': function hitCallback() {
@@ -537,6 +540,10 @@ function productClick(item) {
       }
     }
   });
+
+  if (!pObj.list) {
+    pObj.list = hrefToListName(href);
+  }
 
   ga2('ec:addProduct', pObj);
   ga2('ec:setAction', 'click', _underscore["default"].pick(pObj, 'list')); // Convert internal dimension names to Google Analytics ones.
@@ -563,37 +570,52 @@ function productClick(item) {
 
 function productsAddToCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  if (!shouldTrack()) return false;
+  var count = addProductsEE(items, extraData);
 
-  if (items && !Array.isArray(items)) {
-    items = [items];
-  }
-
-  var count = 0;
-  items.forEach(function (item) {
-    var pObj = _underscore["default"].extend(itemToProductTransform(item), extraData);
-
-    if (typeof pObj.id !== "string") {
-      _patchedConsole.patchedConsoleInstance.error("No product id available, cannot track", pObj);
-
-      return;
-    }
-
-    _patchedConsole.patchedConsoleInstance.log('TTT', JSON.stringify(pObj));
-
-    ga2('ec:addProduct', _objectSpread({}, pObj, {
-      quantity: 1
-    }));
-    count++;
-  });
-
-  _patchedConsole.patchedConsoleInstance.info("Added ".concat(count, " items to cart."));
+  _patchedConsole.patchedConsoleInstance.info("Adding ".concat(count, " items to cart."));
 
   ga2('ec:setAction', 'add');
+}
+
+function productsRemoveFromCart(items) {
+  var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  if (!shouldTrack()) return false;
+  var count = addProductsEE(items, extraData);
+
+  _patchedConsole.patchedConsoleInstance.info("Removing ".concat(count, " items from cart."));
+
+  ga2('ec:setAction', 'remove');
+}
+/**
+ * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
+ * Does _NOT_ also send a GA event. This must be done outside of func.
+ */
+
+
+function productsCheckout(items) {
+  var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  if (!shouldTrack()) return false;
+
+  var _ref8 = extraData || {},
+      step = _ref8.step,
+      option = _ref8.option,
+      extData = _objectWithoutProperties(_ref8, ["step", "option"]);
+
+  var count = addProductsEE(items, extData);
+
+  _patchedConsole.patchedConsoleInstance.info("Checked out ".concat(count, " items."));
+
+  ga2('ec:setAction', 'checkout', {
+    step: step,
+    option: option
+  });
 }
 
 function productAddDetailViewed(item) {
   var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var extraData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  if (!shouldTrack()) return false;
 
   var productObj = _underscore["default"].extend(itemToProductTransform(item), extraData);
 
@@ -771,6 +793,31 @@ function itemToProductTransform(item) {
 
   return prodItem;
 }
+
+function addProductsEE(items) {
+  var extData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  if (items && !Array.isArray(items)) {
+    items = [items];
+  }
+
+  var count = 0;
+  items.forEach(function (item) {
+    var pObj = _underscore["default"].extend(itemToProductTransform(item), extData);
+
+    if (typeof pObj.id !== "string") {
+      _patchedConsole.patchedConsoleInstance.error("No product id available, cannot track", pObj);
+
+      return;
+    }
+
+    ga2('ec:addProduct', _objectSpread({}, pObj, {
+      quantity: 1
+    }));
+    count++;
+  });
+  return count;
+}
 /**
  * Exported, but use with care. There must be an event or pageview sent immediately afterwards.
  *
@@ -778,10 +825,12 @@ function itemToProductTransform(item) {
  */
 
 
-function impressionListOfItems(itemList, href) {
+function impressionListOfItems(itemList) {
+  var href = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var listName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var context = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-  context = context || state.reduxStore && state.reduxStore.getState().context || null;
+  if (!shouldTrack()) return false;
+  context = context || state && state.reduxStore && state.reduxStore.getState().context || null;
   var from = 0;
 
   if (typeof href === 'string') {
@@ -790,15 +839,38 @@ function impressionListOfItems(itemList, href) {
     if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
   }
 
+  href = href || window.location.href;
   var commonProductObj = {
-    "list": listName || hrefToListName(href)
+    "list": listName || href && hrefToListName(href)
   };
 
   if (context && context.filters) {
     commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
   }
 
-  var resultsImpressioned = itemList.map(function (item, i) {
+  var resultsImpressioned = itemList.filter(function (item) {
+    // Ensure we have permissions, can get product SKU, etc.
+    var display_title = item.display_title,
+        id = item['@id'],
+        _item$error = item.error,
+        error = _item$error === void 0 ? null : _item$error;
+
+    if (!id && !display_title) {
+      if (error) {
+        // Likely no view permissions, ok.
+        return false;
+      }
+
+      var errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
+      exception(errMsg);
+
+      _patchedConsole.patchedConsoleInstance.error(errMsg, item);
+
+      return false;
+    }
+
+    return true;
+  }).map(function (item, i) {
     var pObj = _underscore["default"].extend(itemToProductTransform(item), commonProductObj, {
       'position': from + i + 1
     });
