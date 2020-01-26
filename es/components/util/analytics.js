@@ -477,6 +477,7 @@ function eventObjectFromCtx(context) {
 
 function event(category, action) {
   var fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var useTimeout = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
   if (!shouldTrack()) return false;
 
   var eventObj = _underscore["default"].extend({}, fields, {
@@ -505,9 +506,13 @@ function event(category, action) {
     _patchedConsole.patchedConsoleInstance.info('Successfuly sent UI event.', eventObj);
   };
 
-  setTimeout(function () {
+  if (useTimeout) {
+    setTimeout(function () {
+      ga2('send', eventObj);
+    }, 0);
+  } else {
     ga2('send', eventObj);
-  }, 0);
+  }
 }
 
 function setUserID(userUUID) {
@@ -594,10 +599,9 @@ function productsRemoveFromCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   if (!shouldTrack()) return false;
   var count = addProductsEE(items, extraData);
+  ga2('ec:setAction', 'remove');
 
   _patchedConsole.patchedConsoleInstance.info("Removing ".concat(count, " items from cart."));
-
-  ga2('ec:setAction', 'remove');
 }
 /**
  * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
@@ -617,13 +621,12 @@ function productsCheckout(items) {
       extData = _objectWithoutProperties(_ref8, ["step", "option"]);
 
   var count = addProductsEE(items, extData);
-
-  _patchedConsole.patchedConsoleInstance.info("Checked out ".concat(count, " items."));
-
   ga2('ec:setAction', 'checkout', {
     step: step,
     option: option
   });
+
+  _patchedConsole.patchedConsoleInstance.info("Checked out ".concat(count, " items."));
 }
 
 function productAddDetailViewed(item) {
@@ -816,6 +819,8 @@ function addProductsEE(items) {
   }
 
   var count = 0;
+  var seen = {}; // Prevent duplicates
+
   items.forEach(function (item) {
     var display_title = item.display_title,
         id = item['@id'],
@@ -835,6 +840,12 @@ function addProductsEE(items) {
 
       return false;
     }
+
+    if (seen[id]) {
+      return;
+    }
+
+    seen[id] = true;
 
     var pObj = _underscore["default"].extend(itemToProductTransform(item), extData);
 

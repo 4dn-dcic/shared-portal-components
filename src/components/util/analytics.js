@@ -367,7 +367,7 @@ export function eventObjectFromCtx(context){
  * @param {string} [fields.field] - Name of field being acted on, if any.
  * @param {string} [fields.term] - Name of term being acted on or changed, if any.
  */
-export function event(category, action, fields = {}){
+export function event(category, action, fields = {}, useTimeout = true){
     if (!shouldTrack()) return false;
 
     const eventObj = _.extend({}, fields, {
@@ -393,7 +393,13 @@ export function event(category, action, fields = {}){
         console.info('Successfuly sent UI event.', eventObj);
     };
 
-    setTimeout(function(){ ga2('send', eventObj); }, 0);
+    if (useTimeout){
+        setTimeout(function(){
+            ga2('send', eventObj);
+        }, 0);
+    } else {
+        ga2('send', eventObj);
+    }
 }
 
 export function setUserID(userUUID){
@@ -462,8 +468,8 @@ export function productsAddToCart(items, extraData = {}){
 export function productsRemoveFromCart(items, extraData = {}){
     if (!shouldTrack()) return false;
     const count = addProductsEE(items, extraData);
-    console.info(`Removing ${count} items from cart.`);
     ga2('ec:setAction', 'remove');
+    console.info(`Removing ${count} items from cart.`);
 }
 
 /**
@@ -474,8 +480,8 @@ export function productsCheckout(items, extraData = {}){
     if (!shouldTrack()) return false;
     const { step = 1, option = null, ...extData } = extraData || {};
     const count = addProductsEE(items, extData);
-    console.info(`Checked out ${count} items.`);
     ga2('ec:setAction', 'checkout', { step, option });
+    console.info(`Checked out ${count} items.`);
 }
 
 export function productAddDetailViewed(item, context = null, extraData = {}){
@@ -640,6 +646,7 @@ function addProductsEE(items, extData = {}){
         items = [items];
     }
     let count = 0;
+    const seen = {}; // Prevent duplicates
     items.forEach(function(item){
         const {
             display_title,
@@ -657,6 +664,10 @@ function addProductsEE(items, extData = {}){
             console.error(errMsg, item);
             return false;
         }
+        if (seen[id]){
+            return;
+        }
+        seen[id] = true;
         const pObj = _.extend(itemToProductTransform(item), extData);
         if (typeof pObj.id !== "string") {
             console.error("No product id available, cannot track", pObj);
