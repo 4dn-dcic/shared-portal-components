@@ -27,7 +27,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 
     static filterOptions(currTextValue, allResults = [], filterMethod = "startsWith"){
-        console.log(`running filterOptions with currTextValue of ${currTextValue}`);
+        // console.log(`running filterOptions with currTextValue of ${currTextValue}`);
         const regexQuery = SearchAsYouTypeAjax.getRegexQuery(currTextValue, filterMethod);
         return allResults.filter(function(optStr){
             return !!(optStr||"".toLowerCase().match(regexQuery));
@@ -125,7 +125,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
                     this.setState({ loading: false, results, error: null });
                 } else if (error) {
                     // handle more general errors (should we display the actual error message to users?)
-                    console.log("Status code " + status + " encountered. " + statusText);
+                    console.error("Status code " + status + " encountered. " + statusText);
                     this.setState({ loading: false, results, error: error || "Something went wrong while handling this request." });
                 }
             });
@@ -133,8 +133,14 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 
     onDropdownSelect(result, evt){
-        const { onChange } = this.props;
-        onChange(result);
+        const { onChange, value, titleRenderFunction } = this.props;
+        const { currentTextValue } = this.state;
+        if (!titleRenderFunction(currentTextValue)) {
+            // if title hasn't been registered, use the old value
+            onChange(result, value);
+        } else {
+            onChange(result, currentTextValue);
+        }
     }
 
     onClickRetry(evt) {
@@ -226,7 +232,7 @@ SearchAsYouTypeAjax.defaultProps = {
         );
     },
     "titleRenderFunction": function(result){
-        console.log("calling defualt title render function. result:", result);
+        // console.log("calling defualt title render function. result:", result);
         return result.display_title;
     },
     "baseHref" : "/search/?type=Item",
@@ -248,7 +254,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
     // Add some logic based on schema.Linkto props if itemType not already available
     const baseHref = "/search/?type=" + linkTo;
 
-    console.log("idToTitleMap: ", idToTitleMap);
+    // console.log("idToTitleMap: ", idToTitleMap);
 
     const optionRenderFunction = (
         optionCustomizationsByType[itemType] &&
@@ -261,16 +267,15 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
     ) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
 
     const onChange = useMemo(function(){
-        return function(resultItem){
+        return function(resultItem, valueToReplace){
             console.log("calling SubmissionViewSearchAsYouType onchange");
-            console.log("resultItem, ", resultItem);
-            return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title);
+            return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
         };
     }, [ selectComplete, nestedField ]);
 
     const titleRenderFunction = useMemo(function(){
         return function(resultAtID){
-            console.log("calling memoized titleRenderFunction... resultAtID", resultAtID, idToTitleMap);
+            // console.log("calling memoized titleRenderFunction... resultAtID", resultAtID, idToTitleMap);
             return idToTitleMap[resultAtID] || resultAtID;
         };
     }, [ idToTitleMap ]);
@@ -461,7 +466,7 @@ export class LinkedObj extends React.PureComponent {
         var intKey = parseInt(this.props.value);
         if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
         this.props.setSubmissionState('currKey', intKey);
-        console.log(`called LinkedObj.setSubmissionStateToLinkedToItem`);
+        // console.log(`called LinkedObj.setSubmissionStateToLinkedToItem`);
     }
 
     handleStartSelectItem(e){
@@ -471,7 +476,7 @@ export class LinkedObj extends React.PureComponent {
         const { schema, nestedField, currType, linkType, arrayIdx, selectObj, selectCancel } = this.props;
         const itemType = schema.linkTo;
 
-        console.log(`calling LinkedObj.handleStartSelectItem -> selectObj(itemType=${itemType}, nestedField=${nestedField}, arrayIdx=${arrayIdx})`);
+        // console.log(`calling LinkedObj.handleStartSelectItem -> selectObj(itemType=${itemType}, nestedField=${nestedField}, arrayIdx=${arrayIdx})`);
         selectObj(itemType, nestedField, arrayIdx);
     }
 
@@ -481,9 +486,9 @@ export class LinkedObj extends React.PureComponent {
      * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
      */
     handleFinishSelectItem(items){
-        console.log(`calling handleFinishSelectItem(items={obj})`);
-        console.log("items: ", items);
-        console.log(`props: selectComplete=${selectComplete}, isMultiSelect=${isMultiSelect}`);
+        // console.log(`calling handleFinishSelectItem(items={obj})`);
+        // console.log("items: ", items);
+        // console.log(`props: selectComplete=${selectComplete}, isMultiSelect=${isMultiSelect}`);
         const { selectComplete, isMultiSelect } = this.props;
         if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) { return item.id && typeof item.id === 'string' && item.json; })) {
             return;
@@ -508,7 +513,7 @@ export class LinkedObj extends React.PureComponent {
             return atId && isValidAtId;
         })) {
             Alerts.deQueue({ 'title': invalidTitle });
-            console.log(`calling selectComplete(${atIds})`);
+            // console.log(`calling selectComplete(${atIds})`);
             selectComplete(atIds); // submit the values
         } else {
             Alerts.queue({
@@ -519,22 +524,22 @@ export class LinkedObj extends React.PureComponent {
             throw new Error('No valid @id available.');
         }
 
-        console.log(`called LinkedObj.handleFinishSelectItem`);
+        // console.log(`called LinkedObj.handleFinishSelectItem`);
     }
 
     handleCreateNewItemClick(e){
-        console.log("called LinkedObj.handleNewItemClick");
+        // console.log("called LinkedObj.handleNewItemClick");
         e.preventDefault();
         const { fieldBeingSelected, selectCancel, modifyNewContext, nestedField, linkType,
             arrayIdx, schema } = this.props;
 
-        console.log("called LinkedObj.handleNewItemClick - this.props", this.props);
+        // console.log("called LinkedObj.handleNewItemClick - this.props", this.props);
         if (fieldBeingSelected !== null) selectCancel();
         modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
     }
 
     handleAcceptTypedID(evt){
-        console.log(`calling LinkedObj.handleAcceptTypedID(evt=${evt})`);
+        // console.log(`calling LinkedObj.handleAcceptTypedID(evt=${evt})`);
         if (!this || !this.state || !this.state.textInputValue){
             throw new Error('Invalid @id format.');
         }
@@ -590,7 +595,7 @@ export class LinkedObj extends React.PureComponent {
         const dropMessage = "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'";
 
         let searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
-        console.log("this.props", this.props);
+        // console.log("this.props", this.props);
 
         // check if we have any schema flags that will affect the searchUrl
         if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {

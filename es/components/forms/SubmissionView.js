@@ -307,13 +307,7 @@ function (_React$PureComponent) {
   }, {
     key: "modifyKeyContext",
     value: function modifyKeyContext(objKey, newContext, keyTitle) {
-      _util.console.log("log1: ----------"); // console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
-      // console.log("log1: calling modifyKeyContext -- objKey,", objKey);
-      // console.log("log1: calling modifyKeyContext -- newContext, ", newContext);
-      // console.log("log1: calling modifyKeyContext -- keyTitle,", keyTitle );
-      // const { keyContext, keyValid, keyHierarchy, keyComplete, keyDisplay } = this.state;
-
-
+      // console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
       this.setState(function (_ref) {
         var keyContext = _ref.keyContext,
             keyValid = _ref.keyValid,
@@ -325,16 +319,8 @@ function (_React$PureComponent) {
 
         var validCopy = _util.object.deepClone(keyValid);
 
-        contextCopy[objKey] = newContext; // console.log("log1: keyContext", keyContext);
-        // console.log("log1: keyValid ", keyValid);
-        // console.log("log1: prevKeyHeirarchy", prevKeyHierarchy);
-        // console.log("log1: keyComplete", keyComplete);
-
-        _util.console.log("log1: keyTitle", keyTitle);
-
-        _util.console.log("log1: keyDisplay", keyDisplay[objKey]); // TODO maybe get rid of this state.keyValid and just use memoized static function.
+        contextCopy[objKey] = newContext; // TODO maybe get rid of this state.keyValid and just use memoized static function.
         // ensure new object is valid
-
 
         validCopy[objKey] = SubmissionView.findValidationState(objKey, prevKeyHierarchy, keyContext, keyComplete); // make sure there's something to replace keydisplay with
 
@@ -994,12 +980,25 @@ function (_React$PureComponent) {
     key: "addExistingObj",
     value: function addExistingObj(path, display, type, field) {
       var init = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+      var valueToReplace = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
+
+      _util.console.log("calling addExistingObj(".concat(path, ", ").concat(display, ", ").concat(type, ", ").concat(field, ", ").concat(valueToReplace));
+
       this.setState(function (_ref6) {
         var currKey = _ref6.currKey,
             prevKeyHierarchy = _ref6.keyHierarchy,
             prevKeyDisplay = _ref6.keyDisplay,
             prevKeyTypes = _ref6.keyTypes,
             prevKeyLinks = _ref6.keyLinks;
+
+        _util.console.log("keyLinks:", prevKeyLinks);
+
+        _util.console.log("keyTypes: ", prevKeyTypes);
+
+        _util.console.log("keyDisplay: ", prevKeyDisplay);
+
+        _util.console.log("keyHierarchy: ", prevKeyHierarchy);
+
         var parentKeyIdx = init ? 0 : currKey;
 
         var keyDisplay = _underscore["default"].clone(prevKeyDisplay);
@@ -1011,7 +1010,18 @@ function (_React$PureComponent) {
         var keyHierarchy = modifyHierarchy(_underscore["default"].clone(prevKeyHierarchy), path, parentKeyIdx);
         keyDisplay[path] = display;
         keyTypes[path] = type;
-        keyLinks[path] = field;
+        keyLinks[path] = field; // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
+        // references to that item
+
+        _util.console.log("previous ID passed through", valueToReplace); // validate that valueToReplace is an @id, then delete that key from keyHierarchy
+
+
+        delete keyHierarchy[parentKeyIdx][valueToReplace];
+        delete keyLinks[valueToReplace];
+        delete keyTypes[valueToReplace];
+
+        _util.console.log("keyHierarchy", keyHierarchy, keyDisplay, keyTypes, keyLinks);
+
         return {
           keyHierarchy: keyHierarchy,
           keyDisplay: keyDisplay,
@@ -2508,12 +2518,10 @@ function (_React$Component2) {
       var arrayIdxPointer = 0;
       var contextCopy = this.props.currContext;
       var pointer = contextCopy;
-      var prevValue = null; // console.log("log1: splitField: ", splitField);
+      var prevValue = null;
 
       for (var i = 0; i < splitField.length - 1; i++) {
-        // console.log("log1: starting loop with pointer at ", pointer);
         if (pointer[splitField[i]]) {
-          // console.log("log1: setting pointer to ,", pointer[splitField[i]]);
           pointer = pointer[splitField[i]];
         } else {
           _util.console.error('PROBLEM CREATING NEW CONTEXT WITH: ', field, value);
@@ -2545,16 +2553,13 @@ function (_React$Component2) {
       }
 
       if (fieldType === 'linked object') {
-        // console.log("log1: found a linked object... checking object removal");
         this.checkObjectRemoval(value, prevValue);
       }
 
       if (fieldType === 'new linked object') {
-        // console.log("log1: found a new linked object, initCreatingObject");
         // value is new key index in this case
         this.props.initCreateObj(type, value, field, false, field);
       } else {
-        // console.log("log1: not a existing linked object or new linked object... modifyingKeyContext");
         // actually change value
         this.props.modifyKeyContext(this.props.currKey, contextCopy, valueTitle);
       }
@@ -2570,7 +2575,7 @@ function (_React$Component2) {
      *
      * @param {string} value    The @ID or unique key of the Item for which we want to validate and get title for.
      * @param {string} type     The Item type of value.
-     * @param {any} newLink     No idea what this is.
+     * @param {any} newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
      */
 
   }, {
@@ -2578,7 +2583,11 @@ function (_React$Component2) {
     value: function fetchAndValidateItem(itemAtID, field, type, arrayIdx) {
       var _this11 = this;
 
-      arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+      var newLink = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+      var valueToReplace = arguments.length > 5 ? arguments[5] : undefined;
+
+      _util.console.log("calling fetchAndValidateItem(\nfield=".concat(field, ",\ntype=").concat(type, ",\narrayIdx=").concat(arrayIdx, ",\nnewLink=").concat(newLink, ",\n").concat(valueToReplace));
+
       var addExistingObj = this.props.addExistingObj;
       var hrefToFetch = itemAtID;
       var failureAlertTitle = "Validation error for field '" + field + "'" + (typeof arrayIdx === 'number' ? ' [' + arrayIdx + ']' : '');
@@ -2597,13 +2606,23 @@ function (_React$Component2) {
       };
 
       var successCallback = function (result) {
+        _util.console.log("successfully found, ", result);
+
         _Alerts.Alerts.deQueue({
           'title': failureAlertTitle
         });
 
-        _this11.modifyNewContext(field, itemAtID, 'existing linked object', null, arrayIdx);
+        _util.console.log("now modifying context to include existing object");
 
-        addExistingObj(itemAtID, result.display_title, type, field);
+        _this11.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
+
+        _util.console.log("now adding existing, valueToReplace", valueToReplace);
+
+        if (valueToReplace !== null) {
+          addExistingObj(itemAtID, result.display_title, type, field, false, valueToReplace);
+        } else {
+          addExistingObj(itemAtID, result.display_title, type, field);
+        }
       };
 
       if (typeof hrefToFetch !== 'string') {
@@ -2671,6 +2690,8 @@ function (_React$Component2) {
      * Callback passed to Search to select a pre-existing object. Cleans up
      * object selection state, modifies context, and initializes the fetchAndValidateItem
      * process.
+     * 
+     * @param {string} valueToReplace Previous value of field, if replacing/updating a single field instead of adding
      */
 
   }, {
@@ -2680,8 +2701,9 @@ function (_React$Component2) {
       var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var customArrayIdx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
       var displayTitle = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+      var valueToReplace = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
 
-      _util.console.log("calling selectComplete(atIds=".concat(atIds, ", customSelectField=").concat(customSelectField, ", customSelecttype=").concat(customSelectType, ", customArrayIdx=").concat(customArrayIdx));
+      _util.console.log("calling selectComplete(atIds=".concat(atIds, ", customSelectField=").concat(customSelectField, ", customSelecttype=").concat(customSelectType, ", customArrayIdx=").concat(customArrayIdx, ", valueToReplace=").concat(valueToReplace));
 
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
@@ -2730,8 +2752,10 @@ function (_React$Component2) {
           _util.console.log("isMultiSelect: ", isMultiSelect);
 
           if (!isRepeat) {
-            //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-            this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
+            _util.console.log("not a repeat, "); //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
+
+
+            this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null, valueToReplace);
 
             if (isMultiSelect) {
               cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;

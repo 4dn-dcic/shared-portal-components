@@ -94,7 +94,7 @@ function (_React$PureComponent) {
     value: function filterOptions(currTextValue) {
       var allResults = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
       var filterMethod = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "startsWith";
-      console.log("running filterOptions with currTextValue of ".concat(currTextValue));
+      // console.log(`running filterOptions with currTextValue of ${currTextValue}`);
       var regexQuery = SearchAsYouTypeAjax.getRegexQuery(currTextValue, filterMethod);
       return allResults.filter(function (optStr) {
         return !!(optStr || "".toLowerCase().match(regexQuery));
@@ -229,7 +229,7 @@ function (_React$PureComponent) {
             });
           } else if (error) {
             // handle more general errors (should we display the actual error message to users?)
-            console.log("Status code " + status + " encountered. " + statusText);
+            console.error("Status code " + status + " encountered. " + statusText);
 
             _this2.setState({
               loading: false,
@@ -243,8 +243,18 @@ function (_React$PureComponent) {
   }, {
     key: "onDropdownSelect",
     value: function onDropdownSelect(result) {
-      var onChange = this.props.onChange;
-      onChange(result);
+      var _this$props2 = this.props,
+          onChange = _this$props2.onChange,
+          value = _this$props2.value,
+          titleRenderFunction = _this$props2.titleRenderFunction;
+      var currentTextValue = this.state.currentTextValue;
+
+      if (!titleRenderFunction(currentTextValue)) {
+        // if title hasn't been registered, use the old value
+        onChange(result, value);
+      } else {
+        onChange(result, currentTextValue);
+      }
     }
   }, {
     key: "onClickRetry",
@@ -255,14 +265,14 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          _this$props2$filterMe = _this$props2.filterMethod,
-          filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
-          propOptionsHeader = _this$props2.optionsHeader,
-          value = _this$props2.value,
-          _this$props2$keyCompl = _this$props2.keyComplete,
-          keyComplete = _this$props2$keyCompl === void 0 ? {} : _this$props2$keyCompl,
-          leftoverProps = _objectWithoutProperties(_this$props2, ["filterMethod", "optionsHeader", "value", "keyComplete"]);
+      var _this$props3 = this.props,
+          _this$props3$filterMe = _this$props3.filterMethod,
+          filterMethod = _this$props3$filterMe === void 0 ? "startsWith" : _this$props3$filterMe,
+          propOptionsHeader = _this$props3.optionsHeader,
+          value = _this$props3.value,
+          _this$props3$keyCompl = _this$props3.keyComplete,
+          keyComplete = _this$props3$keyCompl === void 0 ? {} : _this$props3$keyCompl,
+          leftoverProps = _objectWithoutProperties(_this$props3, ["filterMethod", "optionsHeader", "value", "keyComplete"]);
 
       var _this$state = this.state,
           currentTextValue = _this$state.currentTextValue,
@@ -347,7 +357,7 @@ SearchAsYouTypeAjax.defaultProps = {
     }, atID));
   },
   "titleRenderFunction": function titleRenderFunction(result) {
-    console.log("calling defualt title render function. result:", result);
+    // console.log("calling defualt title render function. result:", result);
     return result.display_title;
   },
   "baseHref": "/search/?type=Item",
@@ -368,19 +378,18 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
       _props$idToTitleMap = props.idToTitleMap,
       idToTitleMap = _props$idToTitleMap === void 0 ? null : _props$idToTitleMap; // Add some logic based on schema.Linkto props if itemType not already available
 
-  console.log("idToTitleMap: ", idToTitleMap);
+  // console.log("idToTitleMap: ", idToTitleMap);
   var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   var onChange = (0, _react.useMemo)(function () {
-    return function (resultItem) {
+    return function (resultItem, valueToReplace) {
       console.log("calling SubmissionViewSearchAsYouType onchange");
-      console.log("resultItem, ", resultItem);
-      return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title);
+      return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
     };
   }, [selectComplete, nestedField]);
   var titleRenderFunction = (0, _react.useMemo)(function () {
     return function (resultAtID) {
-      console.log("calling memoized titleRenderFunction... resultAtID", resultAtID, idToTitleMap);
+      // console.log("calling memoized titleRenderFunction... resultAtID", resultAtID, idToTitleMap);
       return idToTitleMap[resultAtID] || resultAtID;
     };
   }, [idToTitleMap]);
@@ -637,13 +646,13 @@ function (_React$PureComponent2) {
   }, {
     key: "updateContext",
     value: function updateContext() {
-      var _this$props3 = this.props,
-          keyComplete = _this$props3.keyComplete,
-          value = _this$props3.value,
-          linkType = _this$props3.linkType,
-          arrayIdx = _this$props3.arrayIdx,
-          nestedField = _this$props3.nestedField,
-          modifyNewContext = _this$props3.modifyNewContext;
+      var _this$props4 = this.props,
+          keyComplete = _this$props4.keyComplete,
+          value = _this$props4.value,
+          linkType = _this$props4.linkType,
+          arrayIdx = _this$props4.arrayIdx,
+          nestedField = _this$props4.nestedField,
+          modifyNewContext = _this$props4.modifyNewContext;
 
       if (keyComplete[value] && !isNaN(value)) {
         modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
@@ -658,24 +667,23 @@ function (_React$PureComponent2) {
       e.stopPropagation();
       var intKey = parseInt(this.props.value);
       if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
-      this.props.setSubmissionState('currKey', intKey);
-      console.log("called LinkedObj.setSubmissionStateToLinkedToItem");
+      this.props.setSubmissionState('currKey', intKey); // console.log(`called LinkedObj.setSubmissionStateToLinkedToItem`);
     }
   }, {
     key: "handleStartSelectItem",
     value: function handleStartSelectItem(e) {
       e.preventDefault();
       if (!window) return;
-      var _this$props4 = this.props,
-          schema = _this$props4.schema,
-          nestedField = _this$props4.nestedField,
-          currType = _this$props4.currType,
-          linkType = _this$props4.linkType,
-          arrayIdx = _this$props4.arrayIdx,
-          selectObj = _this$props4.selectObj,
-          selectCancel = _this$props4.selectCancel;
-      var itemType = schema.linkTo;
-      console.log("calling LinkedObj.handleStartSelectItem -> selectObj(itemType=".concat(itemType, ", nestedField=").concat(nestedField, ", arrayIdx=").concat(arrayIdx, ")"));
+      var _this$props5 = this.props,
+          schema = _this$props5.schema,
+          nestedField = _this$props5.nestedField,
+          currType = _this$props5.currType,
+          linkType = _this$props5.linkType,
+          arrayIdx = _this$props5.arrayIdx,
+          selectObj = _this$props5.selectObj,
+          selectCancel = _this$props5.selectCancel;
+      var itemType = schema.linkTo; // console.log(`calling LinkedObj.handleStartSelectItem -> selectObj(itemType=${itemType}, nestedField=${nestedField}, arrayIdx=${arrayIdx})`);
+
       selectObj(itemType, nestedField, arrayIdx);
     }
     /**
@@ -687,12 +695,12 @@ function (_React$PureComponent2) {
   }, {
     key: "handleFinishSelectItem",
     value: function handleFinishSelectItem(items) {
-      console.log("calling handleFinishSelectItem(items={obj})");
-      console.log("items: ", items);
-      console.log("props: selectComplete=".concat(selectComplete, ", isMultiSelect=").concat(isMultiSelect));
-      var _this$props5 = this.props,
-          selectComplete = _this$props5.selectComplete,
-          isMultiSelect = _this$props5.isMultiSelect;
+      // console.log(`calling handleFinishSelectItem(items={obj})`);
+      // console.log("items: ", items);
+      // console.log(`props: selectComplete=${selectComplete}, isMultiSelect=${isMultiSelect}`);
+      var _this$props6 = this.props,
+          selectComplete = _this$props6.selectComplete,
+          isMultiSelect = _this$props6.isMultiSelect;
 
       if (!items || !Array.isArray(items) || items.length === 0 || !_underscore._.every(items, function (item) {
         return item.id && typeof item.id === 'string' && item.json;
@@ -727,9 +735,9 @@ function (_React$PureComponent2) {
       })) {
         _Alerts.Alerts.deQueue({
           'title': invalidTitle
-        });
+        }); // console.log(`calling selectComplete(${atIds})`);
 
-        console.log("calling selectComplete(".concat(atIds, ")"));
+
         selectComplete(atIds); // submit the values
       } else {
         _Alerts.Alerts.queue({
@@ -739,32 +747,30 @@ function (_React$PureComponent2) {
         });
 
         throw new Error('No valid @id available.');
-      }
+      } // console.log(`called LinkedObj.handleFinishSelectItem`);
 
-      console.log("called LinkedObj.handleFinishSelectItem");
     }
   }, {
     key: "handleCreateNewItemClick",
     value: function handleCreateNewItemClick(e) {
-      console.log("called LinkedObj.handleNewItemClick");
+      // console.log("called LinkedObj.handleNewItemClick");
       e.preventDefault();
-      var _this$props6 = this.props,
-          fieldBeingSelected = _this$props6.fieldBeingSelected,
-          selectCancel = _this$props6.selectCancel,
-          modifyNewContext = _this$props6.modifyNewContext,
-          nestedField = _this$props6.nestedField,
-          linkType = _this$props6.linkType,
-          arrayIdx = _this$props6.arrayIdx,
-          schema = _this$props6.schema;
-      console.log("called LinkedObj.handleNewItemClick - this.props", this.props);
+      var _this$props7 = this.props,
+          fieldBeingSelected = _this$props7.fieldBeingSelected,
+          selectCancel = _this$props7.selectCancel,
+          modifyNewContext = _this$props7.modifyNewContext,
+          nestedField = _this$props7.nestedField,
+          linkType = _this$props7.linkType,
+          arrayIdx = _this$props7.arrayIdx,
+          schema = _this$props7.schema; // console.log("called LinkedObj.handleNewItemClick - this.props", this.props);
+
       if (fieldBeingSelected !== null) selectCancel();
       modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
     }
   }, {
     key: "handleAcceptTypedID",
-    value: function handleAcceptTypedID(evt) {
-      console.log("calling LinkedObj.handleAcceptTypedID(evt=".concat(evt, ")"));
-
+    value: function handleAcceptTypedID() {
+      // console.log(`calling LinkedObj.handleAcceptTypedID(evt=${evt})`);
       if (!this || !this.state || !this.state.textInputValue) {
         throw new Error('Invalid @id format.');
       }
@@ -782,10 +788,10 @@ function (_React$PureComponent2) {
   }, {
     key: "childWindowAlert",
     value: function childWindowAlert() {
-      var _this$props7 = this.props,
-          schema = _this$props7.schema,
-          nestedField = _this$props7.nestedField,
-          isMultiSelect = _this$props7.isMultiSelect;
+      var _this$props8 = this.props,
+          schema = _this$props8.schema,
+          nestedField = _this$props8.nestedField,
+          isMultiSelect = _this$props8.isMultiSelect;
       var itemType = schema && schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
       // const message = (
@@ -811,21 +817,21 @@ function (_React$PureComponent2) {
   }, {
     key: "renderSelectInputField",
     value: function renderSelectInputField() {
-      var _this$props8 = this.props,
-          value = _this$props8.value,
-          selectCancel = _this$props8.selectCancel,
-          schema = _this$props8.schema,
-          currType = _this$props8.currType,
-          nestedField = _this$props8.nestedField,
-          isMultiSelect = _this$props8.isMultiSelect,
-          baseHref = _this$props8.baseHref;
+      var _this$props9 = this.props,
+          value = _this$props9.value,
+          selectCancel = _this$props9.selectCancel,
+          schema = _this$props9.schema,
+          currType = _this$props9.currType,
+          nestedField = _this$props9.nestedField,
+          isMultiSelect = _this$props9.isMultiSelect,
+          baseHref = _this$props9.baseHref;
       this.state.textInputValue; // const canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
       // const extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
 
       var itemType = schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
-      var searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
-      console.log("this.props", this.props); // check if we have any schema flags that will affect the searchUrl
+      var searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType; // console.log("this.props", this.props);
+      // check if we have any schema flags that will affect the searchUrl
 
       if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
         // the field to facet on could be set dynamically
@@ -867,15 +873,15 @@ function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props9 = this.props,
-          value = _this$props9.value,
-          _this$props9$keyDispl = _this$props9.keyDisplay,
-          keyDisplay = _this$props9$keyDispl === void 0 ? {} : _this$props9$keyDispl,
-          keyComplete = _this$props9.keyComplete,
-          fieldBeingSelected = _this$props9.fieldBeingSelected,
-          nestedField = _this$props9.nestedField,
-          arrayIdx = _this$props9.arrayIdx,
-          fieldBeingSelectedArrayIdx = _this$props9.fieldBeingSelectedArrayIdx;
+      var _this$props10 = this.props,
+          value = _this$props10.value,
+          _this$props10$keyDisp = _this$props10.keyDisplay,
+          keyDisplay = _this$props10$keyDisp === void 0 ? {} : _this$props10$keyDisp,
+          keyComplete = _this$props10.keyComplete,
+          fieldBeingSelected = _this$props10.fieldBeingSelected,
+          nestedField = _this$props10.nestedField,
+          arrayIdx = _this$props10.arrayIdx,
+          fieldBeingSelectedArrayIdx = _this$props10.fieldBeingSelectedArrayIdx;
       var isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
 
       if (isSelecting) {

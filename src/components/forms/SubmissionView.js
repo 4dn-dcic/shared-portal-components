@@ -206,23 +206,12 @@ export default class SubmissionView extends React.PureComponent{
      * @param {string} keyTitle - Display title of item being modified
      */
     modifyKeyContext(objKey, newContext, keyTitle){
-        console.log("log1: ----------");
         // console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
-        // console.log("log1: calling modifyKeyContext -- objKey,", objKey);
-        // console.log("log1: calling modifyKeyContext -- newContext, ", newContext);
-        // console.log("log1: calling modifyKeyContext -- keyTitle,", keyTitle );
-        // const { keyContext, keyValid, keyHierarchy, keyComplete, keyDisplay } = this.state;
         this.setState(
             ({ keyContext, keyValid, keyHierarchy : prevKeyHierarchy, keyComplete, keyDisplay }) => {
                 const contextCopy = object.deepClone(keyContext);
                 const validCopy   = object.deepClone(keyValid);
                 contextCopy[objKey] = newContext;
-                // console.log("log1: keyContext", keyContext);
-                // console.log("log1: keyValid ", keyValid);
-                // console.log("log1: prevKeyHeirarchy", prevKeyHierarchy);
-                // console.log("log1: keyComplete", keyComplete);
-                console.log("log1: keyTitle", keyTitle);
-                console.log("log1: keyDisplay", keyDisplay[objKey]);
 
                 // TODO maybe get rid of this state.keyValid and just use memoized static function.
 
@@ -729,7 +718,8 @@ export default class SubmissionView extends React.PureComponent{
      * keyHierarchy. The key for pre-existing objects are their @id path. Thus,
      * isNan() for the key of a pre-existing object will return true.
      */
-    addExistingObj(path, display, type, field, init=false){
+    addExistingObj(path, display, type, field, init=false, valueToReplace=null){
+        console.log(`calling addExistingObj(${path}, ${display}, ${type}, ${field}, ${valueToReplace}`);
         this.setState(function({
             currKey,
             keyHierarchy : prevKeyHierarchy,
@@ -737,15 +727,30 @@ export default class SubmissionView extends React.PureComponent{
             keyTypes : prevKeyTypes,
             keyLinks : prevKeyLinks
         }){
+            console.log("keyLinks:", prevKeyLinks);
+            console.log("keyTypes: ", prevKeyTypes);
+            console.log("keyDisplay: ", prevKeyDisplay);
+            console.log("keyHierarchy: ", prevKeyHierarchy);
             const parentKeyIdx = init ? 0 : currKey;
             const keyDisplay = _.clone(prevKeyDisplay);
             const keyTypes = _.clone(prevKeyTypes);
             const keyLinks = _.clone(prevKeyLinks);
             const keyHierarchy = modifyHierarchy(_.clone(prevKeyHierarchy), path, parentKeyIdx);
-
             keyDisplay[path] = display;
             keyTypes[path] = type;
             keyLinks[path] = field;
+
+            // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
+            // references to that item
+
+            console.log("previous ID passed through", valueToReplace);
+            // validate that valueToReplace is an @id, then delete that key from keyHierarchy
+            delete keyHierarchy[parentKeyIdx][valueToReplace];
+            delete keyLinks[valueToReplace];
+            delete keyTypes[valueToReplace];
+
+            console.log("keyHierarchy", keyHierarchy, keyDisplay, keyTypes, keyLinks);
+            
             return { keyHierarchy, keyDisplay, keyTypes, keyLinks };
         });
     }
@@ -1858,11 +1863,8 @@ class IndividualObjectView extends React.Component {
         var contextCopy = this.props.currContext;
         var pointer = contextCopy;
         var prevValue = null;
-        // console.log("log1: splitField: ", splitField);
         for (var i=0; i < splitField.length - 1; i++){
-            // console.log("log1: starting loop with pointer at ", pointer);
             if(pointer[splitField[i]]){
-                // console.log("log1: setting pointer to ,", pointer[splitField[i]]);
                 pointer = pointer[splitField[i]];
             }else{
                 console.error('PROBLEM CREATING NEW CONTEXT WITH: ', field, value);
@@ -1888,15 +1890,12 @@ class IndividualObjectView extends React.Component {
         }
 
         if (fieldType === 'linked object'){
-            // console.log("log1: found a linked object... checking object removal");
             this.checkObjectRemoval(value, prevValue);
         }
         if (fieldType === 'new linked object'){
-            // console.log("log1: found a new linked object, initCreatingObject");
             // value is new key index in this case
             this.props.initCreateObj(type, value, field, false, field);
         } else {
-            // console.log("log1: not a existing linked object or new linked object... modifyingKeyContext");
             // actually change value
             this.props.modifyKeyContext(this.props.currKey, contextCopy, valueTitle);
         }
@@ -1913,9 +1912,10 @@ class IndividualObjectView extends React.Component {
      *
      * @param {string} value    The @ID or unique key of the Item for which we want to validate and get title for.
      * @param {string} type     The Item type of value.
-     * @param {any} newLink     No idea what this is.
+     * @param {any} newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
      */
-    fetchAndValidateItem(itemAtID, field, type, arrayIdx, newLink = null){
+    fetchAndValidateItem(itemAtID, field, type, arrayIdx, newLink = null, valueToReplace){
+        console.log(`calling fetchAndValidateItem(\nfield=${field},\ntype=${type},\narrayIdx=${arrayIdx},\nnewLink=${newLink},\n${valueToReplace}`);
         const { addExistingObj } = this.props;
 
         let hrefToFetch = itemAtID;
@@ -1930,9 +1930,16 @@ class IndividualObjectView extends React.Component {
             this.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
         };
         const successCallback = (result)=>{
+            console.log("successfully found, ", result);
             Alerts.deQueue({ 'title' : failureAlertTitle });
-            this.modifyNewContext(field, itemAtID, 'existing linked object', null, arrayIdx);
-            addExistingObj(itemAtID, result.display_title, type, field);
+            console.log("now modifying context to include existing object");
+            this.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
+            console.log("now adding existing, valueToReplace", valueToReplace);
+            if (valueToReplace !== null) {
+                addExistingObj(itemAtID, result.display_title, type, field, false, valueToReplace);
+            } else {
+                addExistingObj(itemAtID, result.display_title, type, field);
+            }
         };
 
         if (typeof hrefToFetch !== 'string') {
@@ -1985,9 +1992,11 @@ class IndividualObjectView extends React.Component {
      * Callback passed to Search to select a pre-existing object. Cleans up
      * object selection state, modifies context, and initializes the fetchAndValidateItem
      * process.
+     * 
+     * @param {string} valueToReplace Previous value of field, if replacing/updating a single field instead of adding
      */
-    selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null, displayTitle = null) {
-        console.log(`calling selectComplete(atIds=${atIds}, customSelectField=${customSelectField}, customSelecttype=${customSelectType}, customArrayIdx=${customArrayIdx}`);
+    selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null, displayTitle = null, valueToReplace = null) {
+        console.log(`calling selectComplete(atIds=${atIds}, customSelectField=${customSelectField}, customSelecttype=${customSelectType}, customArrayIdx=${customArrayIdx}, valueToReplace=${valueToReplace}`);
         const { currContext } = this.props;
         const {
             selectField: stateSelectField,
@@ -2025,8 +2034,9 @@ class IndividualObjectView extends React.Component {
             console.log("currContext[selectField]: ", currContext[selectField]);
             console.log("isMultiSelect: ", isMultiSelect);
             if (!isRepeat) {
+                console.log("not a repeat, ");
                 //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-                this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? [...cloneSelectArrayIdx] : null, null);
+                this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? [...cloneSelectArrayIdx] : null, null, valueToReplace);
                 if (isMultiSelect) {
                     cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
                 }
