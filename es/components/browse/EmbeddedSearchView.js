@@ -27,25 +27,21 @@ Object.defineProperty(exports, "SelectedItemsController", {
     return _SelectedItemsController.SelectedItemsController;
   }
 });
-exports.SearchView = void 0;
+exports.EmbeddedSearchView = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
+
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _navigate = require("./../util/navigate");
-
-var _misc = require("./../util/misc");
 
 var _patchedConsole = require("./../util/patched-console");
 
 var _tableCommons = require("./components/table-commons");
-
-var _AboveSearchTablePanel = require("./components/AboveSearchTablePanel");
 
 var _CustomColumnController = require("./components/CustomColumnController");
 
@@ -53,13 +49,17 @@ var _SortController = require("./components/SortController");
 
 var _SelectedItemsController = require("./components/SelectedItemsController");
 
-var _WindowNavigationController = require("./components/WindowNavigationController");
-
 var _ControlsAndResults = require("./components/ControlsAndResults");
 
 var _typedefs = require("./../util/typedefs");
 
+var _VirtualHrefController = require("./components/VirtualHrefController");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -75,15 +75,15 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -91,32 +91,66 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SearchView =
+var EmbeddedSearchView =
 /*#__PURE__*/
 function (_React$PureComponent) {
-  _inherits(SearchView, _React$PureComponent);
+  _inherits(EmbeddedSearchView, _React$PureComponent);
 
-  function SearchView() {
-    _classCallCheck(this, SearchView);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(SearchView).apply(this, arguments));
-  }
-
-  _createClass(SearchView, [{
-    key: "componentDidMount",
+  _createClass(EmbeddedSearchView, null, [{
+    key: "listToObj",
 
     /**
-     * @property {string} href - Current URI.
-     * @property {!string} [currentAction=null] - Current action, if any.
+     * @property {string} searchHref - Base URI to search on.
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
+     * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
      */
+    value: function listToObj(hideFacetStrs) {
+      var obj = {};
+      hideFacetStrs.forEach(function (field) {
+        obj[field] = true;
+        obj[field + "!"] = true;
+      });
+      return obj;
+    }
+  }]);
+
+  function EmbeddedSearchView(props) {
+    var _this;
+
+    _classCallCheck(this, EmbeddedSearchView);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(EmbeddedSearchView).call(this, props));
+    _this.filterFacetFxn = _this.filterFacetFxn.bind(_assertThisInitialized(_this));
+    _this.memoized = {
+      listToObj: (0, _memoizeOne["default"])(EmbeddedSearchView.listToObj)
+    };
+    return _this;
+  }
+
+  _createClass(EmbeddedSearchView, [{
+    key: "componentDidMount",
     value: function componentDidMount() {
       _reactTooltip["default"].rebuild();
     }
+  }, {
+    key: "filterFacetFxn",
+    value: function filterFacetFxn(facet) {
+      var _this$props$hideFacet = this.props.hideFacets,
+          hideFacets = _this$props$hideFacet === void 0 ? null : _this$props$hideFacet;
+      if (!hideFacets) return true;
+      var idMap = this.memoized.listToObj(hideFacets);
+      if (idMap[facet.field]) return false;
+      return true;
+    }
     /**
-     * TODO once we have @type : [..more stuff..], change to use instead of `getSchemaTypeFromSearchContext`.
-     * For custom styling from CSS stylesheet (e.g. to sync override of rowHeight in both CSS and in props here)
+     * All these controllers pass props down to their children.
+     * So we don't need to be repetitive here; i.e. may assume 'context' is available
+     * in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
+     * As well as in ControlsAndResults.
+     *
+     * We re-instantiate the VirtualHrefController if receive a new base searchHref.
+     * Alternatively, we could create componentDidUpdate in VirtualHrefController.
      */
 
   }, {
@@ -125,95 +159,74 @@ function (_React$PureComponent) {
       var _this$props = this.props,
           href = _this$props.href,
           context = _this$props.context,
-          _this$props$schemas = _this$props.schemas,
-          schemas = _this$props$schemas === void 0 ? null : _this$props$schemas,
           _this$props$currentAc = _this$props.currentAction,
           currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc,
-          propFacets = _this$props.facets,
-          _this$props$navigate = _this$props.navigate,
-          propNavigate = _this$props$navigate === void 0 ? _navigate.navigate : _this$props$navigate,
+          searchHref = _this$props.searchHref,
+          propNavigate = _this$props.navigate,
           _this$props$columns = _this$props.columns,
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
+          facets = _this$props.facets,
+          _this$props$showAbove = _this$props.showAboveTableControls,
+          showAboveTableControls = _this$props$showAbove === void 0 ? false : _this$props$showAbove,
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
-          placeholderReplacementFxn = _this$props.placeholderReplacementFxn,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn"]);
+          _this$props$onLoad = _this$props.onLoad,
+          onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
+          _this$props$filterFac = _this$props.filterFacetFxn,
+          propFacetFilterFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
-      var contextFacets = context.facets; // All these controllers pass props down to their children.
-      // So we don't need to be repetitive here; i.e. may assume 'context' is available
-      // in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
-      // As well as in ControlsAndResults.
 
-      var childViewProps = _objectSpread({}, passProps, {
-        currentAction: currentAction,
-        schemas: schemas,
-        isOwnPage: true,
-        facets: propFacets || contextFacets
+      var tableColumnClassName = facets === null ? "col-12" : undefined;
+
+      var viewProps = _objectSpread({}, passProps, {
+        showAboveTableControls: showAboveTableControls,
+        tableColumnClassName: tableColumnClassName
       });
 
-      var controllersAndView = _react["default"].createElement(_WindowNavigationController.WindowNavigationController, _extends({
-        href: href,
-        context: context
+      var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
+      return _react["default"].createElement("div", {
+        className: "embedded-search-container"
+      }, _react["default"].createElement(_VirtualHrefController.VirtualHrefController, _extends({
+        searchHref: searchHref,
+        facets: facets,
+        onLoad: onLoad,
+        filterFacetFxn: filterFacetFxn
       }, {
-        navigate: propNavigate
+        key: searchHref
       }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
-
-      if ((0, _misc.isSelectAction)(currentAction)) {
-        // We don't allow "SelectionMode" unless is own page.
-        // Could consider changing later once a use case exists.
-        controllersAndView = // SelectedItemsController must be above ColumnCombiner because it adjusts
-        // columnExtensionMap, rather than columnDefinitions. This can be easily changed
-        // though if desired.
-        _react["default"].createElement(_SelectedItemsController.SelectedItemsController, {
-          columnExtensionMap: columnExtensionMap,
-          currentAction: currentAction
-        }, controllersAndView);
-      }
-
-      return _react["default"].createElement("div", {
-        className: "search-page-container"
-      }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
-        context: context,
-        placeholderReplacementFxn: placeholderReplacementFxn
-      }), controllersAndView);
+      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
+        isOwnPage: false
+      })))))));
     }
   }]);
 
-  return SearchView;
+  return EmbeddedSearchView;
 }(_react["default"].PureComponent);
 
-exports.SearchView = SearchView;
+exports.EmbeddedSearchView = EmbeddedSearchView;
 
-_defineProperty(SearchView, "propTypes", {
-  'context': _propTypes["default"].object.isRequired,
-  'columns': _propTypes["default"].object,
-  'columnExtensionMap': _propTypes["default"].object,
-  'currentAction': _propTypes["default"].string,
-  'href': _propTypes["default"].string.isRequired,
-  'session': _propTypes["default"].bool.isRequired,
-  'navigate': _propTypes["default"].func,
-  'facets': _propTypes["default"].array,
-  'isFullscreen': _propTypes["default"].bool.isRequired,
-  'toggleFullScreen': _propTypes["default"].func.isRequired,
-  'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
-  'renderDetailPane': _propTypes["default"].func,
-  'isOwnPage': _propTypes["default"].bool,
-  'schemas': _propTypes["default"].object,
-  'placeholderReplacementFxn': _propTypes["default"].func // Passed down to AboveSearchTablePanel StaticSection
-
-});
-
-_defineProperty(SearchView, "defaultProps", {
-  'href': null,
+_defineProperty(EmbeddedSearchView, "propTypes", {
+  'searchHref': _propTypes["default"].string.isRequired,
+  // From Redux store; is NOT passed down. Overriden instead.
+  'context': _propTypes["default"].object,
   // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
   // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
-  'columns': null,
-  'navigate': _navigate.navigate,
-  'currentAction': null,
+  'columns': _propTypes["default"].object,
+  'columnExtensionMap': _propTypes["default"].object,
+  'session': _propTypes["default"].bool.isRequired,
+  'schemas': _propTypes["default"].object,
+  'facets': _propTypes["default"].array,
+  'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
+  'renderDetailPane': _propTypes["default"].func,
+  'onLoad': _propTypes["default"].func,
+  'hideFacets': _propTypes["default"].arrayOf(_propTypes["default"].string)
+});
+
+_defineProperty(EmbeddedSearchView, "defaultProps", {
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
   'separateSingleTermFacets': true,
-  'isOwnPage': true
+  'hideFacets': ["type", "validation_errors.name"]
 });

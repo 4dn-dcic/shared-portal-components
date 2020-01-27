@@ -88,24 +88,38 @@ export class StackedBlockListViewMoreButton extends React.PureComponent {
     static propTypes = {
         'collapsibleChildren' : PropTypes.array,
         'collapsed' : PropTypes.bool,
-        'handleCollapseToggle' : PropTypes.func
+        'handleCollapseToggle' : PropTypes.func,
+        'preventExpand' : PropTypes.bool,
         // + those from parent .List
     };
 
     render(){
-        const { collapsibleChildren, collapsed, title, showMoreExtTitle, handleCollapseToggle } = this.props;
+        const { collapsibleChildren, collapsed, title, showMoreExtTitle, handleCollapseToggle, preventExpand = false } = this.props;
         const collapsibleChildrenLen = collapsibleChildren.length;
 
         if (collapsibleChildrenLen === 0) return null;
 
+        if (preventExpand) {
+            // Show information label instead of button.
+            return (
+                <div className="view-more-button">
+                    <i className="icon fas icon-plus mr-1 ml-02 small"/>
+                    { collapsibleChildrenLen + " More" + (title? ' ' + title : '') }
+                    { showMoreExtTitle ? <span className="ext text-400"> { showMoreExtTitle }</span> : null }
+                </div>
+            );
+        }
+
         const titleStr = (
-            (collapsed? "Show " + collapsibleChildrenLen + " More" : "Show Fewer") +
+            (collapsed? (preventExpand ? collapsibleChildrenLen + " More" : `Show ${collapsibleChildrenLen} More`) : "Show Fewer") +
             (title? ' ' + title : '')
         );
 
+        const cls = "view-more-button" + (preventExpand ? "" : " clickable");
+
         return (
-            <div className="view-more-button" onClick={handleCollapseToggle}>
-                <i className={"icon fas icon-" + (collapsed ? 'plus': 'minus')}/>
+            <div className={cls} onClick={preventExpand ? null : handleCollapseToggle}>
+                <i className={"mr-1 icon fas icon-" + (collapsed ? 'plus': 'minus')}/>
                 { titleStr }
                 { showMoreExtTitle ? <span className="ext text-400"> { showMoreExtTitle }</span> : null }
             </div>
@@ -236,7 +250,7 @@ export class StackedBlock extends React.PureComponent {
             );
             */
 
-            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed'], (prop)=>{
+            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand'], (prop)=>{
                 if (typeof c.props[prop] === 'undefined'){
                     childProps[prop] = this.props[prop];
                 }
@@ -353,7 +367,8 @@ export class StackedBlockTable extends React.PureComponent {
             'visibleTitle' : PropTypes.oneOfType([PropTypes.string, PropTypes.element, PropTypes.func]),
             'initialWidth' : PropTypes.number
         })).isRequired,
-        'width' : PropTypes.number.isRequired
+        'width' : PropTypes.number.isRequired,
+        'preventExpand' : PropTypes.bool
     };
 
     static defaultProps = {
@@ -367,6 +382,7 @@ export class StackedBlockTable extends React.PureComponent {
         'defaultInitialColumnWidth' : 120,
         'collapseLimit'     : 4,
         'collapseShow'      : 3,
+        'preventExpand'     : false,
         'collapseLongLists' : true,
         'defaultCollapsed'  : true
     };

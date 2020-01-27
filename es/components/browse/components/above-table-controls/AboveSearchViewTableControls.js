@@ -54,7 +54,6 @@ var AboveSearchViewTableControls = _react["default"].memo(function (props) {
     }
   }
 
-  console.log("RRR", props.isFullscreen);
   return _react["default"].createElement(_AboveTableControlsBase.AboveTableControlsBase, _extends({
     panelMap: _AboveTableControlsBase.AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)
   }, _underscore["default"].pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'parentForceUpdate')), _react["default"].createElement(LeftSectionControls, {

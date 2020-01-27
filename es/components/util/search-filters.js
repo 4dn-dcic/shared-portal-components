@@ -296,6 +296,7 @@ function buildSearchHref(field, term, searchBase) {
   return _url["default"].format(parts);
 }
 /**
+ * @deprecated
  * Given a field/term, add or remove filter from expSetFilters (in redux store) within context of current state of filters.
  *
  * @param {string} field                        Field, in object dot notation.
@@ -347,6 +348,7 @@ function changeFilter(field, term, filters) {
   }
 }
 /**
+ * @deprecated
  * Update expSetFilters by generating new href from supplied expSetFilters and fetching/navigating to copy of current href/URL with updated query.
  * Before calling, make sure expSetFilters is a new or cloned object (not props.expSetFilters) for Redux to recognize that it has changed.
  *
@@ -463,14 +465,16 @@ function determineIfTermFacetSelected(term, facet, props) {
  *
  * @param {{ key: string }} term - Object for term option
  * @param {{ field: string }} facet - Object for facet, containing field
- * @param {Object} props - Props from FacetList. Should have context.filters.
+ * @param {Object<string, { field: string, term: string, remove: string }>} contextFilters - from `context.filters`.
  * @returns {string} - returns one of 'selected', 'omitted' or 'none' values
  */
 
 
-function getTermFacetStatus(term, facet, props) {
-  var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, props.context.filters);
-  return statusAndHref.status;
+function getTermFacetStatus(term, facet, contextFilters) {
+  var _getStatusAndUnselect = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters),
+      status = _getStatusAndUnselect.status;
+
+  return status;
 }
 /** @deprecated */
 

@@ -7,6 +7,7 @@ $facetlist-selected-term-color: blue !default;
 $facetlist-omitted-term-color : red !default;
 $facetlist-term-font-size: 0.875rem !default;
 $facetlist-facet-font-size: 0.925rem !default;
+$facetlist-term-block-height: default !default;
 
 .facets-container {
     padding-top: 0;
@@ -91,8 +92,6 @@ $facetlist-facet-font-size: 0.925rem !default;
     }
 
 }
-
-
 
 
 .facets-container {
@@ -419,6 +418,7 @@ $facetlist-facet-font-size: 0.925rem !default;
                     display: flex;
                     align-items: center;
                     line-height: $facetlist-term-line-height;
+                    height: $facetlist-term-block-height;
 
                     i.icon.icon-circle-o-notch,
                     i.icon.icon-circle-notch {
@@ -439,11 +439,13 @@ $facetlist-facet-font-size: 0.925rem !default;
                     }
 
                     .facet-selector {
-                        padding-right: 5px;
                         min-width: 20px;
-                        transform: scale(0.9) translate(0, 1px);
-                        transform-origin: 50% 0%;
-                        line-height: 0.8;
+                        line-height: 1; // Fontface height
+                        text-align: center;
+                        > i {
+                            transform: scale(0.9);
+                            transform-origin: 50% 50%;
+                        }
                     }
 
                     .facet-item {
@@ -451,6 +453,7 @@ $facetlist-facet-font-size: 0.925rem !default;
                         white-space: nowrap;
                         text-overflow: ellipsis;
                         flex-grow: 1;
+                        padding-left: 5px;
                     }
 
                     .facet-count {
@@ -537,5 +540,36 @@ $facetlist-facet-font-size: 0.925rem !default;
         }
     }
 
+}
+
+
+/** Contain FacetList when on EmbeddedSearchView **/
+
+@mixin facets-body-contained-height-style {
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+        background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #aaa;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+        margin-right: -1px;
+    }
+}
+
+.embedded-search-container .search-view-controls-and-results {
+	.facets-container.facets.with-header-bg {
+		.facets-body.has-max-height {
+			@include facets-body-contained-height-style;
+		}
+	}
 }
 

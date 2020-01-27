@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import { isFilenameAnImage } from './../util/file';
+import { event as trackEvent } from './../util/analytics';
 
 /*****************************
  ** Common React Components **
@@ -10,10 +11,10 @@ import { isFilenameAnImage } from './../util/file';
 
 /** @todo (?) Move to ui folder */
 export function FileDownloadButton(props){
-    const { href, className, disabled, title, filename, size } = props;
+    const { href, className, disabled, title, filename, size, onClick } = props;
     const cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
     return (
-        <a href={ href } className={cls} download data-tip={filename || null}>
+        <a {...{ href, onClick }} className={cls} download data-tip={filename || null}>
             <i className="icon icon-fw icon-cloud-download-alt fas"/>{ title ? <span>&nbsp; { title }</span> : null }
         </a>
     );
@@ -42,11 +43,11 @@ const canDownloadFile = memoize(function(file, validStatuses){
 });
 
 export const FileDownloadButtonAuto = React.memo(function FileDownloadButtonAuto(props){
-    const { result: file, canDownloadStatuses } = props;
+    const { result: file, canDownloadStatuses, onClick = null } = props;
+    const { href, filename } = file;
     const isDisabled = !canDownloadFile(file, canDownloadStatuses);
     const passProps = {
-        'href' : file.href,
-        'filename' : file.filename,
+        onClick, href, filename,
         'disabled' : isDisabled,
         'title' : isDisabled ? 'Not ready to download' : FileDownloadButton.defaultProps.title
     };
@@ -57,7 +58,8 @@ FileDownloadButtonAuto.propTypes = {
         'href' : PropTypes.string.isRequired,
         'filename' : PropTypes.string.isRequired,
     }).isRequired,
-    'canDownloadStatuses' : PropTypes.arrayOf(PropTypes.string)
+    'canDownloadStatuses' : PropTypes.arrayOf(PropTypes.string),
+    'onClick' : PropTypes.func
 };
 FileDownloadButtonAuto.defaultProps = {
     'canDownloadStatuses' : [
@@ -72,7 +74,7 @@ FileDownloadButtonAuto.defaultProps = {
 
 
 export const ViewFileButton = React.memo(function ViewFileButton(props){
-    const { filename, href, target, title, mimeType, size, className, bsStyle, variant } = props;
+    const { filename, href, target, title, mimeType, size, className, bsStyle, variant, onClick: propClick, ...passProps } = props;
     let action = 'View';
     let extLink = null; // Unsure if really used. Maybe should test href for presence of http[s]:// instd of target="_blank"?
     let preLink = null;
@@ -98,12 +100,20 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
         action = 'Download';
     }
 
+    function onClick(evt){
+        const evtObj = { eventLabel: filename };
+        event("ViewFileButton", "Clicked", evtObj);
+        if (typeof propClick === "function"){
+            propClick();
+        }
+    }
+
     const useVariant = bsStyle || variant || "primary";
     const cls = ("btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (" btn-" + useVariant));
-    const passProps = _.omit(props, 'bsStyle', 'variant', 'filename', 'title', 'className', 'data-tip', 'size');
+    const btnProps = { ...passProps, onClick, href, mimeType, target };
 
     return (
-        <a {...passProps} className={cls} download={action === 'Download' ? true : null} title={filename} data-tip={mimeType}>
+        <a {...btnProps} className={cls} download={action === 'Download' ? filename || true : null} title={filename} data-tip={mimeType}>
             { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
         </a>
     );

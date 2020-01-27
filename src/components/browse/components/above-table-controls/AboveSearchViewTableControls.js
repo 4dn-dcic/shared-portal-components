@@ -41,8 +41,6 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
         }
     }
 
-    console.log("RRR", props.isFullscreen);
-
     return (
         <AboveTableControlsBase panelMap={AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)}
             {..._.pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'parentForceUpdate')}>

@@ -7,10 +7,19 @@ import queryString from 'query-string';
 import _ from 'underscore';
 
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters } from './../../../util/search-filters';
+import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus } from './../../../util/search-filters';
 import { navigate } from './../../../util/navigate';
 import * as analytics from './../../../util/analytics';
 import { responsiveGridState } from './../../../util/layout';
+
+/**
+ * Not too sure whether href in performFilteringQuery will
+ * always be the redux-provided props.href esp. in case of
+ * embedded search views. Since func is only executed onClick
+ * and not as part of view render, is (more) OK to use url.parse
+ * vs memoizedUrlParse IMO.
+ */
+// import { memoizedUrlParse } from './../../../util/misc';
 
 import { TermsFacet } from './TermsFacet';
 import { RangeFacet, getValueFromFilters as getRangeValueFromFilters } from './RangeFacet';
@@ -28,64 +37,42 @@ import { FacetOfFacets } from './FacetOfFacets';
  */
 
 
-
-
 /**
- * Use this function as part of SearchView and BrowseView to be passed down to FacetList.
- * Should be bound to a component instance, with `this` providing 'href', 'context' (with 'filters' property), and 'navigate'.
+ * Returns a new href based on current href, current filters, a facet, and term to toggle.
+ * @todo Refactor maybe later. I dont remember what the sub-functions do too well. Could be made more clear.
  *
- * @todo deprecate somehow. Mixins havent been part of React standards for a while now...
- * @todo Keep in mind is only for TERMS filters. Would not work for date histograms..
- *
- * @param {string} field - Field for which a Facet term was clicked on.
- * @param {string} term - Term clicked on.
- * @param {function} callback - Any function to execute afterwards.
- * @param {boolean} [skipNavigation=false] - If true, will return next targetSearchHref instead of going to it. Use to e.g. batch up filter changes on multiple fields.
+ * @param {string} currentHref - Current search URL.
+ * @param {{ field: string, term: string, remove: string }[]} contextFilters - List of currently-applied filters from context.
+ * @param {{ field: string, aggregation_type: string }} facet - Facet definition for field for which a term was clicked on.
+ * @param {{ key: string }} term - Term clicked on.
  */
-export function performFilteringQuery(props, facet, term, callback, skipNavigation = false, currentHref = null){
-    const { href: propHref, navigate: propNavigate, context } = props;
-    let targetSearchHref;
+export function generateNextHref(currentHref, contextFilters, facet, term){
+    let targetSearchHref = null;
 
-    currentHref = currentHref || propHref;
+    const { field, aggregation_type = "terms" } = facet;
+    const { status: termStatus, href: unselectHref } = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+    // If present in context.filters, means is selected OR omitted. We want to make sure is _neither_ of those here.
+    // Omitted and selected filters are both treated the same (as "active" filters, even if are exclusionary).
+    const willUnselect = !!(unselectHref);
 
-    const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, context.filters);
-    const isUnselecting = !!(statusAndHref.href);
-
-    if (statusAndHref.href){
-        targetSearchHref = statusAndHref.href;
+    if (willUnselect) {
+        targetSearchHref = unselectHref;
     } else {
-        if (facet.aggregation_type === "stats") { // Keep only 1, delete previous occurences
+        if (aggregation_type === "stats") {
+            // Keep only 1, delete previous occurences
+            // This is only for "range" facets (aggregation_type=stats) where want to ensure that have multiple "date_created.to" values in URL for example.
             const parts = url.parse(currentHref, true);
-            delete parts.query[facet.field];
+            delete parts.query[field];
             const queryStr = queryString.stringify(parts.query);
             parts.search = queryStr && queryStr.length > 0 ? ('?' + queryStr) : '';
-            currentHref = url.format(parts);
+            const correctedHref = url.format(parts);
             if (term.key === null) {
-                targetSearchHref = currentHref; // Keep current, stripped down v.
+                targetSearchHref = correctedHref; // Keep current, stripped down v.
             } else {
-                targetSearchHref = buildSearchHref(facet.field, term.key, currentHref);
+                targetSearchHref = buildSearchHref(field, term.key, correctedHref);
             }
         } else {
-            targetSearchHref = buildSearchHref(facet.field, term.key, currentHref);
-        }
-    }
-
-    // Ensure only 1 type filter is selected at once.
-    // Unselect any other type= filters if setting new one.
-    if (facet.field === 'type'){
-        if (!(statusAndHref.href)){
-            const parts = url.parse(targetSearchHref, true);
-            if (Array.isArray(parts.query.type)){
-                var types = parts.query.type;
-                if (types.length > 1){
-                    var queryParts = _.clone(parts.query);
-                    delete queryParts[""]; // Safety
-                    queryParts.type = encodeURIComponent(term.key); // Only 1 Item type selected at once.
-                    var searchString = queryString.stringify(queryParts);
-                    parts.search = searchString && searchString.length > 0 ? ('?' + searchString) : '';
-                    targetSearchHref = url.format(parts);
-                }
-            }
+            targetSearchHref = buildSearchHref(field, term.key, currentHref);
         }
     }
 
@@ -95,29 +82,93 @@ export function performFilteringQuery(props, facet, term, callback, skipNavigati
         targetSearchHref += currentHref.slice(hashFragmentIdx);
     }
 
-    analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
-        'field'             : facet.field,
-        'term'              : term.key,
-        'eventLabel'        : analytics.eventLabelFromChartNode({ 'field' : facet.field, 'term' : term.key }),
-        'currentFilters'    : analytics.getStringifiedCurrentFilters(
-            contextFiltersToExpSetFilters(context.filters || null)
-        ), // 'Existing' filters, or filters at time of action, go here.
-    });
 
-    if (!skipNavigation){
-        (propNavigate || navigate)(targetSearchHref, { 'dontScrollToTop' : true }, callback);
-    } else {
-        return targetSearchHref;
+    // Ensure only 1 `type` filter is selected at once.
+    // Unselect any other type= filters if setting new one.
+    if (field === 'type' && !willUnselect){
+        const parts = url.parse(targetSearchHref, true);
+        if (Array.isArray(parts.query.type)){
+            const types = parts.query.type;
+            if (types.length > 1){
+                const queryParts = _.clone(parts.query);
+                delete queryParts[""]; // Safety
+                queryParts.type = encodeURIComponent(term.key); // Only 1 Item type selected at once.
+                const searchString = queryString.stringify(queryParts);
+                parts.search = searchString && searchString.length > 0 ? ('?' + searchString) : '';
+                targetSearchHref = url.format(parts);
+            }
+        }
     }
 
+    return targetSearchHref;
 }
-
 
 
 export class FacetList extends React.PureComponent {
 
+    static propTypes = {
+        'facets' : PropTypes.arrayOf(PropTypes.shape({
+            'field' : PropTypes.string,           // Nested field in experiment(_set), using dot-notation.
+            'terms' : PropTypes.arrayOf(PropTypes.shape({
+                'doc_count' : PropTypes.number,   // Exp(set)s matching term
+                'key' : PropTypes.string          // Unique key/title of term.
+            })),
+            'title' : PropTypes.string,           // Title of facet
+            'total' : PropTypes.number            // # of experiment(_set)s
+        })),
+        'filters' : PropTypes.arrayOf(PropTypes.object).isRequired, // context.filters
+        'itemTypeForSchemas' : PropTypes.string.isRequired, // For tooltips
+        'showClearFiltersButton' : PropTypes.bool.isRequired,
+        'onClearFilters' : PropTypes.func.isRequired,
+        /**
+         * In lieu of facets, which are only generated by search.py, can
+         * use and format schemas, which are available to experiment-set-view.js through item.js.
+         */
+        'schemas' : PropTypes.object,
+        // { '<schemaKey : string > (active facet categories)' : Set (active filters within category) }
+        'title' : PropTypes.string,         // Title to put atop FacetList
+        'className' : PropTypes.string,     // Extra class
+        'href' : PropTypes.string,
+        'onFilter' : PropTypes.func,        // What happens when Term is clicked.
+        'separateSingleTermFacets' : PropTypes.bool,
+        'maxBodyHeight' : PropTypes.number
+    };
+
+    static defaultProps = {
+        /**
+         * These 'default' functions don't do anything except show parameters passed.
+         * Callback must be called because it changes Term's 'loading' state back to false.
+         */
+        'onFilter'          : function(facet, term, callback){
+            // Set redux filter accordingly, or update search query/href.
+            console.log('FacetList: props.onFilter(' + facet.field + ', ' + term.key + ', callback)');
+            console.log(facet, term);
+            if (typeof callback === 'function'){
+                setTimeout(callback, 1000);
+            }
+        },
+        'onClearFilters'    : function(e, callback){
+            // Clear Redux filters, or go base search url.
+            e.preventDefault();
+            console.log('FacetList: props.onClearFilters(e, callback)');
+            if (typeof callback === 'function'){
+                setTimeout(callback, 1000);
+            }
+        },
+        'getTermStatus': function (term, facet) {
+            // Check against responseContext.filters, or expSetFilters in Redux store.
+            return { 'status': 'none', 'href': null };
+        },
+        // 'itemTypeForSchemas': 'ExperimentSetReplicate', - let PropType check catch lack of presence of this
+        'termTransformFxn' : function(field, term, allowJSXOutput = false, addDescriptionTipForLinkTos = true){
+            return term;
+        }
+    };
+
     constructor(props){
         super(props);
+        this.onFilterExtended = this.onFilterExtended.bind(this);
+        this.getTermStatus = this.getTermStatus.bind(this);
         this.renderFacets = this.renderFacets.bind(this);
         this.state = {
             'mounted' : false
@@ -128,11 +179,42 @@ export class FacetList extends React.PureComponent {
         this.setState({ 'mounted' : true });
     }
 
+    /**
+     * Calls props.onFilter after sending analytics.
+     * N.B. When rangeFacet calls onFilter, it creates a `term` with `key` property
+     * as no 'terms' exist when aggregation_type === stats.
+     */
+    onFilterExtended(facet, term, callback){
+        const { onFilter, filters: contextFilters } = this.props;
+        const { field } = facet;
+        const { key: termKey } = term;
+
+        const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+        const isUnselecting = !!(statusAndHref.href);
+
+        analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
+            field,
+            'term'              : termKey,
+            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
+            'currentFilters'    : analytics.getStringifiedCurrentFilters(
+                contextFiltersToExpSetFilters(contextFilters || null)
+            ), // 'Existing' filters, or filters at time of action, go here.
+        });
+
+        return onFilter(...arguments);
+    }
+
+    getTermStatus(term, facet){
+        const { filters: contextFilters } = this.props;
+        return getTermFacetStatus(term, facet, contextFilters);
+    }
+
     renderFacets(){
         const {
-            facets, href, onFilter, schemas, getTermStatus, filters,
-            itemTypeForSchemas, windowWidth, persistentCount, termTransformFxn, separateSingleTermFacets,
-            windowHeight
+            facets, href, schemas, filters,
+            itemTypeForSchemas, windowWidth, windowHeight, termTransformFxn,
+            persistentCount = FacetTermsList.defaultProps.persistentCount,
+            separateSingleTermFacets = false
         } = this.props;
         const { mounted } = this.state;
 
@@ -152,8 +234,10 @@ export class FacetList extends React.PureComponent {
         );
 
         const commonProps = { // Passed to all Facets
-            onFilter, href, getTermStatus, filters, schemas, itemTypeForSchemas,
-            mounted, termTransformFxn, separateSingleTermFacets
+            href, filters, schemas, itemTypeForSchemas,
+            mounted, termTransformFxn, separateSingleTermFacets,
+            onFilter: this.onFilterExtended,
+            getTermStatus: this.getTermStatus
         };
 
         // We try to initially open some Facets depending on available screen size or props.
@@ -170,10 +254,8 @@ export class FacetList extends React.PureComponent {
             m.facetIndex = index;
             if (facet.aggregation_type === "stats") {
                 m.termCount = m.termCount + 2;
-            } else {
-                m.termCount = m.termCount + Math.min( // Take into account 'view more' button
-                    facet.terms.length, persistentCount || FacetTermsList.defaultProps.persistentCount
-                );
+            } else { // Take into account 'view more' button
+                m.termCount = m.termCount + Math.min(facet.terms.length, persistentCount);
             }
             if (m.termCount > maxTermsToShow) m.end = true;
             return m;
@@ -270,8 +352,15 @@ export class FacetList extends React.PureComponent {
     }
 
     render() {
-        const { debug, facets, className, title, showClearFiltersButton, onClearFilters, separateSingleTermFacets } = this.props;
-        if (debug) console.log('render facetlist');
+        const {
+            facets = null,
+            className,
+            title = "Properties",
+            onClearFilters,
+            showClearFiltersButton = false,
+            separateSingleTermFacets = false,
+            maxBodyHeight: maxHeight = null
+        } = this.props;
 
         if (!facets || !Array.isArray(facets) || facets.length === 0) {
             return (
@@ -287,6 +376,10 @@ export class FacetList extends React.PureComponent {
         );
 
         const allFacetElements = this.renderFacets();
+        const bodyProps = {
+            className: "facets-body" + (typeof maxHeight === "number" ? " has-max-height" : ""),
+            style: typeof maxHeight === "number" ? { maxHeight } : null
+        };
 
         const staticFacetElements = [];
         let selectableFacetElements = [];
@@ -317,7 +410,7 @@ export class FacetList extends React.PureComponent {
                         </a>
                     </div>
                 </div>
-                <div className="facets-body">
+                <div {...bodyProps}>
                     { selectableFacetElements }
                     { staticFacetElements.length > 0 ?
                         <div className="row facet-list-separator">
@@ -332,62 +425,3 @@ export class FacetList extends React.PureComponent {
         );
     }
 }
-FacetList.propTypes = {
-    'facets' : PropTypes.arrayOf(PropTypes.shape({
-        'field' : PropTypes.string,           // Nested field in experiment(_set), using dot-notation.
-        'terms' : PropTypes.arrayOf(PropTypes.shape({
-            'doc_count' : PropTypes.number,   // Exp(set)s matching term
-            'key' : PropTypes.string          // Unique key/title of term.
-        })),
-        'title' : PropTypes.string,           // Title of facet
-        'total' : PropTypes.number            // # of experiment(_set)s
-    })),
-    /**
-     * In lieu of facets, which are only generated by search.py, can
-     * use and format schemas, which are available to experiment-set-view.js through item.js.
-     */
-    'schemas' : PropTypes.object,
-    // { '<schemaKey : string > (active facet categories)' : Set (active filters within category) }
-    'title' : PropTypes.string,         // Title to put atop FacetList
-    'className' : PropTypes.string,     // Extra class
-    'href' : PropTypes.string,
-    'onFilter' : PropTypes.func,        // What happens when Term is clicked.
-    'separateSingleTermFacets' : PropTypes.bool.isRequired
-};
-FacetList.defaultProps = {
-    'facets'            : null,
-    'title'             : "Properties",
-    'debug'             : false,
-    'showClearFiltersButton' : false,
-    'separateSingleTermFacets' : false,
-
-    /**
-     * These 'default' functions don't do anything except show parameters passed.
-     * Callback must be called because it changes Term's 'loading' state back to false.
-     */
-    'onFilter'          : function(facet, term, callback){
-        // Set redux filter accordingly, or update search query/href.
-        console.log('FacetList: props.onFilter(' + facet.field + ', ' + term.key + ', callback)');
-        console.log(facet, term);
-        if (typeof callback === 'function'){
-            setTimeout(callback, 1000);
-        }
-    },
-    'onClearFilters'    : function(e, callback){
-        // Clear Redux filters, or go base search url.
-        e.preventDefault();
-        console.log('FacetList: props.onClearFilters(e, callback)');
-        if (typeof callback === 'function'){
-            setTimeout(callback, 1000);
-        }
-    },
-    'getTermStatus': function (term, facet) {
-        // Check against responseContext.filters, or expSetFilters in Redux store.
-        return { 'status': 'none', 'href': null };
-    },
-    'itemTypeForSchemas': 'ExperimentSetReplicate',
-    'termTransformFxn' : function(field, term, allowJSXOutput = false, addDescriptionTipForLinkTos = true){
-        return term;
-    }
-};
-

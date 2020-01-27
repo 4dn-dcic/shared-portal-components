@@ -25,10 +25,6 @@ var _object = require("./../../util/object");
 
 var _analytics = require("./../../util/analytics");
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -40,6 +36,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -107,15 +107,23 @@ function (_React$PureComponent) {
           auth0ClientID = _this$props.auth0ClientID,
           auth0Domain = _this$props.auth0Domain,
           auth0Options = _this$props.auth0Options;
-
-      require.ensure(["auth0-lock"], function (require) {
-        // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+      Promise.resolve().then(function () {
+        return _interopRequireWildcard(require("auth0-lock"));
+      }).then(function (_ref) {
+        var Auth0LockImport = _ref["default"];
+        Auth0Lock = Auth0LockImport; // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
         // We import it here in separate bundle instead to avoid issues during server-side render.
-        Auth0Lock = require("auth0-lock")["default"];
+
         _this2.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
 
         _this2.lock.on("authenticated", _this2.loginCallback);
-      }, "auth0-lock-bundle");
+      }); // require.ensure(["auth0-lock"], (require) => {
+      //     // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
+      //     // We import it here in separate bundle instead to avoid issues during server-side render.
+      //     Auth0Lock = require("auth0-lock").default;
+      //     this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
+      //     this.lock.on("authenticated", this.loginCallback);
+      // }, "auth0-lock-bundle");
     }
   }, {
     key: "showLock",
@@ -129,7 +137,9 @@ function (_React$PureComponent) {
     value: function loginCallback(authResult, successCallback, errorCallback) {
       var _this3 = this;
 
-      var updateUserInfo = this.props.updateUserInfo; // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
+      var _this$props2 = this.props,
+          updateUserInfo = _this$props2.updateUserInfo,
+          onLogin = _this$props2.onLogin; // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
       // to see if this is a valid user account or some random person who just logged into their Google account.
 
       var idToken = authResult.idToken; //JWT
@@ -186,9 +196,21 @@ function (_React$PureComponent) {
             (0, _ajax.load)(profileURL, function (profile) {
               if (typeof successCallback === 'function') {
                 successCallback(profile);
-              } // Refresh the content/context of our page now that we have a JWT stored as a cookie!
-              // It will return same page but with any auth'd page actions.
+              }
 
+              if (typeof onLogin === 'function') {
+                onLogin(profile);
+              }
+
+              var userUUID = profile.uuid,
+                  lab = profile.lab;
+              (0, _analytics.setUserID)(userUUID);
+              (0, _analytics.event)('Authentication', 'UILogin', {
+                eventLabel: "Authenticated ClientSide",
+                name: userUUID,
+                userId: userUUID
+              }); // Refresh the content/context of our page now that we have a JWT stored as a cookie!
+              // It will return same page but with any auth'd page actions.
 
               (0, _navigate.navigate)('', {
                 "inPlace": true
@@ -208,8 +230,9 @@ function (_React$PureComponent) {
             "isLoading": false
           });
 
-          _Alerts.Alerts.deQueue(_Alerts.Alerts.LoggedOut); // If is programatically called with error CB, let error CB handle everything.
+          _Alerts.Alerts.deQueue(_Alerts.Alerts.LoggedOut);
 
+          (0, _analytics.setUserID)(null); // If is programatically called with error CB, let error CB handle everything.
 
           var errorCallbackFxn = typeof errorCallback === 'function' ? errorCallback : _this3.loginErrorCallback;
           errorCallbackFxn(error);
@@ -276,6 +299,8 @@ function (_React$PureComponent) {
 
         JWT.remove(); // Cleanup any remaining JWT, just in case.
 
+        (0, _analytics.setUserID)(null);
+
         _Alerts.Alerts.queue(_Alerts.Alerts.LoginFailed);
       });
     }
@@ -290,9 +315,9 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          children = _this$props2.children,
-          passProps = _objectWithoutProperties(_this$props2, ["children"]);
+      var _this$props3 = this.props,
+          children = _this$props3.children,
+          passProps = _objectWithoutProperties(_this$props3, ["children"]);
 
       var _this$state = this.state,
           isLoading = _this$state.isLoading,
@@ -353,14 +378,7 @@ _defineProperty(LoginController, "defaultProps", {
     }
   },
   'onLogin': function onLogin(profile) {
-    var isAdmin = Array.isArray(profile.groups) && profile.groups.indexOf('admin') > -1;
-
-    if (!isAdmin) {
-      // Exclude admins from analytics tracking
-      (0, _analytics.event)('Authentication', 'UILogin', {
-        'eventLabel': profile.lab && _object.itemUtil.atId(profile.lab) || 'No Lab'
-      });
-    }
+    console.log("Logged in", profile);
   }
 });
 
@@ -392,13 +410,18 @@ function (_React$PureComponent2) {
       var evt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var updateUserInfo = this.props.updateUserInfo;
 
+      var _ref2 = JWT.getUserDetails() || {},
+          uuid = _ref2.uuid;
+
       if (evt && evt.preventDefault) {
         evt.preventDefault();
         evt.stopPropagation();
       } // Removes both idToken (cookie) and userInfo (localStorage)
 
 
-      JWT.remove(); // Refetch page context without our old JWT to hide any forbidden content.
+      JWT.remove(); // Remove from analytics session
+
+      (0, _analytics.setUserID)(null); // Refetch page context without our old JWT to hide any forbidden content.
 
       updateUserInfo();
       (0, _navigate.navigate)('', {
@@ -409,13 +432,18 @@ function (_React$PureComponent2) {
         // Dummy click event to close dropdown menu, bypasses document.body.onClick handler (app.js -> App.prototype.handeClick)
         document.dispatchEvent(new MouseEvent('click'));
       }
+
+      (0, _analytics.event)('Authentication', 'UILogout', {
+        eventLabel: "Logged Out ClientSide",
+        userId: uuid
+      });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          children = _this$props3.children,
-          passProps = _objectWithoutProperties(_this$props3, ["children"]);
+      var _this$props4 = this.props,
+          children = _this$props4.children,
+          passProps = _objectWithoutProperties(_this$props4, ["children"]);
 
       return _react["default"].cloneElement(children, _objectSpread({
         performLogout: this.performLogout

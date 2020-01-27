@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.performFilteringQuery = performFilteringQuery;
+exports.generateNextHref = generateNextHref;
 exports.FacetList = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -76,6 +76,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
  * It can work with AJAX-ed in back-end data, as is used for the Browse page, or
@@ -87,74 +89,51 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
  */
 
 /**
- * Use this function as part of SearchView and BrowseView to be passed down to FacetList.
- * Should be bound to a component instance, with `this` providing 'href', 'context' (with 'filters' property), and 'navigate'.
+ * Returns a new href based on current href, current filters, a facet, and term to toggle.
+ * @todo Refactor maybe later. I dont remember what the sub-functions do too well. Could be made more clear.
  *
- * @todo deprecate somehow. Mixins havent been part of React standards for a while now...
- * @todo Keep in mind is only for TERMS filters. Would not work for date histograms..
- *
- * @param {string} field - Field for which a Facet term was clicked on.
- * @param {string} term - Term clicked on.
- * @param {function} callback - Any function to execute afterwards.
- * @param {boolean} [skipNavigation=false] - If true, will return next targetSearchHref instead of going to it. Use to e.g. batch up filter changes on multiple fields.
+ * @param {string} currentHref - Current search URL.
+ * @param {{ field: string, term: string, remove: string }[]} contextFilters - List of currently-applied filters from context.
+ * @param {{ field: string, aggregation_type: string }} facet - Facet definition for field for which a term was clicked on.
+ * @param {{ key: string }} term - Term clicked on.
  */
-function performFilteringQuery(props, facet, term, callback) {
-  var skipNavigation = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-  var currentHref = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
-  var propHref = props.href,
-      propNavigate = props.navigate,
-      context = props.context;
-  var targetSearchHref;
-  currentHref = currentHref || propHref;
-  var statusAndHref = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, context.filters);
-  var isUnselecting = !!statusAndHref.href;
+function generateNextHref(currentHref, contextFilters, facet, term) {
+  var targetSearchHref = null;
+  var field = facet.field,
+      _facet$aggregation_ty = facet.aggregation_type,
+      aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty;
 
-  if (statusAndHref.href) {
-    targetSearchHref = statusAndHref.href;
+  var _getStatusAndUnselect = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, contextFilters),
+      termStatus = _getStatusAndUnselect.status,
+      unselectHref = _getStatusAndUnselect.href; // If present in context.filters, means is selected OR omitted. We want to make sure is _neither_ of those here.
+  // Omitted and selected filters are both treated the same (as "active" filters, even if are exclusionary).
+
+
+  var willUnselect = !!unselectHref;
+
+  if (willUnselect) {
+    targetSearchHref = unselectHref;
   } else {
-    if (facet.aggregation_type === "stats") {
+    if (aggregation_type === "stats") {
       // Keep only 1, delete previous occurences
+      // This is only for "range" facets (aggregation_type=stats) where want to ensure that have multiple "date_created.to" values in URL for example.
       var parts = _url["default"].parse(currentHref, true);
 
-      delete parts.query[facet.field];
+      delete parts.query[field];
 
       var queryStr = _queryString["default"].stringify(parts.query);
 
       parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
-      currentHref = _url["default"].format(parts);
+
+      var correctedHref = _url["default"].format(parts);
 
       if (term.key === null) {
-        targetSearchHref = currentHref; // Keep current, stripped down v.
+        targetSearchHref = correctedHref; // Keep current, stripped down v.
       } else {
-        targetSearchHref = (0, _searchFilters.buildSearchHref)(facet.field, term.key, currentHref);
+        targetSearchHref = (0, _searchFilters.buildSearchHref)(field, term.key, correctedHref);
       }
     } else {
-      targetSearchHref = (0, _searchFilters.buildSearchHref)(facet.field, term.key, currentHref);
-    }
-  } // Ensure only 1 type filter is selected at once.
-  // Unselect any other type= filters if setting new one.
-
-
-  if (facet.field === 'type') {
-    if (!statusAndHref.href) {
-      var _parts = _url["default"].parse(targetSearchHref, true);
-
-      if (Array.isArray(_parts.query.type)) {
-        var types = _parts.query.type;
-
-        if (types.length > 1) {
-          var queryParts = _underscore["default"].clone(_parts.query);
-
-          delete queryParts[""]; // Safety
-
-          queryParts.type = encodeURIComponent(term.key); // Only 1 Item type selected at once.
-
-          var searchString = _queryString["default"].stringify(queryParts);
-
-          _parts.search = searchString && searchString.length > 0 ? '?' + searchString : '';
-          targetSearchHref = _url["default"].format(_parts);
-        }
-      }
+      targetSearchHref = (0, _searchFilters.buildSearchHref)(field, term.key, currentHref);
     }
   } // If we have a '#' in URL, add to target URL as well.
 
@@ -163,26 +142,32 @@ function performFilteringQuery(props, facet, term, callback) {
 
   if (hashFragmentIdx > -1 && targetSearchHref.indexOf('#') === -1) {
     targetSearchHref += currentHref.slice(hashFragmentIdx);
+  } // Ensure only 1 `type` filter is selected at once.
+  // Unselect any other type= filters if setting new one.
+
+
+  if (field === 'type' && !willUnselect) {
+    var _parts = _url["default"].parse(targetSearchHref, true);
+
+    if (Array.isArray(_parts.query.type)) {
+      var types = _parts.query.type;
+
+      if (types.length > 1) {
+        var queryParts = _underscore["default"].clone(_parts.query);
+
+        delete queryParts[""]; // Safety
+
+        queryParts.type = encodeURIComponent(term.key); // Only 1 Item type selected at once.
+
+        var searchString = _queryString["default"].stringify(queryParts);
+
+        _parts.search = searchString && searchString.length > 0 ? '?' + searchString : '';
+        targetSearchHref = _url["default"].format(_parts);
+      }
+    }
   }
 
-  analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
-    'field': facet.field,
-    'term': term.key,
-    'eventLabel': analytics.eventLabelFromChartNode({
-      'field': facet.field,
-      'term': term.key
-    }),
-    'currentFilters': analytics.getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(context.filters || null)) // 'Existing' filters, or filters at time of action, go here.
-
-  });
-
-  if (!skipNavigation) {
-    (propNavigate || _navigate.navigate)(targetSearchHref, {
-      'dontScrollToTop': true
-    }, callback);
-  } else {
-    return targetSearchHref;
-  }
+  return targetSearchHref;
 }
 
 var FacetList =
@@ -196,6 +181,8 @@ function (_React$PureComponent) {
     _classCallCheck(this, FacetList);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(FacetList).call(this, props));
+    _this.onFilterExtended = _this.onFilterExtended.bind(_assertThisInitialized(_this));
+    _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.renderFacets = _this.renderFacets.bind(_assertThisInitialized(_this));
     _this.state = {
       'mounted': false
@@ -210,22 +197,56 @@ function (_React$PureComponent) {
         'mounted': true
       });
     }
+    /**
+     * Calls props.onFilter after sending analytics.
+     * N.B. When rangeFacet calls onFilter, it creates a `term` with `key` property
+     * as no 'terms' exist when aggregation_type === stats.
+     */
+
+  }, {
+    key: "onFilterExtended",
+    value: function onFilterExtended(facet, term) {
+      var _this$props = this.props,
+          onFilter = _this$props.onFilter,
+          contextFilters = _this$props.filters;
+      var field = facet.field;
+      var termKey = term.key;
+      var statusAndHref = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, contextFilters);
+      var isUnselecting = !!statusAndHref.href;
+      analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
+        field: field,
+        'term': termKey,
+        'eventLabel': analytics.eventLabelFromChartNode({
+          field: field,
+          'term': termKey
+        }),
+        'currentFilters': analytics.getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
+
+      });
+      return onFilter.apply(void 0, arguments);
+    }
+  }, {
+    key: "getTermStatus",
+    value: function getTermStatus(term, facet) {
+      var contextFilters = this.props.filters;
+      return (0, _searchFilters.getTermFacetStatus)(term, facet, contextFilters);
+    }
   }, {
     key: "renderFacets",
     value: function renderFacets() {
-      var _this$props = this.props,
-          facets = _this$props.facets,
-          href = _this$props.href,
-          onFilter = _this$props.onFilter,
-          schemas = _this$props.schemas,
-          getTermStatus = _this$props.getTermStatus,
-          filters = _this$props.filters,
-          itemTypeForSchemas = _this$props.itemTypeForSchemas,
-          windowWidth = _this$props.windowWidth,
-          persistentCount = _this$props.persistentCount,
-          termTransformFxn = _this$props.termTransformFxn,
-          separateSingleTermFacets = _this$props.separateSingleTermFacets,
-          windowHeight = _this$props.windowHeight;
+      var _this$props2 = this.props,
+          facets = _this$props2.facets,
+          href = _this$props2.href,
+          schemas = _this$props2.schemas,
+          filters = _this$props2.filters,
+          itemTypeForSchemas = _this$props2.itemTypeForSchemas,
+          windowWidth = _this$props2.windowWidth,
+          windowHeight = _this$props2.windowHeight,
+          termTransformFxn = _this$props2.termTransformFxn,
+          _this$props2$persiste = _this$props2.persistentCount,
+          persistentCount = _this$props2$persiste === void 0 ? _FacetTermsList.FacetTermsList.defaultProps.persistentCount : _this$props2$persiste,
+          _this$props2$separate = _this$props2.separateSingleTermFacets,
+          separateSingleTermFacets = _this$props2$separate === void 0 ? false : _this$props2$separate;
       var mounted = this.state.mounted; // Ensure each facets has an `order` property and default it to 0 if not.
       // And then sort by `order`.
 
@@ -244,15 +265,15 @@ function (_React$PureComponent) {
 
       var commonProps = {
         // Passed to all Facets
-        onFilter: onFilter,
         href: href,
-        getTermStatus: getTermStatus,
         filters: filters,
         schemas: schemas,
         itemTypeForSchemas: itemTypeForSchemas,
         mounted: mounted,
         termTransformFxn: termTransformFxn,
-        separateSingleTermFacets: separateSingleTermFacets
+        separateSingleTermFacets: separateSingleTermFacets,
+        onFilter: this.onFilterExtended,
+        getTermStatus: this.getTermStatus
       }; // We try to initially open some Facets depending on available screen size or props.
       // We might get rid of this feature at some point as the amount of Facets are likely to increase.
       // Or we could just set defaultFacetOpen = false if # facets > 10 or something.
@@ -266,8 +287,8 @@ function (_React$PureComponent) {
         if (facet.aggregation_type === "stats") {
           m.termCount = m.termCount + 2;
         } else {
-          m.termCount = m.termCount + Math.min( // Take into account 'view more' button
-          facet.terms.length, persistentCount || _FacetTermsList.FacetTermsList.defaultProps.persistentCount);
+          // Take into account 'view more' button
+          m.termCount = m.termCount + Math.min(facet.terms.length, persistentCount);
         }
 
         if (m.termCount > maxTermsToShow) m.end = true;
@@ -285,8 +306,8 @@ function (_React$PureComponent) {
         var _facet$grouping = facet.grouping,
             grouping = _facet$grouping === void 0 ? null : _facet$grouping,
             facetField = facet.field,
-            _facet$aggregation_ty = facet.aggregation_type,
-            aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty; // Default Open if mounted and:
+            _facet$aggregation_ty2 = facet.aggregation_type,
+            aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2; // Default Open if mounted and:
 
         var defaultFacetOpen = !mounted ? false : !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1));
 
@@ -408,15 +429,19 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          debug = _this$props2.debug,
-          facets = _this$props2.facets,
-          className = _this$props2.className,
-          title = _this$props2.title,
-          showClearFiltersButton = _this$props2.showClearFiltersButton,
-          onClearFilters = _this$props2.onClearFilters,
-          separateSingleTermFacets = _this$props2.separateSingleTermFacets;
-      if (debug) _patchedConsole.patchedConsoleInstance.log('render facetlist');
+      var _this$props3 = this.props,
+          _this$props3$facets = _this$props3.facets,
+          facets = _this$props3$facets === void 0 ? null : _this$props3$facets,
+          className = _this$props3.className,
+          _this$props3$title = _this$props3.title,
+          title = _this$props3$title === void 0 ? "Properties" : _this$props3$title,
+          onClearFilters = _this$props3.onClearFilters,
+          _this$props3$showClea = _this$props3.showClearFiltersButton,
+          showClearFiltersButton = _this$props3$showClea === void 0 ? false : _this$props3$showClea,
+          _this$props3$separate = _this$props3.separateSingleTermFacets,
+          separateSingleTermFacets = _this$props3$separate === void 0 ? false : _this$props3$separate,
+          _this$props3$maxBodyH = _this$props3.maxBodyHeight,
+          maxHeight = _this$props3$maxBodyH === void 0 ? null : _this$props3$maxBodyH;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
         return _react["default"].createElement("div", {
@@ -429,6 +454,12 @@ function (_React$PureComponent) {
 
       var clearButtonClassName = className && className.indexOf('with-header-bg') > -1 ? "btn-outline-white" : "btn-outline-default";
       var allFacetElements = this.renderFacets();
+      var bodyProps = {
+        className: "facets-body" + (typeof maxHeight === "number" ? " has-max-height" : ""),
+        style: typeof maxHeight === "number" ? {
+          maxHeight: maxHeight
+        } : null
+      };
       var staticFacetElements = [];
       var selectableFacetElements = [];
 
@@ -462,9 +493,7 @@ function (_React$PureComponent) {
         className: "btn clear-filters-btn btn-xs " + clearButtonClassName
       }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-times fas mr-03"
-      }), _react["default"].createElement("span", null, "Clear All")))), _react["default"].createElement("div", {
-        className: "facets-body"
-      }, selectableFacetElements, staticFacetElements.length > 0 ? _react["default"].createElement("div", {
+      }), _react["default"].createElement("span", null, "Clear All")))), _react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? _react["default"].createElement("div", {
         className: "row facet-list-separator"
       }, _react["default"].createElement("div", {
         className: "col-12"
@@ -476,7 +505,8 @@ function (_React$PureComponent) {
 }(_react["default"].PureComponent);
 
 exports.FacetList = FacetList;
-FacetList.propTypes = {
+
+_defineProperty(FacetList, "propTypes", {
   'facets': _propTypes["default"].arrayOf(_propTypes["default"].shape({
     'field': _propTypes["default"].string,
     // Nested field in experiment(_set), using dot-notation.
@@ -491,6 +521,12 @@ FacetList.propTypes = {
     'total': _propTypes["default"].number // # of experiment(_set)s
 
   })),
+  'filters': _propTypes["default"].arrayOf(_propTypes["default"].object).isRequired,
+  // context.filters
+  'itemTypeForSchemas': _propTypes["default"].string.isRequired,
+  // For tooltips
+  'showClearFiltersButton': _propTypes["default"].bool.isRequired,
+  'onClearFilters': _propTypes["default"].func.isRequired,
 
   /**
    * In lieu of facets, which are only generated by search.py, can
@@ -505,15 +541,11 @@ FacetList.propTypes = {
   'href': _propTypes["default"].string,
   'onFilter': _propTypes["default"].func,
   // What happens when Term is clicked.
-  'separateSingleTermFacets': _propTypes["default"].bool.isRequired
-};
-FacetList.defaultProps = {
-  'facets': null,
-  'title': "Properties",
-  'debug': false,
-  'showClearFiltersButton': false,
-  'separateSingleTermFacets': false,
+  'separateSingleTermFacets': _propTypes["default"].bool,
+  'maxBodyHeight': _propTypes["default"].number
+});
 
+_defineProperty(FacetList, "defaultProps", {
   /**
    * These 'default' functions don't do anything except show parameters passed.
    * Callback must be called because it changes Term's 'loading' state back to false.
@@ -545,10 +577,10 @@ FacetList.defaultProps = {
       'href': null
     };
   },
-  'itemTypeForSchemas': 'ExperimentSetReplicate',
+  // 'itemTypeForSchemas': 'ExperimentSetReplicate', - let PropType check catch lack of presence of this
   'termTransformFxn': function termTransformFxn(field, term) {
     arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     return term;
   }
-};
+});

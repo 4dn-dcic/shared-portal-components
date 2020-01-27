@@ -34,7 +34,7 @@ export class SortController extends React.PureComponent {
      *
      * @memberof SortController
      */
-    static getPageAndLimitFromURL = memoize(function(href){
+    static getPageAndLimitFromURL(href){
         const { query } = url.parse(href, true);
         let limit = parseInt(query.limit || 25);
         let from  = parseInt(query.from  || 0);
@@ -44,9 +44,9 @@ export class SortController extends React.PureComponent {
             'page' : (from / limit) + 1,
             'limit' : limit
         };
-    });
+    }
 
-    static getSortColumnAndReverseFromContext = memoize(function(context){
+    static getSortColumnAndReverseFromContext(context){
         const defaults = {
             'sortColumn'    : null,
             'sortReverse'   : false
@@ -65,12 +65,17 @@ export class SortController extends React.PureComponent {
             'sortColumn'    : sortKey,
             'sortReverse'   : reverse
         };
-    });
+    }
 
     constructor(props){
         super(props);
         this.sortBy = this.sortBy.bind(this);
         this.state = { 'changingPage' : false }; // 'changingPage' = historical name, analogous of 'loading'
+
+        this.memoized = {
+            getPageAndLimitFromURL: memoize(SortController.getPageAndLimitFromURL),
+            getSortColumnAndReverseFromContext: memoize(SortController.getSortColumnAndReverseFromContext)
+        };
     }
 
     sortBy(key, reverse) {
@@ -89,12 +94,7 @@ export class SortController extends React.PureComponent {
 
         this.setState({ 'changingPage' : true }, ()=>{
             propNavigate(newHref, { 'replace' : true }, ()=>{
-                this.setState({
-                    //'sortColumn' : key,
-                    //'sortReverse' : reverse,
-                    'changingPage' : false,
-                    //'page' : 1
-                });
+                this.setState({ 'changingPage' : false });
             });
         });
 
@@ -102,23 +102,18 @@ export class SortController extends React.PureComponent {
 
     render(){
         const { children, context, href } = this.props;
-        const { sortColumn, sortReverse } = SortController.getSortColumnAndReverseFromContext(context);
+        const { sortColumn, sortReverse } = this.memoized.getSortColumnAndReverseFromContext(context);
         // The below `page` and `limit` aren't used any longer (I think).
-        const { page, limit } = SortController.getPageAndLimitFromURL(href);
+        const { page, limit } = this.memoized.getPageAndLimitFromURL(href);
         const propsToPass = _.extend(
             _.omit(this.props, 'children'),
             { 'sortBy' : this.sortBy, },
             { sortColumn, sortReverse, page, limit }
         );
-        return (
-            <div>
-                {
-                    React.Children.map(children, function(c){
-                        return React.cloneElement(c, propsToPass);
-                    })
-                }
-            </div>
-        );
+
+        return React.Children.map(children, function(c){
+            return React.cloneElement(c, propsToPass);
+        });
     }
 
 

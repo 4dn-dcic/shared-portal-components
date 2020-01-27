@@ -859,12 +859,12 @@ export class Detail extends React.PureComponent {
         'termTransformFxn' : function(field, term){ return term; }
     };
 
-    static columnDefinitions = memoize(function(context, schemas, columnDefinitionMap){
+    static columnDefinitions(context, schemas, columnDefinitionMap){
         var colDefsFromSchema = flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
         return _.extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
-    });
+    }
 
-    static generatedKeysLists = memoize(function(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys){
+    static generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys){
         const sortKeys = _.difference(_.keys(context).sort(), excludedKeys.sort());
 
         // Sort applicable persistent keys by original persistent keys sort order.
@@ -886,16 +886,20 @@ export class Detail extends React.PureComponent {
             'persistentKeys' : orderedStickyKeys.concat(extraKeys),
             'collapsibleKeys' : collapsibleKeys
         };
-    });
+    }
 
     constructor(props){
         super(props);
         this.renderDetailRow = this.renderDetailRow.bind(this);
+        this.memoized = {
+            columnDefinitions: memoize(Detail.columnDefinitions),
+            generatedKeysLists: memoize(Detail.generatedKeysLists)
+        };
     }
 
     renderDetailRow(key, idx){
-        const { context, popLink, schemas, columnDefinitionMap, termTransformFxn } = this.props;
-        const colDefs = Detail.columnDefinitions(context, schemas, columnDefinitionMap);
+        const { context, popLink, schemas, columnDefinitions, termTransformFxn } = this.props;
+        const colDefs = this.memoized.columnDefinitions(context, schemas, columnDefinitions);
 
         return (
             <DetailRow key={key} label={Detail.formKey(colDefs, key)} item={context[key]} popLink={popLink}
@@ -906,7 +910,7 @@ export class Detail extends React.PureComponent {
 
     render(){
         const { context, excludedKeys, stickyKeys, alwaysCollapsibleKeys, open } = this.props;
-        const { persistentKeys, collapsibleKeys } = Detail.generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys);
+        const { persistentKeys, collapsibleKeys } = this.memoized.generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys);
         return (
             <div className="overflow-hidden">
                 <PartialList persistent={_.map(persistentKeys, this.renderDetailRow)} collapsible={ _.map(collapsibleKeys, this.renderDetailRow)} open={open} />
@@ -1027,7 +1031,11 @@ export class ItemDetailList extends React.PureComponent {
                 </React.Fragment>
             );
         } else {
-            const colDefs = _.extend({}, keyTitleDescriptionMap || {}, columnDefinitionMap || {});
+            const colDefs = _.extend(
+                {},
+                columnDefinitionMap || {},
+                keyTitleDescriptionMap || {},
+            );
             let isCollapsed;
             if (typeof propCollapsed === 'boolean') isCollapsed = propCollapsed;
             else isCollapsed = collapsed;

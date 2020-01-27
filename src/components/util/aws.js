@@ -27,5 +27,5 @@ export function s3UploadFile(file, upload_credentials){
     }
     var s3 = new S3();
     // this function returns an uploadManager
-    return s3.upload({Bucket: bucket, Key: upload_credentials.key, Body: file });
+    return s3.upload({ Bucket: bucket, Key: upload_credentials.key, Body: file });
 }

@@ -153,7 +153,6 @@ $font-family-sans-serif : sans-serif !default;
 				text-align: left;
 				padding: 1px 12px 0;
 				line-height: 32px;
-				cursor: pointer;
 				border-top: 1px solid #888;
 				border-top-color: rgba(0,0,0,0.5);
 				margin-top: -1px;
@@ -161,9 +160,6 @@ $font-family-sans-serif : sans-serif !default;
 				font-size: 0.85rem;
 				position: relative;
 				z-index: 10;
-				> i.icon {
-					margin-right: 10px;
-				}
 				&:hover {
 					//background: rgba(0,0,0,0.05);
 				}

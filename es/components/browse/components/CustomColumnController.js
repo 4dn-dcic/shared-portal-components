@@ -19,6 +19,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -81,13 +85,16 @@ function (_React$Component) {
   }, {
     key: "getAllHiddenColumns",
     value: function getAllHiddenColumns() {
-      var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
+      var propHiddenCols = this.props.hiddenColumns;
+      var stateHiddenCols = this.state.hiddenColumns;
 
-      if (Array.isArray(props.hiddenColumns)) {
-        return _underscore["default"].extend(_underscore["default"].object(_underscore["default"].map(props.hiddenColumns, function (field) {
+      if (Array.isArray(propHiddenCols)) {
+        return _underscore["default"].extend(_underscore["default"].object(propHiddenCols.map(function (field) {
           return [field, true];
-        })), this.state.hiddenColumns);
-      } else return this.state.hiddenColumns;
+        })), stateHiddenCols);
+      } else {
+        return stateHiddenCols;
+      }
     }
   }, {
     key: "addHiddenColumn",
@@ -124,15 +131,23 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      if (!_react["default"].isValidElement(this.props.children)) throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
+      var _this$props = this.props,
+          children = _this$props.children,
+          propsToPass = _objectWithoutProperties(_this$props, ["children"]);
 
-      var propsToPass = _underscore["default"].extend(_underscore["default"].omit(this.props, 'children'), {
+      if (!_react["default"].isValidElement(children)) {
+        throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
+      }
+
+      _underscore["default"].extend(propsToPass, {
         'hiddenColumns': this.getAllHiddenColumns(),
         'addHiddenColumn': this.addHiddenColumn,
         'removeHiddenColumn': this.removeHiddenColumn
       });
 
-      return _react["default"].cloneElement(this.props.children, propsToPass);
+      return _react["default"].Children.map(children, function (child) {
+        return _react["default"].cloneElement(child, propsToPass);
+      });
     }
   }]);
 
@@ -169,9 +184,9 @@ function (_React$PureComponent) {
   _createClass(CustomColumnSelector, [{
     key: "columnDefinitionsWithHiddenState",
     value: function columnDefinitionsWithHiddenState() {
-      var _this$props = this.props,
-          columnDefinitions = _this$props.columnDefinitions,
-          hiddenColumns = _this$props.hiddenColumns;
+      var _this$props2 = this.props,
+          columnDefinitions = _this$props2.columnDefinitions,
+          hiddenColumns = _this$props2.hiddenColumns;
       return _underscore["default"].map(_underscore["default"].sortBy(_underscore["default"].filter(columnDefinitions, function (c) {
         return c.field !== 'display_title';
       }), 'order'), function (colDef) {
@@ -183,16 +198,17 @@ function (_React$PureComponent) {
   }, {
     key: "handleOptionVisibilityChange",
     value: function handleOptionVisibilityChange(field) {
-      var _this$props2 = this.props,
-          hiddenColumns = _this$props2.hiddenColumns,
-          removeHiddenColumn = _this$props2.removeHiddenColumn,
-          addHiddenColumn = _this$props2.addHiddenColumn;
-
-      if (hiddenColumns[field] === true) {
-        removeHiddenColumn(field);
-      } else {
-        addHiddenColumn(field);
-      }
+      var _this$props3 = this.props,
+          hiddenColumns = _this$props3.hiddenColumns,
+          removeHiddenColumn = _this$props3.removeHiddenColumn,
+          addHiddenColumn = _this$props3.addHiddenColumn;
+      setTimeout(function () {
+        if (hiddenColumns[field] === true) {
+          removeHiddenColumn(field);
+        } else {
+          addHiddenColumn(field);
+        }
+      }, 0);
     }
   }, {
     key: "render",
