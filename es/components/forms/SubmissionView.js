@@ -56,12 +56,6 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -1685,11 +1679,6 @@ function (_React$PureComponent) {
     value: function finishRoundTwo() {
       var _this7 = this;
 
-      this.setState(function (_ref7) {
-        var currKey = _ref7.currKey,
-            keyValid = _ref7.keyValid,
-            _ref7$roundTwoKeys = _ref7.roundTwoKeys,
-            roundTwoKeys = _ref7$roundTwoKeys === void 0 ? [] : _ref7$roundTwoKeys;
       this.setState(function (_ref8) {
         var currKey = _ref8.currKey,
             keyValid = _ref8.keyValid,
@@ -1737,11 +1726,6 @@ function (_React$PureComponent) {
   }, {
     key: "cancelCreateNewObject",
     value: function cancelCreateNewObject() {
-      this.setState(function (_ref8) {
-        var creatingIdx = _ref8.creatingIdx,
-            keyContext = _ref8.keyContext,
-            currKey = _ref8.currKey,
-            creatingLinkForField = _ref8.creatingLinkForField;
       this.setState(function (_ref9) {
         var creatingIdx = _ref9.creatingIdx,
             keyContext = _ref9.keyContext,
@@ -1753,10 +1737,6 @@ function (_React$PureComponent) {
 
         var currentContextPointer = nextKeyContext[currKey];
 
-        _underscore["default"].pairs(currentContextPointer).forEach(function (_ref9) {
-          var _ref10 = _slicedToArray(_ref9, 2),
-              field = _ref10[0],
-              idx = _ref10[1];
         _underscore["default"].pairs(currentContextPointer).forEach(function (_ref10) {
           var _ref11 = _slicedToArray(_ref10, 2),
               field = _ref11[0],
