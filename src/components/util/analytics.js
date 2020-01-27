@@ -43,7 +43,7 @@ const defaultOptions = {
             'name'          : display_title || title || null,
             'category'      : Array.isArray(itemType) ? itemType.slice().reverse().slice(1).join('/') : "Unknown",
             'brand'         : labTitle,
-            [state.dimensionMap.name] : display_title || title || null
+            ["dimension" + state.dimensionNameMap.name] : display_title || title || null
         };
         if (typeof file_type_detailed === "string"){ // We set file format as "variant"
             const [ , fileTypeMatch, fileFormatMatch ] = file_type_detailed.match(/(.*?)\s(\(.*?\))/);
@@ -52,25 +52,26 @@ const defaultOptions = {
             }
         }
         if (tfi_expType) {
-            prodItem[state.dimensionMap.experimentType] = tfi_expType;
+            prodItem["dimension" + state.dimensionNameMap.experimentType] = tfi_expType;
         } else if (from_experiment && from_experiment.experiment_type && from_experiment.experiment_type.display_title){
-            prodItem[state.dimensionMap.experimentType] = from_experiment.experiment_type.display_title;
+            prodItem["dimension" + state.dimensionNameMap.experimentType] = from_experiment.experiment_type.display_title;
         } else if (exp_expType || set_expType){
-            prodItem[state.dimensionMap.experimentType] = exp_expType || set_expType;
+            prodItem["dimension" + state.dimensionNameMap.experimentType] = exp_expType || set_expType;
         }
         return prodItem;
     },
     // Google Analytics allows custom dimensions to be sent along w/ events, however they are named incrementally w/o customization.
     // Here we track own keywords/keys and transform to Google-Analytics incremented keys.
-    // WE RE-USE THIS MAPPING FOR METRIC INDICES ALSO
-    'dimensionMap' : {
-        'currentFilters'    : 'dimension1',
-        'name'              : 'dimension2',
-        'field'             : 'dimension3',
-        'term'              : 'dimension4',
-        'experimentType'    : 'dimension5',
-        'filesize'          : 'metric1',
-        'downloads'         : 'metric2'
+    "dimensionNameMap" : {
+        "currentFilters"    : 1,
+        "name"              : 2,
+        "field"             : 3,
+        "term"              : 4,
+        "experimentType"    : 5
+    },
+    "metricNameMap" : {
+        "filesize"          : 1,
+        "downloads"         : 2
     },
     'anonymizeTypes'     : ["User"],
     'reduxStore' : null
@@ -273,8 +274,8 @@ export function registerPageView(href = null, context = null){
         if (Array.isArray(searchResponseResults)){ // We have a results page of some kind. Likely, browse, search, or collection.
 
             // If browse or search page, get current filters and add to pageview event for 'dimension1'.
-            if (searchResponseFilters) {
-                pageViewObject[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(searchResponseFilters);
+            if (searchResponseFilters && state.dimensionNameMap.currentFilters) {
+                pageViewObject["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(searchResponseFilters);
             }
 
             if (searchResponseResults.length > 0){
@@ -378,16 +379,14 @@ export function event(category, action, fields = {}, useTimeout = true){
 
     // Convert internal dimension names to Google Analytics ones.
     _.pairs(eventObj).forEach(function([key, value]){
-        if (typeof state.dimensionMap[key] !== 'undefined'){
-            eventObj[state.dimensionMap[key]] = value;
+        if (typeof state.dimensionNameMap[key] !== 'undefined'){
+            eventObj["dimension" + state.dimensionNameMap[key]] = value;
+            delete eventObj[key];
+        } else if (typeof state.metricNameMap[key] !== 'undefined'){
+            eventObj["metric" + state.metricNameMap[key]] = value;
             delete eventObj[key];
         }
     });
-
-    // Add current expSetFilters if not present in 'fields' already.
-    //if (typeof eventObj[state.dimensionMap.currentFilters] === 'undefined'){
-    //    eventObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(Filters.currentExpSetFilters());
-    //}
 
     eventObj.hitCallback = function(){
         console.info('Successfuly sent UI event.', eventObj);
@@ -444,8 +443,11 @@ export function productClick(item, extraData = {}, callback = null, context = nu
 
     // Convert internal dimension names to Google Analytics ones.
     _.forEach(_.pairs(eventObj), function([key, value]){
-        if (typeof state.dimensionMap[key] !== 'undefined'){
-            eventObj[state.dimensionMap[key]] = value;
+        if (typeof state.dimensionNameMap[key] !== 'undefined'){
+            eventObj["dimension" + state.dimensionNameMap[key]] = value;
+            delete eventObj[key];
+        } else if (typeof state.metricNameMap[key] !== 'undefined'){
+            eventObj["metric" + state.metricNameMap[key]] = value;
             delete eventObj[key];
         }
     });
@@ -488,8 +490,8 @@ export function productAddDetailViewed(item, context = null, extraData = {}){
     if (!shouldTrack()) return false;
     const productObj = _.extend(itemToProductTransform(item), extraData);
     console.info("Item Details Viewed. Will track as product:", productObj);
-    if (context && context.filters){
-        productObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+    if (context && context.filters && state.dimensionNameMap.currentFilters){
+        productObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
     }
     ga2('ec:addProduct', productObj);
     ga2('ec:setAction', 'detail', productObj);
@@ -696,8 +698,9 @@ export function impressionListOfItems(itemList, href = null, listName = null, co
     href = href || window.location.href;
 
     const commonProductObj = { "list" : listName || (href && hrefToListName(href)) };
-    if (context && context.filters) {
-        commonProductObj[state.dimensionMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+
+    if (context && context.filters && state.dimensionNameMap.currentFilters) {
+        commonProductObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
     }
 
     const resultsImpressioned = itemList.filter(function(item){
