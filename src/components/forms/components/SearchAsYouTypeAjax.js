@@ -268,10 +268,10 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
 
     const onChange = useMemo(function(){
         return function(resultItem, valueToReplace){
-            console.log("calling SubmissionViewSearchAsYouType onchange");
+            console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
             return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
         };
-    }, [ selectComplete, nestedField ]);
+    }, [ selectComplete, nestedField, itemType, arrayIdx ]);
 
     const titleRenderFunction = useMemo(function(){
         return function(resultAtID){
@@ -424,7 +424,7 @@ export class LinkedObj extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.updateContext = this.updateContext.bind(this);
+        // this.updateContext = this.updateContext.bind(this);
         this.setSubmissionStateToLinkedToItem = this.setSubmissionStateToLinkedToItem.bind(this);
         this.handleStartSelectItem = this.handleStartSelectItem.bind(this);
         this.handleFinishSelectItem = this.handleFinishSelectItem.bind(this);
@@ -438,26 +438,26 @@ export class LinkedObj extends React.PureComponent {
         };
     }
 
-    componentDidMount(){
-        this.updateContext();
-    }
+    // componentDidMount(){
+    //     this.updateContext();
+    // }
 
     componentDidUpdate(pastProps){
-        this.updateContext();
+        // this.updateContext();
         ReactTooltip.rebuild();
     }
 
-    /**
-     * Mechanism for changing value of linked object in parent context
-     * from {number} keyIdx to {string} path of newly submitted object.
-     */
-    updateContext(){
-        var { keyComplete, value, linkType, arrayIdx, nestedField, modifyNewContext } = this.props;
-        if (keyComplete[value] && !isNaN(value)) {
-            modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
-            ReactTooltip.rebuild();
-        }
-    }
+    // /**
+    //  * Mechanism for changing value of linked object in parent context
+    //  * from {number} keyIdx to {string} path of newly submitted object.
+    //  */
+    // updateContext(){
+    //     var { keyComplete, value, linkType, arrayIdx, nestedField, modifyNewContext } = this.props;
+    //     if (keyComplete[value] && !isNaN(value)) {
+    //         modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
+    //         ReactTooltip.rebuild();
+    //     }
+    // }
 
 
     setSubmissionStateToLinkedToItem(e){

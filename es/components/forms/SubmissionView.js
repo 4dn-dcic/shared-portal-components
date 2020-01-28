@@ -311,7 +311,8 @@ function (_React$PureComponent) {
   }, {
     key: "modifyKeyContext",
     value: function modifyKeyContext(objKey, newContext, keyTitle) {
-      // console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
+      _util.console.log("log1: calling modifyKeyContext(objKey=".concat(objKey, ", newContext=").concat(newContext, ", keyTitle=").concat(keyTitle, " "));
+
       this.setState(function (_ref) {
         var keyContext = _ref.keyContext,
             keyValid = _ref.keyValid,
@@ -1021,13 +1022,11 @@ function (_React$PureComponent) {
         keyTypes[path] = type;
         keyLinks[path] = field; // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
         // references to that item
-
-        _util.console.log("previous ID passed through", valueToReplace); // validate that valueToReplace is an @id, then delete that key from keyHierarchy
-
-
-        delete keyHierarchy[parentKeyIdx][valueToReplace];
-        delete keyLinks[valueToReplace];
-        delete keyTypes[valueToReplace];
+        // console.log("previous ID passed through", valueToReplace);
+        // // validate that valueToReplace is an @id, then delete that key from keyHierarchy
+        // delete keyHierarchy[parentKeyIdx][valueToReplace];
+        // delete keyLinks[valueToReplace];
+        // delete keyTypes[valueToReplace];
 
         _util.console.log("keyHierarchy", keyHierarchy, keyDisplay, keyTypes, keyLinks);
 
@@ -2510,16 +2509,23 @@ function (_React$Component2) {
 
   }, {
     key: "modifyNewContext",
-    value: function modifyNewContext(field, value, fieldType) {
+    value: function modifyNewContext(field, value, fieldType, newLink) {
       var arrayIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       var type = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
       var valueTitle = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
+      var _this$props12 = this.props,
+          currContext = _this$props12.currContext,
+          currKey = _this$props12.currKey,
+          initCreateObj = _this$props12.initCreateObj,
+          modifyKeyContext = _this$props12.modifyKeyContext,
+          modifyAlias = _this$props12.modifyAlias;
 
-      // console.log(`log1: calling modifyNewContext(field=${field}, value=${value}, fieldType=${fieldType}, newLink=${newLink}, arrayIdx=${arrayIdx}, type=${type}, valueTitle=${valueTitle})`);
-      // console.log("log1: value", value);
+      _util.console.log("log1: calling modifyNewContext(field, valu, fieldType, newLink, arrayIdx, type, valueTitle)", field, value, fieldType, newLink, arrayIdx, type, valueTitle); // console.log("log1: value", value);
       // if (value && typeof value === "object" && !(value instanceof Array)) {
       //     Object.keys(value).forEach((key) => console.log(value[key]));
       // }
+
+
       if (fieldType === 'new linked object') {
         value = this.props.keyIter + 1;
 
@@ -2537,7 +2543,9 @@ function (_React$Component2) {
       var splitField = field.split('.');
       var splitFieldLeaf = splitField[splitField.length - 1];
       var arrayIdxPointer = 0;
-      var contextCopy = this.props.currContext;
+
+      var contextCopy = _util.object.deepClone(currContext);
+
       var pointer = contextCopy;
       var prevValue = null;
 
@@ -2573,20 +2581,22 @@ function (_React$Component2) {
         pointer[splitFieldLeaf] = value;
       }
 
-      if (fieldType === 'linked object') {
+      _util.console.log("DDDDDDD", value, prevValue);
+
+      if (fieldType === 'linked object' || fieldType === "existing linked object") {
         this.checkObjectRemoval(value, prevValue);
       }
 
       if (fieldType === 'new linked object') {
         // value is new key index in this case
-        this.props.initCreateObj(type, value, field, false, field);
+        initCreateObj(type, value, field, false, field);
       } else {
         // actually change value
-        this.props.modifyKeyContext(this.props.currKey, contextCopy, valueTitle);
+        modifyKeyContext(currKey, contextCopy, valueTitle);
       }
 
       if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title') {
-        this.props.modifyAlias();
+        modifyAlias();
       }
     }
     /**
@@ -2605,9 +2615,8 @@ function (_React$Component2) {
       var _this11 = this;
 
       var newLink = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-      var valueToReplace = arguments.length > 5 ? arguments[5] : undefined;
 
-      _util.console.log("calling fetchAndValidateItem(\nfield=".concat(field, ",\ntype=").concat(type, ",\narrayIdx=").concat(arrayIdx, ",\nnewLink=").concat(newLink, ",\n").concat(valueToReplace));
+      _util.console.log("calling fetchAndValidateItem(\nfield=".concat(field, ",\ntype=").concat(type, ",\narrayIdx=").concat(arrayIdx, ",\nnewLink=").concat(newLink));
 
       var addExistingObj = this.props.addExistingObj;
       var hrefToFetch = itemAtID;
@@ -2637,13 +2646,7 @@ function (_React$Component2) {
 
         _this11.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
 
-        _util.console.log("now adding existing, valueToReplace", valueToReplace);
-
-        if (valueToReplace !== null) {
-          addExistingObj(itemAtID, result.display_title, type, field, false, valueToReplace);
-        } else {
-          addExistingObj(itemAtID, result.display_title, type, field);
-        }
+        addExistingObj(itemAtID, result.display_title, type, field, false);
       };
 
       if (typeof hrefToFetch !== 'string') {
@@ -2711,7 +2714,7 @@ function (_React$Component2) {
      * Callback passed to Search to select a pre-existing object. Cleans up
      * object selection state, modifies context, and initializes the fetchAndValidateItem
      * process.
-     * 
+     *
      * @param {string} valueToReplace Previous value of field, if replacing/updating a single field instead of adding
      */
 
@@ -2724,7 +2727,7 @@ function (_React$Component2) {
       var displayTitle = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       var valueToReplace = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
 
-      _util.console.log("calling selectComplete(atIds=".concat(atIds, ", customSelectField=").concat(customSelectField, ", customSelecttype=").concat(customSelectType, ", customArrayIdx=").concat(customArrayIdx, ", valueToReplace=").concat(valueToReplace));
+      _util.console.log("calling selectComplete(atIds, customSelectField, customSelecttype, customArrayIdx, valueToReplace", atIds, customSelectField, customSelectType, customArrayIdx, displayTitle, valueToReplace);
 
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
@@ -2733,8 +2736,10 @@ function (_React$Component2) {
           stateSelectType = _this$state7.selectType;
       var selectField = customSelectField || stateSelectField;
       var selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
-      var selectType = customSelectType || stateSelectType;
 
+      // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
+      // Can be adjusted in either direction (either have LinkedObj call with 1 item if only 1; or have Search-As-You-Type
+      // pass in array as well).
       if (!Array.isArray(atIds) && typeof atIds === "string") {
         atIds = [atIds];
       }
@@ -2745,13 +2750,10 @@ function (_React$Component2) {
 
       var isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
       var cloneSelectArrayIdx = isMultiSelect ? _toConsumableArray(selectArrayIdx) : null; // split fields out for accessing separately in certain cases
-
-      var splitField = selectField.split(".");
-
-      if (splitField.length > 1) {
-        // if there are subembedded objects... find them
-        _util.console.log("splitting and checking field:", currContext[splitField[0]]);
-      }
+      // const splitField = selectField.split(".");
+      // if (splitField.length > 1) { // if there are subembedded objects... find them
+      //     console.log("splitting and checking field:", currContext[splitField[0]]);
+      // }
 
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
@@ -2776,13 +2778,14 @@ function (_React$Component2) {
             _util.console.log("not a repeat, "); //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
 
 
-            this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null, valueToReplace);
+            this.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
 
             if (isMultiSelect) {
               cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
             }
           } else {
-            this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx, selectType, displayTitle);
+            // "Cancel"
+            this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx);
           }
         }
       } catch (err) {
@@ -2830,15 +2833,15 @@ function (_React$Component2) {
   }, {
     key: "initiateField",
     value: function initiateField(field) {
-      var _this$props12 = this.props,
-          schemas = _this$props12.schemas,
-          currType = _this$props12.currType,
-          currKey = _this$props12.currKey,
-          roundTwo = _this$props12.roundTwo,
-          currContext = _this$props12.currContext,
-          keyComplete = _this$props12.keyComplete,
-          keyContext = _this$props12.keyContext,
-          edit = _this$props12.edit;
+      var _this$props13 = this.props,
+          schemas = _this$props13.schemas,
+          currType = _this$props13.currType,
+          currKey = _this$props13.currKey,
+          roundTwo = _this$props13.roundTwo,
+          currContext = _this$props13.currContext,
+          keyComplete = _this$props13.keyComplete,
+          keyContext = _this$props13.keyContext,
+          edit = _this$props13.edit;
       var currSchema = schemas[currType];
 
       var fieldSchema = _util.object.getNestedProperty(currSchema, ['properties', field], true);
@@ -2957,13 +2960,13 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props13 = this.props,
-          currContext = _this$props13.currContext,
-          keyComplete = _this$props13.keyComplete,
-          keyContext = _this$props13.keyContext,
-          currKey = _this$props13.currKey,
-          schemas = _this$props13.schemas,
-          roundTwo = _this$props13.roundTwo;
+      var _this$props14 = this.props,
+          currContext = _this$props14.currContext,
+          keyComplete = _this$props14.keyComplete,
+          keyContext = _this$props14.keyContext,
+          currKey = _this$props14.currKey,
+          schemas = _this$props14.schemas,
+          roundTwo = _this$props14.roundTwo;
       var fields = currContext ? _underscore["default"].keys(currContext) : [];
       var fieldJSXComponents = sortPropFields(_underscore["default"].filter( // Sort fields first by requirement and secondly alphabetically. These are JSX BuildField components.
       _underscore["default"].map(fields, this.initiateField), function (f) {
@@ -3038,9 +3041,9 @@ function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props14 = this.props,
-          context = _this$props14.context,
-          schemas = _this$props14.schemas;
+      var _this$props15 = this.props,
+          context = _this$props15.context,
+          schemas = _this$props15.schemas;
       var open = this.state.open;
       return _react["default"].createElement("div", {
         className: "current-item-properties round-two-panel"

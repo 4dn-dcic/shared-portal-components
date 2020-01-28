@@ -206,31 +206,30 @@ export default class SubmissionView extends React.PureComponent{
      * @param {string} keyTitle - Display title of item being modified
      */
     modifyKeyContext(objKey, newContext, keyTitle){
-        // console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
-        this.setState(
-            ({ keyContext, keyValid, keyHierarchy : prevKeyHierarchy, keyComplete, keyDisplay }) => {
-                const contextCopy = object.deepClone(keyContext);
-                const validCopy   = object.deepClone(keyValid);
-                contextCopy[objKey] = newContext;
+        console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
+        this.setState(function({ keyContext, keyValid, keyHierarchy : prevKeyHierarchy, keyComplete, keyDisplay }){
+            const contextCopy = object.deepClone(keyContext);
+            const validCopy   = object.deepClone(keyValid);
+            contextCopy[objKey] = newContext;
 
-                // TODO maybe get rid of this state.keyValid and just use memoized static function.
+            // TODO maybe get rid of this state.keyValid and just use memoized static function.
 
-                // ensure new object is valid
-                validCopy[objKey] = SubmissionView.findValidationState(objKey, prevKeyHierarchy, keyContext, keyComplete);
-                // make sure there's something to replace keydisplay with
-                if (keyTitle) {
-                    return {
-                        'keyContext': contextCopy,
-                        'keyValid': validCopy,
-                        'keyDisplay' : { ...keyDisplay, [objKey] : keyTitle }
-                    };
-                } else {
-                    return {
-                        'keyContext': contextCopy,
-                        'keyValid': validCopy,
-                    };
-                }
-            }, ReactTooltip.rebuild);
+            // ensure new object is valid
+            validCopy[objKey] = SubmissionView.findValidationState(objKey, prevKeyHierarchy, keyContext, keyComplete);
+            // make sure there's something to replace keydisplay with
+            if (keyTitle) {
+                return {
+                    'keyContext': contextCopy,
+                    'keyValid': validCopy,
+                    'keyDisplay' : { ...keyDisplay, [objKey] : keyTitle }
+                };
+            } else {
+                return {
+                    'keyContext': contextCopy,
+                    'keyValid': validCopy,
+                };
+            }
+        }, ReactTooltip.rebuild);
     }
 
     /**
@@ -739,6 +738,7 @@ export default class SubmissionView extends React.PureComponent{
             const keyTypes = _.clone(prevKeyTypes);
             const keyLinks = _.clone(prevKeyLinks);
             const keyHierarchy = modifyHierarchy(_.clone(prevKeyHierarchy), path, parentKeyIdx);
+
             keyDisplay[path] = display;
             keyTypes[path] = type;
             keyLinks[path] = field;
@@ -746,14 +746,14 @@ export default class SubmissionView extends React.PureComponent{
             // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
             // references to that item
 
-            console.log("previous ID passed through", valueToReplace);
-            // validate that valueToReplace is an @id, then delete that key from keyHierarchy
-            delete keyHierarchy[parentKeyIdx][valueToReplace];
-            delete keyLinks[valueToReplace];
-            delete keyTypes[valueToReplace];
+            // console.log("previous ID passed through", valueToReplace);
+            // // validate that valueToReplace is an @id, then delete that key from keyHierarchy
+            // delete keyHierarchy[parentKeyIdx][valueToReplace];
+            // delete keyLinks[valueToReplace];
+            // delete keyTypes[valueToReplace];
 
             console.log("keyHierarchy", keyHierarchy, keyDisplay, keyTypes, keyLinks);
-            
+
             return { keyHierarchy, keyDisplay, keyTypes, keyLinks };
         });
     }
@@ -1855,13 +1855,17 @@ class IndividualObjectView extends React.Component {
      * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
      */
     modifyNewContext(field, value, fieldType, newLink, arrayIdx=null, type=null, valueTitle=null){
-        // console.log(`log1: calling modifyNewContext(field=${field}, value=${value}, fieldType=${fieldType}, newLink=${newLink}, arrayIdx=${arrayIdx}, type=${type}, valueTitle=${valueTitle})`);
+        const { currContext, currKey, initCreateObj, modifyKeyContext, modifyAlias } = this.props;
+        console.log(
+            "log1: calling modifyNewContext(field, valu, fieldType, newLink, arrayIdx, type, valueTitle)",
+            field, value, fieldType, newLink, arrayIdx, type, valueTitle
+        );
         // console.log("log1: value", value);
         // if (value && typeof value === "object" && !(value instanceof Array)) {
         //     Object.keys(value).forEach((key) => console.log(value[key]));
         // }
 
-        if(fieldType === 'new linked object'){
+        if (fieldType === 'new linked object'){
             value = this.props.keyIter + 1;
             if(this.props.roundTwo){
                 alert('Objects cannot be created in this stage of submission. Please select an existing one.');
@@ -1877,7 +1881,7 @@ class IndividualObjectView extends React.Component {
         var splitField = field.split('.');
         var splitFieldLeaf = splitField[splitField.length-1];
         var arrayIdxPointer = 0;
-        var contextCopy = this.props.currContext;
+        var contextCopy = object.deepClone(currContext);
         var pointer = contextCopy;
         var prevValue = null;
         for (var i=0; i < splitField.length - 1; i++){
@@ -1892,33 +1896,36 @@ class IndividualObjectView extends React.Component {
                 arrayIdxPointer += 1;
             }
         }
-        if(Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
+        if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
             // move pointer into array
             pointer = pointer[splitFieldLeaf];
             prevValue = pointer[arrayIdx[arrayIdxPointer]];
-            if(value === null){ // delete this array item
+            if (value === null){ // delete this array item
                 pointer.splice(arrayIdx[arrayIdxPointer], 1);
-            }else{
+            } else {
                 pointer[arrayIdx[arrayIdxPointer]] = value;
             }
-        }else{ // value we're trying to set is not inside an array at this point
+        } else { // value we're trying to set is not inside an array at this point
             prevValue = pointer[splitFieldLeaf];
             pointer[splitFieldLeaf] = value;
         }
 
-        if (fieldType === 'linked object'){
+        console.log("DDDDDDD", value, prevValue);
+
+        if (fieldType === 'linked object' || fieldType === "existing linked object"){
             this.checkObjectRemoval(value, prevValue);
         }
+
         if (fieldType === 'new linked object'){
             // value is new key index in this case
-            this.props.initCreateObj(type, value, field, false, field);
+            initCreateObj(type, value, field, false, field);
         } else {
             // actually change value
-            this.props.modifyKeyContext(this.props.currKey, contextCopy, valueTitle);
+            modifyKeyContext(currKey, contextCopy, valueTitle);
         }
 
-        if(splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title'){
-            this.props.modifyAlias();
+        if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title'){
+            modifyAlias();
         }
     }
 
@@ -1931,8 +1938,8 @@ class IndividualObjectView extends React.Component {
      * @param {string} type     The Item type of value.
      * @param {any} newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
      */
-    fetchAndValidateItem(itemAtID, field, type, arrayIdx, newLink = null, valueToReplace){
-        console.log(`calling fetchAndValidateItem(\nfield=${field},\ntype=${type},\narrayIdx=${arrayIdx},\nnewLink=${newLink},\n${valueToReplace}`);
+    fetchAndValidateItem(itemAtID, field, type, arrayIdx, newLink = null){
+        console.log(`calling fetchAndValidateItem(\nfield=${field},\ntype=${type},\narrayIdx=${arrayIdx},\nnewLink=${newLink}`);
         const { addExistingObj } = this.props;
 
         let hrefToFetch = itemAtID;
@@ -1946,17 +1953,13 @@ class IndividualObjectView extends React.Component {
             layout.animateScrollTo(0); // Scroll to top of page so alert b visible to end-user.
             this.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
         };
+
         const successCallback = (result)=>{
             console.log("successfully found, ", result);
             Alerts.deQueue({ 'title' : failureAlertTitle });
             console.log("now modifying context to include existing object");
             this.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
-            console.log("now adding existing, valueToReplace", valueToReplace);
-            if (valueToReplace !== null) {
-                addExistingObj(itemAtID, result.display_title, type, field, false, valueToReplace);
-            } else {
-                addExistingObj(itemAtID, result.display_title, type, field);
-            }
+            addExistingObj(itemAtID, result.display_title, type, field, false);
         };
 
         if (typeof hrefToFetch !== 'string') {
@@ -2009,11 +2012,14 @@ class IndividualObjectView extends React.Component {
      * Callback passed to Search to select a pre-existing object. Cleans up
      * object selection state, modifies context, and initializes the fetchAndValidateItem
      * process.
-     * 
+     *
      * @param {string} valueToReplace Previous value of field, if replacing/updating a single field instead of adding
      */
     selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null, displayTitle = null, valueToReplace = null) {
-        console.log(`calling selectComplete(atIds=${atIds}, customSelectField=${customSelectField}, customSelecttype=${customSelectType}, customArrayIdx=${customArrayIdx}, valueToReplace=${valueToReplace}`);
+        console.log(
+            "calling selectComplete(atIds, customSelectField, customSelecttype, customArrayIdx, valueToReplace",
+            atIds, customSelectField, customSelectType, customArrayIdx, displayTitle, valueToReplace
+        );
         const { currContext } = this.props;
         const {
             selectField: stateSelectField,
@@ -2025,6 +2031,9 @@ class IndividualObjectView extends React.Component {
         const selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
         const selectType = customSelectType || stateSelectType;
 
+        // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
+        // Can be adjusted in either direction (either have LinkedObj call with 1 item if only 1; or have Search-As-You-Type
+        // pass in array as well).
         if (!Array.isArray(atIds) && typeof atIds === "string"){
             atIds = [atIds];
         }
@@ -2037,10 +2046,10 @@ class IndividualObjectView extends React.Component {
         const cloneSelectArrayIdx = isMultiSelect ? [...selectArrayIdx] : null;
 
         // split fields out for accessing separately in certain cases
-        const splitField = selectField.split(".");
-        if (splitField.length > 1) { // if there are subembedded objects... find them
-            console.log("splitting and checking field:", currContext[splitField[0]]);
-        }
+        // const splitField = selectField.split(".");
+        // if (splitField.length > 1) { // if there are subembedded objects... find them
+        //     console.log("splitting and checking field:", currContext[splitField[0]]);
+        // }
 
         for (const atId of atIds) {
             const currentlySelectedIds = selectField && currContext[selectField];
@@ -2053,12 +2062,13 @@ class IndividualObjectView extends React.Component {
             if (!isRepeat) {
                 console.log("not a repeat, ");
                 //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-                this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? [...cloneSelectArrayIdx] : null, null, valueToReplace);
+                this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? [...cloneSelectArrayIdx] : null, null);
                 if (isMultiSelect) {
                     cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
                 }
             } else {
-                this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx, selectType, displayTitle);
+                // "Cancel"
+                this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx);
             }
         }
 
