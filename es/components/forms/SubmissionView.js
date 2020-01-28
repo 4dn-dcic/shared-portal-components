@@ -988,11 +988,11 @@ function (_React$PureComponent) {
 
   }, {
     key: "addExistingObj",
-    value: function addExistingObj(path, display, type, field) {
+    value: function addExistingObj(itemAtID, display, type, field) {
       var init = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
       var valueToReplace = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
 
-      _util.console.log("calling addExistingObj(".concat(path, ", ").concat(display, ", ").concat(type, ", ").concat(field, ", ").concat(valueToReplace));
+      _util.console.log("calling addExistingObj(".concat(itemAtID, ", ").concat(display, ", ").concat(type, ", ").concat(field, ", ").concat(valueToReplace));
 
       this.setState(function (_ref6) {
         var currKey = _ref6.currKey,
@@ -1017,10 +1017,10 @@ function (_React$PureComponent) {
 
         var keyLinks = _underscore["default"].clone(prevKeyLinks);
 
-        var keyHierarchy = modifyHierarchy(_underscore["default"].clone(prevKeyHierarchy), path, parentKeyIdx);
-        keyDisplay[path] = display;
-        keyTypes[path] = type;
-        keyLinks[path] = field; // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
+        var keyHierarchy = modifyHierarchy(_underscore["default"].clone(prevKeyHierarchy), itemAtID, parentKeyIdx);
+        keyDisplay[itemAtID] = display;
+        keyTypes[itemAtID] = type;
+        keyLinks[itemAtID] = field; // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
         // references to that item
         // console.log("previous ID passed through", valueToReplace);
         // // validate that valueToReplace is an @id, then delete that key from keyHierarchy
@@ -2459,7 +2459,7 @@ function (_React$Component2) {
 
     _this10 = _possibleConstructorReturn(this, _getPrototypeOf(IndividualObjectView).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'checkObjectRemoval', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
+    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
     /**
      * State in this component mostly has to do with selection of existing objs
      *
@@ -2518,7 +2518,8 @@ function (_React$Component2) {
           currKey = _this$props12.currKey,
           initCreateObj = _this$props12.initCreateObj,
           modifyKeyContext = _this$props12.modifyKeyContext,
-          modifyAlias = _this$props12.modifyAlias;
+          modifyAlias = _this$props12.modifyAlias,
+          removeObj = _this$props12.removeObj;
 
       _util.console.log("log1: calling modifyNewContext(field, valu, fieldType, newLink, arrayIdx, type, valueTitle)", field, value, fieldType, newLink, arrayIdx, type, valueTitle); // console.log("log1: value", value);
       // if (value && typeof value === "object" && !(value instanceof Array)) {
@@ -2570,7 +2571,7 @@ function (_React$Component2) {
         prevValue = pointer[arrayIdx[arrayIdxPointer]];
 
         if (value === null) {
-          // delete this array item
+          // delete this array itemfieldType
           pointer.splice(arrayIdx[arrayIdxPointer], 1);
         } else {
           pointer[arrayIdx[arrayIdxPointer]] = value;
@@ -2581,10 +2582,8 @@ function (_React$Component2) {
         pointer[splitFieldLeaf] = value;
       }
 
-      _util.console.log("DDDDDDD", value, prevValue);
-
-      if (fieldType === 'linked object' || fieldType === "existing linked object") {
-        this.checkObjectRemoval(value, prevValue);
+      if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")) {
+        removeObj(prevValue);
       }
 
       if (fieldType === 'new linked object') {
@@ -2678,20 +2677,6 @@ function (_React$Component2) {
       }, 'GET', failureCallback);
     }
     /**
-     * If a itemAtID is null that was previously non-null, remove the linked object
-     * from the current context and change state in SubmissionView accordingly.
-     */
-
-  }, {
-    key: "checkObjectRemoval",
-    value: function checkObjectRemoval(value, prevValue) {
-      var removeObj = this.props.removeObj;
-
-      if (value === null) {
-        removeObj(prevValue);
-      }
-    }
-    /**
      * Initializes the first search (with just type=<type>) and sets state
      * accordingly. Set the fullScreen state in SubmissionView to alter its render
      * and hide the object navigation tree.
@@ -2721,6 +2706,8 @@ function (_React$Component2) {
   }, {
     key: "selectComplete",
     value: function selectComplete(atIds) {
+      var _this12 = this;
+
       var customSelectField = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var customArrayIdx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -2736,10 +2723,12 @@ function (_React$Component2) {
           stateSelectType = _this$state7.selectType;
       var selectField = customSelectField || stateSelectField;
       var selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
-
-      // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
+      var isInArray = selectArrayIdx && Array.isArray(selectArrayIdx);
+      var nextArrayIndices = isInArray ? _toConsumableArray(selectArrayIdx) : null;
+      var isMultiSelect = Array.isArray(atIds) && atIds.length > 1; // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
       // Can be adjusted in either direction (either have LinkedObj call with 1 item if only 1; or have Search-As-You-Type
       // pass in array as well).
+
       if (!Array.isArray(atIds) && typeof atIds === "string") {
         atIds = [atIds];
       }
@@ -2748,61 +2737,33 @@ function (_React$Component2) {
         throw new Error('No field being selected for');
       }
 
-      var isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
-      var cloneSelectArrayIdx = isMultiSelect ? _toConsumableArray(selectArrayIdx) : null; // split fields out for accessing separately in certain cases
-      // const splitField = selectField.split(".");
-      // if (splitField.length > 1) { // if there are subembedded objects... find them
-      //     console.log("splitting and checking field:", currContext[splitField[0]]);
-      // }
+      atIds.forEach(function (atId) {
+        var currentlySelectedIds = selectField && currContext[selectField];
 
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
+        var isRepeat = Array.isArray(currentlySelectedIds) && _underscore["default"].contains(currentlySelectedIds, atId);
 
-      try {
-        for (var _iterator = atIds[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var atId = _step.value;
-          var currentlySelectedIds = selectField && currContext[selectField];
+        _util.console.log("current: ", selectField);
 
-          var isRepeat = Array.isArray(currentlySelectedIds) && _underscore["default"].contains(currentlySelectedIds, atId);
+        _util.console.log("currContext: ", currContext);
 
-          _util.console.log("current: ", selectField);
+        _util.console.log("currContext[selectField]: ", currContext[selectField]);
 
-          _util.console.log("currContext: ", currContext);
+        _util.console.log("isInArray: ", isInArray);
 
-          _util.console.log("currContext[selectField]: ", currContext[selectField]);
+        if (!isRepeat) {
+          _util.console.log("not a repeat, ");
 
-          _util.console.log("isMultiSelect: ", isMultiSelect);
+          _this12.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isInArray ? nextArrayIndices.slice() : null, null);
 
-          if (!isRepeat) {
-            _util.console.log("not a repeat, "); //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-
-
-            this.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isMultiSelect ? _toConsumableArray(cloneSelectArrayIdx) : null, null);
-
-            if (isMultiSelect) {
-              cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
-            }
-          } else {
-            // "Cancel"
-            this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx);
+          if (isMultiSelect) {
+            // Sets up nextArrayIndices for next Item being added in multiselect
+            nextArrayIndices[nextArrayIndices.length - 1]++;
           }
+        } else {
+          // "Cancel"
+          _this12.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
+      });
       this.setState({
         'selectField': null,
         'selectArrayIdx': null,
@@ -3015,16 +2976,16 @@ function (_React$PureComponent3) {
   _inherits(RoundTwoDetailPanel, _React$PureComponent3);
 
   function RoundTwoDetailPanel(props) {
-    var _this12;
+    var _this13;
 
     _classCallCheck(this, RoundTwoDetailPanel);
 
-    _this12 = _possibleConstructorReturn(this, _getPrototypeOf(RoundTwoDetailPanel).call(this, props));
-    _this12.handleToggle = _this12.handleToggle.bind(_assertThisInitialized(_this12));
-    _this12.state = {
+    _this13 = _possibleConstructorReturn(this, _getPrototypeOf(RoundTwoDetailPanel).call(this, props));
+    _this13.handleToggle = _this13.handleToggle.bind(_assertThisInitialized(_this13));
+    _this13.state = {
       'open': props.open || false
     };
-    return _this12;
+    return _this13;
   }
 
   _createClass(RoundTwoDetailPanel, [{
@@ -3072,6 +3033,68 @@ function (_React$PureComponent3) {
   return RoundTwoDetailPanel;
 }(_react["default"].PureComponent);
 /***** MISC. FUNCIONS *****/
+// function keyHierarchyFromKeyContext(keyContext, rootType, schemas){
+//     // Issue: no way to figure out if new-linkto being created or not.
+//     console.log("ARGS", keyContext, rootType, schemas);
+//     const keyTypes = {
+//         0: rootType
+//     };
+//     const keyHierarchy = {
+//         0 : {}
+//     };
+//     function isLinkTo(valString){
+//         if (typeof valString !== "string") return false;
+//         const matched = valString.match(/\/(.*?)\/(.*?)\//);
+//         if (!matched) return false;
+//         const [ , itemType, itemIdentifier ] = matched;
+//         if (itemType && itemIdentifier) {
+//             return itemType;
+//         }
+//         return false;
+//     }
+//     function scrapeFromCtx(ctx, ctxKey, ctxSchema){
+//         console.log("TTTT", ctx, ctxSchema, schemas);
+//         _.keys(ctx).forEach(function(propKey){
+//             const propVal = ctx[propKey];
+//             console.log('TTT', propKey, propVal, ctxKey, ctxSchema);
+//             let propSchema = ctxSchema[propKey];
+//             if (Array.isArray(propVal)){
+//                 propSchema = propSchema.items;
+//                 propVal.forEach(function(propValItem){
+//                     if (propValItem !== null && typeof propValItem === "object"){
+//                         scrapeFromCtx(propValItem, propSchema.properties);
+//                         return;
+//                     }
+//                     const itemType = propSchema.linkTo && isLinkTo(propValItem);
+//                     if (itemType) {
+//                         keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
+//                         keyHierarchy[ctxKey][propValItem] = itemType;
+//                         //keyTypes[ctxKey] = keyTypes[ctxKey] || {};
+//                         //keyTypes[]
+//                     }
+//                 });
+//             } else if (propVal !== null && typeof propVal === "object"){
+//                 // Sub-embed obj
+//                 console.log("TTTTDD", propVal, propSchema);
+//                 scrapeFromCtx(propVal, propSchema.properties);
+//             } else {
+//                 const itemType = propSchema.linkTo && isLinkTo(propVal);
+//                 if (itemType) {
+//                     keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
+//                     keyHierarchy[ctxKey][propVal] = itemType;
+//                 }
+//             }
+//         });
+//     }
+//     _.keys(keyContext).forEach(function(ctxKey){
+//         // Bleh need to traverse every sub object and array here
+//         scrapeFromCtx(keyContext[ctxKey], ctxKey, schemas[keyTypes[ctxKey]].properties);
+//     });
+//     return {
+//         keyContext,
+//         keyTypes
+//     };
+// }
 
 /**
  * Build context based off an object's and populate values from

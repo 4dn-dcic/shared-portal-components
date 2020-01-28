@@ -720,8 +720,8 @@ export default class SubmissionView extends React.PureComponent{
      * keyHierarchy. The key for pre-existing objects are their @id path. Thus,
      * isNan() for the key of a pre-existing object will return true.
      */
-    addExistingObj(path, display, type, field, init=false, valueToReplace=null){
-        console.log(`calling addExistingObj(${path}, ${display}, ${type}, ${field}, ${valueToReplace}`);
+    addExistingObj(itemAtID, display, type, field, init=false, valueToReplace=null){
+        console.log(`calling addExistingObj(${itemAtID}, ${display}, ${type}, ${field}, ${valueToReplace}`);
         this.setState(function({
             currKey,
             keyHierarchy : prevKeyHierarchy,
@@ -737,11 +737,11 @@ export default class SubmissionView extends React.PureComponent{
             const keyDisplay = _.clone(prevKeyDisplay);
             const keyTypes = _.clone(prevKeyTypes);
             const keyLinks = _.clone(prevKeyLinks);
-            const keyHierarchy = modifyHierarchy(_.clone(prevKeyHierarchy), path, parentKeyIdx);
+            const keyHierarchy = modifyHierarchy(_.clone(prevKeyHierarchy), itemAtID, parentKeyIdx);
 
-            keyDisplay[path] = display;
-            keyTypes[path] = type;
-            keyLinks[path] = field;
+            keyDisplay[itemAtID] = display;
+            keyTypes[itemAtID] = type;
+            keyLinks[itemAtID] = field;
 
             // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
             // references to that item
@@ -1809,7 +1809,7 @@ class IndividualObjectView extends React.Component {
 
     constructor(props){
         super(props);
-        _.bindAll(this, 'modifyNewContext', 'fetchAndValidateItem', 'checkObjectRemoval',
+        _.bindAll(this, 'modifyNewContext', 'fetchAndValidateItem',
             'selectObj', 'selectComplete', 'selectCancel', 'initiateField'
         );
 
@@ -1855,7 +1855,7 @@ class IndividualObjectView extends React.Component {
      * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
      */
     modifyNewContext(field, value, fieldType, newLink, arrayIdx=null, type=null, valueTitle=null){
-        const { currContext, currKey, initCreateObj, modifyKeyContext, modifyAlias } = this.props;
+        const { currContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj } = this.props;
         console.log(
             "log1: calling modifyNewContext(field, valu, fieldType, newLink, arrayIdx, type, valueTitle)",
             field, value, fieldType, newLink, arrayIdx, type, valueTitle
@@ -1900,7 +1900,7 @@ class IndividualObjectView extends React.Component {
             // move pointer into array
             pointer = pointer[splitFieldLeaf];
             prevValue = pointer[arrayIdx[arrayIdxPointer]];
-            if (value === null){ // delete this array item
+            if (value === null){ // delete this array itemfieldType
                 pointer.splice(arrayIdx[arrayIdxPointer], 1);
             } else {
                 pointer[arrayIdx[arrayIdxPointer]] = value;
@@ -1910,10 +1910,8 @@ class IndividualObjectView extends React.Component {
             pointer[splitFieldLeaf] = value;
         }
 
-        console.log("DDDDDDD", value, prevValue);
-
-        if (fieldType === 'linked object' || fieldType === "existing linked object"){
-            this.checkObjectRemoval(value, prevValue);
+        if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")){
+            removeObj(prevValue);
         }
 
         if (fieldType === 'new linked object'){
@@ -1988,17 +1986,6 @@ class IndividualObjectView extends React.Component {
     }
 
     /**
-     * If a itemAtID is null that was previously non-null, remove the linked object
-     * from the current context and change state in SubmissionView accordingly.
-     */
-    checkObjectRemoval(value, prevValue){
-        const { removeObj } = this.props;
-        if (value === null){
-            removeObj(prevValue);
-        }
-    }
-
-    /**
      * Initializes the first search (with just type=<type>) and sets state
      * accordingly. Set the fullScreen state in SubmissionView to alter its render
      * and hide the object navigation tree.
@@ -2031,46 +2018,41 @@ class IndividualObjectView extends React.Component {
         const selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
         const selectType = customSelectType || stateSelectType;
 
+        const isInArray = selectArrayIdx && Array.isArray(selectArrayIdx);
+        const nextArrayIndices = isInArray ? [...selectArrayIdx] : null;
+        const isMultiSelect = Array.isArray(atIds) && atIds.length > 1;
+
         // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
         // Can be adjusted in either direction (either have LinkedObj call with 1 item if only 1; or have Search-As-You-Type
         // pass in array as well).
         if (!Array.isArray(atIds) && typeof atIds === "string"){
-            atIds = [atIds];
+            atIds = [ atIds ];
         }
 
         if (!selectField){
             throw new Error('No field being selected for');
         }
 
-        const isMultiSelect = selectArrayIdx && Array.isArray(selectArrayIdx);
-        const cloneSelectArrayIdx = isMultiSelect ? [...selectArrayIdx] : null;
 
-        // split fields out for accessing separately in certain cases
-        // const splitField = selectField.split(".");
-        // if (splitField.length > 1) { // if there are subembedded objects... find them
-        //     console.log("splitting and checking field:", currContext[splitField[0]]);
-        // }
-
-        for (const atId of atIds) {
+        atIds.forEach((atId)=>{
             const currentlySelectedIds = selectField && currContext[selectField];
             const isRepeat = (Array.isArray(currentlySelectedIds) && _.contains(currentlySelectedIds, atId));
             console.log("current: ", selectField);
 
             console.log("currContext: ", currContext);
             console.log("currContext[selectField]: ", currContext[selectField]);
-            console.log("isMultiSelect: ", isMultiSelect);
+            console.log("isInArray: ", isInArray);
             if (!isRepeat) {
                 console.log("not a repeat, ");
-                //this.modifyNewContext(selectField, value, 'existing linked object', null, selectArrayIdx);
-                this.fetchAndValidateItem(atId, selectField, selectType, isMultiSelect ? [...cloneSelectArrayIdx] : null, null);
-                if (isMultiSelect) {
-                    cloneSelectArrayIdx[cloneSelectArrayIdx.length - 1]++;
+                this.fetchAndValidateItem(atId, selectField, selectType, isInArray ? nextArrayIndices.slice() : null, null);
+                if (isMultiSelect) { // Sets up nextArrayIndices for next Item being added in multiselect
+                    nextArrayIndices[nextArrayIndices.length - 1]++;
                 }
             } else {
                 // "Cancel"
-                this.modifyNewContext(selectField, null, 'existing linked object', null, cloneSelectArrayIdx);
+                this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
             }
-        }
+        });
 
         this.setState({ 'selectField': null, 'selectArrayIdx': null, 'selectType': null });
     }
@@ -2254,6 +2236,78 @@ class RoundTwoDetailPanel extends React.PureComponent {
 }
 
 /***** MISC. FUNCIONS *****/
+
+
+
+// function keyHierarchyFromKeyContext(keyContext, rootType, schemas){
+//     // Issue: no way to figure out if new-linkto being created or not.
+//     console.log("ARGS", keyContext, rootType, schemas);
+
+//     const keyTypes = {
+//         0: rootType
+//     };
+
+//     const keyHierarchy = {
+//         0 : {}
+//     };
+
+//     function isLinkTo(valString){
+//         if (typeof valString !== "string") return false;
+//         const matched = valString.match(/\/(.*?)\/(.*?)\//);
+//         if (!matched) return false;
+//         const [ , itemType, itemIdentifier ] = matched;
+//         if (itemType && itemIdentifier) {
+//             return itemType;
+//         }
+//         return false;
+//     }
+
+//     function scrapeFromCtx(ctx, ctxKey, ctxSchema){
+//         console.log("TTTT", ctx, ctxSchema, schemas);
+//         _.keys(ctx).forEach(function(propKey){
+//             const propVal = ctx[propKey];
+//             console.log('TTT', propKey, propVal, ctxKey, ctxSchema);
+//             let propSchema = ctxSchema[propKey];
+//             if (Array.isArray(propVal)){
+//                 propSchema = propSchema.items;
+//                 propVal.forEach(function(propValItem){
+//                     if (propValItem !== null && typeof propValItem === "object"){
+//                         scrapeFromCtx(propValItem, propSchema.properties);
+//                         return;
+//                     }
+//                     const itemType = propSchema.linkTo && isLinkTo(propValItem);
+//                     if (itemType) {
+//                         keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
+//                         keyHierarchy[ctxKey][propValItem] = itemType;
+//                         //keyTypes[ctxKey] = keyTypes[ctxKey] || {};
+//                         //keyTypes[]
+//                     }
+//                 });
+//             } else if (propVal !== null && typeof propVal === "object"){
+//                 // Sub-embed obj
+//                 console.log("TTTTDD", propVal, propSchema);
+//                 scrapeFromCtx(propVal, propSchema.properties);
+//             } else {
+//                 const itemType = propSchema.linkTo && isLinkTo(propVal);
+//                 if (itemType) {
+//                     keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
+//                     keyHierarchy[ctxKey][propVal] = itemType;
+//                 }
+//             }
+//         });
+//     }
+
+//     _.keys(keyContext).forEach(function(ctxKey){
+//         // Bleh need to traverse every sub object and array here
+//         scrapeFromCtx(keyContext[ctxKey], ctxKey, schemas[keyTypes[ctxKey]].properties);
+//     });
+
+//     return {
+//         keyContext,
+//         keyTypes
+//     };
+// }
+
 
 /**
  * Build context based off an object's and populate values from
