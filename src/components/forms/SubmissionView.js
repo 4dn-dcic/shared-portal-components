@@ -556,8 +556,14 @@ export default class SubmissionView extends React.PureComponent{
      * Iterates keyIter, which is used as the master placeholder for the index of
      * the next created object. Sets currKey to the idx of the newly created object
      * so the view changes to it.
+     *
+     * @param {string} type - Item Type, e.g. "Experiment"
+     * @param {number} newIdx - Index/identifier of new unsubmitted Item
+     * @param {string} alias - Alias of this item.
+     * @param {Object} extraState - Additional state to set upon completion.
      */
     createObj(type, newIdx, newLink, alias, extraState={}){
+        console.log("CREATEOBJ", ...arguments);
         const { errorCount } = this.state;
 
         // get rid of any hanging errors
@@ -1000,6 +1006,7 @@ export default class SubmissionView extends React.PureComponent{
      * process once all roundTwo objects have been skipped or submitted.
      */
     submitObject(inKey, test=false, suppressWarnings=false){
+        console.log("SUBMITOBJ", ...arguments);
         // function to test a POST of the data or actually POST it.
         // validates if test=true, POSTs if test=false.
         const { context, schemas, setIsSubmitting, navigate: propNavigate } = this.props;
@@ -1881,7 +1888,7 @@ class IndividualObjectView extends React.Component {
         var splitField = field.split('.');
         var splitFieldLeaf = splitField[splitField.length-1];
         var arrayIdxPointer = 0;
-        var contextCopy = object.deepClone(currContext);
+        var contextCopy = currContext; //object.deepClone(currContext);
         var pointer = contextCopy;
         var prevValue = null;
         for (var i=0; i < splitField.length - 1; i++){
@@ -1909,22 +1916,27 @@ class IndividualObjectView extends React.Component {
             prevValue = pointer[splitFieldLeaf];
             pointer[splitFieldLeaf] = value;
         }
+    
+        console.log("modifyNewContext II", pointer, splitFieldLeaf, value, contextCopy);
 
-        if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")){
-            removeObj(prevValue);
-        }
+        //this.setState({ currContext: contextCopy }, ()=>{
+            if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")){
+                removeObj(prevValue);
+            }
 
-        if (fieldType === 'new linked object'){
-            // value is new key index in this case
-            initCreateObj(type, value, field, false, field);
-        } else {
-            // actually change value
-            modifyKeyContext(currKey, contextCopy, valueTitle);
-        }
+            if (fieldType === 'new linked object'){
+                // value is new key index in this case
+                initCreateObj(type, value, field, false, field);
+            } else {
+                // actually change value
+                modifyKeyContext(currKey, contextCopy, valueTitle);
+            }
 
-        if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title'){
-            modifyAlias();
-        }
+            if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title'){
+                modifyAlias();
+            }
+        //});
+
     }
 
     /**

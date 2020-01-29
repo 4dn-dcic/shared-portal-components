@@ -770,12 +770,20 @@ function (_React$PureComponent) {
       * Iterates keyIter, which is used as the master placeholder for the index of
      * the next created object. Sets currKey to the idx of the newly created object
      * so the view changes to it.
+     *
+     * @param {string} type - Item Type, e.g. "Experiment"
+     * @param {number} newIdx - Index/identifier of new unsubmitted Item
+     * @param {string} alias - Alias of this item.
+     * @param {Object} extraState - Additional state to set upon completion.
      */
 
   }, {
     key: "createObj",
     value: function createObj(type, newIdx, newLink, alias) {
       var extraState = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+
+      _util.console.log.apply(_util.console, ["CREATEOBJ"].concat(Array.prototype.slice.call(arguments)));
+
       var errorCount = this.state.errorCount; // get rid of any hanging errors
 
       for (var i = 0; i < errorCount; i++) {
@@ -1359,8 +1367,11 @@ function (_React$PureComponent) {
 
       var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var suppressWarnings = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-      // function to test a POST of the data or actually POST it.
+
+      _util.console.log.apply(_util.console, ["SUBMITOBJ"].concat(Array.prototype.slice.call(arguments))); // function to test a POST of the data or actually POST it.
       // validates if test=true, POSTs if test=false.
+
+
       var _this$props3 = this.props,
           context = _this$props3.context,
           schemas = _this$props3.schemas,
@@ -2544,8 +2555,7 @@ function (_React$Component2) {
       var splitField = field.split('.');
       var splitFieldLeaf = splitField[splitField.length - 1];
       var arrayIdxPointer = 0;
-
-      var contextCopy = _util.object.deepClone(currContext);
+      var contextCopy = currContext; //object.deepClone(currContext);
 
       var pointer = contextCopy;
       var prevValue = null;
@@ -2582,6 +2592,9 @@ function (_React$Component2) {
         pointer[splitFieldLeaf] = value;
       }
 
+      _util.console.log("modifyNewContext II", pointer, splitFieldLeaf, value, contextCopy); //this.setState({ currContext: contextCopy }, ()=>{
+
+
       if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")) {
         removeObj(prevValue);
       }
@@ -2596,7 +2609,8 @@ function (_React$Component2) {
 
       if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title') {
         modifyAlias();
-      }
+      } //});
+
     }
     /**
      * Use ajax to get the display_title for an existing object. Use that to kicks
