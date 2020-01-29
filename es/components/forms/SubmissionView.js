@@ -303,7 +303,8 @@ function (_React$PureComponent) {
      * Function that modifies new context and sets validation state whenever
      * a modification occurs
      *
-     * @param {number} objKey - Key of Item being modified.
+     * @param {number} objKey - Key of Object being modified. Used as a key in state objects (keyDisplay, keyContext, etc.)
+     *                          to retrieve data about object being edited.
      * @param {Object} newContext - New Context/representation for this Item to be saved.
      * @param {string} keyTitle - Display title of item being modified
      */
@@ -311,8 +312,7 @@ function (_React$PureComponent) {
   }, {
     key: "modifyKeyContext",
     value: function modifyKeyContext(objKey, newContext, keyTitle) {
-      _util.console.log("log1: calling modifyKeyContext(objKey=".concat(objKey, ", newContext=").concat(newContext, ", keyTitle=").concat(keyTitle, " "));
-
+      // console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
       this.setState(function (_ref) {
         var keyContext = _ref.keyContext,
             keyValid = _ref.keyValid,
@@ -986,11 +986,16 @@ function (_React$PureComponent) {
       this.addExistingObj(path, display, type, field, true);
     }
     /**
-     * Takes in the @id path of an exisiting object, a display name for it, the
-     * object type, the linkTo field type (newLink), and whether or not it's
-     * being added during the initializePrincipal process (bool init). Sets up
-     * state to contain the newly introduced pre-existing object and adds it into
-     * keyHierarchy. The key for pre-existing objects are their @id path. Thus,
+     * Sets up state to contain the newly introduced pre-existing object and adds it into
+     * keyHierarchy.
+     *
+     * @param {string}  itemAtID        ID path of an existing object
+     * @param {string}  displayTitle    Display title of the object itemAtID refers to
+     * @param {string}  type            Object type
+     * @param {string}  field           The linkTo field type (newLink)
+     * @param {boolean} init            Is the item being added during the initializePrincipal process?
+     *
+     * The key for pre-existing objects are their @id path. Thus,
      * isNan() for the key of a pre-existing object will return true.
      */
 
@@ -998,25 +1003,21 @@ function (_React$PureComponent) {
     key: "addExistingObj",
     value: function addExistingObj(itemAtID, display, type, field) {
       var init = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-      var valueToReplace = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
 
-      _util.console.log("calling addExistingObj(".concat(itemAtID, ", ").concat(display, ", ").concat(type, ", ").concat(field, ", ").concat(valueToReplace));
-
+      /*
+      console.log(`calling addExistingObj(
+          itemAtID=${itemAtID},
+          display=${display},
+          type=${type},
+          field=${field},
+          init=${init}`);
+      */
       this.setState(function (_ref6) {
         var currKey = _ref6.currKey,
             prevKeyHierarchy = _ref6.keyHierarchy,
             prevKeyDisplay = _ref6.keyDisplay,
             prevKeyTypes = _ref6.keyTypes,
             prevKeyLinks = _ref6.keyLinks;
-
-        _util.console.log("keyLinks:", prevKeyLinks);
-
-        _util.console.log("keyTypes: ", prevKeyTypes);
-
-        _util.console.log("keyDisplay: ", prevKeyDisplay);
-
-        _util.console.log("keyHierarchy: ", prevKeyHierarchy);
-
         var parentKeyIdx = init ? 0 : currKey;
 
         var keyDisplay = _underscore["default"].clone(prevKeyDisplay);
@@ -1028,16 +1029,7 @@ function (_React$PureComponent) {
         var keyHierarchy = modifyHierarchy(_underscore["default"].clone(prevKeyHierarchy), itemAtID, parentKeyIdx);
         keyDisplay[itemAtID] = display;
         keyTypes[itemAtID] = type;
-        keyLinks[itemAtID] = field; // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
-        // references to that item
-        // console.log("previous ID passed through", valueToReplace);
-        // // validate that valueToReplace is an @id, then delete that key from keyHierarchy
-        // delete keyHierarchy[parentKeyIdx][valueToReplace];
-        // delete keyLinks[valueToReplace];
-        // delete keyTypes[valueToReplace];
-
-        _util.console.log("keyHierarchy", keyHierarchy, keyDisplay, keyTypes, keyLinks);
-
+        keyLinks[itemAtID] = field;
         return {
           keyHierarchy: keyHierarchy,
           keyDisplay: keyDisplay,
@@ -1049,6 +1041,9 @@ function (_React$PureComponent) {
     /**
      * Takes a key and value and sets the corresponding state in this component to the value.
      *
+     * @param {string}  key     This.state[key]
+     * @param {any}     value   Value to change this.state[key] to
+     *
      * Primarily used as a callback to change currKey, in which case we
      * ensure that there are no current uploads of md5 calculations running. If
      * allowed to change keys, attempt to automatically validate the key we are
@@ -1059,8 +1054,7 @@ function (_React$PureComponent) {
   }, {
     key: "setSubmissionState",
     value: function setSubmissionState(key, value) {
-      _util.console.log("calling setSubmissionState(key = ".concat(key, ", value = ").concat(value));
-
+      // console.log(`calling setSubmissionState(key = ${key}, value = ${value}`);
       var _this$state4 = this.state,
           currKey = _this$state4.currKey,
           upload = _this$state4.upload,
@@ -1342,13 +1336,19 @@ function (_React$PureComponent) {
       });
     }
     /**
-     * Master object submission function. Takes a key index and uses ajax to
-     * POST/PATCH the json to the object collection (a new object) or to the
+     * Master object submission function.
+     *
+     * @param {number} inKey             The temporary key (index) of unsubmitted item OR key of submitted item (requiring round-two
+     *                                   submission); key used in state (keyDisplay, keyContext) to refer to unsubmitted object
+     * @param {boolean} test             If 'true', test/validate object without submitting.
+     * @param {boolean} suppressWarnings Hide HTTP related warnings and errors from console
+     *
+     * Uses ajax to POST/PATCH the json to the object collection (a new object) or to the
      * specific object path (a pre-existing/roundTwo object). If test=true,
      * the POST is made to the check_only=true endpoint for validation without
      * actual submission.
      *
-     * Upon successful submission, reponse data for the newly instantiated object
+     * Upon successful submission, response data for the newly instantiated object
      * is stored in state (with key equal to the new object's path). On the
      * principal object submission if there are object that require roundTwo
      * submission, this function initializes the roundTwo process by setting
@@ -1678,7 +1678,9 @@ function (_React$PureComponent) {
       }
     }
     /**
-     * Finish the roundTwo process for the current key. Removes the currKey from
+     * Finish the roundTwo process for the current key.
+     *
+     * Removes the currKey from
      * this.state.roundTwoKeys and modifies state to finish out for that object.
      * If there are no keys left in roundTwoKeys, navigate to the path of the
      * principal object we created.
@@ -2486,44 +2488,55 @@ function (_React$Component2) {
       'selectArrayIdx': null
     };
     return _this10;
-  }
+  } // componentDidUpdate(pastProps, pastState) {
+  //     console.log("previous state = ", pastState);
+  //     console.log("new state = ", this.state);
+  // }
+
+  /**
+   * Takes a field and value and modifies the keyContext held in parent.
+   *
+   * @param {string}  field       Name of field on parent Item for which a value is being changed.
+   * @param {any}     value       New value we are setting for this field.
+   * @param {string}  fieldType   Internal descriptor for field type we're editing.
+   * @param {string}  newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
+   * @param {!number} arrayIdx    Index in array of value when entire value for property is an array.
+   * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
+   * @param {boolean} valueTitle  Display title of object being changed
+   *
+   * Also uses the fieldType, which is unique among BuildField children,
+   * to direct any special functionality (such as running initCreateObj for
+   * new linked objects). Also takes the linkTo field of the new context,
+   * arrayIdxs used, and object type if applicable. If field == 'aliases',
+   * change keyDisplay to reflect the new alias name.
+   *
+   * The format of field is nested to allow for subobjects. For example, for the
+   * Related experiments flag, the actual linkTo experiment is stored using the
+   * following field: experiment_relation.experiment. ArrayIdx is an array of
+   * array indeces used to reference the specific value of the field. For example,
+   * if a value is submitted for the 3rd array element inside the 2nd array element
+   * of a larger field, arrayIdx would be [1,2].
+   *
+   * TODO: Examine why newLink isn't being used anywhere; what was it for, why did it disappear? Should it be in use?
+   */
+
 
   _createClass(IndividualObjectView, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps, pastState) {
-      _util.console.log("previous state = ", pastState);
-
-      _util.console.log("new state = ", this.state);
-    }
-    /**
-     * Takes a field and value and modifies the keyContext held in parent.
-     * Also uses the fieldType, which is unique among BuildField children,
-     * to direct any special functionality (such as running initCreateObj for
-     * new linked objects). Also takes the linkTo field of the new context,
-     * arrayIdxs used, and object type if applicable. If field == 'aliases',
-     * change keyDisplay to reflect the new alias name.
-     *
-     * The format of field is nested to allow for subobjects. For example, for the
-     * Related experiments flag, the actual linkTo experiment is stored using the
-     * following field: experiment_relation.experiment. ArrayIdx is an array of
-     * array indeces used to reference the specific value of the field. For example,
-     * if a value is submitted for the 3rd array element inside the 2nd array element
-     * of a larger field, arrayIdx would be [1,2].
-     *
-     * @param {string} field        Name of field on parent Item for which a value is being changed.
-     * @param {any} value           New value we are setting for this field.
-     * @param {string} fieldType    Internal descriptor for field type we're editing.
-     * @param {string} newLink      Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
-     * @param {!number} arrayIdx    Index in array of value when entire value for property is an array.
-     * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
-     */
-
-  }, {
     key: "modifyNewContext",
-    value: function modifyNewContext(field, value, fieldType, newLink) {
+    value: function modifyNewContext(field, value, fieldType) {
       var arrayIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       var type = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
       var valueTitle = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
+      // console.log(
+      //     `calling modifyNewContext(
+      //         field=${field},
+      //         value=${value},
+      //         fieldType=${fieldType},
+      //         newLink=${newLink},
+      //         arrayIdx=${arrayIdx},
+      //         type=${type},
+      //         valueTitle=${valueTitle})`
+      // );
       var _this$props12 = this.props,
           currContext = _this$props12.currContext,
           currKey = _this$props12.currKey,
@@ -2531,12 +2544,6 @@ function (_React$Component2) {
           modifyKeyContext = _this$props12.modifyKeyContext,
           modifyAlias = _this$props12.modifyAlias,
           removeObj = _this$props12.removeObj;
-
-      _util.console.log("log1: calling modifyNewContext(field, valu, fieldType, newLink, arrayIdx, type, valueTitle)", field, value, fieldType, newLink, arrayIdx, type, valueTitle); // console.log("log1: value", value);
-      // if (value && typeof value === "object" && !(value instanceof Array)) {
-      //     Object.keys(value).forEach((key) => console.log(value[key]));
-      // }
-
 
       if (fieldType === 'new linked object') {
         value = this.props.keyIter + 1;
@@ -2615,11 +2622,13 @@ function (_React$Component2) {
     /**
      * Use ajax to get the display_title for an existing object. Use that to kicks
      * of the addExistingObj process; if a title can't be found, use the object
-     * path as a fallback.
+     * @id as a fallback.
      *
-     * @param {string} value    The @ID or unique key of the Item for which we want to validate and get title for.
-     * @param {string} type     The Item type of value.
-     * @param {any} newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
+     * @param {string} itemAtID    The @id or unique key of the Item for which we want to validate and get title for.
+     * @param {string} field    
+     * @param {string} type        The Item type of value.
+     * @param {number} arrayIdx    
+     * @param {any}    newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
      */
 
   }, {
@@ -2627,10 +2636,12 @@ function (_React$Component2) {
     value: function fetchAndValidateItem(itemAtID, field, type, arrayIdx) {
       var _this11 = this;
 
-      var newLink = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-
-      _util.console.log("calling fetchAndValidateItem(\nfield=".concat(field, ",\ntype=").concat(type, ",\narrayIdx=").concat(arrayIdx, ",\nnewLink=").concat(newLink));
-
+      arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+      // console.log(`calling fetchAndValidateItem(
+      //     field=${field},
+      //     type=${type},
+      //     arrayIdx=${arrayIdx},
+      //     newLink=${newLink}`);
       var addExistingObj = this.props.addExistingObj;
       var hrefToFetch = itemAtID;
       var failureAlertTitle = "Validation error for field '" + field + "'" + (typeof arrayIdx === 'number' ? ' [' + arrayIdx + ']' : '');
@@ -2642,20 +2653,17 @@ function (_React$Component2) {
           "style": "danger"
         });
 
-        _util.layout.animateScrollTo(0); // Scroll to top of page so alert b visible to end-user.
+        _util.layout.animateScrollTo(0); // Scroll to top of page so alert is visible to end-user.
 
 
         _this11.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
       };
 
       var successCallback = function (result) {
-        _util.console.log("successfully found, ", result);
-
+        // console.log("fetchAndValidateItem successfully found: ", result);
         _Alerts.Alerts.deQueue({
           'title': failureAlertTitle
         });
-
-        _util.console.log("now modifying context to include existing object");
 
         _this11.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
 
@@ -2663,7 +2671,8 @@ function (_React$Component2) {
       };
 
       if (typeof hrefToFetch !== 'string') {
-        failureCallback();
+        failureCallback(); // TODO: Might be nice to update with more specific messages in this case.
+
         return;
       }
 
@@ -2694,15 +2703,20 @@ function (_React$Component2) {
      * Initializes the first search (with just type=<type>) and sets state
      * accordingly. Set the fullScreen state in SubmissionView to alter its render
      * and hide the object navigation tree.
+     *
+     * @param {object} collection
+     * @param {string} field
+     * @param {number} arrayIdx
      */
 
   }, {
     key: "selectObj",
     value: function selectObj(collection, field) {
       var arrayIdx = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-      _util.console.log("calling selectObj(collection=".concat(collection, ", field=").concat(field, ", arrayIdx=").concat(arrayIdx, ")"));
-
+      // console.log(`calling selectObj(
+      //     collection=${collection},
+      //     field=${field},
+      //     arrayIdx=${arrayIdx})`);
       this.setState({
         'selectField': field,
         'selectArrayIdx': arrayIdx,
@@ -2714,7 +2728,13 @@ function (_React$Component2) {
      * object selection state, modifies context, and initializes the fetchAndValidateItem
      * process.
      *
-     * @param {string} valueToReplace Previous value of field, if replacing/updating a single field instead of adding
+     * @param {array | string} atIds        Either an @id string or an array of @id strings to be selected
+     * @param {string} customSelectField    @todo but what actually is it? collection or something else?
+     * @param {string} customSelectType
+     * @param {number} customArrayIdx
+     * @param {string} displayTitle
+     * @param {string} valueToReplace
+     * @param {string} valueToReplace       Previous value of field, if replacing/updating a single field instead of adding
      */
 
   }, {
@@ -2725,11 +2745,14 @@ function (_React$Component2) {
       var customSelectField = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var customArrayIdx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      var displayTitle = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-      var valueToReplace = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
-
-      _util.console.log("calling selectComplete(atIds, customSelectField, customSelecttype, customArrayIdx, valueToReplace", atIds, customSelectField, customSelectType, customArrayIdx, displayTitle, valueToReplace);
-
+      arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+      arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
+      // console.log(`calling selectComplete(
+      //     atIds=${atIds},
+      //     customSelectField=${customSelectField},
+      //     customSelectType=${customSelectType},
+      //     customArrayIdx=${customArrayIdx},
+      //     valueToReplace=${valueToReplace}`);
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
           stateSelectField = _this$state7.selectField,

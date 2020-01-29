@@ -201,12 +201,13 @@ export default class SubmissionView extends React.PureComponent{
      * Function that modifies new context and sets validation state whenever
      * a modification occurs
      *
-     * @param {number} objKey - Key of Item being modified.
+     * @param {number} objKey - Key of Object being modified. Used as a key in state objects (keyDisplay, keyContext, etc.)
+     *                          to retrieve data about object being edited.
      * @param {Object} newContext - New Context/representation for this Item to be saved.
      * @param {string} keyTitle - Display title of item being modified
      */
     modifyKeyContext(objKey, newContext, keyTitle){
-        console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
+        // console.log(`log1: calling modifyKeyContext(objKey=${objKey}, newContext=${newContext}, keyTitle=${keyTitle} `);
         this.setState(function({ keyContext, keyValid, keyHierarchy : prevKeyHierarchy, keyComplete, keyDisplay }){
             const contextCopy = object.deepClone(keyContext);
             const validCopy   = object.deepClone(keyValid);
@@ -719,15 +720,27 @@ export default class SubmissionView extends React.PureComponent{
     }
 
     /**
-     * Takes in the @id path of an exisiting object, a display name for it, the
-     * object type, the linkTo field type (newLink), and whether or not it's
-     * being added during the initializePrincipal process (bool init). Sets up
-     * state to contain the newly introduced pre-existing object and adds it into
-     * keyHierarchy. The key for pre-existing objects are their @id path. Thus,
+     * Sets up state to contain the newly introduced pre-existing object and adds it into
+     * keyHierarchy.
+     *
+     * @param {string}  itemAtID        ID path of an existing object
+     * @param {string}  displayTitle    Display title of the object itemAtID refers to
+     * @param {string}  type            Object type
+     * @param {string}  field           The linkTo field type (newLink)
+     * @param {boolean} init            Is the item being added during the initializePrincipal process?
+     *
+     * The key for pre-existing objects are their @id path. Thus,
      * isNan() for the key of a pre-existing object will return true.
      */
-    addExistingObj(itemAtID, display, type, field, init=false, valueToReplace=null){
-        console.log(`calling addExistingObj(${itemAtID}, ${display}, ${type}, ${field}, ${valueToReplace}`);
+    addExistingObj(itemAtID, display, type, field, init=false){
+        /*
+        console.log(`calling addExistingObj(
+            itemAtID=${itemAtID},
+            display=${display},
+            type=${type},
+            field=${field},
+            init=${init}`);
+        */
         this.setState(function({
             currKey,
             keyHierarchy : prevKeyHierarchy,
@@ -735,10 +748,6 @@ export default class SubmissionView extends React.PureComponent{
             keyTypes : prevKeyTypes,
             keyLinks : prevKeyLinks
         }){
-            console.log("keyLinks:", prevKeyLinks);
-            console.log("keyTypes: ", prevKeyTypes);
-            console.log("keyDisplay: ", prevKeyDisplay);
-            console.log("keyHierarchy: ", prevKeyHierarchy);
             const parentKeyIdx = init ? 0 : currKey;
             const keyDisplay = _.clone(prevKeyDisplay);
             const keyTypes = _.clone(prevKeyTypes);
@@ -749,23 +758,15 @@ export default class SubmissionView extends React.PureComponent{
             keyTypes[itemAtID] = type;
             keyLinks[itemAtID] = field;
 
-            // if a value is being replaced, go through keyLinks, keyHierarchy, and keyTypes and delete
-            // references to that item
-
-            // console.log("previous ID passed through", valueToReplace);
-            // // validate that valueToReplace is an @id, then delete that key from keyHierarchy
-            // delete keyHierarchy[parentKeyIdx][valueToReplace];
-            // delete keyLinks[valueToReplace];
-            // delete keyTypes[valueToReplace];
-
-            console.log("keyHierarchy", keyHierarchy, keyDisplay, keyTypes, keyLinks);
-
             return { keyHierarchy, keyDisplay, keyTypes, keyLinks };
         });
     }
 
     /**
      * Takes a key and value and sets the corresponding state in this component to the value.
+     *
+     * @param {string}  key     This.state[key]
+     * @param {any}     value   Value to change this.state[key] to
      *
      * Primarily used as a callback to change currKey, in which case we
      * ensure that there are no current uploads of md5 calculations running. If
@@ -774,7 +775,7 @@ export default class SubmissionView extends React.PureComponent{
      * remove any hanging Alert error messages from validation.
      */
     setSubmissionState(key, value){
-        console.log(`calling setSubmissionState(key = ${key}, value = ${value}`);
+        // console.log(`calling setSubmissionState(key = ${key}, value = ${value}`);
         const { currKey, upload, md5Progress, keyValid, errorCount, roundTwo, keyHierarchy, keyContext, keyComplete } = this.state;
         var stateToSet = {};
         if (typeof this.state[key] !== 'undefined'){
@@ -988,13 +989,19 @@ export default class SubmissionView extends React.PureComponent{
     }
 
     /**
-     * Master object submission function. Takes a key index and uses ajax to
-     * POST/PATCH the json to the object collection (a new object) or to the
+     * Master object submission function.
+     *
+     * @param {number} inKey             The temporary key (index) of unsubmitted item OR key of submitted item (requiring round-two
+     *                                   submission); key used in state (keyDisplay, keyContext) to refer to unsubmitted object
+     * @param {boolean} test             If 'true', test/validate object without submitting.
+     * @param {boolean} suppressWarnings Hide HTTP related warnings and errors from console
+     *
+     * Uses ajax to POST/PATCH the json to the object collection (a new object) or to the
      * specific object path (a pre-existing/roundTwo object). If test=true,
      * the POST is made to the check_only=true endpoint for validation without
      * actual submission.
      *
-     * Upon successful submission, reponse data for the newly instantiated object
+     * Upon successful submission, response data for the newly instantiated object
      * is stored in state (with key equal to the new object's path). On the
      * principal object submission if there are object that require roundTwo
      * submission, this function initializes the roundTwo process by setting
@@ -1265,7 +1272,9 @@ export default class SubmissionView extends React.PureComponent{
     }
 
     /**
-     * Finish the roundTwo process for the current key. Removes the currKey from
+     * Finish the roundTwo process for the current key.
+     *
+     * Removes the currKey from
      * this.state.roundTwoKeys and modifies state to finish out for that object.
      * If there are no keys left in roundTwoKeys, navigate to the path of the
      * principal object we created.
@@ -1834,13 +1843,22 @@ class IndividualObjectView extends React.Component {
         };
     }
 
-    componentDidUpdate(pastProps, pastState) {
-        console.log("previous state = ", pastState);
-        console.log("new state = ", this.state);
-    }
+    // componentDidUpdate(pastProps, pastState) {
+    //     console.log("previous state = ", pastState);
+    //     console.log("new state = ", this.state);
+    // }
 
     /**
      * Takes a field and value and modifies the keyContext held in parent.
+     *
+     * @param {string}  field       Name of field on parent Item for which a value is being changed.
+     * @param {any}     value       New value we are setting for this field.
+     * @param {string}  fieldType   Internal descriptor for field type we're editing.
+     * @param {string}  newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
+     * @param {!number} arrayIdx    Index in array of value when entire value for property is an array.
+     * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
+     * @param {boolean} valueTitle  Display title of object being changed
+     *
      * Also uses the fieldType, which is unique among BuildField children,
      * to direct any special functionality (such as running initCreateObj for
      * new linked objects). Also takes the linkTo field of the new context,
@@ -1854,23 +1872,20 @@ class IndividualObjectView extends React.Component {
      * if a value is submitted for the 3rd array element inside the 2nd array element
      * of a larger field, arrayIdx would be [1,2].
      *
-     * @param {string} field        Name of field on parent Item for which a value is being changed.
-     * @param {any} value           New value we are setting for this field.
-     * @param {string} fieldType    Internal descriptor for field type we're editing.
-     * @param {string} newLink      Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
-     * @param {!number} arrayIdx    Index in array of value when entire value for property is an array.
-     * @param {!string} type        Type of Item we're linking to, if creating new Item/object only, if property is a linkTo. E.g. 'ExperimentSetReplicate', 'BiosampleCellCulture', etc.
+     * TODO: Examine why newLink isn't being used anywhere; what was it for, why did it disappear? Should it be in use?
      */
     modifyNewContext(field, value, fieldType, newLink, arrayIdx=null, type=null, valueTitle=null){
+        // console.log(
+        //     `calling modifyNewContext(
+        //         field=${field},
+        //         value=${value},
+        //         fieldType=${fieldType},
+        //         newLink=${newLink},
+        //         arrayIdx=${arrayIdx},
+        //         type=${type},
+        //         valueTitle=${valueTitle})`
+        // );
         const { currContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj } = this.props;
-        console.log(
-            "log1: calling modifyNewContext(field, valu, fieldType, newLink, arrayIdx, type, valueTitle)",
-            field, value, fieldType, newLink, arrayIdx, type, valueTitle
-        );
-        // console.log("log1: value", value);
-        // if (value && typeof value === "object" && !(value instanceof Array)) {
-        //     Object.keys(value).forEach((key) => console.log(value[key]));
-        // }
 
         if (fieldType === 'new linked object'){
             value = this.props.keyIter + 1;
@@ -1942,14 +1957,20 @@ class IndividualObjectView extends React.Component {
     /**
      * Use ajax to get the display_title for an existing object. Use that to kicks
      * of the addExistingObj process; if a title can't be found, use the object
-     * path as a fallback.
+     * @id as a fallback.
      *
-     * @param {string} value    The @ID or unique key of the Item for which we want to validate and get title for.
-     * @param {string} type     The Item type of value.
-     * @param {any} newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
+     * @param {string} itemAtID    The @id or unique key of the Item for which we want to validate and get title for.
+     * @param {string} field    
+     * @param {string} type        The Item type of value.
+     * @param {number} arrayIdx    
+     * @param {any}    newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
      */
     fetchAndValidateItem(itemAtID, field, type, arrayIdx, newLink = null){
-        console.log(`calling fetchAndValidateItem(\nfield=${field},\ntype=${type},\narrayIdx=${arrayIdx},\nnewLink=${newLink}`);
+        // console.log(`calling fetchAndValidateItem(
+        //     field=${field},
+        //     type=${type},
+        //     arrayIdx=${arrayIdx},
+        //     newLink=${newLink}`);
         const { addExistingObj } = this.props;
 
         let hrefToFetch = itemAtID;
@@ -1960,20 +1981,19 @@ class IndividualObjectView extends React.Component {
                 "message"   : "Could not find valid" + (type ? " '" + type + "'" : '') + " Item in database for value '" + itemAtID + "'.",
                 "style"     : "danger"
             });
-            layout.animateScrollTo(0); // Scroll to top of page so alert b visible to end-user.
+            layout.animateScrollTo(0); // Scroll to top of page so alert is visible to end-user.
             this.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
         };
 
         const successCallback = (result)=>{
-            console.log("successfully found, ", result);
+            // console.log("fetchAndValidateItem successfully found: ", result);
             Alerts.deQueue({ 'title' : failureAlertTitle });
-            console.log("now modifying context to include existing object");
             this.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
             addExistingObj(itemAtID, result.display_title, type, field, false);
         };
 
         if (typeof hrefToFetch !== 'string') {
-            failureCallback();
+            failureCallback();  // TODO: Might be nice to update with more specific messages in this case.
             return;
         }
 
@@ -2001,9 +2021,16 @@ class IndividualObjectView extends React.Component {
      * Initializes the first search (with just type=<type>) and sets state
      * accordingly. Set the fullScreen state in SubmissionView to alter its render
      * and hide the object navigation tree.
+     *
+     * @param {object} collection
+     * @param {string} field
+     * @param {number} arrayIdx
      */
     selectObj(collection, field, arrayIdx=null){
-        console.log(`calling selectObj(collection=${collection}, field=${field}, arrayIdx=${arrayIdx})`);
+        // console.log(`calling selectObj(
+        //     collection=${collection},
+        //     field=${field},
+        //     arrayIdx=${arrayIdx})`);
         this.setState({ 'selectField' : field, 'selectArrayIdx': arrayIdx, 'selectType' : collection });
     }
 
@@ -2012,13 +2039,21 @@ class IndividualObjectView extends React.Component {
      * object selection state, modifies context, and initializes the fetchAndValidateItem
      * process.
      *
-     * @param {string} valueToReplace Previous value of field, if replacing/updating a single field instead of adding
+     * @param {array | string} atIds        Either an @id string or an array of @id strings to be selected
+     * @param {string} customSelectField    @todo but what actually is it? collection or something else?
+     * @param {string} customSelectType
+     * @param {number} customArrayIdx
+     * @param {string} displayTitle
+     * @param {string} valueToReplace
+     * @param {string} valueToReplace       Previous value of field, if replacing/updating a single field instead of adding
      */
     selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null, displayTitle = null, valueToReplace = null) {
-        console.log(
-            "calling selectComplete(atIds, customSelectField, customSelecttype, customArrayIdx, valueToReplace",
-            atIds, customSelectField, customSelectType, customArrayIdx, displayTitle, valueToReplace
-        );
+        // console.log(`calling selectComplete(
+        //     atIds=${atIds},
+        //     customSelectField=${customSelectField},
+        //     customSelectType=${customSelectType},
+        //     customArrayIdx=${customArrayIdx},
+        //     valueToReplace=${valueToReplace}`);
         const { currContext } = this.props;
         const {
             selectField: stateSelectField,
