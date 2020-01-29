@@ -1480,7 +1480,7 @@ function (_React$PureComponent) {
         var payload = JSON.stringify(finalizedContext); // add delete_fields parameter to request if necessary
 
         if (deleteFields && Array.isArray(deleteFields) && deleteFields.length > 0) {
-          var deleteString = deleteFields.join(',');
+          var deleteString = deleteFields.map(encodeURIComponent).join(',');
           destination = destination + (test ? '&' : '?') + 'delete_fields=' + deleteString;
 
           _util.console.log('DESTINATION:', destination);

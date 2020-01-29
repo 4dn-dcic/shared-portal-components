@@ -1097,7 +1097,7 @@ export default class SubmissionView extends React.PureComponent{
 
             // add delete_fields parameter to request if necessary
             if (deleteFields && Array.isArray(deleteFields) && deleteFields.length > 0){
-                var deleteString = deleteFields.join(',');
+                var deleteString = deleteFields.map(encodeURIComponent).join(',');
                 destination = destination + (test ? '&' : '?') + 'delete_fields=' + deleteString;
                 console.log('DESTINATION:', destination);
             }
