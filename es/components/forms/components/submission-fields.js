@@ -1187,7 +1187,9 @@ function (_React$Component3) {
   }, {
     key: "modifyFile",
     value: function modifyFile(val) {
-      this.props.setSubmissionState('file', val);
+      this.props.setSubmissionState({
+        file: val
+      });
 
       if (val !== null) {
         this.setState({

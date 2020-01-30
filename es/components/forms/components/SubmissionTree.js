@@ -333,7 +333,9 @@ function (_React$PureComponent2) {
         return;
       }
 
-      setSubmissionState('currKey', keyIdx);
+      setSubmissionState({
+        currKey: keyIdx
+      });
     }
   }, {
     key: "render",

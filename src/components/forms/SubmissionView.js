@@ -45,7 +45,7 @@ import { BuildField, AliasInputField, isValueNull } from './components/submissio
  * @prop {boolean} create   Is this a new Item being created?
  * @prop {boolean} edit     Is this an Item being edited?
  */
-export default class SubmissionView extends React.PureComponent{
+export default class SubmissionView extends React.PureComponent {
 
     /**
      * Function to look at a specific object (reference by key) and
@@ -773,48 +773,64 @@ export default class SubmissionView extends React.PureComponent{
      * leaving if its validation state == 1 (has no incomplete children). Also
      * remove any hanging Alert error messages from validation.
      */
-    setSubmissionState(key, value){
-        console.log(`calling setSubmissionState(key = ${key}, value = ${value}`);
-        const { currKey, upload, md5Progress, keyValid, errorCount, roundTwo, keyHierarchy, keyContext, keyComplete } = this.state;
-        var stateToSet = {};
-        if (typeof this.state[key] !== 'undefined'){
-            // this means we're navigating to a new object if true
-            if (key === 'currKey' && value !== currKey){
+    setSubmissionState(nextState = {}){
+        console.log(`calling setSubmissionState`, nextState);
+
+        this.setState(function(currState){
+            const { currKey, upload, md5Progress, keyValid: currKeyValid, errorCount, roundTwo, keyHierarchy, keyContext, keyComplete } = currState;
+            const { keyValid: nextStateKeyValid } = nextState;
+            const stateToSet = { ...nextState };
+
+            const keyValid = nextStateKeyValid || currKeyValid;
+
+            if (typeof nextState.currKey !== "undefined" && nextState.currKey !== currKey) {
+                // this means we're navigating to a new object if true
+
                 // don't allow navigation when we have an uploading file
                 // or calculating md5
                 if (upload !== null || md5Progress !== null){
                     alert('Please wait for your upload to finish.');
-                    return;
+                    return null;
                 }
+
                 // get rid of any hanging errors
-                for(var i=0; i < errorCount; i++){
+                for (var i=0; i < errorCount; i++){
                     Alerts.deQueue({ 'title' : "Validation error " + parseInt(i + 1) });
                     stateToSet.errorCount = 0;
                 }
+
                 // skip validation stuff if in roundTwo
-                if(!roundTwo){
-                    // if current key is ready for validation, first try that
-                    // but suppress warning messages
-                    if (keyValid[currKey] === 1) {
-                        this.submitObject(currKey, true, true);
-                    }
+                if (!roundTwo){
                     // see if newly-navigated obj is ready for validation
-                    if(keyValid[value] === 0){
-                        const validState = SubmissionView.findValidationState(value, keyHierarchy, keyContext, keyComplete);
+                    if (keyValid[nextState.currKey] === 0){
+                        const validState = SubmissionView.findValidationState(nextState.currKey, keyHierarchy, keyContext, keyComplete);
                         if (validState === 1){
                             const nextKeyValid = _.clone(keyValid);
-                            nextKeyValid[value] = 1;
-                            stateToSet['keyValid'] = nextKeyValid;
+                            nextKeyValid[nextState.currKey] = 1;
+                            stateToSet.keyValid = nextKeyValid;
                         }
                     }
                 }
+
                 // reset some state
                 stateToSet.processingFetch = false;
                 stateToSet.uploadStatus = null;
+
             }
-            stateToSet[key] = value;
-            this.setState(stateToSet);
-        }
+            return stateToSet;
+        }, ()=>{
+            const { roundTwo, keyValid, currKey } = this.state;
+            // skip validation stuff if in roundTwo
+            if (roundTwo) {
+                return;
+            }
+
+            // if current key is ready for validation, first try that
+            // but suppress warning messages
+            if (keyValid[currKey] === 1) {
+                this.submitObject(currKey, true, true);
+            }
+        });
     }
 
     /**
@@ -1132,13 +1148,13 @@ export default class SubmissionView extends React.PureComponent{
                         }
                         setTimeout(layout.animateScrollTo(0), 100);
                     }
-                    this.setState(stateToSet);
+                    this.setSubmissionState(stateToSet);
                 } else {
                     let responseData;
                     let submitted_at_id;
                     if (test){
                         stateToSet.keyValid[inKey] = 3;
-                        this.setState(stateToSet);
+                        this.setSubmissionState(stateToSet);
                         return;
                     } else {
                         [ responseData ] = response['@graph'];
@@ -1236,14 +1252,16 @@ export default class SubmissionView extends React.PureComponent{
                                     stateToSet.keyValid[roundTwoCopy[i]] = 0;
                                 }
                                 alert('Success! All objects were submitted. However, one or more have additional fields that can be only filled in second round submission. You will now be guided through this process for each object.');
-                                this.setState(stateToSet);
+                                this.setSubmissionState(stateToSet);
+                                //this.setState(stateToSet);
                             }
                         } else {
                             console.log("stateToSet: ", stateToSet);
                             console.log("keyDisplay, ", keyDisplay);
                             console.log("inKey: , ", inKey);
+                            this.setSubmissionState(stateToSet);
                             alert(keyDisplay[inKey] + ' was successfully submitted.');
-                            this.setState(stateToSet);
+                            //this.setState(stateToSet);
                         }
                     }
                     ReactTooltip.rebuild();
@@ -1611,7 +1629,7 @@ class DetailTitleBanner extends React.PureComponent {
 
     handleClick(keyIdx, e){
         e.preventDefault();
-        this.props.setSubmissionState('currKey', keyIdx);
+        this.props.setSubmissionState({ currKey: keyIdx });
     }
 
     toggleOpen(e){
@@ -2600,6 +2618,29 @@ var flattenHierarchy = function myself(hierarchy){
     });
     return found_keys;
 };
+
+
+function calculateKeyValid(keyContext, keyHierarchy, keyComplete){
+    _.keys(keyContext).sort().forEach(function(keyIdx){
+        keyIdx = parseInt(keyIdx);
+        const isValid = findValidationState(keyIdx, keyHierarchy, keyContext, keyComplete);
+    });
+}
+
+function findValidationState(keyIdx, prevKeyHierarchy, keyContext, keyComplete){
+    const hierarchy = object.deepClone(prevKeyHierarchy);
+    const keyHierarchy = searchHierarchy(hierarchy, keyIdx);
+    if (keyHierarchy === null) return 0;
+    var validationReturn = 1;
+    _.keys(keyHierarchy).forEach(function(key, index){
+        if(!isNaN(key)){
+            if (!keyComplete[key] && keyContext[key]){
+                validationReturn = 0;
+            }
+        }
+    });
+    return validationReturn;
+}
 
 
 /**

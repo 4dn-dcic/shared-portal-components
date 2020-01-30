@@ -184,7 +184,7 @@ class SubmissionLeaf extends React.PureComponent {
             return;
         }
 
-        setSubmissionState('currKey', keyIdx);
+        setSubmissionState({ currKey: keyIdx });
     }
 
     render() {

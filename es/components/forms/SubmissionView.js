@@ -128,7 +128,7 @@ function (_React$PureComponent) {
      *
      * @todo maybe memoize this and replace usage of state.keyValid w/ it.
      */
-    value: function findValidationState(keyIdx, prevKeyHierarchy, keyContext, keyComplete) {
+    value: function (keyIdx, prevKeyHierarchy, keyContext, keyComplete) {
       var hierarchy = _util.object.deepClone(prevKeyHierarchy);
 
       var keyHierarchy = searchHierarchy(hierarchy, keyIdx);
@@ -1058,29 +1058,36 @@ function (_React$PureComponent) {
 
   }, {
     key: "setSubmissionState",
-    value: function setSubmissionState(key, value) {
-      _util.console.log("calling setSubmissionState(key = ".concat(key, ", value = ").concat(value));
+    value: function setSubmissionState() {
+      var _this4 = this;
 
-      var _this$state4 = this.state,
-          currKey = _this$state4.currKey,
-          upload = _this$state4.upload,
-          md5Progress = _this$state4.md5Progress,
-          keyValid = _this$state4.keyValid,
-          errorCount = _this$state4.errorCount,
-          roundTwo = _this$state4.roundTwo,
-          keyHierarchy = _this$state4.keyHierarchy,
-          keyContext = _this$state4.keyContext,
-          keyComplete = _this$state4.keyComplete;
-      var stateToSet = {};
+      var nextState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (typeof this.state[key] !== 'undefined') {
-        // this means we're navigating to a new object if true
-        if (key === 'currKey' && value !== currKey) {
+      _util.console.log("calling setSubmissionState", nextState);
+
+      this.setState(function (currState) {
+        var currKey = currState.currKey,
+            upload = currState.upload,
+            md5Progress = currState.md5Progress,
+            currKeyValid = currState.keyValid,
+            errorCount = currState.errorCount,
+            roundTwo = currState.roundTwo,
+            keyHierarchy = currState.keyHierarchy,
+            keyContext = currState.keyContext,
+            keyComplete = currState.keyComplete;
+        var nextStateKeyValid = nextState.keyValid;
+
+        var stateToSet = _objectSpread({}, nextState);
+
+        var keyValid = nextStateKeyValid || currKeyValid;
+
+        if (typeof nextState.currKey !== "undefined" && nextState.currKey !== currKey) {
+          // this means we're navigating to a new object if true
           // don't allow navigation when we have an uploading file
           // or calculating md5
           if (upload !== null || md5Progress !== null) {
             alert('Please wait for your upload to finish.');
-            return;
+            return null;
           } // get rid of any hanging errors
 
 
@@ -1094,21 +1101,15 @@ function (_React$PureComponent) {
 
 
           if (!roundTwo) {
-            // if current key is ready for validation, first try that
-            // but suppress warning messages
-            if (keyValid[currKey] === 1) {
-              this.submitObject(currKey, true, true);
-            } // see if newly-navigated obj is ready for validation
-
-
-            if (keyValid[value] === 0) {
-              var validState = SubmissionView.findValidationState(value, keyHierarchy, keyContext, keyComplete);
+            // see if newly-navigated obj is ready for validation
+            if (keyValid[nextState.currKey] === 0) {
+              var validState = SubmissionView.findValidationState(nextState.currKey, keyHierarchy, keyContext, keyComplete);
 
               if (validState === 1) {
                 var nextKeyValid = _underscore["default"].clone(keyValid);
 
-                nextKeyValid[value] = 1;
-                stateToSet['keyValid'] = nextKeyValid;
+                nextKeyValid[nextState.currKey] = 1;
+                stateToSet.keyValid = nextKeyValid;
               }
             }
           } // reset some state
@@ -1118,9 +1119,23 @@ function (_React$PureComponent) {
           stateToSet.uploadStatus = null;
         }
 
-        stateToSet[key] = value;
-        this.setState(stateToSet);
-      }
+        return stateToSet;
+      }, function () {
+        var _this4$state = _this4.state,
+            roundTwo = _this4$state.roundTwo,
+            keyValid = _this4$state.keyValid,
+            currKey = _this4$state.currKey; // skip validation stuff if in roundTwo
+
+        if (roundTwo) {
+          return;
+        } // if current key is ready for validation, first try that
+        // but suppress warning messages
+
+
+        if (keyValid[currKey] === 1) {
+          _this4.submitObject(currKey, true, true);
+        }
+      });
     }
     /**
      * Function used to initialize uploads, complete them, and end them on failure.
@@ -1136,7 +1151,7 @@ function (_React$PureComponent) {
   }, {
     key: "updateUpload",
     value: function updateUpload(uploadInfo) {
-      var _this4 = this;
+      var _this5 = this;
 
       var completed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var failed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -1159,7 +1174,7 @@ function (_React$PureComponent) {
           stateToSet.uploadStatus = 'Upload failed';
           stateToSet.upload = null;
 
-          _this4.setState(stateToSet);
+          _this5.setState(stateToSet);
         });
       } else {
         // must be the initial run
@@ -1171,7 +1186,7 @@ function (_React$PureComponent) {
         if (file === null) return;
         (0, _file.getLargeMD5)(file, this.modifyMD5Progess).then(function (hash) {
           // perform async patch to set md5sum field of the file
-          var destination = _this4.state.keyComplete[_this4.state.currKey];
+          var destination = _this5.state.keyComplete[_this5.state.currKey];
           var payload = JSON.stringify({
             'md5sum': hash
           });
@@ -1184,19 +1199,19 @@ function (_React$PureComponent) {
               stateToSet.md5Progress = null;
               stateToSet.uploadStatus = null;
 
-              _this4.setState(stateToSet);
+              _this5.setState(stateToSet);
             } else if (data.status && data.title && data.status == 'error' && data.title == 'Conflict') {
               // md5 key conflict
               stateToSet.uploadStatus = 'MD5 conflicts with another file';
               stateToSet.md5Progress = null;
 
-              _this4.setState(stateToSet);
+              _this5.setState(stateToSet);
             } else {
               // error setting md5
               stateToSet.uploadStatus = 'MD5 calculation error';
               stateToSet.md5Progress = null;
 
-              _this4.setState(stateToSet);
+              _this5.setState(stateToSet);
             }
           });
         })["catch"](function () {
@@ -1204,7 +1219,7 @@ function (_React$PureComponent) {
           stateToSet.file = null;
           stateToSet.md5Progress = null;
 
-          _this4.setState(stateToSet);
+          _this5.setState(stateToSet);
         });
       }
     }
@@ -1279,7 +1294,7 @@ function (_React$PureComponent) {
   }, {
     key: "buildDeleteFields",
     value: function buildDeleteFields(patchContext, origContext, schema) {
-      var _this5 = this;
+      var _this6 = this;
 
       var deleteFields = []; // must remove nulls from the orig copy to sync with patchContext
 
@@ -1321,12 +1336,12 @@ function (_React$PureComponent) {
 
 
           if (fieldSchema.ff_flag && fieldSchema.ff_flag == 'second round') {
-            if (_this5.state.roundTwo) deleteFields.push(field);
+            if (_this6.state.roundTwo) deleteFields.push(field);
             return;
           } // if we're here, the submission field was legitimately deleted
 
 
-          if (!_this5.state.roundTwo) deleteFields.push(field);
+          if (!_this6.state.roundTwo) deleteFields.push(field);
         }
       });
 
@@ -1363,7 +1378,7 @@ function (_React$PureComponent) {
   }, {
     key: "submitObject",
     value: function submitObject(inKey) {
-      var _this6 = this;
+      var _this7 = this;
 
       var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var suppressWarnings = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -1377,21 +1392,21 @@ function (_React$PureComponent) {
           schemas = _this$props3.schemas,
           setIsSubmitting = _this$props3.setIsSubmitting,
           propNavigate = _this$props3.navigate;
-      var _this$state5 = this.state,
-          keyValid = _this$state5.keyValid,
-          keyTypes = _this$state5.keyTypes,
-          errorCount = _this$state5.errorCount,
-          currentSubmittingUser = _this$state5.currentSubmittingUser,
-          edit = _this$state5.edit,
-          roundTwo = _this$state5.roundTwo,
-          keyComplete = _this$state5.keyComplete,
-          keyContext = _this$state5.keyContext,
-          keyDisplay = _this$state5.keyDisplay,
-          file = _this$state5.file,
-          keyHierarchy = _this$state5.keyHierarchy,
-          keyLinks = _this$state5.keyLinks,
-          roundTwoKeys = _this$state5.roundTwoKeys,
-          callbackHref = _this$state5.callbackHref;
+      var _this$state4 = this.state,
+          keyValid = _this$state4.keyValid,
+          keyTypes = _this$state4.keyTypes,
+          errorCount = _this$state4.errorCount,
+          currentSubmittingUser = _this$state4.currentSubmittingUser,
+          edit = _this$state4.edit,
+          roundTwo = _this$state4.roundTwo,
+          keyComplete = _this$state4.keyComplete,
+          keyContext = _this$state4.keyContext,
+          keyDisplay = _this$state4.keyDisplay,
+          file = _this$state4.file,
+          keyHierarchy = _this$state4.keyHierarchy,
+          keyLinks = _this$state4.keyLinks,
+          roundTwoKeys = _this$state4.roundTwoKeys,
+          callbackHref = _this$state4.callbackHref;
       var stateToSet = {}; // hold next state
 
       var currType = keyTypes[inKey];
@@ -1469,11 +1484,11 @@ function (_React$PureComponent) {
           actionMethod = 'PATCH';
           var alreadySubmittedContext = keyContext[destination]; // roundTwo flag set to true for second round
 
-          deleteFields = _this6.buildDeleteFields(finalizedContext, alreadySubmittedContext, currSchema);
+          deleteFields = _this7.buildDeleteFields(finalizedContext, alreadySubmittedContext, currSchema);
         } else if (edit && inKey === 0) {
           destination = _util.object.itemUtil.atId(context);
           actionMethod = 'PATCH';
-          deleteFields = _this6.buildDeleteFields(finalizedContext, context, currSchema);
+          deleteFields = _this7.buildDeleteFields(finalizedContext, context, currSchema);
         } else {
           destination = '/' + currType + '/';
           actionMethod = 'POST';
@@ -1527,7 +1542,7 @@ function (_React$PureComponent) {
               setTimeout(_util.layout.animateScrollTo(0), 100);
             }
 
-            _this6.setState(stateToSet);
+            _this7.setSubmissionState(stateToSet);
           } else {
             var responseData;
             var submitted_at_id;
@@ -1535,7 +1550,7 @@ function (_React$PureComponent) {
             if (test) {
               stateToSet.keyValid[inKey] = 3;
 
-              _this6.setState(stateToSet);
+              _this7.setSubmissionState(stateToSet);
 
               return;
             } else {
@@ -1569,16 +1584,16 @@ function (_React$PureComponent) {
                     // is succesful, call finishRoundTwo.
                     stateToSet.uploadStatus = null;
 
-                    _this6.setState(stateToSet);
+                    _this7.setState(stateToSet);
 
-                    _this6.updateUpload(upload_manager);
+                    _this7.updateUpload(upload_manager);
                   }
                 });
               } else {
                 // state cleanup for this key
-                _this6.finishRoundTwo();
+                _this7.finishRoundTwo();
 
-                _this6.setState(stateToSet);
+                _this7.setState(stateToSet);
               }
             } else {
               stateToSet.keyValid[inKey] = 4; // Perform final steps when object is submitted
@@ -1616,7 +1631,7 @@ function (_React$PureComponent) {
               stateToSet.keyDisplay = displayCopy;
               stateToSet.keyContext = contextCopy; // update roundTwoKeys if necessary
 
-              var needsRoundTwo = _this6.checkRoundTwo(currSchema);
+              var needsRoundTwo = _this7.checkRoundTwo(currSchema);
 
               if (needsRoundTwo && !_underscore["default"].contains(roundTwoCopy, inKey)) {
                 // was getting an error where this could be str
@@ -1644,7 +1659,8 @@ function (_React$PureComponent) {
 
                   alert('Success! All objects were submitted. However, one or more have additional fields that can be only filled in second round submission. You will now be guided through this process for each object.');
 
-                  _this6.setState(stateToSet);
+                  _this7.setSubmissionState(stateToSet); //this.setState(stateToSet);
+
                 }
               } else {
                 _util.console.log("stateToSet: ", stateToSet);
@@ -1653,9 +1669,9 @@ function (_React$PureComponent) {
 
                 _util.console.log("inKey: , ", inKey);
 
-                alert(keyDisplay[inKey] + ' was successfully submitted.');
+                _this7.setSubmissionState(stateToSet);
 
-                _this6.setState(stateToSet);
+                alert(keyDisplay[inKey] + ' was successfully submitted.'); //this.setState(stateToSet);
               }
             }
 
@@ -1687,7 +1703,7 @@ function (_React$PureComponent) {
   }, {
     key: "finishRoundTwo",
     value: function finishRoundTwo() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.setState(function (_ref8) {
         var currKey = _ref8.currKey,
@@ -1716,14 +1732,14 @@ function (_React$PureComponent) {
           roundTwoKeys: roundTwoCopy
         };
       }, function () {
-        var _this7$props = _this7.props,
-            setIsSubmitting = _this7$props.setIsSubmitting,
-            propNavigate = _this7$props.navigate;
-        var _this7$state = _this7.state,
-            keyComplete = _this7$state.keyComplete,
-            _this7$state$roundTwo = _this7$state.roundTwoKeys,
-            roundTwoKeys = _this7$state$roundTwo === void 0 ? [] : _this7$state$roundTwo,
-            callbackHref = _this7$state.callbackHref;
+        var _this8$props = _this8.props,
+            setIsSubmitting = _this8$props.setIsSubmitting,
+            propNavigate = _this8$props.navigate;
+        var _this8$state = _this8.state,
+            keyComplete = _this8$state.keyComplete,
+            _this8$state$roundTwo = _this8$state.roundTwoKeys,
+            roundTwoKeys = _this8$state$roundTwo === void 0 ? [] : _this8$state$roundTwo,
+            callbackHref = _this8$state.callbackHref;
 
         if (roundTwoKeys.length === 0) {
           // we're done!
@@ -1835,17 +1851,17 @@ function (_React$PureComponent) {
       _util.console.log('TOP LEVEL STATE:', this.state);
 
       var schemas = this.props.schemas;
-      var _this$state6 = this.state,
-          currKey = _this$state6.currKey,
-          keyContext = _this$state6.keyContext,
-          ambiguousIdx = _this$state6.ambiguousIdx,
-          ambiguousType = _this$state6.ambiguousType,
-          creatingType = _this$state6.creatingType,
-          creatingIdx = _this$state6.creatingIdx,
-          keyTypes = _this$state6.keyTypes,
-          fullScreen = _this$state6.fullScreen,
-          keyDisplay = _this$state6.keyDisplay,
-          keyHierarchy = _this$state6.keyHierarchy; // see if initialized
+      var _this$state5 = this.state,
+          currKey = _this$state5.currKey,
+          keyContext = _this$state5.keyContext,
+          ambiguousIdx = _this$state5.ambiguousIdx,
+          ambiguousType = _this$state5.ambiguousType,
+          creatingType = _this$state5.creatingType,
+          creatingIdx = _this$state5.creatingIdx,
+          keyTypes = _this$state5.keyTypes,
+          fullScreen = _this$state5.fullScreen,
+          keyDisplay = _this$state5.keyDisplay,
+          keyHierarchy = _this$state5.keyHierarchy; // see if initialized
 
       if (!keyContext || currKey === null) {
         return null;
@@ -2156,25 +2172,27 @@ function (_React$PureComponent2) {
   }]);
 
   function DetailTitleBanner(props) {
-    var _this8;
+    var _this9;
 
     _classCallCheck(this, DetailTitleBanner);
 
-    _this8 = _possibleConstructorReturn(this, _getPrototypeOf(DetailTitleBanner).call(this, props));
-    _this8.generateCrumbTitle = _this8.generateCrumbTitle.bind(_assertThisInitialized(_this8));
-    _this8.toggleOpen = _underscore["default"].throttle(_this8.toggleOpen.bind(_assertThisInitialized(_this8)), 500);
-    _this8.generateHierarchicalTitles = _this8.generateHierarchicalTitles.bind(_assertThisInitialized(_this8));
-    _this8.state = {
+    _this9 = _possibleConstructorReturn(this, _getPrototypeOf(DetailTitleBanner).call(this, props));
+    _this9.generateCrumbTitle = _this9.generateCrumbTitle.bind(_assertThisInitialized(_this9));
+    _this9.toggleOpen = _underscore["default"].throttle(_this9.toggleOpen.bind(_assertThisInitialized(_this9)), 500);
+    _this9.generateHierarchicalTitles = _this9.generateHierarchicalTitles.bind(_assertThisInitialized(_this9));
+    _this9.state = {
       'open': true
     };
-    return _this8;
+    return _this9;
   }
 
   _createClass(DetailTitleBanner, [{
     key: "handleClick",
     value: function handleClick(keyIdx, e) {
       e.preventDefault();
-      this.props.setSubmissionState('currKey', keyIdx);
+      this.props.setSubmissionState({
+        currKey: keyIdx
+      });
     }
   }, {
     key: "toggleOpen",
@@ -2284,14 +2302,14 @@ function (_React$Component) {
   _inherits(TypeSelectModal, _React$Component);
 
   function TypeSelectModal(props) {
-    var _this9;
+    var _this10;
 
     _classCallCheck(this, TypeSelectModal);
 
-    _this9 = _possibleConstructorReturn(this, _getPrototypeOf(TypeSelectModal).call(this, props));
-    _this9.onHide = _this9.onHide.bind(_assertThisInitialized(_this9));
-    _this9.onContainerKeyDown = _this9.onContainerKeyDown.bind(_assertThisInitialized(_this9));
-    return _this9;
+    _this10 = _possibleConstructorReturn(this, _getPrototypeOf(TypeSelectModal).call(this, props));
+    _this10.onHide = _this10.onHide.bind(_assertThisInitialized(_this10));
+    _this10.onContainerKeyDown = _this10.onContainerKeyDown.bind(_assertThisInitialized(_this10));
+    return _this10;
   }
 
   _createClass(TypeSelectModal, [{
@@ -2464,13 +2482,13 @@ function (_React$Component2) {
   _inherits(IndividualObjectView, _React$Component2);
 
   function IndividualObjectView(props) {
-    var _this10;
+    var _this11;
 
     _classCallCheck(this, IndividualObjectView);
 
-    _this10 = _possibleConstructorReturn(this, _getPrototypeOf(IndividualObjectView).call(this, props));
+    _this11 = _possibleConstructorReturn(this, _getPrototypeOf(IndividualObjectView).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
+    _underscore["default"].bindAll(_assertThisInitialized(_this11), 'modifyNewContext', 'fetchAndValidateItem', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
     /**
      * State in this component mostly has to do with selection of existing objs
      *
@@ -2480,12 +2498,12 @@ function (_React$Component2) {
      */
 
 
-    _this10.state = {
+    _this11.state = {
       'selectType': null,
       'selectField': null,
       'selectArrayIdx': null
     };
-    return _this10;
+    return _this11;
   }
 
   _createClass(IndividualObjectView, [{
@@ -2625,7 +2643,7 @@ function (_React$Component2) {
   }, {
     key: "fetchAndValidateItem",
     value: function fetchAndValidateItem(itemAtID, field, type, arrayIdx) {
-      var _this11 = this;
+      var _this12 = this;
 
       var newLink = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 
@@ -2645,7 +2663,7 @@ function (_React$Component2) {
         _util.layout.animateScrollTo(0); // Scroll to top of page so alert b visible to end-user.
 
 
-        _this11.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
+        _this12.modifyNewContext(field, null, 'existing linked object', null, arrayIdx);
       };
 
       var successCallback = function (result) {
@@ -2657,7 +2675,7 @@ function (_React$Component2) {
 
         _util.console.log("now modifying context to include existing object");
 
-        _this11.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
+        _this12.modifyNewContext(field, result['@id'], 'existing linked object', result['@type'][1], arrayIdx, result.display_title);
 
         addExistingObj(itemAtID, result.display_title, type, field, false);
       };
@@ -2720,7 +2738,7 @@ function (_React$Component2) {
   }, {
     key: "selectComplete",
     value: function selectComplete(atIds) {
-      var _this12 = this;
+      var _this13 = this;
 
       var customSelectField = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -2731,10 +2749,10 @@ function (_React$Component2) {
       _util.console.log("calling selectComplete(atIds, customSelectField, customSelecttype, customArrayIdx, valueToReplace", atIds, customSelectField, customSelectType, customArrayIdx, displayTitle, valueToReplace);
 
       var currContext = this.props.currContext;
-      var _this$state7 = this.state,
-          stateSelectField = _this$state7.selectField,
-          stateSelectArrayIdx = _this$state7.selectArrayIdx,
-          stateSelectType = _this$state7.selectType;
+      var _this$state6 = this.state,
+          stateSelectField = _this$state6.selectField,
+          stateSelectArrayIdx = _this$state6.selectArrayIdx,
+          stateSelectType = _this$state6.selectType;
       var selectField = customSelectField || stateSelectField;
       var selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
       var isInArray = selectArrayIdx && Array.isArray(selectArrayIdx);
@@ -2767,7 +2785,7 @@ function (_React$Component2) {
         if (!isRepeat) {
           _util.console.log("not a repeat, ");
 
-          _this12.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isInArray ? nextArrayIndices.slice() : null, null);
+          _this13.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isInArray ? nextArrayIndices.slice() : null, null);
 
           if (isMultiSelect) {
             // Sets up nextArrayIndices for next Item being added in multiselect
@@ -2775,7 +2793,7 @@ function (_React$Component2) {
           }
         } else {
           // "Cancel"
-          _this12.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+          _this13.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
         }
       });
       this.setState({
@@ -2789,9 +2807,9 @@ function (_React$Component2) {
   }, {
     key: "selectCancel",
     value: function selectCancel() {
-      var _this$state8 = this.state,
-          selectField = _this$state8.selectField,
-          selectArrayIdx = _this$state8.selectArrayIdx;
+      var _this$state7 = this.state,
+          selectField = _this$state7.selectField,
+          selectArrayIdx = _this$state7.selectArrayIdx;
       this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
       this.setState({
         'selectType': null,
@@ -2990,16 +3008,16 @@ function (_React$PureComponent3) {
   _inherits(RoundTwoDetailPanel, _React$PureComponent3);
 
   function RoundTwoDetailPanel(props) {
-    var _this13;
+    var _this14;
 
     _classCallCheck(this, RoundTwoDetailPanel);
 
-    _this13 = _possibleConstructorReturn(this, _getPrototypeOf(RoundTwoDetailPanel).call(this, props));
-    _this13.handleToggle = _this13.handleToggle.bind(_assertThisInitialized(_this13));
-    _this13.state = {
+    _this14 = _possibleConstructorReturn(this, _getPrototypeOf(RoundTwoDetailPanel).call(this, props));
+    _this14.handleToggle = _this14.handleToggle.bind(_assertThisInitialized(_this14));
+    _this14.state = {
       'open': props.open || false
     };
-    return _this13;
+    return _this14;
   }
 
   _createClass(RoundTwoDetailPanel, [{
@@ -3420,6 +3438,31 @@ var flattenHierarchy = function myself(hierarchy) {
 
   return found_keys;
 };
+
+function calculateKeyValid(keyContext, keyHierarchy, keyComplete) {
+  _underscore["default"].keys(keyContext).sort().forEach(function (keyIdx) {
+    keyIdx = parseInt(keyIdx);
+    findValidationState(keyIdx, keyHierarchy, keyContext, keyComplete);
+  });
+}
+
+function findValidationState(keyIdx, prevKeyHierarchy, keyContext, keyComplete) {
+  var hierarchy = _util.object.deepClone(prevKeyHierarchy);
+
+  var keyHierarchy = searchHierarchy(hierarchy, keyIdx);
+  if (keyHierarchy === null) return 0;
+  var validationReturn = 1;
+
+  _underscore["default"].keys(keyHierarchy).forEach(function (key) {
+    if (!isNaN(key)) {
+      if (!keyComplete[key] && keyContext[key]) {
+        validationReturn = 0;
+      }
+    }
+  });
+
+  return validationReturn;
+}
 /**
  * Remove any field with a null value from given json context.
  * also remove empty arrays and objects
