@@ -931,7 +931,13 @@ export default class SubmissionView extends React.PureComponent{
 
     /**
      * Used to generate a list of fields that have been removed in the submission
-     * process. This list will in turn be used to make a deleteFields string
+     * process.
+     *
+     * @param {*} patchContext
+     * @param {*} origContext
+     * @param {*} schema
+     *
+     * This list will in turn be used to make a deleteFields string
      * that is passed to the server with the PATCH request for editing or
      * second round submission. Takes the patchContext, which is the submission
      * content after removeNulls and submitObject processing, and compares it
@@ -939,7 +945,7 @@ export default class SubmissionView extends React.PureComponent{
      * roundTwo flag is set to true, only operate on roundTwo submission fields.
      * Otherwise, do not operate on roundTwo fields.
      *
-     * Returns a list of stirng fieldnames to delete.
+     * @returns {[string <field>]} An array of stirng fieldnames to delete.
      */
     buildDeleteFields(patchContext, origContext, schema){
         var deleteFields = [];
@@ -1046,7 +1052,7 @@ export default class SubmissionView extends React.PureComponent{
         }
 
         const submitProcessContd = (userLab = null, userAward = null) => {
-
+            // Todo: this code is 4dn specific; get rid of it and move it to fourfront (eventually)
             // if editing, use pre-existing award, lab, and submitted_by
             // this should only be done on the primary object
             if (edit && inKey === 0 && context.award && context.lab){
@@ -1090,11 +1096,11 @@ export default class SubmissionView extends React.PureComponent{
                 const alreadySubmittedContext = keyContext[destination];
                 // roundTwo flag set to true for second round
                 deleteFields = this.buildDeleteFields(finalizedContext, alreadySubmittedContext, currSchema);
-            } else if (edit && inKey === 0){
+            } else if (edit && inKey === 0){ // submitting the principal object
                 destination = object.itemUtil.atId(context);
                 actionMethod = 'PATCH';
                 deleteFields = this.buildDeleteFields(finalizedContext, context, currSchema);
-            } else {
+            } else { // submitting a new object
                 destination = '/' + currType + '/';
                 actionMethod = 'POST';
             }
@@ -1137,10 +1143,10 @@ export default class SubmissionView extends React.PureComponent{
                                 'style': 'danger'
                             });
                         }
-                        setTimeout(layout.animateScrollTo(0), 100);
+                        setTimeout(layout.animateScrollTo(0), 100); // scroll to top
                     }
                     this.setState(stateToSet);
-                } else {
+                } else { // response successful
                     let responseData;
                     let submitted_at_id;
                     if (test){
@@ -1150,6 +1156,7 @@ export default class SubmissionView extends React.PureComponent{
                     } else {
                         [ responseData ] = response['@graph'];
                         submitted_at_id = object.itemUtil.atId(responseData);
+                        console.log("submittedAtid=",submitted_at_id);
                     }
                     // handle submission for round two
                     if (roundTwo){
@@ -1187,7 +1194,7 @@ export default class SubmissionView extends React.PureComponent{
                             this.finishRoundTwo();
                             this.setState(stateToSet);
                         }
-                    } else {
+                    } else { // posted new object; need to re-key this item
                         stateToSet.keyValid[inKey] = 4;
                         // Perform final steps when object is submitted
                         // *** SHOULD THIS STUFF BE BROKEN OUT INTO ANOTHER FXN?
@@ -1199,6 +1206,7 @@ export default class SubmissionView extends React.PureComponent{
                         var keyCompleteCopy = _.clone(keyComplete);
                         var linksCopy = _.clone(keyLinks);
                         var displayCopy = _.clone(keyDisplay);
+                        var hierCopy = _.clone(keyHierarchy);
                         // set contextCopy to returned data from POST
                         var contextCopy = _.clone(keyContext);
                         var roundTwoCopy = roundTwoKeys.slice();
@@ -1216,6 +1224,28 @@ export default class SubmissionView extends React.PureComponent{
                         stateToSet.keyComplete = keyCompleteCopy;
                         stateToSet.keyDisplay = displayCopy;
                         stateToSet.keyContext = contextCopy;
+
+                        if (inKey !== 0){
+                            const { splitField, arrayIdx } = findFieldFromContext(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']);
+                            console.log('TTT', splitField, arrayIdx);
+                            modifyContextInPlace(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
+                            // Modifies hierCopy in place.
+                            replaceInHierarchy(hierCopy, inKey, submitted_at_id);
+                            delete stateToSet.keyDisplay[inKey];
+                        }
+
+                        stateToSet.keyHierarchy = hierCopy;
+
+                        delete stateToSet.keyLinks[inKey];
+                        //delete stateToSet.keyContext[inKey];
+                        //delete stateToSet.keyDisplay[inKey];
+                        delete stateToSet.keyLinks[inKey];
+                        delete stateToSet.keyValid[inKey];
+                        //delete stateToSet.keyTypes[inKey];
+
+                        console.log(stateToSet);
+
+
 
                         // update roundTwoKeys if necessary
                         const needsRoundTwo = this.checkRoundTwo(currSchema);
@@ -1250,6 +1280,7 @@ export default class SubmissionView extends React.PureComponent{
                             console.log("keyDisplay, ", keyDisplay);
                             console.log("inKey: , ", inKey);
                             alert(keyDisplay[inKey] + ' was successfully submitted.');
+
                             this.setState(stateToSet);
                         }
                     }
@@ -1875,17 +1906,17 @@ class IndividualObjectView extends React.Component {
      * TODO: Examine why newLink isn't being used anywhere; what was it for, why did it disappear? Should it be in use?
      */
     modifyNewContext(field, value, fieldType, newLink, arrayIdx=null, type=null, valueTitle=null){
-        // console.log(
-        //     `calling modifyNewContext(
-        //         field=${field},
-        //         value=${value},
-        //         fieldType=${fieldType},
-        //         newLink=${newLink},
-        //         arrayIdx=${arrayIdx},
-        //         type=${type},
-        //         valueTitle=${valueTitle})`
-        // );
-        const { currContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj } = this.props;
+        console.log(
+            `calling modifyNewContext(
+                field=${field},
+                value=${value},
+                fieldType=${fieldType},
+                newLink=${newLink},
+                arrayIdx=${arrayIdx},
+                type=${type},
+                valueTitle=${valueTitle})`
+        );
+        const { currContext: propCurrContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj } = this.props;
 
         if (fieldType === 'new linked object'){
             value = this.props.keyIter + 1;
@@ -1900,6 +1931,12 @@ class IndividualObjectView extends React.Component {
             console.error('No field supplied', ...arguments);
         }
 
+        var splitField = field.split('.');
+        var splitFieldLeaf = splitField[splitField.length-1];
+
+        const { currContext, prevValue } = modifyContextInPlace(splitField, propCurrContext, arrayIdx, fieldType, value);
+
+        /*
         var splitField = field.split('.');
         var splitFieldLeaf = splitField[splitField.length-1];
         var arrayIdxPointer = 0;
@@ -1931,25 +1968,25 @@ class IndividualObjectView extends React.Component {
             prevValue = pointer[splitFieldLeaf];
             pointer[splitFieldLeaf] = value;
         }
+        */
     
-        console.log("modifyNewContext II", pointer, splitFieldLeaf, value, contextCopy);
-
+        console.log("modifyNewContext II", value, currContext);
         //this.setState({ currContext: contextCopy }, ()=>{
-            if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")){
-                removeObj(prevValue);
-            }
+        if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")){
+            removeObj(prevValue);
+        }
 
-            if (fieldType === 'new linked object'){
-                // value is new key index in this case
-                initCreateObj(type, value, field, false, field);
-            } else {
-                // actually change value
-                modifyKeyContext(currKey, contextCopy, valueTitle);
-            }
+        if (fieldType === 'new linked object'){
+            // value is new key index in this case
+            initCreateObj(type, value, field, false, field);
+        } else {
+            // actually change value
+            modifyKeyContext(currKey, currContext, valueTitle);
+        }
 
-            if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title'){
-                modifyAlias();
-            }
+        if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title'){
+            modifyAlias();
+        }
         //});
 
     }
@@ -2119,6 +2156,8 @@ class IndividualObjectView extends React.Component {
     initiateField(field) {
         const { schemas, currType, currKey, roundTwo, currContext, keyComplete, keyContext, edit } = this.props;
         const currSchema  = schemas[currType];
+
+        console.log("RENDER INDV OBJ VIEW", currSchema, field);
         const fieldSchema = object.getNestedProperty(currSchema, ['properties', field], true);
 
         if (!fieldSchema) return null;
@@ -2168,6 +2207,12 @@ class IndividualObjectView extends React.Component {
             isLinked = true;
         }
 
+        if (roundTwo) {
+            var path            = keyComplete[currKey],
+                completeContext = keyContext[path],
+                statusCheck     = completeContext.status && (completeContext.status == 'uploading' || completeContext.status == 'upload failed');
+        }
+
         // handle a linkTo object on the the top level
         // check if any schema-specific adjustments need to made:
         if (fieldSchema.s3Upload && fieldSchema.s3Upload === true){
@@ -2214,7 +2259,6 @@ class IndividualObjectView extends React.Component {
             function(f){ return !!f; } // Removes falsy (e.g. null) items.
         ));
         const roundTwoDetailContext = roundTwo && keyComplete[currKey] && keyContext[keyComplete[currKey]];
-
         return(
             <div>
                 <FormFieldsContainer currKey={currKey}>{ fieldJSXComponents }</FormFieldsContainer>
@@ -2285,75 +2329,6 @@ class RoundTwoDetailPanel extends React.PureComponent {
 /***** MISC. FUNCIONS *****/
 
 
-
-// function keyHierarchyFromKeyContext(keyContext, rootType, schemas){
-//     // Issue: no way to figure out if new-linkto being created or not.
-//     console.log("ARGS", keyContext, rootType, schemas);
-
-//     const keyTypes = {
-//         0: rootType
-//     };
-
-//     const keyHierarchy = {
-//         0 : {}
-//     };
-
-//     function isLinkTo(valString){
-//         if (typeof valString !== "string") return false;
-//         const matched = valString.match(/\/(.*?)\/(.*?)\//);
-//         if (!matched) return false;
-//         const [ , itemType, itemIdentifier ] = matched;
-//         if (itemType && itemIdentifier) {
-//             return itemType;
-//         }
-//         return false;
-//     }
-
-//     function scrapeFromCtx(ctx, ctxKey, ctxSchema){
-//         console.log("TTTT", ctx, ctxSchema, schemas);
-//         _.keys(ctx).forEach(function(propKey){
-//             const propVal = ctx[propKey];
-//             console.log('TTT', propKey, propVal, ctxKey, ctxSchema);
-//             let propSchema = ctxSchema[propKey];
-//             if (Array.isArray(propVal)){
-//                 propSchema = propSchema.items;
-//                 propVal.forEach(function(propValItem){
-//                     if (propValItem !== null && typeof propValItem === "object"){
-//                         scrapeFromCtx(propValItem, propSchema.properties);
-//                         return;
-//                     }
-//                     const itemType = propSchema.linkTo && isLinkTo(propValItem);
-//                     if (itemType) {
-//                         keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
-//                         keyHierarchy[ctxKey][propValItem] = itemType;
-//                         //keyTypes[ctxKey] = keyTypes[ctxKey] || {};
-//                         //keyTypes[]
-//                     }
-//                 });
-//             } else if (propVal !== null && typeof propVal === "object"){
-//                 // Sub-embed obj
-//                 console.log("TTTTDD", propVal, propSchema);
-//                 scrapeFromCtx(propVal, propSchema.properties);
-//             } else {
-//                 const itemType = propSchema.linkTo && isLinkTo(propVal);
-//                 if (itemType) {
-//                     keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
-//                     keyHierarchy[ctxKey][propVal] = itemType;
-//                 }
-//             }
-//         });
-//     }
-
-//     _.keys(keyContext).forEach(function(ctxKey){
-//         // Bleh need to traverse every sub object and array here
-//         scrapeFromCtx(keyContext[ctxKey], ctxKey, schemas[keyTypes[ctxKey]].properties);
-//     });
-
-//     return {
-//         keyContext,
-//         keyTypes
-//     };
-// }
 
 
 /**
@@ -2610,16 +2585,18 @@ var findParentFromHierarchy = function myself(hierarchy, keyIdx){
     return found_parent;
 };
 
-/** Replace a key with a different key in the hierarchy */
-var replaceInHierarchy = function myself(hierarchy, current, toReplace){
-    if (typeof current === 'number') current = current + '';
+/**
+ * Replace a key with a different key in the hierarchy
+ */
+var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValue){
+    if (typeof existingValueToFind === 'number') existingValueToFind = existingValueToFind + '';
     _.keys(hierarchy).forEach(function(key, index){
-        if(key === current){
+        if(key === existingValueToFind){
             var downstream = hierarchy[key];
-            hierarchy[toReplace] = downstream;
+            hierarchy[newValue] = downstream;
             delete hierarchy[key];
         }else{
-            hierarchy[key] = myself(hierarchy[key], current, toReplace);
+            hierarchy[key] = myself(hierarchy[key], existingValueToFind, newValue);
         }
     });
     return hierarchy;
@@ -2659,4 +2636,124 @@ function removeNulls(context){
         }
     });
     return context;
+}
+
+function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value){
+    //var splitField = field.split('.');
+    var splitFieldLeaf = splitField[splitField.length-1];
+    var arrayIdxPointer = 0;
+    var contextCopy = currContext; //object.deepClone(currContext);
+    var pointer = contextCopy;
+    var prevValue = null;
+    for (var i=0; i < splitField.length - 1; i++){
+        if(pointer[splitField[i]]){
+            pointer = pointer[splitField[i]];
+        }else{
+            console.error('PROBLEM CREATING NEW CONTEXT WITH: ', field, value);
+            return;
+        }
+        if(Array.isArray(pointer)){
+            pointer = pointer[arrayIdx[arrayIdxPointer]];
+            arrayIdxPointer += 1;
+        }
+    }
+    if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
+        // move pointer into array
+        pointer = pointer[splitFieldLeaf];
+        prevValue = pointer[arrayIdx[arrayIdxPointer]];
+        if (value === null){ // delete this array itemfieldType
+            pointer.splice(arrayIdx[arrayIdxPointer], 1);
+        } else {
+            pointer[arrayIdx[arrayIdxPointer]] = value;
+        }
+    } else { // value we're trying to set is not inside an array at this point
+        prevValue = pointer[splitFieldLeaf];
+        pointer[splitFieldLeaf] = value;
+    }
+    return { currContext, prevValue };
+}
+
+
+
+function findFieldFromContext(currContext, rootType, schemas, keyIndexToFind = 1, keyLinkToFind = []){
+
+    // Issue: no way to figure out if new-linkto being created or not.
+    console.log("ARGS", ...arguments);
+
+    let splitField = null;
+    let arrayIdx = null;
+
+    /*
+    const keyHierarchy = {
+        0 : {}
+    };
+    */
+
+    // function isLinkTo(valString){
+    //     if (typeof valString !== "string") return false;
+    //     const matched = valString.match(/\/(.*?)\/(.*?)\//);
+    //     if (!matched) return false;
+    //     const [ , itemType, itemIdentifier ] = matched;
+    //     if (itemType && itemIdentifier) {
+    //         return itemType;
+    //     }
+    //     return false;
+    // }
+
+    function scrapeFromCtx(ctx, ctxKey, ctxSchema, currFieldParts = [], arrIdx = null){
+        if (splitField) return;
+        console.log("TTTT", ctx, ctxSchema, schemas);
+        _.keys(ctx).forEach(function(propKey){
+            const propVal = ctx[propKey];
+            console.log('TTT', propKey, propVal, ctxKey, ctxSchema);
+            let propSchema = ctxSchema[propKey];
+            if (Array.isArray(propVal)){
+                propSchema = propSchema.items;
+                propVal.forEach(function(propValItem, idxInArray){
+                    if (propValItem !== null && typeof propValItem === "object"){
+                        // Breaks down when encounter more than 1 array deep.
+                        // But this occurs already other places so w.e.
+                        scrapeFromCtx(propValItem, propKey, propSchema.properties, [ ...currFieldParts, propKey ], [idxInArray]);
+                        return;
+                    }
+                    console.log(keyIndexToFind, propVal, propValItem, propSchema.linkTo, keyLinkToFind);
+                    if (keyIndexToFind === propValItem){
+                        const isCorrectLinkTo = keyLinkToFind.indexOf(propSchema.linkTo) > -1;
+                        if (isCorrectLinkTo) {
+                            splitField = [ ...currFieldParts, propKey ];
+                            arrayIdx = [idxInArray];
+                            //keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
+                            //keyHierarchy[ctxKey][propValItem] = itemType;
+                            //keyTypes[ctxKey] = keyTypes[ctxKey] || {};
+                            //keyTypes[]
+                        }
+                    }
+                });
+            } else if (propVal !== null && typeof propVal === "object"){
+                // Sub-embed obj
+                //console.log("TTTTDD", propVal, propSchema);
+                scrapeFromCtx(propVal, propKey, propSchema.properties, [ ...currFieldParts, propKey ], arrIdx);
+            } else {
+                if (keyIndexToFind === propVal){
+                    const isCorrectLinkTo = keyLinkToFind.indexOf(propSchema.linkTo) > -1;
+                    if (isCorrectLinkTo) {
+                        splitField = [ ...currFieldParts, propKey ];
+                        arrayIdx = arrIdx;
+                        // keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
+                        // keyHierarchy[ctxKey][propVal] = itemType;
+                    }
+                }
+            }
+        });
+    }
+
+    //_.keys(currContext).forEach(function(propKey){
+        // Bleh need to traverse every sub object and array here
+    scrapeFromCtx(currContext, null, schemas[rootType].properties, []);
+    //});
+
+    return {
+        splitField,
+        arrayIdx
+    };
 }

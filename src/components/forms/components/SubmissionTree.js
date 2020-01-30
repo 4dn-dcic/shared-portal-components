@@ -12,7 +12,7 @@ import { Collapse } from './../../ui/Collapse';
 export class SubmissionTree extends React.PureComponent {
 
     static propTypes = {
-        'keyHierarchy'      : PropTypes.object.isRequired,
+        'hierarchy'         : PropTypes.object.isRequired,
         'keyValid'          : PropTypes.object.isRequired,
         'keyTypes'          : PropTypes.object.isRequired,
         'keyDisplay'        : PropTypes.object.isRequired,
@@ -38,68 +38,6 @@ export class SubmissionTree extends React.PureComponent {
             </div>
         );
     }
-}
-
-class SubmissionProperty extends React.Component {
-
-    constructor(props){
-        super(props);
-        this.handleToggle = _.throttle(this.handleToggle.bind(this), 500, { 'trailing' : false });
-        this.generateChild = this.generateChild.bind(this);
-        this.state = { 'open' : typeof props.open === 'boolean' ? props.open : true };
-    }
-
-    handleToggle(e){
-        e.preventDefault();
-        e.stopPropagation();
-        this.setState(function({ open }){
-            return { "open" : !open };
-        });
-    }
-
-    generateChild(childKey){
-        const { keyIdx, depth, hierarchy } = this.props;
-        if (!isNaN(childKey)) childKey = parseInt(childKey);
-
-        // replace key and hierarchy in props
-        return <SubmissionLeaf {...this.props} key={childKey} keyIdx={childKey} hierarchy={hierarchy[keyIdx]} open depth={depth + 1} />;
-    }
-
-    render(){
-        const { field, schemas, keyTypes, keyIdx, hierarchy, keyLinks, depth } = this.props;
-        const { open } = this.state;
-
-        // Item currently being edited
-        const itemSchema = schemas[keyTypes[keyIdx]];
-        if (!itemSchema) return null;
-
-        const isRequired = Array.isArray(itemSchema.required) && _.contains(itemSchema.required, field);
-        const [ fieldBase ] = field.split('.');
-        const fieldSchema = itemSchema.properties[fieldBase];
-        const bookmark = (fieldSchema && fieldSchema.title) || fieldSchemaLinkToType(fieldSchema);
-
-        const children = _.map(
-            _.filter(_.keys(hierarchy[keyIdx]), function(childKey){
-                return keyLinks[childKey] === field;
-            }),
-            this.generateChild
-        );
-
-        const noChildren = children.length === 0;
-
-        return(
-            <div key={bookmark} className={"submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '' )}>
-                <div className={"clearfix inner-title" + (!noChildren ? ' clickable' : '')} onClick={!noChildren ? this.handleToggle : undefined}>
-                    <i className={"icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')}/>
-                    <span>{ children.length } { bookmark || field }</span>
-                </div>
-                { !noChildren ?
-                    <Collapse in={open}><div className="children-container">{ children }</div></Collapse>
-                    : null }
-            </div>
-        );
-    }
-
 }
 
 /*
@@ -191,8 +129,10 @@ class SubmissionLeaf extends React.PureComponent {
         const { keyValid, keyIdx, keyDisplay, keyComplete, hierarchy, currKey, depth } = this.props;
 
         let placeholders;
-        if (!isNaN(keyIdx)) {
+        if (!isNaN(keyIdx)/* || typeof _.invert(keyComplete)[keyIdx] !== 'undefined' */) {
             placeholders = this.generateAllPlaceholders();
+        } else if (typeof _.invert(keyComplete)[keyIdx] !== 'undefined') {
+            placeholders = [];
         } else {
             // must be a submitted object - plot directly
             placeholders = _.keys(hierarchy[keyIdx]).map(this.generateChild);
@@ -263,6 +203,70 @@ class SubmissionLeaf extends React.PureComponent {
         );
     }
 }
+
+class SubmissionProperty extends React.Component {
+
+    constructor(props){
+        super(props);
+        this.handleToggle = _.throttle(this.handleToggle.bind(this), 500, { 'trailing' : false });
+        this.generateChild = this.generateChild.bind(this);
+        this.state = { 'open' : typeof props.open === 'boolean' ? props.open : true };
+    }
+
+    handleToggle(e){
+        e.preventDefault();
+        e.stopPropagation();
+        this.setState(function({ open }){
+            return { "open" : !open };
+        });
+    }
+
+    generateChild(childKey){
+        const { keyIdx, depth, hierarchy } = this.props;
+        if (!isNaN(childKey)) childKey = parseInt(childKey);
+
+        // replace key and hierarchy in props
+        return <SubmissionLeaf {...this.props} key={childKey} keyIdx={childKey} hierarchy={hierarchy[keyIdx]} open depth={depth + 1} />;
+    }
+
+    render(){
+        const { field, schemas, keyTypes, keyIdx, hierarchy, keyLinks, depth } = this.props;
+        const { open } = this.state;
+
+        // Item currently being edited
+        const itemSchema = schemas[keyTypes[keyIdx]];
+        if (!itemSchema) return null;
+
+        const isRequired = Array.isArray(itemSchema.required) && _.contains(itemSchema.required, field);
+        const [ fieldBase ] = field.split('.');
+        const fieldSchema = itemSchema.properties[fieldBase];
+        const bookmark = (fieldSchema && fieldSchema.title) || fieldSchemaLinkToType(fieldSchema);
+
+        const children = _.map(
+            _.filter(_.keys(hierarchy[keyIdx]), function(childKey){
+                return keyLinks[childKey] === field;
+            }),
+            this.generateChild
+        );
+
+        const noChildren = children.length === 0;
+
+        return(
+            <div key={bookmark} className={"submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '' )}>
+                <div className={"clearfix inner-title" + (!noChildren ? ' clickable' : '')} onClick={!noChildren ? this.handleToggle : undefined}>
+                    <i className={"icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')}/>
+                    <span>{ children.length } { bookmark || field }</span>
+                </div>
+                { !noChildren ?
+                    <Collapse in={open}><div className="children-container">{ children }</div></Collapse>
+                    : null }
+            </div>
+        );
+    }
+
+}
+
+
 
 
 function InfoIcon({ children, className }){

@@ -91,11 +91,17 @@ function (_React$PureComponent) {
 
   return SubmissionTree;
 }(_react["default"].PureComponent);
+/*
+Generate an entry in SubmissionTree that corresponds to an object. When clicked
+on, either change the currKey to that object's key if a custom object, or
+open that object's page in a new tab if a pre-existing or submitted object.
+*/
+
 
 exports.SubmissionTree = SubmissionTree;
 
 _defineProperty(SubmissionTree, "propTypes", {
-  'keyHierarchy': _propTypes["default"].object.isRequired,
+  'hierarchy': _propTypes["default"].object.isRequired,
   'keyValid': _propTypes["default"].object.isRequired,
   'keyTypes': _propTypes["default"].object.isRequired,
   'keyDisplay': _propTypes["default"].object.isRequired,
@@ -107,20 +113,22 @@ _defineProperty(SubmissionTree, "propTypes", {
   'schemas': _propTypes["default"].object
 });
 
-var SubmissionProperty =
+var SubmissionLeaf =
 /*#__PURE__*/
-function (_React$Component) {
-  _inherits(SubmissionProperty, _React$Component);
+function (_React$PureComponent2) {
+  _inherits(SubmissionLeaf, _React$PureComponent2);
 
-  function SubmissionProperty(props) {
+  function SubmissionLeaf(props) {
     var _this;
 
-    _classCallCheck(this, SubmissionProperty);
+    _classCallCheck(this, SubmissionLeaf);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionProperty).call(this, props));
-    _this.handleToggle = _underscore["default"].throttle(_this.handleToggle.bind(_assertThisInitialized(_this)), 500, {
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionLeaf).call(this, props));
+    _this.handleClick = _underscore["default"].throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 500, {
       'trailing': false
     });
+    _this.generateAllPlaceholders = _this.generateAllPlaceholders.bind(_assertThisInitialized(_this));
+    _this.placeholderSortFxn = _this.placeholderSortFxn.bind(_assertThisInitialized(_this));
     _this.generateChild = _this.generateChild.bind(_assertThisInitialized(_this));
     _this.state = {
       'open': typeof props.open === 'boolean' ? props.open : true
@@ -128,121 +136,14 @@ function (_React$Component) {
     return _this;
   }
 
-  _createClass(SubmissionProperty, [{
-    key: "handleToggle",
-    value: function handleToggle(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.setState(function (_ref) {
-        var open = _ref.open;
-        return {
-          "open": !open
-        };
-      });
-    }
-  }, {
-    key: "generateChild",
-    value: function generateChild(childKey) {
-      var _this$props2 = this.props,
-          keyIdx = _this$props2.keyIdx,
-          depth = _this$props2.depth,
-          hierarchy = _this$props2.hierarchy;
-      if (!isNaN(childKey)) childKey = parseInt(childKey); // replace key and hierarchy in props
-
-      return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
-        key: childKey,
-        keyIdx: childKey,
-        hierarchy: hierarchy[keyIdx],
-        open: true,
-        depth: depth + 1
-      }));
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props3 = this.props,
-          field = _this$props3.field,
-          schemas = _this$props3.schemas,
-          keyTypes = _this$props3.keyTypes,
-          keyIdx = _this$props3.keyIdx,
-          hierarchy = _this$props3.hierarchy,
-          keyLinks = _this$props3.keyLinks,
-          depth = _this$props3.depth;
-      var open = this.state.open; // Item currently being edited
-
-      var itemSchema = schemas[keyTypes[keyIdx]];
-      if (!itemSchema) return null;
-
-      var isRequired = Array.isArray(itemSchema.required) && _underscore["default"].contains(itemSchema.required, field);
-
-      var _field$split = field.split('.'),
-          _field$split2 = _slicedToArray(_field$split, 1),
-          fieldBase = _field$split2[0];
-
-      var fieldSchema = itemSchema.properties[fieldBase];
-      var bookmark = fieldSchema && fieldSchema.title || fieldSchemaLinkToType(fieldSchema);
-
-      var children = _underscore["default"].map(_underscore["default"].filter(_underscore["default"].keys(hierarchy[keyIdx]), function (childKey) {
-        return keyLinks[childKey] === field;
-      }), this.generateChild);
-
-      var noChildren = children.length === 0;
-      return _react["default"].createElement("div", {
-        key: bookmark,
-        className: "submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '')
-      }, _react["default"].createElement("div", {
-        className: "clearfix inner-title" + (!noChildren ? ' clickable' : ''),
-        onClick: !noChildren ? this.handleToggle : undefined
-      }, _react["default"].createElement("i", {
-        className: "icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')
-      }), _react["default"].createElement("span", null, children.length, " ", bookmark || field)), !noChildren ? _react["default"].createElement(_Collapse.Collapse, {
-        "in": open
-      }, _react["default"].createElement("div", {
-        className: "children-container"
-      }, children)) : null);
-    }
-  }]);
-
-  return SubmissionProperty;
-}(_react["default"].Component);
-/*
-Generate an entry in SubmissionTree that corresponds to an object. When clicked
-on, either change the currKey to that object's key if a custom object, or
-open that object's page in a new tab if a pre-existing or submitted object.
-*/
-
-
-var SubmissionLeaf =
-/*#__PURE__*/
-function (_React$PureComponent2) {
-  _inherits(SubmissionLeaf, _React$PureComponent2);
-
-  function SubmissionLeaf(props) {
-    var _this2;
-
-    _classCallCheck(this, SubmissionLeaf);
-
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionLeaf).call(this, props));
-    _this2.handleClick = _underscore["default"].throttle(_this2.handleClick.bind(_assertThisInitialized(_this2)), 500, {
-      'trailing': false
-    });
-    _this2.generateAllPlaceholders = _this2.generateAllPlaceholders.bind(_assertThisInitialized(_this2));
-    _this2.placeholderSortFxn = _this2.placeholderSortFxn.bind(_assertThisInitialized(_this2));
-    _this2.generateChild = _this2.generateChild.bind(_assertThisInitialized(_this2));
-    _this2.state = {
-      'open': typeof props.open === 'boolean' ? props.open : true
-    };
-    return _this2;
-  }
-
   _createClass(SubmissionLeaf, [{
     key: "generateChild",
     value: function generateChild(childKey) {
       if (!isNaN(childKey)) childKey = parseInt(childKey);
-      var _this$props4 = this.props,
-          hierarchy = _this$props4.hierarchy,
-          keyIdx = _this$props4.keyIdx,
-          depth = _this$props4.depth; // replace key and hierarchy in props
+      var _this$props2 = this.props,
+          hierarchy = _this$props2.hierarchy,
+          keyIdx = _this$props2.keyIdx,
+          depth = _this$props2.depth; // replace key and hierarchy in props
 
       return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
         key: childKey,
@@ -255,10 +156,10 @@ function (_React$PureComponent2) {
   }, {
     key: "placeholderSortFxn",
     value: function placeholderSortFxn(fieldA, fieldB) {
-      var _this$props5 = this.props,
-          schemas = _this$props5.schemas,
-          keyTypes = _this$props5.keyTypes,
-          keyIdx = _this$props5.keyIdx;
+      var _this$props3 = this.props,
+          schemas = _this$props3.schemas,
+          keyTypes = _this$props3.keyTypes,
+          keyIdx = _this$props3.keyIdx;
       var itemSchema = schemas[keyTypes[keyIdx]];
       if (!itemSchema) return 0;
 
@@ -294,14 +195,14 @@ function (_React$PureComponent2) {
   }, {
     key: "generateAllPlaceholders",
     value: function generateAllPlaceholders() {
-      var _this3 = this;
+      var _this2 = this;
 
-      var _this$props6 = this.props,
-          keyIdx = _this$props6.keyIdx,
-          keyLinkBookmarks = _this$props6.keyLinkBookmarks;
+      var _this$props4 = this.props,
+          keyIdx = _this$props4.keyIdx,
+          keyLinkBookmarks = _this$props4.keyLinkBookmarks;
       var fieldsWithLinkTosToShow = keyLinkBookmarks[keyIdx].sort(this.placeholderSortFxn);
       return _underscore["default"].map(fieldsWithLinkTosToShow, function (field) {
-        return _react["default"].createElement(SubmissionProperty, _extends({}, _this3.props, {
+        return _react["default"].createElement(SubmissionProperty, _extends({}, _this2.props, {
           field: field,
           key: field
         }));
@@ -312,11 +213,11 @@ function (_React$PureComponent2) {
   }, {
     key: "handleClick",
     value: function handleClick(e) {
-      var _this$props7 = this.props,
-          setSubmissionState = _this$props7.setSubmissionState,
-          keyIdx = _this$props7.keyIdx,
-          keyValid = _this$props7.keyValid,
-          keyComplete = _this$props7.keyComplete;
+      var _this$props5 = this.props,
+          setSubmissionState = _this$props5.setSubmissionState,
+          keyIdx = _this$props5.keyIdx,
+          keyValid = _this$props5.keyValid,
+          keyComplete = _this$props5.keyComplete;
       e.preventDefault(); // if key is not a number (i.e. path), the object is not a custom one.
       // format the leaf as the following if pre-existing obj or submitted
       // custom object.
@@ -338,18 +239,22 @@ function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props8 = this.props,
-          keyValid = _this$props8.keyValid,
-          keyIdx = _this$props8.keyIdx,
-          keyDisplay = _this$props8.keyDisplay,
-          keyComplete = _this$props8.keyComplete,
-          hierarchy = _this$props8.hierarchy,
-          currKey = _this$props8.currKey,
-          depth = _this$props8.depth;
+      var _this$props6 = this.props,
+          keyValid = _this$props6.keyValid,
+          keyIdx = _this$props6.keyIdx,
+          keyDisplay = _this$props6.keyDisplay,
+          keyComplete = _this$props6.keyComplete,
+          hierarchy = _this$props6.hierarchy,
+          currKey = _this$props6.currKey,
+          depth = _this$props6.depth;
       var placeholders;
 
-      if (!isNaN(keyIdx)) {
-        placeholders = this.generateAllPlaceholders();
+      if (!isNaN(keyIdx)
+      /* || typeof _.invert(keyComplete)[keyIdx] !== 'undefined' */
+      ) {
+          placeholders = this.generateAllPlaceholders();
+        } else if (typeof _underscore["default"].invert(keyComplete)[keyIdx] !== 'undefined') {
+        placeholders = [];
       } else {
         // must be a submitted object - plot directly
         placeholders = _underscore["default"].keys(hierarchy[keyIdx]).map(this.generateChild);
@@ -437,6 +342,105 @@ function (_React$PureComponent2) {
 _defineProperty(SubmissionLeaf, "defaultProps", {
   'depth': 0
 });
+
+var SubmissionProperty =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(SubmissionProperty, _React$Component);
+
+  function SubmissionProperty(props) {
+    var _this3;
+
+    _classCallCheck(this, SubmissionProperty);
+
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionProperty).call(this, props));
+    _this3.handleToggle = _underscore["default"].throttle(_this3.handleToggle.bind(_assertThisInitialized(_this3)), 500, {
+      'trailing': false
+    });
+    _this3.generateChild = _this3.generateChild.bind(_assertThisInitialized(_this3));
+    _this3.state = {
+      'open': typeof props.open === 'boolean' ? props.open : true
+    };
+    return _this3;
+  }
+
+  _createClass(SubmissionProperty, [{
+    key: "handleToggle",
+    value: function handleToggle(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.setState(function (_ref) {
+        var open = _ref.open;
+        return {
+          "open": !open
+        };
+      });
+    }
+  }, {
+    key: "generateChild",
+    value: function generateChild(childKey) {
+      var _this$props7 = this.props,
+          keyIdx = _this$props7.keyIdx,
+          depth = _this$props7.depth,
+          hierarchy = _this$props7.hierarchy;
+      if (!isNaN(childKey)) childKey = parseInt(childKey); // replace key and hierarchy in props
+
+      return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
+        key: childKey,
+        keyIdx: childKey,
+        hierarchy: hierarchy[keyIdx],
+        open: true,
+        depth: depth + 1
+      }));
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props8 = this.props,
+          field = _this$props8.field,
+          schemas = _this$props8.schemas,
+          keyTypes = _this$props8.keyTypes,
+          keyIdx = _this$props8.keyIdx,
+          hierarchy = _this$props8.hierarchy,
+          keyLinks = _this$props8.keyLinks,
+          depth = _this$props8.depth;
+      var open = this.state.open; // Item currently being edited
+
+      var itemSchema = schemas[keyTypes[keyIdx]];
+      if (!itemSchema) return null;
+
+      var isRequired = Array.isArray(itemSchema.required) && _underscore["default"].contains(itemSchema.required, field);
+
+      var _field$split = field.split('.'),
+          _field$split2 = _slicedToArray(_field$split, 1),
+          fieldBase = _field$split2[0];
+
+      var fieldSchema = itemSchema.properties[fieldBase];
+      var bookmark = fieldSchema && fieldSchema.title || fieldSchemaLinkToType(fieldSchema);
+
+      var children = _underscore["default"].map(_underscore["default"].filter(_underscore["default"].keys(hierarchy[keyIdx]), function (childKey) {
+        return keyLinks[childKey] === field;
+      }), this.generateChild);
+
+      var noChildren = children.length === 0;
+      return _react["default"].createElement("div", {
+        key: bookmark,
+        className: "submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '')
+      }, _react["default"].createElement("div", {
+        className: "clearfix inner-title" + (!noChildren ? ' clickable' : ''),
+        onClick: !noChildren ? this.handleToggle : undefined
+      }, _react["default"].createElement("i", {
+        className: "icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')
+      }), _react["default"].createElement("span", null, children.length, " ", bookmark || field)), !noChildren ? _react["default"].createElement(_Collapse.Collapse, {
+        "in": open
+      }, _react["default"].createElement("div", {
+        className: "children-container"
+      }, children)) : null);
+    }
+  }]);
+
+  return SubmissionProperty;
+}(_react["default"].Component);
 
 function InfoIcon(_ref2) {
   var children = _ref2.children,
