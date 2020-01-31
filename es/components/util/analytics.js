@@ -429,7 +429,8 @@ function eventObjectFromCtx(context) {
   if (!context) return {};
 
   var _ref3 = context || {},
-      ctxTypes = _ref3['@type'],
+      _ref3$Type = _ref3['@type'],
+      ctxTypes = _ref3$Type === void 0 ? [] : _ref3$Type,
       _ref3$filters = _ref3.filters,
       filters = _ref3$filters === void 0 ? null : _ref3$filters,
       display_title = _ref3.display_title,
@@ -811,7 +812,7 @@ function shouldAnonymize(itemTypes) {
   state.anonymizeTypes.forEach(function (anonType) {
     anonymizeMap[anonType] = true;
   });
-  var i = itemTypes.length;
+  var i = (itemTypes || 0).length;
 
   for (i = itemTypes.length; i > -1; i--) {
     if (anonymizeMap[itemTypes[i]]) {
@@ -823,7 +824,8 @@ function shouldAnonymize(itemTypes) {
 }
 
 function itemToProductTransform(item) {
-  var itemTypes = item['@type'],
+  var _item$Type = item['@type'],
+      itemTypes = _item$Type === void 0 ? [] : _item$Type,
       accession = item.accession,
       uuid = item.uuid;
   var prodItem = state.itemToProductTransform(item);

@@ -332,7 +332,7 @@ export function registerPageView(href = null, context = null){
 export function eventObjectFromCtx(context){
     if (!context) return {};
     const {
-        '@type' : ctxTypes,
+        '@type' : ctxTypes = [],
         filters = null,
         display_title, title, accession,
         uuid, name,
@@ -650,7 +650,7 @@ function shouldAnonymize(itemTypes){
     state.anonymizeTypes.forEach(function(anonType){
         anonymizeMap[anonType] = true;
     });
-    let i = itemTypes.length;
+    let i = (itemTypes || 0).length;
     for (i = itemTypes.length; i > -1; i--){
         if (anonymizeMap[itemTypes[i]]){
             return true;
@@ -660,7 +660,7 @@ function shouldAnonymize(itemTypes){
 }
 
 function itemToProductTransform(item){
-    const { '@type' : itemTypes, accession, uuid } = item;
+    const { '@type' : itemTypes = [], accession, uuid } = item;
     const prodItem = state.itemToProductTransform(item);
     if (shouldAnonymize(itemTypes)){
         prodItem.name = accession || uuid || "[Anonymized Title]";
