@@ -650,7 +650,7 @@ function shouldAnonymize(itemTypes){
     state.anonymizeTypes.forEach(function(anonType){
         anonymizeMap[anonType] = true;
     });
-    let i = (itemTypes || 0).length;
+    let i = (itemTypes || []).length;
     for (i = itemTypes.length; i > -1; i--){
         if (anonymizeMap[itemTypes[i]]){
             return true;
