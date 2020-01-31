@@ -161,12 +161,13 @@ export class LoginController extends React.PureComponent {
                                 onLogin(profile);
                             }
 
-                            const { uuid: userUUID, lab } = profile;
-                            setUserID(userUUID);
+                            const { uuid: userId, groups = null, lab } = profile;
+                            setUserID(userId);
                             trackEvent('Authentication', 'UILogin', {
                                 eventLabel : "Authenticated ClientSide",
-                                name: userUUID,
-                                userId: userUUID
+                                name: userId,
+                                userId,
+                                userGroups: groups && (JSON.stringify(groups.sort()))
                             });
 
                             // Refresh the content/context of our page now that we have a JWT stored as a cookie!

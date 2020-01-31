@@ -12,9 +12,10 @@ import * as JWT from './json-web-token';
 
 
 const defaultOptions = {
-    'isAnalyticsScriptOnPage' : true,
-    'enhancedEcommercePlugin' : true,
-    'itemToProductTransform'  : function(item){
+    "enabled"                 : true,
+    "isAnalyticsScriptOnPage" : true,
+    "enhancedEcommercePlugin" : true,
+    "itemToProductTransform"  : function(item){
         // 4DN-specific, override from own data model.
         const {
             "@id": itemID,
@@ -67,18 +68,19 @@ const defaultOptions = {
         "name"              : 2,
         "field"             : 3,
         "term"              : 4,
-        "experimentType"    : 5
+        "experimentType"    : 5,
+        "userGroups"        : 6
     },
     "metricNameMap" : {
         "filesize"          : 1,
         "downloads"         : 2
     },
-    'anonymizeTypes'     : ["User"],
-    'reduxStore' : null
+    "anonymizeTypes"     : ["User"],
+    "excludeAdminTrackingOnHostnames" : ["data.4dnucleome.org"],
+    "reduxStore" : null
 };
 
 let state = null;
-
 
 /** Calls `ga`, ensuring it is present on window. */
 function ga2(){
@@ -114,6 +116,9 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
     } = appOptions;
     const options = { ...defaultOptions, ...appOpts };
 
+    // TODO: Check for user-scoped 'do not track' flag, set state.enabled=false
+    const { uuid: userUUID } = JWT.getUserDetails() || {};
+
     if (!options.isAnalyticsScriptOnPage){
         // If true, we already have <script src="...analytics.js">, e.g. in app.js so should skip this.
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -122,13 +127,14 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
     }
 
+    state = _.clone(options);
 
-    if (typeof window.ga === 'undefined'){
-        console.error("Google Analytics is not initialized. Fine if this appears in a test. EXITING INITIALIZATION.");
+    // TODO check localStorage for device-scoped 'do not track' flag, set state.enabled=false
+
+    if (!shouldTrack()){
+        console.error("EXITING ANALYTICS INITIALIZATION.");
         return false;
     }
-
-    state = _.clone(options);
 
     ga2('create', trackingID, 'auto');
     ga2(function(tracker){
@@ -139,18 +145,17 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
             console.info("GA: Loaded Tracker & Updated Client ID Cookie");
         }
     });
-    console.info("GA: Initialized");
 
     if (options.enhancedEcommercePlugin){
         ga2('require', 'ec');
         console.info("GA: Enhanced ECommerce Plugin");
     }
 
-    const { uuid: userUUID } = JWT.getUserDetails() || {};
     if (userUUID) {
-        ga2('set', 'userId', userUUID);
-        console.log("GA: Set session for UUID", userUUID);
+        setUserID(userUUID);
     }
+
+    console.info("GA: Initialized");
 
     if (initialContext){
         registerPageView(initialHref, initialContext);
@@ -175,12 +180,10 @@ export function registerPageView(href = null, context = null){
 
     if (!shouldTrack()) return false;
 
-    // Set href from window if not provided. Safe to use because we're not server-side.
-    if (!href) href = window.location && window.location.href;
-
     // Take heed of this notice if it is visible somewhere.
     if (!href) {
-        console.error("No HREF defined, check.. something. Will still send pageview event.");
+        href = window.location && window.location.href;
+        console.error("No HREF provided, check.. something. Will still send pageview event to window href", href);
     }
 
     context = context || (state.reduxStore && state.reduxStore.getState().context) || null;
@@ -601,21 +604,43 @@ export function hrefToListName(href){
 function shouldTrack(){
 
     // 1. Ensure we're initialized
-    if (!state || isServerSide() || typeof window.ga === 'undefined') {
+
+    if (!state) {
         console.error("Google Analytics is not initialized. Fine if this appears in a test.");
         return false;
     }
 
-    // 2. TODO: Make sure not logged in as admin on a production site.
-    if (JWT.getUserGroups().indexOf('admin') > -1){
-        var urlParts = url.parse(window.location.href);
-        if (urlParts.host.indexOf('4dnucleome.org') > -1){
-            console.warn("Logged in as admin on 4dnucleome.org - will NOT track.");
-            return false;
-        } else {
-            console.info("Logged in as admin but not on 4dnucleome.org - WILL track (for testing)."); // Too verbose ?
-        }
+    if (!state.enabled) {
+        console.warn("Google Analytics is not enabled. Fine if expected, else check config.");
+        return false;
     }
+
+    if (isServerSide()){
+        console.warn("Google Analytics will not be sent events while serverside. Fine if this appears in a test.");
+        return false;
+    }
+
+    if (typeof window.ga === 'undefined') {
+        console.error("Google Analytics library is not loaded/available. Fine if disabled via AdBlocker, else check `analytics.js` loading.");
+        return false;
+    }
+
+    // 2. TODO: Check if User wants to be excluded from tracking
+
+
+    // 2. TODO: Make sure not logged in as admin on a production site.
+    // if (JWT.getUserGroups().indexOf('admin') > -1){
+    //     const urlParts = url.parse(window.location.href);
+    //     if (
+    //         Array.isArray(state.excludeAdminTrackingOnHostnames) &&
+    //         state.excludeAdminTrackingOnHostnames.indexOf(urlParts.host) > -1
+    //     ){
+    //         console.warn(`Logged in as admin on ${urlParts.host} - will NOT track.`);
+    //         return false;
+    //     } else {
+    //         console.info(`Logged in as admin but ${urlParts.host} is not an excluded hostname - WILL track (for testing).`); // Too verbose ?
+    //     }
+    // }
 
     return true;
 }

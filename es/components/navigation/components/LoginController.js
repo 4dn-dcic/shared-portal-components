@@ -202,13 +202,16 @@ function (_React$PureComponent) {
                 onLogin(profile);
               }
 
-              var userUUID = profile.uuid,
+              var userId = profile.uuid,
+                  _profile$groups = profile.groups,
+                  groups = _profile$groups === void 0 ? null : _profile$groups,
                   lab = profile.lab;
-              (0, _analytics.setUserID)(userUUID);
+              (0, _analytics.setUserID)(userId);
               (0, _analytics.event)('Authentication', 'UILogin', {
                 eventLabel: "Authenticated ClientSide",
-                name: userUUID,
-                userId: userUUID
+                name: userId,
+                userId: userId,
+                userGroups: groups && JSON.stringify(groups.sort())
               }); // Refresh the content/context of our page now that we have a JWT stored as a cookie!
               // It will return same page but with any auth'd page actions.
 
