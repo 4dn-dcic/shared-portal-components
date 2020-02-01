@@ -510,11 +510,12 @@ function (_React$PureComponent2) {
         className: "expand-toggle col-auto px-0"
       }, _react["default"].createElement("i", {
         className: "icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")
-      })), _react["default"].createElement("span", {
-        className: "inline-block col px-0",
+      })), _react["default"].createElement("div", {
+        className: "col px-0 line-height-1"
+      }, _react["default"].createElement("span", {
         "data-tip": tooltip,
         "data-place": "right"
-      }, title), indicator), _react["default"].createElement(_Collapse.Collapse, {
+      }, title)), indicator), _react["default"].createElement(_Collapse.Collapse, {
         "in": facetOpen && !facetClosing
       }, this.renderTerms(terms)));
     }

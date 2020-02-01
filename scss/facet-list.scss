@@ -259,24 +259,68 @@ $facetlist-term-block-height: default !default;
                         margin-right: 1px;
                         margin-right: 0.5px;
                     }
-                    svg.svg-count-indicator circle {
-                        fill: #999;
+
+                    svg.svg-count-indicator,
+                    i.icon {
+                        transition: transform .35s ease-out;
+                    }
+
+                    svg.svg-count-indicator {
+                        circle {
+                            fill: #999;
+                            transition: fill .2s ease-out;
+                        }
                     }
                     &.some-selected {
                         color: $facetlist-selected-term-color;
-                        svg.svg-count-indicator circle {
-                            &.active {
-                                fill: $facetlist-selected-term-color;
-                                stroke: $facetlist-selected-term-color;
-                                stroke-width: 1px;
-                                opacity: 1 !important;
+                        //transform: scale3d(1.025, 1.025, 1.025);// translateX(2px);
+                        svg.svg-count-indicator {
+                            circle {
+                                &.active {
+                                    fill: $facetlist-selected-term-color;
+                                    stroke: $facetlist-selected-term-color;
+                                    stroke-width: 1px;
+                                    opacity: 1 !important;
+                                }
+                                &:not(.active) {
+                                    fill: #9995;
+                                }
                             }
                         }
                     }
+
                     &.fade:not(.show) { // Adjust/extend `Fade` closed style
                         opacity: 0.5;
                         transform: scale3d(0.825, 0.825, 0.825);
                     }
+                }
+
+                &:hover {
+                    .closed-terms-count {
+
+                        &.show {
+                            transform: scale3d(1.25, 1.25, 1);// translateX(-5px);
+                            &.some-selected {
+                                svg.svg-count-indicator circle {
+                                    &:not(.active) {
+                                        fill: #999a;
+                                    }
+                                }
+                            }
+                        }
+
+                        svg.svg-count-indicator,
+                        i.icon {
+                            transform: translateX(-3px);
+                        }
+
+                        &:hover svg.svg-count-indicator,
+                        &:hover i.icon {
+                            transform: translateX(-6px);
+                        }
+
+                    }
+
                 }
 
                 .icon-container {
