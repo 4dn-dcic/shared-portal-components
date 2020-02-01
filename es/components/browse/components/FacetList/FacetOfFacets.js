@@ -201,11 +201,12 @@ function (_React$PureComponent) {
         className: "expand-toggle col-auto px-0"
       }, _react["default"].createElement("i", {
         className: "icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")
-      })), _react["default"].createElement("span", {
-        className: "inline-block col px-0",
+      })), _react["default"].createElement("div", {
+        className: "col px-0 line-height-1"
+      }, _react["default"].createElement("span", {
         "data-tip": tooltip,
         "data-place": "right"
-      }, title), _react["default"].createElement(_Fade.Fade, {
+      }, title)), _react["default"].createElement(_Fade.Fade, {
         "in": facetClosing || !facetOpen
       }, _react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),

@@ -331,7 +331,9 @@ export class FacetTermsList extends React.PureComponent {
                     <span className="expand-toggle col-auto px-0">
                         <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
                     </span>
-                    <span className="inline-block col px-0" data-tip={tooltip} data-place="right">{ title }</span>
+                    <div className="col px-0 line-height-1">
+                        <span data-tip={tooltip} data-place="right">{ title }</span>
+                    </div>
                     { indicator }
                 </h5>
                 <Collapse in={facetOpen && !facetClosing}>{ this.renderTerms(terms) }</Collapse>
