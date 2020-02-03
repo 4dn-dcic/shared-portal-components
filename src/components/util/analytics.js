@@ -300,7 +300,7 @@ export function registerPageView(href = null, context = null){
     }
 
     // Clear query & hostname from HREF & convert accessions, uuids, and certain names to literals.
-    href = adjustPageViewPath(parts.pathname);
+    const adjustedPathName = adjustPageViewPath(parts.pathname);
 
     // Ensure is not the same page but with a new hash or something (RARE - should only happen for Help page table of contents navigation).
     if (lastRegisteredPageViewRealPathNameAndSearch === (parts.pathname + parts.search)){
@@ -309,13 +309,14 @@ export function registerPageView(href = null, context = null){
     }
 
     lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
-    ga2('set', 'page', href); // Set it as current page
+    ga2('set', 'page', adjustedPathName); // Set it as current page
     if (shouldAnonymize(itemType)){ // Override page title
         pageViewObject.title = ctxAccession || ctxUUID || "[Anonymized Title]";
     }
-    pageViewObject.location = href; // Don't need to do re: 'set' 'page', but redundant for safety.
+    pageViewObject.page = adjustedPathName; // Don't need to do re: 'set' 'page', but redundant for safety.
+    pageViewObject.location = url.resolve(href, adjustedPathName);
     pageViewObject.hitCallback = function(){
-        console.info('Successfuly sent pageview event.', href, pageViewObject);
+        console.info('Successfuly sent pageview event.', adjustedPathName, pageViewObject);
     };
     registerProductView();
 

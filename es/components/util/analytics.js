@@ -390,7 +390,7 @@ function registerPageView() {
   } // Clear query & hostname from HREF & convert accessions, uuids, and certain names to literals.
 
 
-  href = adjustPageViewPath(parts.pathname); // Ensure is not the same page but with a new hash or something (RARE - should only happen for Help page table of contents navigation).
+  var adjustedPathName = adjustPageViewPath(parts.pathname); // Ensure is not the same page but with a new hash or something (RARE - should only happen for Help page table of contents navigation).
 
   if (lastRegisteredPageViewRealPathNameAndSearch === parts.pathname + parts.search) {
     _patchedConsole.patchedConsoleInstance.warn('Page did not change, canceling PageView tracking for this navigation.');
@@ -399,17 +399,19 @@ function registerPageView() {
   }
 
   lastRegisteredPageViewRealPathNameAndSearch = parts.pathname + parts.search;
-  ga2('set', 'page', href); // Set it as current page
+  ga2('set', 'page', adjustedPathName); // Set it as current page
 
   if (shouldAnonymize(itemType)) {
     // Override page title
     pageViewObject.title = ctxAccession || ctxUUID || "[Anonymized Title]";
   }
 
-  pageViewObject.location = href; // Don't need to do re: 'set' 'page', but redundant for safety.
+  pageViewObject.page = adjustedPathName; // Don't need to do re: 'set' 'page', but redundant for safety.
+
+  pageViewObject.location = _url["default"].resolve(href, adjustedPathName);
 
   pageViewObject.hitCallback = function () {
-    _patchedConsole.patchedConsoleInstance.info('Successfuly sent pageview event.', href, pageViewObject);
+    _patchedConsole.patchedConsoleInstance.info('Successfuly sent pageview event.', adjustedPathName, pageViewObject);
   };
 
   registerProductView();
