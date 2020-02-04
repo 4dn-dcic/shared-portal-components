@@ -509,6 +509,9 @@ function (_React$PureComponent) {
     value: function initCreateObj(ambiguousType, ambiguousIdx, creatingLink) {
       var init = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var parentField = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+
+      _util.console.log("calling initCreateObj(\n            ambiguousType=".concat(ambiguousType, ",\n            ambiguousIdx=").concat(ambiguousIdx, ",\n            creatingLink=").concat(creatingLink, ",\n            init=").concat(init, ",\n            parentField=").concat(parentField, "\n        "));
+
       var schemas = this.props.schemas;
 
       var itemTypeHierarchy = _util.schemaTransforms.schemasToItemTypeHierarchy(schemas); // check to see if we have an ambiguous linkTo type.
@@ -870,21 +873,24 @@ function (_React$PureComponent) {
       });
     }
     /**
-     * Takes in a key for an object to removed from the state. Effectively deletes
-     * an object by removing its idx from keyContext and other key-indexed state.
-     * Used for the both pre-existing, where key is their string path, and custom
-     * objects that have index keys.
-     * If deleting a pre-existing object, dont modify the key-indexed states for
+     * Effectively deletes an object by removing its idx from keyContext and other key-indexed state.
+     *
+     * @param {number} keyToRemove - Key (either idx or atID) of object to remove.
+     *
+     * Used for the both pre-existing/recently submitted objects, where key is their atID, and
+     * in-progress custom objects that have index keys.
+     *
+     * If deleting a pre-existing/recently submitted object, dont modify the key-indexed states for
      * it since other occurences of that object may be used in the creation
      * process and those should not be affected. Effectively, removing a pre-
      * existing object amounts to removing it from keyHierarchy.
-     *
-     * @param {number} key - Key of item to remove.
      */
 
   }, {
     key: "removeObj",
-    value: function removeObj(key) {
+    value: function removeObj(keyToRemove) {
+      _util.console.log("calling removeObj with keyToRemove=", keyToRemove);
+
       this.setState(function (_ref4) {
         var keyContext = _ref4.keyContext,
             keyValid = _ref4.keyValid,
@@ -913,34 +919,56 @@ function (_React$PureComponent) {
 
         var dummyHierarchy = _util.object.deepClone(hierarchy);
 
-        var hierKey = key; // the key may be a @id string and not keyIdx if already submitted
+        var keyToRemoveIdx = parseInt(keyToRemove) ? keyToRemove : null;
+        var keyToRemoveAtId = !parseInt(keyToRemove) ? keyToRemove : null; // @id is now used as ONLY key in heirarchy, keyLinks
+        // @id is stored alongside index in keyContext, keyTypes
+        // index is used as ONLY key in keyLinkBookmarks
+        // If the object was newly created, keyToRemove might be an @id string (not a keyIdx)
 
-        _underscore["default"].keys(keyCompleteCopy).forEach(function (compKey) {
-          if (keyCompleteCopy[compKey] === key) {
-            hierKey = compKey;
+        _underscore["default"].keys(keyCompleteCopy).forEach(function (key) {
+          // check keyComplete for a key that maps to the appropriate @id
+          if (keyCompleteCopy[key] === keyToRemove) {
+            // found a recently submitted object to remove
+            keyToRemoveIdx = key;
           }
-        }); // find hierachy below the object being deleted
+        }); // Search the hierarchy tree for the objects nested within/underneath the object being deleted
 
 
-        dummyHierarchy = searchHierarchy(dummyHierarchy, hierKey);
+        var foundHierarchy = searchHierarchy(dummyHierarchy, keyToRemoveAtId); // Note: keyHierarchy stores keys both as indices (e.g. principal object) AND atIDs (e.g. new linked objects);
+        // So need to search Hierarchy for both, but most cases will be atIDs.
 
-        if (dummyHierarchy === null) {
-          // occurs when keys cannot be found to delete
-          return null;
+        if (foundHierarchy === null) {
+          // make sure the key wasn't stashed under the keyIdx (in cases of passed in @id)
+          foundHierarchy = searchHierarchy(dummyHierarchy, keyToRemoveIdx); // occurs when keys cannot be found to delete
+
+          if (foundHierarchy === null) {
+            return null;
+          }
         } // get a list of all keys to remove
 
 
-        var toDelete = flattenHierarchy(dummyHierarchy);
-        toDelete.push(key); // add this key
+        var toDelete = flattenHierarchy(foundHierarchy);
+        toDelete.push(keyToRemoveIdx); // add this key
+
+        if (keyToRemoveAtId) {
+          toDelete.push(keyToRemoveAtId);
+        } // also remove any references to the atId
         // trimming the hierarchy effectively removes objects from creation process
 
-        var newHierarchy = trimHierarchy(hierarchy, hierKey); // for housekeeping, remove the keys from keyLinkBookmarks, keyLinks, and keyCompleteCopy
+
+        var newHierarchy = trimHierarchy(hierarchy, keyToRemoveAtId ? keyToRemoveAtId : keyToRemoveIdx); // for housekeeping, remove the keys from keyLinkBookmarks, keyLinks, and keyCompleteCopy
 
         _underscore["default"].forEach(toDelete, function (keyToDelete) {
-          if (isNaN(keyToDelete)) return; // only remove creation data for non-sumbitted, non-preexisiting objs
+          // don't remove all state data for created/pre-existing objs in case there are other occurances of said object
+          if (isNaN(keyToDelete)) {
+            return {
+              keyHierarchy: newHierarchy
+            };
+          } // only remove from hierarchy
           // remove key from roundTwoKeys if necessary
           // NOTE: submitted custom objects will NOT be removed from this
           // after deletion. Still give user opportunity for second round edits
+
 
           if (_underscore["default"].contains(roundTwoCopy, keyToDelete)) {
             var rmIdx = roundTwoCopy.indexOf(keyToDelete);
@@ -2574,7 +2602,8 @@ function (_React$Component2) {
           initCreateObj = _this$props12.initCreateObj,
           modifyKeyContext = _this$props12.modifyKeyContext,
           modifyAlias = _this$props12.modifyAlias,
-          removeObj = _this$props12.removeObj;
+          removeObj = _this$props12.removeObj,
+          keyComplete = _this$props12.keyComplete;
 
       if (fieldType === 'new linked object') {
         value = this.props.keyIter + 1;
@@ -2596,45 +2625,12 @@ function (_React$Component2) {
       var _modifyContextInPlace = modifyContextInPlace(splitField, propCurrContext, arrayIdx, fieldType, value),
           currContext = _modifyContextInPlace.currContext,
           prevValue = _modifyContextInPlace.prevValue;
-      /*
-      var splitField = field.split('.');
-      var splitFieldLeaf = splitField[splitField.length-1];
-      var arrayIdxPointer = 0;
-      var contextCopy = currContext; //object.deepClone(currContext);
-      var pointer = contextCopy;
-      var prevValue = null;
-      for (var i=0; i < splitField.length - 1; i++){
-          if(pointer[splitField[i]]){
-              pointer = pointer[splitField[i]];
-          }else{
-              console.error('PROBLEM CREATING NEW CONTEXT WITH: ', field, value);
-              return;
-          }
-          if(Array.isArray(pointer)){
-              pointer = pointer[arrayIdx[arrayIdxPointer]];
-              arrayIdxPointer += 1;
-          }
-      }
-      if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
-          // move pointer into array
-          pointer = pointer[splitFieldLeaf];
-          prevValue = pointer[arrayIdx[arrayIdxPointer]];
-          if (value === null){ // delete this array itemfieldType
-              pointer.splice(arrayIdx[arrayIdxPointer], 1);
-          } else {
-              pointer[arrayIdx[arrayIdxPointer]] = value;
-          }
-      } else { // value we're trying to set is not inside an array at this point
-          prevValue = pointer[splitFieldLeaf];
-          pointer[splitFieldLeaf] = value;
-      }
-      */
 
+      _util.console.log("modifyNewContext II", value, currContext);
 
-      _util.console.log("modifyNewContext II", value, currContext); //this.setState({ currContext: contextCopy }, ()=>{
+      if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object" || fieldType === 'new linked object')) {
+        _util.console.log("removing obj ", prevValue);
 
-
-      if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")) {
         removeObj(prevValue);
       }
 
@@ -2648,8 +2644,7 @@ function (_React$Component2) {
 
       if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title') {
         modifyAlias();
-      } //});
-
+      }
     }
     /**
      * Use ajax to get the display_title for an existing object. Use that to kicks
@@ -2872,9 +2867,7 @@ function (_React$Component2) {
           keyComplete = _this$props13.keyComplete,
           keyContext = _this$props13.keyContext,
           edit = _this$props13.edit;
-      var currSchema = schemas[currType];
-
-      _util.console.log("RENDER INDV OBJ VIEW", currSchema, field);
+      var currSchema = schemas[currType]; // console.log("RENDER INDV OBJ VIEW", currSchema, field);
 
       var fieldSchema = _util.object.getNestedProperty(currSchema, ['properties', field], true);
 
@@ -3464,7 +3457,7 @@ function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, valu
     if (pointer[splitField[i]]) {
       pointer = pointer[splitField[i]];
     } else {
-      _util.console.error('PROBLEM CREATING NEW CONTEXT WITH: ', field, value);
+      _util.console.error('PROBLEM CREATING NEW CONTEXT WITH: ', fieldType, value);
 
       return;
     }
@@ -3526,9 +3519,10 @@ function findFieldFromContext(currContext, rootType, schemas) {
   function scrapeFromCtx(ctx, ctxKey, ctxSchema) {
     var currFieldParts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
     var arrIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-    if (splitField) return;
 
-    _util.console.log("TTTT", ctx, ctxSchema, schemas);
+    _util.console.log("calling scrapeFromCtx with", ctx, ctxKey, ctxSchema, currFieldParts, arrayIdx);
+
+    if (splitField) return;
 
     _underscore["default"].keys(ctx).forEach(function (propKey) {
       var propVal = ctx[propKey];

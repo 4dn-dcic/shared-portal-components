@@ -359,6 +359,13 @@ export default class SubmissionView extends React.PureComponent{
      * lookup even if applicable and move right to alias selection.
      */
     initCreateObj(ambiguousType, ambiguousIdx, creatingLink, init=false, parentField=null){
+        console.log(`calling initCreateObj(
+            ambiguousType=${ambiguousType},
+            ambiguousIdx=${ambiguousIdx},
+            creatingLink=${creatingLink},
+            init=${init},
+            parentField=${parentField}
+        `);
         const { schemas } = this.props;
         const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
         // check to see if we have an ambiguous linkTo type.
@@ -631,18 +638,20 @@ export default class SubmissionView extends React.PureComponent{
     }
 
     /**
-     * Takes in a key for an object to removed from the state. Effectively deletes
-     * an object by removing its idx from keyContext and other key-indexed state.
-     * Used for the both pre-existing, where key is their string path, and custom
-     * objects that have index keys.
-     * If deleting a pre-existing object, dont modify the key-indexed states for
+     * Effectively deletes an object by removing its idx from keyContext and other key-indexed state.
+     *
+     * @param {number} keyToRemove - Key (either idx or atID) of object to remove.
+     *
+     * Used for the both pre-existing/recently submitted objects, where key is their atID, and
+     * in-progress custom objects that have index keys.
+     *
+     * If deleting a pre-existing/recently submitted object, dont modify the key-indexed states for
      * it since other occurences of that object may be used in the creation
      * process and those should not be affected. Effectively, removing a pre-
      * existing object amounts to removing it from keyHierarchy.
-     *
-     * @param {number} key - Key of item to remove.
      */
-    removeObj(key){
+    removeObj(keyToRemove){
+        console.log("calling removeObj with keyToRemove=", keyToRemove);
         this.setState(function({ keyContext, keyValid, keyTypes, keyComplete, keyLinkBookmarks, keyLinks, roundTwoKeys, keyHierarchy }){
             const contextCopy = object.deepClone(keyContext);
             const validCopy = object.deepClone(keyValid);
@@ -652,33 +661,46 @@ export default class SubmissionView extends React.PureComponent{
             const linksCopy = _.clone(keyLinks);
             const roundTwoCopy = roundTwoKeys.slice();
             const hierarchy = _.clone(keyHierarchy);
-            let dummyHierarchy = object.deepClone(hierarchy);
-            let hierKey = key;
+            const dummyHierarchy = object.deepClone(hierarchy);
 
-            // the key may be a @id string and not keyIdx if already submitted
-            _.keys(keyCompleteCopy).forEach(function(compKey) {
-                if (keyCompleteCopy[compKey] === key) {
-                    hierKey = compKey;
+            let keyToRemoveIdx = parseInt(keyToRemove) ? keyToRemove : null;
+            const keyToRemoveAtId = !parseInt(keyToRemove) ? keyToRemove : null;
+
+            // @id is now used as ONLY key in heirarchy, keyLinks
+            // @id is stored alongside index in keyContext, keyTypes
+            // index is used as ONLY key in keyLinkBookmarks
+
+            // If the object was newly created, keyToRemove might be an @id string (not a keyIdx)
+            _.keys(keyCompleteCopy).forEach(function(key) {
+                // check keyComplete for a key that maps to the appropriate @id
+                if (keyCompleteCopy[key] === keyToRemove) { // found a recently submitted object to remove
+                    keyToRemoveIdx = key;
                 }
             });
 
-            // find hierachy below the object being deleted
-            dummyHierarchy = searchHierarchy(dummyHierarchy, hierKey);
-            if (dummyHierarchy === null){
+            // Search the hierarchy tree for the objects nested within/underneath the object being deleted
+            let foundHierarchy = searchHierarchy(dummyHierarchy, keyToRemoveAtId);
+            // Note: keyHierarchy stores keys both as indices (e.g. principal object) AND atIDs (e.g. new linked objects);
+            // So need to search Hierarchy for both, but most cases will be atIDs.
+            if (foundHierarchy === null){
+                // make sure the key wasn't stashed under the keyIdx (in cases of passed in @id)
+                foundHierarchy = searchHierarchy(dummyHierarchy, keyToRemoveIdx);
                 // occurs when keys cannot be found to delete
-                return null;
+                if (foundHierarchy === null) { return null; }
             }
 
             // get a list of all keys to remove
-            const toDelete = flattenHierarchy(dummyHierarchy);
-            toDelete.push(key); // add this key
+            const toDelete = flattenHierarchy(foundHierarchy);
+            toDelete.push(keyToRemoveIdx); // add this key
+            if (keyToRemoveAtId) { toDelete.push(keyToRemoveAtId); } // also remove any references to the atId
 
             // trimming the hierarchy effectively removes objects from creation process
-            const newHierarchy = trimHierarchy(hierarchy, hierKey);
+            const newHierarchy = trimHierarchy(hierarchy, keyToRemoveAtId ? keyToRemoveAtId : keyToRemoveIdx);
 
             // for housekeeping, remove the keys from keyLinkBookmarks, keyLinks, and keyCompleteCopy
             _.forEach(toDelete, function(keyToDelete){
-                if (isNaN(keyToDelete)) return; // only remove creation data for non-sumbitted, non-preexisiting objs
+                // don't remove all state data for created/pre-existing objs in case there are other occurances of said object
+                if (isNaN(keyToDelete)) { return { keyHierarchy: newHierarchy }; } // only remove from hierarchy
 
                 // remove key from roundTwoKeys if necessary
                 // NOTE: submitted custom objects will NOT be removed from this
@@ -1916,7 +1938,7 @@ class IndividualObjectView extends React.Component {
                 type=${type},
                 valueTitle=${valueTitle})`
         );
-        const { currContext: propCurrContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj } = this.props;
+        const { currContext: propCurrContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj, keyComplete } = this.props;
 
         if (fieldType === 'new linked object'){
             value = this.props.keyIter + 1;
@@ -1935,44 +1957,9 @@ class IndividualObjectView extends React.Component {
         var splitFieldLeaf = splitField[splitField.length-1];
 
         const { currContext, prevValue } = modifyContextInPlace(splitField, propCurrContext, arrayIdx, fieldType, value);
-
-        /*
-        var splitField = field.split('.');
-        var splitFieldLeaf = splitField[splitField.length-1];
-        var arrayIdxPointer = 0;
-        var contextCopy = currContext; //object.deepClone(currContext);
-        var pointer = contextCopy;
-        var prevValue = null;
-        for (var i=0; i < splitField.length - 1; i++){
-            if(pointer[splitField[i]]){
-                pointer = pointer[splitField[i]];
-            }else{
-                console.error('PROBLEM CREATING NEW CONTEXT WITH: ', field, value);
-                return;
-            }
-            if(Array.isArray(pointer)){
-                pointer = pointer[arrayIdx[arrayIdxPointer]];
-                arrayIdxPointer += 1;
-            }
-        }
-        if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
-            // move pointer into array
-            pointer = pointer[splitFieldLeaf];
-            prevValue = pointer[arrayIdx[arrayIdxPointer]];
-            if (value === null){ // delete this array itemfieldType
-                pointer.splice(arrayIdx[arrayIdxPointer], 1);
-            } else {
-                pointer[arrayIdx[arrayIdxPointer]] = value;
-            }
-        } else { // value we're trying to set is not inside an array at this point
-            prevValue = pointer[splitFieldLeaf];
-            pointer[splitFieldLeaf] = value;
-        }
-        */
-    
         console.log("modifyNewContext II", value, currContext);
-        //this.setState({ currContext: contextCopy }, ()=>{
-        if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object")){
+        if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object" || fieldType === 'new linked object')){
+            console.log("removing obj ", prevValue);
             removeObj(prevValue);
         }
 
@@ -1987,7 +1974,6 @@ class IndividualObjectView extends React.Component {
         if (splitFieldLeaf === 'aliases' || splitFieldLeaf === 'name' || splitFieldLeaf === 'title'){
             modifyAlias();
         }
-        //});
 
     }
 
@@ -2157,7 +2143,7 @@ class IndividualObjectView extends React.Component {
         const { schemas, currType, currKey, roundTwo, currContext, keyComplete, keyContext, edit } = this.props;
         const currSchema  = schemas[currType];
 
-        console.log("RENDER INDV OBJ VIEW", currSchema, field);
+        // console.log("RENDER INDV OBJ VIEW", currSchema, field);
         const fieldSchema = object.getNestedProperty(currSchema, ['properties', field], true);
 
         if (!fieldSchema) return null;
@@ -2649,7 +2635,7 @@ function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, valu
         if(pointer[splitField[i]]){
             pointer = pointer[splitField[i]];
         }else{
-            console.error('PROBLEM CREATING NEW CONTEXT WITH: ', field, value);
+            console.error('PROBLEM CREATING NEW CONTEXT WITH: ', fieldType, value);
             return;
         }
         if(Array.isArray(pointer)){
@@ -2701,8 +2687,8 @@ function findFieldFromContext(currContext, rootType, schemas, keyIndexToFind = 1
     // }
 
     function scrapeFromCtx(ctx, ctxKey, ctxSchema, currFieldParts = [], arrIdx = null){
+        console.log("calling scrapeFromCtx with", ctx, ctxKey, ctxSchema, currFieldParts, arrayIdx);
         if (splitField) return;
-        console.log("TTTT", ctx, ctxSchema, schemas);
         _.keys(ctx).forEach(function(propKey){
             const propVal = ctx[propKey];
             console.log('TTT', propKey, propVal, ctxKey, ctxSchema);
