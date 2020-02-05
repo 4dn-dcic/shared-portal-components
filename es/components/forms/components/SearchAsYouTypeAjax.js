@@ -131,11 +131,19 @@ function (_React$PureComponent) {
   _createClass(SearchAsYouTypeAjax, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
+      var pastSelectedID = pastProps.value;
+      var selectedID = this.props.value;
       var pastResults = pastState.results;
       var results = this.state.results;
 
       if (results !== pastResults) {
         _reactTooltip["default"].rebuild();
+      }
+
+      if (pastSelectedID !== selectedID) {
+        this.setState({
+          currentTextValue: selectedID || ""
+        });
       }
     }
   }, {
@@ -151,9 +159,7 @@ function (_React$PureComponent) {
     key: "onTextInputChange",
     value: function onTextInputChange(evt) {
       var _evt$target$value = evt.target.value,
-          value = _evt$target$value === void 0 ? null : _evt$target$value; // this.totalCount++;
-      // console.log("this is keypress number: ",  this.totalCount);
-
+          value = _evt$target$value === void 0 ? null : _evt$target$value;
       this.setState({
         currentTextValue: value
       });
@@ -307,9 +313,9 @@ function (_React$PureComponent) {
         }
       }
 
-      var intKey = parseInt(value);
-      var hideButton = value && !isNaN(value) && !keyComplete[intKey]; // if in the middle of editing a custom linked object for this field
+      var intKey = parseInt(value); // if in the middle of editing a custom linked object for this field
 
+      var hideButton = value && !isNaN(value) && !keyComplete[intKey];
       return _react["default"].createElement("div", {
         className: "d-flex flex-wrap"
       }, hideButton ? null : _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
@@ -739,7 +745,7 @@ function (_React$PureComponent2) {
   }, {
     key: "handleCreateNewItemClick",
     value: function handleCreateNewItemClick(e) {
-      // console.log("called LinkedObj.handleNewItemClick");
+      console.log("called LinkedObj.handleNewItemClick");
       e.preventDefault();
       var _this$props6 = this.props,
           fieldBeingSelected = _this$props6.fieldBeingSelected,

@@ -56,10 +56,16 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
+        const { value: pastSelectedID } = pastProps;
+        const { value: selectedID } = this.props;
         const { results: pastResults } = pastState;
         const { results } = this.state;
         if (results !== pastResults) {
             ReactTooltip.rebuild();
+        }
+
+        if (pastSelectedID !== selectedID){
+            this.setState({ currentTextValue : selectedID || "" });
         }
     }
 
@@ -73,8 +79,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
 
     onTextInputChange(evt){
         const { value = null } = evt.target;
-        // this.totalCount++;
-        // console.log("this is keypress number: ",  this.totalCount);
         this.setState({ currentTextValue: value });
         this.onLoadData(value);
     }
@@ -188,8 +192,8 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
             }
         }
 
-        var intKey = parseInt(value);
-        const hideButton = value && !isNaN(value) && !keyComplete[intKey]; // if in the middle of editing a custom linked object for this field
+        const intKey = parseInt(value); // if in the middle of editing a custom linked object for this field
+        const hideButton = value && !isNaN(value) && !keyComplete[intKey];
 
         return (
             <div className="d-flex flex-wrap">
@@ -528,7 +532,7 @@ export class LinkedObj extends React.PureComponent {
     }
 
     handleCreateNewItemClick(e){
-        // console.log("called LinkedObj.handleNewItemClick");
+        console.log("called LinkedObj.handleNewItemClick");
         e.preventDefault();
         const { fieldBeingSelected, selectCancel, modifyNewContext, nestedField, linkType,
             arrayIdx, schema } = this.props;
