@@ -2759,9 +2759,6 @@ function (_React$Component2) {
      * @param {string} customSelectField    @todo but what actually is it? collection or something else?
      * @param {string} customSelectType
      * @param {number} customArrayIdx
-     * @param {string} displayTitle
-     * @param {string} valueToReplace
-     * @param {string} valueToReplace       Previous value of field, if replacing/updating a single field instead of adding
      */
 
   }, {
@@ -2772,8 +2769,6 @@ function (_React$Component2) {
       var customSelectField = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var customArrayIdx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-      arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
       // console.log(`calling selectComplete(
       //     atIds=${atIds},
       //     customSelectField=${customSelectField},
@@ -2804,19 +2799,14 @@ function (_React$Component2) {
       atIds.forEach(function (atId) {
         var currentlySelectedIds = selectField && currContext[selectField];
 
-        var isRepeat = Array.isArray(currentlySelectedIds) && _underscore["default"].contains(currentlySelectedIds, atId);
+        var isRepeat = Array.isArray(currentlySelectedIds) && _underscore["default"].contains(currentlySelectedIds, atId); // console.log("current: ", selectField);
+        // console.log("currentlySelectedIds", currentlySelectedIds);
+        // console.log("currContext: ", currContext);
+        // console.log("currContext[selectField]: ", currContext[selectField]);
+        // console.log("isInArray: ", isInArray);
 
-        _util.console.log("current: ", selectField);
-
-        _util.console.log("currContext: ", currContext);
-
-        _util.console.log("currContext[selectField]: ", currContext[selectField]);
-
-        _util.console.log("isInArray: ", isInArray);
 
         if (!isRepeat) {
-          _util.console.log("not a repeat, ");
-
           _this12.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isInArray ? nextArrayIndices.slice() : null, null);
 
           if (isMultiSelect) {
@@ -2824,8 +2814,20 @@ function (_React$Component2) {
             nextArrayIndices[nextArrayIndices.length - 1]++;
           }
         } else {
-          // "Cancel"
-          _this12.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+          if (!isInArray) {
+            // if the only value, just "replace" the value so it doesn't get deleted from state
+            // this can also serve to update the display title if, say, a recently created item is indexed and then
+            // reselected from dropdown
+            _this12.modifyNewContext(selectField, atId, 'existing linked object', null, selectArrayIdx);
+          } else {
+            // check if the repeat is the current field; if it is, "replace" it.
+            if (currentlySelectedIds[selectArrayIdx] === atId) {
+              _this12.modifyNewContext(selectField, atId, 'existing linked object', null, selectArrayIdx);
+            } else {
+              // don't allow a "replacement"; cancel
+              _this12.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+            }
+          }
         }
       });
       this.setState({

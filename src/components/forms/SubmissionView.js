@@ -2066,11 +2066,8 @@ class IndividualObjectView extends React.Component {
      * @param {string} customSelectField    @todo but what actually is it? collection or something else?
      * @param {string} customSelectType
      * @param {number} customArrayIdx
-     * @param {string} displayTitle
-     * @param {string} valueToReplace
-     * @param {string} valueToReplace       Previous value of field, if replacing/updating a single field instead of adding
      */
-    selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null, displayTitle = null, valueToReplace = null) {
+    selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null) {
         // console.log(`calling selectComplete(
         //     atIds=${atIds},
         //     customSelectField=${customSelectField},
@@ -2107,20 +2104,29 @@ class IndividualObjectView extends React.Component {
         atIds.forEach((atId)=>{
             const currentlySelectedIds = selectField && currContext[selectField];
             const isRepeat = (Array.isArray(currentlySelectedIds) && _.contains(currentlySelectedIds, atId));
-            console.log("current: ", selectField);
-
-            console.log("currContext: ", currContext);
-            console.log("currContext[selectField]: ", currContext[selectField]);
-            console.log("isInArray: ", isInArray);
+            // console.log("current: ", selectField);
+            // console.log("currentlySelectedIds", currentlySelectedIds);
+            // console.log("currContext: ", currContext);
+            // console.log("currContext[selectField]: ", currContext[selectField]);
+            // console.log("isInArray: ", isInArray);
             if (!isRepeat) {
-                console.log("not a repeat, ");
                 this.fetchAndValidateItem(atId, selectField, selectType, isInArray ? nextArrayIndices.slice() : null, null);
                 if (isMultiSelect) { // Sets up nextArrayIndices for next Item being added in multiselect
                     nextArrayIndices[nextArrayIndices.length - 1]++;
                 }
             } else {
-                // "Cancel"
-                this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+                if (!isInArray) { // if the only value, just "replace" the value so it doesn't get deleted from state
+                    // this can also serve to update the display title if, say, a recently created item is indexed and then
+                    // reselected from dropdown
+                    this.modifyNewContext(selectField, atId, 'existing linked object', null, selectArrayIdx);
+                } else {
+                    // check if the repeat is the current field; if it is, "replace" it.
+                    if (currentlySelectedIds[selectArrayIdx] === atId) {
+                        this.modifyNewContext(selectField, atId, 'existing linked object', null, selectArrayIdx);
+                    } else { // don't allow a "replacement"; cancel
+                        this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+                    }
+                }
             }
         });
 
