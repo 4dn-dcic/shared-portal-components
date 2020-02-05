@@ -293,13 +293,18 @@ export const columnDefinitionsToScaledColumnDefinitions = memoize(function(colum
 
 export class ColumnCombiner extends React.PureComponent {
 
-    static getDefinitionsAndHiddenColumns(columns, columnExtensionMap){
+    /**
+     * Merges `columns` from backend context (or prop, via StaticSection) with `columnExtensionMap` prop from front-end.
+     * Forms `columnDefinitions` list which is ultimately displayed in result table.
+     *
+     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {Object<string,{ colTitle: JSX.Element|string, render: function(Item, ...): JSX.Element, widthMap: { sm: number, md: number, lg: number } }} columnExtensionMap - Column definitions/extensions from front-end code.
+     * @returns {{ title: string, field: string, render: function, widthMap: { sm: number, md: number, lg: number } }[]} Final form of columns to display
+     */
+    static getDefinitions(columns, columnExtensionMap){
         // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
         // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
-        return {
-            columnDefinitions: columnsToColumnDefinitions(columns, columnExtensionMap),
-            defaultHiddenColumns: defaultHiddenColumnMapFromColumns(columns)
-        };
+        return columnsToColumnDefinitions(columns, columnExtensionMap);
     }
 
     static defaultProps = {
@@ -310,9 +315,25 @@ export class ColumnCombiner extends React.PureComponent {
     constructor(props){
         super(props);
         this.memoized = {
-            getDefinitionsAndHiddenColumns: memoize(
-                ColumnCombiner.getDefinitionsAndHiddenColumns, // Fxn to memoize
-                function(nextArgSet, prevArgSet){ // Custom "param equality" fxn. If returns false, memoized function is called.
+            haveContextColumnsChanged: memoize(haveContextColumnsChanged),
+            // We want `defaultHiddenColumns` memoized separately from `columnDefinitions`
+            // because `defaultHiddenColumns` change triggers reset in `ColumnCombiner`.
+            // This is becaused `columnExtensionMap` may change more frequently than `columns`.
+            // e.g. in response to SelectedFiles' state.selectedFiles changing.
+            getDefaultHiddenColumns: memoize(
+                defaultHiddenColumnMapFromColumns,
+                ([ nextColumns ], [ prevColumns ]) => !this.memoized.haveContextColumnsChanged(prevColumns, nextColumns)
+            ),
+            getDefinitions: memoize(
+                ColumnCombiner.getDefinitions, // Func to memoize
+                /**
+                 * Custom "param equality" fxn.
+                 *
+                 * @param {Object<string,{ title: string }[]} nextArgSet - Next [ `columns`, `columnExtensionMap` ] args
+                 * @param {Object<string,{ title: string }[]} prevArgSet - Previous [ `columns`, `columnExtensionMap` ] args
+                 * @returns {boolean} If false, then memoized func is called.
+                 */
+                (nextArgSet, prevArgSet) => {
                     const [ nextColumns, nextColDefMap ] = nextArgSet;
                     const [ prevColumns, prevColDefMap ] = prevArgSet;
 
@@ -325,7 +346,7 @@ export class ColumnCombiner extends React.PureComponent {
                     // reference after each filter, sort, etc call. This allows us to preserve the custom
                     // columns we've selected _unless_ Item type or something else changes which changes the
                     // column set that comes down from back-end response.
-                    return !haveContextColumnsChanged(prevColumns, nextColumns);
+                    return !this.memoized.haveContextColumnsChanged(prevColumns, nextColumns);
                 }
             )
         };
@@ -347,7 +368,13 @@ export class ColumnCombiner extends React.PureComponent {
 
         const propsToPass = {
             ...passProps,
-            ...this.memoized.getDefinitionsAndHiddenColumns(columns, columnExtensionMap)
+            /** Final form of all columns to show in table */
+            columnDefinitions: this.memoized.getDefinitions(columns, columnExtensionMap),
+            /**
+             * Initial column keys/fields from `columnDefinitions` to be hidden from table.
+             * Change of this prop value causes reset of hidden columns state.
+             */
+            defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columns)
         };
 
         return React.Children.map(children, function(child){

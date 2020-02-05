@@ -466,17 +466,20 @@ function TableHeaders(props){
     const columnWidths = StackedBlockTable.scaledColumnWidths(width, columnHeaders, defaultInitialColumnWidth);
 
     const headers = _.map(columnHeaders, function(colHeader, index){
-        const { field, title, visibleTitle: vTitle, initialWidth, columnClass, className } = colHeader;
+        const { field, title, visibleTitle: vTitle, title_tooltip, initialWidth, columnClass, className } = colHeader;
         let visibleTitle = vTitle || title;
         if (typeof visibleTitle === 'function') visibleTitle = visibleTitle(props);
         const colWidth = columnWidths[index] || initialWidth || defaultInitialColumnWidth;
         const key = field || index;
         const cls = "heading-block col-" + columnClass + (className ? ' ' + className : '');
 
-        let tooltip = typeof visibleTitle === 'string' ? visibleTitle
-            : typeof title === 'string' ? title
-                : null;
-        if (tooltip && tooltip.length < 6){
+        let tooltip;
+        if (title_tooltip && typeof title_tooltip === 'string' && title_tooltip.length > 0) {
+            tooltip = title_tooltip;
+        } else {
+            tooltip = typeof visibleTitle === 'string' ? visibleTitle : typeof title === 'string' ? title : null;
+        }
+        if (tooltip && tooltip.length < 6) {
             tooltip = null;
         }
 

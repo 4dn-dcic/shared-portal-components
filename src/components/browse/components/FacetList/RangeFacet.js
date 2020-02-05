@@ -241,7 +241,9 @@ export class RangeFacet extends React.PureComponent {
                     <span className="expand-toggle col-auto px-0">
                         <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
                     </span>
-                    <span className="inline-block col px-0" data-tip={tooltip} data-place="right">{ title }</span>
+                    <div className="col px-0 line-height-1">
+                        <span data-tip={tooltip} data-place="right">{ title }</span>
+                    </div>
                     <Fade in={facetClosing || !facetOpen}>
                         <span className={"closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")}>
                             { isStatic?
