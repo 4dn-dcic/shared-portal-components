@@ -1224,51 +1224,52 @@ export default class SubmissionView extends React.PureComponent{
                         var parentKey = parseInt(findParentFromHierarchy(keyHierarchy, inKey));
                         // navigate to parent obj if it was found. Else, go to top level
                         stateToSet.currKey = (parentKey !== null && !isNaN(parentKey) ? parentKey : 0);
+
+                        // make copies of various pieces of state for editing & update
                         var typesCopy = _.clone(keyTypes);
                         var keyCompleteCopy = _.clone(keyComplete);
                         var linksCopy = _.clone(keyLinks);
                         var displayCopy = _.clone(keyDisplay);
                         var hierCopy = _.clone(keyHierarchy);
-                        // set contextCopy to returned data from POST
-                        var contextCopy = _.clone(keyContext);
+                        var contextCopy = _.clone(keyContext); // set contextCopy to returned data from POST
                         var roundTwoCopy = roundTwoKeys.slice();
-                        // update the state storing completed objects.
+
+                        // add keys using the submitted object's new @id instead of the old keyIdx
                         keyCompleteCopy[inKey] = submitted_at_id;
-                        // represent the submitted object with its new path
-                        // rather than old keyIdx.
                         linksCopy[submitted_at_id] = linksCopy[inKey];
                         typesCopy[submitted_at_id] = currType;
                         displayCopy[submitted_at_id] = displayCopy[inKey];
                         contextCopy[submitted_at_id] = responseData;
                         contextCopy[inKey] = buildContext(responseData, currSchema, null, true, false);
+
+                        // update the state object with these new copies
                         stateToSet.keyLinks = linksCopy;
                         stateToSet.keyTypes = typesCopy;
                         stateToSet.keyComplete = keyCompleteCopy;
                         stateToSet.keyDisplay = displayCopy;
                         stateToSet.keyContext = contextCopy;
-                        stateToSet.keyValid[submitted_at_id] = 4;
 
-                        if (inKey !== 0){
+                        // if not submitting the principal object, update context and hierarchy
+                        if (inKey !== 0) {
                             const { splitField, arrayIdx } = findFieldFromContext(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']);
                             console.log('Results from findFieldFromContext', splitField, arrayIdx);
+
                             modifyContextInPlace(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
-                            // Modifies hierCopy in place.
-                            replaceInHierarchy(hierCopy, inKey, submitted_at_id);
+                            replaceInHierarchy(hierCopy, inKey, submitted_at_id); // Modifies hierCopy in place.
+
                             delete stateToSet.keyDisplay[inKey];
                         }
 
-                        stateToSet.keyHierarchy = hierCopy;
+                        stateToSet.keyHierarchy = hierCopy; // update keyHierarchy after update by replaceInHierarchy
 
-                        delete stateToSet.keyLinks[inKey];
-                        //delete stateToSet.keyContext[inKey];
-                        //delete stateToSet.keyDisplay[inKey];
+                        // clean up no longer necessary state
                         delete stateToSet.keyLinks[inKey];
                         delete stateToSet.keyValid[inKey];
-                        //delete stateToSet.keyTypes[inKey];
+                        //delete stateToSet.keyContext[inKey];
+                        //delete stateToSet.keyDisplay[inKey];
 
-                        console.log(stateToSet);
-
-
+                        // reflect that submitting object was successful
+                        stateToSet.keyValid[submitted_at_id] = 4;
 
                         // update roundTwoKeys if necessary
                         const needsRoundTwo = this.checkRoundTwo(currSchema);
@@ -1278,9 +1279,8 @@ export default class SubmissionView extends React.PureComponent{
                             stateToSet.roundTwoKeys = roundTwoCopy;
                         }
 
-                        // inKey is 0 for the primary object
+                        // if submitting the primary object, check if round two submission needs to occur...
                         if (inKey === 0){
-                            // see if we need to go into round two submission
                             if (roundTwoCopy.length === 0){
                                 // we're done!
                                 setIsSubmitting(false, () => {
@@ -1299,9 +1299,10 @@ export default class SubmissionView extends React.PureComponent{
                                 this.setState(stateToSet);
                             }
                         } else {
-                            console.log("stateToSet: ", stateToSet);
+                            console.log("updating state with stateToSet: ", stateToSet);
                             console.log("keyDisplay, ", keyDisplay);
                             console.log("inKey: , ", inKey);
+
                             alert(keyDisplay[inKey] + ' was successfully submitted.');
 
                             this.setState(stateToSet);

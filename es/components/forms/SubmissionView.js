@@ -1628,7 +1628,7 @@ function (_React$PureComponent) {
 
               var parentKey = parseInt(findParentFromHierarchy(keyHierarchy, inKey)); // navigate to parent obj if it was found. Else, go to top level
 
-              stateToSet.currKey = parentKey !== null && !isNaN(parentKey) ? parentKey : 0;
+              stateToSet.currKey = parentKey !== null && !isNaN(parentKey) ? parentKey : 0; // make copies of various pieces of state for editing & update
 
               var typesCopy = _underscore["default"].clone(keyTypes);
 
@@ -1638,27 +1638,25 @@ function (_React$PureComponent) {
 
               var displayCopy = _underscore["default"].clone(keyDisplay);
 
-              var hierCopy = _underscore["default"].clone(keyHierarchy); // set contextCopy to returned data from POST
+              var hierCopy = _underscore["default"].clone(keyHierarchy);
+
+              var contextCopy = _underscore["default"].clone(keyContext); // set contextCopy to returned data from POST
 
 
-              var contextCopy = _underscore["default"].clone(keyContext);
+              var roundTwoCopy = roundTwoKeys.slice(); // add keys using the submitted object's new @id instead of the old keyIdx
 
-              var roundTwoCopy = roundTwoKeys.slice(); // update the state storing completed objects.
-
-              keyCompleteCopy[inKey] = submitted_at_id; // represent the submitted object with its new path
-              // rather than old keyIdx.
-
+              keyCompleteCopy[inKey] = submitted_at_id;
               linksCopy[submitted_at_id] = linksCopy[inKey];
               typesCopy[submitted_at_id] = currType;
               displayCopy[submitted_at_id] = displayCopy[inKey];
               contextCopy[submitted_at_id] = responseData;
-              contextCopy[inKey] = buildContext(responseData, currSchema, null, true, false);
+              contextCopy[inKey] = buildContext(responseData, currSchema, null, true, false); // update the state object with these new copies
+
               stateToSet.keyLinks = linksCopy;
               stateToSet.keyTypes = typesCopy;
               stateToSet.keyComplete = keyCompleteCopy;
               stateToSet.keyDisplay = displayCopy;
-              stateToSet.keyContext = contextCopy;
-              stateToSet.keyValid[submitted_at_id] = 4;
+              stateToSet.keyContext = contextCopy; // if not submitting the principal object, update context and hierarchy
 
               if (inKey !== 0) {
                 var _findFieldFromContext = findFieldFromContext(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']),
@@ -1667,21 +1665,21 @@ function (_React$PureComponent) {
 
                 _util.console.log('Results from findFieldFromContext', splitField, arrayIdx);
 
-                modifyContextInPlace(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id); // Modifies hierCopy in place.
+                modifyContextInPlace(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
+                replaceInHierarchy(hierCopy, inKey, submitted_at_id); // Modifies hierCopy in place.
 
-                replaceInHierarchy(hierCopy, inKey, submitted_at_id);
                 delete stateToSet.keyDisplay[inKey];
               }
 
-              stateToSet.keyHierarchy = hierCopy;
-              delete stateToSet.keyLinks[inKey]; //delete stateToSet.keyContext[inKey];
-              //delete stateToSet.keyDisplay[inKey];
+              stateToSet.keyHierarchy = hierCopy; // update keyHierarchy after update by replaceInHierarchy
+              // clean up no longer necessary state
 
               delete stateToSet.keyLinks[inKey];
-              delete stateToSet.keyValid[inKey]; //delete stateToSet.keyTypes[inKey];
+              delete stateToSet.keyValid[inKey]; //delete stateToSet.keyContext[inKey];
+              //delete stateToSet.keyDisplay[inKey];
+              // reflect that submitting object was successful
 
-              _util.console.log(stateToSet); // update roundTwoKeys if necessary
-
+              stateToSet.keyValid[submitted_at_id] = 4; // update roundTwoKeys if necessary
 
               var needsRoundTwo = _this6.checkRoundTwo(currSchema);
 
@@ -1689,11 +1687,10 @@ function (_React$PureComponent) {
                 // was getting an error where this could be str
                 roundTwoCopy.push(parseInt(inKey));
                 stateToSet.roundTwoKeys = roundTwoCopy;
-              } // inKey is 0 for the primary object
+              } // if submitting the primary object, check if round two submission needs to occur...
 
 
               if (inKey === 0) {
-                // see if we need to go into round two submission
                 if (roundTwoCopy.length === 0) {
                   // we're done!
                   setIsSubmitting(false, function () {
@@ -1714,7 +1711,7 @@ function (_React$PureComponent) {
                   _this6.setState(stateToSet);
                 }
               } else {
-                _util.console.log("stateToSet: ", stateToSet);
+                _util.console.log("updating state with stateToSet: ", stateToSet);
 
                 _util.console.log("keyDisplay, ", keyDisplay);
 
