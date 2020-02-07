@@ -642,8 +642,8 @@ export default class SubmissionView extends React.PureComponent{
      *
      * @param {number} keyToRemove - Key (either idx or atID) of object to remove.
      *
-     * Used for the both pre-existing/recently submitted objects, where key is their atID, and
-     * in-progress custom objects that have index keys.
+     * Used for both pre-existing/recently submitted objects, where keyToRemove is their atID, and
+     * in-progress custom objects that have index keys instead.
      *
      * If deleting a pre-existing/recently submitted object, dont modify the key-indexed states for
      * it since other occurences of that object may be used in the creation
@@ -1246,10 +1246,11 @@ export default class SubmissionView extends React.PureComponent{
                         stateToSet.keyComplete = keyCompleteCopy;
                         stateToSet.keyDisplay = displayCopy;
                         stateToSet.keyContext = contextCopy;
+                        stateToSet.keyValid[submitted_at_id] = 4;
 
                         if (inKey !== 0){
                             const { splitField, arrayIdx } = findFieldFromContext(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']);
-                            console.log('TTT', splitField, arrayIdx);
+                            console.log('Results from findFieldFromContext', splitField, arrayIdx);
                             modifyContextInPlace(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
                             // Modifies hierCopy in place.
                             replaceInHierarchy(hierCopy, inKey, submitted_at_id);
@@ -2629,27 +2630,52 @@ function removeNulls(context){
     });
     return context;
 }
-
+/**
+ * Takes in a deep COPY of keyContext and returns an edited version of that copy with the item in splitField
+ * at the arrayIdx changed to value. (I THINK?! MAYBE FUCK IDK) GOD WHY
+ *
+ * @param {[string]} splitField An array containing the results of .split('.') on a field (E.g. experiment_sets.experiment => ["experiment_sets","experiment"])
+ * @param {object} currContext  A DEEP COPY of keyContext
+ * @param {array} arrayIdx      An array containing the index of the item to be modified
+ * @param {string} fieldType    An array containing the type of object to be modified (E.g., "linked object", "existing object", etc.)
+ * @param {string} value        A string containing the @id path of the item to be updated to
+ *
+ * Per the name, this function modifies IN PLACE and will cause super duper side effects if used on state.
+ * Always pass in an object.deepClone'd COPY of the context you'd like to modify.
+ *
+ */
 function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value){
+    console.log(`calling modifyContextInPlace with`, splitField, currContext, arrayIdx, fieldType, value);
     //var splitField = field.split('.');
-    var splitFieldLeaf = splitField[splitField.length-1];
-    var arrayIdxPointer = 0;
-    var contextCopy = currContext; //object.deepClone(currContext);
-    var pointer = contextCopy;
-    var prevValue = null;
-    for (var i=0; i < splitField.length - 1; i++){
+    const splitFieldLeaf = splitField[splitField.length-1];
+    let arrayIdxPointer = 0;
+    const contextCopy = currContext;
+    let pointer = contextCopy;
+    let prevValue = null;
+    for (let i=0; i < splitField.length - 1; i++){
+        // console.log(splitField[i]);
+        // console.log("pointer at start of loop", pointer);
         if(pointer[splitField[i]]){
             pointer = pointer[splitField[i]];
         }else{
+            // console.log(pointer[splitField[i]]);
+            // console.log(pointer);
             console.error('PROBLEM CREATING NEW CONTEXT WITH: ', fieldType, value);
             return;
         }
+        // console.log("pointer after updating with", splitField[i], " :", pointer);
         if(Array.isArray(pointer)){
+            // console.log("pointer is array");
+            // console.log("before switch", pointer);
             pointer = pointer[arrayIdx[arrayIdxPointer]];
+            // console.log("arrayIdx[arrayIdxPointer]", arrayIdx[arrayIdxPointer]);
+            // console.log(pointer);
             arrayIdxPointer += 1;
         }
     }
+    // console.log("after for loop", pointer);
     if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
+        // console.log("value we're trying to set is inside of an array");
         // move pointer into array
         pointer = pointer[splitFieldLeaf];
         prevValue = pointer[arrayIdx[arrayIdxPointer]];
@@ -2659,6 +2685,7 @@ function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, valu
             pointer[arrayIdx[arrayIdxPointer]] = value;
         }
     } else { // value we're trying to set is not inside an array at this point
+        // console.log("value we're trying to set is NOT inside of an array");
         prevValue = pointer[splitFieldLeaf];
         pointer[splitFieldLeaf] = value;
     }
@@ -2666,14 +2693,26 @@ function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, valu
 }
 
 
-
-function findFieldFromContext(currContext, rootType, schemas, keyIndexToFind = 1, keyLinkToFind = []){
-
+/**
+ * Traverses context to find the field name of the object at a specific keyIndex in context.
+ *
+ * @param {*} contextToSearch   Top level keyContext to search through
+ * @param {*} rootType          The schema-formatted type of Item at the root of this context; principal object's type (E.g. "Experiment" or "Cohort")
+ * @param {*} schemas           An object containing all schemas
+ * @param {*} keyIndexToFind    The key index of the item to find
+ * @param {*} keyLinkToFind     An array representing the path to the item being searched for
+ *
+ * This might work if you pass in a subContext and make sure the rootType refers to the correct subContext's type, but not tested so can't be sure.
+ *
+ * @returns {object} { splitField: string[], arrayIdx: number[] } splitField represents the field name,
+ * arrayIdx represents the array indices of the object found.
+ */
+function findFieldFromContext(contextToSearch, rootType, schemas, keyIndexToFind = 1, keyLinkToFind = []){
+    console.log("calling findFieldFromContext with: ", ...arguments);
     // Issue: no way to figure out if new-linkto being created or not.
-    console.log("ARGS", ...arguments);
 
     let splitField = null;
-    let arrayIdx = null;
+    let arrayIdx = [];
 
     /*
     const keyHierarchy = {
@@ -2692,58 +2731,81 @@ function findFieldFromContext(currContext, rootType, schemas, keyIndexToFind = 1
     //     return false;
     // }
 
-    function scrapeFromCtx(ctx, ctxKey, ctxSchema, currFieldParts = [], arrIdx = null){
-        console.log("calling scrapeFromCtx with", ctx, ctxKey, ctxSchema, currFieldParts, arrayIdx);
-        if (splitField) return;
-        _.keys(ctx).forEach(function(propKey){
-            const propVal = ctx[propKey];
-            console.log('TTT', propKey, propVal, ctxKey, ctxSchema);
-            let propSchema = ctxSchema[propKey];
-            if (Array.isArray(propVal)){
-                propSchema = propSchema.items;
+    /**
+     * Recursive function used to scrape through the context.
+     *
+     * @param {*} context           The keyContext object (or nested context object) to search
+     * @param {*} contextKey        The key in keyContext (or current nested context object) being searched
+     * @param {*} contextSchema     The schema for the type of object that is being searched
+     * @param {*} currFieldParts    An array containing the previous contextKeys searched to get to this context
+     * @param {*} arrIdx            An array containing the indices of any arrays that were searched previously to get to this context
+     *
+     * When it finds an array or an object, it recursively searches for the field present until it finds it OR searches everything.
+     * Once the item being searched for (keyIndexToFind above) is found, updates findFieldFromContext's splitField or arrayIdx.
+     */
+    function scrapeFromContext(context, contextKey, contextSchema, currFieldParts = [], arrIdx = null){
+        console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrayIdx);
+        splitField ? console.log("splitField is ", splitField) : null;
+        if (splitField) return; // recurses until it finds the field being sought
+
+        // Searches through the context passed in...
+        _.keys(context).forEach(function(propKey){
+
+            // Store the schema and value of the current nested context object being scraped
+            const propVal = context[propKey];
+            let propSchema = contextSchema[propKey];
+
+            if (Array.isArray(propVal)){ // If current item is an array of other items
+                propSchema = propSchema.items; // Make sure schema is synced as appropriate
+
+                // Traverse through each item in the array to see if field is present
                 propVal.forEach(function(propValItem, idxInArray){
+
+                    // If the items in this array are other linked objects, recurse and search them, too.
                     if (propValItem !== null && typeof propValItem === "object"){
-                        // Breaks down when encounter more than 1 array deep.
-                        // But this occurs already other places so w.e.
-                        scrapeFromCtx(propValItem, propKey, propSchema.properties, [ ...currFieldParts, propKey ], [idxInArray]);
+                        console.log(`Found a new object. Scraping... ${contextKey}.${propKey}`);
+                        // NOTE: This breaks down when encountering nested arrays (more than 1 array deep).
+                        // But this occurs already other places so w.e. TODO: Fix this, if necessary
+                        scrapeFromContext(propValItem, propKey, propSchema.properties, [ ...currFieldParts, propKey ], [idxInArray]);
                         return;
                     }
-                    console.log(keyIndexToFind, propVal, propValItem, propSchema.linkTo, keyLinkToFind);
+
+                    // If the field is matching the item that is currently being sought, update splitField and arrayIdx
                     if (keyIndexToFind === propValItem){
                         const isCorrectLinkTo = keyLinkToFind.indexOf(propSchema.linkTo) > -1;
                         if (isCorrectLinkTo) {
                             splitField = [ ...currFieldParts, propKey ];
-                            arrayIdx = [idxInArray];
-                            //keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
-                            //keyHierarchy[ctxKey][propValItem] = itemType;
-                            //keyTypes[ctxKey] = keyTypes[ctxKey] || {};
+                            arrayIdx = [...idxInArray];
+                            //keyHierarchy[contextKey] = keyHierarchy[contextKey] || {};
+                            //keyHierarchy[contextKey][propValItem] = itemType;
+                            //keyTypes[contextKey] = keyTypes[contextKey] || {};
                             //keyTypes[]
                         }
                     }
                 });
-            } else if (propVal !== null && typeof propVal === "object"){
-                // Sub-embed obj
-                //console.log("TTTTDD", propVal, propSchema);
-                scrapeFromCtx(propVal, propKey, propSchema.properties, [ ...currFieldParts, propKey ], arrIdx);
+            } else if (propVal !== null && typeof propVal === "object"){ // Sub-embedded object. Recurse and search keys
+                scrapeFromContext(propVal, propKey, propSchema.properties, [ ...currFieldParts, propKey ], arrIdx);
             } else {
                 if (keyIndexToFind === propVal){
                     const isCorrectLinkTo = keyLinkToFind.indexOf(propSchema.linkTo) > -1;
                     if (isCorrectLinkTo) {
                         splitField = [ ...currFieldParts, propKey ];
                         arrayIdx = arrIdx;
-                        // keyHierarchy[ctxKey] = keyHierarchy[ctxKey] || {};
-                        // keyHierarchy[ctxKey][propVal] = itemType;
+                        // keyHierarchy[contextKey] = keyHierarchy[contextKey] || {};
+                        // keyHierarchy[contextKey][propVal] = itemType;
                     }
                 }
             }
         });
     }
 
-    //_.keys(currContext).forEach(function(propKey){
+    // _.keys(contextToSearch).forEach(function(propKey){
         // Bleh need to traverse every sub object and array here
-    scrapeFromCtx(currContext, null, schemas[rootType].properties, []);
-    //});
+        scrapeFromContext(contextToSearch, null, schemas[rootType].properties, []);
+    // });
 
+    console.log("returning splitfield: ", splitField);
+    console.log("returning arrayIdx: ", arrayIdx);
     return {
         splitField,
         arrayIdx
