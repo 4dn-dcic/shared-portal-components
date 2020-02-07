@@ -2696,16 +2696,17 @@ function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, valu
 /**
  * Traverses context to find the field name of the object at a specific keyIndex in context.
  *
- * @param {*} contextToSearch   Top level keyContext to search through
- * @param {*} rootType          The schema-formatted type of Item at the root of this context; principal object's type (E.g. "Experiment" or "Cohort")
- * @param {*} schemas           An object containing all schemas
- * @param {*} keyIndexToFind    The key index of the item to find
- * @param {*} keyLinkToFind     An array representing the path to the item being searched for
+ * @param {object} contextToSearch   Top level keyContext to search through
+ * @param {string} rootType          The schema-formatted type of Item at the root of this context; principal object's type (E.g. "Experiment" or "Cohort")
+ * @param {string} schemas           An object containing all schemas
+ * @param {number} keyIndexToFind    The key index of the item to find
+ * @param {array}  keyLinkToFind     An array representing the path to the item being searched for
  *
  * This might work if you pass in a subContext and make sure the rootType refers to the correct subContext's type, but not tested so can't be sure.
  *
- * @returns {object} { splitField: string[], arrayIdx: number[] } splitField represents the field name,
- * arrayIdx represents the array indices of the object found.
+ * @returns {object} { splitField: string[], arrayIdx: number[] }
+ *          splitField represents the field name,
+ *          arrayIdx contains the indices of any arrays searched in order to find the object during traversal.
  */
 function findFieldFromContext(contextToSearch, rootType, schemas, keyIndexToFind = 1, keyLinkToFind = []){
     console.log("calling findFieldFromContext with: ", ...arguments);
@@ -2734,17 +2735,18 @@ function findFieldFromContext(contextToSearch, rootType, schemas, keyIndexToFind
     /**
      * Recursive function used to scrape through the context.
      *
-     * @param {*} context           The keyContext object (or nested context object) to search
-     * @param {*} contextKey        The key in keyContext (or current nested context object) being searched
-     * @param {*} contextSchema     The schema for the type of object that is being searched
-     * @param {*} currFieldParts    An array containing the previous contextKeys searched to get to this context
-     * @param {*} arrIdx            An array containing the indices of any arrays that were searched previously to get to this context
+     * @param {object} context          The keyContext object (or nested context object) to search
+     * @param {number} contextKey       The key in keyContext (or current nested context object) being searched
+     * @param {object} contextSchema    The schema for the type of object that is being searched
+     * @param {array}  currFieldParts   An array containing the previous contextKeys searched to get to this context
+     * @param {array}  arrIdx           Contains the indices of any arrays that were searched previously to get to this context,
+     *                                  in order from most to least recent
      *
      * When it finds an array or an object, it recursively searches for the field present until it finds it OR searches everything.
-     * Once the item being searched for (keyIndexToFind above) is found, updates findFieldFromContext's splitField or arrayIdx.
+     * Once the item being searched for (keyIndexToFind above) is found, updates findFieldFromContext's splitField and arrayIdx.
      */
-    function scrapeFromContext(context, contextKey, contextSchema, currFieldParts = [], arrIdx = null){
-        console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrayIdx);
+    function scrapeFromContext(context, contextKey, contextSchema, currFieldParts = [], arrIdx = []){
+        console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrIdx);
         splitField ? console.log("splitField is ", splitField) : null;
         if (splitField) return; // recurses until it finds the field being sought
 
@@ -2766,7 +2768,7 @@ function findFieldFromContext(contextToSearch, rootType, schemas, keyIndexToFind
                         console.log(`Found a new object. Scraping... ${contextKey}.${propKey}`);
                         // NOTE: This breaks down when encountering nested arrays (more than 1 array deep).
                         // But this occurs already other places so w.e. TODO: Fix this, if necessary
-                        scrapeFromContext(propValItem, propKey, propSchema.properties, [ ...currFieldParts, propKey ], [idxInArray]);
+                        scrapeFromContext(propValItem, propKey, propSchema.properties, [ ...currFieldParts, propKey ], [...arrIdx, idxInArray]);
                         return;
                     }
 
@@ -2775,7 +2777,7 @@ function findFieldFromContext(contextToSearch, rootType, schemas, keyIndexToFind
                         const isCorrectLinkTo = keyLinkToFind.indexOf(propSchema.linkTo) > -1;
                         if (isCorrectLinkTo) {
                             splitField = [ ...currFieldParts, propKey ];
-                            arrayIdx = [...idxInArray];
+                            arrayIdx = [ ...arrIdx, idxInArray];
                             //keyHierarchy[contextKey] = keyHierarchy[contextKey] || {};
                             //keyHierarchy[contextKey][propValItem] = itemType;
                             //keyTypes[contextKey] = keyTypes[contextKey] || {};
@@ -2783,9 +2785,11 @@ function findFieldFromContext(contextToSearch, rootType, schemas, keyIndexToFind
                         }
                     }
                 });
-            } else if (propVal !== null && typeof propVal === "object"){ // Sub-embedded object. Recurse and search keys
+            } else if (propVal !== null && typeof propVal === "object"){
+                // Sub-embedded object. Recurse and search keys
                 scrapeFromContext(propVal, propKey, propSchema.properties, [ ...currFieldParts, propKey ], arrIdx);
             } else {
+                // Assmuming this is a field; check to see if it matches
                 if (keyIndexToFind === propVal){
                     const isCorrectLinkTo = keyLinkToFind.indexOf(propSchema.linkTo) > -1;
                     if (isCorrectLinkTo) {
