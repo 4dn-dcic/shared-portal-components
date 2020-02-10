@@ -2595,7 +2595,7 @@ function (_React$Component2) {
       _util.console.log("calling modifyNewContext(\n                field=".concat(field, ",\n                value=").concat(value, ",\n                fieldType=").concat(fieldType, ",\n                newLink=").concat(newLink, ",\n                arrayIdx=").concat(arrayIdx, ",\n                type=").concat(type, ",\n                valueTitle=").concat(valueTitle, ")"));
 
       var _this$props12 = this.props,
-          propCurrContext = _this$props12.currContext,
+          currContext = _this$props12.currContext,
           currKey = _this$props12.currKey,
           initCreateObj = _this$props12.initCreateObj,
           modifyKeyContext = _this$props12.modifyKeyContext,
@@ -2617,12 +2617,51 @@ function (_React$Component2) {
         _util.console.error.apply(_util.console, ['No field supplied'].concat(Array.prototype.slice.call(arguments)));
       }
 
-      var splitField = field.split('.');
-      var splitFieldLeaf = splitField[splitField.length - 1];
+      var splitField = field.split('.'); // todo: re-implement modifyContextInPlace... somehow the f(x) has the exact same logic but causes a
+      // "_modifyContextInPlace is undefined" TypeError when used in certain cases (creating CaptureC experiment sets, Static Sections, etc)
+      // const { currContext, prevValue } = modifyContextInPlace(splitField, propCurrContext, arrayIdx, fieldType, value);
 
-      var _modifyContextInPlace = modifyContextInPlace(splitField, propCurrContext, arrayIdx, fieldType, value),
-          currContext = _modifyContextInPlace.currContext,
-          prevValue = _modifyContextInPlace.prevValue;
+      /* modifyContextInPlace can replace everything below this point, until indicated */
+
+      var splitFieldLeaf = splitField[splitField.length - 1];
+      var arrayIdxPointer = 0;
+      //object.deepClone(currContext);
+      var pointer = currContext;
+      var prevValue = null;
+
+      for (var i = 0; i < splitField.length - 1; i++) {
+        if (pointer[splitField[i]]) {
+          pointer = pointer[splitField[i]];
+        } else {
+          _util.console.error('PROBLEM CREATING NEW CONTEXT WITH: ', splitField, value);
+
+          return;
+        }
+
+        if (Array.isArray(pointer)) {
+          pointer = pointer[arrayIdx[arrayIdxPointer]];
+          arrayIdxPointer += 1;
+        }
+      }
+
+      if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array') {
+        // move pointer into array
+        pointer = pointer[splitFieldLeaf];
+        prevValue = pointer[arrayIdx[arrayIdxPointer]];
+
+        if (value === null) {
+          // delete this array itemfieldType
+          pointer.splice(arrayIdx[arrayIdxPointer], 1);
+        } else {
+          pointer[arrayIdx[arrayIdxPointer]] = value;
+        }
+      } else {
+        // value we're trying to set is not inside an array at this point
+        prevValue = pointer[splitFieldLeaf];
+        pointer[splitFieldLeaf] = value;
+      }
+      /* modifyContextInPlace can replace everything up until this point... need to update var names, though */
+
 
       _util.console.log("modifyNewContext II", value, currContext);
 
@@ -3461,8 +3500,7 @@ function removeNulls(context) {
 
 
 function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value) {
-  _util.console.log("calling modifyContextInPlace with", splitField, currContext, arrayIdx, fieldType, value); //var splitField = field.split('.');
-
+  _util.console.log("calling modifyContextInPlace with", splitField, currContext, arrayIdx, fieldType, value);
 
   var splitFieldLeaf = splitField[splitField.length - 1];
   var arrayIdxPointer = 0;

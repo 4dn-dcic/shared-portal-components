@@ -1940,7 +1940,7 @@ class IndividualObjectView extends React.Component {
                 type=${type},
                 valueTitle=${valueTitle})`
         );
-        const { currContext: propCurrContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj, keyComplete } = this.props;
+        const { currContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj, keyComplete } = this.props;
 
         if (fieldType === 'new linked object'){
             value = this.props.keyIter + 1;
@@ -1955,10 +1955,44 @@ class IndividualObjectView extends React.Component {
             console.error('No field supplied', ...arguments);
         }
 
-        var splitField = field.split('.');
-        var splitFieldLeaf = splitField[splitField.length-1];
+        const splitField = field.split('.');
+        // todo: re-implement modifyContextInPlace... somehow the f(x) has the exact same logic but causes a
+        // "_modifyContextInPlace is undefined" TypeError when used in certain cases (creating CaptureC experiment sets, Static Sections, etc)
+        // const { currContext, prevValue } = modifyContextInPlace(splitField, propCurrContext, arrayIdx, fieldType, value);
+        
+        /* modifyContextInPlace can replace everything below this point, until indicated */
+        const splitFieldLeaf = splitField[splitField.length-1];
+        let arrayIdxPointer = 0;
+        const contextCopy = currContext; //object.deepClone(currContext);
+        let pointer = contextCopy;
+        let prevValue = null;
+        for (let i=0; i < splitField.length - 1; i++){
+            if(pointer[splitField[i]]){
+                pointer = pointer[splitField[i]];
+            }else{
+                console.error('PROBLEM CREATING NEW CONTEXT WITH: ', splitField, value);
+                return;
+            }
+            if(Array.isArray(pointer)){
+                pointer = pointer[arrayIdx[arrayIdxPointer]];
+                arrayIdxPointer += 1;
+            }
+        }
+        if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
+            // move pointer into array
+            pointer = pointer[splitFieldLeaf];
+            prevValue = pointer[arrayIdx[arrayIdxPointer]];
+            if (value === null){ // delete this array itemfieldType
+                pointer.splice(arrayIdx[arrayIdxPointer], 1);
+            } else {
+                pointer[arrayIdx[arrayIdxPointer]] = value;
+            }
+        } else { // value we're trying to set is not inside an array at this point
+            prevValue = pointer[splitFieldLeaf];
+            pointer[splitFieldLeaf] = value;
+        }
+        /* modifyContextInPlace can replace everything up until this point... need to update var names, though */
 
-        const { currContext, prevValue } = modifyContextInPlace(splitField, propCurrContext, arrayIdx, fieldType, value);
         console.log("modifyNewContext II", value, currContext);
         if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object" || fieldType === 'new linked object')){
             console.log("removing obj ", prevValue);
@@ -2647,7 +2681,6 @@ function removeNulls(context){
  */
 function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value){
     console.log(`calling modifyContextInPlace with`, splitField, currContext, arrayIdx, fieldType, value);
-    //var splitField = field.split('.');
     const splitFieldLeaf = splitField[splitField.length-1];
     let arrayIdxPointer = 0;
     const contextCopy = currContext;
