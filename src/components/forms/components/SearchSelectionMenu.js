@@ -32,7 +32,7 @@ export class SearchSelectionMenu extends React.PureComponent {
             // used to force Popper.js to refresh and reposition the dropdown
             // if the length of results changes (drop may no longer align correctly, esp.
             // if dropping "up" to avoid collision with bottom of window)
-            // TODO: add some more checks to make this more specific to ONLY cases 
+            // TODO: add some more checks to make this more specific to ONLY cases
             // where the drop no longer aligns w/button
             this.setState({ refreshKey : refreshKey + 1 });
         }
@@ -84,18 +84,16 @@ export class SearchSelectionMenu extends React.PureComponent {
             optionsHeader,
             optionsFooter,
             className,
-            alignRight = false, // todo: decide if i hate this or not
             showTips = false
         } = this.props;
         const { dropOpen, refreshKey } = this.state;
         const cls = "search-selection-menu" + (className? " " + className : "");
         const showValue = (value && titleRenderFunction(value)) || <span className="text-300">No value</span>;
         return (
-            <Dropdown alignRight={alignRight} flip onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
+            <Dropdown flip onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
                 <Dropdown.Toggle variant="outline-secondary" data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
                 <Dropdown.Menu key={refreshKey} as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
-                    flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}
-                    alignRight={alignRight} ref={this.dropdown} onKeyDown={this.onKeyDown}>
+                    flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen} ref={this.dropdown} onKeyDown={this.onKeyDown}>
                     {
                         options.map(function(option, idx){
                             const renderedOption = typeof optionRenderFunction === "function" ?

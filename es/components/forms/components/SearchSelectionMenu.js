@@ -76,7 +76,7 @@ function (_React$PureComponent) {
         // used to force Popper.js to refresh and reposition the dropdown
         // if the length of results changes (drop may no longer align correctly, esp.
         // if dropping "up" to avoid collision with bottom of window)
-        // TODO: add some more checks to make this more specific to ONLY cases 
+        // TODO: add some more checks to make this more specific to ONLY cases
         // where the drop no longer aligns w/button
         this.setState({
           refreshKey: refreshKey + 1
@@ -147,8 +147,6 @@ function (_React$PureComponent) {
           optionsHeader = _this$props2.optionsHeader,
           optionsFooter = _this$props2.optionsFooter,
           className = _this$props2.className,
-          _this$props2$alignRig = _this$props2.alignRight,
-          alignRight = _this$props2$alignRig === void 0 ? false : _this$props2$alignRig,
           _this$props2$showTips = _this$props2.showTips,
           showTips = _this$props2$showTips === void 0 ? false : _this$props2$showTips;
       var _this$state = this.state,
@@ -161,7 +159,6 @@ function (_React$PureComponent) {
       }, "No value");
 
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
-        alignRight: alignRight,
         flip: true,
         onToggle: this.onToggleOpen,
         show: dropOpen,
@@ -182,7 +179,6 @@ function (_React$PureComponent) {
         show: dropOpen,
         onTextInputChange: onTextInputChange,
         toggleOpen: this.onToggleOpen,
-        alignRight: alignRight,
         ref: this.dropdown,
         onKeyDown: this.onKeyDown
       }), options.map(function (option, idx) {
