@@ -15,11 +15,27 @@ export class SearchSelectionMenu extends React.PureComponent {
     constructor(props){
         super(props);
         this.state = {
-            dropOpen: false
+            dropOpen: false,
+            refreshKey: 0 // iterated to force a refresh of dropdown
         };
         this.dropdown = React.createRef();
         this.onToggleOpen = this.onToggleOpen.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
+    }
+
+    componentDidUpdate(prevProps) {
+        const { options: oldOptions = [] } = prevProps;
+        const { options: newOptions = [] } = this.props;
+        const { refreshKey } = this.state;
+
+        if (oldOptions.length !== newOptions.length) {
+            // used to force Popper.js to refresh and reposition the dropdown
+            // if the length of results changes (drop may no longer align correctly, esp.
+            // if dropping "up" to avoid collision with bottom of window)
+            // TODO: add some more checks to make this more specific to ONLY cases 
+            // where the drop no longer aligns w/button
+            this.setState({ refreshKey : refreshKey + 1 });
+        }
     }
 
     onToggleOpen(){
@@ -71,13 +87,13 @@ export class SearchSelectionMenu extends React.PureComponent {
             alignRight = false, // todo: decide if i hate this or not
             showTips = false
         } = this.props;
-        const { dropOpen } = this.state;
+        const { dropOpen, refreshKey } = this.state;
         const cls = "search-selection-menu" + (className? " " + className : "");
         const showValue = (value && titleRenderFunction(value)) || <span className="text-300">No value</span>;
         return (
             <Dropdown alignRight={alignRight} flip onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
                 <Dropdown.Toggle variant="outline-secondary" data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
-                <Dropdown.Menu as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
+                <Dropdown.Menu key={refreshKey} as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
                     flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}
                     alignRight={alignRight} ref={this.dropdown} onKeyDown={this.onKeyDown}>
                     {

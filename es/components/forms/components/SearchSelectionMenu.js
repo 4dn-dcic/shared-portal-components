@@ -53,7 +53,9 @@ function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SearchSelectionMenu).call(this, props));
     _this.state = {
-      dropOpen: false
+      dropOpen: false,
+      refreshKey: 0 // iterated to force a refresh of dropdown
+
     };
     _this.dropdown = _react["default"].createRef();
     _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
@@ -62,6 +64,26 @@ function (_React$PureComponent) {
   }
 
   _createClass(SearchSelectionMenu, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps) {
+      var _prevProps$options = prevProps.options,
+          oldOptions = _prevProps$options === void 0 ? [] : _prevProps$options;
+      var _this$props$options = this.props.options,
+          newOptions = _this$props$options === void 0 ? [] : _this$props$options;
+      var refreshKey = this.state.refreshKey;
+
+      if (oldOptions.length !== newOptions.length) {
+        // used to force Popper.js to refresh and reposition the dropdown
+        // if the length of results changes (drop may no longer align correctly, esp.
+        // if dropping "up" to avoid collision with bottom of window)
+        // TODO: add some more checks to make this more specific to ONLY cases 
+        // where the drop no longer aligns w/button
+        this.setState({
+          refreshKey: refreshKey + 1
+        });
+      }
+    }
+  }, {
     key: "onToggleOpen",
     value: function onToggleOpen() {
       var _this2 = this;
@@ -129,7 +151,9 @@ function (_React$PureComponent) {
           alignRight = _this$props2$alignRig === void 0 ? false : _this$props2$alignRig,
           _this$props2$showTips = _this$props2.showTips,
           showTips = _this$props2$showTips === void 0 ? false : _this$props2$showTips;
-      var dropOpen = this.state.dropOpen;
+      var _this$state = this.state,
+          dropOpen = _this$state.dropOpen,
+          refreshKey = _this$state.refreshKey;
       var cls = "search-selection-menu" + (className ? " " + className : "");
 
       var showValue = value && titleRenderFunction(value) || _react["default"].createElement("span", {
@@ -146,6 +170,7 @@ function (_React$PureComponent) {
         variant: "outline-secondary",
         "data-tip": showTips ? value : null
       }, showValue), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
+        key: refreshKey,
         as: SearchSelectionMenuBody
       }, {
         onTextInputChange: onTextInputChange,
