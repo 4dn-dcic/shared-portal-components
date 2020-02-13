@@ -57,17 +57,11 @@ function (_React$PureComponent) {
     };
     _this.dropdown = _react["default"].createRef();
     _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
-    _this.shouldAlignDropRight = _this.shouldAlignDropRight.bind(_assertThisInitialized(_this));
     _this.onKeyDown = _this.onKeyDown.bind(_assertThisInitialized(_this));
     return _this;
   }
 
   _createClass(SearchSelectionMenu, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.shouldAlignDropRight();
-    }
-  }, {
     key: "onToggleOpen",
     value: function onToggleOpen() {
       var _this2 = this;
@@ -94,6 +88,7 @@ function (_React$PureComponent) {
           allowCustomValue = _this$props.allowCustomValue;
 
       if (e.key === "Enter") {
+        // create the illusion of "submitting the value"; really just close the window
         if (allowCustomValue) {
           e.preventDefault();
           this.onToggleOpen();
@@ -111,13 +106,6 @@ function (_React$PureComponent) {
         this.onToggleOpen();
       } // otherwise handle as default
 
-    }
-  }, {
-    key: "shouldAlignDropRight",
-    value: function shouldAlignDropRight() {// todo: use ref to use with dom window methods (offset or getBoundingClientRect) to get the distance 
-      // from window edge. then if distance < certain threshold, align to right vs left. Update on component update, too
-      // const domNode = this.dropdown.current;
-      // console.log(domNode.getBoundingClientRect());
     }
   }, {
     key: "render",
@@ -149,9 +137,8 @@ function (_React$PureComponent) {
       }, "No value");
 
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
-        drop: "down",
         alignRight: alignRight,
-        flip: false,
+        flip: true,
         onToggle: this.onToggleOpen,
         show: dropOpen,
         className: cls
@@ -166,8 +153,7 @@ function (_React$PureComponent) {
         optionsFooter: optionsFooter,
         currentTextValue: currentTextValue
       }, {
-        drop: "down",
-        flip: false,
+        flip: true,
         show: dropOpen,
         onTextInputChange: onTextInputChange,
         toggleOpen: this.onToggleOpen,
@@ -217,12 +203,14 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
       _props$optionsHeader = props.optionsHeader,
       optionsHeader = _props$optionsHeader === void 0 ? null : _props$optionsHeader,
       _props$optionsFooter = props.optionsFooter,
-      optionsFooter = _props$optionsFooter === void 0 ? null : _props$optionsFooter;
+      optionsFooter = _props$optionsFooter === void 0 ? null : _props$optionsFooter,
+      style = props.style;
   var cls = "search-selection-menu-body" + (className ? " " + className : "");
   return _react["default"].createElement("div", {
     ref: ref,
     className: cls,
-    "aria-labelledby": labeledBy
+    "aria-labelledby": labeledBy,
+    style: style
   }, _react["default"].createElement("div", {
     className: "inner-container"
   }, _react["default"].createElement("div", {

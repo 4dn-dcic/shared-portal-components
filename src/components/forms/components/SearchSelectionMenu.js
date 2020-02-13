@@ -19,12 +19,7 @@ export class SearchSelectionMenu extends React.PureComponent {
         };
         this.dropdown = React.createRef();
         this.onToggleOpen = this.onToggleOpen.bind(this);
-        this.shouldAlignDropRight = this.shouldAlignDropRight.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
-    }
-
-    componentDidMount() {
-        this.shouldAlignDropRight();
     }
 
     onToggleOpen(){
@@ -42,6 +37,7 @@ export class SearchSelectionMenu extends React.PureComponent {
     onKeyDown(e) {
         const { options, allowCustomValue } = this.props;
         if (e.key === "Enter") {
+            // create the illusion of "submitting the value"; really just close the window
             if (allowCustomValue) {
                 e.preventDefault();
                 this.onToggleOpen();
@@ -58,13 +54,6 @@ export class SearchSelectionMenu extends React.PureComponent {
             this.onToggleOpen();
         }
         // otherwise handle as default
-    }
-
-    shouldAlignDropRight() {
-        // todo: use ref to use with dom window methods (offset or getBoundingClientRect) to get the distance 
-        // from window edge. then if distance < certain threshold, align to right vs left. Update on component update, too
-        // const domNode = this.dropdown.current;
-        // console.log(domNode.getBoundingClientRect());
     }
 
     render(){
@@ -86,10 +75,10 @@ export class SearchSelectionMenu extends React.PureComponent {
         const cls = "search-selection-menu" + (className? " " + className : "");
         const showValue = (value && titleRenderFunction(value)) || <span className="text-300">No value</span>;
         return (
-            <Dropdown drop="down" alignRight={alignRight} flip={false} onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
+            <Dropdown alignRight={alignRight} flip onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
                 <Dropdown.Toggle variant="outline-secondary" data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
                 <Dropdown.Menu as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
-                    drop="down" flip={false} show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}
+                    flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen}
                     alignRight={alignRight} ref={this.dropdown} onKeyDown={this.onKeyDown}>
                     {
                         options.map(function(option, idx){
@@ -124,13 +113,14 @@ const SearchSelectionMenuBody = React.forwardRef(function(props, ref){
         inputPlaceholder = "Type to filter...",
         'aria-labelledby': labeledBy,
         optionsHeader = null,
-        optionsFooter = null
+        optionsFooter = null,
+        style // required for popper.js to position the menu
     } = props;
 
     const cls = "search-selection-menu-body" + (className ? " " + className : "");
 
     return (
-        <div ref={ref} className={cls} aria-labelledby={labeledBy}>
+        <div ref={ref} className={cls} aria-labelledby={labeledBy} style={style}>
             <div className="inner-container">
                 <div className="px-3 py-3 text-input-container">
                     { show ?
