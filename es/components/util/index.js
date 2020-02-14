@@ -33,7 +33,7 @@ Object.defineProperty(exports, "navigate", {
     return _navigate.navigate;
   }
 });
-exports.commonFileUtil = exports.valueTransforms = exports.schemaTransforms = exports.searchFilters = exports.JWT = exports.typedefs = exports.console = exports.ajax = exports.layout = exports.analytics = exports.object = void 0;
+exports.submissionStateUtil = exports.commonFileUtil = exports.valueTransforms = exports.schemaTransforms = exports.searchFilters = exports.JWT = exports.typedefs = exports.console = exports.ajax = exports.layout = exports.analytics = exports.object = void 0;
 
 var _misc = require("./misc");
 
@@ -60,6 +60,8 @@ var schemaTransformsImported = _interopRequireWildcard(require("./schema-transfo
 var valueTransformsImported = _interopRequireWildcard(require("./value-transforms"));
 
 var fileUtilities = _interopRequireWildcard(require("./file"));
+
+var submissionViewUtilities = _interopRequireWildcard(require("./submission-view"));
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
@@ -100,5 +102,8 @@ var valueTransforms = valueTransformsImported; // Transforms, manipulations, par
 exports.valueTransforms = valueTransforms;
 var commonFileUtil = fileUtilities; //import * as SearchEngineOptimizationUtilities from './seo';
 //export const SEO = SearchEngineOptimizationUtilities;
+// Helpers for managing SubmissionView state (Context, Hierarchy, etc.)
 
 exports.commonFileUtil = commonFileUtil;
+var submissionStateUtil = submissionViewUtilities;
+exports.submissionStateUtil = submissionStateUtil;

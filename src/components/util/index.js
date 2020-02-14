@@ -75,3 +75,7 @@ export const commonFileUtil = fileUtilities;
 
 //import * as SearchEngineOptimizationUtilities from './seo';
 //export const SEO = SearchEngineOptimizationUtilities;
+
+// Helpers for managing SubmissionView state (Context, Hierarchy, etc.)
+import * as submissionViewUtilities from './submission-view';
+export const submissionStateUtil = submissionViewUtilities;
