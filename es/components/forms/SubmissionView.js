@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.buildContext = buildContext;
 exports["default"] = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -29,6 +28,8 @@ var _Alerts = require("./../ui/Alerts");
 var _file = require("../util/file");
 
 var _ItemDetailList = require("./../ui/ItemDetailList");
+
+var _submissionView = require("../util/submission-view");
 
 var _SubmissionTree = require("./components/SubmissionTree");
 
@@ -131,7 +132,7 @@ function (_React$PureComponent) {
     value: function findValidationState(keyIdx, prevKeyHierarchy, keyContext, keyComplete) {
       var hierarchy = _util.object.deepClone(prevKeyHierarchy);
 
-      var keyHierarchy = searchHierarchy(hierarchy, keyIdx);
+      var keyHierarchy = (0, _submissionView.searchHierarchy)(hierarchy, keyIdx);
       if (keyHierarchy === null) return 0;
       var validationReturn = 1;
 
@@ -391,7 +392,7 @@ function (_React$PureComponent) {
         "0": 1
       };
 
-      var keyDisplay = _objectSpread({}, gatherLinkToTitlesFromContextEmbedded(context), {
+      var keyDisplay = _objectSpread({}, (0, _submissionView.gatherLinkToTitlesFromContextEmbedded)(context), {
         "0": SubmissionView.principalTitle(context, edit, create, principalType)
       });
 
@@ -420,7 +421,7 @@ function (_React$PureComponent) {
         // if @id cannot be found or we are creating from scratch, start with empty fields
         if (!contextID || create) {
           // We may not have schema (if Abstract type). If so, leave empty and allow initCreateObj ... -> createObj() to create it.
-          if (schema) keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
+          if (schema) keyContext["0"] = (0, _submissionView.buildContext)({}, schema, bookmarksList, edit, create);
           keyLinkBookmarks["0"] = bookmarksList;
 
           _this2.setState({
@@ -443,7 +444,7 @@ function (_React$PureComponent) {
             var initObjs = []; // Gets modified/added-to in-place by buildContext.
 
             if (reponseAtID && reponseAtID === contextID) {
-              keyContext["0"] = buildContext(response, schema, bookmarksList, edit, create, initObjs);
+              keyContext["0"] = (0, _submissionView.buildContext)(response, schema, bookmarksList, edit, create, initObjs);
               keyLinkBookmarks["0"] = bookmarksList;
 
               if (edit && response.aliases && response.aliases.length > 0) {
@@ -454,7 +455,7 @@ function (_React$PureComponent) {
               }
             } else {
               // something went wrong with fetching context. Just use an empty object
-              keyContext["0"] = buildContext({}, schema, bookmarksList, edit, create);
+              keyContext["0"] = (0, _submissionView.buildContext)({}, schema, bookmarksList, edit, create);
               keyLinkBookmarks["0"] = bookmarksList;
             }
 
@@ -838,7 +839,7 @@ function (_React$PureComponent) {
             return;
           }
 
-          newHierarchy = modifyHierarchy(_underscore["default"].clone(keyHierarchy), keyIdx, parentKeyIdx);
+          newHierarchy = (0, _submissionView.modifyHierarchy)(_underscore["default"].clone(keyHierarchy), keyIdx, parentKeyIdx);
           validCopy[keyIdx] = 1; // new object has no incomplete children yet
 
           validCopy[parentKeyIdx] = 0; // parent is now not ready for validation
@@ -853,7 +854,7 @@ function (_React$PureComponent) {
           contextWithAlias.aliases = [alias];
         }
 
-        contextCopy[keyIdx] = buildContext(contextWithAlias, schemas[type], bookmarksList, true, false);
+        contextCopy[keyIdx] = (0, _submissionView.buildContext)(contextWithAlias, schemas[type], bookmarksList, true, false);
         bookmarksCopy[keyIdx] = bookmarksList;
         linksCopy[keyIdx] = newLink;
         keyDisplay[keyIdx] = alias;
@@ -934,12 +935,12 @@ function (_React$PureComponent) {
         }); // Search the hierarchy tree for the objects nested within/underneath the object being deleted
 
 
-        var foundHierarchy = searchHierarchy(dummyHierarchy, keyToRemoveAtId); // Note: keyHierarchy stores keys both as indices (e.g. principal object) AND atIDs (e.g. new linked objects);
+        var foundHierarchy = (0, _submissionView.searchHierarchy)(dummyHierarchy, keyToRemoveAtId); // Note: keyHierarchy stores keys both as indices (e.g. principal object) AND atIDs (e.g. new linked objects);
         // So need to search Hierarchy for both, but most cases will be atIDs.
 
         if (foundHierarchy === null) {
           // make sure the key wasn't stashed under the keyIdx (in cases of passed in @id)
-          foundHierarchy = searchHierarchy(dummyHierarchy, keyToRemoveIdx); // occurs when keys cannot be found to delete
+          foundHierarchy = (0, _submissionView.searchHierarchy)(dummyHierarchy, keyToRemoveIdx); // occurs when keys cannot be found to delete
 
           if (foundHierarchy === null) {
             return null;
@@ -947,7 +948,7 @@ function (_React$PureComponent) {
         } // get a list of all keys to remove
 
 
-        var toDelete = flattenHierarchy(foundHierarchy);
+        var toDelete = (0, _submissionView.flattenHierarchy)(foundHierarchy);
         toDelete.push(keyToRemoveIdx); // add this key
 
         if (keyToRemoveAtId) {
@@ -956,7 +957,7 @@ function (_React$PureComponent) {
         // trimming the hierarchy effectively removes objects from creation process
 
 
-        var newHierarchy = trimHierarchy(hierarchy, keyToRemoveAtId ? keyToRemoveAtId : keyToRemoveIdx); // for housekeeping, remove the keys from keyLinkBookmarks, keyLinks, and keyCompleteCopy
+        var newHierarchy = (0, _submissionView.trimHierarchy)(hierarchy, keyToRemoveAtId ? keyToRemoveAtId : keyToRemoveIdx); // for housekeeping, remove the keys from keyLinkBookmarks, keyLinks, and keyCompleteCopy
 
         _underscore["default"].forEach(toDelete, function (keyToDelete) {
           // don't remove all state data for created/pre-existing objs in case there are other occurances of said object
@@ -1054,7 +1055,7 @@ function (_React$PureComponent) {
 
         var keyLinks = _underscore["default"].clone(prevKeyLinks);
 
-        var keyHierarchy = modifyHierarchy(_underscore["default"].clone(prevKeyHierarchy), itemAtID, parentKeyIdx);
+        var keyHierarchy = (0, _submissionView.modifyHierarchy)(_underscore["default"].clone(prevKeyHierarchy), itemAtID, parentKeyIdx);
         keyDisplay[itemAtID] = display;
         keyTypes[itemAtID] = type;
         keyLinks[itemAtID] = field;
@@ -1256,7 +1257,7 @@ function (_React$PureComponent) {
     key: "removeNullsFromContext",
     value: function removeNullsFromContext(inKey) {
       var keyContext = this.state.keyContext;
-      return removeNulls(_util.object.deepClone(keyContext[inKey]));
+      return (0, _submissionView.removeNulls)(_util.object.deepClone(keyContext[inKey]));
     }
     /**
      * Returns true if the given schema has a round two flag within it
@@ -1313,7 +1314,7 @@ function (_React$PureComponent) {
 
       var origCopy = _util.object.deepClone(origContext);
 
-      origCopy = removeNulls(origCopy);
+      origCopy = (0, _submissionView.removeNulls)(origCopy);
 
       var userGroups = _util.JWT.getUserGroups();
 
@@ -1626,7 +1627,7 @@ function (_React$PureComponent) {
               // *** SHOULD THIS STUFF BE BROKEN OUT INTO ANOTHER FXN?
               // find key of parent object, starting from top of hierarchy
 
-              var parentKey = parseInt(findParentFromHierarchy(keyHierarchy, inKey)); // navigate to parent obj if it was found. Else, go to top level
+              var parentKey = parseInt((0, _submissionView.findParentFromHierarchy)(keyHierarchy, inKey)); // navigate to parent obj if it was found. Else, go to top level
 
               stateToSet.currKey = parentKey !== null && !isNaN(parentKey) ? parentKey : 0; // make copies of various pieces of state for editing & update
 
@@ -1650,7 +1651,7 @@ function (_React$PureComponent) {
               typesCopy[submitted_at_id] = currType;
               displayCopy[submitted_at_id] = displayCopy[inKey];
               contextCopy[submitted_at_id] = responseData;
-              contextCopy[inKey] = buildContext(responseData, currSchema, null, true, false); // update the state object with these new copies
+              contextCopy[inKey] = (0, _submissionView.buildContext)(responseData, currSchema, null, true, false); // update the state object with these new copies
 
               stateToSet.keyLinks = linksCopy;
               stateToSet.keyTypes = typesCopy;
@@ -1659,14 +1660,14 @@ function (_React$PureComponent) {
               stateToSet.keyContext = contextCopy; // if not submitting the principal object, update context and hierarchy
 
               if (inKey !== 0) {
-                var _findFieldFromContext = findFieldFromContext(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']),
+                var _findFieldFromContext = (0, _submissionView.findFieldFromContext)(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']),
                     splitField = _findFieldFromContext.splitField,
                     arrayIdx = _findFieldFromContext.arrayIdx;
 
                 _util.console.log('Results from findFieldFromContext', splitField, arrayIdx);
 
-                modifyContextInPlace(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
-                replaceInHierarchy(hierCopy, inKey, submitted_at_id); // Modifies hierCopy in place.
+                (0, _submissionView.modifyContextInPlace)(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
+                (0, _submissionView.replaceInHierarchy)(hierCopy, inKey, submitted_at_id); // Modifies hierCopy in place.
 
                 delete stateToSet.keyDisplay[inKey];
               }
@@ -3038,7 +3039,7 @@ function (_React$Component2) {
           schemas = _this$props14.schemas,
           roundTwo = _this$props14.roundTwo;
       var fields = currContext ? _underscore["default"].keys(currContext) : [];
-      var fieldJSXComponents = sortPropFields(_underscore["default"].filter( // Sort fields first by requirement and secondly alphabetically. These are JSX BuildField components.
+      var fieldJSXComponents = (0, _submissionView.sortPropFields)(_underscore["default"].filter( // Sort fields first by requirement and secondly alphabetically. These are JSX BuildField components.
       _underscore["default"].map(fields, this.initiateField), function (f) {
         return !!f;
       } // Removes falsy (e.g. null) items.
@@ -3141,549 +3142,3 @@ function (_React$PureComponent3) {
 
   return RoundTwoDetailPanel;
 }(_react["default"].PureComponent);
-/***** MISC. FUNCIONS *****/
-
-/**
- * Build context based off an object's and populate values from
- * pre-existing context. Empty fields are given null value.
- * All linkTo fields are added to objList.
- * If initObjs provided (edit or clone functionality), pre-existing objs will be added.
- * Also checks user info to see if user is admin, which affects which fields are displayed.
- *
- * @returns {Object} A new object represent context.
- */
-
-
-function buildContext(context, itemSchema) {
-  var objList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-  var edit = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-  var create = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-  var initObjs = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
-  var built = {};
-
-  var userGroups = _util.JWT.getUserGroups();
-
-  var fields = itemSchema.properties ? _underscore["default"].keys(itemSchema.properties) : [];
-
-  _underscore["default"].forEach(fields, function (field) {
-    var fieldSchema = _util.object.getNestedProperty(itemSchema, ['properties', field], true);
-
-    if (!fieldSchema) {
-      return;
-    }
-
-    if (fieldSchema.exclude_from && (Array.isArray(fieldSchema.exclude_from) && _underscore["default"].contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from === 'FFedit-create')) {
-      return;
-    } // check to see if this field is a calculated prop
-
-
-    if (fieldSchema.calculatedProperty && fieldSchema.calculatedProperty === true) {
-      return;
-    } // check to see if permission == import items; if admin, allow import_items fields
-
-
-    if (fieldSchema.permission && fieldSchema.permission == "import_items") {
-      if (!_underscore["default"].contains(userGroups, 'admin')) {
-        return;
-      }
-    } // set value to context value if editing/cloning.
-    // if creating or value not present, set to null
-
-
-    if (edit) {
-      if (context[field] === null || fieldSchema.ff_flag && fieldSchema.ff_flag === "clear edit") {
-        built[field] = null;
-      } else {
-        built[field] = context[field] || null;
-      }
-    } else if (!create) {
-      //clone
-      if (context[field] === null || fieldSchema.ff_flag && fieldSchema.ff_flag === "clear clone") {
-        built[field] = null;
-      } else {
-        built[field] = context[field] || null;
-      }
-    } else {
-      built[field] = null;
-    }
-
-    if (objList !== null) {
-      var linkedProperty = (0, _SubmissionTree.fieldSchemaLinkToPath)(fieldSchema); // Is it a linkTo (recursively or not)?
-
-      var roundTwoExclude = fieldSchema.ff_flag && fieldSchema.ff_flag == 'second round';
-
-      if (linkedProperty !== null && typeof linkedProperty !== 'undefined' && !roundTwoExclude) {
-        // If linkTo, add to our list, selecting a nice name for it first.
-        //var listTerm = fieldSchema.title ? fieldSchema.title : linked;
-        var fieldToStore = field;
-        linkedProperty = _underscore["default"].reject(linkedProperty, function (p) {
-          return p === 'items' || p === 'properties';
-        });
-
-        if (linkedProperty.length > 0) {
-          fieldToStore += '.' + linkedProperty.join('.');
-        }
-
-        if (!_underscore["default"].contains(objList, fieldToStore)) {
-          objList.push(fieldToStore);
-        } // add pre-existing linkTo objects
-
-
-        if (initObjs !== null && built[field] !== null) {
-          delvePreExistingObjects(initObjs, built[field], fieldSchema, fieldToStore);
-        }
-      }
-
-      objList.sort();
-    }
-  });
-
-  return built;
-}
-/**
- * Takes an initObjs array that it will fill with data for each existing
- * object in an edit/clone situation. json is json content for the field,
- * schema is the individual fields schema. Recursively handles objects and arrays
- */
-
-
-function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
-  if (Array.isArray(json)) {
-    for (var j = 0; j < json.length; j++) {
-      if (fieldSchema.items) {
-        delvePreExistingObjects(initObjs, json[j], fieldSchema.items, listTerm);
-      }
-    }
-  } else if (json instanceof Object && json) {
-    if (fieldSchema.properties) {
-      _underscore["default"].keys(json).forEach(function (key) {
-        if (fieldSchema.properties[key]) {
-          delvePreExistingObjects(initObjs, json[key], fieldSchema.properties[key], listTerm);
-        }
-      });
-    }
-  } else if (_underscore["default"].contains(_underscore["default"].keys(fieldSchema), 'linkTo')) {
-    // non-array, non-object field. check schema to ensure there's a linkTo
-    initObjs.push({
-      'path': json,
-      'display': json,
-      'field': listTerm,
-      'type': (0, _SubmissionTree.fieldSchemaLinkToType)(fieldSchema)
-    });
-  }
-}
-/** Sort a list of BuildFields first by required status, then by schema lookup order, then by title */
-
-
-function sortPropFields(fields) {
-  var reqFields = [];
-  var optFields = [];
-  /** Compare by schema property 'lookup' meta-property, if available. */
-
-  function sortSchemaLookupFunc(a, b) {
-    var aLookup = a.props.schema && a.props.schema.lookup || 750,
-        bLookup = b.props.schema && b.props.schema.lookup || 750,
-        res;
-
-    if (typeof aLookup === 'number' && typeof bLookup === 'number') {
-      //if (a.props.field === 'ch02_power_output' || b.props.field === 'ch02_power_output') console.log('X', aLookup - bLookup, a.props.field, b.props.field);
-      res = aLookup - bLookup;
-    }
-
-    if (res !== 0) return res;else {
-      return sortTitle(a, b);
-    }
-  }
-  /** Compare by property title, alphabetically. */
-
-
-  function sortTitle(a, b) {
-    if (typeof a.props.field === 'string' && typeof b.props.field === 'string') {
-      if (a.props.field.toLowerCase() < b.props.field.toLowerCase()) return -1;
-      if (a.props.field.toLowerCase() > b.props.field.toLowerCase()) return 1;
-    }
-
-    return 0;
-  }
-
-  _underscore["default"].forEach(fields, function (field) {
-    if (!field) return;
-
-    if (field.props.required) {
-      reqFields.push(field);
-    } else {
-      optFields.push(field);
-    }
-  });
-
-  reqFields.sort(sortSchemaLookupFunc);
-  optFields.sort(sortSchemaLookupFunc);
-  return reqFields.concat(optFields);
-}
-
-function gatherLinkToTitlesFromContextEmbedded(context) {
-  var idsToTitles = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  if (context['@id'] && context.display_title) {
-    if (typeof idsToTitles[context['@id']] !== 'undefined') {
-      // Seen already
-      return;
-    }
-
-    idsToTitles[context['@id']] = context.display_title;
-  }
-
-  _underscore["default"].values(context).forEach(function (value) {
-    if (Array.isArray(value)) {
-      value.forEach(function (arrItem) {
-        if (!Array.isArray(arrItem) && arrItem && _typeof(arrItem) === 'object') {
-          gatherLinkToTitlesFromContextEmbedded(arrItem, idsToTitles);
-        }
-      });
-    } else if (value && _typeof(value) === 'object') {
-      gatherLinkToTitlesFromContextEmbedded(value, idsToTitles);
-    }
-  });
-
-  return idsToTitles;
-}
-/**
- * Given the parent object key and a new object key, return a version
- * of this.state.keyHierarchy that includes the new parent-child relation.
- * Recursive function
- */
-
-
-var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
-    if (key == parentKeyIdx) {
-      hierarchy[parentKeyIdx][keyIdx] = {};
-    } else {
-      hierarchy[key] = myself(hierarchy[key], keyIdx, parentKeyIdx);
-    }
-  });
-
-  return hierarchy;
-};
-/** Remove given key from hierarchy. Recursive function. */
-
-
-var trimHierarchy = function myself(hierarchy, keyIdx) {
-  if (hierarchy[keyIdx]) {
-    delete hierarchy[keyIdx];
-  } else {
-    _underscore["default"].keys(hierarchy).forEach(function (key) {
-      hierarchy[key] = myself(hierarchy[key], keyIdx);
-    });
-  }
-
-  return hierarchy;
-};
-/**
- * Returns the entire hierarchy below for the given keyIdx. keyIdx must be a
- * number (custom object). Recursive function.
- */
-
-
-var searchHierarchy = function myself(hierarchy, keyIdx) {
-  if (!hierarchy) return null;
-  var found_hierarchy = null;
-
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
-    if (key == keyIdx) {
-      found_hierarchy = hierarchy[key];
-    } else {
-      var test = myself(hierarchy[key], keyIdx);
-
-      if (test !== null) {
-        found_hierarchy = test;
-      }
-    }
-  });
-
-  return found_hierarchy;
-};
-/** Finds the key of direct parent for a given key in a hierarchy */
-
-
-var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
-  if (isNaN(keyIdx) || !hierarchy) return null;
-  var found_parent = null;
-
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
-    if (keyIdx in hierarchy[key]) {
-      found_parent = key;
-    } else {
-      var test = myself(hierarchy[key], keyIdx);
-      if (test !== null) found_parent = test;
-    }
-  });
-
-  return found_parent;
-};
-/**
- * Replace a key with a different key in the hierarchy
- */
-
-
-var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValue) {
-  if (typeof existingValueToFind === 'number') existingValueToFind = existingValueToFind + '';
-
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
-    if (key === existingValueToFind) {
-      var downstream = hierarchy[key];
-      hierarchy[newValue] = downstream;
-      delete hierarchy[key];
-    } else {
-      hierarchy[key] = myself(hierarchy[key], existingValueToFind, newValue);
-    }
-  });
-
-  return hierarchy;
-};
-/** Return a list of all keys contained within a given hierarchy */
-
-
-var flattenHierarchy = function myself(hierarchy) {
-  var found_keys = [];
-
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
-    if (!isNaN(key)) key = parseInt(key);
-    var sub_keys = myself(hierarchy[key]);
-    found_keys = _underscore["default"].union(found_keys, sub_keys, [key]);
-  });
-
-  return found_keys;
-};
-/**
- * Remove any field with a null value from given json context.
- * also remove empty arrays and objects
- *
- * @param {Object} context - Object representing an Item, with properties & values.
- * @returns {Object} The same context which was passed in, minus null-y values.
- */
-
-
-function removeNulls(context) {
-  _underscore["default"].keys(context).forEach(function (key) {
-    if ((0, _submissionFields.isValueNull)(context[key])) {
-      delete context[key];
-    } else if (Array.isArray(context[key])) {
-      context[key] = _underscore["default"].filter(context[key], function (v) {
-        return !(0, _submissionFields.isValueNull)(v);
-      }); // Recurse for any objects
-
-      context[key] = _underscore["default"].map(context[key], function (v) {
-        return v && _typeof(v) === 'object' ? removeNulls(v) : v;
-      });
-    } else if (context[key] instanceof Object) {
-      context[key] = removeNulls(context[key]);
-    }
-  });
-
-  return context;
-}
-/**
- * Takes in a deep COPY of keyContext and returns an edited version of that copy with the item in splitField
- * at the arrayIdx changed to value. (I THINK?! MAYBE FUCK IDK) GOD WHY
- *
- * @param {[string]} splitField An array containing the results of .split('.') on a field (E.g. experiment_sets.experiment => ["experiment_sets","experiment"])
- * @param {object} currContext  A DEEP COPY of keyContext
- * @param {array} arrayIdx      An array containing the index of the item to be modified
- * @param {string} fieldType    An array containing the type of object to be modified (E.g., "linked object", "existing object", etc.)
- * @param {string} value        A string containing the @id path of the item to be updated to
- *
- * Per the name, this function modifies IN PLACE and will cause super duper side effects if used on state.
- * Always pass in an object.deepClone'd COPY of the context you'd like to modify.
- *
- */
-
-
-function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value) {
-  _util.console.log("calling modifyContextInPlace with", splitField, currContext, arrayIdx, fieldType, value);
-
-  var splitFieldLeaf = splitField[splitField.length - 1];
-  var arrayIdxPointer = 0;
-  var pointer = currContext;
-  var prevValue = null;
-
-  for (var i = 0; i < splitField.length - 1; i++) {
-    // console.log(splitField[i]);
-    // console.log("pointer at start of loop", pointer);
-    if (pointer[splitField[i]]) {
-      pointer = pointer[splitField[i]];
-    } else {
-      // console.log(pointer[splitField[i]]);
-      // console.log(pointer);
-      _util.console.error('PROBLEM CREATING NEW CONTEXT WITH: ', fieldType, value);
-
-      return;
-    } // console.log("pointer after updating with", splitField[i], " :", pointer);
-
-
-    if (Array.isArray(pointer)) {
-      // console.log("pointer is array");
-      // console.log("before switch", pointer);
-      pointer = pointer[arrayIdx[arrayIdxPointer]]; // console.log("arrayIdx[arrayIdxPointer]", arrayIdx[arrayIdxPointer]);
-      // console.log(pointer);
-
-      arrayIdxPointer += 1;
-    }
-  } // console.log("after for loop", pointer);
-
-
-  if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array') {
-    // console.log("value we're trying to set is inside of an array");
-    // move pointer into array
-    pointer = pointer[splitFieldLeaf];
-    prevValue = pointer[arrayIdx[arrayIdxPointer]];
-
-    if (value === null) {
-      // delete this array itemfieldType
-      pointer.splice(arrayIdx[arrayIdxPointer], 1);
-    } else {
-      pointer[arrayIdx[arrayIdxPointer]] = value;
-    }
-  } else {
-    // value we're trying to set is not inside an array at this point
-    // console.log("value we're trying to set is NOT inside of an array");
-    prevValue = pointer[splitFieldLeaf];
-    pointer[splitFieldLeaf] = value;
-  }
-
-  return {
-    currContext: currContext,
-    prevValue: prevValue
-  };
-}
-/**
- * Traverses context to find the field name of the object at a specific keyIndex in context.
- *
- * @param {object} contextToSearch   Top level keyContext to search through
- * @param {string} rootType          The schema-formatted type of Item at the root of this context; principal object's type (E.g. "Experiment" or "Cohort")
- * @param {string} schemas           An object containing all schemas
- * @param {number} keyIndexToFind    The key index of the item to find
- * @param {array}  keyLinkToFind     An array representing the path to the item being searched for
- *
- * This might work if you pass in a subContext and make sure the rootType refers to the correct subContext's type, but not tested so can't be sure.
- *
- * @returns {object} { splitField: string[], arrayIdx: number[] }
- *          splitField represents the field name,
- *          arrayIdx contains the indices of any arrays searched in order to find the object during traversal.
- */
-
-
-function findFieldFromContext(contextToSearch, rootType, schemas) {
-  var keyIndexToFind = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
-  var keyLinkToFind = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
-
-  _util.console.log.apply(_util.console, ["calling findFieldFromContext with: "].concat(Array.prototype.slice.call(arguments))); // Issue: no way to figure out if new-linkto being created or not.
-
-
-  var splitField = null;
-  var arrayIdx = [];
-  /*
-  const keyHierarchy = {
-      0 : {}
-  };
-  */
-  // function isLinkTo(valString){
-  //     if (typeof valString !== "string") return false;
-  //     const matched = valString.match(/\/(.*?)\/(.*?)\//);
-  //     if (!matched) return false;
-  //     const [ , itemType, itemIdentifier ] = matched;
-  //     if (itemType && itemIdentifier) {
-  //         return itemType;
-  //     }
-  //     return false;
-  // }
-
-  /**
-   * Recursive function used to scrape through the context.
-   *
-   * @param {object} context          The keyContext object (or nested context object) to search
-   * @param {number} contextKey       The key in keyContext (or current nested context object) being searched
-   * @param {object} contextSchema    The schema for the type of object that is being searched
-   * @param {array}  currFieldParts   An array containing the previous contextKeys searched to get to this context
-   * @param {array}  arrIdx           Contains the indices of any arrays that were searched previously to get to this context,
-   *                                  in order from most to least recent
-   *
-   * When it finds an array or an object, it recursively searches for the field present until it finds it OR searches everything.
-   * Once the item being searched for (keyIndexToFind above) is found, updates findFieldFromContext's splitField and arrayIdx.
-   */
-
-  function scrapeFromContext(context, contextKey, contextSchema) {
-    var currFieldParts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
-    var arrIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
-
-    _util.console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrIdx);
-
-    splitField ? _util.console.log("splitField is ", splitField) : null;
-    if (splitField) return; // recurses until it finds the field being sought
-    // Searches through the context passed in...
-
-    _underscore["default"].keys(context).forEach(function (propKey) {
-      // Store the schema and value of the current nested context object being scraped
-      var propVal = context[propKey];
-      var propSchema = contextSchema[propKey];
-
-      if (Array.isArray(propVal)) {
-        // If current item is an array of other items
-        propSchema = propSchema.items; // Make sure schema is synced as appropriate
-        // Traverse through each item in the array to see if field is present
-
-        propVal.forEach(function (propValItem, idxInArray) {
-          // If the items in this array are other linked objects, recurse and search them, too.
-          if (propValItem !== null && _typeof(propValItem) === "object") {
-            _util.console.log("Found a new object. Scraping... ".concat(contextKey, ".").concat(propKey)); // NOTE: This breaks down when encountering nested arrays (more than 1 array deep).
-            // But this occurs already other places so w.e. TODO: Fix this, if necessary
-
-
-            scrapeFromContext(propValItem, propKey, propSchema.properties, [].concat(_toConsumableArray(currFieldParts), [propKey]), [].concat(_toConsumableArray(arrIdx), [idxInArray]));
-            return;
-          } // If the field is matching the item that is currently being sought, update splitField and arrayIdx
-
-
-          if (keyIndexToFind === propValItem) {
-            var isCorrectLinkTo = keyLinkToFind.indexOf(propSchema.linkTo) > -1;
-
-            if (isCorrectLinkTo) {
-              splitField = [].concat(_toConsumableArray(currFieldParts), [propKey]);
-              arrayIdx = [].concat(_toConsumableArray(arrIdx), [idxInArray]); //keyHierarchy[contextKey] = keyHierarchy[contextKey] || {};
-              //keyHierarchy[contextKey][propValItem] = itemType;
-              //keyTypes[contextKey] = keyTypes[contextKey] || {};
-              //keyTypes[]
-            }
-          }
-        });
-      } else if (propVal !== null && _typeof(propVal) === "object") {
-        // Sub-embedded object. Recurse and search keys
-        scrapeFromContext(propVal, propKey, propSchema.properties, [].concat(_toConsumableArray(currFieldParts), [propKey]), arrIdx);
-      } else {
-        // Assmuming this is a field; check to see if it matches
-        if (keyIndexToFind === propVal) {
-          var isCorrectLinkTo = keyLinkToFind.indexOf(propSchema.linkTo) > -1;
-
-          if (isCorrectLinkTo) {
-            splitField = [].concat(_toConsumableArray(currFieldParts), [propKey]);
-            arrayIdx = arrIdx; // keyHierarchy[contextKey] = keyHierarchy[contextKey] || {};
-            // keyHierarchy[contextKey][propVal] = itemType;
-          }
-        }
-      }
-    });
-  } // _.keys(contextToSearch).forEach(function(propKey){
-  // Bleh need to traverse every sub object and array here
-
-
-  scrapeFromContext(contextToSearch, null, schemas[rootType].properties, []); // });
-
-  _util.console.log("returning splitfield: ", splitField);
-
-  _util.console.log("returning arrayIdx: ", arrayIdx);
-
-  return {
-    splitField: splitField,
-    arrayIdx: arrayIdx
-  };
-}
