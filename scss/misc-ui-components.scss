@@ -59,6 +59,12 @@
                         position: absolute;
                         bottom: 0;
                     }
+                    &:hover {
+                        background-color: #ffffff;
+                    }
+                    &:active {
+                        background-color: #e5e5e5;
+                    }
                 }
 
                 .scrollable-list-container {
