@@ -56,6 +56,8 @@
                     &.arrow-down {
                         box-shadow: 0 -10px 10px 30px rgba(200,200,200,0.2);
                         border-top: #eeeeee solid 1px;
+                        position: absolute;
+                        bottom: 0;
                     }
                 }
 
