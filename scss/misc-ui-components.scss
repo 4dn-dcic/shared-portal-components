@@ -47,10 +47,11 @@
                     color: #cccccc;
                     border: unset;
                     background-color: #f8f8f8;
-
+                    
                     &.arrow-up {
                         box-shadow: 0 10px 10px 3px rgba(200,200,200,0.2);
                         border-bottom: #eeeeee solid 1px;
+                        position: absolute;
                     }
                     &.arrow-down {
                         box-shadow: 0 -10px 10px 30px rgba(200,200,200,0.2);
