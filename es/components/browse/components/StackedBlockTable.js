@@ -653,6 +653,7 @@ function TableHeaders(props) {
     var field = colHeader.field,
         title = colHeader.title,
         vTitle = colHeader.visibleTitle,
+        title_tooltip = colHeader.title_tooltip,
         initialWidth = colHeader.initialWidth,
         columnClass = colHeader.columnClass,
         className = colHeader.className;
@@ -660,7 +661,13 @@ function TableHeaders(props) {
     if (typeof visibleTitle === 'function') visibleTitle = visibleTitle(props);
     var colWidth = columnWidths[index] || initialWidth || defaultInitialColumnWidth;
     var cls = "heading-block col-" + columnClass + (className ? ' ' + className : '');
-    var tooltip = typeof visibleTitle === 'string' ? visibleTitle : typeof title === 'string' ? title : null;
+    var tooltip;
+
+    if (title_tooltip && typeof title_tooltip === 'string' && title_tooltip.length > 0) {
+      tooltip = title_tooltip;
+    } else {
+      tooltip = typeof visibleTitle === 'string' ? visibleTitle : typeof title === 'string' ? title : null;
+    }
 
     if (tooltip && tooltip.length < 6) {
       tooltip = null;
