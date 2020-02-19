@@ -32,17 +32,28 @@ export function getValueFromFilters(facet, filters = []){
 export class RangeFacet extends React.PureComponent {
 
     static parseNumber(facet, value){
-        const { field_type = "integer" } = facet;
+        const { field_type = "integer", number_step = "any" } = facet;
 
         if (value === "" || value === null){
             return null;
         }
 
-        const numVal = field_type === "integer" ? parseInt(value) : parseFloat(value);
+        const numVal = (field_type === "integer") ? parseInt(value) : parseFloat(value);
 
-        if (isNaN(numVal)) {
-            throw new Error("Is not a number - " + numVal);
-        }
+        // if (isNaN(numVal)) {
+        //     throw new Error("Is not a number - " + numVal);
+        // }
+
+        // if (number_step === "any") {
+        //     return numVal;
+        // }
+
+        // if (typeof number_step !== "number" || isNaN(number_step)){
+        //     console.error("Expected number_step to be a number");
+        //     return numVal;
+        // }
+
+        //return Math.round(numVal * (1 / number_step))
 
         return numVal;
     }
@@ -55,6 +66,7 @@ export class RangeFacet extends React.PureComponent {
         if (numVal === null) {
             return null;
         }
+
         if (typeof min === "number"){
             if (min === numVal) {
                 return null;
@@ -63,6 +75,7 @@ export class RangeFacet extends React.PureComponent {
                 return min;
             }
         }
+
         if (typeof max === "number"){
             if (max === numVal) {
                 return null;
@@ -151,6 +164,7 @@ export class RangeFacet extends React.PureComponent {
         const { min, max } = facet;
         try {
             let fromVal = RangeFacet.parseAndValidate(facet, value);
+            console.log("AAAAA", fromVal, value, facet);
             this.setState(function({ toVal }){
                 if (fromVal === null || fromVal === min) {
                     return { fromVal: null };
@@ -230,7 +244,7 @@ export class RangeFacet extends React.PureComponent {
 
     render(){
         const { facet, title: propTitle, termTransformFxn, isStatic, fromVal: savedFromVal, toVal: savedToVal } = this.props;
-        const { field, min, max, title: facetTitle = null, description: tooltip = null } = facet;
+        const { field, min, max, title: facetTitle = null, description: tooltip = null, number_step } = facet;
         const { facetOpen, facetClosing, fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
         const title = propTitle || facetTitle || field;
@@ -331,10 +345,11 @@ class RangeDropdown extends React.PureComponent {
             value, savedValue,
             placeholder = "Type...", title,
             termTransformFxn, id,
-            facet, increments = []
+            facet,
+            increments = []
         } = this.props;
 
-        const { min: fMin, max: fMax } = facet;
+        const { min: fMin, max: fMax, number_step: step = "any" } = facet;
         const min = typeof propMin === "number" ? propMin
             : typeof fMin === "number" ? fMin
                 : 0;
@@ -370,7 +385,7 @@ class RangeDropdown extends React.PureComponent {
             <DropdownButton {...{ variant, disabled, className, title, size, id }} alignRight onSelect={this.onDropdownSelect}>
                 <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
                     <div className="input-element-container">
-                        <input type="number" className="form-control" {...{ min, max, value, placeholder }} onChange={this.onTextInputChange} />
+                        <input type="number" className="form-control" {...{ min, max, value, placeholder, step }} onChange={this.onTextInputChange} />
                     </div>
                     <button type="submit" disabled={!updateAble} className="btn">
                         <i className="icon icon-fw icon-check fas"/>
