@@ -38,22 +38,29 @@ export class RangeFacet extends React.PureComponent {
             return null;
         }
 
-        const numVal = (field_type === "integer") ? parseInt(value) : parseFloat(value);
+        let numVal = (field_type === "integer") ? parseInt(value) : parseFloat(value);
 
-        // if (isNaN(numVal)) {
-        //     throw new Error("Is not a number - " + numVal);
-        // }
+        if (isNaN(numVal)) {
+            throw new Error("Is not a number - " + numVal);
+        }
 
-        // if (number_step === "any") {
-        //     return numVal;
-        // }
+        if (number_step === "any") {
+            return numVal;
+        }
 
-        // if (typeof number_step !== "number" || isNaN(number_step)){
-        //     console.error("Expected number_step to be a number");
-        //     return numVal;
-        // }
+        if (typeof number_step !== "number" || isNaN(number_step) || number_step <= 0){
+            console.error("Expected number_step to be a positive number");
+            return numVal;
+        }
 
-        //return Math.round(numVal * (1 / number_step))
+        // Remove trailing decimals (if any) (round down)
+        // Be careful re: float operations (imprecise) and favor integers
+        if (number_step >= 1) {
+            numVal = Math.floor(numVal / number_step) * number_step;
+        } else {
+            const diviser = Math.round(1 / number_step);
+            numVal = Math.floor(numVal * diviser) / diviser;
+        }
 
         return numVal;
     }
