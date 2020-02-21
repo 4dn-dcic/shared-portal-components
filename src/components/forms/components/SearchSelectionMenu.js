@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
+// import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import { VerticalScrollContainer } from './VerticalScrollContainer';
 
@@ -16,7 +16,7 @@ export class SearchSelectionMenu extends React.PureComponent {
         super(props);
         this.state = {
             dropOpen: false,
-            refreshKey: 0 // iterated to force a refresh of dropdown
+            refreshKey: 0 // incremented to force a refresh of dropdown
         };
         this.dropdown = React.createRef();
         this.onToggleOpen = this.onToggleOpen.bind(this);
