@@ -107,7 +107,7 @@ export class BuildField extends React.PureComponent {
             'placeholder'       : "No value",
             'data-field-type'   : fieldType
         };
-        
+
         // Unique per-type overrides
 
         if (currType === 'StaticSection' && field === 'body'){
