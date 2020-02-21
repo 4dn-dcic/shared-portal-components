@@ -264,7 +264,7 @@ div.alias-input-field {
 			position: relative;
 
 			&:hover {
-				z-index: 100;
+				z-index: 99;
 			}
 			&:not(:last-child){
 				border-bottom: 1px solid #eee;
