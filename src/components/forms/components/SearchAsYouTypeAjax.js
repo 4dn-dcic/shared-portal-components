@@ -1,13 +1,11 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { _ } from 'underscore';
-import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 
 import { Fade } from './../../ui/Fade';
 
 import { ajax, object } from './../../util/';
-import { valueTransforms } from './../../util';
 
 import { Alerts } from './../../ui/Alerts';
 
@@ -15,25 +13,6 @@ import { LinkToSelector } from './LinkToSelector';
 import { SearchSelectionMenu } from './SearchSelectionMenu';
 
 export class SearchAsYouTypeAjax extends React.PureComponent {
-
-    static getRegexQuery(value, filterMethod) {
-        switch (filterMethod) {
-            case "includes":
-                return valueTransforms.escapeRegExp(value.toLowerCase());
-            case "startsWith":
-            default:
-                return "^" + valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)?$";
-        }
-    }
-
-    static filterOptions(currTextValue, allResults = [], filterMethod = "startsWith"){
-        // console.log(`running filterOptions with currTextValue of ${currTextValue}`);
-        const regexQuery = SearchAsYouTypeAjax.getRegexQuery(currTextValue, filterMethod);
-        return allResults.filter(function(optStr){
-            return !!(optStr||"".toLowerCase().match(regexQuery));
-        });
-    }
-
     constructor(props) {
         super(props);
         this.state = {
@@ -49,10 +28,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         this.onTextInputChange = this.onTextInputChange.bind(this);
         this.onDropdownSelect = this.onDropdownSelect.bind(this);
         this.onToggleOpen = this.onToggleOpen.bind(this);
-
-        this.memoized = {
-            filterOptions : memoize(SearchAsYouTypeAjax.filterOptions)
-        };
     }
 
     componentDidUpdate(pastProps, pastState){
@@ -154,7 +129,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
 
     render() {
         const {
-            filterMethod = "startsWith",
             optionsHeader: propOptionsHeader,
             value,
             keyComplete = {},
@@ -236,7 +210,6 @@ SearchAsYouTypeAjax.defaultProps = {
         );
     },
     "titleRenderFunction": function(result){
-        // console.log("calling defualt title render function. result:", result);
         return result.display_title;
     },
     "baseHref" : "/search/?type=Item",
@@ -279,7 +252,6 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
 
     const titleRenderFunction = useMemo(function(){
         return function(resultAtID){
-            // console.log("calling memoized titleRenderFunction... resultAtID", resultAtID, idToTitleMap);
             return idToTitleMap[resultAtID] || resultAtID;
         };
     }, [ idToTitleMap ]);
@@ -398,7 +370,6 @@ export const optionCustomizationsByType = {
 export class LinkedObj extends React.PureComponent {
 
     /**
-     * @param {Object} props - Props passed from LinkedObj or BuildField.
      * @param {string} props.nestedField - Field of LinkedObj
      * @param {number[]|null} props.arrayIdx - Array index (if any) of this item, if any.
      * @param {string} props.fieldBeingSelected - Field currently selected for linkedTo item selection.
@@ -406,9 +377,6 @@ export class LinkedObj extends React.PureComponent {
      * @returns {boolean} Whether is currently selected field/item or not.
      */
     static isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx){
-        //if (!props) return false;
-        //const { fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = props;
-
         if (!fieldBeingSelected || fieldBeingSelected !== nestedField){
             return false;
         }
@@ -428,7 +396,7 @@ export class LinkedObj extends React.PureComponent {
 
     constructor(props){
         super(props);
-        // this.updateContext = this.updateContext.bind(this);
+
         this.setSubmissionStateToLinkedToItem = this.setSubmissionStateToLinkedToItem.bind(this);
         this.handleStartSelectItem = this.handleStartSelectItem.bind(this);
         this.handleFinishSelectItem = this.handleFinishSelectItem.bind(this);
@@ -442,45 +410,26 @@ export class LinkedObj extends React.PureComponent {
         };
     }
 
-    // componentDidMount(){
-    //     this.updateContext();
-    // }
-
-    componentDidUpdate(pastProps){
-        // this.updateContext();
+    componentDidUpdate(){
         ReactTooltip.rebuild();
     }
 
-    // /**
-    //  * Mechanism for changing value of linked object in parent context
-    //  * from {number} keyIdx to {string} path of newly submitted object.
-    //  */
-    // updateContext(){
-    //     var { keyComplete, value, linkType, arrayIdx, nestedField, modifyNewContext } = this.props;
-    //     if (keyComplete[value] && !isNaN(value)) {
-    //         modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
-    //         ReactTooltip.rebuild();
-    //     }
-    // }
-
-
     setSubmissionStateToLinkedToItem(e){
+        const { value, setSubmissionState } = this.props;
         e.preventDefault();
         e.stopPropagation();
-        var intKey = parseInt(this.props.value);
-        if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
-        this.props.setSubmissionState('currKey', intKey);
-        // console.log(`called LinkedObj.setSubmissionStateToLinkedToItem`);
+        var intKey = parseInt(value);
+        if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', value);
+        setSubmissionState('currKey', intKey);
     }
 
     handleStartSelectItem(e){
         e.preventDefault();
         if (!window) return;
 
-        const { schema, nestedField, currType, linkType, arrayIdx, selectObj, selectCancel } = this.props;
+        const { schema, nestedField, arrayIdx, selectObj } = this.props;
         const itemType = schema.linkTo;
 
-        // console.log(`calling LinkedObj.handleStartSelectItem -> selectObj(itemType=${itemType}, nestedField=${nestedField}, arrayIdx=${arrayIdx})`);
         selectObj(itemType, nestedField, arrayIdx);
     }
 
@@ -490,9 +439,7 @@ export class LinkedObj extends React.PureComponent {
      * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
      */
     handleFinishSelectItem(items){
-        // console.log(`calling handleFinishSelectItem(items={obj})`);
-        // console.log("items: ", items);
-        // console.log(`props: selectComplete=${selectComplete}, isMultiSelect=${isMultiSelect}`);
+        // console.log("calling LinkedObj.handleFinishSelectItem with: ", items);
         const { selectComplete, isMultiSelect } = this.props;
         if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) { return item.id && typeof item.id === 'string' && item.json; })) {
             return;
@@ -517,7 +464,6 @@ export class LinkedObj extends React.PureComponent {
             return atId && isValidAtId;
         })) {
             Alerts.deQueue({ 'title': invalidTitle });
-            // console.log(`calling selectComplete(${atIds})`);
             selectComplete(atIds); // submit the values
         } else {
             Alerts.queue({
@@ -527,28 +473,27 @@ export class LinkedObj extends React.PureComponent {
             });
             throw new Error('No valid @id available.');
         }
-
-        // console.log(`called LinkedObj.handleFinishSelectItem`);
     }
 
     handleCreateNewItemClick(e){
-        console.log("called LinkedObj.handleNewItemClick");
+        // console.log("called LinkedObj.handleNewItemClick");
         e.preventDefault();
         const { fieldBeingSelected, selectCancel, modifyNewContext, nestedField, linkType,
             arrayIdx, schema } = this.props;
 
-        // console.log("called LinkedObj.handleNewItemClick - this.props", this.props);
         if (fieldBeingSelected !== null) selectCancel();
         modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
     }
 
     handleAcceptTypedID(evt){
         // console.log(`calling LinkedObj.handleAcceptTypedID(evt=${evt})`);
-        if (!this || !this.state || !this.state.textInputValue){
+        const { selectComplete } = this.props;
+        const { textInputValue } = this.state;
+        if (!this || !this.state || !textInputValue){
             throw new Error('Invalid @id format.');
         }
-        const atIds = [this.state.textInputValue];
-        this.props.selectComplete(atIds);
+        const atIds = [textInputValue];
+        selectComplete(atIds);
     }
 
     handleTextInputChange(evt){
@@ -559,21 +504,20 @@ export class LinkedObj extends React.PureComponent {
         const { schema, nestedField, isMultiSelect } = this.props;
         const itemType = schema && schema.linkTo;
         const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
-        const message = null;
-        // const message = (
-        //     <div>
-        //         { !isMultiSelect?
-        //             <p className="mb-0">
-        //                 Please either select an Item below and click <em>Apply</em> or <em>drag and drop</em> an Item (row) from this window into the submissions window.
-        //             </p>
-        //             :
-        //             <p className="mb-0">
-        //                 Please select the Item(s) you would like and then press <em>Apply</em> below.
-        //             </p>
-        //         }
-        //         <p className="mb-0">You may use facets on the left-hand side to narrow down results.</p>
-        //     </div>
-        // );
+        const message = (
+            <div>
+                { !isMultiSelect?
+                    <p className="mb-0">
+                        Please either select an Item below and click <em>Apply</em> or <em>drag and drop</em> an Item (row) from this window into the submissions window.
+                    </p>
+                    :
+                    <p className="mb-0">
+                        Please select the Item(s) you would like and then press <em>Apply</em> below.
+                    </p>
+                }
+                <p className="mb-0">You may use facets on the left-hand side to narrow down results.</p>
+            </div>
+        );
         return {
             title: 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
             message,
@@ -583,7 +527,6 @@ export class LinkedObj extends React.PureComponent {
 
     renderSelectInputField(){
         const {
-            value,
             selectCancel,
             schema,
             currType,
@@ -591,15 +534,12 @@ export class LinkedObj extends React.PureComponent {
             isMultiSelect,
             baseHref
         } = this.props;
-        const { textInputValue } = this.state;
-        // const canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
-        // const extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
+
         const itemType = schema.linkTo;
         const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
         const dropMessage = "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'";
 
         let searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
-        // console.log("this.props", this.props);
 
         // check if we have any schema flags that will affect the searchUrl
         if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
