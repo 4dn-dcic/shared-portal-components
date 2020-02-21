@@ -96,7 +96,9 @@ function (_React$PureComponent) {
     key: "parseNumber",
     value: function parseNumber(facet, value) {
       var _facet$field_type = facet.field_type,
-          field_type = _facet$field_type === void 0 ? "integer" : _facet$field_type;
+          field_type = _facet$field_type === void 0 ? "integer" : _facet$field_type,
+          _facet$number_step = facet.number_step,
+          number_step = _facet$number_step === void 0 ? "any" : _facet$number_step;
 
       if (value === "" || value === null) {
         return null;
@@ -106,6 +108,25 @@ function (_React$PureComponent) {
 
       if (isNaN(numVal)) {
         throw new Error("Is not a number - " + numVal);
+      }
+
+      if (number_step === "any") {
+        return numVal;
+      }
+
+      if (typeof number_step !== "number" || isNaN(number_step) || number_step <= 0) {
+        _patchedConsole.patchedConsoleInstance.error("Expected number_step to be a positive number");
+
+        return numVal;
+      } // Remove trailing decimals (if any) (round down)
+      // Be careful re: float operations (imprecise) and favor integers
+
+
+      if (number_step >= 1) {
+        numVal = Math.floor(numVal / number_step) * number_step;
+      } else {
+        var diviser = Math.round(1 / number_step);
+        numVal = Math.floor(numVal * diviser) / diviser;
       }
 
       return numVal;
@@ -250,6 +271,9 @@ function (_React$PureComponent) {
 
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
+
+        _patchedConsole.patchedConsoleInstance.log("AAAAA", fromVal, value, facet);
+
         this.setState(function (_ref3) {
           var toVal = _ref3.toVal;
 
@@ -379,7 +403,8 @@ function (_React$PureComponent) {
           _facet$title = facet.title,
           facetTitle = _facet$title === void 0 ? null : _facet$title,
           _facet$description = facet.description,
-          tooltip = _facet$description === void 0 ? null : _facet$description;
+          tooltip = _facet$description === void 0 ? null : _facet$description,
+          number_step = facet.number_step;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
           facetClosing = _this$state.facetClosing,
@@ -558,7 +583,9 @@ function (_React$PureComponent2) {
           _this$props7$incremen = _this$props7.increments,
           increments = _this$props7$incremen === void 0 ? [] : _this$props7$incremen;
       var fMin = facet.min,
-          fMax = facet.max;
+          fMax = facet.max,
+          _facet$number_step2 = facet.number_step,
+          step = _facet$number_step2 === void 0 ? "any" : _facet$number_step2;
       var min = typeof propMin === "number" ? propMin : typeof fMin === "number" ? fMin : 0;
       var max = propMax || fMax || null;
 
@@ -603,7 +630,8 @@ function (_React$PureComponent2) {
         min: min,
         max: max,
         value: value,
-        placeholder: placeholder
+        placeholder: placeholder,
+        step: step
       }, {
         onChange: this.onTextInputChange
       }))), _react["default"].createElement("button", {
