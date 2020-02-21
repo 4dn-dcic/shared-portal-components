@@ -18,26 +18,29 @@ import { fieldSchemaLinkToType, fieldSchemaLinkToPath } from '../forms/component
 /**
  * Build context based off an object's and populate values from pre-existing context.
  *
- * @param {Object} context      TODO
- * @param {Object} itemSchema   TODO
- * @param {array} objList       TODO
- * @param {boolean} edit        TODO
- * @param {boolean} create      TODO
- * @param {*} initObjs          TODO
+ * @param {Object} context      (idx/@id : currKey) stores the context for each object; from state.keyContext
+ * @param {Object} itemSchema   Schema for the type of object to build as returned from back-end
+ * @param {array} objList       Array containing field names. Nested fields demarcated with "." as in
+ *                              "static_content.content"
+ * @param {boolean} edit        Should edit objects when adding them to context?
+ * @param {boolean} create      Should clone objects when adding them to context?
+ * @param {*} initObjs          An array containing pre-existing context objects to add
  *
  * Empty fields are given null value.
  * All linkTo fields are added to objList.
  * If initObjs provided (edit or clone functionality), pre-existing objs will be added.
  * Also checks user info to see if user is admin, which affects which fields are displayed.
  *
- * @returns {Object} A new object represent context.
+ * @returns {Object} A new object representing context.
  */
 export function buildContext(context, itemSchema, objList=null, edit=false, create=true, initObjs=null){
+    // console.log("calling buildContext with", ...arguments);
     const built = {};
     const userGroups = JWT.getUserGroups();
     const fields = itemSchema.properties ? _.keys(itemSchema.properties) : [];
 
-    _.forEach(fields, function(field, i){
+    _.forEach(fields, function(field){
+        // console.log('building field:', field);
         const fieldSchema = object.getNestedProperty(itemSchema, ['properties', field], true);
 
         if (!fieldSchema){
@@ -83,7 +86,9 @@ export function buildContext(context, itemSchema, objList=null, edit=false, crea
             let linkedProperty = fieldSchemaLinkToPath(fieldSchema); // Is it a linkTo (recursively or not)?
             const roundTwoExclude = fieldSchema.ff_flag && fieldSchema.ff_flag == 'second round';
 
-            if ((linkedProperty !== null && typeof linkedProperty !== 'undefined') && !roundTwoExclude){ // If linkTo, add to our list, selecting a nice name for it first.
+            if ((linkedProperty !== null && typeof linkedProperty !== 'undefined') && !roundTwoExclude){
+                // If linkTo, add to our list, selecting a nice name for it first.
+
                 //var listTerm = fieldSchema.title ? fieldSchema.title : linked;
                 let fieldToStore = field;
 
@@ -113,19 +118,21 @@ export function buildContext(context, itemSchema, objList=null, edit=false, crea
  * Traverses context to find the field name of the object at a specific keyIndex in context.
  *
  * @param {Object} contextToSearch   Top level keyContext to search through
- * @param {string} rootType          The schema-formatted type of Item at the root of this context; principal object's type (E.g. "Experiment" or "Cohort")
+ * @param {string} rootType          The schema-formatted type of Item at the root of this context; generally
+ *                                   principal object's type (E.g. "Experiment" or "Cohort")
  * @param {string} schemas           An object containing all schemas
  * @param {number} keyIndexToFind    The key index of the item to find
  * @param {array}  keyLinkToFind     An array representing the path to the item being searched for
  *
- * This might work if you pass in a subContext and make sure the rootType refers to the correct subContext's type, but not tested so can't be sure.
+ * This might work if you pass in a subContext and make sure the rootType refers to the correct subContext's
+ * type, but not tested so can't be sure.
  *
  * @returns {Object} { splitField: string[], arrayIdx: number[] }
  *          splitField represents the field name,
  *          arrayIdx contains the indices of any arrays searched in order to find the object during traversal.
  */
 export function findFieldFromContext(contextToSearch, rootType, schemas, keyIndexToFind = 1, keyLinkToFind = []){
-    console.log("calling findFieldFromContext with: ", ...arguments);
+    // console.log("calling findFieldFromContext with: ", ...arguments);
     // Issue: no way to figure out if new-linkto being created or not.
 
     let splitField = null;
@@ -151,7 +158,7 @@ export function findFieldFromContext(contextToSearch, rootType, schemas, keyInde
     /**
      * Recursive function used to scrape through the context.
      *
-     * @param {Object} context          The keyContext object (or nested context object) to search
+     * @param {Object} context          (idx/@id : currKey) stores the context for each object; from state.keyContext (or nested cxt obj)
      * @param {number} contextKey       The key in keyContext (or current nested context object) being searched
      * @param {Object} contextSchema    The schema for the type of object that is being searched
      * @param {array}  currFieldParts   An array containing the previous contextKeys searched to get to this context
@@ -162,7 +169,7 @@ export function findFieldFromContext(contextToSearch, rootType, schemas, keyInde
      * Once the item being searched for (keyIndexToFind above) is found, updates findFieldFromContext's splitField and arrayIdx.
      */
     function scrapeFromContext(context, contextKey, contextSchema, currFieldParts = [], arrIdx = []){
-        console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrIdx);
+        // console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrIdx);
         splitField ? console.log("splitField is ", splitField) : null;
         if (splitField) return; // recurses until it finds the field being sought
 
@@ -181,7 +188,7 @@ export function findFieldFromContext(contextToSearch, rootType, schemas, keyInde
 
                     // If the items in this array are other linked objects, recurse and search them, too.
                     if (propValItem !== null && typeof propValItem === "object"){
-                        console.log(`Found a new object. Scraping... ${contextKey}.${propKey}`);
+                        // console.log(`Found a new object. Scraping... ${contextKey}.${propKey}`);
                         // NOTE: This breaks down when encountering nested arrays (more than 1 array deep).
                         // But this occurs already other places so w.e. TODO: Fix this, if necessary
                         scrapeFromContext(propValItem, propKey, propSchema.properties, [ ...currFieldParts, propKey ], [...arrIdx, idxInArray]);
@@ -224,8 +231,8 @@ export function findFieldFromContext(contextToSearch, rootType, schemas, keyInde
         scrapeFromContext(contextToSearch, null, schemas[rootType].properties, []);
     // });
 
-    console.log("returning splitfield: ", splitField);
-    console.log("returning arrayIdx: ", arrayIdx);
+    // console.log("returning splitfield: ", splitField);
+    // console.log("returning arrayIdx: ", arrayIdx);
     return {
         splitField,
         arrayIdx
@@ -288,7 +295,7 @@ export function gatherLinkToTitlesFromContextEmbedded(context, idsToTitles = {})
  * creation of new items of certain types (CaptureC, StaticSection)... more info in the comments of that f(x).
  */
 export function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value){
-    console.log(`calling modifyContextInPlace with`, splitField, currContext, arrayIdx, fieldType, value);
+    // console.log(`calling modifyContextInPlace with`, splitField, currContext, arrayIdx, fieldType, value);
     const splitFieldLeaf = splitField[splitField.length-1];
     let arrayIdxPointer = 0;
     const contextCopy = currContext;
@@ -338,15 +345,7 @@ export function modifyContextInPlace(splitField, currContext, arrayIdx, fieldTyp
 
 
 
-/*
-    HIERARCHY HELPERS (for managing SubmissionView.state.keyHierarchy)
-    - findParentFromHierarchy:
-    - flattenHierarchy:
-    - modifyHierarchy:
-    - replaceInHierarchy:
-    - searchHierarchy:
-    - trimHierarchy:
-*/
+/* HIERARCHY HELPERS (for managing SubmissionView.state.keyHierarchy) */
 
 /**
  * Finds the key of direct parent for a given key in a hierarchy
@@ -354,14 +353,14 @@ export function modifyContextInPlace(splitField, currContext, arrayIdx, fieldTyp
  * @param {number} keyIdx       The keyIndex of the child item you're searching for the parent of
  * @returns {number} key index of parent or null, if none found
  */
-export var findParentFromHierarchy = function myself(hierarchy, keyIdx){
-    if(isNaN(keyIdx) || !hierarchy) return null;
-    var found_parent = null;
-    _.keys(hierarchy).forEach(function(key, index){
-        if(keyIdx in hierarchy[key]){
+export const findParentFromHierarchy = function myself(hierarchy, keyIdx) {
+    if (isNaN(keyIdx) || !hierarchy) return null;
+    let found_parent = null;
+    _.keys(hierarchy).forEach(function(key, index) {
+        if (keyIdx in hierarchy[key]) {
             found_parent = key;
-        }else{
-            var test = myself(hierarchy[key], keyIdx);
+        } else {
+            const test = myself(hierarchy[key], keyIdx);
             if(test !== null) found_parent = test;
         }
     });
@@ -371,13 +370,13 @@ export var findParentFromHierarchy = function myself(hierarchy, keyIdx){
 /**
  * Return a list of all keys contained within a given hierarchy
  * @param {Object} hierarchy    Object structured as SubmissionView.state.keyHierarchy
- * @returns {array} 
+ * @returns {array}
  */
-export var flattenHierarchy = function myself(hierarchy){
-    var found_keys = [];
-    _.keys(hierarchy).forEach(function(key, index){
-        if(!isNaN(key)) key = parseInt(key);
-        var sub_keys = myself(hierarchy[key]);
+export const flattenHierarchy = function myself(hierarchy) {
+    let found_keys = [];
+    _.keys(hierarchy).forEach(function(key, index) {
+        if (!isNaN(key)) key = parseInt(key);
+        const sub_keys = myself(hierarchy[key]);
         found_keys = _.union(found_keys, sub_keys, [key]);
     });
     return found_keys;
@@ -388,11 +387,11 @@ export var flattenHierarchy = function myself(hierarchy){
  * of this.state.keyHierarchy that includes the new parent-child relation.
  * Recursive function
  */
-export var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx){
-    _.keys(hierarchy).forEach(function(key, index){
-        if(key == parentKeyIdx){
+export const modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
+    _.keys(hierarchy).forEach(function(key, index) {
+        if (key == parentKeyIdx){
             hierarchy[parentKeyIdx][keyIdx] = {};
-        }else{
+        } else {
             hierarchy[key] = myself(hierarchy[key], keyIdx, parentKeyIdx);
         }
     });
@@ -403,14 +402,14 @@ export var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx){
 /**
  * Replace a key with a different key in the hierarchy
  */
-export var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValue){
+export const replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValue) {
     if (typeof existingValueToFind === 'number') existingValueToFind = existingValueToFind + '';
-    _.keys(hierarchy).forEach(function(key, index){
-        if(key === existingValueToFind){
-            var downstream = hierarchy[key];
+    _.keys(hierarchy).forEach(function(key, index) {
+        if (key === existingValueToFind) {
+            const downstream = hierarchy[key];
             hierarchy[newValue] = downstream;
             delete hierarchy[key];
-        }else{
+        } else {
             hierarchy[key] = myself(hierarchy[key], existingValueToFind, newValue);
         }
     });
@@ -420,16 +419,19 @@ export var replaceInHierarchy = function myself(hierarchy, existingValueToFind, 
 /**
  * Returns the entire hierarchy below for the given keyIdx. keyIdx must be a
  * number (custom object). Recursive function.
+ * @param {*} hierarchy     keyHierarchy state to search (or a copy/similarly structured obj)
+ * @param {*} keyIdx        Key to find (either @id or keyIndex)
+ * @return a hierarchy object containing everything below the found index
  */
-export var searchHierarchy = function myself(hierarchy, keyIdx){
-    if(!hierarchy) return null;
-    var found_hierarchy = null;
-    _.keys(hierarchy).forEach(function(key, index){
-        if(key == keyIdx){
+export const searchHierarchy = function myself(hierarchy, keyIdx) {
+    if (!hierarchy) return null;
+    let found_hierarchy = null;
+    _.keys(hierarchy).forEach(function(key) {
+        if (key == keyIdx) {
             found_hierarchy = hierarchy[key];
-        }else{
-            var test = myself(hierarchy[key], keyIdx);
-            if(test !== null){
+        } else {
+            const test = myself(hierarchy[key], keyIdx);
+            if (test !== null) {
                 found_hierarchy = test;
             }
         }
@@ -437,12 +439,16 @@ export var searchHierarchy = function myself(hierarchy, keyIdx){
     return found_hierarchy;
 };
 
-/** Remove given key from hierarchy. Recursive function. */
-export var trimHierarchy = function myself(hierarchy, keyIdx){
-    if(hierarchy[keyIdx]){
+/** Remove given key from provided hierarchy. Works IN PLACE. Recursive function.
+ * @param {*} hierarchy A deep COPY of the keyHierarchy state to remove key from.
+ * @param {*} keyIdx    Key used to store
+ * @return hierarchy, with the passed in key removed
+ */
+export const trimHierarchy = function myself(hierarchy, keyIdx) {
+    if (hierarchy[keyIdx]) {
         delete hierarchy[keyIdx];
-    }else{
-        _.keys(hierarchy).forEach(function(key, index){
+    } else {
+        _.keys(hierarchy).forEach(function(key) {
             hierarchy[key] = myself(hierarchy[key], keyIdx);
         });
     }
@@ -454,9 +460,6 @@ export var trimHierarchy = function myself(hierarchy, keyIdx){
 
 /*
     MISCELLANEOUS HELPERS - these are helper functions either used in the above functions or elsewhere in SubmissionView
-    - delvePreExistingObjects:
-    - removeNulls
-    - sortPropFields
 */
 
 /**
@@ -519,16 +522,19 @@ export function removeNulls(context){
     return context;
 }
 
-/** Sort a list of BuildFields first by required status, then by schema lookup order, then by title */
+/**
+ * Sort a list of BuildFields first by required status, then by schema lookup order, then by title
+ */
 export function sortPropFields(fields) {
-    var reqFields = [];
-    var optFields = [];
+    // console.log('calling sortPropFields with: ', fields);
+    const reqFields = [];
+    const optFields = [];
 
     /** Compare by schema property 'lookup' meta-property, if available. */
     function sortSchemaLookupFunc(a,b){
-        var aLookup = (a.props.schema && a.props.schema.lookup) || 750,
-            bLookup = (b.props.schema && b.props.schema.lookup) || 750,
-            res;
+        const aLookup = (a.props.schema && a.props.schema.lookup) || 750,
+            bLookup = (b.props.schema && b.props.schema.lookup) || 750;
+        let res;
 
         if (typeof aLookup === 'number' && typeof bLookup === 'number') {
             //if (a.props.field === 'ch02_power_output' || b.props.field === 'ch02_power_output') console.log('X', aLookup - bLookup, a.props.field, b.props.field);

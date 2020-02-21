@@ -42,25 +42,27 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 /**
  * Build context based off an object's and populate values from pre-existing context.
  *
- * @param {Object} context      TODO
- * @param {Object} itemSchema   TODO
- * @param {array} objList       TODO
- * @param {boolean} edit        TODO
- * @param {boolean} create      TODO
- * @param {*} initObjs          TODO
+ * @param {Object} context      (idx/@id : currKey) stores the context for each object; from state.keyContext
+ * @param {Object} itemSchema   Schema for the type of object to build as returned from back-end
+ * @param {array} objList       Array containing field names. Nested fields demarcated with "." as in
+ *                              "static_content.content"
+ * @param {boolean} edit        Should edit objects when adding them to context?
+ * @param {boolean} create      Should clone objects when adding them to context?
+ * @param {*} initObjs          An array containing pre-existing context objects to add
  *
  * Empty fields are given null value.
  * All linkTo fields are added to objList.
  * If initObjs provided (edit or clone functionality), pre-existing objs will be added.
  * Also checks user info to see if user is admin, which affects which fields are displayed.
  *
- * @returns {Object} A new object represent context.
+ * @returns {Object} A new object representing context.
  */
 function buildContext(context, itemSchema) {
   var objList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var edit = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var create = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
   var initObjs = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
+  // console.log("calling buildContext with", ...arguments);
   var built = {};
 
   var userGroups = _2.JWT.getUserGroups();
@@ -68,6 +70,7 @@ function buildContext(context, itemSchema) {
   var fields = itemSchema.properties ? _underscore["default"].keys(itemSchema.properties) : [];
 
   _underscore["default"].forEach(fields, function (field) {
+    // console.log('building field:', field);
     var fieldSchema = _2.object.getNestedProperty(itemSchema, ['properties', field], true);
 
     if (!fieldSchema) {
@@ -146,12 +149,14 @@ function buildContext(context, itemSchema) {
  * Traverses context to find the field name of the object at a specific keyIndex in context.
  *
  * @param {Object} contextToSearch   Top level keyContext to search through
- * @param {string} rootType          The schema-formatted type of Item at the root of this context; principal object's type (E.g. "Experiment" or "Cohort")
+ * @param {string} rootType          The schema-formatted type of Item at the root of this context; generally
+ *                                   principal object's type (E.g. "Experiment" or "Cohort")
  * @param {string} schemas           An object containing all schemas
  * @param {number} keyIndexToFind    The key index of the item to find
  * @param {array}  keyLinkToFind     An array representing the path to the item being searched for
  *
- * This might work if you pass in a subContext and make sure the rootType refers to the correct subContext's type, but not tested so can't be sure.
+ * This might work if you pass in a subContext and make sure the rootType refers to the correct subContext's
+ * type, but not tested so can't be sure.
  *
  * @returns {Object} { splitField: string[], arrayIdx: number[] }
  *          splitField represents the field name,
@@ -162,10 +167,8 @@ function buildContext(context, itemSchema) {
 function findFieldFromContext(contextToSearch, rootType, schemas) {
   var keyIndexToFind = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
   var keyLinkToFind = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
-
-  _2.console.log.apply(_2.console, ["calling findFieldFromContext with: "].concat(Array.prototype.slice.call(arguments))); // Issue: no way to figure out if new-linkto being created or not.
-
-
+  // console.log("calling findFieldFromContext with: ", ...arguments);
+  // Issue: no way to figure out if new-linkto being created or not.
   var splitField = null;
   var arrayIdx = [];
   /*
@@ -187,7 +190,7 @@ function findFieldFromContext(contextToSearch, rootType, schemas) {
   /**
    * Recursive function used to scrape through the context.
    *
-   * @param {Object} context          The keyContext object (or nested context object) to search
+   * @param {Object} context          (idx/@id : currKey) stores the context for each object; from state.keyContext (or nested cxt obj)
    * @param {number} contextKey       The key in keyContext (or current nested context object) being searched
    * @param {Object} contextSchema    The schema for the type of object that is being searched
    * @param {array}  currFieldParts   An array containing the previous contextKeys searched to get to this context
@@ -201,9 +204,7 @@ function findFieldFromContext(contextToSearch, rootType, schemas) {
   function scrapeFromContext(context, contextKey, contextSchema) {
     var currFieldParts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
     var arrIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
-
-    _2.console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrIdx);
-
+    // console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrIdx);
     splitField ? _2.console.log("splitField is ", splitField) : null;
     if (splitField) return; // recurses until it finds the field being sought
     // Searches through the context passed in...
@@ -221,10 +222,9 @@ function findFieldFromContext(contextToSearch, rootType, schemas) {
         propVal.forEach(function (propValItem, idxInArray) {
           // If the items in this array are other linked objects, recurse and search them, too.
           if (propValItem !== null && _typeof(propValItem) === "object") {
-            _2.console.log("Found a new object. Scraping... ".concat(contextKey, ".").concat(propKey)); // NOTE: This breaks down when encountering nested arrays (more than 1 array deep).
+            // console.log(`Found a new object. Scraping... ${contextKey}.${propKey}`);
+            // NOTE: This breaks down when encountering nested arrays (more than 1 array deep).
             // But this occurs already other places so w.e. TODO: Fix this, if necessary
-
-
             scrapeFromContext(propValItem, propKey, propSchema.properties, [].concat(_toConsumableArray(currFieldParts), [propKey]), [].concat(_toConsumableArray(arrIdx), [idxInArray]));
             return;
           } // If the field is matching the item that is currently being sought, update splitField and arrayIdx
@@ -263,10 +263,8 @@ function findFieldFromContext(contextToSearch, rootType, schemas) {
 
 
   scrapeFromContext(contextToSearch, null, schemas[rootType].properties, []); // });
-
-  _2.console.log("returning splitfield: ", splitField);
-
-  _2.console.log("returning arrayIdx: ", arrayIdx);
+  // console.log("returning splitfield: ", splitField);
+  // console.log("returning arrayIdx: ", arrayIdx);
 
   return {
     splitField: splitField,
@@ -337,8 +335,7 @@ function gatherLinkToTitlesFromContextEmbedded(context) {
 
 
 function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value) {
-  _2.console.log("calling modifyContextInPlace with", splitField, currContext, arrayIdx, fieldType, value);
-
+  // console.log(`calling modifyContextInPlace with`, splitField, currContext, arrayIdx, fieldType, value);
   var splitFieldLeaf = splitField[splitField.length - 1];
   var arrayIdxPointer = 0;
   var pointer = currContext;
@@ -393,15 +390,7 @@ function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, valu
     prevValue: prevValue
   };
 }
-/*
-    HIERARCHY HELPERS (for managing SubmissionView.state.keyHierarchy)
-    - findParentFromHierarchy:
-    - flattenHierarchy:
-    - modifyHierarchy:
-    - replaceInHierarchy:
-    - searchHierarchy:
-    - trimHierarchy:
-*/
+/* HIERARCHY HELPERS (for managing SubmissionView.state.keyHierarchy) */
 
 /**
  * Finds the key of direct parent for a given key in a hierarchy
@@ -429,7 +418,7 @@ var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
 /**
  * Return a list of all keys contained within a given hierarchy
  * @param {Object} hierarchy    Object structured as SubmissionView.state.keyHierarchy
- * @returns {array} 
+ * @returns {array}
  */
 
 
@@ -491,6 +480,9 @@ var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValu
 /**
  * Returns the entire hierarchy below for the given keyIdx. keyIdx must be a
  * number (custom object). Recursive function.
+ * @param {*} hierarchy     keyHierarchy state to search (or a copy/similarly structured obj)
+ * @param {*} keyIdx        Key to find (either @id or keyIndex)
+ * @return a hierarchy object containing everything below the found index
  */
 
 
@@ -514,7 +506,11 @@ var searchHierarchy = function myself(hierarchy, keyIdx) {
 
   return found_hierarchy;
 };
-/** Remove given key from hierarchy. Recursive function. */
+/** Remove given key from provided hierarchy. Works IN PLACE. Recursive function.
+ * @param {*} hierarchy A deep COPY of the keyHierarchy state to remove key from.
+ * @param {*} keyIdx    Key used to store
+ * @return hierarchy, with the passed in key removed
+ */
 
 
 exports.searchHierarchy = searchHierarchy;
@@ -532,9 +528,6 @@ var trimHierarchy = function myself(hierarchy, keyIdx) {
 };
 /*
     MISCELLANEOUS HELPERS - these are helper functions either used in the above functions or elsewhere in SubmissionView
-    - delvePreExistingObjects:
-    - removeNulls
-    - sortPropFields
 */
 
 /**
@@ -605,18 +598,21 @@ function removeNulls(context) {
 
   return context;
 }
-/** Sort a list of BuildFields first by required status, then by schema lookup order, then by title */
+/**
+ * Sort a list of BuildFields first by required status, then by schema lookup order, then by title
+ */
 
 
 function sortPropFields(fields) {
+  // console.log('calling sortPropFields with: ', fields);
   var reqFields = [];
   var optFields = [];
   /** Compare by schema property 'lookup' meta-property, if available. */
 
   function sortSchemaLookupFunc(a, b) {
     var aLookup = a.props.schema && a.props.schema.lookup || 750,
-        bLookup = b.props.schema && b.props.schema.lookup || 750,
-        res;
+        bLookup = b.props.schema && b.props.schema.lookup || 750;
+    var res;
 
     if (typeof aLookup === 'number' && typeof bLookup === 'number') {
       //if (a.props.field === 'ch02_power_output' || b.props.field === 'ch02_power_output') console.log('X', aLookup - bLookup, a.props.field, b.props.field);
