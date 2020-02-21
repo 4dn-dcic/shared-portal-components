@@ -363,13 +363,7 @@ export default class SubmissionView extends React.PureComponent{
      * lookup even if applicable and move right to alias selection.
      */
     initCreateObj(ambiguousType, ambiguousIdx, creatingLink, init=false, parentField=null){
-        console.log(`calling initCreateObj(
-            ambiguousType=${ambiguousType},
-            ambiguousIdx=${ambiguousIdx},
-            creatingLink=${creatingLink},
-            init=${init},
-            parentField=${parentField}
-        `);
+        console.log("calling initCreateObj with:", ...arguments);
         const { schemas } = this.props;
         const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
         // check to see if we have an ambiguous linkTo type.
@@ -395,6 +389,7 @@ export default class SubmissionView extends React.PureComponent{
      * creation process with createObj using a boilerplate placeholer obj name.
      */
     initCreateAlias(type, newIdx, newLink, parentField=null, extraState={}){
+        // console.log("calling initCreateAlias with:", ...arguments);
         const { schemas } = this.props;
         const { currentSubmittingUser } = this.state;
         const schema = (schemas && schemas[type]) || null;
@@ -667,8 +662,8 @@ export default class SubmissionView extends React.PureComponent{
             const hierarchy = _.clone(keyHierarchy);
             const dummyHierarchy = object.deepClone(hierarchy);
 
-            let keyToRemoveIdx = parseInt(keyToRemove) ? keyToRemove : null;
-            const keyToRemoveAtId = !parseInt(keyToRemove) ? keyToRemove : null;
+            let keyToRemoveIdx = !isNaN(keyToRemove) ? keyToRemove : null;
+            const keyToRemoveAtId = isNaN(keyToRemove) ? keyToRemove : null;
 
             // @id is now used as ONLY key in heirarchy, keyLinks
             // @id is stored alongside index in keyContext, keyTypes
@@ -1934,16 +1929,7 @@ class IndividualObjectView extends React.Component {
      * TODO: Examine why newLink isn't being used anywhere; what was it for, why did it disappear? Should it be in use?
      */
     modifyNewContext(field, value, fieldType, newLink, arrayIdx=null, type=null, valueTitle=null){
-        console.log(
-            `calling modifyNewContext(
-                field=${field},
-                value=${value},
-                fieldType=${fieldType},
-                newLink=${newLink},
-                arrayIdx=${arrayIdx},
-                type=${type},
-                valueTitle=${valueTitle})`
-        );
+        // console.log("calling modifyNewContext with: ", ...arguments);
         const { currContext, currKey, initCreateObj, modifyKeyContext, modifyAlias, removeObj, keyComplete } = this.props;
 
         if (fieldType === 'new linked object'){
@@ -1963,7 +1949,7 @@ class IndividualObjectView extends React.Component {
         // todo: re-implement modifyContextInPlace... somehow the f(x) has the exact same logic but causes a
         // "_modifyContextInPlace is undefined" TypeError when used in certain cases (creating CaptureC experiment sets, Static Sections, etc)
         // const { currContext, prevValue } = modifyContextInPlace(splitField, propCurrContext, arrayIdx, fieldType, value);
-        
+
         /* modifyContextInPlace can replace everything below this point, until indicated */
         const splitFieldLeaf = splitField[splitField.length-1];
         let arrayIdxPointer = 0;
@@ -2023,7 +2009,7 @@ class IndividualObjectView extends React.Component {
      * @id as a fallback.
      *
      * @param {string} itemAtID    The @id or unique key of the Item for which we want to validate and get title for.
-     * @param {string} field    
+     * @param {string} field       
      * @param {string} type        The Item type of value.
      * @param {number} arrayIdx    
      * @param {any}    newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.

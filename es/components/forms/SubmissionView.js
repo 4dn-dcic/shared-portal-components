@@ -511,7 +511,7 @@ function (_React$PureComponent) {
       var init = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var parentField = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 
-      _util.console.log("calling initCreateObj(\n            ambiguousType=".concat(ambiguousType, ",\n            ambiguousIdx=").concat(ambiguousIdx, ",\n            creatingLink=").concat(creatingLink, ",\n            init=").concat(init, ",\n            parentField=").concat(parentField, "\n        "));
+      _util.console.log.apply(_util.console, ["calling initCreateObj with:"].concat(Array.prototype.slice.call(arguments)));
 
       var schemas = this.props.schemas;
 
@@ -544,6 +544,7 @@ function (_React$PureComponent) {
     value: function initCreateAlias(type, newIdx, newLink) {
       var parentField = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
       var extraState = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+      // console.log("calling initCreateAlias with:", ...arguments);
       var schemas = this.props.schemas;
       var currentSubmittingUser = this.state.currentSubmittingUser;
       var schema = schemas && schemas[type] || null;
@@ -920,8 +921,8 @@ function (_React$PureComponent) {
 
         var dummyHierarchy = _util.object.deepClone(hierarchy);
 
-        var keyToRemoveIdx = parseInt(keyToRemove) ? keyToRemove : null;
-        var keyToRemoveAtId = !parseInt(keyToRemove) ? keyToRemove : null; // @id is now used as ONLY key in heirarchy, keyLinks
+        var keyToRemoveIdx = !isNaN(keyToRemove) ? keyToRemove : null;
+        var keyToRemoveAtId = isNaN(keyToRemove) ? keyToRemove : null; // @id is now used as ONLY key in heirarchy, keyLinks
         // @id is stored alongside index in keyContext, keyTypes
         // index is used as ONLY key in keyLinkBookmarks
         // If the object was newly created, keyToRemove might be an @id string (not a keyIdx)
@@ -2588,13 +2589,11 @@ function (_React$Component2) {
 
   _createClass(IndividualObjectView, [{
     key: "modifyNewContext",
-    value: function modifyNewContext(field, value, fieldType, newLink) {
+    value: function modifyNewContext(field, value, fieldType) {
       var arrayIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       var type = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
       var valueTitle = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
-
-      _util.console.log("calling modifyNewContext(\n                field=".concat(field, ",\n                value=").concat(value, ",\n                fieldType=").concat(fieldType, ",\n                newLink=").concat(newLink, ",\n                arrayIdx=").concat(arrayIdx, ",\n                type=").concat(type, ",\n                valueTitle=").concat(valueTitle, ")"));
-
+      // console.log("calling modifyNewContext with: ", ...arguments);
       var _this$props12 = this.props,
           currContext = _this$props12.currContext,
           currKey = _this$props12.currKey,
@@ -2690,7 +2689,7 @@ function (_React$Component2) {
      * @id as a fallback.
      *
      * @param {string} itemAtID    The @id or unique key of the Item for which we want to validate and get title for.
-     * @param {string} field    
+     * @param {string} field       
      * @param {string} type        The Item type of value.
      * @param {number} arrayIdx    
      * @param {any}    newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
