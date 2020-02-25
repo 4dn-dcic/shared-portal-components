@@ -27,9 +27,21 @@ export class VirtualHrefController extends React.PureComponent {
     static defaultProps = {
         "searchHref" : "/search/?type=Item"
     };
-
+    /**
+     * @param {String[]} facets - facets array
+     * @param {function} filterFacetFxn - filtering function
+     */
     static transformedFacets(facets, filterFacetFxn){
         return facets.filter(filterFacetFxn);
+    }
+    /**
+     *
+     * @param {Object} columns - columns object
+     * @param {function} filterColumnFxn - filtering function
+     */
+    static transformedColumns(columns, filterColumnFxn){
+        const keys = _.keys(columns);
+        return _.pick(columns, keys.filter(filterColumnFxn));
     }
 
     constructor(props){
@@ -39,7 +51,8 @@ export class VirtualHrefController extends React.PureComponent {
         this.getTermStatus = this.getTermStatus.bind(this);
         this.virtualNavigate = this.virtualNavigate.bind(this);
         this.memoized = {
-            transformedFacets: memoize(VirtualHrefController.transformedFacets)
+            transformedFacets: memoize(VirtualHrefController.transformedFacets),
+            transformedColumns: memoize(VirtualHrefController.transformedColumns),
         };
 
         this.state = {
@@ -138,7 +151,7 @@ export class VirtualHrefController extends React.PureComponent {
     }
 
     render(){
-        const { children, facets: propFacets, filterFacetFxn = null, ...passProps } = this.props;
+        const { children, facets: propFacets, filterFacetFxn = null, columns: propColumns, filterColumnFxn = null, ...passProps } = this.props;
         const {
             virtualHref: href,
             virtualContext: context,
@@ -152,9 +165,15 @@ export class VirtualHrefController extends React.PureComponent {
             facets = this.memoized.transformedFacets(facets, filterFacetFxn);
         }
 
+        let columns = propColumns ? propColumns : (context && context.columns) || null;
+
+        if (typeof filterColumnFxn === "function" && typeof columns === 'object'){
+            columns = this.memoized.transformedColumns(columns, filterColumnFxn);
+        }
+
         const propsToPass = {
             ...passProps,
-            href, context, isContextLoading, facets,
+            href, context, isContextLoading, facets, columns,
             navigate: this.virtualNavigate,
             onFilter: this.onFilter,
             onClearFilters: this.onClearFilters,
