@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import memoize from 'memoize-one';
 import PropTypes from 'prop-types';
 import url from 'url';
 import queryString from 'query-string';
@@ -165,80 +166,43 @@ export class FacetList extends React.PureComponent {
         }
     };
 
-    constructor(props){
-        super(props);
-        this.onFilterExtended = this.onFilterExtended.bind(this);
-        this.getTermStatus = this.getTermStatus.bind(this);
-        this.renderFacets = this.renderFacets.bind(this);
-        this.state = {
-            'mounted' : false
-        };
-    }
-
-    componentDidMount(){
-        this.setState({ 'mounted' : true });
-    }
-
     /**
-     * Calls props.onFilter after sending analytics.
-     * N.B. When rangeFacet calls onFilter, it creates a `term` with `key` property
-     * as no 'terms' exist when aggregation_type === stats.
+     * We use a function instead of functional/memoized components because we want literal list of JSX components.
+     * These JSX components might later be segmented or something.
      */
-    onFilterExtended(facet, term, callback){
-        const { onFilter, filters: contextFilters } = this.props;
-        const { field } = facet;
-        const { key: termKey } = term;
-
-        const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
-        const isUnselecting = !!(statusAndHref.href);
-
-        analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
-            field,
-            'term'              : termKey,
-            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
-            'currentFilters'    : analytics.getStringifiedCurrentFilters(
-                contextFiltersToExpSetFilters(contextFilters || null)
-            ), // 'Existing' filters, or filters at time of action, go here.
-        });
-
-        return onFilter(...arguments);
-    }
-
-    getTermStatus(term, facet){
-        const { filters: contextFilters } = this.props;
-        return getTermFacetStatus(term, facet, contextFilters);
-    }
-
-    renderFacets(){
+    static createFacetComponents(props){
         const {
-            facets, href, schemas, filters,
-            itemTypeForSchemas, windowWidth, windowHeight, termTransformFxn,
+            href, filters, schemas, itemTypeForSchemas, termTransformFxn, onFilter, getTermStatus, facets,
+            windowWidth, windowHeight,
             persistentCount = FacetTermsList.defaultProps.persistentCount,
             separateSingleTermFacets = false
-        } = this.props;
-        const { mounted } = this.state;
+        } = props;
+
+        console.log("CREATING COMPS");
+
+        const commonProps = { // Passed to all Facets
+            href, filters, schemas, itemTypeForSchemas,
+            termTransformFxn, separateSingleTermFacets,
+            onFilter, getTermStatus, windowWidth
+        };
 
         // Ensure each facets has an `order` property and default it to 0 if not.
+        // Also 'merge in terms' for each facet (i.e. add in active filtered terms with 0 results)
         // And then sort by `order`.
         const useFacets = _.sortBy(
             _.map(
                 _.uniq(facets, false, function(f){ return f.field; }), // Ensure facets are unique, field-wise.
                 function(f){
-                    if (typeof f.order !== 'number'){
-                        return _.extend({ 'order' : 0 }, f);
+                    const newFacet = { ...f, order: f.order || 0 };
+                    if (f.aggregation_type === "terms") {
+                        newFacet.terms = mergeTerms(f, filters);
                     }
-                    return f;
+                    return newFacet;
                 }
             ),
             'order'
         );
-
-        const commonProps = { // Passed to all Facets
-            href, filters, schemas, itemTypeForSchemas,
-            mounted, termTransformFxn, separateSingleTermFacets,
-            onFilter: this.onFilterExtended,
-            getTermStatus: this.getTermStatus
-        };
+        const facetLen = useFacets.length;
 
         // We try to initially open some Facets depending on available screen size or props.
         // We might get rid of this feature at some point as the amount of Facets are likely to increase.
@@ -249,17 +213,21 @@ export class FacetList extends React.PureComponent {
             - Math.floor(useFacets.length / 4)
         );
 
-        const facetIndexWherePastXTerms = useFacets.reduce(function(m, facet, index){
-            if (m.end) return m;
-            m.facetIndex = index;
-            if (facet.aggregation_type === "stats") {
-                m.termCount = m.termCount + 2;
-            } else { // Take into account 'view more' button
-                m.termCount = m.termCount + Math.min(facet.terms.length, persistentCount);
+        let facetIndexWherePastXTerms;
+        let currTermCount = 0;
+        for (facetIndexWherePastXTerms = 0; facetIndexWherePastXTerms < facetLen; facetIndexWherePastXTerms++) {
+            if (useFacets[facetIndexWherePastXTerms].aggregation_type === "stats") { // Range Facet (shows 2 'terms' or fields)
+                currTermCount += 2;
+            } else {
+                // Terms; Take into account 'view more' button
+                // Slightly deprecated as doesn;t take into account 'mergeTerms'.
+                // Maybe could move mergeTerms stuff up into here.
+                currTermCount += Math.min(useFacets[facetIndexWherePastXTerms].terms.length, persistentCount);
             }
-            if (m.termCount > maxTermsToShow) m.end = true;
-            return m;
-        }, { facetIndex : 0, termCount: 0, end : false }).facetIndex;
+            if (currTermCount > maxTermsToShow) {
+                break;
+            }
+        }
 
         const rgs = responsiveGridState(windowWidth || null);
 
@@ -273,27 +241,25 @@ export class FacetList extends React.PureComponent {
                 aggregation_type = "terms"
             } = facet;
 
-            // Default Open if mounted and:
-            let defaultFacetOpen = !mounted ? false : !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1));
+            // Default Open if ~~mounted~~ windowWidth not null (aka we mounted) and:
+            const defaultFacetOpen = typeof windowWidth !== "number" ? false : !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1));
 
             if (aggregation_type === "stats") {
                 const { fromVal, toVal } = getRangeValueFromFilters(facet, filters);
                 const anySelected = fromVal !== null || toVal !== null;
                 const isStatic = facet.min === facet.max;
-                defaultFacetOpen = defaultFacetOpen || (!isStatic && _.any(filters || [], function(fltr){
-                    return (fltr.field === facetField + ".from") || (fltr.field === facetField + ".to");
-                })) || false;
+                // defaultFacetOpen = defaultFacetOpen || (!isStatic && _.any(filters || [], function(fltr){
+                //     return (fltr.field === facetField + ".from") || (fltr.field === facetField + ".to");
+                // })) || false;
                 return <RangeFacet {...commonProps} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ defaultFacetOpen, isStatic, grouping, fromVal, toVal }} />;
             }
             if (aggregation_type === "terms"){
-                const terms = mergeTerms(facet, filters); // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL.
-                const termsSelectedCount = countTermsSelected(terms, facet, filters);
+                //const terms = mergeTerms(facet, filters); // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL.
+                const termsSelectedCount = countTermsSelected(facet.terms, facet, filters);
                 const anySelected = termsSelectedCount !== 0;
-                const isStatic = TermsFacet.isStatic(facet);
-                defaultFacetOpen = defaultFacetOpen || (!isStatic && _.any(filters || [], function(fltr){
-                    return fltr.field === facetField;
-                })) || false;
-                return <TermsFacet {...commonProps} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ defaultFacetOpen, isStatic, grouping, terms, termsSelectedCount }} />;
+                const isStatic = !anySelected && facet.terms.length === 1; // TermsFacet.isStatic(facet);
+                //defaultFacetOpen = defaultFacetOpen || anySelected;
+                return <TermsFacet {...commonProps} terms={facet.terms} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ defaultFacetOpen, isStatic, grouping, termsSelectedCount }} />;
             }
             throw new Error("Unknown aggregation_type");
         });
@@ -351,6 +317,95 @@ export class FacetList extends React.PureComponent {
         return componentsToReturn;
     }
 
+    static segmentOutCommonProperties(facetComponents, separateSingleTermFacets){
+        const staticFacetElements = [];
+        let selectableFacetElements = [];
+        if (separateSingleTermFacets){
+            facetComponents.forEach(function(renderedFacet){
+                if (renderedFacet.props.isStatic){
+                    staticFacetElements.push(renderedFacet);
+                } else {
+                    selectableFacetElements.push(renderedFacet);
+                }
+            });
+        } else {
+            selectableFacetElements = facetComponents;
+        }
+        return { selectableFacetElements, staticFacetElements };
+    }
+
+    constructor(props){
+        super(props);
+        this.onFilterExtended = this.onFilterExtended.bind(this);
+        this.getTermStatus = this.getTermStatus.bind(this);
+        this.renderFacets = this.renderFacets.bind(this);
+        this.memoized = {
+            segmentOutCommonProperties: memoize(FacetList.segmentOutCommonProperties),
+            createFacetComponents: memoize(FacetList.createFacetComponents, function(paramSetA, paramSetB){
+                const [ propsA, ...argsA ] = paramSetA;
+                const [ propsB, ...argsB ] = paramSetB;
+                var i;
+                for (i = 0; i < argsA.length; i++) {
+                    if (argsA[i] !== argsB[i]) {
+                        //console.log("CHANGED1", argsA[i], argsB[i])
+                        return false;
+                    }
+                }
+
+                const keys = Object.keys(propsA);
+                const keysLen = keys.length;
+                for (i = 0; i < keysLen; i++) {
+                    if (propsA[keys[i]] !== propsB[keys[i]]) {
+                        //console.log("CHANGED2", keys[i], propsA[keys[i]], propsB[keys[i]])
+                        return false;
+                    }
+                }
+
+                return true;
+            })
+        };
+    }
+
+    /**
+     * Calls props.onFilter after sending analytics.
+     * N.B. When rangeFacet calls onFilter, it creates a `term` with `key` property
+     * as no 'terms' exist when aggregation_type === stats.
+     */
+    onFilterExtended(facet, term, callback){
+        const { onFilter, filters: contextFilters } = this.props;
+        const { field } = facet;
+        const { key: termKey } = term;
+
+        const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+        const isUnselecting = !!(statusAndHref.href);
+
+        analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
+            field,
+            'term'              : termKey,
+            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
+            'currentFilters'    : analytics.getStringifiedCurrentFilters(
+                contextFiltersToExpSetFilters(contextFilters || null)
+            ), // 'Existing' filters, or filters at time of action, go here.
+        });
+
+        return onFilter(...arguments);
+    }
+
+    getTermStatus(term, facet){
+        const { filters: contextFilters } = this.props;
+        return getTermFacetStatus(term, facet, contextFilters);
+    }
+
+    /** Internally calls memoized function to return list of rendered facet JSX components. */
+    renderFacets(){
+        const propsUsed = {
+            ..._.pick(this.props, "facets", "href", "schemas", "filters", "itemTypeForSchemas", "windowWidth", "windowHeight", "termTransformFxn", "persistentCount", "separateSingleTermFacets"),
+            onFilter: this.onFilterExtended,
+            getTermStatus: this.getTermStatus
+        };
+        return this.memoized.createFacetComponents(propsUsed);
+    }
+
     render() {
         const {
             facets = null,
@@ -381,19 +436,7 @@ export class FacetList extends React.PureComponent {
             style: typeof maxHeight === "number" ? { maxHeight } : null
         };
 
-        const staticFacetElements = [];
-        let selectableFacetElements = [];
-        if (separateSingleTermFacets){
-            allFacetElements.forEach(function(renderedFacet){
-                if (renderedFacet.props.isStatic){
-                    staticFacetElements.push(renderedFacet);
-                } else {
-                    selectableFacetElements.push(renderedFacet);
-                }
-            });
-        } else {
-            selectableFacetElements = allFacetElements;
-        }
+        const { staticFacetElements, selectableFacetElements } = this.memoized.segmentOutCommonProperties(allFacetElements, separateSingleTermFacets);
 
         return (
             <div className={"facets-container facets" + (className ? ' ' + className : '')}>

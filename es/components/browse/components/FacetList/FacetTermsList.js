@@ -8,7 +8,7 @@ exports.countTermsSelected = countTermsSelected;
 exports.mergeTerms = mergeTerms;
 exports.CountIndicator = exports.FacetTermsList = exports.Term = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
@@ -27,6 +27,10 @@ var _Fade = require("./../../../ui/Fade");
 var _PartialList = require("./../../../ui/PartialList");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -141,6 +145,20 @@ function mergeTerms(facet, filters) {
 
   return terms.concat(unseenTerms);
 }
+
+function segmentTermComponentsByStatus(termComponents) {
+  var groups = {};
+  termComponents.forEach(function (t) {
+    var status = t.props.status;
+
+    if (!Array.isArray(groups[status])) {
+      groups[status] = [];
+    }
+
+    groups[status].push(t);
+  });
+  return groups;
+}
 /**
  * Used to render individual terms in FacetList.
  */
@@ -218,10 +236,9 @@ function (_React$PureComponent) {
       var _this$props2 = this.props,
           term = _this$props2.term,
           facet = _this$props2.facet,
-          getTermStatus = _this$props2.getTermStatus,
+          status = _this$props2.status,
           termTransformFxn = _this$props2.termTransformFxn;
       var filtering = this.state.filtering;
-      var status = getTermStatus(term, facet);
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
@@ -230,11 +247,7 @@ function (_React$PureComponent) {
         icon = _react["default"].createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
-      } else if (status === 'selected') {
-        icon = _react["default"].createElement("i", {
-          className: "icon icon-times-circle icon-fw fas"
-        });
-      } else if (status === 'omitted') {
+      } else if (status === 'selected' || status === 'omitted') {
         icon = _react["default"].createElement("i", {
           className: "icon icon-minus-circle icon-fw fas"
         });
@@ -299,10 +312,8 @@ function (_React$PureComponent2) {
     _this3 = _possibleConstructorReturn(this, _getPrototypeOf(FacetTermsList).call(this, props));
     _this3.handleOpenToggleClick = _this3.handleOpenToggleClick.bind(_assertThisInitialized(_this3));
     _this3.handleExpandListToggleClick = _this3.handleExpandListToggleClick.bind(_assertThisInitialized(_this3));
-    _this3.renderTerms = _this3.renderTerms.bind(_assertThisInitialized(_this3));
     _this3.state = {
       'facetOpen': typeof props.defaultFacetOpen === 'boolean' ? props.defaultFacetOpen : true,
-      'facetClosing': false,
       'expanded': false
     };
     return _this3;
@@ -317,14 +328,16 @@ function (_React$PureComponent2) {
           anySelected = _this$props3.anyTermsSelected,
           mounted = _this$props3.mounted,
           defaultFacetOpen = _this$props3.defaultFacetOpen,
-          isStatic = _this$props3.isStatic;
+          isStatic = _this$props3.isStatic,
+          windowWidth = _this$props3.windowWidth;
       var pastMounted = pastProps.mounted,
           pastDefaultOpen = pastProps.defaultFacetOpen,
-          pastStatic = pastProps.isStatic;
+          pastStatic = pastProps.isStatic,
+          pastWidth = pastProps.windowWidth;
       this.setState(function (_ref2) {
         var currFacetOpen = _ref2.facetOpen;
 
-        if (!pastMounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefaultOpen) {
+        if (pastWidth === null && typeof windowWidth === "number" && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefaultOpen) {
           return {
             'facetOpen': true
           };
@@ -354,127 +367,51 @@ function (_React$PureComponent2) {
   }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
-      var _this5 = this;
-
       e.preventDefault();
       this.setState(function (_ref3) {
         var facetOpen = _ref3.facetOpen;
-
-        if (!facetOpen) {
-          return {
-            'facetOpen': true
-          };
-        } else {
-          return {
-            'facetClosing': true
-          };
-        }
-      }, function () {
-        setTimeout(function () {
-          _this5.setState(function (_ref4) {
-            var facetOpen = _ref4.facetOpen,
-                facetClosing = _ref4.facetClosing;
-
-            if (facetClosing) {
-              return {
-                'facetOpen': false,
-                'facetClosing': false
-              };
-            }
-
-            return null;
-          });
-        }, 350);
+        return {
+          'facetOpen': !facetOpen
+        };
       });
     }
   }, {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref5) {
-        var expanded = _ref5.expanded;
+      this.setState(function (_ref4) {
+        var expanded = _ref4.expanded;
         return {
           'expanded': !expanded
         };
       });
     }
   }, {
-    key: "renderTerms",
-    value: function renderTerms(terms) {
-      var _this6 = this;
-
-      var _this$props4 = this.props,
-          facet = _this$props4.facet,
-          persistentCount = _this$props4.persistentCount,
-          onTermClick = _this$props4.onTermClick;
-      var expanded = this.state.expanded;
-
-      var makeTermComponent = function (term) {
-        return _react["default"].createElement(Term, _extends({}, _this6.props, {
-          onClick: onTermClick,
-          key: term.key,
-          term: term,
-          total: facet.total
-        }));
-      };
-
-      if (terms.length > persistentCount) {
-        var persistentTerms = terms.slice(0, persistentCount);
-        var collapsibleTerms = terms.slice(persistentCount);
-        var remainingTermsCount = !expanded ? _underscore["default"].reduce(collapsibleTerms, function (m, term) {
-          return m + (term.doc_count || 0);
-        }, 0) : null;
-        var expandButtonTitle;
-
-        if (expanded) {
-          expandButtonTitle = _react["default"].createElement("span", null, _react["default"].createElement("i", {
-            className: "icon icon-fw icon-minus fas"
-          }), " Collapse");
-        } else {
-          expandButtonTitle = _react["default"].createElement("span", null, _react["default"].createElement("i", {
-            className: "icon icon-fw icon-plus fas"
-          }), " View ", terms.length - persistentCount, " More", _react["default"].createElement("span", {
-            className: "pull-right"
-          }, remainingTermsCount));
-        }
-
-        return _react["default"].createElement("div", {
-          className: "facet-list"
-        }, _react["default"].createElement(_PartialList.PartialList, {
-          open: expanded,
-          persistent: _underscore["default"].map(persistentTerms, makeTermComponent),
-          collapsible: _underscore["default"].map(collapsibleTerms, makeTermComponent)
-        }), _react["default"].createElement("div", {
-          className: "view-more-button",
-          onClick: this.handleExpandListToggleClick
-        }, expandButtonTitle));
-      } else {
-        return _react["default"].createElement("div", {
-          className: "facet-list"
-        }, _underscore["default"].map(terms, makeTermComponent));
-      }
-    }
-  }, {
     key: "render",
     value: function render() {
-      var _this$props5 = this.props,
-          facet = _this$props5.facet,
-          terms = _this$props5.terms,
-          tooltip = _this$props5.tooltip,
-          title = _this$props5.title,
-          isStatic = _this$props5.isStatic,
-          anySelected = _this$props5.anyTermsSelected,
-          termsSelectedCount = _this$props5.termsSelectedCount;
+      var _this$props4 = this.props,
+          facet = _this$props4.facet,
+          terms = _this$props4.terms,
+          tooltip = _this$props4.tooltip,
+          title = _this$props4.title,
+          isStatic = _this$props4.isStatic,
+          anySelected = _this$props4.anyTermsSelected,
+          termsSelectedCount = _this$props4.termsSelectedCount,
+          persistentCount = _this$props4.persistentCount,
+          onTermClick = _this$props4.onTermClick,
+          getTermStatus = _this$props4.getTermStatus,
+          termTransformFxn = _this$props4.termTransformFxn;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
-          facetClosing = _this$state.facetClosing;
+          expanded = _this$state.expanded;
       var termsLen = terms.length;
+      var allTermsSelected = termsSelectedCount === termsLen;
       var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
 
       if (isStatic || termsLen === 1) {
         indicator = // Small indicator to help represent how many terms there are available for this Facet.
         _react["default"].createElement(_Fade.Fade, {
-          "in": facetClosing || !facetOpen
+          "in": !facetOpen
         }, _react["default"].createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "No useful options (1 total)" + (anySelected ? "; is selected" : ""),
@@ -487,7 +424,7 @@ function (_React$PureComponent2) {
       } else {
         indicator = // Small indicator to help represent how many terms there are available for this Facet.
         _react["default"].createElement(_Fade.Fade, {
-          "in": facetClosing || !facetOpen
+          "in": !facetOpen
         }, _react["default"].createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "".concat(termsLen, " options with ").concat(termsSelectedCount, " selected"),
@@ -501,7 +438,7 @@ function (_React$PureComponent2) {
 
 
       return _react["default"].createElement("div", {
-        className: "facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
+        className: "facet" + (facetOpen || allTermsSelected ? ' open' : ' closed'),
         "data-field": facet.field
       }, _react["default"].createElement("h5", {
         className: "facet-title",
@@ -509,15 +446,24 @@ function (_React$PureComponent2) {
       }, _react["default"].createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, _react["default"].createElement("i", {
-        className: "icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")
+        className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
       })), _react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, _react["default"].createElement("span", {
         "data-tip": tooltip,
         "data-place": "right"
-      }, title)), indicator), _react["default"].createElement(_Collapse.Collapse, {
-        "in": facetOpen && !facetClosing
-      }, this.renderTerms(terms)));
+      }, title)), indicator), _react["default"].createElement(ListOfTerms, _extends({
+        facet: facet,
+        facetOpen: facetOpen,
+        terms: terms,
+        persistentCount: persistentCount,
+        onTermClick: onTermClick,
+        expanded: expanded,
+        getTermStatus: getTermStatus,
+        termTransformFxn: termTransformFxn
+      }, {
+        onToggleExpanded: this.handleExpandListToggleClick
+      })));
     }
   }]);
 
@@ -529,21 +475,155 @@ FacetTermsList.defaultProps = {
   'persistentCount': 10
 };
 
-var CountIndicator = _react["default"].memo(function (_ref6) {
-  var _ref6$count = _ref6.count,
-      count = _ref6$count === void 0 ? 1 : _ref6$count,
-      _ref6$countActive = _ref6.countActive,
-      countActive = _ref6$countActive === void 0 ? 0 : _ref6$countActive,
-      _ref6$height = _ref6.height,
-      height = _ref6$height === void 0 ? 16 : _ref6$height,
-      _ref6$width = _ref6.width,
-      width = _ref6$width === void 0 ? 40 : _ref6$width;
+var ListOfTerms = _react["default"].memo(function (props) {
+  var facet = props.facet,
+      facetOpen = props.facetOpen,
+      facetClosing = props.facetClosing,
+      terms = props.terms,
+      persistentCount = props.persistentCount,
+      onTermClick = props.onTermClick,
+      expanded = props.expanded,
+      onToggleExpanded = props.onToggleExpanded,
+      getTermStatus = props.getTermStatus,
+      termTransformFxn = props.termTransformFxn;
+  /** Create term components and sort by status (selected->omitted->unselected) */
+
+  var _useMemo = (0, _react.useMemo)(function () {
+    var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
+      return _react["default"].createElement(Term, _extends({
+        facet: facet,
+        term: term,
+        termTransformFxn: termTransformFxn
+      }, {
+        onClick: onTermClick,
+        key: term.key,
+        status: getTermStatus(term, facet)
+      }));
+    })),
+        _segmentTermComponent2 = _segmentTermComponent.selected,
+        selectedTermComponents = _segmentTermComponent2 === void 0 ? [] : _segmentTermComponent2,
+        _segmentTermComponent3 = _segmentTermComponent.omitted,
+        omittedTermComponents = _segmentTermComponent3 === void 0 ? [] : _segmentTermComponent3,
+        _segmentTermComponent4 = _segmentTermComponent.none,
+        unselectedTermComponents = _segmentTermComponent4 === void 0 ? [] : _segmentTermComponent4;
+
+    var selectedLen = selectedTermComponents.length;
+    var omittedLen = omittedTermComponents.length;
+    var unselectedLen = unselectedTermComponents.length;
+    var totalLen = selectedLen + omittedLen + unselectedLen;
+    var termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
+    var activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
+    var retObj = {
+      termComponents: termComponents,
+      activeTermComponents: activeTermComponents,
+      unselectedTermComponents: unselectedTermComponents,
+      selectedLen: selectedLen,
+      omittedLen: omittedLen,
+      unselectedLen: unselectedLen,
+      totalLen: totalLen
+    };
+
+    if (totalLen <= Math.max(persistentCount, selectedLen + omittedLen)) {
+      return retObj;
+    }
+
+    retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
+
+    var i;
+
+    for (i = selectedLen + omittedLen; i < persistentCount; i++) {
+      retObj.persistentTerms.push(termComponents[i]);
+    }
+
+    retObj.collapsibleTerms = termComponents.slice(i);
+    retObj.collapsibleTermsCount = totalLen - i;
+    retObj.collapsibleTermsItemCount = retObj.collapsibleTerms.reduce(function (m, termComponent) {
+      return m + (termComponent.props.term.doc_count || 0);
+    }, 0);
+    return retObj;
+  }, [terms, persistentCount]),
+      termComponents = _useMemo.termComponents,
+      activeTermComponents = _useMemo.activeTermComponents,
+      unselectedTermComponents = _useMemo.unselectedTermComponents,
+      totalLen = _useMemo.totalLen,
+      selectedLen = _useMemo.selectedLen,
+      omittedLen = _useMemo.omittedLen,
+      unselectedLen = _useMemo.unselectedLen,
+      _useMemo$persistentTe = _useMemo.persistentTerms,
+      persistentTerms = _useMemo$persistentTe === void 0 ? null : _useMemo$persistentTe,
+      _useMemo$collapsibleT = _useMemo.collapsibleTerms,
+      collapsibleTerms = _useMemo$collapsibleT === void 0 ? null : _useMemo$collapsibleT,
+      _useMemo$collapsibleT2 = _useMemo.collapsibleTermsCount,
+      collapsibleTermsCount = _useMemo$collapsibleT2 === void 0 ? 0 : _useMemo$collapsibleT2,
+      _useMemo$collapsibleT3 = _useMemo.collapsibleTermsItemCount,
+      collapsibleTermsItemCount = _useMemo$collapsibleT3 === void 0 ? 0 : _useMemo$collapsibleT3;
+
+  if (Array.isArray(collapsibleTerms)) {
+    var expandButtonTitle;
+
+    if (expanded) {
+      expandButtonTitle = _react["default"].createElement("span", null, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-minus fas"
+      }), " Collapse");
+    } else {
+      expandButtonTitle = _react["default"].createElement("span", null, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-plus fas"
+      }), " View ", collapsibleTermsCount, " More", _react["default"].createElement("span", {
+        className: "pull-right"
+      }, collapsibleTermsItemCount));
+    }
+
+    return _react["default"].createElement("div", {
+      className: "facet-list",
+      key: "fl",
+      "data-any-active": !!(selectedLen || omittedLen),
+      "data-open": facetOpen
+    }, _react["default"].createElement(_PartialList.PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(_PartialList.PartialList, {
+        className: "mb-0",
+        open: expanded,
+        persistent: persistentTerms,
+        collapsible: collapsibleTerms
+      }), _react["default"].createElement("div", {
+        className: "pt-08 pb-0"
+      }, _react["default"].createElement("div", {
+        className: "view-more-button",
+        onClick: onToggleExpanded
+      }, expandButtonTitle)))
+    }));
+  } else {
+    return _react["default"].createElement("div", {
+      className: "facet-list",
+      key: "fl",
+      "data-any-active": !!(selectedLen || omittedLen),
+      "data-open": facetOpen
+    }, _react["default"].createElement(_PartialList.PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: unselectedTermComponents
+    }));
+  }
+});
+
+var CountIndicator = _react["default"].memo(function (_ref5) {
+  var _ref5$count = _ref5.count,
+      count = _ref5$count === void 0 ? 1 : _ref5$count,
+      _ref5$countActive = _ref5.countActive,
+      countActive = _ref5$countActive === void 0 ? 0 : _ref5$countActive,
+      _ref5$height = _ref5.height,
+      height = _ref5$height === void 0 ? 16 : _ref5$height,
+      _ref5$width = _ref5.width,
+      width = _ref5$width === void 0 ? 40 : _ref5$width;
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = (0, _utilities.stackDotsInContainer)(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref7, idx) {
-    var _ref8 = _slicedToArray(_ref7, 2),
-        x = _ref8[0],
-        y = _ref8[1];
+  var dots = dotCoords.map(function (_ref6, idx) {
+    var _ref7 = _slicedToArray(_ref6, 2),
+        x = _ref7[0],
+        y = _ref7[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 
@@ -556,7 +636,7 @@ var CountIndicator = _react["default"].memo(function (_ref6) {
       style: {
         opacity: 1 - colIdx * .125
       },
-      className: count - idx <= countActive ? "active" : null
+      className: dotCountToShow - idx <= countActive ? "active" : null
     });
   });
   return _react["default"].createElement("svg", {

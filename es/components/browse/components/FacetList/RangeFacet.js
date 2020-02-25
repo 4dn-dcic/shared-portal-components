@@ -229,13 +229,13 @@ function (_React$PureComponent) {
       var _this2 = this;
 
       var _this$props = this.props,
-          mounted = _this$props.mounted,
+          windowWidth = _this$props.windowWidth,
           defaultFacetOpen = _this$props.defaultFacetOpen,
           isStatic = _this$props.isStatic;
       this.setState(function (_ref2) {
         var currFacetOpen = _ref2.facetOpen;
 
-        if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
+        if (pastProps.windowWidth === null && typeof windowWidth === "number" && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
           return {
             'facetOpen': true
           };
@@ -271,9 +271,6 @@ function (_React$PureComponent) {
 
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
-
-        _patchedConsole.patchedConsoleInstance.log("AAAAA", fromVal, value, facet);
-
         this.setState(function (_ref3) {
           var toVal = _ref3.toVal;
 
@@ -407,7 +404,6 @@ function (_React$PureComponent) {
           number_step = facet.number_step;
       var _this$state = this.state,
           facetOpen = _this$state.facetOpen,
-          facetClosing = _this$state.facetClosing,
           fromVal = _this$state.fromVal,
           toVal = _this$state.toVal;
 
@@ -415,8 +411,9 @@ function (_React$PureComponent) {
           fromIncrements = _this$memoized$validI.fromIncrements,
           toIncrements = _this$memoized$validI.toIncrements;
 
+      var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
       return _react["default"].createElement("div", {
-        className: "facet range-facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
+        className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
         "data-field": facet.field
       }, _react["default"].createElement("h5", {
         className: "facet-title",
@@ -424,14 +421,14 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, _react["default"].createElement("i", {
-        className: "icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")
+        className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "chevron-circle-right fas" : isOpen ? "minus fas" : "plus fas")
       })), _react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, _react["default"].createElement("span", {
         "data-tip": tooltip,
         "data-place": "right"
       }, propTitle || facetTitle || field)), _react["default"].createElement(_reactBootstrap.Fade, {
-        "in": facetClosing || !facetOpen
+        "in": !isOpen
       }, _react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
       }, isStatic ? _react["default"].createElement("i", {
@@ -442,7 +439,7 @@ function (_React$PureComponent) {
       }) : _react["default"].createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas"
       })))), _react["default"].createElement(_Collapse.Collapse, {
-        "in": facetOpen && !facetClosing
+        "in": isOpen
       }, _react["default"].createElement("div", {
         className: "inner-panel"
       }, _react["default"].createElement("div", {
