@@ -202,40 +202,21 @@ export class FacetTermsList extends React.PureComponent {
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
-        this.state = {
-            'facetOpen'     : typeof props.defaultFacetOpen === 'boolean' ? props.defaultFacetOpen : true,
-            'expanded'      : false
-        };
+        this.state = { 'expanded' : false };
     }
 
-    componentDidUpdate(pastProps, pastState){
-        const { anyTermsSelected: anySelected, mounted, defaultFacetOpen, isStatic, windowWidth } = this.props;
-        const { mounted: pastMounted, defaultFacetOpen: pastDefaultOpen, isStatic: pastStatic, windowWidth: pastWidth } = pastProps;
-
-        this.setState(({ facetOpen: currFacetOpen }) => {
-            if (pastWidth === null && typeof windowWidth === "number" && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefaultOpen) {
-                return { 'facetOpen' : true };
-            }
-            if (defaultFacetOpen === true && !pastDefaultOpen && !currFacetOpen){
-                return { 'facetOpen' : true };
-            }
-            if (currFacetOpen && isStatic && !pastStatic && !anySelected){
-                return { 'facetOpen' : false };
-            }
-            return null;
-        }, ()=>{
-            const { facetOpen } = this.state;
-            if (pastState.facetOpen !== facetOpen){
-                ReactTooltip.rebuild();
-            }
-        });
+    componentDidUpdate(pastProps){
+        const { facetOpen } = this.props;
+        const { facetOpen: prevOpen } = pastProps;
+        if (prevOpen !== facetOpen) {
+            ReactTooltip.rebuild();
+        }
     }
 
     handleOpenToggleClick(e) {
         e.preventDefault();
-        this.setState(function({ facetOpen }){
-            return { 'facetOpen' : !facetOpen };
-        });
+        const { onToggleOpen, facet: { field }, facetOpen = false } = this.props;
+        onToggleOpen(field, !facetOpen);
     }
 
     handleExpandListToggleClick(e){
@@ -257,9 +238,10 @@ export class FacetTermsList extends React.PureComponent {
             persistentCount,
             onTermClick,
             getTermStatus,
-            termTransformFxn
+            termTransformFxn,
+            facetOpen
         } = this.props;
-        const { facetOpen, expanded } = this.state;
+        const { expanded } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
         let indicator;

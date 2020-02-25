@@ -137,33 +137,18 @@ export class RangeFacet extends React.PureComponent {
         };
 
         this.state = {
-            facetOpen : props.defaultFacetOpen || false,
             facetClosing: false,
             fromVal: props.fromVal,
             toVal: props.toVal
         };
     }
 
-    componentDidUpdate(pastProps, pastState){
-        const { windowWidth, defaultFacetOpen, isStatic } = this.props;
-
-        this.setState(function({ facetOpen: currFacetOpen }){
-            if (pastProps.windowWidth === null && typeof windowWidth === "number" && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
-                return { 'facetOpen' : true };
-            }
-            if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
-                return { 'facetOpen' : true };
-            }
-            if (currFacetOpen && isStatic && !pastProps.isStatic){
-                return { 'facetOpen' : false };
-            }
-            return null;
-        }, ()=>{
-            const { facetOpen } = this.state;
-            if (pastState.facetOpen !== facetOpen){
-                ReactTooltip.rebuild();
-            }
-        });
+    componentDidUpdate(pastProps){
+        const { facetOpen } = this.props;
+        const { facetOpen: prevOpen } = pastProps;
+        if (prevOpen !== facetOpen) {
+            ReactTooltip.rebuild();
+        }
     }
 
     setFrom(value, callback){
@@ -242,16 +227,16 @@ export class RangeFacet extends React.PureComponent {
         this.setTo(null, this.performUpdateTo);
     }
 
-    handleOpenToggleClick(){
-        this.setState(function({ facetOpen }){
-            return { facetOpen: !facetOpen };
-        });
+    handleOpenToggleClick(e) {
+        e.preventDefault();
+        const { onToggleOpen, facet: { field }, facetOpen = false } = this.props;
+        onToggleOpen(field, !facetOpen);
     }
 
     render(){
-        const { facet, title: propTitle, termTransformFxn, isStatic, fromVal: savedFromVal, toVal: savedToVal } = this.props;
-        const { field, min, max, title: facetTitle = null, description: tooltip = null, number_step } = facet;
-        const { facetOpen, fromVal, toVal } = this.state;
+        const { facet, title: propTitle, termTransformFxn, isStatic, fromVal: savedFromVal, toVal: savedToVal, facetOpen } = this.props;
+        const { field, min, max, title: facetTitle = null, description: tooltip = null } = facet;
+        const { fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
         const title = propTitle || facetTitle || field;
 

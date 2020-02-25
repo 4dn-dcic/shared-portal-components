@@ -215,7 +215,6 @@ function (_React$PureComponent) {
       validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements)
     };
     _this.state = {
-      facetOpen: props.defaultFacetOpen || false,
       facetClosing: false,
       fromVal: props.fromVal,
       toVal: props.toVal
@@ -225,42 +224,13 @@ function (_React$PureComponent) {
 
   _createClass(RangeFacet, [{
     key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps, pastState) {
-      var _this2 = this;
+    value: function componentDidUpdate(pastProps) {
+      var facetOpen = this.props.facetOpen;
+      var prevOpen = pastProps.facetOpen;
 
-      var _this$props = this.props,
-          windowWidth = _this$props.windowWidth,
-          defaultFacetOpen = _this$props.defaultFacetOpen,
-          isStatic = _this$props.isStatic;
-      this.setState(function (_ref2) {
-        var currFacetOpen = _ref2.facetOpen;
-
-        if (pastProps.windowWidth === null && typeof windowWidth === "number" && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
-          return {
-            'facetOpen': true
-          };
-        }
-
-        if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen) {
-          return {
-            'facetOpen': true
-          };
-        }
-
-        if (currFacetOpen && isStatic && !pastProps.isStatic) {
-          return {
-            'facetOpen': false
-          };
-        }
-
-        return null;
-      }, function () {
-        var facetOpen = _this2.state.facetOpen;
-
-        if (pastState.facetOpen !== facetOpen) {
-          _reactTooltip["default"].rebuild();
-        }
-      });
+      if (prevOpen !== facetOpen) {
+        _reactTooltip["default"].rebuild();
+      }
     }
   }, {
     key: "setFrom",
@@ -271,8 +241,8 @@ function (_React$PureComponent) {
 
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
-        this.setState(function (_ref3) {
-          var toVal = _ref3.toVal;
+        this.setState(function (_ref2) {
+          var toVal = _ref2.toVal;
 
           if (fromVal === null || fromVal === min) {
             return {
@@ -309,8 +279,8 @@ function (_React$PureComponent) {
 
       try {
         var toVal = RangeFacet.parseAndValidate(facet, value);
-        this.setState(function (_ref4) {
-          var fromVal = _ref4.fromVal;
+        this.setState(function (_ref3) {
+          var fromVal = _ref3.fromVal;
 
           if (toVal === null || toVal === max) {
             return {
@@ -341,9 +311,9 @@ function (_React$PureComponent) {
   }, {
     key: "performUpdateFrom",
     value: function performUpdateFrom() {
-      var _this$props2 = this.props,
-          onFilter = _this$props2.onFilter,
-          facet = _this$props2.facet;
+      var _this$props = this.props,
+          onFilter = _this$props.onFilter,
+          facet = _this$props.facet;
       var fromVal = this.state.fromVal;
       onFilter(_objectSpread({}, facet, {
         field: facet.field + ".from"
@@ -354,9 +324,9 @@ function (_React$PureComponent) {
   }, {
     key: "performUpdateTo",
     value: function performUpdateTo() {
-      var _this$props3 = this.props,
-          onFilter = _this$props3.onFilter,
-          facet = _this$props3.facet;
+      var _this$props2 = this.props,
+          onFilter = _this$props2.onFilter,
+          facet = _this$props2.facet;
       var toVal = this.state.toVal;
       onFilter(_objectSpread({}, facet, {
         field: facet.field + ".to"
@@ -376,13 +346,14 @@ function (_React$PureComponent) {
     }
   }, {
     key: "handleOpenToggleClick",
-    value: function handleOpenToggleClick() {
-      this.setState(function (_ref5) {
-        var facetOpen = _ref5.facetOpen;
-        return {
-          facetOpen: !facetOpen
-        };
-      });
+    value: function handleOpenToggleClick(e) {
+      e.preventDefault();
+      var _this$props3 = this.props,
+          onToggleOpen = _this$props3.onToggleOpen,
+          field = _this$props3.facet.field,
+          _this$props3$facetOpe = _this$props3.facetOpen,
+          facetOpen = _this$props3$facetOpe === void 0 ? false : _this$props3$facetOpe;
+      onToggleOpen(field, !facetOpen);
     }
   }, {
     key: "render",
@@ -393,17 +364,16 @@ function (_React$PureComponent) {
           termTransformFxn = _this$props4.termTransformFxn,
           isStatic = _this$props4.isStatic,
           savedFromVal = _this$props4.fromVal,
-          savedToVal = _this$props4.toVal;
+          savedToVal = _this$props4.toVal,
+          facetOpen = _this$props4.facetOpen;
       var field = facet.field,
           min = facet.min,
           max = facet.max,
           _facet$title = facet.title,
           facetTitle = _facet$title === void 0 ? null : _facet$title,
           _facet$description = facet.description,
-          tooltip = _facet$description === void 0 ? null : _facet$description,
-          number_step = facet.number_step;
+          tooltip = _facet$description === void 0 ? null : _facet$description;
       var _this$state = this.state,
-          facetOpen = _this$state.facetOpen,
           fromVal = _this$state.fromVal,
           toVal = _this$state.toVal;
 
@@ -507,15 +477,15 @@ function (_React$PureComponent2) {
   _inherits(RangeDropdown, _React$PureComponent2);
 
   function RangeDropdown(props) {
-    var _this3;
+    var _this2;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(RangeDropdown).call(this, props));
-    _this3.onTextInputChange = _this3.onTextInputChange.bind(_assertThisInitialized(_this3));
-    _this3.onDropdownSelect = _this3.onDropdownSelect.bind(_assertThisInitialized(_this3));
-    _this3.onTextInputFormSubmit = _this3.onTextInputFormSubmit.bind(_assertThisInitialized(_this3));
-    return _this3;
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(RangeDropdown).call(this, props));
+    _this2.onTextInputChange = _this2.onTextInputChange.bind(_assertThisInitialized(_this2));
+    _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
+    _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
+    return _this2;
   }
 
   _createClass(RangeDropdown, [{

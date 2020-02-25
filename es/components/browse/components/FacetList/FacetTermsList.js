@@ -313,7 +313,6 @@ function (_React$PureComponent2) {
     _this3.handleOpenToggleClick = _this3.handleOpenToggleClick.bind(_assertThisInitialized(_this3));
     _this3.handleExpandListToggleClick = _this3.handleExpandListToggleClick.bind(_assertThisInitialized(_this3));
     _this3.state = {
-      'facetOpen': typeof props.defaultFacetOpen === 'boolean' ? props.defaultFacetOpen : true,
       'expanded': false
     };
     return _this3;
@@ -321,66 +320,31 @@ function (_React$PureComponent2) {
 
   _createClass(FacetTermsList, [{
     key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps, pastState) {
-      var _this4 = this;
+    value: function componentDidUpdate(pastProps) {
+      var facetOpen = this.props.facetOpen;
+      var prevOpen = pastProps.facetOpen;
 
-      var _this$props3 = this.props,
-          anySelected = _this$props3.anyTermsSelected,
-          mounted = _this$props3.mounted,
-          defaultFacetOpen = _this$props3.defaultFacetOpen,
-          isStatic = _this$props3.isStatic,
-          windowWidth = _this$props3.windowWidth;
-      var pastMounted = pastProps.mounted,
-          pastDefaultOpen = pastProps.defaultFacetOpen,
-          pastStatic = pastProps.isStatic,
-          pastWidth = pastProps.windowWidth;
-      this.setState(function (_ref2) {
-        var currFacetOpen = _ref2.facetOpen;
-
-        if (pastWidth === null && typeof windowWidth === "number" && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefaultOpen) {
-          return {
-            'facetOpen': true
-          };
-        }
-
-        if (defaultFacetOpen === true && !pastDefaultOpen && !currFacetOpen) {
-          return {
-            'facetOpen': true
-          };
-        }
-
-        if (currFacetOpen && isStatic && !pastStatic && !anySelected) {
-          return {
-            'facetOpen': false
-          };
-        }
-
-        return null;
-      }, function () {
-        var facetOpen = _this4.state.facetOpen;
-
-        if (pastState.facetOpen !== facetOpen) {
-          _reactTooltip["default"].rebuild();
-        }
-      });
+      if (prevOpen !== facetOpen) {
+        _reactTooltip["default"].rebuild();
+      }
     }
   }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref3) {
-        var facetOpen = _ref3.facetOpen;
-        return {
-          'facetOpen': !facetOpen
-        };
-      });
+      var _this$props3 = this.props,
+          onToggleOpen = _this$props3.onToggleOpen,
+          field = _this$props3.facet.field,
+          _this$props3$facetOpe = _this$props3.facetOpen,
+          facetOpen = _this$props3$facetOpe === void 0 ? false : _this$props3$facetOpe;
+      onToggleOpen(field, !facetOpen);
     }
   }, {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref4) {
-        var expanded = _ref4.expanded;
+      this.setState(function (_ref2) {
+        var expanded = _ref2.expanded;
         return {
           'expanded': !expanded
         };
@@ -400,10 +364,9 @@ function (_React$PureComponent2) {
           persistentCount = _this$props4.persistentCount,
           onTermClick = _this$props4.onTermClick,
           getTermStatus = _this$props4.getTermStatus,
-          termTransformFxn = _this$props4.termTransformFxn;
-      var _this$state = this.state,
-          facetOpen = _this$state.facetOpen,
-          expanded = _this$state.expanded;
+          termTransformFxn = _this$props4.termTransformFxn,
+          facetOpen = _this$props4.facetOpen;
+      var expanded = this.state.expanded;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
       var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
@@ -609,21 +572,21 @@ var ListOfTerms = _react["default"].memo(function (props) {
   }
 });
 
-var CountIndicator = _react["default"].memo(function (_ref5) {
-  var _ref5$count = _ref5.count,
-      count = _ref5$count === void 0 ? 1 : _ref5$count,
-      _ref5$countActive = _ref5.countActive,
-      countActive = _ref5$countActive === void 0 ? 0 : _ref5$countActive,
-      _ref5$height = _ref5.height,
-      height = _ref5$height === void 0 ? 16 : _ref5$height,
-      _ref5$width = _ref5.width,
-      width = _ref5$width === void 0 ? 40 : _ref5$width;
+var CountIndicator = _react["default"].memo(function (_ref3) {
+  var _ref3$count = _ref3.count,
+      count = _ref3$count === void 0 ? 1 : _ref3$count,
+      _ref3$countActive = _ref3.countActive,
+      countActive = _ref3$countActive === void 0 ? 0 : _ref3$countActive,
+      _ref3$height = _ref3.height,
+      height = _ref3$height === void 0 ? 16 : _ref3$height,
+      _ref3$width = _ref3.width,
+      width = _ref3$width === void 0 ? 40 : _ref3$width;
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = (0, _utilities.stackDotsInContainer)(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref6, idx) {
-    var _ref7 = _slicedToArray(_ref6, 2),
-        x = _ref7[0],
-        y = _ref7[1];
+  var dots = dotCoords.map(function (_ref4, idx) {
+    var _ref5 = _slicedToArray(_ref4, 2),
+        x = _ref5[0],
+        y = _ref5[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 

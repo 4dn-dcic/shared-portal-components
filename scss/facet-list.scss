@@ -215,7 +215,6 @@ $facetlist-term-block-height: default !default;
         h5.facet-title {
             margin: 0 0 3px;
             font-weight: 500;
-            text-shadow: 0 0 0;
             line-height: inherit;
             height: 40px;
             @include font-size($facetlist-facet-font-size);
@@ -229,8 +228,13 @@ $facetlist-term-block-height: default !default;
                 }
             }
 
+            > i.icon-plus {
+                text-shadow: 0 0 0;
+            }
+
             > span {
                 line-height: 1;
+                text-shadow: 0 0 0;
             }
         }
 
