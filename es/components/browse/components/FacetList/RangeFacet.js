@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getValueFromFilters = getValueFromFilters;
+exports.getRangeValuesFromFiltersByField = getRangeValuesFromFiltersByField;
 exports.RangeFacet = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -13,8 +13,6 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 var _underscore = _interopRequireDefault(require("underscore"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _reactBootstrap = require("react-bootstrap");
 
@@ -58,33 +56,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function getValueFromFilters(facet) {
+function getRangeValuesFromFiltersByField() {
+  var facets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var filters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-  var field = facet.field;
+  var facetsByFilterField = {};
+  var valuesByField = {};
+  facets.forEach(function (f) {
+    if (f.aggregation_type !== "stats") {
+      return; // Skip
+    }
 
-  var toFilter = _underscore["default"].findWhere(filters, {
-    field: field + ".to"
+    facetsByFilterField[f.field + ".to"] = f;
+    facetsByFilterField[f.field + ".from"] = f;
   });
+  filters.forEach(function (f) {
+    var filterField = f.field,
+        strValue = f.term; // filterField would have .to and .from appended.
 
-  var fromFilter = _underscore["default"].findWhere(filters, {
-    field: field + ".from"
+    var facet = facetsByFilterField[filterField];
+    if (!facet) return; // Skip, not range facet.
+
+    var facetField = facet.field;
+    valuesByField[facetField] = valuesByField[facetField] || {};
+    var value = RangeFacet.parseNumber(facet, strValue);
+
+    if (facetField + ".to" === filterField) {
+      valuesByField[facetField].toVal = value;
+    } else if (facetField + ".from" === filterField) {
+      valuesByField[facetField].fromVal = value;
+    } else {
+      throw new Error("Unexpected facet/filter");
+    }
   });
-
-  var fromVal = null;
-  var toVal = null;
-
-  if (fromFilter) {
-    fromVal = RangeFacet.parseNumber(facet, fromFilter.term);
-  }
-
-  if (toFilter) {
-    toVal = RangeFacet.parseNumber(facet, toFilter.term);
-  }
-
-  return {
-    fromVal: fromVal,
-    toVal: toVal
-  };
+  return valuesByField;
 }
 
 var RangeFacet =
@@ -223,16 +227,6 @@ function (_React$PureComponent) {
   }
 
   _createClass(RangeFacet, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps) {
-      var facetOpen = this.props.facetOpen;
-      var prevOpen = pastProps.facetOpen;
-
-      if (prevOpen !== facetOpen) {
-        _reactTooltip["default"].rebuild();
-      }
-    }
-  }, {
     key: "setFrom",
     value: function setFrom(value, callback) {
       var facet = this.props.facet;
@@ -391,7 +385,7 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "chevron-circle-right fas" : isOpen ? "minus fas" : "plus fas")
+        className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
       })), _react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, _react["default"].createElement("span", {

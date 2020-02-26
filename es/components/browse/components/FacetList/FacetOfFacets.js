@@ -11,8 +11,6 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
 var _Collapse = require("./../../../ui/Collapse");
 
 var _Fade = require("./../../../ui/Fade");
@@ -54,6 +52,7 @@ function (_React$PureComponent) {
         var anySelected = renderedFacet.props.anyTermsSelected;
 
         if (anySelected) {
+          console.log(renderedFacet);
           return true;
         }
       }
@@ -76,16 +75,6 @@ function (_React$PureComponent) {
   }
 
   _createClass(FacetOfFacets, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps) {
-      var facetOpen = this.props.facetOpen;
-      var prevOpen = pastProps.facetOpen;
-
-      if (prevOpen !== facetOpen) {
-        _reactTooltip["default"].rebuild();
-      }
-    }
-  }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
       e.preventDefault();
@@ -101,7 +90,7 @@ function (_React$PureComponent) {
     value: function render() {
       var _this$props2 = this.props,
           title = _this$props2.title,
-          renderedFacets = _this$props2.facets,
+          renderedFacets = _this$props2.children,
           tooltip = _this$props2.tooltip,
           facetOpen = _this$props2.facetOpen,
           _this$props2$openFace = _this$props2.openFacets,

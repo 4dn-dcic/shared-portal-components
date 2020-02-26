@@ -5,7 +5,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import ReactTooltip from 'react-tooltip';
 import { DropdownButton, DropdownItem, Fade } from 'react-bootstrap';
 
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
@@ -13,19 +12,32 @@ import { patchedConsoleInstance as console } from './../../../util/patched-conso
 import { Collapse } from './../../../ui/Collapse';
 
 
-export function getValueFromFilters(facet, filters = []){
-    const { field } = facet;
-    const toFilter = _.findWhere(filters, { field: field + ".to" });
-    const fromFilter = _.findWhere(filters, { field: field + ".from" });
-    let fromVal = null;
-    let toVal = null;
-    if (fromFilter) {
-        fromVal = RangeFacet.parseNumber(facet, fromFilter.term);
-    }
-    if (toFilter) {
-        toVal = RangeFacet.parseNumber(facet, toFilter.term);
-    }
-    return { fromVal, toVal };
+export function getRangeValuesFromFiltersByField(facets = [], filters = []){
+    const facetsByFilterField = {};
+    const valuesByField = {};
+    facets.forEach(function(f){
+        if (f.aggregation_type !== "stats") {
+            return; // Skip
+        }
+        facetsByFilterField[f.field + ".to"] = f;
+        facetsByFilterField[f.field + ".from"] = f;
+    });
+    filters.forEach(function(f){
+        const { field: filterField, term: strValue } = f; // filterField would have .to and .from appended.
+        const facet = facetsByFilterField[filterField];
+        if (!facet) return; // Skip, not range facet.
+        const { field: facetField } = facet;
+        valuesByField[facetField] = valuesByField[facetField] || {};
+        const value = RangeFacet.parseNumber(facet, strValue);
+        if (facetField + ".to" === filterField) {
+            valuesByField[facetField].toVal = value;
+        } else if (facetField + ".from" === filterField) {
+            valuesByField[facetField].fromVal = value;
+        } else {
+            throw new Error("Unexpected facet/filter");
+        }
+    });
+    return valuesByField;
 }
 
 
@@ -143,14 +155,6 @@ export class RangeFacet extends React.PureComponent {
         };
     }
 
-    componentDidUpdate(pastProps){
-        const { facetOpen } = this.props;
-        const { facetOpen: prevOpen } = pastProps;
-        if (prevOpen !== facetOpen) {
-            ReactTooltip.rebuild();
-        }
-    }
-
     setFrom(value, callback){
         const { facet } = this.props;
         const { min, max } = facet;
@@ -246,7 +250,7 @@ export class RangeFacet extends React.PureComponent {
             <div className={"facet range-facet" + (isOpen ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "chevron-circle-right fas" : (isOpen ? "minus fas" : "plus fas"))}/>
+                        <i className={"icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : (isOpen ? "minus fas" : "plus fas"))}/>
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={tooltip} data-place="right">{ title }</span>

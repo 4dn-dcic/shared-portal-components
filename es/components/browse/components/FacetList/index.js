@@ -18,6 +18,8 @@ var _queryString = _interopRequireDefault(require("query-string"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
+var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
+
 var _patchedConsole = require("./../../../util/patched-console");
 
 var _searchFilters = require("./../../../util/search-filters");
@@ -206,8 +208,19 @@ function (_React$PureComponent) {
     }
   }, {
     key: "getInitialOpenFacetsAfterMount",
-    value: function getInitialOpenFacetsAfterMount(useFacets, persistentCount, windowHeight) {
-      var facetLen = useFacets.length; // We try to initially open some Facets depending on available screen size or props.
+    value: function getInitialOpenFacetsAfterMount(facetComponents, persistentCount, windowHeight) {
+      var filteredFlattenedComponents = facetComponents.reduce(function (m, v) {
+        if (v.props.facet) {
+          // Actual facet, include.
+          m.push(v);
+        } else {
+          // A group; flatten its children upward
+          m = m.concat(v.props.children);
+        }
+
+        return m;
+      }, []);
+      var facetLen = filteredFlattenedComponents.length; // We try to initially open some Facets depending on available screen size or props.
       // We might get rid of this feature at some point as the amount of Facets are likely to increase.
       // Or we could just set defaultFacetOpen = false if # facets > 10 or something.
       // Basically seems like should adjust `maxTermsToShow` based on total # of facets...
@@ -217,14 +230,14 @@ function (_React$PureComponent) {
       var currTermCount = 0;
 
       for (facetIndexWherePastXTerms = 0; facetIndexWherePastXTerms < facetLen; facetIndexWherePastXTerms++) {
-        if (useFacets[facetIndexWherePastXTerms].aggregation_type === "stats") {
+        if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") {
           // Range Facet (shows 2 'terms' or fields)
           currTermCount += 2;
         } else {
           // Terms; Take into account 'view more' button
           // Slightly deprecated as doesn;t take into account 'mergeTerms'.
           // Maybe could move mergeTerms stuff up into here.
-          currTermCount += Math.min(useFacets[facetIndexWherePastXTerms].terms.length, persistentCount);
+          currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.terms.length, persistentCount);
         }
 
         if (currTermCount > maxTermsToShow) {
@@ -234,12 +247,13 @@ function (_React$PureComponent) {
 
       var openFacets = {};
 
-      for (var i = 0; i <= facetIndexWherePastXTerms; i++) {
-        openFacets[useFacets[i].field] = true;
+      for (var i = 0; i < facetIndexWherePastXTerms; i++) {
+        //console.log("XX", facetIndexWherePastXTerms, filteredFlattenedComponents[i], filteredFlattenedComponents, filteredFlattenedComponents[i].props.facet.grouping)
+        openFacets[filteredFlattenedComponents[i].props.facet.field] = true;
 
-        if (useFacets[i].grouping) {
+        if (filteredFlattenedComponents[i].props.facet.grouping) {
           // Set group to be open as well
-          openFacets["grouping:" + useFacets[i].grouping] = true;
+          openFacets["group:" + filteredFlattenedComponents[i].props.facet.grouping] = true;
         }
       }
 
@@ -248,51 +262,32 @@ function (_React$PureComponent) {
     /**
      * We use a function instead of functional/memoized components because we want literal list of JSX components.
      * These JSX components might later be segmented or something.
+     *
+     * @param {{ href: string, schemas: Object<string, Object>, itemTypeForSchemas: string, termTransformFxn: function, onFilter: function, getTermStatus: function }} props - Passed to all facet components.
      */
 
   }, {
     key: "createFacetComponents",
-    value: function createFacetComponents(props, useFacets) {
-      var href = props.href,
-          filters = props.filters,
-          schemas = props.schemas,
-          itemTypeForSchemas = props.itemTypeForSchemas,
-          termTransformFxn = props.termTransformFxn,
-          onFilter = props.onFilter,
-          getTermStatus = props.getTermStatus,
-          onToggleOpen = props.onToggleOpen,
-          _props$separateSingle = props.separateSingleTermFacets,
-          separateSingleTermFacets = _props$separateSingle === void 0 ? false : _props$separateSingle;
-      var commonProps = {
-        // Passed to all Facets
-        href: href,
-        filters: filters,
-        schemas: schemas,
-        itemTypeForSchemas: itemTypeForSchemas,
-        termTransformFxn: termTransformFxn,
-        separateSingleTermFacets: separateSingleTermFacets,
-        onFilter: onFilter,
-        getTermStatus: getTermStatus,
-        onToggleOpen: onToggleOpen
-      }; // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
+    value: function createFacetComponents(props, useFacets, activeTermCountByField, rangeValuesByField) {
+      // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
       // until is rendered by some other component's render method.
       // We can sort/manipulate/transform these still according to their `props.` values and such.
-
       var renderedFacets = useFacets.map(function (facet) {
         var _facet$grouping = facet.grouping,
             grouping = _facet$grouping === void 0 ? null : _facet$grouping,
             facetField = facet.field,
             _facet$aggregation_ty2 = facet.aggregation_type,
-            aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2; // Default Open if ~~mounted~~ windowWidth not null (aka we mounted) and:
-        //const defaultFacetOpen = typeof windowWidth !== "number" ? false : !!(rgs !== 'xs' && i < (facetIndexWherePastXTerms || 1));
+            aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
 
         if (aggregation_type === "stats") {
-          var _getRangeValueFromFil = (0, _RangeFacet.getValueFromFilters)(facet, filters),
-              fromVal = _getRangeValueFromFil.fromVal,
-              toVal = _getRangeValueFromFil.toVal;
+          var _ref = rangeValuesByField[facetField] || {},
+              _ref$fromVal = _ref.fromVal,
+              fromVal = _ref$fromVal === void 0 ? null : _ref$fromVal,
+              _ref$toVal = _ref.toVal,
+              toVal = _ref$toVal === void 0 ? null : _ref$toVal;
 
           var isStatic = facet.min === facet.max;
-          return _react["default"].createElement(_RangeFacet.RangeFacet, _extends({}, commonProps, {
+          return _react["default"].createElement(_RangeFacet.RangeFacet, _extends({}, props, {
             facet: facet,
             key: facetField,
             anyTermsSelected: fromVal !== null || toVal !== null
@@ -305,13 +300,13 @@ function (_React$PureComponent) {
         }
 
         if (aggregation_type === "terms") {
-          var termsSelectedCount = (0, _FacetTermsList.countTermsSelected)(facet.terms, facet, filters);
+          var termsSelectedCount = activeTermCountByField[facetField] || 0; // countTermsSelected(facet.terms, facet, filters);
 
           var _anySelected = termsSelectedCount !== 0;
 
           var _isStatic = !_anySelected && facet.terms.length === 1;
 
-          return _react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, commonProps, {
+          return _react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, props, {
             terms: facet.terms,
             facet: facet,
             key: facetField,
@@ -342,22 +337,22 @@ function (_React$PureComponent) {
 
         var existingGroup = groups.get(grouping) || {
           index: componentsToReturn.length,
-          facets: [],
+          children: [],
           facetOpen: false
         };
-        existingGroup.facets.push(renderedFacet);
+        existingGroup.children.push(renderedFacet);
         groups.set(grouping, existingGroup);
       });
 
       var groupsArr = _toConsumableArray(groups); // Check, render, and add groups into `componentsToReturn`
 
 
-      groupsArr.forEach(function (_ref, groupIndex) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            groupTitle = _ref2[0],
-            facetGroup = _ref2[1];
+      groupsArr.forEach(function (_ref2, groupIndex) {
+        var _ref3 = _slicedToArray(_ref2, 2),
+            groupTitle = _ref3[0],
+            facetGroup = _ref3[1];
 
-        var facetsInGroup = facetGroup.facets,
+        var facetsInGroup = facetGroup.children,
             index = facetGroup.index;
 
         if (facetsInGroup.length === 1) {
@@ -367,9 +362,9 @@ function (_React$PureComponent) {
           // so `fromIdx` / `groupIndex` should always stay stable.
           // We increment facetGroup.index which is the index in `componentsToReturn`.
 
-          groupsArr.slice(groupIndex).forEach(function (_ref3) {
-            var _ref4 = _slicedToArray(_ref3, 2),
-                subsequentFacetGroup = _ref4[1];
+          groupsArr.slice(groupIndex).forEach(function (_ref4) {
+            var _ref5 = _slicedToArray(_ref4, 2),
+                subsequentFacetGroup = _ref5[1];
 
             subsequentFacetGroup.index++;
           });
@@ -377,7 +372,7 @@ function (_React$PureComponent) {
         } // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
 
 
-        var renderedGroup = _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, commonProps, facetGroup, {
+        var renderedGroup = _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, props, facetGroup, {
           title: groupTitle,
           key: groupTitle
         }));
@@ -409,6 +404,45 @@ function (_React$PureComponent) {
         staticFacetElements: staticFacetElements
       };
     }
+  }, {
+    key: "extendComponentsWithFacetOpen",
+    value: function extendComponentsWithFacetOpen(facetComponents, openFacets) {
+      return facetComponents.map(function (facetElem) {
+        // Finally, add in `facetOpen` state.
+        // Avoid doing this in `createFacetComponents` since is memoized and does other more expensive ops.
+        var _facetElem$props = facetElem.props,
+            _facetElem$props$face = _facetElem$props.facet;
+        _facetElem$props$face = _facetElem$props$face === void 0 ? {} : _facetElem$props$face;
+        var _facetElem$props$face2 = _facetElem$props$face.field,
+            field = _facetElem$props$face2 === void 0 ? null : _facetElem$props$face2,
+            _facetElem$props$titl = _facetElem$props.title,
+            groupTitle = _facetElem$props$titl === void 0 ? null : _facetElem$props$titl;
+        var facetOpen = false;
+
+        if (typeof field === "string") {
+          // Facet Elem
+          facetOpen = openFacets[field];
+
+          if (facetOpen) {
+            // Don't clone if don't need to; don't pass openFacets to avoid extraneous re-renders.
+            return _react["default"].cloneElement(facetElem, {
+              facetOpen: facetOpen
+            });
+          }
+
+          return facetElem;
+        } else if (typeof groupTitle === "string") {
+          // Group Elem; pass in openFacets always as well to add facetOpen to group children
+          facetOpen = openFacets["group:" + groupTitle];
+          return _react["default"].cloneElement(facetElem, {
+            facetOpen: facetOpen,
+            openFacets: openFacets
+          });
+        } else {
+          throw new Error("Unexpected Facet Component");
+        }
+      });
+    }
   }]);
 
   function FacetList(props) {
@@ -419,9 +453,12 @@ function (_React$PureComponent) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(FacetList).call(this, props));
     _this.onFilterExtended = _this.onFilterExtended.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
-    _this.renderFacets = _this.renderFacets.bind(_assertThisInitialized(_this));
     _this.handleToggleFacetOpen = _this.handleToggleFacetOpen.bind(_assertThisInitialized(_this));
+    _this.handleCollapseAllFacets = _this.handleCollapseAllFacets.bind(_assertThisInitialized(_this));
+    _this.renderFacetComponents = _this.renderFacetComponents.bind(_assertThisInitialized(_this));
     _this.memoized = {
+      countActiveTermsByField: (0, _memoizeOne["default"])(_FacetTermsList.countActiveTermsByField),
+      getRangeValuesFromFiltersByField: (0, _memoizeOne["default"])(_RangeFacet.getRangeValuesFromFiltersByField),
       sortedFinalFacetObjects: (0, _memoizeOne["default"])(FacetList.sortedFinalFacetObjects),
       segmentOutCommonProperties: (0, _memoizeOne["default"])(FacetList.segmentOutCommonProperties),
       createFacetComponents: (0, _memoizeOne["default"])(FacetList.createFacetComponents, function (paramSetA, paramSetB) {
@@ -452,6 +489,7 @@ function (_React$PureComponent) {
 
         return true;
       }),
+      extendComponentsWithFacetOpen: (0, _memoizeOne["default"])(FacetList.extendComponentsWithFacetOpen),
       getInitialOpenFacetsAfterMount: (0, _memoizeOne["default"])(FacetList.getInitialOpenFacetsAfterMount)
     };
     _this.state = {
@@ -473,19 +511,62 @@ function (_React$PureComponent) {
           persistentCount = _this$props$persisten === void 0 ? 10 : _this$props$persisten;
       var rgs = (0, _layout.responsiveGridState)(windowWidth || null);
 
+      var _this$renderFacetComp = this.renderFacetComponents(),
+          selectableFacetElements = _this$renderFacetComp.selectableFacetElements; // Internally memoized - should be performant.
+
+
       if (rgs === "xs") {
+        _reactTooltip["default"].rebuild();
+
         return;
       } // Skip if we have many facets. We're simply reusing persistentCount variable here
       // but could really be any number/value (8 ? windowHeight // 100 ?)
 
 
-      if (facets.length >= persistentCount) {
+      if (selectableFacetElements.length >= persistentCount) {
+        _reactTooltip["default"].rebuild();
+
         return;
       }
 
       this.setState({
-        openFacets: this.memoized.getInitialOpenFacetsAfterMount(this.memoized.sortedFinalFacetObjects(facets, filters), persistentCount, windowHeight)
+        openFacets: this.memoized.getInitialOpenFacetsAfterMount(selectableFacetElements, persistentCount, windowHeight)
       });
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(_ref6, _ref7) {
+      var prevFilters = _ref6.filters;
+      var prevOpenFacets = _ref7.openFacets;
+      var openFacets = this.state.openFacets;
+      var filters = this.props.filters;
+
+      if (openFacets !== prevOpenFacets) {
+        _reactTooltip["default"].rebuild();
+      }
+
+      if (filters !== prevFilters) {
+        // If new filterset causes a facet to drop into common properties section, clean up openFacets state accordingly.
+        var _this$renderFacetComp2 = this.renderFacetComponents(),
+            staticFacetElements = _this$renderFacetComp2.staticFacetElements; // Should be performant re: memoization
+
+
+        var nextOpenFacets = _underscore["default"].clone(openFacets);
+
+        var changed = false;
+        staticFacetElements.forEach(function (facetComponent) {
+          if (nextOpenFacets[facetComponent.props.facet.field]) {
+            delete nextOpenFacets[facetComponent.props.facet.field];
+            changed = true;
+          }
+        });
+
+        if (changed) {
+          this.setState({
+            openFacets: nextOpenFacets
+          });
+        }
+      }
     }
     /**
      * Calls props.onFilter after sending analytics.
@@ -521,22 +602,55 @@ function (_React$PureComponent) {
       var contextFilters = this.props.filters;
       return (0, _searchFilters.getTermFacetStatus)(term, facet, contextFilters);
     }
-    /** Internally calls memoized function to return list of rendered facet JSX components. */
+  }, {
+    key: "handleToggleFacetOpen",
+    value: function handleToggleFacetOpen(facetField) {
+      var nextOpen = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      this.setState(function (_ref8) {
+        var prevOpenFacets = _ref8.openFacets;
+
+        var openFacets = _underscore["default"].clone(prevOpenFacets);
+
+        if (typeof nextOpen !== "boolean") {
+          nextOpen = openFacets[facetField];
+        }
+
+        if (!nextOpen) {
+          delete openFacets[facetField];
+        } else {
+          openFacets[facetField] = true;
+        }
+
+        return {
+          openFacets: openFacets
+        };
+      });
+    }
+  }, {
+    key: "handleCollapseAllFacets",
+    value: function handleCollapseAllFacets() {
+      this.setState({
+        openFacets: {}
+      });
+    }
+    /** We want an actual array(s) of JSX components to potentially shift, assess, transform etc. rather than Functional Component that renders list, for example. */
 
   }, {
-    key: "renderFacets",
-    value: function renderFacets() {
-      var openFacets = this.state.openFacets;
+    key: "renderFacetComponents",
+    value: function renderFacetComponents() {
       var _this$props3 = this.props,
-          facets = _this$props3.facets,
+          _this$props3$facets = _this$props3.facets,
+          facets = _this$props3$facets === void 0 ? null : _this$props3$facets,
+          _this$props3$separate = _this$props3.separateSingleTermFacets,
+          separateSingleTermFacets = _this$props3$separate === void 0 ? false : _this$props3$separate,
           href = _this$props3.href,
           schemas = _this$props3.schemas,
           filters = _this$props3.filters,
           itemTypeForSchemas = _this$props3.itemTypeForSchemas,
           termTransformFxn = _this$props3.termTransformFxn,
-          persistentCount = _this$props3.persistentCount,
-          separateSingleTermFacets = _this$props3.separateSingleTermFacets;
-      var propsUsed = {
+          persistentCount = _this$props3.persistentCount;
+      var openFacets = this.state.openFacets;
+      var facetComponentProps = {
         href: href,
         schemas: schemas,
         filters: filters,
@@ -548,48 +662,17 @@ function (_React$PureComponent) {
         getTermStatus: this.getTermStatus,
         onToggleOpen: this.handleToggleFacetOpen
       };
-      return this.memoized.createFacetComponents(propsUsed, this.memoized.sortedFinalFacetObjects(facets, filters)).map(function (facetElem) {
-        // Finally, add in open state.
-        // Avoid doing this in `createFacetComponents` since is memoized and does other more expensive ops.
-        var _facetElem$props = facetElem.props,
-            _facetElem$props$face = _facetElem$props.facet;
-        _facetElem$props$face = _facetElem$props$face === void 0 ? {} : _facetElem$props$face;
-        var _facetElem$props$face2 = _facetElem$props$face.field,
-            field = _facetElem$props$face2 === void 0 ? null : _facetElem$props$face2,
-            _facetElem$props$titl = _facetElem$props.title,
-            groupTitle = _facetElem$props$titl === void 0 ? null : _facetElem$props$titl;
-        var facetOpen = openFacets[field || "group:" + groupTitle] || false;
 
-        if (facetOpen) {
-          // We pass along openFacets as well for FacetOfFacets (groups).
-          return _react["default"].cloneElement(facetElem, {
-            facetOpen: facetOpen,
-            openFacets: openFacets
-          });
-        }
+      var _this$memoized$segmen = this.memoized.segmentOutCommonProperties(this.memoized.createFacetComponents(facetComponentProps, this.memoized.sortedFinalFacetObjects(facets, filters), this.memoized.countActiveTermsByField(filters), this.memoized.getRangeValuesFromFiltersByField(facets, filters)), separateSingleTermFacets),
+          staticFacetElements = _this$memoized$segmen.staticFacetElements,
+          rawerSelectableFacetElems = _this$memoized$segmen.selectableFacetElements; // We can skip extending static facet elements with facetOpen
 
-        return facetElem;
-      });
-    }
-  }, {
-    key: "handleToggleFacetOpen",
-    value: function handleToggleFacetOpen(facetField) {
-      var nextOpen = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref5) {
-        var prevOpenFacets = _ref5.openFacets;
 
-        var openFacets = _underscore["default"].clone(prevOpenFacets);
-
-        if (typeof nextOpen === "boolean") {
-          openFacets[facetField] = nextOpen;
-        } else {
-          openFacets[facetField] = !openFacets[facetField];
-        }
-
-        return {
-          openFacets: openFacets
-        };
-      });
+      var selectableFacetElements = this.memoized.extendComponentsWithFacetOpen(rawerSelectableFacetElems, openFacets);
+      return {
+        selectableFacetElements: selectableFacetElements,
+        staticFacetElements: staticFacetElements
+      };
     }
   }, {
     key: "render",
@@ -603,10 +686,9 @@ function (_React$PureComponent) {
           onClearFilters = _this$props4.onClearFilters,
           _this$props4$showClea = _this$props4.showClearFiltersButton,
           showClearFiltersButton = _this$props4$showClea === void 0 ? false : _this$props4$showClea,
-          _this$props4$separate = _this$props4.separateSingleTermFacets,
-          separateSingleTermFacets = _this$props4$separate === void 0 ? false : _this$props4$separate,
           _this$props4$maxBodyH = _this$props4.maxBodyHeight,
           maxHeight = _this$props4$maxBodyH === void 0 ? null : _this$props4$maxBodyH;
+      var openFacets = this.state.openFacets;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
         return _react["default"].createElement("div", {
@@ -617,7 +699,6 @@ function (_React$PureComponent) {
         }, "No facets available");
       }
 
-      var clearButtonClassName = className && className.indexOf('with-header-bg') > -1 ? "btn-outline-white" : "btn-outline-default";
       var bodyProps = {
         className: "facets-body" + (typeof maxHeight === "number" ? " has-max-height" : ""),
         style: typeof maxHeight === "number" ? {
@@ -625,10 +706,11 @@ function (_React$PureComponent) {
         } : null
       };
 
-      var _this$memoized$segmen = this.memoized.segmentOutCommonProperties(this.renderFacets(), separateSingleTermFacets),
-          staticFacetElements = _this$memoized$segmen.staticFacetElements,
-          selectableFacetElements = _this$memoized$segmen.selectableFacetElements;
+      var _this$renderFacetComp3 = this.renderFacetComponents(),
+          staticFacetElements = _this$renderFacetComp3.staticFacetElements,
+          selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
 
+      var anyFacetsOpen = _underscore["default"].keys(openFacets).length !== 0;
       return _react["default"].createElement("div", {
         className: "facets-container facets" + (className ? ' ' + className : '')
       }, _react["default"].createElement("div", {
@@ -640,14 +722,26 @@ function (_React$PureComponent) {
       }), "\xA0", _react["default"].createElement("h4", {
         className: "facets-title"
       }, title)), _react["default"].createElement("div", {
-        className: "col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')
-      }, _react["default"].createElement("a", {
-        href: "#",
-        onClick: onClearFilters,
-        className: "btn clear-filters-btn btn-xs " + clearButtonClassName
+        className: "col-auto"
+      }, _react["default"].createElement("div", {
+        className: "btn-group btn-group-sm properties-controls",
+        role: "group",
+        "aria-label": "Properties Controls"
+      }, anyFacetsOpen ? _react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-outline-light",
+        onClick: this.handleCollapseAllFacets,
+        "data-tip": "Collapse all facets below"
       }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-times fas mr-03"
-      }), _react["default"].createElement("span", null, "Clear All")))), _react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? _react["default"].createElement("div", {
+        className: "icon icon-fw icon-minus fas"
+      })) : null, showClearFiltersButton ? _react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-outline-light",
+        onClick: onClearFilters,
+        "data-tip": "Clear all filters"
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-times fas"
+      })) : null))), _react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? _react["default"].createElement("div", {
         className: "row facet-list-separator"
       }, _react["default"].createElement("div", {
         className: "col-12"

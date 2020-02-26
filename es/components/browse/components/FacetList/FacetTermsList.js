@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.anyTermsSelected = anyTermsSelected;
-exports.countTermsSelected = countTermsSelected;
+exports.countActiveTermsByField = countActiveTermsByField;
 exports.mergeTerms = mergeTerms;
 exports.CountIndicator = exports.FacetTermsList = exports.Term = void 0;
 
@@ -83,28 +83,31 @@ function anyTermsSelected() {
   return false;
 }
 /**
- * Used in FacetList
+ * Used in FacetList for TermsFacet/FacetTermsList only.
+ *
+ * @param {*} facets - Must be in final extended form (containing full 'terms' incl selected ones w/ 0 counts)
+ * @param {*} filters - List of active filters.
+ * @returns {Object<string, number>} Counts of selected terms per facet.field.
  */
 
 
-function countTermsSelected() {
-  var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-  var facet = arguments.length > 1 ? arguments[1] : undefined;
-  var filters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-  var activeTermsForField = {};
-  var count = 0;
-  filters.forEach(function (f) {
-    if (f.field !== facet.field) return;
-    activeTermsForField[f.term] = true;
+function countActiveTermsByField(filters) {
+  var activeTermsByField = {};
+  filters.forEach(function (_ref) {
+    var rawField = _ref.field,
+        term = _ref.term;
+    var lastCharIdx = rawField.length - 1;
+    var field = rawField.charAt(lastCharIdx) === "!" ? rawField.slice(0, lastCharIdx) : rawField;
+    activeTermsByField[field] = activeTermsByField[field] || new Set();
+    activeTermsByField[field].add(term);
+  });
+  var countTermsByField = {};
+
+  _underscore["default"].keys(activeTermsByField).forEach(function (field) {
+    countTermsByField[field] = activeTermsByField[field].size;
   });
 
-  for (var i = 0; i < terms.length; i++) {
-    if (activeTermsForField[terms[i].key]) {
-      count++;
-    }
-  }
-
-  return count;
+  return countTermsByField;
 }
 /**
  * Used in FacetList
@@ -123,8 +126,8 @@ function mergeTerms(facet, filters) {
     if (activeTermsForField[term.key]) return true;
     return false;
   });
-  terms.forEach(function (_ref) {
-    var key = _ref.key;
+  terms.forEach(function (_ref2) {
+    var key = _ref2.key;
     delete activeTermsForField[key];
   }); // Filter out type=Item for now (hardcode)
 
@@ -319,16 +322,6 @@ function (_React$PureComponent2) {
   }
 
   _createClass(FacetTermsList, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps) {
-      var facetOpen = this.props.facetOpen;
-      var prevOpen = pastProps.facetOpen;
-
-      if (prevOpen !== facetOpen) {
-        _reactTooltip["default"].rebuild();
-      }
-    }
-  }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
       e.preventDefault();
@@ -343,8 +336,8 @@ function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref2) {
-        var expanded = _ref2.expanded;
+      this.setState(function (_ref3) {
+        var expanded = _ref3.expanded;
         return {
           'expanded': !expanded
         };
@@ -521,6 +514,14 @@ var ListOfTerms = _react["default"].memo(function (props) {
       _useMemo$collapsibleT3 = _useMemo.collapsibleTermsItemCount,
       collapsibleTermsItemCount = _useMemo$collapsibleT3 === void 0 ? 0 : _useMemo$collapsibleT3;
 
+  var commonProps = {
+    "data-any-active": !!(selectedLen || omittedLen),
+    "data-all-active": totalLen === selectedLen + omittedLen,
+    "data-open": facetOpen,
+    "className": "facet-list",
+    "key": "facetlist"
+  };
+
   if (Array.isArray(collapsibleTerms)) {
     var expandButtonTitle;
 
@@ -536,12 +537,7 @@ var ListOfTerms = _react["default"].memo(function (props) {
       }, collapsibleTermsItemCount));
     }
 
-    return _react["default"].createElement("div", {
-      className: "facet-list",
-      key: "fl",
-      "data-any-active": !!(selectedLen || omittedLen),
-      "data-open": facetOpen
-    }, _react["default"].createElement(_PartialList.PartialList, {
+    return _react["default"].createElement("div", commonProps, _react["default"].createElement(_PartialList.PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
@@ -558,12 +554,7 @@ var ListOfTerms = _react["default"].memo(function (props) {
       }, expandButtonTitle)))
     }));
   } else {
-    return _react["default"].createElement("div", {
-      className: "facet-list",
-      key: "fl",
-      "data-any-active": !!(selectedLen || omittedLen),
-      "data-open": facetOpen
-    }, _react["default"].createElement(_PartialList.PartialList, {
+    return _react["default"].createElement("div", commonProps, _react["default"].createElement(_PartialList.PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
@@ -572,21 +563,21 @@ var ListOfTerms = _react["default"].memo(function (props) {
   }
 });
 
-var CountIndicator = _react["default"].memo(function (_ref3) {
-  var _ref3$count = _ref3.count,
-      count = _ref3$count === void 0 ? 1 : _ref3$count,
-      _ref3$countActive = _ref3.countActive,
-      countActive = _ref3$countActive === void 0 ? 0 : _ref3$countActive,
-      _ref3$height = _ref3.height,
-      height = _ref3$height === void 0 ? 16 : _ref3$height,
-      _ref3$width = _ref3.width,
-      width = _ref3$width === void 0 ? 40 : _ref3$width;
+var CountIndicator = _react["default"].memo(function (_ref4) {
+  var _ref4$count = _ref4.count,
+      count = _ref4$count === void 0 ? 1 : _ref4$count,
+      _ref4$countActive = _ref4.countActive,
+      countActive = _ref4$countActive === void 0 ? 0 : _ref4$countActive,
+      _ref4$height = _ref4.height,
+      height = _ref4$height === void 0 ? 16 : _ref4$height,
+      _ref4$width = _ref4.width,
+      width = _ref4$width === void 0 ? 40 : _ref4$width;
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = (0, _utilities.stackDotsInContainer)(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref4, idx) {
-    var _ref5 = _slicedToArray(_ref4, 2),
-        x = _ref5[0],
-        y = _ref5[1];
+  var dots = dotCoords.map(function (_ref5, idx) {
+    var _ref6 = _slicedToArray(_ref5, 2),
+        x = _ref6[0],
+        y = _ref6[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 

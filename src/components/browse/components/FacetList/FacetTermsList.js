@@ -32,22 +32,28 @@ export function anyTermsSelected(terms = [], facet, filters = []){
 }
 
 /**
- * Used in FacetList
+ * Used in FacetList for TermsFacet/FacetTermsList only.
+ *
+ * @param {*} facets - Must be in final extended form (containing full 'terms' incl selected ones w/ 0 counts)
+ * @param {*} filters - List of active filters.
+ * @returns {Object<string, number>} Counts of selected terms per facet.field.
  */
-export function countTermsSelected(terms = [], facet, filters = []){
-    const activeTermsForField = {};
-    let count = 0;
-    filters.forEach(function(f){
-        if (f.field !== facet.field) return;
-        activeTermsForField[f.term] = true;
+export function countActiveTermsByField(filters) {
+    const activeTermsByField = {};
+
+    filters.forEach(function({ field: rawField, term }){
+        const lastCharIdx = rawField.length - 1;
+        const field = rawField.charAt(lastCharIdx) === "!" ? rawField.slice(0, lastCharIdx) : rawField;
+        activeTermsByField[field] = activeTermsByField[field] || new Set();
+        activeTermsByField[field].add(term);
     });
 
-    for (let i = 0; i < terms.length; i++){
-        if (activeTermsForField[terms[i].key]) {
-            count++;
-        }
-    }
-    return count;
+    const countTermsByField = {};
+    _.keys(activeTermsByField).forEach(function(field){
+        countTermsByField[field] = activeTermsByField[field].size;
+    });
+
+    return countTermsByField;
 }
 
 /**
@@ -205,14 +211,6 @@ export class FacetTermsList extends React.PureComponent {
         this.state = { 'expanded' : false };
     }
 
-    componentDidUpdate(pastProps){
-        const { facetOpen } = this.props;
-        const { facetOpen: prevOpen } = pastProps;
-        if (prevOpen !== facetOpen) {
-            ReactTooltip.rebuild();
-        }
-    }
-
     handleOpenToggleClick(e) {
         e.preventDefault();
         const { onToggleOpen, facet: { field }, facetOpen = false } = this.props;
@@ -341,6 +339,13 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 
     }, [ terms, persistentCount ]);
 
+    const commonProps = {
+        "data-any-active" : !!(selectedLen || omittedLen),
+        "data-all-active" : totalLen === (selectedLen + omittedLen),
+        "data-open" : facetOpen,
+        "className" : "facet-list",
+        "key" : "facetlist"
+    };
 
     if (Array.isArray(collapsibleTerms)){
 
@@ -362,7 +367,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         }
 
         return (
-            <div className="facet-list" key="fl" data-any-active={!!(selectedLen || omittedLen)} data-open={facetOpen}>
+            <div {...commonProps}>
                 <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
                     <React.Fragment>
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
@@ -375,7 +380,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         );
     } else {
         return (
-            <div className="facet-list" key="fl" data-any-active={!!(selectedLen || omittedLen)} data-open={facetOpen}>
+            <div {...commonProps}>
                 <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={unselectedTermComponents} />
             </div>
         );

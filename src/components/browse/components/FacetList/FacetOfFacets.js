@@ -3,7 +3,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
-import ReactTooltip from 'react-tooltip';
 import { Collapse } from './../../../ui/Collapse';
 import { Fade } from './../../../ui/Fade';
 
@@ -18,6 +17,8 @@ export class FacetOfFacets extends React.PureComponent {
             const renderedFacet = renderedFacets[facetIdx]; // We have rendered facets as `props.facets`
             const { anyTermsSelected: anySelected } = renderedFacet.props;
             if (anySelected) {
+
+                console.log(renderedFacet);
                 return true;
             }
         }
@@ -32,14 +33,6 @@ export class FacetOfFacets extends React.PureComponent {
         };
     }
 
-    componentDidUpdate(pastProps){
-        const { facetOpen } = this.props;
-        const { facetOpen: prevOpen } = pastProps;
-        if (prevOpen !== facetOpen) {
-            ReactTooltip.rebuild();
-        }
-    }
-
     handleOpenToggleClick(e) {
         e.preventDefault();
         const { onToggleOpen, title: groupTitle, facetOpen = false } = this.props;
@@ -47,7 +40,7 @@ export class FacetOfFacets extends React.PureComponent {
     }
 
     render() {
-        const { title, facets: renderedFacets, tooltip, facetOpen, openFacets = {} } = this.props;
+        const { title, children: renderedFacets, tooltip, facetOpen, openFacets = {} } = this.props;
         const anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets);
 
         // Ensure all facets within group are not "static single terms".
