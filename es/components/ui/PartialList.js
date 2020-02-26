@@ -31,15 +31,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /**
  * Bootstrap 'Row' component which may be used in PartialList's props.collapsible or props.persistent.
  * Renders two row columns: one for props.label and one for props.value or props.children.
  *
- * @memberof module:item-pages/components.PartialList
- * @namespace
- * @type {Component}
  * @prop {Component|Element|string} label - Label to use in left column.
  * @prop {Component|Element|string} value - Value to use in right column.
  * @prop {string} className - Classname to add to '.row.list-item'.
@@ -101,19 +96,31 @@ Row.defaultProps = {
 
 var PartialList =
 /*#__PURE__*/
-function (_React$Component) {
-  _inherits(PartialList, _React$Component);
+function (_React$PureComponent) {
+  _inherits(PartialList, _React$PureComponent);
 
   _createClass(PartialList, null, [{
     key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(props) {
-      if (typeof props.open === 'boolean') {
+    value: function getDerivedStateFromProps(props, state) {
+      var lastOpen = props.open;
+
+      if (lastOpen) {
         return {
-          "open": props.open
+          closing: false,
+          lastOpen: lastOpen
         };
       }
 
-      return null;
+      if (!lastOpen && state.lastOpen) {
+        return {
+          closing: true,
+          lastOpen: lastOpen
+        };
+      }
+
+      return {
+        lastOpen: lastOpen
+      };
     }
   }]);
 
@@ -124,48 +131,70 @@ function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(PartialList).call(this, props));
     _this.state = {
-      'open': false
+      closing: false,
+      lastOpen: props.open
     };
+    _this.timeout = null;
     return _this;
   }
-  /** TODO implement handleToggle fxn and pass to child */
-
 
   _createClass(PartialList, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(pastProps) {
+      var _this2 = this;
+
+      var _this$props = this.props,
+          open = _this$props.open,
+          _this$props$timeout = _this$props.timeout,
+          timeout = _this$props$timeout === void 0 ? 400 : _this$props$timeout;
+      var pastOpen = pastProps.open;
+
+      if (!open && pastOpen) {
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(function () {
+          _this2.setState({
+            closing: false
+          });
+        }, timeout);
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          className = _this$props.className,
-          containerClassName = _this$props.containerClassName,
-          containerType = _this$props.containerType,
-          collapsible = _this$props.collapsible,
-          persistent = _this$props.persistent,
-          children = _this$props.children;
-      var open = this.state.open;
+      var _this$props2 = this.props,
+          _this$props2$classNam = _this$props2.className,
+          className = _this$props2$classNam === void 0 ? null : _this$props2$classNam,
+          _this$props2$containe = _this$props2.containerClassName,
+          containerClassName = _this$props2$containe === void 0 ? "" : _this$props2$containe,
+          _this$props2$containe2 = _this$props2.containerPersistentClassName,
+          containerPersistentClassName = _this$props2$containe2 === void 0 ? "" : _this$props2$containe2,
+          _this$props2$containe3 = _this$props2.containerCollapseClassName,
+          containerCollapseClassName = _this$props2$containe3 === void 0 ? "" : _this$props2$containe3,
+          _this$props2$containe4 = _this$props2.containerType,
+          containerType = _this$props2$containe4 === void 0 ? "div" : _this$props2$containe4,
+          collapsible = _this$props2.collapsible,
+          _this$props2$persiste = _this$props2.persistent,
+          persistent = _this$props2$persiste === void 0 ? [] : _this$props2$persiste,
+          children = _this$props2.children,
+          _this$props2$open = _this$props2.open,
+          open = _this$props2$open === void 0 ? false : _this$props2$open;
+      var _this$state$closing = this.state.closing,
+          closing = _this$state$closing === void 0 ? false : _this$state$closing;
       return _react["default"].createElement("div", {
-        className: "expandable-list " + (className || '')
-      }, _react["default"].createElement(containerType, {
-        'className': containerClassName
-      }, persistent || children), collapsible.length > 0 ? _react["default"].createElement(_Collapse.Collapse, {
+        className: "expandable-list " + (open ? "open" : "closed") + (className ? " " + className : "")
+      }, persistent || children ? _react["default"].createElement(containerType, {
+        'className': "persistent " + (containerPersistentClassName || containerClassName)
+      }, persistent || children) : null, collapsible ? _react["default"].createElement(_Collapse.Collapse, {
         "in": open
-      }, _react["default"].createElement("div", null, _react["default"].createElement(containerType, {
-        'className': containerClassName
-      }, collapsible))) : null);
+      }, _react["default"].createElement(containerType, {
+        'className': containerCollapseClassName || containerClassName,
+        'key': "c"
+      }, open || closing ? collapsible : null)) : null);
     }
   }]);
 
   return PartialList;
-}(_react["default"].Component);
+}(_react["default"].PureComponent);
 
 exports.PartialList = PartialList;
-
-_defineProperty(PartialList, "Row", Row);
-
-PartialList.defaultProps = {
-  'className': null,
-  'containerClassName': null,
-  'containerType': 'div',
-  'persistent': [],
-  'collapsible': [],
-  'open': null
-};
+PartialList.Row = Row;

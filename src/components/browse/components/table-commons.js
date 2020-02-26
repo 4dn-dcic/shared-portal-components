@@ -147,7 +147,7 @@ export const basicColumnExtensionMap = {
  * @param {any} value - Value to sanitize.
  */
 export function sanitizeOutputValue(value){
-    if (typeof value !== 'string' && !React.isValidElement(value)){
+    if (typeof value !== 'string' && typeof value !== 'number' && !React.isValidElement(value)){
         if (value && typeof value === 'object'){
             if (typeof value.display_title !== 'undefined'){
                 const atId = itemUtil.atId(value);
@@ -157,7 +157,9 @@ export function sanitizeOutputValue(value){
                     return value.display_title;
                 }
             }
-        } else if (!value) value = null;
+        } else if (!value){
+            value = null;
+        }
     }
     if (value === "None") value = null;
     return value;
@@ -435,7 +437,7 @@ export class ResultRowColumnBlockValue extends React.Component {
         }
 
         let value = getNestedProperty(result, columnDefinition.field, true);
-        if (!value) value = null;
+        if (typeof value === "undefined") value = null;
         if (Array.isArray(value)){ // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
             value = filterAndUniq(value.map(function(v){
                 if (Array.isArray(v)){

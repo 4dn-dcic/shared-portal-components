@@ -9,9 +9,6 @@ import { console } from './../util';
  * Bootstrap 'Row' component which may be used in PartialList's props.collapsible or props.persistent.
  * Renders two row columns: one for props.label and one for props.value or props.children.
  *
- * @memberof module:item-pages/components.PartialList
- * @namespace
- * @type {Component}
  * @prop {Component|Element|string} label - Label to use in left column.
  * @prop {Component|Element|string} value - Value to use in right column.
  * @prop {string} className - Classname to add to '.row.list-item'.
@@ -65,50 +62,65 @@ Row.defaultProps = {
  * @prop {string}  className     - Class name for outermost element.
  * @prop {string}  containerType - Type of element to use as container for the two lists. Defaults to 'div'.
  */
-export class PartialList extends React.Component{
 
-    static Row = Row
+export class PartialList extends React.PureComponent {
 
     static getDerivedStateFromProps(props, state){
-        if (typeof props.open === 'boolean'){
-            return { "open" : props.open };
+        const { open: lastOpen } = props;
+        if (lastOpen) {
+            return { closing : false, lastOpen };
         }
-        return null;
+        if (!lastOpen && state.lastOpen) {
+            return { closing : true, lastOpen };
+        }
+        return { lastOpen };
     }
 
     constructor(props){
         super(props);
-        this.state = { 'open' : false };
+        this.state = { closing : false, lastOpen: props.open };
+        this.timeout = null;
     }
 
-    /** TODO implement handleToggle fxn and pass to child */
+    componentDidUpdate(pastProps){
+        const { open, timeout = 400 } = this.props;
+        const { open: pastOpen } = pastProps;
+
+        if (!open && pastOpen) {
+            clearTimeout(this.timeout);
+            this.timeout = setTimeout(()=>{
+                this.setState({ closing: false });
+            }, timeout);
+        }
+    }
 
     render(){
-        const { className, containerClassName, containerType, collapsible, persistent, children } = this.props;
-        const { open } = this.state;
+        const {
+            className = null,
+            containerClassName = "",
+            containerPersistentClassName = "",
+            containerCollapseClassName = "",
+            containerType = "div",
+            collapsible,
+            persistent = [],
+            children,
+            open = false,
+        } = this.props;
+        const { closing = false } = this.state;
         return (
-            <div className={"expandable-list " + (className || '')}>
-
-                { React.createElement(containerType, { 'className' : containerClassName }, persistent || children) }
-
-                { collapsible.length > 0 ?
+            <div className={"expandable-list " + (open ? "open" : "closed") + (className ? " " + className : "")}>
+                { persistent || children ?
+                    React.createElement(containerType, { 'className' : "persistent " + (containerPersistentClassName || containerClassName) }, persistent || children)
+                    : null
+                }
+                { collapsible ?
                     <Collapse in={open}>
-                        <div>
-                            { React.createElement(containerType, { 'className' : containerClassName }, collapsible) }
-                        </div>
+                        { React.createElement(containerType, { 'className' : containerCollapseClassName || containerClassName, 'key': "c" }, (open || closing) ? collapsible : null ) }
                     </Collapse>
                     : null }
             </div>
         );
-
     }
-
 }
-PartialList.defaultProps = {
-    'className' : null,
-    'containerClassName' : null,
-    'containerType' : 'div',
-    'persistent' : [],
-    'collapsible' : [],
-    'open' : null
-};
+
+PartialList.Row = Row;

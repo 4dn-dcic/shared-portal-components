@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
@@ -32,22 +32,28 @@ export function anyTermsSelected(terms = [], facet, filters = []){
 }
 
 /**
- * Used in FacetList
+ * Used in FacetList for TermsFacet/FacetTermsList only.
+ *
+ * @param {*} facets - Must be in final extended form (containing full 'terms' incl selected ones w/ 0 counts)
+ * @param {*} filters - List of active filters.
+ * @returns {Object<string, number>} Counts of selected terms per facet.field.
  */
-export function countTermsSelected(terms = [], facet, filters = []){
-    const activeTermsForField = {};
-    let count = 0;
-    filters.forEach(function(f){
-        if (f.field !== facet.field) return;
-        activeTermsForField[f.term] = true;
+export function countActiveTermsByField(filters) {
+    const activeTermsByField = {};
+
+    filters.forEach(function({ field: rawField, term }){
+        const lastCharIdx = rawField.length - 1;
+        const field = rawField.charAt(lastCharIdx) === "!" ? rawField.slice(0, lastCharIdx) : rawField;
+        activeTermsByField[field] = activeTermsByField[field] || new Set();
+        activeTermsByField[field].add(term);
     });
 
-    for (let i = 0; i < terms.length; i++){
-        if (activeTermsForField[terms[i].key]) {
-            count++;
-        }
-    }
-    return count;
+    const countTermsByField = {};
+    _.keys(activeTermsByField).forEach(function(field){
+        countTermsByField[field] = activeTermsByField[field].size;
+    });
+
+    return countTermsByField;
 }
 
 /**
@@ -83,6 +89,18 @@ export function mergeTerms(facet, filters){
     });
 
     return terms.concat(unseenTerms);
+}
+
+function segmentTermComponentsByStatus(termComponents){
+    const groups = {};
+    termComponents.forEach(function(t){
+        const { props: { status } } = t;
+        if (!Array.isArray(groups[status])) {
+            groups[status] = [];
+        }
+        groups[status].push(t);
+    });
+    return groups;
 }
 
 
@@ -139,9 +157,8 @@ export class Term extends React.PureComponent {
     */
 
     render() {
-        const { term, facet, getTermStatus, termTransformFxn } = this.props;
+        const { term, facet, status, termTransformFxn } = this.props;
         const { filtering } = this.state;
-        const status = getTermStatus(term, facet);
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;
@@ -149,9 +166,7 @@ export class Term extends React.PureComponent {
 
         if (filtering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
-        } else if (status === 'selected') {
-            icon = <i className="icon icon-times-circle icon-fw fas" />;
-        } else if (status === 'omitted') {
+        } else if (status === 'selected' || status === 'omitted') {
             icon = <i className="icon icon-minus-circle icon-fw fas" />;
         } else {
             icon = <i className="icon icon-circle icon-fw unselected far" />;
@@ -188,60 +203,18 @@ Term.propTypes = {
 
 
 export class FacetTermsList extends React.PureComponent {
+
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
-        this.renderTerms = this.renderTerms.bind(this);
-        this.state = {
-            'facetOpen'     : typeof props.defaultFacetOpen === 'boolean' ? props.defaultFacetOpen : true,
-            'facetClosing'  : false,
-            'expanded'      : false
-        };
-    }
-
-    componentDidUpdate(pastProps, pastState){
-        const { anyTermsSelected: anySelected, mounted, defaultFacetOpen, isStatic } = this.props;
-        const { mounted: pastMounted, defaultFacetOpen: pastDefaultOpen, isStatic: pastStatic } = pastProps;
-
-        this.setState(({ facetOpen: currFacetOpen }) => {
-            if (!pastMounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastDefaultOpen) {
-                return { 'facetOpen' : true };
-            }
-            if (defaultFacetOpen === true && !pastDefaultOpen && !currFacetOpen){
-                return { 'facetOpen' : true };
-            }
-            if (currFacetOpen && isStatic && !pastStatic && !anySelected){
-                return { 'facetOpen' : false };
-            }
-            return null;
-        }, ()=>{
-            const { facetOpen } = this.state;
-            if (pastState.facetOpen !== facetOpen){
-                ReactTooltip.rebuild();
-            }
-        });
+        this.state = { 'expanded' : false };
     }
 
     handleOpenToggleClick(e) {
         e.preventDefault();
-        this.setState(function({ facetOpen }){
-            const willBeOpen = !facetOpen;
-            if (willBeOpen) {
-                return { 'facetOpen': true };
-            } else {
-                return { 'facetClosing': true };
-            }
-        }, ()=>{
-            setTimeout(()=>{
-                this.setState(function({ facetOpen, facetClosing }){
-                    if (facetClosing){
-                        return { 'facetOpen' : false, 'facetClosing' : false };
-                    }
-                    return null;
-                });
-            }, 350);
-        });
+        const { onToggleOpen, facet: { field }, facetOpen = false } = this.props;
+        onToggleOpen(field, !facetOpen);
     }
 
     handleExpandListToggleClick(e){
@@ -251,60 +224,30 @@ export class FacetTermsList extends React.PureComponent {
         });
     }
 
-
-    renderTerms(terms){
-        const { facet, persistentCount, onTermClick } = this.props;
-        const { expanded } = this.state;
-        const makeTermComponent = (term) => (
-            <Term {...this.props} onClick={onTermClick} key={term.key} term={term} total={facet.total} />
-        );
-
-        if (terms.length > persistentCount){
-            const persistentTerms     = terms.slice(0, persistentCount);
-            const collapsibleTerms    = terms.slice(persistentCount);
-            const remainingTermsCount = !expanded ? _.reduce(collapsibleTerms, function(m, term){
-                return m + (term.doc_count || 0);
-            }, 0) : null;
-            let expandButtonTitle;
-
-            if (expanded){
-                expandButtonTitle = (
-                    <span>
-                        <i className="icon icon-fw icon-minus fas"/> Collapse
-                    </span>
-                );
-            } else {
-                expandButtonTitle = (
-                    <span>
-                        <i className="icon icon-fw icon-plus fas"/> View {terms.length - persistentCount} More
-                        <span className="pull-right">{ remainingTermsCount }</span>
-                    </span>
-                );
-            }
-
-            return (
-                <div className="facet-list">
-                    <PartialList open={expanded} persistent={ _.map(persistentTerms,  makeTermComponent)} collapsible={_.map(collapsibleTerms, makeTermComponent)} />
-                    <div className="view-more-button" onClick={this.handleExpandListToggleClick}>{ expandButtonTitle }</div>
-                </div>
-            );
-        } else {
-            return (
-                <div className="facet-list">{ _.map(terms, makeTermComponent) }</div>
-            );
-        }
-    }
-
     render(){
-        const { facet, terms, tooltip, title, isStatic, anyTermsSelected: anySelected, termsSelectedCount } = this.props;
-        const { facetOpen, facetClosing } = this.state;
+        const {
+            facet,
+            terms,
+            tooltip,
+            title,
+            isStatic,
+            anyTermsSelected: anySelected,
+            termsSelectedCount,
+            persistentCount,
+            onTermClick,
+            getTermStatus,
+            termTransformFxn,
+            facetOpen
+        } = this.props;
+        const { expanded } = this.state;
         const termsLen = terms.length;
+        const allTermsSelected = termsSelectedCount === termsLen;
         let indicator;
 
         // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
         if (isStatic || termsLen === 1){
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
-                <Fade in={facetClosing || !facetOpen}>
+                <Fade in={!facetOpen}>
                     <span className={"closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : "")}
                         data-tip={"No useful options (1 total)" + (anySelected ? "; is selected" : "")}
                         data-place="right" data-any-selected={anySelected}>
@@ -314,7 +257,7 @@ export class FacetTermsList extends React.PureComponent {
             );
         } else {
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
-                <Fade in={facetClosing || !facetOpen}>
+                <Fade in={!facetOpen}>
                     <span className={"closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : "")}
                         data-tip={`${termsLen} options with ${termsSelectedCount} selected`}
                         data-place="right" data-any-selected={anySelected}>
@@ -326,17 +269,17 @@ export class FacetTermsList extends React.PureComponent {
 
         // List of terms
         return (
-            <div className={"facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : '')} data-field={facet.field}>
+            <div className={"facet" + (facetOpen || allTermsSelected ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
+                        <i className={"icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")}/>
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={tooltip} data-place="right">{ title }</span>
                     </div>
                     { indicator }
                 </h5>
-                <Collapse in={facetOpen && !facetClosing}>{ this.renderTerms(terms) }</Collapse>
+                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn }} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
@@ -345,6 +288,104 @@ FacetTermsList.defaultProps = {
     'persistentCount' : 10
 };
 
+
+const ListOfTerms = React.memo(function ListOfTerms(props){
+    const { facet, facetOpen, facetClosing, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn } = props;
+
+    /** Create term components and sort by status (selected->omitted->unselected) */
+    const {
+        termComponents, activeTermComponents, unselectedTermComponents,
+        totalLen, selectedLen, omittedLen, unselectedLen,
+        persistentTerms = null,
+        collapsibleTerms = null,
+        collapsibleTermsCount = 0,
+        collapsibleTermsItemCount = 0
+    } = useMemo(function(){
+        const {
+            selected: selectedTermComponents    = [],
+            omitted : omittedTermComponents     = [],
+            none    : unselectedTermComponents  = []
+        } = segmentTermComponentsByStatus(terms.map(function(term){
+            return <Term {...{ facet, term, termTransformFxn }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+        }));
+        const selectedLen = selectedTermComponents.length;
+        const omittedLen = omittedTermComponents.length;
+        const unselectedLen = unselectedTermComponents.length;
+        const totalLen = selectedLen + omittedLen + unselectedLen;
+        const termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
+        const activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
+
+        const retObj = { termComponents, activeTermComponents, unselectedTermComponents, selectedLen, omittedLen, unselectedLen, totalLen };
+
+        if (totalLen <= Math.max(persistentCount, selectedLen + omittedLen)) {
+            return retObj;
+        }
+
+        const unselectedStartIdx = selectedLen + omittedLen;
+        retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
+
+        var i;
+        for (i = unselectedStartIdx; i < persistentCount; i++){
+            retObj.persistentTerms.push(termComponents[i]);
+        }
+
+        retObj.collapsibleTerms = termComponents.slice(i);
+        retObj.collapsibleTermsCount = totalLen - i;
+        retObj.collapsibleTermsItemCount = retObj.collapsibleTerms.reduce(function(m, termComponent){
+            return m + (termComponent.props.term.doc_count || 0);
+        }, 0);
+
+        return retObj;
+
+    }, [ terms, persistentCount ]);
+
+    const commonProps = {
+        "data-any-active" : !!(selectedLen || omittedLen),
+        "data-all-active" : totalLen === (selectedLen + omittedLen),
+        "data-open" : facetOpen,
+        "className" : "facet-list",
+        "key" : "facetlist"
+    };
+
+    if (Array.isArray(collapsibleTerms)){
+
+        let expandButtonTitle;
+
+        if (expanded){
+            expandButtonTitle = (
+                <span>
+                    <i className="icon icon-fw icon-minus fas"/> Collapse
+                </span>
+            );
+        } else {
+            expandButtonTitle = (
+                <span>
+                    <i className="icon icon-fw icon-plus fas"/> View { collapsibleTermsCount } More
+                    <span className="pull-right">{ collapsibleTermsItemCount }</span>
+                </span>
+            );
+        }
+
+        return (
+            <div {...commonProps}>
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
+                    <React.Fragment>
+                        <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
+                        <div className="pt-08 pb-0">
+                            <div className="view-more-button" onClick={onToggleExpanded}>{ expandButtonTitle }</div>
+                        </div>
+                    </React.Fragment>
+                } />
+            </div>
+        );
+    } else {
+        return (
+            <div {...commonProps}>
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={unselectedTermComponents} />
+            </div>
+        );
+    }
+});
 
 
 export const CountIndicator = React.memo(function CountIndicator({ count = 1, countActive = 0, height = 16, width = 40 }){
@@ -355,7 +396,7 @@ export const CountIndicator = React.memo(function CountIndicator({ count = 1, co
         // Flip both axes so going bottom right to top left.
         return (
             <circle cx={width - x + 1} cy={height - y + 1} r={2} key={idx} data-original-index={idx}
-                style={{ opacity: 1 - (colIdx * .125) }} className={(count - idx) <= countActive ? "active" : null} />
+                style={{ opacity: 1 - (colIdx * .125) }} className={(dotCountToShow - idx) <= countActive ? "active" : null} />
         );
     });
     return (

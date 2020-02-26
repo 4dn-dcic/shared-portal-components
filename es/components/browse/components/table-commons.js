@@ -249,7 +249,7 @@ var basicColumnExtensionMap = {
 exports.basicColumnExtensionMap = basicColumnExtensionMap;
 
 function sanitizeOutputValue(value) {
-  if (typeof value !== 'string' && !_react["default"].isValidElement(value)) {
+  if (typeof value !== 'string' && typeof value !== 'number' && !_react["default"].isValidElement(value)) {
     if (value && _typeof(value) === 'object') {
       if (typeof value.display_title !== 'undefined') {
         var atId = _object.itemUtil.atId(value);
@@ -262,7 +262,9 @@ function sanitizeOutputValue(value) {
           return value.display_title;
         }
       }
-    } else if (!value) value = null;
+    } else if (!value) {
+      value = null;
+    }
   }
 
   if (value === "None") value = null;
@@ -611,7 +613,7 @@ function (_React$Component) {
       }
 
       var value = (0, _object.getNestedProperty)(result, columnDefinition.field, true);
-      if (!value) value = null;
+      if (typeof value === "undefined") value = null;
 
       if (Array.isArray(value)) {
         // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.

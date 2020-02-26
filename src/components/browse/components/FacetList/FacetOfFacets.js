@@ -3,7 +3,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
-import ReactTooltip from 'react-tooltip';
 import { Collapse } from './../../../ui/Collapse';
 import { Fade } from './../../../ui/Fade';
 
@@ -18,6 +17,8 @@ export class FacetOfFacets extends React.PureComponent {
             const renderedFacet = renderedFacets[facetIdx]; // We have rendered facets as `props.facets`
             const { anyTermsSelected: anySelected } = renderedFacet.props;
             if (anySelected) {
+
+                console.log(renderedFacet);
                 return true;
             }
         }
@@ -27,100 +28,45 @@ export class FacetOfFacets extends React.PureComponent {
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
-        this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
-
         this.memoized = {
             anyFacetsHaveSelection: memoize(FacetOfFacets.anyFacetsHaveSelection)
         };
-
-        // Most of this logic (facetOpen/facetClosing at least) is same between this and FacetTermsList.
-        // Maybe we could pull it out into reusable controller component. Maybe. Very low priority.
-        this.state = {
-            'facetOpen'     : typeof props.defaultGroupOpen === 'boolean' ? props.defaultGroupOpen : true,
-            'facetClosing'  : false,
-            'expanded'      : false
-        };
-    }
-
-    componentDidUpdate(pastProps, pastState){
-        const { facets: renderedFacets, mounted, defaultGroupOpen, isStatic } = this.props;
-        const { mounted: pastMounted, defaultGroupOpen: pastDefaultOpen, isStatic: pastStatic } = pastProps;
-
-        this.setState(({ facetOpen: currFacetOpen }) => {
-            if (!pastMounted && mounted && typeof defaultGroupOpen === 'boolean' && defaultGroupOpen !== pastDefaultOpen) {
-                return { 'facetOpen' : true };
-            }
-            if (defaultGroupOpen === true && !pastDefaultOpen && !currFacetOpen){
-                return { 'facetOpen' : true };
-            }
-            if (currFacetOpen && isStatic && !pastStatic && !this.memoized.anyFacetsHaveSelection(renderedFacets)){
-                return { 'facetOpen' : false };
-            }
-            return null;
-        }, ()=>{
-            const { facetOpen } = this.state;
-            if (pastState.facetOpen !== facetOpen){
-                ReactTooltip.rebuild();
-            }
-        });
     }
 
     handleOpenToggleClick(e) {
         e.preventDefault();
-        this.setState(function({ facetOpen }){
-            const willBeOpen = !facetOpen;
-            if (willBeOpen) {
-                return { 'facetOpen': true };
-            } else {
-                return { 'facetClosing': true };
-            }
-        }, ()=>{
-            setTimeout(()=>{
-                this.setState(function({ facetOpen, facetClosing }){
-                    if (facetClosing){
-                        return { 'facetOpen' : false, 'facetClosing' : false };
-                    }
-                    return null;
-                });
-            }, 350);
-        });
+        const { onToggleOpen, title: groupTitle, facetOpen = false } = this.props;
+        onToggleOpen("group:" + groupTitle, !facetOpen);
     }
-
-    handleExpandListToggleClick(e){
-        e.preventDefault();
-        this.setState(function({ expanded }){
-            return { 'expanded' : !expanded };
-        });
-    }
-
 
     render() {
-        const { title, facets: renderedFacets, tooltip } = this.props;
-        const { facetOpen, facetClosing } = this.state;
+        const { title, children: renderedFacets, tooltip, facetOpen, openFacets = {} } = this.props;
         const anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets);
 
         // Ensure all facets within group are not "static single terms".
+        // Pass in facetOpen prop.
         const extendedFacets = React.Children.map(renderedFacets, function(renderedFacet){
-            return React.cloneElement(renderedFacet, { isStatic: false });
+            const { facet : { field } } = renderedFacet.props;
+            return React.cloneElement(renderedFacet, { isStatic: false, facetOpen: openFacets[field] });
         });
 
         return (
-            <div className={"facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : '')} data-group={title}>
+            <div className={"facet" + (facetOpen || anySelections ? ' open' : ' closed')} data-group={title}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
+                        <i className={"icon icon-fw icon-" + (anySelections ? "dot-circle far" : (facetOpen ? "minus fas" : "plus fas"))}/>
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={tooltip} data-place="right">{ title }</span>
                     </div>
-                    <Fade in={facetClosing || !facetOpen}>
+                    <Fade in={!facetOpen && !anySelections}>
                         <span className={"closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : "")} data-place="right"
                             data-tip={`Group of ${extendedFacets.length} facets ${ anySelections ? " with at least 1 having a selection." : ""}`}>
                             <i className="icon fas icon-layer-group" />
                         </span>
                     </Fade>
                 </h5>
-                <Collapse in={facetOpen && !facetClosing}>
+                <Collapse in={facetOpen || anySelections}>
                     <div className="facet-group-list-container">
                         { extendedFacets }
                     </div>

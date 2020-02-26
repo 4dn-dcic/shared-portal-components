@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getValueFromFilters = getValueFromFilters;
+exports.getRangeValuesFromFiltersByField = getRangeValuesFromFiltersByField;
 exports.RangeFacet = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -13,8 +13,6 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 var _underscore = _interopRequireDefault(require("underscore"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _reactBootstrap = require("react-bootstrap");
 
@@ -58,33 +56,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function getValueFromFilters(facet) {
+function getRangeValuesFromFiltersByField() {
+  var facets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var filters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-  var field = facet.field;
+  var facetsByFilterField = {};
+  var valuesByField = {};
+  facets.forEach(function (f) {
+    if (f.aggregation_type !== "stats") {
+      return; // Skip
+    }
 
-  var toFilter = _underscore["default"].findWhere(filters, {
-    field: field + ".to"
+    facetsByFilterField[f.field + ".to"] = f;
+    facetsByFilterField[f.field + ".from"] = f;
   });
+  filters.forEach(function (f) {
+    var filterField = f.field,
+        strValue = f.term; // filterField would have .to and .from appended.
 
-  var fromFilter = _underscore["default"].findWhere(filters, {
-    field: field + ".from"
+    var facet = facetsByFilterField[filterField];
+    if (!facet) return; // Skip, not range facet.
+
+    var facetField = facet.field;
+    valuesByField[facetField] = valuesByField[facetField] || {};
+    var value = RangeFacet.parseNumber(facet, strValue);
+
+    if (facetField + ".to" === filterField) {
+      valuesByField[facetField].toVal = value;
+    } else if (facetField + ".from" === filterField) {
+      valuesByField[facetField].fromVal = value;
+    } else {
+      throw new Error("Unexpected facet/filter");
+    }
   });
-
-  var fromVal = null;
-  var toVal = null;
-
-  if (fromFilter) {
-    fromVal = RangeFacet.parseNumber(facet, fromFilter.term);
-  }
-
-  if (toFilter) {
-    toVal = RangeFacet.parseNumber(facet, toFilter.term);
-  }
-
-  return {
-    fromVal: fromVal,
-    toVal: toVal
-  };
+  return valuesByField;
 }
 
 var RangeFacet =
@@ -215,7 +219,6 @@ function (_React$PureComponent) {
       validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements)
     };
     _this.state = {
-      facetOpen: props.defaultFacetOpen || false,
       facetClosing: false,
       fromVal: props.fromVal,
       toVal: props.toVal
@@ -224,45 +227,6 @@ function (_React$PureComponent) {
   }
 
   _createClass(RangeFacet, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps, pastState) {
-      var _this2 = this;
-
-      var _this$props = this.props,
-          mounted = _this$props.mounted,
-          defaultFacetOpen = _this$props.defaultFacetOpen,
-          isStatic = _this$props.isStatic;
-      this.setState(function (_ref2) {
-        var currFacetOpen = _ref2.facetOpen;
-
-        if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
-          return {
-            'facetOpen': true
-          };
-        }
-
-        if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen) {
-          return {
-            'facetOpen': true
-          };
-        }
-
-        if (currFacetOpen && isStatic && !pastProps.isStatic) {
-          return {
-            'facetOpen': false
-          };
-        }
-
-        return null;
-      }, function () {
-        var facetOpen = _this2.state.facetOpen;
-
-        if (pastState.facetOpen !== facetOpen) {
-          _reactTooltip["default"].rebuild();
-        }
-      });
-    }
-  }, {
     key: "setFrom",
     value: function setFrom(value, callback) {
       var facet = this.props.facet;
@@ -271,11 +235,8 @@ function (_React$PureComponent) {
 
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
-
-        _patchedConsole.patchedConsoleInstance.log("AAAAA", fromVal, value, facet);
-
-        this.setState(function (_ref3) {
-          var toVal = _ref3.toVal;
+        this.setState(function (_ref2) {
+          var toVal = _ref2.toVal;
 
           if (fromVal === null || fromVal === min) {
             return {
@@ -312,8 +273,8 @@ function (_React$PureComponent) {
 
       try {
         var toVal = RangeFacet.parseAndValidate(facet, value);
-        this.setState(function (_ref4) {
-          var fromVal = _ref4.fromVal;
+        this.setState(function (_ref3) {
+          var fromVal = _ref3.fromVal;
 
           if (toVal === null || toVal === max) {
             return {
@@ -344,9 +305,9 @@ function (_React$PureComponent) {
   }, {
     key: "performUpdateFrom",
     value: function performUpdateFrom() {
-      var _this$props2 = this.props,
-          onFilter = _this$props2.onFilter,
-          facet = _this$props2.facet;
+      var _this$props = this.props,
+          onFilter = _this$props.onFilter,
+          facet = _this$props.facet;
       var fromVal = this.state.fromVal;
       onFilter(_objectSpread({}, facet, {
         field: facet.field + ".from"
@@ -357,9 +318,9 @@ function (_React$PureComponent) {
   }, {
     key: "performUpdateTo",
     value: function performUpdateTo() {
-      var _this$props3 = this.props,
-          onFilter = _this$props3.onFilter,
-          facet = _this$props3.facet;
+      var _this$props2 = this.props,
+          onFilter = _this$props2.onFilter,
+          facet = _this$props2.facet;
       var toVal = this.state.toVal;
       onFilter(_objectSpread({}, facet, {
         field: facet.field + ".to"
@@ -379,13 +340,14 @@ function (_React$PureComponent) {
     }
   }, {
     key: "handleOpenToggleClick",
-    value: function handleOpenToggleClick() {
-      this.setState(function (_ref5) {
-        var facetOpen = _ref5.facetOpen;
-        return {
-          facetOpen: !facetOpen
-        };
-      });
+    value: function handleOpenToggleClick(e) {
+      e.preventDefault();
+      var _this$props3 = this.props,
+          onToggleOpen = _this$props3.onToggleOpen,
+          field = _this$props3.facet.field,
+          _this$props3$facetOpe = _this$props3.facetOpen,
+          facetOpen = _this$props3$facetOpe === void 0 ? false : _this$props3$facetOpe;
+      onToggleOpen(field, !facetOpen);
     }
   }, {
     key: "render",
@@ -396,18 +358,16 @@ function (_React$PureComponent) {
           termTransformFxn = _this$props4.termTransformFxn,
           isStatic = _this$props4.isStatic,
           savedFromVal = _this$props4.fromVal,
-          savedToVal = _this$props4.toVal;
+          savedToVal = _this$props4.toVal,
+          facetOpen = _this$props4.facetOpen;
       var field = facet.field,
           min = facet.min,
           max = facet.max,
           _facet$title = facet.title,
           facetTitle = _facet$title === void 0 ? null : _facet$title,
           _facet$description = facet.description,
-          tooltip = _facet$description === void 0 ? null : _facet$description,
-          number_step = facet.number_step;
+          tooltip = _facet$description === void 0 ? null : _facet$description;
       var _this$state = this.state,
-          facetOpen = _this$state.facetOpen,
-          facetClosing = _this$state.facetClosing,
           fromVal = _this$state.fromVal,
           toVal = _this$state.toVal;
 
@@ -415,8 +375,9 @@ function (_React$PureComponent) {
           fromIncrements = _this$memoized$validI.fromIncrements,
           toIncrements = _this$memoized$validI.toIncrements;
 
+      var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
       return _react["default"].createElement("div", {
-        className: "facet range-facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
+        className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
         "data-field": facet.field
       }, _react["default"].createElement("h5", {
         className: "facet-title",
@@ -424,14 +385,14 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, _react["default"].createElement("i", {
-        className: "icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")
+        className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
       })), _react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, _react["default"].createElement("span", {
         "data-tip": tooltip,
         "data-place": "right"
       }, propTitle || facetTitle || field)), _react["default"].createElement(_reactBootstrap.Fade, {
-        "in": facetClosing || !facetOpen
+        "in": !isOpen
       }, _react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
       }, isStatic ? _react["default"].createElement("i", {
@@ -442,7 +403,7 @@ function (_React$PureComponent) {
       }) : _react["default"].createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas"
       })))), _react["default"].createElement(_Collapse.Collapse, {
-        "in": facetOpen && !facetClosing
+        "in": isOpen
       }, _react["default"].createElement("div", {
         className: "inner-panel"
       }, _react["default"].createElement("div", {
@@ -510,15 +471,15 @@ function (_React$PureComponent2) {
   _inherits(RangeDropdown, _React$PureComponent2);
 
   function RangeDropdown(props) {
-    var _this3;
+    var _this2;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(RangeDropdown).call(this, props));
-    _this3.onTextInputChange = _this3.onTextInputChange.bind(_assertThisInitialized(_this3));
-    _this3.onDropdownSelect = _this3.onDropdownSelect.bind(_assertThisInitialized(_this3));
-    _this3.onTextInputFormSubmit = _this3.onTextInputFormSubmit.bind(_assertThisInitialized(_this3));
-    return _this3;
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(RangeDropdown).call(this, props));
+    _this2.onTextInputChange = _this2.onTextInputChange.bind(_assertThisInitialized(_this2));
+    _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
+    _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
+    return _this2;
   }
 
   _createClass(RangeDropdown, [{
