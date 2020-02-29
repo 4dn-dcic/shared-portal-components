@@ -5,7 +5,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import ReactTooltip from 'react-tooltip';
 import { DropdownButton, DropdownItem, Fade } from 'react-bootstrap';
 
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
@@ -13,19 +12,32 @@ import { patchedConsoleInstance as console } from './../../../util/patched-conso
 import { Collapse } from './../../../ui/Collapse';
 
 
-export function getValueFromFilters(facet, filters = []){
-    const { field } = facet;
-    const toFilter = _.findWhere(filters, { field: field + ".to" });
-    const fromFilter = _.findWhere(filters, { field: field + ".from" });
-    let fromVal = null;
-    let toVal = null;
-    if (fromFilter) {
-        fromVal = RangeFacet.parseNumber(facet, fromFilter.term);
-    }
-    if (toFilter) {
-        toVal = RangeFacet.parseNumber(facet, toFilter.term);
-    }
-    return { fromVal, toVal };
+export function getRangeValuesFromFiltersByField(facets = [], filters = []){
+    const facetsByFilterField = {};
+    const valuesByField = {};
+    facets.forEach(function(f){
+        if (f.aggregation_type !== "stats") {
+            return; // Skip
+        }
+        facetsByFilterField[f.field + ".to"] = f;
+        facetsByFilterField[f.field + ".from"] = f;
+    });
+    filters.forEach(function(f){
+        const { field: filterField, term: strValue } = f; // filterField would have .to and .from appended.
+        const facet = facetsByFilterField[filterField];
+        if (!facet) return; // Skip, not range facet.
+        const { field: facetField } = facet;
+        valuesByField[facetField] = valuesByField[facetField] || {};
+        const value = RangeFacet.parseNumber(facet, strValue);
+        if (facetField + ".to" === filterField) {
+            valuesByField[facetField].toVal = value;
+        } else if (facetField + ".from" === filterField) {
+            valuesByField[facetField].fromVal = value;
+        } else {
+            throw new Error("Unexpected facet/filter");
+        }
+    });
+    return valuesByField;
 }
 
 
@@ -137,33 +149,10 @@ export class RangeFacet extends React.PureComponent {
         };
 
         this.state = {
-            facetOpen : props.defaultFacetOpen || false,
             facetClosing: false,
             fromVal: props.fromVal,
             toVal: props.toVal
         };
-    }
-
-    componentDidUpdate(pastProps, pastState){
-        const { mounted, defaultFacetOpen, isStatic } = this.props;
-
-        this.setState(function({ facetOpen: currFacetOpen }){
-            if (!pastProps.mounted && mounted && typeof defaultFacetOpen === 'boolean' && defaultFacetOpen !== pastProps.defaultFacetOpen) {
-                return { 'facetOpen' : true };
-            }
-            if (defaultFacetOpen === true && !pastProps.defaultFacetOpen && !currFacetOpen){
-                return { 'facetOpen' : true };
-            }
-            if (currFacetOpen && isStatic && !pastProps.isStatic){
-                return { 'facetOpen' : false };
-            }
-            return null;
-        }, ()=>{
-            const { facetOpen } = this.state;
-            if (pastState.facetOpen !== facetOpen){
-                ReactTooltip.rebuild();
-            }
-        });
     }
 
     setFrom(value, callback){
@@ -171,7 +160,6 @@ export class RangeFacet extends React.PureComponent {
         const { min, max } = facet;
         try {
             let fromVal = RangeFacet.parseAndValidate(facet, value);
-            console.log("AAAAA", fromVal, value, facet);
             this.setState(function({ toVal }){
                 if (fromVal === null || fromVal === min) {
                     return { fromVal: null };
@@ -243,29 +231,31 @@ export class RangeFacet extends React.PureComponent {
         this.setTo(null, this.performUpdateTo);
     }
 
-    handleOpenToggleClick(){
-        this.setState(function({ facetOpen }){
-            return { facetOpen: !facetOpen };
-        });
+    handleOpenToggleClick(e) {
+        e.preventDefault();
+        const { onToggleOpen, facet: { field }, facetOpen = false } = this.props;
+        onToggleOpen(field, !facetOpen);
     }
 
     render(){
-        const { facet, title: propTitle, termTransformFxn, isStatic, fromVal: savedFromVal, toVal: savedToVal } = this.props;
-        const { field, min, max, title: facetTitle = null, description: tooltip = null, number_step } = facet;
-        const { facetOpen, facetClosing, fromVal, toVal } = this.state;
+        const { facet, title: propTitle, termTransformFxn, isStatic, fromVal: savedFromVal, toVal: savedToVal, facetOpen } = this.props;
+        const { field, min, max, title: facetTitle = null, description: tooltip = null } = facet;
+        const { fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
         const title = propTitle || facetTitle || field;
 
+        const isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
+
         return (
-            <div className={"facet range-facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : '')} data-field={facet.field}>
+            <div className={"facet range-facet" + (isOpen ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")}/>
+                        <i className={"icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : (isOpen ? "minus fas" : "plus fas"))}/>
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={tooltip} data-place="right">{ title }</span>
                     </div>
-                    <Fade in={facetClosing || !facetOpen}>
+                    <Fade in={!isOpen}>
                         <span className={"closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")}>
                             { isStatic?
                                 <i className={"icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle")}
@@ -274,7 +264,7 @@ export class RangeFacet extends React.PureComponent {
                         </span>
                     </Fade>
                 </h5>
-                <Collapse in={facetOpen && !facetClosing}>
+                <Collapse in={isOpen}>
                     <div className="inner-panel">
                         <div className="row">
                             <label className="col-auto mb-0">

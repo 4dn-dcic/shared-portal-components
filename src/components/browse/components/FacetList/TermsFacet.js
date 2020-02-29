@@ -24,15 +24,6 @@ import { StaticSingleTerm } from './StaticSingleTerm';
  */
 export class TermsFacet extends React.PureComponent {
 
-    static isStatic(facet){
-        const { terms = null, total = 0 } = facet;
-        return (
-            Array.isArray(terms) &&
-            terms.length === 1 &&
-            total <= _.reduce(terms, function(m, t){ return m + (t.doc_count || 0); }, 0)
-        );
-    }
-
     constructor(props){
         super(props);
         this.handleStaticClick = this.handleStaticClick.bind(this);
@@ -108,5 +99,5 @@ TermsFacet.propTypes = {
     'getTermStatus'         : PropTypes.func.isRequired,
     'href'                  : PropTypes.string.isRequired,
     'filters'               : PropTypes.arrayOf(PropTypes.object).isRequired,
-    'mounted'               : PropTypes.bool
+    'windowWidth'           : PropTypes.number
 };

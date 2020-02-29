@@ -11,8 +11,6 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
 var _Collapse = require("./../../../ui/Collapse");
 
 var _Fade = require("./../../../ui/Fade");
@@ -54,6 +52,7 @@ function (_React$PureComponent) {
         var anySelected = renderedFacet.props.anyTermsSelected;
 
         if (anySelected) {
+          console.log(renderedFacet);
           return true;
         }
       }
@@ -69,130 +68,46 @@ function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(FacetOfFacets).call(this, props));
     _this.handleOpenToggleClick = _this.handleOpenToggleClick.bind(_assertThisInitialized(_this));
-    _this.handleExpandListToggleClick = _this.handleExpandListToggleClick.bind(_assertThisInitialized(_this));
     _this.memoized = {
       anyFacetsHaveSelection: (0, _memoizeOne["default"])(FacetOfFacets.anyFacetsHaveSelection)
-    }; // Most of this logic (facetOpen/facetClosing at least) is same between this and FacetTermsList.
-    // Maybe we could pull it out into reusable controller component. Maybe. Very low priority.
-
-    _this.state = {
-      'facetOpen': typeof props.defaultGroupOpen === 'boolean' ? props.defaultGroupOpen : true,
-      'facetClosing': false,
-      'expanded': false
     };
     return _this;
   }
 
   _createClass(FacetOfFacets, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps, pastState) {
-      var _this2 = this;
-
-      var _this$props = this.props,
-          renderedFacets = _this$props.facets,
-          mounted = _this$props.mounted,
-          defaultGroupOpen = _this$props.defaultGroupOpen,
-          isStatic = _this$props.isStatic;
-      var pastMounted = pastProps.mounted,
-          pastDefaultOpen = pastProps.defaultGroupOpen,
-          pastStatic = pastProps.isStatic;
-      this.setState(function (_ref) {
-        var currFacetOpen = _ref.facetOpen;
-
-        if (!pastMounted && mounted && typeof defaultGroupOpen === 'boolean' && defaultGroupOpen !== pastDefaultOpen) {
-          return {
-            'facetOpen': true
-          };
-        }
-
-        if (defaultGroupOpen === true && !pastDefaultOpen && !currFacetOpen) {
-          return {
-            'facetOpen': true
-          };
-        }
-
-        if (currFacetOpen && isStatic && !pastStatic && !_this2.memoized.anyFacetsHaveSelection(renderedFacets)) {
-          return {
-            'facetOpen': false
-          };
-        }
-
-        return null;
-      }, function () {
-        var facetOpen = _this2.state.facetOpen;
-
-        if (pastState.facetOpen !== facetOpen) {
-          _reactTooltip["default"].rebuild();
-        }
-      });
-    }
-  }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
-      var _this3 = this;
-
       e.preventDefault();
-      this.setState(function (_ref2) {
-        var facetOpen = _ref2.facetOpen;
-
-        if (!facetOpen) {
-          return {
-            'facetOpen': true
-          };
-        } else {
-          return {
-            'facetClosing': true
-          };
-        }
-      }, function () {
-        setTimeout(function () {
-          _this3.setState(function (_ref3) {
-            var facetOpen = _ref3.facetOpen,
-                facetClosing = _ref3.facetClosing;
-
-            if (facetClosing) {
-              return {
-                'facetOpen': false,
-                'facetClosing': false
-              };
-            }
-
-            return null;
-          });
-        }, 350);
-      });
-    }
-  }, {
-    key: "handleExpandListToggleClick",
-    value: function handleExpandListToggleClick(e) {
-      e.preventDefault();
-      this.setState(function (_ref4) {
-        var expanded = _ref4.expanded;
-        return {
-          'expanded': !expanded
-        };
-      });
+      var _this$props = this.props,
+          onToggleOpen = _this$props.onToggleOpen,
+          groupTitle = _this$props.title,
+          _this$props$facetOpen = _this$props.facetOpen,
+          facetOpen = _this$props$facetOpen === void 0 ? false : _this$props$facetOpen;
+      onToggleOpen("group:" + groupTitle, !facetOpen);
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
           title = _this$props2.title,
-          renderedFacets = _this$props2.facets,
-          tooltip = _this$props2.tooltip;
-      var _this$state = this.state,
-          facetOpen = _this$state.facetOpen,
-          facetClosing = _this$state.facetClosing;
+          renderedFacets = _this$props2.children,
+          tooltip = _this$props2.tooltip,
+          facetOpen = _this$props2.facetOpen,
+          _this$props2$openFace = _this$props2.openFacets,
+          openFacets = _this$props2$openFace === void 0 ? {} : _this$props2$openFace;
       var anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets); // Ensure all facets within group are not "static single terms".
+      // Pass in facetOpen prop.
 
       var extendedFacets = _react["default"].Children.map(renderedFacets, function (renderedFacet) {
+        var field = renderedFacet.props.facet.field;
         return _react["default"].cloneElement(renderedFacet, {
-          isStatic: false
+          isStatic: false,
+          facetOpen: openFacets[field]
         });
       });
 
       return _react["default"].createElement("div", {
-        className: "facet" + (facetOpen ? ' open' : ' closed') + (facetClosing ? ' closing' : ''),
+        className: "facet" + (facetOpen || anySelections ? ' open' : ' closed'),
         "data-group": title
       }, _react["default"].createElement("h5", {
         className: "facet-title",
@@ -200,14 +115,14 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, _react["default"].createElement("i", {
-        className: "icon icon-fw fas " + (facetOpen && !facetClosing ? "icon-minus" : "icon-plus")
+        className: "icon icon-fw icon-" + (anySelections ? "dot-circle far" : facetOpen ? "minus fas" : "plus fas")
       })), _react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, _react["default"].createElement("span", {
         "data-tip": tooltip,
         "data-place": "right"
       }, title)), _react["default"].createElement(_Fade.Fade, {
-        "in": facetClosing || !facetOpen
+        "in": !facetOpen && !anySelections
       }, _react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
         "data-place": "right",
@@ -215,7 +130,7 @@ function (_React$PureComponent) {
       }, _react["default"].createElement("i", {
         className: "icon fas icon-layer-group"
       })))), _react["default"].createElement(_Collapse.Collapse, {
-        "in": facetOpen && !facetClosing
+        "in": facetOpen || anySelections
       }, _react["default"].createElement("div", {
         className: "facet-group-list-container"
       }, extendedFacets)));
