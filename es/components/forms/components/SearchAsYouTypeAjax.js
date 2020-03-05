@@ -224,9 +224,11 @@ function (_React$PureComponent) {
       var currentTextValue = this.state.currentTextValue;
 
       if (!titleRenderFunction(currentTextValue)) {
-        // if title hasn't been registered, use the old value
+        console.log("title hasn't been registered"); // if title hasn't been registered, use the old value
+
         onChange(result, value);
       } else {
+        console.log("calling onDropdownSelect", result);
         onChange(result, result['@id']);
       }
     }
@@ -287,7 +289,6 @@ function (_React$PureComponent) {
         currentTextValue: currentTextValue
       }, {
         alignRight: true,
-        showTips: true,
         options: results,
         onToggleOpen: this.onToggleOpen,
         onTextInputChange: this.onTextInputChange,
@@ -332,9 +333,12 @@ SearchAsYouTypeAjax.defaultProps = {
   "fieldsToRequest": ["@id", "display_title", "description"] // additional fields aside from @id, display_title, and description; all already included
 
 };
+/**
+ * A HOC for wrapping SearchAsYouTypeAjax with SubmissionView specific bits, like
+ * the LinkedObj component which renders the "Create New" & "Advanced Search" buttons.
+ */
 
 function SubmissionViewSearchAsYouTypeAjax(props) {
-  // Another higher-order-component
   var selectComplete = props.selectComplete,
       nestedField = props.nestedField,
       value = props.value,
@@ -347,15 +351,20 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
       idToTitleMap = _props$idToTitleMap === void 0 ? null : _props$idToTitleMap; // Add some logic based on schema.Linkto props if itemType not already available
 
   var baseHref = "/search/?type=" + linkTo; // console.log("idToTitleMap: ", idToTitleMap);
+  // Retrieves Item types from SubmissionView props and uses that to pass SAYTAJAX
+  // item-specific options for rendering dropdown items with more/different info than default
 
-  var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
+  var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction; // Retrieves the appropriate fields based on item type
+
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   var onChange = (0, _react.useMemo)(function () {
     return function (resultItem, valueToReplace) {
       console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
       return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
     };
-  }, [selectComplete, nestedField, itemType, arrayIdx]);
+  }, [selectComplete, nestedField, itemType, arrayIdx]); // Uses idToTitleMap (similar to SubmissionView.keyDisplay) to keep track of & render display_titles
+  // for previously seen objects
+
   var titleRenderFunction = (0, _react.useMemo)(function () {
     return function (resultAtID) {
       return idToTitleMap[resultAtID] || resultAtID;
@@ -364,6 +373,8 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
   return _react["default"].createElement("div", {
     className: "d-flex flex-wrap"
   }, _react["default"].createElement(SearchAsYouTypeAjax, _extends({
+    showTips: true
+  }, {
     value: value,
     onChange: onChange,
     baseHref: baseHref,

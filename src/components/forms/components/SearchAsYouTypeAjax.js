@@ -115,9 +115,11 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         const { onChange, value, titleRenderFunction } = this.props;
         const { currentTextValue } = this.state;
         if (!titleRenderFunction(currentTextValue)) {
+            console.log("title hasn't been registered");
             // if title hasn't been registered, use the old value
             onChange(result, value);
         } else {
+            console.log("calling onDropdownSelect", result);
             onChange(result, result['@id']);
         }
     }
@@ -172,7 +174,6 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         return ( hideButton ? null : (
             <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue }}
                 alignRight={true}
-                showTips={true}
                 options={results}
                 onToggleOpen={this.onToggleOpen}
                 onTextInputChange={this.onTextInputChange}
@@ -211,8 +212,11 @@ SearchAsYouTypeAjax.defaultProps = {
     "fieldsToRequest" : ["@id", "display_title", "description"] // additional fields aside from @id, display_title, and description; all already included
 };
 
-
-export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-order-component
+/**
+ * A HOC for wrapping SearchAsYouTypeAjax with SubmissionView specific bits, like
+ * the LinkedObj component which renders the "Create New" & "Advanced Search" buttons.
+ */
+export function SubmissionViewSearchAsYouTypeAjax(props){
     const {
         selectComplete,
         nestedField,
@@ -228,11 +232,14 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
 
     // console.log("idToTitleMap: ", idToTitleMap);
 
+    // Retrieves Item types from SubmissionView props and uses that to pass SAYTAJAX
+    // item-specific options for rendering dropdown items with more/different info than default
     const optionRenderFunction = (
         optionCustomizationsByType[itemType] &&
         optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null
     ) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
 
+    // Retrieves the appropriate fields based on item type
     const fieldsToRequest = (
         optionCustomizationsByType[itemType] &&
         optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null
@@ -245,6 +252,8 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
         };
     }, [ selectComplete, nestedField, itemType, arrayIdx ]);
 
+    // Uses idToTitleMap (similar to SubmissionView.keyDisplay) to keep track of & render display_titles
+    // for previously seen objects
     const titleRenderFunction = useMemo(function(){
         return function(resultAtID){
             return idToTitleMap[resultAtID] || resultAtID;
@@ -253,7 +262,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
 
     return (
         <div className="d-flex flex-wrap">
-            <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction,
+            <SearchAsYouTypeAjax showTips={true} {...{ value, onChange, baseHref, optionRenderFunction,
                 fieldsToRequest, titleRenderFunction, selectComplete }} {...props} />
             <LinkedObj key="linked-item" {...props} {...{ baseHref }} />
         </div>
