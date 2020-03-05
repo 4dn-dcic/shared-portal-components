@@ -22,15 +22,13 @@ var _Checkbox = require("./Checkbox");
 
 var _util = require("./../../util");
 
-var _Alerts = require("./../../ui/Alerts");
-
 var _BasicStaticSectionBody = require("./../../static-pages/BasicStaticSectionBody");
 
 var _rcProgress = require("rc-progress");
 
-var _LinkToSelector = require("./LinkToSelector");
-
 var _SearchAsYouTypeLocal = require("./SearchAsYouTypeLocal");
+
+var _SearchAsYouTypeAjax = require("./SearchAsYouTypeAjax");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -174,6 +172,8 @@ function (_React$PureComponent) {
           roundTwo = _this$props.roundTwo,
           currType = _this$props.currType,
           currContext = _this$props.currContext,
+          keyDisplay = _this$props.keyDisplay,
+          selectComplete = _this$props.selectComplete,
           propFieldType = _this$props.fieldType;
       fieldType = fieldType || propFieldType;
       var inputProps = {
@@ -267,20 +267,14 @@ function (_React$PureComponent) {
         case 'enum':
           return _react["default"].createElement("span", {
             className: "input-wrapper"
-          }, _react["default"].createElement(_reactBootstrap.DropdownButton, {
-            title: value || _react["default"].createElement("span", {
-              className: "text-300"
-            }, "No value"),
-            onToggle: this.handleDropdownButtonToggle,
-            variant: "outline-dark",
-            onSelect: this.handleEnumChange
-          }, enumValues.map(function (val) {
-            return _react["default"].createElement(_reactBootstrap.DropdownItem, {
-              key: val,
-              title: val || '',
-              eventKey: val
-            }, val || '');
-          })));
+          }, _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
+            searchList: enumValues,
+            value: value,
+            allowCustomValue: false,
+            filterMethod: "includes",
+            onChange: this.handleEnumChange,
+            maxResults: 3
+          }));
 
         case 'suggested_enum':
           return _react["default"].createElement("span", {
@@ -295,9 +289,14 @@ function (_React$PureComponent) {
           }));
 
         case 'linked object':
-          return _react["default"].createElement(LinkedObj, _extends({
-            key: "linked-item"
-          }, this.props));
+          return _react["default"].createElement("div", {
+            className: "input-wrapper"
+          }, _react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, _extends({
+            value: value,
+            allowCustomValue: false
+          }, this.props, {
+            idToTitleMap: keyDisplay
+          })));
 
         case 'array':
           return _react["default"].createElement(ArrayField, _extends({}, this.props, {
@@ -359,6 +358,11 @@ function (_React$PureComponent) {
       }
 
       modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
+    }
+  }, {
+    key: "handleDropdownLinkToChange",
+    value: function handleDropdownLinkToChange(resultItem) {
+      modifyNewContext(nestedField, resultItem['@id'], fieldType, linkType, arrayIdx, null, resultItem.display_title);
     }
   }, {
     key: "handleEnumChange",
@@ -613,13 +617,13 @@ function (_React$PureComponent) {
         showDelete = false;
       }
 
-      if (fieldType === 'linked object' && LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx)) {
+      if (fieldType === 'linked object' && _SearchAsYouTypeAjax.LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx)) {
         extClass += ' in-selection-field';
       }
 
       return wrapFunc(_react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         className: 'field-column col' + extClass
-      }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null : _react["default"].createElement(SquareButton, {
+      }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null : _react["default"].createElement(_SearchAsYouTypeAjax.SquareButton, {
         show: showDelete,
         disabled: disableDelete,
         tip: isArray ? 'Remove Item' : 'Clear Value',
@@ -629,443 +633,10 @@ function (_React$PureComponent) {
   }]);
 
   return BuildField;
-}(_react["default"].PureComponent);
+}(_react["default"].PureComponent); //var linkedObjChildWindow = null; // Global var
+
 
 exports.BuildField = BuildField;
-
-var SquareButton = _react["default"].memo(function (props) {
-  var show = props.show,
-      disabled = props.disabled,
-      onClick = props.onClick,
-      tip = props.tip,
-      bsStyle = props.bsStyle,
-      className = props.className,
-      buttonContainerClassName = props.buttonContainerClassName,
-      icon = props.icon,
-      style = props.style;
-  var outerCls = "remove-button-container" + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
-  var btnCls = "btn" + (className ? " " + className : "");
-
-  if (bsStyle) {
-    btnCls += " btn-" + bsStyle;
-  }
-
-  return _react["default"].createElement("div", {
-    className: "remove-button-column" + (!show ? ' hidden' : ''),
-    style: style
-  }, _react["default"].createElement(_Fade.Fade, {
-    "in": show
-  }, _react["default"].createElement("div", {
-    className: outerCls
-  }, _react["default"].createElement("button", {
-    type: "button",
-    disabled: disabled || !show,
-    onClick: onClick,
-    "data-tip": tip,
-    tabIndex: 2,
-    className: btnCls
-  }, _react["default"].createElement("i", {
-    className: "icon icon-fw icon-" + icon
-  })))));
-});
-
-SquareButton.defaultProps = {
-  'bsStyle': 'danger',
-  'icon': 'times fas',
-  'style': null
-}; //var linkedObjChildWindow = null; // Global var
-
-/** Case for a linked object. */
-
-var LinkedObj =
-/*#__PURE__*/
-function (_React$PureComponent2) {
-  _inherits(LinkedObj, _React$PureComponent2);
-
-  _createClass(LinkedObj, null, [{
-    key: "isInSelectionField",
-
-    /**
-     * @param {Object} props - Props passed from LinkedObj or BuildField.
-     * @param {string} props.nestedField - Field of LinkedObj
-     * @param {number[]|null} props.arrayIdx - Array index (if any) of this item, if any.
-     * @param {string} props.fieldBeingSelected - Field currently selected for linkedTo item selection.
-     * @param {number[]|null} props.fieldBeingSelectedArrayIdx - Array index (if any) of currently selected for linkedTo item selection.
-     * @returns {boolean} Whether is currently selected field/item or not.
-     */
-    value: function isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx) {
-      //if (!props) return false;
-      //const { fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = props;
-      if (!fieldBeingSelected || fieldBeingSelected !== nestedField) {
-        return false;
-      }
-
-      if (arrayIdx === null && fieldBeingSelectedArrayIdx === null) {
-        return true;
-      }
-
-      if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
-        return _underscore["default"].every(arrayIdx, function (arrIdx, arrIdxIdx) {
-          return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
-        });
-      }
-
-      return false;
-    }
-  }]);
-
-  function LinkedObj(props) {
-    var _this2;
-
-    _classCallCheck(this, LinkedObj);
-
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(LinkedObj).call(this, props));
-    _this2.updateContext = _this2.updateContext.bind(_assertThisInitialized(_this2));
-    _this2.setSubmissionStateToLinkedToItem = _this2.setSubmissionStateToLinkedToItem.bind(_assertThisInitialized(_this2));
-    _this2.handleStartSelectItem = _this2.handleStartSelectItem.bind(_assertThisInitialized(_this2));
-    _this2.handleFinishSelectItem = _this2.handleFinishSelectItem.bind(_assertThisInitialized(_this2));
-    _this2.handleCreateNewItemClick = _this2.handleCreateNewItemClick.bind(_assertThisInitialized(_this2));
-    _this2.handleTextInputChange = _this2.handleTextInputChange.bind(_assertThisInitialized(_this2));
-    _this2.handleAcceptTypedID = _this2.handleAcceptTypedID.bind(_assertThisInitialized(_this2));
-    _this2.childWindowAlert = _this2.childWindowAlert.bind(_assertThisInitialized(_this2));
-    _this2.state = {
-      'textInputValue': typeof props.value === 'string' && props.value || ''
-    };
-    return _this2;
-  }
-
-  _createClass(LinkedObj, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.updateContext();
-    }
-  }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate() {
-      this.updateContext();
-
-      _reactTooltip["default"].rebuild();
-    }
-    /**
-     * Mechanism for changing value of linked object in parent context
-     * from {number} keyIdx to {string} path of newly submitted object.
-     */
-
-  }, {
-    key: "updateContext",
-    value: function updateContext() {
-      var _this$props11 = this.props,
-          keyComplete = _this$props11.keyComplete,
-          value = _this$props11.value,
-          linkType = _this$props11.linkType,
-          arrayIdx = _this$props11.arrayIdx,
-          nestedField = _this$props11.nestedField,
-          modifyNewContext = _this$props11.modifyNewContext;
-
-      if (keyComplete[value] && !isNaN(value)) {
-        modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
-
-        _reactTooltip["default"].rebuild();
-      }
-    }
-  }, {
-    key: "setSubmissionStateToLinkedToItem",
-    value: function setSubmissionStateToLinkedToItem(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      var intKey = parseInt(this.props.value);
-      if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
-      this.props.setSubmissionState('currKey', intKey);
-    }
-  }, {
-    key: "handleStartSelectItem",
-    value: function handleStartSelectItem(e) {
-      e.preventDefault();
-      if (!window) return;
-      var _this$props12 = this.props,
-          schema = _this$props12.schema,
-          nestedField = _this$props12.nestedField,
-          currType = _this$props12.currType,
-          linkType = _this$props12.linkType,
-          arrayIdx = _this$props12.arrayIdx,
-          selectObj = _this$props12.selectObj,
-          selectCancel = _this$props12.selectCancel;
-      var itemType = schema.linkTo;
-      selectObj(itemType, nestedField, arrayIdx);
-    }
-    /**
-     * Handles drop event for the (temporarily-existing-while-dragging-over) window drop receiver element.
-     * Grabs @ID of Item from evt.dataTransfer, attempting to grab from 'text/4dn-item-id', 'text/4dn-item-json', or 'text/plain'.
-     * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
-     */
-
-  }, {
-    key: "handleFinishSelectItem",
-    value: function handleFinishSelectItem(items) {
-      var _this$props13 = this.props,
-          selectComplete = _this$props13.selectComplete,
-          isMultiSelect = _this$props13.isMultiSelect;
-
-      if (!items || !Array.isArray(items) || items.length === 0 || !_underscore["default"].every(items, function (item) {
-        return item.id && typeof item.id === 'string' && item.json;
-      })) {
-        return;
-      }
-
-      var atIds;
-
-      if (!(isMultiSelect || false)) {
-        if (items.length > 1) {
-          _util.console.warn('Multiple items selected but we only get a single item, since handler\'s not supporting multiple items!');
-        }
-
-        var _items = _slicedToArray(items, 1),
-            _items$ = _items[0],
-            atId = _items$.id,
-            itemContext = _items$.json;
-
-        atIds = [atId];
-      } else {
-        atIds = _underscore["default"].pluck(items, "id");
-      }
-
-      var invalidTitle = "Invalid Item Selected";
-
-      if (_underscore["default"].every(atIds, function (atId) {
-        var isValidAtId = _util.object.isValidAtIDFormat(atId);
-
-        return atId && isValidAtId;
-      })) {
-        _Alerts.Alerts.deQueue({
-          'title': invalidTitle
-        });
-
-        selectComplete(atIds);
-      } else {
-        _Alerts.Alerts.queue({
-          'title': invalidTitle,
-          'message': "You have selected an item or link which doesn't have a valid 4DN ID or URL associated with it. Please try again.",
-          'style': 'danger'
-        });
-
-        throw new Error('No valid @id available.');
-      }
-    }
-  }, {
-    key: "handleCreateNewItemClick",
-    value: function handleCreateNewItemClick(e) {
-      e.preventDefault();
-      var _this$props14 = this.props,
-          fieldBeingSelected = _this$props14.fieldBeingSelected,
-          selectCancel = _this$props14.selectCancel,
-          modifyNewContext = _this$props14.modifyNewContext,
-          nestedField = _this$props14.nestedField,
-          linkType = _this$props14.linkType,
-          arrayIdx = _this$props14.arrayIdx,
-          schema = _this$props14.schema;
-      if (fieldBeingSelected !== null) selectCancel();
-      modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
-    }
-  }, {
-    key: "handleAcceptTypedID",
-    value: function handleAcceptTypedID(evt) {
-      _util.console.log(evt);
-
-      if (!this || !this.state || !this.state.textInputValue) {
-        throw new Error('Invalid @id format.');
-      }
-
-      var atIds = [this.state.textInputValue];
-      this.props.selectComplete(atIds);
-    }
-  }, {
-    key: "handleTextInputChange",
-    value: function handleTextInputChange(evt) {
-      this.setState({
-        'textInputValue': evt.target.value
-      });
-    }
-  }, {
-    key: "childWindowAlert",
-    value: function childWindowAlert() {
-      var _this$props15 = this.props,
-          schema = _this$props15.schema,
-          nestedField = _this$props15.nestedField,
-          isMultiSelect = _this$props15.isMultiSelect;
-      var itemType = schema && schema.linkTo;
-      var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
-      // const message = (
-      //     <div>
-      //         { !isMultiSelect?
-      //             <p className="mb-0">
-      //                 Please either select an Item below and click <em>Apply</em> or <em>drag and drop</em> an Item (row) from this window into the submissions window.
-      //             </p>
-      //             :
-      //             <p className="mb-0">
-      //                 Please select the Item(s) you would like and then press <em>Apply</em> below.
-      //             </p>
-      //         }
-      //         <p className="mb-0">You may use facets on the left-hand side to narrow down results.</p>
-      //     </div>
-      // );
-      return {
-        title: 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
-        message: null,
-        style: 'info'
-      };
-    }
-  }, {
-    key: "renderSelectInputField",
-    value: function renderSelectInputField() {
-      var _this$props16 = this.props,
-          value = _this$props16.value,
-          selectCancel = _this$props16.selectCancel,
-          schema = _this$props16.schema,
-          currType = _this$props16.currType,
-          nestedField = _this$props16.nestedField,
-          isMultiSelect = _this$props16.isMultiSelect;
-      var textInputValue = this.state.textInputValue;
-      var canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
-      var extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
-      var itemType = schema.linkTo;
-      var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
-      var searchURL = '/search/?currentAction=' + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType; // check if we have any schema flags that will affect the searchUrl
-
-      if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
-        // the field to facet on could be set dynamically
-        if (schema.ff_flag == "filter:valid_item_types") {
-          searchURL += '&valid_item_types=' + currType;
-        }
-      }
-
-      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
-        className: "linked-object-text-input-container row flexrow"
-      }, _react["default"].createElement("div", {
-        className: "field-column col"
-      }, _react["default"].createElement("input", {
-        onChange: this.handleTextInputChange,
-        className: "form-control" + extClass,
-        inputMode: "latin",
-        type: "text",
-        placeholder: "Drag & drop Item from the search view or type in a valid @ID.",
-        value: this.state.textInputValue,
-        onDrop: this.handleDrop
-      })), canShowAcceptTypedInput ? _react["default"].createElement(SquareButton, {
-        show: true,
-        onClick: this.handleAcceptTypedID,
-        icon: "check fas",
-        bsStyle: "success",
-        tip: "Accept typed identifier and look it up in database."
-      }) : null, _react["default"].createElement(SquareButton, {
-        show: true,
-        onClick: selectCancel,
-        tip: "Cancel selection",
-        style: {
-          'marginRight': 9
-        }
-      })), _react["default"].createElement(_LinkToSelector.LinkToSelector, {
-        isSelecting: true,
-        onSelect: this.handleFinishSelectItem,
-        onCloseChildWindow: selectCancel,
-        childWindowAlert: this.childWindowAlert,
-        dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
-        searchURL: searchURL
-      }));
-    }
-  }, {
-    key: "renderEmptyField",
-    value: function renderEmptyField() {
-      return _react["default"].createElement("div", {
-        className: "linked-object-buttons-container"
-      }, _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-outline-dark select-create-linked-item-button",
-        onClick: this.handleStartSelectItem
-      }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-search fas"
-      }), " Select existing"), _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-outline-dark select-create-linked-item-button",
-        onClick: this.handleCreateNewItemClick
-      }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-file far"
-      }), " Create new"));
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props17 = this.props,
-          value = _this$props17.value,
-          keyDisplay = _this$props17.keyDisplay,
-          keyComplete = _this$props17.keyComplete,
-          fieldBeingSelected = _this$props17.fieldBeingSelected,
-          nestedField = _this$props17.nestedField,
-          arrayIdx = _this$props17.arrayIdx,
-          fieldBeingSelectedArrayIdx = _this$props17.fieldBeingSelectedArrayIdx;
-      var isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
-
-      if (isSelecting) {
-        return this.renderSelectInputField();
-      } // object chosen or being created
-
-
-      if (value) {
-        var thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)" : "<code>" + value + "</code>";
-
-        if (isNaN(value)) {
-          return _react["default"].createElement("div", {
-            className: "submitted-linked-object-display-container text-ellipsis-container"
-          }, _react["default"].createElement("i", {
-            className: "icon icon-fw icon-hdd far mr-05"
-          }), _react["default"].createElement("a", {
-            href: value,
-            target: "_blank",
-            rel: "noopener noreferrer",
-            "data-tip": thisDisplay + " is already in the database",
-            "data-html": true
-          }, keyDisplay[value] || value), _react["default"].createElement("i", {
-            className: "icon icon-fw icon-external-link-alt ml-05 fas"
-          }));
-        } else {
-          // it's a custom object. Either render a link to editing the object
-          // or a pop-up link to the object if it's already submitted
-          var intKey = parseInt(value); // this is a fallback - shouldn't be int because value should be
-          // string once the obj is successfully submitted
-
-          if (keyComplete[intKey]) {
-            return _react["default"].createElement("div", null, _react["default"].createElement("a", {
-              href: keyComplete[intKey],
-              target: "_blank",
-              rel: "noopener noreferrer"
-            }, thisDisplay), _react["default"].createElement("i", {
-              className: "icon icon-fw icon-external-link-alt ml-05 fas"
-            }));
-          } else {
-            return _react["default"].createElement("div", {
-              className: "incomplete-linked-object-display-container text-ellipsis-container"
-            }, _react["default"].createElement("i", {
-              className: "icon icon-fw icon-sticky-note far"
-            }), "\xA0\xA0", _react["default"].createElement("a", {
-              href: "#",
-              onClick: this.setSubmissionStateToLinkedToItem,
-              "data-tip": "Continue editing/submitting"
-            }, thisDisplay), "\xA0", _react["default"].createElement("i", {
-              style: {
-                'fontSize': '0.85rem'
-              },
-              className: "icon icon-fw icon-pencil ml-05 fas"
-            }));
-          }
-        }
-      } else {
-        // nothing chosen/created yet
-        return this.renderEmptyField();
-      }
-    }
-  }]);
-
-  return LinkedObj;
-}(_react["default"].PureComponent);
 
 var PreviewField = _react["default"].memo(function (props) {
   var value = props.value,
@@ -1151,15 +722,15 @@ function (_React$Component) {
   }]);
 
   function ArrayField(props) {
-    var _this3;
+    var _this2;
 
     _classCallCheck(this, ArrayField);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(ArrayField).call(this, props));
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ArrayField).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this3), 'initiateArrayField', 'generateAddButton');
+    _underscore["default"].bindAll(_assertThisInitialized(_this2), 'initiateArrayField', 'generateAddButton');
 
-    return _this3;
+    return _this2;
   }
   /**
    * If empty array, add initial 'null' element. On Mount & Update.
@@ -1169,10 +740,10 @@ function (_React$Component) {
   _createClass(ArrayField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props18 = this.props,
-          value = _this$props18.value,
-          field = _this$props18.field,
-          pushArrayValue = _this$props18.pushArrayValue;
+      var _this$props11 = this.props,
+          value = _this$props11.value,
+          field = _this$props11.field,
+          pushArrayValue = _this$props11.pushArrayValue;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -1182,14 +753,14 @@ function (_React$Component) {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
       // We can't do a comparison of props.value here because parent property mutates yet stays part of same obj.
-      var _this$props19 = this.props,
-          value = _this$props19.value,
-          field = _this$props19.field,
-          pushArrayValue = _this$props19.pushArrayValue,
-          modifyNewContext = _this$props19.modifyNewContext,
-          nestedField = _this$props19.nestedField,
-          schema = _this$props19.schema,
-          linkType = _this$props19.linkType;
+      var _this$props12 = this.props,
+          value = _this$props12.value,
+          field = _this$props12.field,
+          pushArrayValue = _this$props12.pushArrayValue,
+          modifyNewContext = _this$props12.modifyNewContext,
+          nestedField = _this$props12.nestedField,
+          schema = _this$props12.schema,
+          linkType = _this$props12.linkType;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
         pushArrayValue();
@@ -1204,9 +775,9 @@ function (_React$Component) {
   }, {
     key: "initiateArrayField",
     value: function initiateArrayField(arrayInfo, index, allItems) {
-      var _this$props20 = this.props,
-          propArrayIdx = _this$props20.arrayIdx,
-          schema = _this$props20.schema; // use arrayIdx as stand-in value for field
+      var _this$props13 = this.props,
+          propArrayIdx = _this$props13.arrayIdx,
+          schema = _this$props13.schema; // use arrayIdx as stand-in value for field
 
       var _arrayInfo = _slicedToArray(arrayInfo, 3),
           inArrValue = _arrayInfo[0],
@@ -1261,10 +832,10 @@ function (_React$Component) {
   }, {
     key: "generateAddButton",
     value: function generateAddButton() {
-      var _this$props21 = this.props,
-          _this$props21$value = _this$props21.value,
-          values = _this$props21$value === void 0 ? [] : _this$props21$value,
-          pushArrayValue = _this$props21.pushArrayValue;
+      var _this$props14 = this.props,
+          _this$props14$value = _this$props14.value,
+          values = _this$props14$value === void 0 ? [] : _this$props14$value,
+          pushArrayValue = _this$props14.pushArrayValue;
       return _react["default"].createElement("div", {
         className: "add-array-item-button-container"
       }, _react["default"].createElement("button", {
@@ -1278,9 +849,9 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props22 = this.props,
-          propSchema = _this$props22.schema,
-          propValue = _this$props22.value;
+      var _this$props15 = this.props,
+          propSchema = _this$props15.schema,
+          propValue = _this$props15.value;
       var schema = propSchema.items || {};
       var values = propValue || [];
 
@@ -1305,13 +876,13 @@ function (_React$Component) {
 
 var ObjectField =
 /*#__PURE__*/
-function (_React$PureComponent3) {
-  _inherits(ObjectField, _React$PureComponent3);
+function (_React$PureComponent2) {
+  _inherits(ObjectField, _React$PureComponent2);
 
   function ObjectField() {
     var _getPrototypeOf2;
 
-    var _this4;
+    var _this3;
 
     _classCallCheck(this, ObjectField);
 
@@ -1319,9 +890,9 @@ function (_React$PureComponent3) {
       args[_key] = arguments[_key];
     }
 
-    _this4 = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ObjectField)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this3 = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ObjectField)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty(_assertThisInitialized(_this4), "includeField", function (schema, field) {
+    _defineProperty(_assertThisInitialized(_this3), "includeField", function (schema, field) {
       if (!schema) return null;
 
       var schemaVal = _util.object.getNestedProperty(schema, ['properties', field], true);
@@ -1349,18 +920,18 @@ function (_React$PureComponent3) {
       return schemaVal;
     });
 
-    return _this4;
+    return _this3;
   }
 
   _createClass(ObjectField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props23 = this.props,
-          value = _this$props23.value,
-          modifyNewContext = _this$props23.modifyNewContext,
-          nestedField = _this$props23.nestedField,
-          linkType = _this$props23.linkType,
-          arrayIdx = _this$props23.arrayIdx; // initialize with empty dictionary
+      var _this$props16 = this.props,
+          value = _this$props16.value,
+          modifyNewContext = _this$props16.modifyNewContext,
+          nestedField = _this$props16.nestedField,
+          linkType = _this$props16.linkType,
+          arrayIdx = _this$props16.arrayIdx; // initialize with empty dictionary
 
       modifyNewContext(nestedField, value || {}, 'object', linkType, arrayIdx);
     }
@@ -1376,18 +947,18 @@ function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      var _this5 = this;
+      var _this4 = this;
 
-      var _this$props24 = this.props,
-          objectSchema = _this$props24.schema,
-          parentObject = _this$props24.value,
-          propNestedField = _this$props24.nestedField,
-          isMultiSelect = _this$props24.isMultiSelect;
+      var _this$props17 = this.props,
+          objectSchema = _this$props17.schema,
+          parentObject = _this$props17.value,
+          propNestedField = _this$props17.nestedField,
+          isMultiSelect = _this$props17.isMultiSelect;
       var allFieldsInSchema = objectSchema['properties'] ? _underscore["default"].keys(objectSchema['properties']) : [];
 
       var fieldsToBuild = _underscore["default"].filter(_underscore["default"].map(allFieldsInSchema, function (f) {
         // List of [field, fieldSchema] pairs.
-        var fieldSchemaToUseOrNull = _this5.includeField(objectSchema, f);
+        var fieldSchemaToUseOrNull = _this4.includeField(objectSchema, f);
 
         return fieldSchemaToUseOrNull && [f, fieldSchemaToUseOrNull] || null;
       }));
@@ -1463,13 +1034,13 @@ function (_React$Component2) {
   _inherits(AttachmentInput, _React$Component2);
 
   function AttachmentInput(props) {
-    var _this6;
+    var _this5;
 
     _classCallCheck(this, AttachmentInput);
 
-    _this6 = _possibleConstructorReturn(this, _getPrototypeOf(AttachmentInput).call(this, props));
-    _this6.handleChange = _this6.handleChange.bind(_assertThisInitialized(_this6));
-    return _this6;
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(AttachmentInput).call(this, props));
+    _this5.handleChange = _this5.handleChange.bind(_assertThisInitialized(_this5));
+    return _this5;
   }
 
   _createClass(AttachmentInput, [{
@@ -1523,9 +1094,9 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props25 = this.props,
-          value = _this$props25.value,
-          field = _this$props25.field;
+      var _this$props18 = this.props,
+          value = _this$props18.value,
+          field = _this$props18.field;
       var attach_title;
 
       if (value && value.download) {
@@ -1576,29 +1147,29 @@ function (_React$Component3) {
   _inherits(S3FileInput, _React$Component3);
 
   function S3FileInput(props) {
-    var _this7;
+    var _this6;
 
     _classCallCheck(this, S3FileInput);
 
-    _this7 = _possibleConstructorReturn(this, _getPrototypeOf(S3FileInput).call(this, props));
+    _this6 = _possibleConstructorReturn(this, _getPrototypeOf(S3FileInput).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this7), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
+    _underscore["default"].bindAll(_assertThisInitialized(_this6), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
 
-    _this7.state = {
+    _this6.state = {
       'percentDone': null,
       'sizeUploaded': null,
       'newFile': false,
       'status': null
     };
-    return _this7;
+    return _this6;
   }
 
   _createClass(S3FileInput, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      var _this$props26 = this.props,
-          upload = _this$props26.upload,
-          uploadStatus = _this$props26.uploadStatus; // todo: rename upload to uploadManager?
+      var _this$props19 = this.props,
+          upload = _this$props19.upload,
+          uploadStatus = _this$props19.uploadStatus; // todo: rename upload to uploadManager?
 
       var pastUpload = pastProps.upload,
           pastUploadStatus = pastProps.uploadStatus;
@@ -1638,14 +1209,14 @@ function (_React$Component3) {
   }, {
     key: "handleChange",
     value: function handleChange(e) {
-      var _this8 = this;
+      var _this7 = this;
 
-      var _this$props27 = this.props,
-          modifyNewContext = _this$props27.modifyNewContext,
-          nestedField = _this$props27.nestedField,
-          linkType = _this$props27.linkType,
-          arrayIdx = _this$props27.arrayIdx,
-          currContext = _this$props27.currContext;
+      var _this$props20 = this.props,
+          modifyNewContext = _this$props20.modifyNewContext,
+          nestedField = _this$props20.nestedField,
+          linkType = _this$props20.linkType,
+          arrayIdx = _this$props20.arrayIdx,
+          currContext = _this$props20.currContext;
       var file = e.target.files[0];
       if (!file) return; // No file was chosen.
 
@@ -1677,7 +1248,7 @@ function (_React$Component3) {
 
           modifyNewContext(nestedField, filename, 'file upload', linkType, arrayIdx); // calling modifyFile changes the 'file' state of top level component
 
-          _this8.modifyFile(file);
+          _this7.modifyFile(file);
         } else {
           alert('Internal file extension conflict.');
         }
@@ -1691,7 +1262,7 @@ function (_React$Component3) {
   }, {
     key: "handleAsyncUpload",
     value: function handleAsyncUpload(upload_manager) {
-      var _this9 = this;
+      var _this8 = this;
 
       if (upload_manager === null) {
         return;
@@ -1700,19 +1271,19 @@ function (_React$Component3) {
       upload_manager.on('httpUploadProgress', function (evt) {
         var percentage = Math.round(evt.loaded * 100 / evt.total);
 
-        _this9.modifyRunningUploads(percentage, evt.total);
+        _this8.modifyRunningUploads(percentage, evt.total);
       }).send(function (err) {
         if (err) {
-          _this9.modifyRunningUploads(null, null);
+          _this8.modifyRunningUploads(null, null);
 
-          _this9.props.updateUpload(null, false, true);
+          _this8.props.updateUpload(null, false, true);
 
           alert("File upload failed!");
         } else {
-          _this9.modifyRunningUploads(null, null); // this will finish roundTwo for the file
+          _this8.modifyRunningUploads(null, null); // this will finish roundTwo for the file
 
 
-          _this9.props.updateUpload(null, true);
+          _this8.props.updateUpload(null, true);
         }
       });
     }
@@ -1749,11 +1320,11 @@ function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props28 = this.props,
-          value = _this$props28.value,
-          md5Progress = _this$props28.md5Progress,
-          upload = _this$props28.upload,
-          field = _this$props28.field;
+      var _this$props21 = this.props,
+          value = _this$props21.value,
+          md5Progress = _this$props21.md5Progress,
+          upload = _this$props21.upload,
+          field = _this$props21.field;
       var _this$state = this.state,
           newFile = _this$state.newFile,
           percentDone = _this$state.percentDone,
@@ -1914,15 +1485,15 @@ function (_React$Component4) {
   }]);
 
   function AliasInputField(props) {
-    var _this10;
+    var _this9;
 
     _classCallCheck(this, AliasInputField);
 
-    _this10 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputField).call(this, props));
+    _this9 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputField).call(this, props));
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this10), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
+    _underscore["default"].bindAll(_assertThisInitialized(_this9), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
 
-    return _this10;
+    return _this9;
   }
 
   _createClass(AliasInputField, [{
@@ -1974,13 +1545,13 @@ function (_React$Component4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props29 = this.props,
-          currentSubmittingUser = _this$props29.currentSubmittingUser,
-          errorMessage = _this$props29.errorMessage,
-          withinModal = _this$props29.withinModal,
-          value = _this$props29.value,
-          isValid = _this$props29.isValid,
-          showErrorMsg = _this$props29.showErrorMsg;
+      var _this$props22 = this.props,
+          currentSubmittingUser = _this$props22.currentSubmittingUser,
+          errorMessage = _this$props22.errorMessage,
+          withinModal = _this$props22.withinModal,
+          value = _this$props22.value,
+          isValid = _this$props22.isValid,
+          showErrorMsg = _this$props22.showErrorMsg;
       var parts = AliasInputField.splitInTwo(value);
       var submits_for_list = currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for || null;
       var initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
@@ -2084,34 +1655,34 @@ _defineProperty(AliasInputField, "defaultProps", {
 
 var AliasInputFieldValidated =
 /*#__PURE__*/
-function (_React$PureComponent4) {
-  _inherits(AliasInputFieldValidated, _React$PureComponent4);
+function (_React$PureComponent3) {
+  _inherits(AliasInputFieldValidated, _React$PureComponent3);
 
   function AliasInputFieldValidated(props) {
-    var _this11;
+    var _this10;
 
     _classCallCheck(this, AliasInputFieldValidated);
 
-    _this11 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputFieldValidated).call(this, props));
-    _this11.doValidateAlias = _this11.doValidateAlias.bind(_assertThisInitialized(_this11));
-    _this11.onAliasChange = _this11.onAliasChange.bind(_assertThisInitialized(_this11));
-    _this11.request = null;
-    _this11.state = {
+    _this10 = _possibleConstructorReturn(this, _getPrototypeOf(AliasInputFieldValidated).call(this, props));
+    _this10.doValidateAlias = _this10.doValidateAlias.bind(_assertThisInitialized(_this10));
+    _this10.onAliasChange = _this10.onAliasChange.bind(_assertThisInitialized(_this10));
+    _this10.request = null;
+    _this10.state = {
       value: props.value || AliasInputField.defaultProps.value,
       isValid: null,
       errorMessage: null
     };
-    return _this11;
+    return _this10;
   }
 
   _createClass(AliasInputFieldValidated, [{
     key: "doValidateAlias",
     value: function doValidateAlias(alias) {
-      var _this12 = this;
+      var _this11 = this;
 
-      var _this$props30 = this.props,
-          onAliasChange = _this$props30.onAliasChange,
-          errorValue = _this$props30.errorValue;
+      var _this$props23 = this.props,
+          onAliasChange = _this$props23.onAliasChange,
+          errorValue = _this$props23.errorValue;
 
       if (this.request) {
         this.request.abort();
@@ -2121,19 +1692,19 @@ function (_React$PureComponent4) {
       var currReq = null;
 
       var cb = function (res) {
-        if (!_this12.request || _this12.request && _this12.request !== currReq) {
+        if (!_this11.request || _this11.request && _this11.request !== currReq) {
           // A newer request has been launched, cancel this
           // to prevent accidental overwrites or something.
           return;
         }
 
-        _this12.request = null;
+        _this11.request = null;
 
         if (res.code !== 404) {
           // Not valid - something exists already.
           onAliasChange(errorValue);
 
-          _this12.setState({
+          _this11.setState({
             errorMessage: "Alias " + alias + " already exists",
             isValid: false
           });
@@ -2143,7 +1714,7 @@ function (_React$PureComponent4) {
 
         onAliasChange(alias);
 
-        _this12.setState({
+        _this11.setState({
           isValid: true,
           errorMessage: null
         });
@@ -2154,21 +1725,21 @@ function (_React$PureComponent4) {
   }, {
     key: "onAliasChange",
     value: function (nextAlias) {
-      var _this13 = this;
+      var _this12 = this;
 
-      var _this$props31 = this.props,
-          onAliasChange = _this$props31.onAliasChange,
-          errorValue = _this$props31.errorValue,
-          _this$props31$skipVal = _this$props31.skipValidateAliases,
-          skipValidateAliases = _this$props31$skipVal === void 0 ? [] : _this$props31$skipVal,
-          _this$props31$rejectA = _this$props31.rejectAliases,
-          rejectAliases = _this$props31$rejectA === void 0 ? [] : _this$props31$rejectA;
+      var _this$props24 = this.props,
+          onAliasChange = _this$props24.onAliasChange,
+          errorValue = _this$props24.errorValue,
+          _this$props24$skipVal = _this$props24.skipValidateAliases,
+          skipValidateAliases = _this$props24$skipVal === void 0 ? [] : _this$props24$skipVal,
+          _this$props24$rejectA = _this$props24.rejectAliases,
+          rejectAliases = _this$props24$rejectA === void 0 ? [] : _this$props24$rejectA;
       this.request && this.request.abort();
       this.request = null;
       this.setState({
         value: nextAlias
       }, function () {
-        var value = _this13.state.value;
+        var value = _this12.state.value;
 
         var _value$split = value.split(':'),
             _value$split2 = _slicedToArray(_value$split, 2),
@@ -2178,7 +1749,7 @@ function (_React$PureComponent4) {
         if (!firstPart || !secondPart) {
           onAliasChange(null);
 
-          _this13.setState({
+          _this12.setState({
             errorMessage: "Part of alias is blank. Will be excluded."
           });
 
@@ -2190,7 +1761,7 @@ function (_React$PureComponent4) {
         if (!passedRegex) {
           onAliasChange(errorValue);
 
-          _this13.setState({
+          _this12.setState({
             errorMessage: "Aliases must be formatted as: <text>:<text> (e.g. dcic-lab:42)."
           });
 
@@ -2201,7 +1772,7 @@ function (_React$PureComponent4) {
           // Presume is saved in database as this, skip validation.
           onAliasChange("ERROR");
 
-          _this13.setState({
+          _this12.setState({
             errorMessage: "Alias rejected, make sure is not used already."
           });
 
@@ -2212,14 +1783,14 @@ function (_React$PureComponent4) {
           // Presume is saved in database as this, skip validation.
           onAliasChange(nextAlias);
 
-          _this13.setState({
+          _this12.setState({
             errorMessage: null
           });
 
           return;
         }
 
-        _this13.doValidateAlias(value);
+        _this12.doValidateAlias(value);
       });
     }
   }, {
@@ -2244,8 +1815,8 @@ _defineProperty(AliasInputFieldValidated, "defaultProps", {
 
 var InfoIcon =
 /*#__PURE__*/
-function (_React$PureComponent5) {
-  _inherits(InfoIcon, _React$PureComponent5);
+function (_React$PureComponent4) {
+  _inherits(InfoIcon, _React$PureComponent4);
 
   function InfoIcon() {
     _classCallCheck(this, InfoIcon);
@@ -2256,9 +1827,9 @@ function (_React$PureComponent5) {
   _createClass(InfoIcon, [{
     key: "fieldTypeDescriptor",
     value: function fieldTypeDescriptor() {
-      var _this$props32 = this.props,
-          fieldType = _this$props32.fieldType,
-          schema = _this$props32.schema;
+      var _this$props25 = this.props,
+          fieldType = _this$props25.fieldType,
+          schema = _this$props25.schema;
       if (typeof fieldType !== 'string' || fieldType.length === 0) return null;
 
       var type = _util.valueTransforms.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
@@ -2272,11 +1843,11 @@ function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props33 = this.props,
-          children = _this$props33.children,
-          title = _this$props33.title,
-          fieldType = _this$props33.fieldType,
-          className = _this$props33.className;
+      var _this$props26 = this.props,
+          children = _this$props26.children,
+          title = _this$props26.title,
+          fieldType = _this$props26.fieldType,
+          className = _this$props26.className;
       if (!children || typeof children !== 'string') return null;
       var tip = children;
 

@@ -280,6 +280,8 @@ function (_React$PureComponent) {
   }, {
     key: "receiveData",
     value: function receiveData(items) {
+      _patchedConsole.patchedConsoleInstance.log("items, ", items);
+
       this.cleanChildWindow();
       this.props.onSelect(items, true);
     }

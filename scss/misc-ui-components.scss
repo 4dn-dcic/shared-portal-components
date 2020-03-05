@@ -8,15 +8,32 @@
     }
 }
 
-// Used by forms/components/SearchSelectionMenu.js
+// Used by forms/components/SearchAsYouType.js in LinkedObj class
+.linked-object-buttons-container {
+    // .adv-search {}
+    .create-new-obj {
+        margin-left: 2px;
+    }
+}
 
+// Used by forms/components/SearchSelectionMenu.js
 .search-selection-menu.dropdown {
+    margin-right: 2px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0px;
+    flex-basis: 100px;
+
     button.btn.dropdown-toggle {
         max-width: 100%;
+        width: 100%;
         overflow-x: hidden;
         text-overflow: ellipsis;
+        text-align: left;
+        font-weight: 400;
     }
     > div.search-selection-menu-body.dropdown-menu {
+        z-index: 100px;
         max-width: 300px;
         overflow-x: hidden;
         padding: 0; // Unset default menu padding, we have inner divs with own padding
@@ -25,11 +42,47 @@
                 width: 100%;
                 border-bottom: 1px solid #eee;
             }
-            .scrollable-list-container {
-                overflow-y: auto;
-                overflow-x: hidden;
-                max-height: 300px;
-                max-height: 33vh;
+            .vertical-scroll-container {
+                button.button-scroll {
+                    color: #cccccc;
+                    border: unset;
+                    background-color: #f8f8f8;
+                    
+                    &.arrow-up {
+                        box-shadow: 0 10px 10px 3px rgba(200,200,200,0.2);
+                        border-bottom: #eeeeee solid 1px;
+                        position: absolute;
+                    }
+                    &.arrow-down {
+                        box-shadow: 0 -10px 10px 30px rgba(200,200,200,0.2);
+                        border-top: #eeeeee solid 1px;
+                        position: absolute;
+                        bottom: 0;
+                    }
+                    &:hover {
+                        background-color: #ffffff;
+                    }
+                    &:active {
+                        background-color: #e5e5e5;
+                    }
+                }
+
+                .scrollable-list-container {
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                    max-height: 300px;
+                    max-height: 33vh;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                    ::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    .dropdown-item:active {
+                        background-color: #ddd;
+                    }
+
+                }
             }
         }
     }

@@ -5,17 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.SearchSelectionMenu = void 0;
 
-var _react = _interopRequireWildcard(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
+var _react = _interopRequireDefault(require("react"));
 
 var _reactBootstrap = require("react-bootstrap");
 
+var _VerticalScrollContainer = require("./VerticalScrollContainer");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -37,6 +33,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var SearchSelectionMenu =
 /*#__PURE__*/
 function (_React$PureComponent) {
@@ -48,54 +46,122 @@ function (_React$PureComponent) {
     _classCallCheck(this, SearchSelectionMenu);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SearchSelectionMenu).call(this, props));
-    _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
     _this.state = {
-      dropOpen: false
+      dropOpen: false,
+      refreshKey: 0 // incremented to force a refresh of dropdown
+
     };
+    _this.dropdown = _react["default"].createRef();
+    _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
+    _this.onKeyDown = _this.onKeyDown.bind(_assertThisInitialized(_this));
     return _this;
   }
 
   _createClass(SearchSelectionMenu, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps) {
+      var _prevProps$options = prevProps.options,
+          oldOptions = _prevProps$options === void 0 ? [] : _prevProps$options;
+      var _this$props$options = this.props.options,
+          newOptions = _this$props$options === void 0 ? [] : _this$props$options;
+      var refreshKey = this.state.refreshKey;
+
+      if (oldOptions.length !== newOptions.length) {
+        // used to force Popper.js to refresh and reposition the dropdown
+        // if the length of results changes (drop may no longer align correctly, esp.
+        // if dropping "up" to avoid collision with bottom of window)
+        // TODO: add some more checks to make this more specific to ONLY cases
+        // where the drop no longer aligns w/button
+        this.setState({
+          refreshKey: refreshKey + 1
+        });
+      }
+    }
+  }, {
     key: "onToggleOpen",
     value: function onToggleOpen() {
+      var _this2 = this;
+
       this.setState(function (_ref) {
         var dropOpen = _ref.dropOpen;
         return {
           dropOpen: !dropOpen
         };
+      }, function () {
+        var onToggleOpen = _this2.props.onToggleOpen;
+        var dropOpen = _this2.state.dropOpen;
+
+        if (typeof onToggleOpen === "function") {
+          onToggleOpen(dropOpen);
+        }
       });
+    }
+  }, {
+    key: "onKeyDown",
+    value: function onKeyDown(e) {
+      var _this$props = this.props,
+          options = _this$props.options,
+          allowCustomValue = _this$props.allowCustomValue;
+
+      if (e.key === "Enter") {
+        // create the illusion of "submitting the value"; really just close the window
+        if (allowCustomValue) {
+          e.preventDefault();
+          this.onToggleOpen();
+        }
+      } else if (e.key === "ArrowDown" && options.length !== 0) {
+        // add focus to the first item in filtered items
+        var x = document.querySelector(".dropdown > .dropdown-menu.show .list-unstyled");
+
+        if (x.childNodes[0]) {
+          x.childNodes[0].focus();
+          e.preventDefault();
+        }
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        this.onToggleOpen();
+      } // otherwise handle as default
+
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          _this$props$currentTe = _this$props.currentTextValue,
-          currentTextValue = _this$props$currentTe === void 0 ? "" : _this$props$currentTe,
-          _this$props$value = _this$props.value,
-          value = _this$props$value === void 0 ? "" : _this$props$value,
-          _this$props$options = _this$props.options,
-          options = _this$props$options === void 0 ? [] : _this$props$options,
-          _this$props$optionRen = _this$props.optionRenderFunction,
-          optionRenderFunction = _this$props$optionRen === void 0 ? null : _this$props$optionRen,
-          onDropdownSelect = _this$props.onDropdownSelect,
-          onTextInputChange = _this$props.onTextInputChange,
-          optionsHeader = _this$props.optionsHeader,
-          optionsFooter = _this$props.optionsFooter,
-          className = _this$props.className;
-      var dropOpen = this.state.dropOpen;
+      var _this$props2 = this.props,
+          _this$props2$currentT = _this$props2.currentTextValue,
+          currentTextValue = _this$props2$currentT === void 0 ? "" : _this$props2$currentT,
+          _this$props2$value = _this$props2.value,
+          value = _this$props2$value === void 0 ? "" : _this$props2$value,
+          _this$props2$options = _this$props2.options,
+          options = _this$props2$options === void 0 ? [] : _this$props2$options,
+          _this$props2$optionRe = _this$props2.optionRenderFunction,
+          optionRenderFunction = _this$props2$optionRe === void 0 ? null : _this$props2$optionRe,
+          titleRenderFunction = _this$props2.titleRenderFunction,
+          onDropdownSelect = _this$props2.onDropdownSelect,
+          onTextInputChange = _this$props2.onTextInputChange,
+          optionsHeader = _this$props2.optionsHeader,
+          optionsFooter = _this$props2.optionsFooter,
+          className = _this$props2.className,
+          _this$props2$showTips = _this$props2.showTips,
+          showTips = _this$props2$showTips === void 0 ? false : _this$props2$showTips;
+      var _this$state = this.state,
+          dropOpen = _this$state.dropOpen,
+          refreshKey = _this$state.refreshKey;
       var cls = "search-selection-menu" + (className ? " " + className : "");
+
+      var showValue = value && titleRenderFunction(value) || _react["default"].createElement("span", {
+        className: "text-300"
+      }, "No value");
+
       return _react["default"].createElement(_reactBootstrap.Dropdown, {
-        drop: "down",
-        flip: false,
+        flip: true,
         onToggle: this.onToggleOpen,
         show: dropOpen,
-        onSelect: onDropdownSelect,
         className: cls
       }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
-        variant: "outline-dark"
-      }, value || _react["default"].createElement("span", {
-        className: "text-300"
-      }, "No value")), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
+        variant: "outline-secondary",
+        "data-tip": showTips ? value : null
+      }, showValue), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
+        key: refreshKey,
         as: SearchSelectionMenuBody
       }, {
         onTextInputChange: onTextInputChange,
@@ -103,16 +169,23 @@ function (_React$PureComponent) {
         optionsFooter: optionsFooter,
         currentTextValue: currentTextValue
       }, {
-        drop: "down",
-        flip: false,
+        flip: true,
         show: dropOpen,
         onTextInputChange: onTextInputChange,
-        toggleOpen: this.onToggleOpen
-      }), options.map(function (optStr) {
-        var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(optStr) : optStr;
+        toggleOpen: this.onToggleOpen,
+        ref: this.dropdown,
+        onKeyDown: this.onKeyDown
+      }), options.map(function (option, idx) {
+        var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
         return _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
-          key: optStr,
-          eventKey: optStr,
+          "data-index": idx,
+          onClick: function (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            onDropdownSelect(option);
+          },
+          key: idx,
+          eventKey: idx,
           className: "text-ellipsis-container",
           tabIndex: "3"
         }, renderedOption);
@@ -125,11 +198,18 @@ function (_React$PureComponent) {
 
 exports.SearchSelectionMenu = SearchSelectionMenu;
 
+_defineProperty(SearchSelectionMenu, "defaultProps", {
+  titleRenderFunction: function titleRenderFunction(option) {
+    return option;
+  }
+});
+
 var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
   var currentTextValue = props.currentTextValue,
       _props$show = props.show,
       show = _props$show === void 0 ? false : _props$show,
       onTextInputChange = props.onTextInputChange,
+      onKeyDown = props.onKeyDown,
       children = props.children,
       className = props.className,
       _props$inputPlacehold = props.inputPlaceholder,
@@ -138,12 +218,14 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
       _props$optionsHeader = props.optionsHeader,
       optionsHeader = _props$optionsHeader === void 0 ? null : _props$optionsHeader,
       _props$optionsFooter = props.optionsFooter,
-      optionsFooter = _props$optionsFooter === void 0 ? null : _props$optionsFooter;
+      optionsFooter = _props$optionsFooter === void 0 ? null : _props$optionsFooter,
+      style = props.style;
   var cls = "search-selection-menu-body" + (className ? " " + className : "");
   return _react["default"].createElement("div", {
     ref: ref,
     className: cls,
-    "aria-labelledby": labeledBy
+    "aria-labelledby": labeledBy,
+    style: style
   }, _react["default"].createElement("div", {
     className: "inner-container"
   }, _react["default"].createElement("div", {
@@ -153,12 +235,13 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
     autoFocus: true,
     value: currentTextValue,
     onChange: onTextInputChange,
+    onKeyDown: onKeyDown,
     placeholder: inputPlaceholder,
     tabIndex: "3",
     className: "form-control"
-  }) : null), _react["default"].createElement("div", {
-    className: "scrollable-list-container"
-  }, _react["default"].createElement("ul", {
-    className: "list-unstyled mb-0 py-2"
-  }, optionsHeader, children, optionsFooter))));
+  }) : null), _react["default"].createElement(_VerticalScrollContainer.VerticalScrollContainer, {
+    header: optionsHeader,
+    footer: optionsFooter,
+    items: children
+  })));
 });

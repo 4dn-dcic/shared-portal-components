@@ -131,27 +131,24 @@ function (_React$PureComponent) {
         // Likely, schemas are not yet loaded?
         filteredOptions = [];
         optionsHeader = _react["default"].createElement("div", {
-          className: "text-center py-2"
+          className: "text-center py-3"
         }, _react["default"].createElement("i", {
           className: "icon icon-spin icon-circle-notch fas"
         }));
       } else {
         filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
 
-        if (filteredOptions.length === 0 && allowCustomValue) {
+        if (filteredOptions.length === 0) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
-            className: "d-block text-center px-4 py-1"
-          }, "Adding new entry"), optionsHeader);
-        } else if (filteredOptions.length === 0 && !allowCustomValue) {
-          optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
-            className: "d-block text-center px-4 py-1"
-          }, "No results found"), optionsHeader);
+            className: "d-block text-center px-4 py-3"
+          }, allowCustomValue ? "Adding new entry" : "No results found"), optionsHeader);
         }
       }
 
       return _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
-        currentTextValue: currentTextValue
+        currentTextValue: currentTextValue,
+        allowCustomValue: allowCustomValue
       }, {
         options: filteredOptions,
         onTextInputChange: this.onTextInputChange,

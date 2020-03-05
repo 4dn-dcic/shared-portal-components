@@ -70,23 +70,18 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             // Likely, schemas are not yet loaded?
             filteredOptions = [];
             optionsHeader = (
-                <div className="text-center py-2">
+                <div className="text-center py-3">
                     <i className="icon icon-spin icon-circle-notch fas"/>
                 </div>
             );
         } else {
             filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
-            if (filteredOptions.length === 0 && allowCustomValue) {
+            if (filteredOptions.length === 0) {
                 optionsHeader = (
                     <React.Fragment>
-                        <em className="d-block text-center px-4 py-1">Adding new entry</em>
-                        { optionsHeader }
-                    </React.Fragment>
-                );
-            } else if (filteredOptions.length === 0 && !allowCustomValue) {
-                optionsHeader = (
-                    <React.Fragment>
-                        <em className="d-block text-center px-4 py-1">No results found</em>
+                        <em className="d-block text-center px-4 py-3">
+                            { allowCustomValue ? "Adding new entry" : "No results found" }
+                        </em>
                         { optionsHeader }
                     </React.Fragment>
                 );
@@ -94,7 +89,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
         }
 
         return (
-            <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue }}
+            <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue, allowCustomValue }}
                 options={filteredOptions}
                 onTextInputChange={this.onTextInputChange}
                 onDropdownSelect={this.onDropdownSelect}/>

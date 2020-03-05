@@ -9,11 +9,10 @@ import { InputGroup, FormControl, DropdownItem, DropdownButton } from 'react-boo
 import { Fade } from './../../ui/Fade';
 import { Checkbox } from './Checkbox';
 import { ajax, console, object, valueTransforms } from './../../util';
-import { Alerts } from './../../ui/Alerts';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
 import { Line as ProgressBar } from 'rc-progress';
-import { LinkToSelector } from './LinkToSelector';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
+import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from './SearchAsYouTypeAjax';
 
 
 /**
@@ -95,7 +94,7 @@ export class BuildField extends React.PureComponent {
      * @returns {JSX.Element} A JSX `<input>` element, a Bootstrap input element component, or custom React component which will render input fields.
      */
     displayField(fieldType){
-        const { field, value, disabled, enumValues, currentSubmittingUser, roundTwo, currType, currContext, fieldType : propFieldType } = this.props;
+        const { field, value, disabled, enumValues, currentSubmittingUser, roundTwo, currType, currContext, keyDisplay, selectComplete, fieldType : propFieldType } = this.props;
         fieldType = fieldType || propFieldType;
         const inputProps = {
             'key'       :        field,
@@ -146,26 +145,22 @@ export class BuildField extends React.PureComponent {
             );
             case 'enum'             : return (
                 <span className="input-wrapper">
-                    <DropdownButton title={value || <span className="text-300">No value</span>}
-                        onToggle={this.handleDropdownButtonToggle} variant="outline-dark"
-                        onSelect={this.handleEnumChange}>
-                        {
-                            enumValues.map((val)=>
-                                <DropdownItem key={val} title={val || ''} eventKey={val}>
-                                    {val || ''}
-                                </DropdownItem>
-                            )
-                        }
-                    </DropdownButton>
+                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue={false}
+                        filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                 </span>
             );
             case 'suggested_enum'   : return (
                 <span className="input-wrapper">
-                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue
+                    <SearchAsYouTypeLocal searchList={enumValues} value={value} allowCustomValue={true}
                         filterMethod="includes" onChange={this.handleEnumChange} maxResults={3}/>
                 </span>
             );
-            case 'linked object'    : return <LinkedObj key="linked-item" {...this.props}/>;
+            case 'linked object'    : return (
+                <div className="input-wrapper">
+                    <SubmissionViewSearchAsYouTypeAjax value={value} allowCustomValue={false}
+                        {...this.props} idToTitleMap={keyDisplay} />
+                </div>
+            );
             case 'array'            : return <ArrayField {...this.props} pushArrayValue={this.pushArrayValue} value={value || null} roundTwo={roundTwo} />;
             case 'object'           : return <ObjectField {...this.props} />;
             case 'attachment'       : return <div style={{ 'display':'inline' }}><AttachmentInput {...this.props}/></div>;
@@ -203,6 +198,10 @@ export class BuildField extends React.PureComponent {
         }
 
         modifyNewContext(nestedField, value, fieldType, linkType, arrayIdx);
+    }
+
+    handleDropdownLinkToChange(resultItem){
+        modifyNewContext(nestedField, resultItem['@id'], fieldType, linkType, arrayIdx, null, resultItem.display_title);
     }
 
     handleEnumChange(eventKey){
@@ -407,310 +406,7 @@ export class BuildField extends React.PureComponent {
 
 
 
-const SquareButton = React.memo(function SquareButton(props){
-    const { show, disabled, onClick, tip, bsStyle, className, buttonContainerClassName, icon, style } = props;
-    const outerCls = "remove-button-container" + (buttonContainerClassName ? ' ' + buttonContainerClassName : '');
-    let btnCls = ("btn" + (className ? " " + className : ""));
-    if (bsStyle){
-        btnCls += " btn-" + bsStyle;
-    }
-    return (
-        <div className={"remove-button-column" + (!show ? ' hidden' : '')} style={style}>
-            <Fade in={show}>
-                <div className={outerCls}>
-                    <button type="button" disabled={disabled || !show} onClick={onClick} data-tip={tip} tabIndex={2} className={btnCls}>
-                        <i className={"icon icon-fw icon-" + icon}/>
-                    </button>
-                </div>
-            </Fade>
-        </div>
-    );
-});
-SquareButton.defaultProps = {
-    'bsStyle' : 'danger',
-    'icon' : 'times fas',
-    'style' : null
-};
-
-
-
 //var linkedObjChildWindow = null; // Global var
-
-/** Case for a linked object. */
-class LinkedObj extends React.PureComponent {
-
-    /**
-     * @param {Object} props - Props passed from LinkedObj or BuildField.
-     * @param {string} props.nestedField - Field of LinkedObj
-     * @param {number[]|null} props.arrayIdx - Array index (if any) of this item, if any.
-     * @param {string} props.fieldBeingSelected - Field currently selected for linkedTo item selection.
-     * @param {number[]|null} props.fieldBeingSelectedArrayIdx - Array index (if any) of currently selected for linkedTo item selection.
-     * @returns {boolean} Whether is currently selected field/item or not.
-     */
-    static isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx){
-        //if (!props) return false;
-        //const { fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = props;
-
-        if (!fieldBeingSelected || fieldBeingSelected !== nestedField){
-            return false;
-        }
-
-        if (arrayIdx === null && fieldBeingSelectedArrayIdx === null){
-            return true;
-        }
-
-        if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)){
-            return _.every(arrayIdx, function(arrIdx, arrIdxIdx){
-                return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
-            });
-        }
-
-        return false;
-    }
-
-    constructor(props){
-        super(props);
-        this.updateContext = this.updateContext.bind(this);
-        this.setSubmissionStateToLinkedToItem = this.setSubmissionStateToLinkedToItem.bind(this);
-        this.handleStartSelectItem = this.handleStartSelectItem.bind(this);
-        this.handleFinishSelectItem = this.handleFinishSelectItem.bind(this);
-        this.handleCreateNewItemClick = this.handleCreateNewItemClick.bind(this);
-        this.handleTextInputChange = this.handleTextInputChange.bind(this);
-        this.handleAcceptTypedID = this.handleAcceptTypedID.bind(this);
-        this.childWindowAlert = this.childWindowAlert.bind(this);
-
-        this.state = {
-            'textInputValue' : (typeof props.value === 'string' && props.value) || ''
-        };
-    }
-
-    componentDidMount(){
-        this.updateContext();
-    }
-
-    componentDidUpdate(pastProps){
-        this.updateContext();
-        ReactTooltip.rebuild();
-    }
-
-    /**
-     * Mechanism for changing value of linked object in parent context
-     * from {number} keyIdx to {string} path of newly submitted object.
-     */
-    updateContext(){
-        var { keyComplete, value, linkType, arrayIdx, nestedField, modifyNewContext } = this.props;
-        if (keyComplete[value] && !isNaN(value)) {
-            modifyNewContext(nestedField, keyComplete[value], 'finished linked object', linkType, arrayIdx);
-            ReactTooltip.rebuild();
-        }
-    }
-
-
-    setSubmissionStateToLinkedToItem(e){
-        e.preventDefault();
-        e.stopPropagation();
-        var intKey = parseInt(this.props.value);
-        if (isNaN(intKey)) throw new Error('Expected an integer for props.value, received', this.props.value);
-        this.props.setSubmissionState('currKey', intKey);
-    }
-
-    handleStartSelectItem(e){
-        e.preventDefault();
-        if (!window) return;
-
-        const { schema, nestedField, currType, linkType, arrayIdx, selectObj, selectCancel } = this.props;
-        const itemType = schema.linkTo;
-
-        selectObj(itemType, nestedField, arrayIdx);
-    }
-
-    /**
-     * Handles drop event for the (temporarily-existing-while-dragging-over) window drop receiver element.
-     * Grabs @ID of Item from evt.dataTransfer, attempting to grab from 'text/4dn-item-id', 'text/4dn-item-json', or 'text/plain'.
-     * @see Notes and inline comments for handleChildFourFrontSelectionClick re isValidAtId.
-     */
-    handleFinishSelectItem(items){
-        const { selectComplete, isMultiSelect } = this.props;
-        if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) { return item.id && typeof item.id === 'string' && item.json; })) {
-            return;
-        }
-
-        let atIds;
-        if (!(isMultiSelect || false)) {
-            if (items.length > 1) {
-                console.warn('Multiple items selected but we only get a single item, since handler\'s not supporting multiple items!');
-            }
-            const [{ id: atId, json: itemContext }] = items;
-            atIds = [atId];
-        }
-        else {
-            atIds = _.pluck(items, "id");
-        }
-
-        const invalidTitle = "Invalid Item Selected";
-        if (_.every(atIds, function (atId) {
-            const isValidAtId = object.isValidAtIDFormat(atId);
-            return atId && isValidAtId;
-        })) {
-            Alerts.deQueue({ 'title': invalidTitle });
-            selectComplete(atIds);
-        } else {
-            Alerts.queue({
-                'title': invalidTitle,
-                'message': "You have selected an item or link which doesn't have a valid 4DN ID or URL associated with it. Please try again.",
-                'style': 'danger'
-            });
-            throw new Error('No valid @id available.');
-        }
-    }
-
-    handleCreateNewItemClick(e){
-        e.preventDefault();
-        const { fieldBeingSelected, selectCancel, modifyNewContext, nestedField, linkType, arrayIdx, schema } = this.props;
-        if (fieldBeingSelected !== null) selectCancel();
-        modifyNewContext(nestedField, null, 'new linked object', linkType, arrayIdx, schema.linkTo);
-    }
-
-    handleAcceptTypedID(evt){
-        console.log(evt);
-        if (!this || !this.state || !this.state.textInputValue){
-            throw new Error('Invalid @id format.');
-        }
-        const atIds = [this.state.textInputValue];
-        this.props.selectComplete(atIds);
-    }
-
-    handleTextInputChange(evt){
-        this.setState({ 'textInputValue' : evt.target.value });
-    }
-
-    childWindowAlert(){
-        const { schema, nestedField, isMultiSelect } = this.props;
-        const itemType = schema && schema.linkTo;
-        const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
-        const message = null;
-        // const message = (
-        //     <div>
-        //         { !isMultiSelect?
-        //             <p className="mb-0">
-        //                 Please either select an Item below and click <em>Apply</em> or <em>drag and drop</em> an Item (row) from this window into the submissions window.
-        //             </p>
-        //             :
-        //             <p className="mb-0">
-        //                 Please select the Item(s) you would like and then press <em>Apply</em> below.
-        //             </p>
-        //         }
-        //         <p className="mb-0">You may use facets on the left-hand side to narrow down results.</p>
-        //     </div>
-        // );
-        return {
-            title: 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
-            message,
-            style: 'info'
-        };
-    }
-
-    renderSelectInputField(){
-        const { value, selectCancel, schema, currType, nestedField, isMultiSelect } = this.props;
-        const { textInputValue } = this.state;
-        const canShowAcceptTypedInput = typeof textInputValue === 'string' && textInputValue.length > 3;
-        const extClass = !canShowAcceptTypedInput && textInputValue ? ' has-error' : '';
-        const itemType = schema.linkTo;
-        const prettyTitle = schema && ((schema.parentSchema && schema.parentSchema.title) || schema.title);
-        const dropMessage = "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) +  "'";
-        let searchURL = '/search/?currentAction=' + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType;
-
-        // check if we have any schema flags that will affect the searchUrl
-        if (schema.ff_flag && schema.ff_flag.startsWith('filter:')) {
-            // the field to facet on could be set dynamically
-            if (schema.ff_flag == "filter:valid_item_types"){
-                searchURL += '&valid_item_types=' + currType;
-            }
-        }
-
-        return (
-            <React.Fragment>
-                <div className="linked-object-text-input-container row flexrow">
-                    <div className="field-column col">
-                        <input onChange={this.handleTextInputChange} className={"form-control" + extClass} inputMode="latin" type="text" placeholder="Drag & drop Item from the search view or type in a valid @ID." value={this.state.textInputValue} onDrop={this.handleDrop} />
-                    </div>
-                    { canShowAcceptTypedInput ?
-                        <SquareButton show onClick={this.handleAcceptTypedID} icon="check fas"
-                            bsStyle="success" tip="Accept typed identifier and look it up in database." />
-                        : null }
-                    <SquareButton show onClick={selectCancel} tip="Cancel selection" style={{ 'marginRight' : 9 }} />
-                </div>
-                <LinkToSelector isSelecting onSelect={this.handleFinishSelectItem} onCloseChildWindow={selectCancel}
-                    childWindowAlert={this.childWindowAlert} dropMessage={dropMessage} searchURL={searchURL} />
-            </React.Fragment>
-        );
-    }
-
-    renderEmptyField(){
-        return (
-            <div className="linked-object-buttons-container">
-                <button type="button" className="btn btn-outline-dark select-create-linked-item-button" onClick={this.handleStartSelectItem}>
-                    <i className="icon icon-fw icon-search fas"/> Select existing
-                </button>
-                <button type="button" className="btn btn-outline-dark select-create-linked-item-button" onClick={this.handleCreateNewItemClick}>
-                    <i className="icon icon-fw icon-file far"/> Create new
-                </button>
-            </div>
-        );
-    }
-
-    render(){
-        const { value, keyDisplay, keyComplete, fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx } = this.props;
-        const isSelecting = LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx);
-
-        if (isSelecting){
-            return this.renderSelectInputField();
-        }
-
-        // object chosen or being created
-        if (value){
-            const thisDisplay = keyDisplay[value] ? keyDisplay[value] + " (<code>" + value + "</code>)"
-                : "<code>" + value + "</code>";
-            if (isNaN(value)) {
-                const tip = thisDisplay + " is already in the database";
-                return(
-                    <div className="submitted-linked-object-display-container text-ellipsis-container">
-                        <i className="icon icon-fw icon-hdd far mr-05" />
-                        <a href={value} target="_blank" rel="noopener noreferrer" data-tip={tip} data-html>
-                            { keyDisplay[value] || value }
-                        </a>
-                        <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
-                    </div>
-                );
-            } else {
-                // it's a custom object. Either render a link to editing the object
-                // or a pop-up link to the object if it's already submitted
-                var intKey = parseInt(value);
-                // this is a fallback - shouldn't be int because value should be
-                // string once the obj is successfully submitted
-                if (keyComplete[intKey]){
-                    return(
-                        <div>
-                            <a href={keyComplete[intKey]} target="_blank" rel="noopener noreferrer">{ thisDisplay }</a>
-                            <i className="icon icon-fw icon-external-link-alt ml-05 fas"/>
-                        </div>
-                    );
-                } else {
-                    return(
-                        <div className="incomplete-linked-object-display-container text-ellipsis-container">
-                            <i className="icon icon-fw icon-sticky-note far" />&nbsp;&nbsp;
-                            <a href="#" onClick={this.setSubmissionStateToLinkedToItem} data-tip="Continue editing/submitting">{ thisDisplay }</a>
-                            &nbsp;<i style={{ 'fontSize' : '0.85rem' }} className="icon icon-fw icon-pencil ml-05 fas"/>
-                        </div>
-                    );
-                }
-            }
-        } else {
-            // nothing chosen/created yet
-            return this.renderEmptyField();
-        }
-    }
-}
 
 
 

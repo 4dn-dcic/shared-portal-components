@@ -254,6 +254,7 @@ export class LinkToSelector extends React.PureComponent {
      * @param {Array} items - array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
      */
     receiveData(items) {
+        console.log("items, ", items);
         this.cleanChildWindow();
         this.props.onSelect(items, true);
     }
