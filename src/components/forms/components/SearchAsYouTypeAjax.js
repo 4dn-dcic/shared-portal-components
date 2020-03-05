@@ -169,22 +169,16 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
         const intKey = parseInt(value); // if in the middle of editing a custom linked object for this field
         const hideButton = value && !isNaN(value) && !keyComplete[intKey];
 
-        return (
-            <div className="d-flex flex-wrap">
-                {
-                    hideButton ? null : (
-                        <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue }}
-                            alignRight={true}
-                            showTips={true}
-                            options={results}
-                            onToggleOpen={this.onToggleOpen}
-                            onTextInputChange={this.onTextInputChange}
-                            onDropdownSelect={this.onDropdownSelect}
-                        />
-                    )
-                }
-                <LinkedObj key="linked-item" {...passProps} />
-            </div>
+        return ( hideButton ? null : (
+            <SearchSelectionMenu {...passProps} {...{ optionsHeader, currentTextValue }}
+                alignRight={true}
+                showTips={true}
+                options={results}
+                onToggleOpen={this.onToggleOpen}
+                onTextInputChange={this.onTextInputChange}
+                onDropdownSelect={this.onDropdownSelect}
+            />
+        )
         );
     }
 }
@@ -197,7 +191,8 @@ SearchAsYouTypeAjax.propTypes = {
             return new Error(`Invalid prop '${propName}' supplied to ${componentName}. Validation failed.`);
         }
     },
-    fieldsToRequest: PropTypes.arrayOf(PropTypes.string)
+    fieldsToRequest: PropTypes.arrayOf(PropTypes.string),
+    titleRenderFunction: PropTypes.func
 };
 SearchAsYouTypeAjax.defaultProps = {
     "optionRenderFunction" : function(result){
@@ -256,8 +251,13 @@ export function SubmissionViewSearchAsYouTypeAjax(props){ // Another higher-orde
         };
     }, [ idToTitleMap ]);
 
-    return <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction,
-        fieldsToRequest, titleRenderFunction, selectComplete }} {...props} />;
+    return (
+        <div className="d-flex flex-wrap">
+            <SearchAsYouTypeAjax {...{ value, onChange, baseHref, optionRenderFunction,
+                fieldsToRequest, titleRenderFunction, selectComplete }} {...props} />
+            <LinkedObj key="linked-item" {...props} {...{ baseHref }} />
+        </div>
+    );
 }
 
 
