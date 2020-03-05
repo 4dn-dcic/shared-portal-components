@@ -149,6 +149,11 @@ function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
+      var _this$state = this.state,
+          error = _this$state.error,
+          optionResults = _this$state.optionResults,
+          loading = _this$state.loading,
+          typedSearchQuery = _this$state.typedSearchQuery;
       var _this$props = this.props,
           _this$props$variant = _this$props.variant,
           variant = _this$props$variant === void 0 ? "outline-dark" : _this$props$variant,
@@ -157,13 +162,9 @@ function (_React$PureComponent) {
           _this$props$selectedI = _this$props.selectedID,
           selectedID = _this$props$selectedI === void 0 ? null : _this$props$selectedI,
           _this$props$className = _this$props.className,
-          propClsName = _this$props$className === void 0 ? null : _this$props$className;
-      var _this$state = this.state,
-          error = _this$state.error,
-          optionResults = _this$state.optionResults,
-          loading = _this$state.loading,
-          typedSearchQuery = _this$state.typedSearchQuery;
-      var searchAsYouType = optionResults && optionResults.length > 8;
+          propClsName = _this$props$className === void 0 ? null : _this$props$className,
+          _this$props$searchAsY = _this$props.searchAsYouType,
+          searchAsYouType = _this$props$searchAsY === void 0 ? optionResults && optionResults.length > 8 : _this$props$searchAsY;
       var title;
       var disabled = false;
       var filteredOptions = optionResults;
@@ -189,7 +190,7 @@ function (_React$PureComponent) {
             if (cachedResults) {
               filteredOptions = cachedResults;
             } else {
-              var regexTest = new RegExp(typedSearchQuery);
+              var regexTest = new RegExp(typedSearchQuery, "i");
               filteredOptions = optionResults.filter(function (selectableItem) {
                 var display_title = selectableItem.display_title,
                     itemID = selectableItem['@id'];
@@ -286,6 +287,7 @@ _defineProperty(LinkToDropdown, "defaultProps", {
   'searchURL': "/search/?type=Project",
   'selectedID': null,
   'selectedTitle': null,
+  'searchAsYouType': null,
 
   /**
    * Example function to use.

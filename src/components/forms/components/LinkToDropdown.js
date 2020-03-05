@@ -11,6 +11,7 @@ export class LinkToDropdown extends React.PureComponent {
         'searchURL': "/search/?type=Project",
         'selectedID': null,
         'selectedTitle': null,
+        'searchAsYouType': null,
 
         /**
          * Example function to use.
@@ -106,15 +107,14 @@ export class LinkToDropdown extends React.PureComponent {
     }
 
     render(){
+        const { error, optionResults, loading, typedSearchQuery } = this.state;
         const {
             variant = "outline-dark",
             selectedTitle = null,
             selectedID = null,
-            className: propClsName = null
+            className: propClsName = null,
+            searchAsYouType = (optionResults && optionResults.length > 8)
         } = this.props;
-        const { error, optionResults, loading, typedSearchQuery } = this.state;
-
-        const searchAsYouType = optionResults && optionResults.length > 8;
 
         let title;
         let disabled = false;
@@ -136,7 +136,7 @@ export class LinkToDropdown extends React.PureComponent {
                     if (cachedResults){
                         filteredOptions = cachedResults;
                     } else {
-                        const regexTest = new RegExp(typedSearchQuery);
+                        const regexTest = new RegExp(typedSearchQuery, "i");
                         filteredOptions = optionResults.filter(function(selectableItem){
                             const { display_title, '@id' : itemID } = selectableItem;
                             return regexTest.test(display_title) || regexTest.test(itemID);
