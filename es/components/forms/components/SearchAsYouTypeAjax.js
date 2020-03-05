@@ -227,7 +227,7 @@ function (_React$PureComponent) {
         // if title hasn't been registered, use the old value
         onChange(result, value);
       } else {
-        onChange(result, currentTextValue);
+        onChange(result, result['@id']);
       }
     }
   }, {
