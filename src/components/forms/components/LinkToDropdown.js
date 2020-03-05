@@ -20,7 +20,7 @@ export class LinkToDropdown extends React.PureComponent {
          * @param {*} itemID - The "@id" of selected item.
          * @param {*} itemJson - JSON/context of selected item. Will only contain limited subset of fields, e.g. type and title.
          */
-        'onSelect' : function(itemID, itemJson){
+        'onSelect' : function(itemJson, itemID){
             console.info("Selected!", itemID, itemJson);
         }
     };
@@ -97,7 +97,7 @@ export class LinkToDropdown extends React.PureComponent {
             throw new Error("Couldn't find ID in resultlist - " + itemID);
         }
 
-        onSelect(itemID, selectedItem);
+        onSelect(selectedItem, itemID);
     }
 
     handleSearchTextChange(evt){

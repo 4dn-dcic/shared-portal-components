@@ -136,7 +136,7 @@ function (_React$PureComponent) {
         throw new Error("Couldn't find ID in resultlist - " + itemID);
       }
 
-      onSelect(itemID, selectedItem);
+      onSelect(selectedItem, itemID);
     }
   }, {
     key: "handleSearchTextChange",
@@ -295,7 +295,7 @@ _defineProperty(LinkToDropdown, "defaultProps", {
    * @param {*} itemID - The "@id" of selected item.
    * @param {*} itemJson - JSON/context of selected item. Will only contain limited subset of fields, e.g. type and title.
    */
-  'onSelect': function onSelect(itemID, itemJson) {
+  'onSelect': function onSelect(itemJson, itemID) {
     _util.console.info("Selected!", itemID, itemJson);
   }
 });
