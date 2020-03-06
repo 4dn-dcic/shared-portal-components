@@ -269,9 +269,10 @@ function (_React$PureComponent) {
         }));
       } else {
         if (results.length === 0 && !error) {
+          var queryLen = currentTextValue.length;
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-3"
-          }, "No results found"), optionsHeader);
+          }, queryLen == 1 ? "Minimum search length is 2 characters" : "No results found"), optionsHeader);
         } else if (error) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-3"
