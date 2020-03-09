@@ -2689,9 +2689,9 @@ function (_React$Component2) {
      * @id as a fallback.
      *
      * @param {string} itemAtID    The @id or unique key of the Item for which we want to validate and get title for.
-     * @param {string} field       
+     * @param {string} field
      * @param {string} type        The Item type of value.
-     * @param {number} arrayIdx    
+     * @param {number} arrayIdx
      * @param {any}    newLink     Schema-formatted property name for linked Item property, e.g. 'Biosources', 'Treatments', 'Cell Culture Information' when editing a parent "Biosample" Item.
      */
 
@@ -2963,12 +2963,6 @@ function (_React$Component2) {
       if (linked !== null) {
         linked = fieldSchema.title ? fieldSchema.title : linked;
         isLinked = true;
-      }
-
-      if (roundTwo) {
-        var path = keyComplete[currKey],
-            completeContext = keyContext[path],
-            statusCheck = completeContext.status && (completeContext.status == 'uploading' || completeContext.status == 'upload failed');
       } // handle a linkTo object on the the top level
       // check if any schema-specific adjustments need to made:
 
