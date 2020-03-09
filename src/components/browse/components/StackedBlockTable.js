@@ -62,7 +62,7 @@ export class StackedBlockName extends React.PureComponent {
     render(){
         const { children, style, relativePosition, colWidthStyles, columnClass, label, className } = this.props;
 
-        var useStyle = {};
+        const useStyle = {};
         const colWidthStyle = colWidthStyles[columnClass];
 
         if (style)              _.extend(useStyle, style);
@@ -185,13 +185,15 @@ export class StackedBlockList extends React.PureComponent {
     }
 
     render(){
-        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, className } = this.props;
+        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, className, colWidthStyles, columnClass } = this.props;
+        const { collapsed } = this.state;
         const children = this.adjustedChildren();
+        const useStyle = colWidthStyles["list:" + columnClass]; // columnClass here is of parent StackedBlock, not of its children.
         const cls = "s-block-list " + (className || '') + (' stack-depth-' + stackDepth);
 
         if (collapseLongLists === false || !Array.isArray(children) || children.length <= collapseLimit) {
             // Don't have enough items for collapsible element, return plain list.
-            return <div className={cls}>{ children }</div>;
+            return <div className={cls} style={useStyle}>{ children }</div>;
         }
 
         const collapsibleChildren = children.slice(collapseShow);
@@ -200,21 +202,21 @@ export class StackedBlockList extends React.PureComponent {
         var collapsibleChildrenElemsList;
 
         if (collapsibleChildrenLen > Math.min(collapseShow, 10)) { // Don't transition
-            collapsibleChildrenElemsList = this.state.collapsed ? null : <div className="collapsible-s-block-ext">{ collapsibleChildren }</div>;
+            collapsibleChildrenElemsList = collapsed ? null : <div className="collapsible-s-block-ext">{ collapsibleChildren }</div>;
         } else {
             collapsibleChildrenElemsList = (
-                <Collapse in={!this.state.collapsed}>
+                <Collapse in={!collapsed}>
                     <div className="collapsible-s-block-ext">{ collapsibleChildren }</div>
                 </Collapse>
             );
         }
 
         return (
-            <div className={cls} data-count-collapsed={collapsibleChildren.length}>
+            <div className={cls} data-count-collapsed={collapsibleChildren.length} style={useStyle}>
                 { children.slice(0, collapseShow) }
                 { collapsibleChildrenElemsList }
                 <StackedBlockListViewMoreButton {...this.props} collapsibleChildren={collapsibleChildren}
-                    collapsed={this.state.collapsed} handleCollapseToggle={this.handleCollapseToggle} />
+                    collapsed={collapsed} handleCollapseToggle={this.handleCollapseToggle} />
             </div>
         );
     }
@@ -310,53 +312,48 @@ export class StackedBlockTable extends React.PureComponent {
         return _.map(columnHeaders, function(c){ return c.initialWidth || defaultInitialColumnWidth; });
     }
 
-    static totalColumnsWidth(columnHeaders, defaultInitialColumnWidth){
-        var origColumnWidths = StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth);
-        return _.reduce(origColumnWidths, function(m,v){ return m + v; }, 0);
+    static totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth){
+        return StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth).reduce(function(m,v){
+            return m + v;
+        }, 0);
     }
 
-    /**
-     * Returns array of column widths, aligned to columnHeaders, which are scaled up to
-     * fit `width`, or original/initial widths if total is > props.width.
-     */
-    static scaledColumnWidths(width, columnHeaders, defaultInitialColumnWidth){
-        if (!width) {
-            width = 960; // 960 = fallback for tests
-        }
-
-        const origColumnWidths = StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth);
-        const totalOrigColsWidth = StackedBlockTable.totalColumnsWidth(columnHeaders, defaultInitialColumnWidth);
-
-        if (totalOrigColsWidth > width){
-            return origColumnWidths;
-        }
-
-        const scale = (width / totalOrigColsWidth) || 1;
-        const newColWidths = _.map(origColumnWidths, function(c){
-            return Math.floor(c * scale);
-        });
-        const totalNewColsWidth = _.reduce(newColWidths, function(m,v){ return m + v; }, 0);
-        const remainder = width - totalNewColsWidth;
-
-        // Adjust first column by few px to fit perfectly.
-        newColWidths[0] += Math.floor(remainder - 0.5);
-
-        return newColWidths;
-    }
-
-    static colWidthStyles(columnWidths, columnHeaders){
+    static colWidthStyles(columnHeaders, defaultInitialColumnWidth){
         // { 'experiment' : { width } , 'biosample' : { width }, ... }
-        return _.object(
-            _.map(columnHeaders, function(col, index){
-                var key;
-                if (col.columnClass === 'file-detail'){
-                    key = col.field || col.title || 'file-detail';
-                } else {
-                    key = col.columnClass;
+
+        const orderedMapList = columnHeaders.map(function(col, index){
+            const { field, title, columnClass, initialWidth } = col;
+            const width = initialWidth || defaultInitialColumnWidth;
+            let key;
+            if (columnClass === 'file-detail'){
+                key = field || title || 'file-detail';
+            } else {
+                key = columnClass;
+            }
+            return [
+                key,
+                {
+                    flex: "1 0 " + width + "px",
+                    minWidth: width
                 }
-                return [key, { 'width' : columnWidths[index] }];
-            })
-        );
+            ];
+        });
+
+        const retObj = _.object(orderedMapList);
+
+        columnHeaders.slice().reverse().reduce(function(m, col, idx){
+            const { columnClass, initialWidth } = col;
+            if (columnClass !== 'file-detail' && columnClass !== 'file'){
+                retObj["list:" + columnClass] = {
+                    flex: `${idx} 0 ${m}px`,
+                    minWidth: m
+                };
+            }
+            m += (initialWidth || defaultInitialColumnWidth);
+            return m;
+        }, 0);
+
+        return retObj;
     }
 
     static propTypes = {
@@ -390,13 +387,13 @@ export class StackedBlockTable extends React.PureComponent {
     constructor(props){
         super(props);
 
-        this.totalColumnsWidthMemoized = memoize(StackedBlockTable.totalColumnsWidth);
-        this.scaledColumnWidthsMemoized = memoize(StackedBlockTable.scaledColumnWidths);
-        this.colWidthStylesMemoized = memoize(StackedBlockTable.colWidthStyles);
-
         this.adjustedChildren = this.adjustedChildren.bind(this);
-        this.colWidthStyles = this.colWidthStyles.bind(this);
         this.setCollapsingState = _.throttle(this.setCollapsingState.bind(this));
+
+        this.memoized = {
+            totalColumnsMinWidth: memoize(StackedBlockTable.totalColumnsMinWidth),
+            colWidthStyles: memoize(StackedBlockTable.colWidthStyles)
+        };
 
         this.state = {
             'mounted' : false
@@ -407,28 +404,22 @@ export class StackedBlockTable extends React.PureComponent {
         this.setState({ 'mounted' : true });
     }
 
-    colWidthStyles(){
-        const { width, columnHeaders, defaultInitialColumnWidth } = this.props;
-        const columnWidths = this.scaledColumnWidthsMemoized(width, columnHeaders, defaultInitialColumnWidth);
-        return this.colWidthStylesMemoized(columnWidths, columnHeaders);
-    }
-
     setCollapsingState(collapsing){
         this.setState({ collapsing });
     }
 
     adjustedChildren(){
-        const { children, columnHeaders } = this.props;
-        const colWidthStyles = this.colWidthStyles();
+        const { children, columnHeaders, defaultInitialColumnWidth } = this.props;
+        const colWidthStyles = this.memoized.colWidthStyles(columnHeaders, defaultInitialColumnWidth);
 
         return React.Children.map(children, (c)=>{
             // Includes handleFileCheckboxChange, selectedFiles, etc. if present
-            const addedProps = _.omit(this.props, 'columnHeaders', 'stackDepth', 'colWidthStyles');
+            const addedProps = _.omit(this.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width');
 
             // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
-            addedProps.colWidthStyles      = colWidthStyles;
-            addedProps.stackDepth          = 0;
-            addedProps.columnHeaders       = columnHeaders;
+            addedProps.colWidthStyles = colWidthStyles;
+            addedProps.stackDepth = 0;
+            addedProps.columnHeaders = columnHeaders;
 
             return React.cloneElement(c, addedProps, c.props.children);
         });
@@ -442,11 +433,11 @@ export class StackedBlockTable extends React.PureComponent {
             return <h6 className="text-center text-400"><em>No Results</em></h6>;
         }
 
-        const totalColsWidth = this.totalColumnsWidthMemoized(columnHeaders, defaultInitialColumnWidth);
+        const totalColsWidth = this.memoized.totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth);
         const minTotalWidth = Math.max(width || 0, totalColsWidth);
 
         // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
-        const tableHeaderProps = _.omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles');
+        const tableHeaderProps = _.omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles', 'width');
 
         return (
             <div style={{ 'width' : minTotalWidth }} className={
@@ -462,14 +453,13 @@ export class StackedBlockTable extends React.PureComponent {
 
 
 function TableHeaders(props){
-    const { columnHeaders, width, defaultInitialColumnWidth } = props;
-    const columnWidths = StackedBlockTable.scaledColumnWidths(width, columnHeaders, defaultInitialColumnWidth);
+    const { columnHeaders, defaultInitialColumnWidth } = props;
 
     const headers = _.map(columnHeaders, function(colHeader, index){
         const { field, title, visibleTitle: vTitle, title_tooltip, initialWidth, columnClass, className } = colHeader;
         let visibleTitle = vTitle || title;
         if (typeof visibleTitle === 'function') visibleTitle = visibleTitle(props);
-        const colWidth = columnWidths[index] || initialWidth || defaultInitialColumnWidth;
+        const colWidth = initialWidth || defaultInitialColumnWidth;
         const key = field || index;
         const cls = "heading-block col-" + columnClass + (className ? ' ' + className : '');
 
@@ -484,7 +474,7 @@ function TableHeaders(props){
         }
 
         return (
-            <div className={cls} key={key} style={{ 'width' : colWidth }} data-column-class={columnClass} data-tip={tooltip}>
+            <div className={cls} key={key} style={{ flex: "1 0 " + colWidth + "px", minWidth: colWidth  }} data-column-class={columnClass} data-tip={tooltip}>
                 { visibleTitle }
             </div>
         );

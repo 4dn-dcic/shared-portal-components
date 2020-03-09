@@ -32,8 +32,8 @@ $font-family-sans-serif : sans-serif !default;
         > .name {
             line-height: 20px;
             min-height: 34px * $rowCount + 2px;
-            padding-top: (34px * $rowCount + 2px - 20px) / 2;
-            padding-bottom: (34px * $rowCount + 2px - 20px) / 2;
+            /* padding-top: (34px * $rowCount + 2px - 20px) / 2; */
+            /* padding-bottom: (34px * $rowCount + 2px - 20px) / 2; */
         }
     }
 }
@@ -69,7 +69,7 @@ $font-family-sans-serif : sans-serif !default;
     }
 
 	.headers {
-		display: block;
+		display: flex;
 		text-align: right;
 		height: 42px;
 
@@ -82,8 +82,6 @@ $font-family-sans-serif : sans-serif !default;
 			text-align: center;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			display: inline-block;
-			vertical-align: middle;
 			height: inherit;
 			padding: 12px 6px;
 			background: inherit;
@@ -134,10 +132,6 @@ $font-family-sans-serif : sans-serif !default;
 		transform: translate3d(0,0,0);
 
 		.s-block-list {
-			//@media screen and (min-width: $screen-md-min){
-				display: inline-block;
-				vertical-align: middle;
-			//}
 
 			.collapsible-s-block-ext {
 				transform: translate3d(0,0,0);
@@ -167,7 +161,9 @@ $font-family-sans-serif : sans-serif !default;
 		}
 
 		.s-block {
-			display: block;
+			/* display: block; */
+			display: flex;
+			align-items: center;
 			position: relative;
 			/*
 			overflow-y: hidden;
@@ -175,12 +171,13 @@ $font-family-sans-serif : sans-serif !default;
 			*/
 
 			> .name {
-				display: inline-block;
-				vertical-align: middle;
 				position: relative;
 				padding: 7px 12px;
 				text-align: center;
 				line-height: 20px;
+				display: flex;
+    			flex-direction: column;
+    			justify-content: center;
 
 				.mono-text,
 				.text-monospace {
@@ -341,19 +338,16 @@ $font-family-sans-serif : sans-serif !default;
 
         // File detail rows & similar
 		.s-block > .item {
-			padding: 9px 8px;
+			padding: 3px 7px;
 			line-height: 16px;
-			display: inline-block;
 			text-align: center;
-			vertical-align: middle;
 			text-overflow: ellipsis;
 			overflow-x: hidden;
 		}
 
 		/****** Rules by depth ******/
 
-		> .stack-depth-0.s-block-list { // Root list, aligned to right.
-			float: right;
+		> .stack-depth-0.s-block-list { // Root list
 			display: block;
 
 			> .s-block.stack-depth-1,

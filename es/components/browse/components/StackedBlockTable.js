@@ -266,14 +266,20 @@ function (_React$PureComponent3) {
           stackDepth = _this$props4.stackDepth,
           collapseLimit = _this$props4.collapseLimit,
           collapseShow = _this$props4.collapseShow,
-          className = _this$props4.className;
+          className = _this$props4.className,
+          colWidthStyles = _this$props4.colWidthStyles,
+          columnClass = _this$props4.columnClass;
+      var collapsed = this.state.collapsed;
       var children = this.adjustedChildren();
+      var useStyle = colWidthStyles["list:" + columnClass]; // columnClass here is of parent StackedBlock, not of its children.
+
       var cls = "s-block-list " + (className || '') + (' stack-depth-' + stackDepth);
 
       if (collapseLongLists === false || !Array.isArray(children) || children.length <= collapseLimit) {
         // Don't have enough items for collapsible element, return plain list.
         return _react["default"].createElement("div", {
-          className: cls
+          className: cls,
+          style: useStyle
         }, children);
       }
 
@@ -283,12 +289,12 @@ function (_React$PureComponent3) {
 
       if (collapsibleChildrenLen > Math.min(collapseShow, 10)) {
         // Don't transition
-        collapsibleChildrenElemsList = this.state.collapsed ? null : _react["default"].createElement("div", {
+        collapsibleChildrenElemsList = collapsed ? null : _react["default"].createElement("div", {
           className: "collapsible-s-block-ext"
         }, collapsibleChildren);
       } else {
         collapsibleChildrenElemsList = _react["default"].createElement(_Collapse.Collapse, {
-          "in": !this.state.collapsed
+          "in": !collapsed
         }, _react["default"].createElement("div", {
           className: "collapsible-s-block-ext"
         }, collapsibleChildren));
@@ -296,10 +302,11 @@ function (_React$PureComponent3) {
 
       return _react["default"].createElement("div", {
         className: cls,
-        "data-count-collapsed": collapsibleChildren.length
+        "data-count-collapsed": collapsibleChildren.length,
+        style: useStyle
       }, children.slice(0, collapseShow), collapsibleChildrenElemsList, _react["default"].createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
         collapsibleChildren: collapsibleChildren,
-        collapsed: this.state.collapsed,
+        collapsed: collapsed,
         handleCollapseToggle: this.handleCollapseToggle
       })));
     }
@@ -435,64 +442,53 @@ function (_React$PureComponent5) {
       });
     }
   }, {
-    key: "totalColumnsWidth",
-    value: function totalColumnsWidth(columnHeaders, defaultInitialColumnWidth) {
-      var origColumnWidths = StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth);
-      return _underscore["default"].reduce(origColumnWidths, function (m, v) {
+    key: "totalColumnsMinWidth",
+    value: function totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth) {
+      return StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth).reduce(function (m, v) {
         return m + v;
       }, 0);
-    }
-    /**
-     * Returns array of column widths, aligned to columnHeaders, which are scaled up to
-     * fit `width`, or original/initial widths if total is > props.width.
-     */
-
-  }, {
-    key: "scaledColumnWidths",
-    value: function scaledColumnWidths(width, columnHeaders, defaultInitialColumnWidth) {
-      if (!width) {
-        width = 960; // 960 = fallback for tests
-      }
-
-      var origColumnWidths = StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth);
-      var totalOrigColsWidth = StackedBlockTable.totalColumnsWidth(columnHeaders, defaultInitialColumnWidth);
-
-      if (totalOrigColsWidth > width) {
-        return origColumnWidths;
-      }
-
-      var scale = width / totalOrigColsWidth || 1;
-
-      var newColWidths = _underscore["default"].map(origColumnWidths, function (c) {
-        return Math.floor(c * scale);
-      });
-
-      var totalNewColsWidth = _underscore["default"].reduce(newColWidths, function (m, v) {
-        return m + v;
-      }, 0);
-
-      var remainder = width - totalNewColsWidth; // Adjust first column by few px to fit perfectly.
-
-      newColWidths[0] += Math.floor(remainder - 0.5);
-      return newColWidths;
     }
   }, {
     key: "colWidthStyles",
-    value: function colWidthStyles(columnWidths, columnHeaders) {
+    value: function colWidthStyles(columnHeaders, defaultInitialColumnWidth) {
       // { 'experiment' : { width } , 'biosample' : { width }, ... }
-      return _underscore["default"].object(_underscore["default"].map(columnHeaders, function (col, index) {
+      var orderedMapList = columnHeaders.map(function (col) {
+        var field = col.field,
+            title = col.title,
+            columnClass = col.columnClass,
+            initialWidth = col.initialWidth;
+        var width = initialWidth || defaultInitialColumnWidth;
         var key;
 
-        if (col.columnClass === 'file-detail') {
-          key = col.field || col.title || 'file-detail';
+        if (columnClass === 'file-detail') {
+          key = field || title || 'file-detail';
         } else {
-          key = col.columnClass;
+          key = columnClass;
         }
 
         return [key, {
-          'width': columnWidths[index]
+          flex: "1 0 " + width + "px",
+          minWidth: width
         }];
-      }));
+      });
+
+      var retObj = _underscore["default"].object(orderedMapList);
+
+      columnHeaders.slice().reverse().reduce(function (m, col, idx) {
+        var columnClass = col.columnClass,
+            initialWidth = col.initialWidth;
+
+        if (columnClass !== 'file-detail' && columnClass !== 'file') {
+          retObj["list:" + columnClass] = {
+            flex: "".concat(idx, " 0 ").concat(m, "px"),
+            minWidth: m
+          };
+        }
+
+        m += initialWidth || defaultInitialColumnWidth;
+        return m;
+      }, 0);
+      return retObj;
     }
   }]);
 
@@ -502,12 +498,12 @@ function (_React$PureComponent5) {
     _classCallCheck(this, StackedBlockTable);
 
     _this5 = _possibleConstructorReturn(this, _getPrototypeOf(StackedBlockTable).call(this, props));
-    _this5.totalColumnsWidthMemoized = (0, _memoizeOne["default"])(StackedBlockTable.totalColumnsWidth);
-    _this5.scaledColumnWidthsMemoized = (0, _memoizeOne["default"])(StackedBlockTable.scaledColumnWidths);
-    _this5.colWidthStylesMemoized = (0, _memoizeOne["default"])(StackedBlockTable.colWidthStyles);
     _this5.adjustedChildren = _this5.adjustedChildren.bind(_assertThisInitialized(_this5));
-    _this5.colWidthStyles = _this5.colWidthStyles.bind(_assertThisInitialized(_this5));
     _this5.setCollapsingState = _underscore["default"].throttle(_this5.setCollapsingState.bind(_assertThisInitialized(_this5)));
+    _this5.memoized = {
+      totalColumnsMinWidth: (0, _memoizeOne["default"])(StackedBlockTable.totalColumnsMinWidth),
+      colWidthStyles: (0, _memoizeOne["default"])(StackedBlockTable.colWidthStyles)
+    };
     _this5.state = {
       'mounted': false
     };
@@ -522,16 +518,6 @@ function (_React$PureComponent5) {
       });
     }
   }, {
-    key: "colWidthStyles",
-    value: function colWidthStyles() {
-      var _this$props7 = this.props,
-          width = _this$props7.width,
-          columnHeaders = _this$props7.columnHeaders,
-          defaultInitialColumnWidth = _this$props7.defaultInitialColumnWidth;
-      var columnWidths = this.scaledColumnWidthsMemoized(width, columnHeaders, defaultInitialColumnWidth);
-      return this.colWidthStylesMemoized(columnWidths, columnHeaders);
-    }
-  }, {
     key: "setCollapsingState",
     value: function setCollapsingState(collapsing) {
       this.setState({
@@ -543,13 +529,14 @@ function (_React$PureComponent5) {
     value: function adjustedChildren() {
       var _this6 = this;
 
-      var _this$props8 = this.props,
-          children = _this$props8.children,
-          columnHeaders = _this$props8.columnHeaders;
-      var colWidthStyles = this.colWidthStyles();
+      var _this$props7 = this.props,
+          children = _this$props7.children,
+          columnHeaders = _this$props7.columnHeaders,
+          defaultInitialColumnWidth = _this$props7.defaultInitialColumnWidth;
+      var colWidthStyles = this.memoized.colWidthStyles(columnHeaders, defaultInitialColumnWidth);
       return _react["default"].Children.map(children, function (c) {
         // Includes handleFileCheckboxChange, selectedFiles, etc. if present
-        var addedProps = _underscore["default"].omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles'); // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
+        var addedProps = _underscore["default"].omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width'); // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
 
 
         addedProps.colWidthStyles = colWidthStyles;
@@ -561,13 +548,13 @@ function (_React$PureComponent5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props9 = this.props,
-          width = _this$props9.width,
-          fadeIn = _this$props9.fadeIn,
-          columnHeaders = _this$props9.columnHeaders,
-          className = _this$props9.className,
-          children = _this$props9.children,
-          defaultInitialColumnWidth = _this$props9.defaultInitialColumnWidth;
+      var _this$props8 = this.props,
+          width = _this$props8.width,
+          fadeIn = _this$props8.fadeIn,
+          columnHeaders = _this$props8.columnHeaders,
+          className = _this$props8.className,
+          children = _this$props8.children,
+          defaultInitialColumnWidth = _this$props8.defaultInitialColumnWidth;
       var mounted = this.state.mounted;
 
       if (!children) {
@@ -576,10 +563,10 @@ function (_React$PureComponent5) {
         }, _react["default"].createElement("em", null, "No Results"));
       }
 
-      var totalColsWidth = this.totalColumnsWidthMemoized(columnHeaders, defaultInitialColumnWidth);
+      var totalColsWidth = this.memoized.totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth);
       var minTotalWidth = Math.max(width || 0, totalColsWidth); // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
 
-      var tableHeaderProps = _underscore["default"].omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles');
+      var tableHeaderProps = _underscore["default"].omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles', 'width');
 
       return _react["default"].createElement("div", {
         style: {
@@ -645,9 +632,7 @@ _defineProperty(StackedBlockTable, "defaultProps", {
 
 function TableHeaders(props) {
   var columnHeaders = props.columnHeaders,
-      width = props.width,
       defaultInitialColumnWidth = props.defaultInitialColumnWidth;
-  var columnWidths = StackedBlockTable.scaledColumnWidths(width, columnHeaders, defaultInitialColumnWidth);
 
   var headers = _underscore["default"].map(columnHeaders, function (colHeader, index) {
     var field = colHeader.field,
@@ -659,7 +644,7 @@ function TableHeaders(props) {
         className = colHeader.className;
     var visibleTitle = vTitle || title;
     if (typeof visibleTitle === 'function') visibleTitle = visibleTitle(props);
-    var colWidth = columnWidths[index] || initialWidth || defaultInitialColumnWidth;
+    var colWidth = initialWidth || defaultInitialColumnWidth;
     var cls = "heading-block col-" + columnClass + (className ? ' ' + className : '');
     var tooltip;
 
@@ -677,7 +662,8 @@ function TableHeaders(props) {
       className: cls,
       key: field || index,
       style: {
-        'width': colWidth
+        flex: "1 0 " + colWidth + "px",
+        minWidth: colWidth
       },
       "data-column-class": columnClass,
       "data-tip": tooltip
