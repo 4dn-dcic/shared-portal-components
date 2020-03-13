@@ -90,6 +90,7 @@ export class StackedBlockListViewMoreButton extends React.PureComponent {
         'collapsed' : PropTypes.bool,
         'handleCollapseToggle' : PropTypes.func,
         'preventExpand' : PropTypes.bool,
+        'showMoreExtTitle' : PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
         // + those from parent .List
     };
 
@@ -135,7 +136,7 @@ export class StackedBlockList extends React.PureComponent {
     static ViewMoreButton = StackedBlockListViewMoreButton;
 
     static propTypes = {
-        'showMoreExtTitle'    : PropTypes.string,
+        'showMoreExtTitle'    : PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
         'collapseLimit'       : PropTypes.number,
         'collapseShow'        : PropTypes.number,
         'collapseLongLists'   : PropTypes.bool,
@@ -364,7 +365,6 @@ export class StackedBlockTable extends React.PureComponent {
             'visibleTitle' : PropTypes.oneOfType([PropTypes.string, PropTypes.element, PropTypes.func]),
             'initialWidth' : PropTypes.number
         })).isRequired,
-        'width' : PropTypes.number.isRequired,
         'preventExpand' : PropTypes.bool
     };
 
@@ -375,7 +375,6 @@ export class StackedBlockTable extends React.PureComponent {
             { columnClass: 'file-group',                                title: 'File Group',     initialWidth: 40,   visibleTitle : <i className="icon fas icon-download"></i> },
             { columnClass: 'file',                                      title: 'File',          initialWidth: 125   }
         ],
-        'width': null,
         'defaultInitialColumnWidth' : 120,
         'collapseLimit'     : 4,
         'collapseShow'      : 3,
@@ -426,7 +425,7 @@ export class StackedBlockTable extends React.PureComponent {
     }
 
     render(){
-        const { width , fadeIn, columnHeaders, className, children, defaultInitialColumnWidth } = this.props;
+        const { width = 0, fadeIn, columnHeaders, className, children, defaultInitialColumnWidth } = this.props;
         const { mounted } = this.state;
 
         if (!children){
@@ -434,7 +433,7 @@ export class StackedBlockTable extends React.PureComponent {
         }
 
         const totalColsWidth = this.memoized.totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth);
-        const minTotalWidth = Math.max(width || 0, totalColsWidth);
+        const minTotalWidth = Math.max(width, totalColsWidth);
 
         // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
         const tableHeaderProps = _.omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles', 'width');
@@ -485,12 +484,11 @@ function TableHeaders(props){
 TableHeaders.propTypes = {
     /** Basic props */
     'columnHeaders' : PropTypes.array.isRequired,
-    'width' : PropTypes.number.isRequired,
     'defaultInitialColumnWidth' : PropTypes.number,
 
     /** Below needed to feed into visibleTitle func for e.g. checkbox in column title. */
     'allFiles' : PropTypes.arrayOf(PropTypes.object),
-    'selectedFiles' : PropTypes.arrayOf(PropTypes.object),
+    'selectedFiles' : PropTypes.objectOf(PropTypes.oneOfType([ PropTypes.object, PropTypes.bool ])),
     'handleFileCheckboxChange' : PropTypes.func.isRequired
 };
 

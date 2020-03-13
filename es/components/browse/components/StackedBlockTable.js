@@ -190,7 +190,8 @@ _defineProperty(StackedBlockListViewMoreButton, "propTypes", {
   'collapsibleChildren': _propTypes["default"].array,
   'collapsed': _propTypes["default"].bool,
   'handleCollapseToggle': _propTypes["default"].func,
-  'preventExpand': _propTypes["default"].bool // + those from parent .List
+  'preventExpand': _propTypes["default"].bool,
+  'showMoreExtTitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element]) // + those from parent .List
 
 });
 
@@ -320,7 +321,7 @@ exports.StackedBlockList = StackedBlockList;
 _defineProperty(StackedBlockList, "ViewMoreButton", StackedBlockListViewMoreButton);
 
 _defineProperty(StackedBlockList, "propTypes", {
-  'showMoreExtTitle': _propTypes["default"].string,
+  'showMoreExtTitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element]),
   'collapseLimit': _propTypes["default"].number,
   'collapseShow': _propTypes["default"].number,
   'collapseLongLists': _propTypes["default"].bool,
@@ -549,7 +550,8 @@ function (_React$PureComponent5) {
     key: "render",
     value: function render() {
       var _this$props8 = this.props,
-          width = _this$props8.width,
+          _this$props8$width = _this$props8.width,
+          width = _this$props8$width === void 0 ? 0 : _this$props8$width,
           fadeIn = _this$props8.fadeIn,
           columnHeaders = _this$props8.columnHeaders,
           className = _this$props8.className,
@@ -564,7 +566,7 @@ function (_React$PureComponent5) {
       }
 
       var totalColsWidth = this.memoized.totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth);
-      var minTotalWidth = Math.max(width || 0, totalColsWidth); // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
+      var minTotalWidth = Math.max(width, totalColsWidth); // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
 
       var tableHeaderProps = _underscore["default"].omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles', 'width');
 
@@ -594,7 +596,6 @@ _defineProperty(StackedBlockTable, "propTypes", {
     'visibleTitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element, _propTypes["default"].func]),
     'initialWidth': _propTypes["default"].number
   })).isRequired,
-  'width': _propTypes["default"].number.isRequired,
   'preventExpand': _propTypes["default"].bool
 });
 
@@ -621,7 +622,6 @@ _defineProperty(StackedBlockTable, "defaultProps", {
     title: 'File',
     initialWidth: 125
   }],
-  'width': null,
   'defaultInitialColumnWidth': 120,
   'collapseLimit': 4,
   'collapseShow': 3,
@@ -678,11 +678,10 @@ function TableHeaders(props) {
 TableHeaders.propTypes = {
   /** Basic props */
   'columnHeaders': _propTypes["default"].array.isRequired,
-  'width': _propTypes["default"].number.isRequired,
   'defaultInitialColumnWidth': _propTypes["default"].number,
 
   /** Below needed to feed into visibleTitle func for e.g. checkbox in column title. */
   'allFiles': _propTypes["default"].arrayOf(_propTypes["default"].object),
-  'selectedFiles': _propTypes["default"].arrayOf(_propTypes["default"].object),
+  'selectedFiles': _propTypes["default"].objectOf(_propTypes["default"].oneOfType([_propTypes["default"].object, _propTypes["default"].bool])),
   'handleFileCheckboxChange': _propTypes["default"].func.isRequired
 };
