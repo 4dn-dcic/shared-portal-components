@@ -27,6 +27,7 @@ export class EmbeddedSearchView extends React.PureComponent {
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
+     * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
      */
     static propTypes = {
         'searchHref'    : PropTypes.string.isRequired,
@@ -42,7 +43,10 @@ export class EmbeddedSearchView extends React.PureComponent {
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
         'onLoad'        : PropTypes.func,
-        'hideFacets'    : PropTypes.arrayOf(PropTypes.string)
+        'hideFacets'    : PropTypes.arrayOf(PropTypes.string),
+        'hideColumns'    : PropTypes.arrayOf(PropTypes.string),
+        'filterFacetFxn' : PropTypes.func,
+        'filterColumnFxn': PropTypes.func,
     };
 
     static listToObj(hideFacetStrs){
@@ -63,6 +67,7 @@ export class EmbeddedSearchView extends React.PureComponent {
     constructor(props){
         super(props);
         this.filterFacetFxn = this.filterFacetFxn.bind(this);
+        this.filterColumnFxn = this.filterColumnFxn.bind(this);
         this.memoized = {
             listToObj: memoize(EmbeddedSearchView.listToObj)
         };
@@ -78,6 +83,12 @@ export class EmbeddedSearchView extends React.PureComponent {
         const idMap = this.memoized.listToObj(hideFacets);
         if (idMap[facet.field]) return false;
         return true;
+    }
+
+    filterColumnFxn(column) {
+        const { hideColumns = null } = this.props;
+        if (!hideColumns) return true;
+        return hideColumns.indexOf(column) < 0;
     }
 
     /**
@@ -104,6 +115,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
+            filterColumnFxn: propColumnFilterFxn = null,
             ...passProps
         } = this.props;
 
@@ -111,10 +123,11 @@ export class EmbeddedSearchView extends React.PureComponent {
         const tableColumnClassName = facets === null ? "col-12" : undefined;
         const viewProps = { ...passProps, showAboveTableControls, tableColumnClassName };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
+        const filterColumnFxn = propColumnFilterFxn || this.filterColumnFxn;
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn }} key={searchHref}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, filterColumnFxn }} key={searchHref}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController>
                             <SortController>

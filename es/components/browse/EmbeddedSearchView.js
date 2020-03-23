@@ -104,6 +104,7 @@ function (_React$PureComponent) {
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
+     * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
      */
     value: function listToObj(hideFacetStrs) {
       var obj = {};
@@ -122,6 +123,7 @@ function (_React$PureComponent) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(EmbeddedSearchView).call(this, props));
     _this.filterFacetFxn = _this.filterFacetFxn.bind(_assertThisInitialized(_this));
+    _this.filterColumnFxn = _this.filterColumnFxn.bind(_assertThisInitialized(_this));
     _this.memoized = {
       listToObj: (0, _memoizeOne["default"])(EmbeddedSearchView.listToObj)
     };
@@ -142,6 +144,14 @@ function (_React$PureComponent) {
       var idMap = this.memoized.listToObj(hideFacets);
       if (idMap[facet.field]) return false;
       return true;
+    }
+  }, {
+    key: "filterColumnFxn",
+    value: function filterColumnFxn(column) {
+      var _this$props$hideColum = this.props.hideColumns,
+          hideColumns = _this$props$hideColum === void 0 ? null : _this$props$hideColum;
+      if (!hideColumns) return true;
+      return hideColumns.indexOf(column) < 0;
     }
     /**
      * All these controllers pass props down to their children.
@@ -174,7 +184,9 @@ function (_React$PureComponent) {
           onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
           _this$props$filterFac = _this$props.filterFacetFxn,
           propFacetFilterFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          _this$props$filterCol = _this$props.filterColumnFxn,
+          propColumnFilterFxn = _this$props$filterCol === void 0 ? null : _this$props$filterCol,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined;
@@ -185,13 +197,15 @@ function (_React$PureComponent) {
       });
 
       var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
+      var filterColumnFxn = propColumnFilterFxn || this.filterColumnFxn;
       return _react["default"].createElement("div", {
         className: "embedded-search-container"
       }, _react["default"].createElement(_VirtualHrefController.VirtualHrefController, _extends({
         searchHref: searchHref,
         facets: facets,
         onLoad: onLoad,
-        filterFacetFxn: filterFacetFxn
+        filterFacetFxn: filterFacetFxn,
+        filterColumnFxn: filterColumnFxn
       }, {
         key: searchHref
       }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
@@ -222,7 +236,10 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
   'onLoad': _propTypes["default"].func,
-  'hideFacets': _propTypes["default"].arrayOf(_propTypes["default"].string)
+  'hideFacets': _propTypes["default"].arrayOf(_propTypes["default"].string),
+  'hideColumns': _propTypes["default"].arrayOf(_propTypes["default"].string),
+  'filterFacetFxn': _propTypes["default"].func,
+  'filterColumnFxn': _propTypes["default"].func
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {
