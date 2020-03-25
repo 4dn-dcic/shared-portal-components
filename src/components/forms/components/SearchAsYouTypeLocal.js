@@ -21,7 +21,8 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
     static filterOptions(currTextValue, allResults = [], filterMethod = "startsWith"){
         const regexQuery = SearchAsYouTypeLocal.getRegexQuery(currTextValue, filterMethod);
         return allResults.filter(function(optStr){
-            return !!(optStr.toLowerCase().match(regexQuery));
+            // toString added in case of integer enums/suggested_enums
+            return !!(optStr.toString().toLowerCase().match(regexQuery));
         });
     }
 
