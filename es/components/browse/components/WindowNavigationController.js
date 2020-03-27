@@ -9,6 +9,8 @@ var _react = _interopRequireWildcard(require("react"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
+var _url = _interopRequireDefault(require("url"));
+
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
@@ -71,9 +73,11 @@ function (_React$PureComponent) {
   _createClass(WindowNavigationController, null, [{
     key: "isClearFiltersBtnVisible",
     value: function isClearFiltersBtnVisible(href, context) {
-      var urlPartsQuery = url.parse(href, true).query || {};
+      var urlPartsQuery = _url["default"].parse(href, true).query || {};
       var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
-      var clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
+
+      var clearFiltersURLQuery = clearFiltersURL && _url["default"].parse(clearFiltersURL, true).query;
+
       return !!(clearFiltersURLQuery && !_underscore["default"].isEqual(clearFiltersURLQuery, urlPartsQuery));
     }
   }]);

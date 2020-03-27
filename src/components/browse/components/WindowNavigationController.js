@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import memoize from 'memoize-one';
+import url from 'url';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { navigate } from './../../util/navigate';
