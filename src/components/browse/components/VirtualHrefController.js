@@ -24,16 +24,29 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/t
  */
 export class VirtualHrefController extends React.PureComponent {
 
-    static defaultProps = {
-        "searchHref" : "/search/?type=Item"
-    };
     /**
      * @param {String[]} facets - facets array
      * @param {function} filterFacetFxn - filtering function
      */
     static transformedFacets(facets, filterFacetFxn){
+        if (typeof filterFacetFxn !== "function"){
+            return facets;
+        }
+        if (!Array.isArray(facets)) {
+            return []; // ? probably to-do if no facets: add placeholder saying no facets ?
+        }
         return facets.filter(filterFacetFxn);
     }
+
+    static isClearFiltersBtnVisible(virtualHref, originalSearchHref){
+        const virtualHrefPartsQuery = url.parse(virtualHref, true).query || {};
+        const origHrefQuery = url.parse(originalSearchHref, true).query || {};
+        return !_.isEqual(origHrefQuery, virtualHrefPartsQuery);
+    }
+
+    static defaultProps = {
+        "searchHref" : "/search/?type=Item"
+    };
 
     constructor(props){
         super(props);
@@ -42,7 +55,8 @@ export class VirtualHrefController extends React.PureComponent {
         this.getTermStatus = this.getTermStatus.bind(this);
         this.virtualNavigate = this.virtualNavigate.bind(this);
         this.memoized = {
-            transformedFacets: memoize(VirtualHrefController.transformedFacets)
+            transformedFacets: memoize(VirtualHrefController.transformedFacets),
+            isClearFiltersBtnVisible: memoize(VirtualHrefController.isClearFiltersBtnVisible)
         };
 
         this.state = {
@@ -124,15 +138,10 @@ export class VirtualHrefController extends React.PureComponent {
         );
     }
 
+    /** Unlike in case of SearchView, which defaults to response's clear filters URL, this defaults to original searchHref */
     onClearFilters(callback = null){
-        const { virtualContext : { clear_filters : clearFiltersURL = null } } = this.state;
-
-        if (!clearFiltersURL) {
-            console.error("No Clear Filters URL");
-            return;
-        }
-
-        this.virtualNavigate(clearFiltersURL, {}, typeof callback === 'function' ? callback : null);
+        const { searchHref } = this.props; // Reset to original searchHref from current virtual href.
+        this.virtualNavigate(searchHref, {}, typeof callback === 'function' ? callback : null);
     }
 
     getTermStatus(term, facet){
@@ -141,7 +150,15 @@ export class VirtualHrefController extends React.PureComponent {
     }
 
     render(){
-        const { children, facets: propFacets, filterFacetFxn = null, columns: propColumns, filterColumnFxn = null, ...passProps } = this.props;
+        const {
+            children,
+            facets: propFacets, // `null` has special meaning for `facets` (hidden) so do not default to it here.
+            filterFacetFxn = null,
+            columns: propColumns = null,
+            filterColumnFxn = null,
+            searchHref: originalSearchHref,
+            ...passProps
+        } = this.props;
         const {
             virtualHref: href,
             virtualContext: context,
@@ -149,15 +166,14 @@ export class VirtualHrefController extends React.PureComponent {
         } = this.state;
 
         // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
-        let facets = propFacets === null ? null : propFacets || (context && context.facets) || null;
+        const facets = (propFacets === null) ? null :
+            this.memoized.transformedFacets(propFacets || (context && context.facets) || null, filterFacetFxn);
 
-        if (typeof filterFacetFxn === "function" && Array.isArray(facets)){
-            facets = this.memoized.transformedFacets(facets, filterFacetFxn);
-        }
+        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, originalSearchHref);
 
         const propsToPass = {
             ...passProps,
-            href, context, isContextLoading, facets,
+            href, context, isContextLoading, facets, showClearFiltersButton,
             navigate: this.virtualNavigate,
             onFilter: this.onFilter,
             onClearFilters: this.onClearFilters,

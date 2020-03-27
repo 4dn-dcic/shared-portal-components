@@ -47,15 +47,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -65,18 +65,6 @@ var ControlsAndResults =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(ControlsAndResults, _React$PureComponent);
-
-  _createClass(ControlsAndResults, null, [{
-    key: "isClearFiltersBtnVisible",
-    value: function isClearFiltersBtnVisible(href, context) {
-      var urlPartsQuery = _url["default"].parse(href, true).query || {};
-      var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
-
-      var clearFiltersURLQuery = clearFiltersURL && _url["default"].parse(clearFiltersURL, true).query;
-
-      return !!(clearFiltersURLQuery && !_underscore["default"].isEqual(clearFiltersURLQuery, urlPartsQuery));
-    }
-  }]);
 
   function ControlsAndResults(props) {
     var _this;
@@ -89,8 +77,7 @@ function (_React$PureComponent) {
     _this.renderSearchDetailPane = _this.renderSearchDetailPane.bind(_assertThisInitialized(_this));
     _this.memoized = {
       getSchemaTypeFromSearchContext: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaTypeFromSearchContext),
-      getAbstractTypeForType: (0, _memoizeOne["default"])(_schemaTransforms.getAbstractTypeForType),
-      isClearFiltersBtnVisible: (0, _memoizeOne["default"])(ControlsAndResults.isClearFiltersBtnVisible)
+      getAbstractTypeForType: (0, _memoizeOne["default"])(_schemaTransforms.getAbstractTypeForType)
     };
     _this.searchResultTableRef = _react["default"].createRef();
     return _this;
@@ -169,6 +156,8 @@ function (_React$PureComponent) {
           defaultOpenIndices = _this$props2$defaultO === void 0 ? null : _this$props2$defaultO,
           href = _this$props2.href,
           onFilter = _this$props2.onFilter,
+          _this$props2$showClea = _this$props2.showClearFiltersButton,
+          showClearFiltersButton = _this$props2$showClea === void 0 ? false : _this$props2$showClea,
           _this$props2$isOwnPag = _this$props2.isOwnPage,
           isOwnPage = _this$props2$isOwnPag === void 0 ? true : _this$props2$isOwnPag,
           _this$props2$isContex = _this$props2.isContextLoading,
@@ -194,9 +183,7 @@ function (_React$PureComponent) {
           showTotalResults = _ref$total === void 0 ? 0 : _ref$total;
 
       var searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
-      var searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas); // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
-
-      var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context || {});
+      var searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
       var facetListProps = {
         facets: facets,
         filters: filters,

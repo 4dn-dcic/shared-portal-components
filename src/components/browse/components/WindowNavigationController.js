@@ -1,6 +1,7 @@
 'use strict';
 
 import React, { useMemo } from 'react';
+import memoize from 'memoize-one';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { navigate } from './../../util/navigate';
@@ -21,11 +22,22 @@ import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/t
  */
 export class WindowNavigationController extends React.PureComponent {
 
+    static isClearFiltersBtnVisible(href, context){
+        const urlPartsQuery = url.parse(href, true).query || {};
+        const clearFiltersURL = (typeof context.clear_filters === 'string' && context.clear_filters) || null;
+        const clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
+
+        return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
+    }
+
     constructor(props){
         super(props);
         this.onFilter = this.onFilter.bind(this);
         this.onClearFilters = this.onClearFilters.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
+        this.memoized = {
+            isClearFiltersBtnVisible: memoize(WindowNavigationController.isClearFiltersBtnVisible)
+        };
     }
 
     onFilter(facet, term, callback){
@@ -71,13 +83,13 @@ export class WindowNavigationController extends React.PureComponent {
     }
 
     render(){
-        const {
-            children,
-            ...passProps
-        } = this.props;
+        const { children, ...passProps } = this.props;
+        const { href, context } = passProps;
+        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context || {});
 
         const propsToPass = {
             ...passProps,
+            showClearFiltersButton,
             onFilter: this.onFilter,
             onClearFilters: this.onClearFilters,
             getTermStatus: this.getTermStatus,

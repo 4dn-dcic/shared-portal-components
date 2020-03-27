@@ -539,7 +539,7 @@ export class FacetList extends React.PureComponent {
             facets = null,
             className,
             title = "Properties",
-            onClearFilters,
+            onClearFilters = null,
             showClearFiltersButton = false,
             maxBodyHeight: maxHeight = null
         } = this.props;
@@ -576,7 +576,7 @@ export class FacetList extends React.PureComponent {
                                     <i className="icon icon-fw icon-minus fas"/>
                                 </button>
                                 : null }
-                            { showClearFiltersButton ?
+                            { showClearFiltersButton && typeof onClearFilters === "function" ?
                                 <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
                                     <i className="icon icon-fw icon-times fas"/>
                                 </button>

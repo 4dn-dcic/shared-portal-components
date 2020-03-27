@@ -683,7 +683,8 @@ function (_React$PureComponent) {
           className = _this$props4.className,
           _this$props4$title = _this$props4.title,
           title = _this$props4$title === void 0 ? "Properties" : _this$props4$title,
-          onClearFilters = _this$props4.onClearFilters,
+          _this$props4$onClearF = _this$props4.onClearFilters,
+          onClearFilters = _this$props4$onClearF === void 0 ? null : _this$props4$onClearF,
           _this$props4$showClea = _this$props4.showClearFiltersButton,
           showClearFiltersButton = _this$props4$showClea === void 0 ? false : _this$props4$showClea,
           _this$props4$maxBodyH = _this$props4.maxBodyHeight,
@@ -734,7 +735,7 @@ function (_React$PureComponent) {
         "data-tip": "Collapse all facets below"
       }, _react["default"].createElement("i", {
         className: "icon icon-fw icon-minus fas"
-      })) : null, showClearFiltersButton ? _react["default"].createElement("button", {
+      })) : null, showClearFiltersButton && typeof onClearFilters === "function" ? _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-outline-light",
         onClick: onClearFilters,

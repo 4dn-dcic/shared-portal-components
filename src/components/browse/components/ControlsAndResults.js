@@ -20,14 +20,6 @@ import { SelectStickyFooter } from './SelectedItemsController';
 
 export class ControlsAndResults extends React.PureComponent {
 
-    static isClearFiltersBtnVisible(href, context){
-        const urlPartsQuery = url.parse(href, true).query || {};
-        const clearFiltersURL = (typeof context.clear_filters === 'string' && context.clear_filters) || null;
-        const clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
-
-        return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
-    }
-
     constructor(props){
         super(props);
         this.forceUpdateOnSelf = this.forceUpdateOnSelf.bind(this);
@@ -36,8 +28,7 @@ export class ControlsAndResults extends React.PureComponent {
 
         this.memoized = {
             getSchemaTypeFromSearchContext: memoize(getSchemaTypeFromSearchContext),
-            getAbstractTypeForType: memoize(getAbstractTypeForType),
-            isClearFiltersBtnVisible: memoize(ControlsAndResults.isClearFiltersBtnVisible)
+            getAbstractTypeForType: memoize(getAbstractTypeForType)
         };
 
         this.searchResultTableRef = React.createRef();
@@ -83,6 +74,7 @@ export class ControlsAndResults extends React.PureComponent {
 
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
             href, onFilter,
+            showClearFiltersButton = false,
             isOwnPage = true,
             isContextLoading = false,
 
@@ -104,10 +96,6 @@ export class ControlsAndResults extends React.PureComponent {
         const { "@graph" : results, filters, total: showTotalResults = 0 } = context || {};
         const searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
         const searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
-
-        // Facets are transformed by the SearchView component to make adjustments to the @type facet re: currentAction.
-
-        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context || {});
 
         const searchResultTableProps = {
             context, href, navigate, currentAction, schemas, hiddenColumns, results, columnDefinitions, isOwnPage,
