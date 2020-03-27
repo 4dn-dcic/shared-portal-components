@@ -309,6 +309,18 @@ export class ColumnCombiner extends React.PureComponent {
         return columnsToColumnDefinitions(columns, columnExtensionMap);
     }
 
+    /**
+     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {function} filterColumnFxn - filtering function
+     */
+    static filteredColumns(columns, filterColumnFxn = null){
+        if (typeof filterColumnFxn !== "function" || typeof columns !== 'object'){
+            return columns;
+        }
+        const keys = _.keys(columns);
+        return _.pick(columns, keys.filter(filterColumnFxn));
+    }
+
     static defaultProps = {
         "columns" : null, // Passed in as prop or defaults to context.columns
         "columnExtensionMap": basicColumnExtensionMap
@@ -350,7 +362,8 @@ export class ColumnCombiner extends React.PureComponent {
                     // column set that comes down from back-end response.
                     return !this.memoized.haveContextColumnsChanged(prevColumns, nextColumns);
                 }
-            )
+            ),
+            filteredColumns: memoize(ColumnCombiner.filteredColumns)
         };
     }
 
@@ -359,10 +372,11 @@ export class ColumnCombiner extends React.PureComponent {
             children,
             columns: overridePropColumns = null,
             columnExtensionMap,
+            filterColumnFxn = null,
             ...passProps
         } = this.props;
         const { context : { columns: contextColumns } = {} } = passProps;
-        const columns = overridePropColumns || contextColumns || [];
+        const columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
 
         if (columns.length === 0) {
             console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");

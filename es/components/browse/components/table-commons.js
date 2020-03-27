@@ -452,6 +452,24 @@ function (_React$PureComponent) {
       // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
       return columnsToColumnDefinitions(columns, columnExtensionMap);
     }
+    /**
+     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {function} filterColumnFxn - filtering function
+     */
+
+  }, {
+    key: "filteredColumns",
+    value: function filteredColumns(columns) {
+      var filterColumnFxn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      if (typeof filterColumnFxn !== "function" || _typeof(columns) !== 'object') {
+        return columns;
+      }
+
+      var keys = _underscore["default"].keys(columns);
+
+      return _underscore["default"].pick(columns, keys.filter(filterColumnFxn));
+    }
   }]);
 
   function ColumnCombiner(props) {
@@ -503,7 +521,8 @@ function (_React$PureComponent) {
 
 
         return !_this.memoized.haveContextColumnsChanged(prevColumns, nextColumns);
-      })
+      }),
+      filteredColumns: (0, _memoizeOne["default"])(ColumnCombiner.filteredColumns)
     };
     return _this;
   }
@@ -516,12 +535,14 @@ function (_React$PureComponent) {
           _this$props$columns = _this$props.columns,
           overridePropColumns = _this$props$columns === void 0 ? null : _this$props$columns,
           columnExtensionMap = _this$props.columnExtensionMap,
-          passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap"]);
+          _this$props$filterCol = _this$props.filterColumnFxn,
+          filterColumnFxn = _this$props$filterCol === void 0 ? null : _this$props$filterCol,
+          passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap", "filterColumnFxn"]);
 
       var _passProps$context = passProps.context;
       _passProps$context = _passProps$context === void 0 ? {} : _passProps$context;
       var contextColumns = _passProps$context.columns;
-      var columns = overridePropColumns || contextColumns || [];
+      var columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
 
       if (columns.length === 0) {
         console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
