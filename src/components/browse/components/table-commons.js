@@ -317,8 +317,12 @@ export class ColumnCombiner extends React.PureComponent {
         if (typeof filterColumnFxn !== "function" || typeof columns !== 'object'){
             return columns;
         }
-        const keys = _.keys(columns);
-        return _.pick(columns, keys.filter(filterColumnFxn));
+        const nextColumns = {};
+        _.keys(columns).forEach(function(key){
+            if (filterColumnFxn(key, columns[key])) return;
+            nextColumns[key] = columns[key];
+        });
+        return nextColumns;
     }
 
     static defaultProps = {

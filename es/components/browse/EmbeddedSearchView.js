@@ -147,7 +147,7 @@ function (_React$PureComponent) {
     }
   }, {
     key: "filterColumnFxn",
-    value: function filterColumnFxn(column) {
+    value: function filterColumnFxn() {
       var _this$props$hideColum = this.props.hideColumns,
           hideColumns = _this$props$hideColum === void 0 ? null : _this$props$hideColum;
       if (!hideColumns) return true;
@@ -245,5 +245,6 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
 _defineProperty(EmbeddedSearchView, "defaultProps", {
   'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
   'separateSingleTermFacets': true,
-  'hideFacets': ["type", "validation_errors.name"]
+  'hideFacets': ["type", "validation_errors.name"],
+  'hideColumns': null
 });

@@ -61,7 +61,8 @@ export class EmbeddedSearchView extends React.PureComponent {
     static defaultProps = {
         'columnExtensionMap' : basicColumnExtensionMap,
         'separateSingleTermFacets' : true,
-        'hideFacets': ["type", "validation_errors.name"]
+        'hideFacets': ["type", "validation_errors.name"],
+        'hideColumns': null
     };
 
     constructor(props){
@@ -85,7 +86,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         return true;
     }
 
-    filterColumnFxn(column) {
+    filterColumnFxn(columnKey, columnObject) {
         const { hideColumns = null } = this.props;
         if (!hideColumns) return true;
         return hideColumns.indexOf(column) < 0;

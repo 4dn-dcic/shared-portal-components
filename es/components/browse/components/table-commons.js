@@ -466,9 +466,14 @@ function (_React$PureComponent) {
         return columns;
       }
 
-      var keys = _underscore["default"].keys(columns);
+      var nextColumns = {};
 
-      return _underscore["default"].pick(columns, keys.filter(filterColumnFxn));
+      _underscore["default"].keys(columns).forEach(function (key) {
+        if (filterColumnFxn(key, columns[key])) return;
+        nextColumns[key] = columns[key];
+      });
+
+      return nextColumns;
     }
   }]);
 
