@@ -84,6 +84,7 @@ export class SearchSelectionMenu extends React.PureComponent {
             optionsHeader,
             optionsFooter,
             className,
+            variant = "outline-secondary",
             showTips = false
         } = this.props;
         const { dropOpen, refreshKey } = this.state;
@@ -91,7 +92,7 @@ export class SearchSelectionMenu extends React.PureComponent {
         const showValue = (value && titleRenderFunction(value)) || <span className="text-300">No value</span>;
         return (
             <Dropdown flip onToggle={this.onToggleOpen} show={dropOpen} className={cls}>
-                <Dropdown.Toggle variant="outline-secondary" data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
+                <Dropdown.Toggle {...{ variant }} data-tip={showTips ? value : null}>{ showValue }</Dropdown.Toggle>
                 <Dropdown.Menu key={refreshKey} as={SearchSelectionMenuBody} {...{ onTextInputChange, optionsHeader, optionsFooter, currentTextValue }}
                     flip show={dropOpen} onTextInputChange={onTextInputChange} toggleOpen={this.onToggleOpen} ref={this.dropdown} onKeyDown={this.onKeyDown}>
                     {

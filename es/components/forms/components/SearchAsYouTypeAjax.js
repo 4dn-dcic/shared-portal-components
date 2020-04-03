@@ -224,10 +224,12 @@ function (_React$PureComponent) {
       var currentTextValue = this.state.currentTextValue;
 
       if (!titleRenderFunction(currentTextValue)) {
-        // if title hasn't been registered, use the old value
+        console.log("title hasn't been registered"); // if title hasn't been registered, use the old value
+
         onChange(result, value);
       } else {
-        onChange(result, currentTextValue);
+        console.log("calling onDropdownSelect", result);
+        onChange(result, result['@id']);
       }
     }
   }, {
@@ -267,9 +269,10 @@ function (_React$PureComponent) {
         }));
       } else {
         if (results.length === 0 && !error) {
+          var queryLen = currentTextValue.length;
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-3"
-          }, "No results found"), optionsHeader);
+          }, queryLen == 1 ? "Minimum search length is 2 characters" : "No results found"), optionsHeader);
         } else if (error) {
           optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-3"
@@ -282,21 +285,16 @@ function (_React$PureComponent) {
       var intKey = parseInt(value); // if in the middle of editing a custom linked object for this field
 
       var hideButton = value && !isNaN(value) && !keyComplete[intKey];
-      return _react["default"].createElement("div", {
-        className: "d-flex flex-wrap"
-      }, hideButton ? null : _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
+      return hideButton ? null : _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue
       }, {
         alignRight: true,
-        showTips: true,
         options: results,
         onToggleOpen: this.onToggleOpen,
         onTextInputChange: this.onTextInputChange,
         onDropdownSelect: this.onDropdownSelect
-      })), _react["default"].createElement(LinkedObj, _extends({
-        key: "linked-item"
-      }, passProps)));
+      }));
     }
   }]);
 
@@ -312,7 +310,8 @@ SearchAsYouTypeAjax.propTypes = {
       return new Error("Invalid prop '".concat(propName, "' supplied to ").concat(componentName, ". Validation failed."));
     }
   },
-  fieldsToRequest: _propTypes["default"].arrayOf(_propTypes["default"].string)
+  fieldsToRequest: _propTypes["default"].arrayOf(_propTypes["default"].string),
+  titleRenderFunction: _propTypes["default"].func
 };
 SearchAsYouTypeAjax.defaultProps = {
   "optionRenderFunction": function optionRenderFunction(result) {
@@ -335,9 +334,12 @@ SearchAsYouTypeAjax.defaultProps = {
   "fieldsToRequest": ["@id", "display_title", "description"] // additional fields aside from @id, display_title, and description; all already included
 
 };
+/**
+ * A HOC for wrapping SearchAsYouTypeAjax with SubmissionView specific bits, like
+ * the LinkedObj component which renders the "Create New" & "Advanced Search" buttons.
+ */
 
 function SubmissionViewSearchAsYouTypeAjax(props) {
-  // Another higher-order-component
   var selectComplete = props.selectComplete,
       nestedField = props.nestedField,
       value = props.value,
@@ -349,29 +351,43 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
       _props$idToTitleMap = props.idToTitleMap,
       idToTitleMap = _props$idToTitleMap === void 0 ? null : _props$idToTitleMap; // Add some logic based on schema.Linkto props if itemType not already available
 
-  // console.log("idToTitleMap: ", idToTitleMap);
-  var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction;
+  var baseHref = "/search/?type=" + linkTo; // console.log("idToTitleMap: ", idToTitleMap);
+  // Retrieves Item types from SubmissionView props and uses that to pass SAYTAJAX
+  // item-specific options for rendering dropdown items with more/different info than default
+
+  var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction; // Retrieves the appropriate fields based on item type
+
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   var onChange = (0, _react.useMemo)(function () {
     return function (resultItem, valueToReplace) {
       console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
       return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
     };
-  }, [selectComplete, nestedField, itemType, arrayIdx]);
+  }, [selectComplete, nestedField, itemType, arrayIdx]); // Uses idToTitleMap (similar to SubmissionView.keyDisplay) to keep track of & render display_titles
+  // for previously seen objects
+
   var titleRenderFunction = (0, _react.useMemo)(function () {
     return function (resultAtID) {
       return idToTitleMap[resultAtID] || resultAtID;
     };
   }, [idToTitleMap]);
-  return _react["default"].createElement(SearchAsYouTypeAjax, _extends({
+  return _react["default"].createElement("div", {
+    className: "d-flex flex-wrap"
+  }, _react["default"].createElement(SearchAsYouTypeAjax, _extends({
+    showTips: true
+  }, {
     value: value,
     onChange: onChange,
-    baseHref: "/search/?type=" + linkTo,
+    baseHref: baseHref,
     optionRenderFunction: optionRenderFunction,
     fieldsToRequest: fieldsToRequest,
     titleRenderFunction: titleRenderFunction,
     selectComplete: selectComplete
-  }, props));
+  }, props)), _react["default"].createElement(LinkedObj, _extends({
+    key: "linked-item"
+  }, props, {
+    baseHref: baseHref
+  })));
 }
 
 function sexToIcon(sex, showTip) {

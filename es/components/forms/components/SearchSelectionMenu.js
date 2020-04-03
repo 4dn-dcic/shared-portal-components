@@ -141,6 +141,8 @@ function (_React$PureComponent) {
           optionsHeader = _this$props2.optionsHeader,
           optionsFooter = _this$props2.optionsFooter,
           className = _this$props2.className,
+          _this$props2$variant = _this$props2.variant,
+          variant = _this$props2$variant === void 0 ? "outline-secondary" : _this$props2$variant,
           _this$props2$showTips = _this$props2.showTips,
           showTips = _this$props2$showTips === void 0 ? false : _this$props2$showTips;
       var _this$state = this.state,
@@ -157,10 +159,11 @@ function (_React$PureComponent) {
         onToggle: this.onToggleOpen,
         show: dropOpen,
         className: cls
-      }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, {
-        variant: "outline-secondary",
+      }, _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, _extends({
+        variant: variant
+      }, {
         "data-tip": showTips ? value : null
-      }, showValue), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
+      }), showValue), _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
         key: refreshKey,
         as: SearchSelectionMenuBody
       }, {
