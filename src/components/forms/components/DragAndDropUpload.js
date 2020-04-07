@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import _ from 'underscore';
 
 export class DragAndDropFileUploadModal extends React.Component {
     /*
@@ -67,9 +68,15 @@ export class DragAndDropZone extends React.Component {
 
     constructor(props){
         super(props);
+        this.state = {
+            dragging: false,
+            files: []
+        };
         this.dropZoneRef = React.createRef();
         this.cleanUpEventListeners = this.cleanUpEventListeners.bind(this);
         this.setUpEventListeners = this.setUpEventListeners.bind(this);
+
+        this.handleDrop = this.handleDrop.bind(this);
     }
 
     componentDidMount() {
@@ -99,12 +106,6 @@ export class DragAndDropZone extends React.Component {
     handleDrag(evt) {
         evt.preventDefault();
         evt.stopPropagation();
-        if (evt.dataTransfer.items && evt.dataTransfer.items.length > 0) {
-            const data = evt.dataTransfer.files;
-            for (var i = 0; i < data.length; i++) {
-                console.log("data", data[i]);
-            }
-        }
     }
 
     handleDragIn(evt) {
@@ -112,23 +113,32 @@ export class DragAndDropZone extends React.Component {
         evt.stopPropagation();
     }
 
-    handleDragOut = (evt) => {
+    handleDragOut(evt) {
         evt.preventDefault();
         evt.stopPropagation();
     }
 
-    handleDrop = (evt) => {
+    handleDrop(evt) {
         evt.preventDefault();
         evt.stopPropagation();
-        if (evt.dataTransfer.items && evt.dataTransfer.items.length > 0) {
-            const data = evt.dataTransfer.files;
-            for (var i = 0; i < data.length; i++) {
-                console.log("data", data[i]);
+        const { items, files } = evt.dataTransfer;
+
+        if (items && items.length > 0) {
+            const fileArr = [];
+            for (var i = 0; i < files.length; i++) {
+                console.log(files[i]);
+                fileArr.push(files[i]);
             }
+
+            this.setState({
+                files: fileArr
+            });
         }
     }
 
     render() {
+        const { files } = this.state;
+
         return (
             <div
                 className="panel text-center"
@@ -142,8 +152,40 @@ export class DragAndDropZone extends React.Component {
                 }}
                 ref={this.dropZoneRef}
             >
-                Drag a file here to upload
+                { files.length === 0 ? "Drag a file here to upload" : null }
+                <ul style={{ listStyleType: "none", display: "flex" }}>
+                    { files.map(
+                        (file) =>
+                            <li key={file.name} className="m-1">
+                                <FileIcon fileName={file.name} fileSize={file.size} fileType={file.type}/>
+                            </li>
+                    )}
+                </ul>
             </div>
         );
     }
+}
+
+function FileIcon(props) {
+    const { fileType, fileName, fileSize } = props;
+
+    function getFileIconClass(mimetype){
+        if (mimetype.match('^image/')) {
+            return 'file-image';
+        } else if (mimetype.match('^text/html')) {
+            return 'file-code';
+        } else if (mimetype.match('^text/plain')) {
+            return 'file-alt';
+        } else {
+            return 'file';
+        }
+    }
+
+    return (
+        <div style={{ flexDirection: "column", maxWidth: "150px", display: "flex" }}>
+            <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>
+            <span style={{ fontSize: "12px" }}>{fileName}</span>
+            <span style={{ fontSize: "10px" }}>{fileSize} bytes</span>
+        </div>
+    );
 }

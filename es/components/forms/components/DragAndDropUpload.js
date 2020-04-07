@@ -11,6 +11,8 @@ var _reactBootstrap = require("react-bootstrap");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
+var _underscore = _interopRequireDefault(require("underscore"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -117,28 +119,14 @@ function (_React$Component2) {
     _classCallCheck(this, DragAndDropZone);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
-
-    _defineProperty(_assertThisInitialized(_this), "handleDragOut", function (evt) {
-      evt.preventDefault();
-      evt.stopPropagation();
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "handleDrop", function (evt) {
-      evt.preventDefault();
-      evt.stopPropagation();
-
-      if (evt.dataTransfer.items && evt.dataTransfer.items.length > 0) {
-        var data = evt.dataTransfer.files;
-
-        for (var i = 0; i < data.length; i++) {
-          console.log("data", data[i]);
-        }
-      }
-    });
-
+    _this.state = {
+      dragging: false,
+      files: []
+    };
     _this.dropZoneRef = _react["default"].createRef();
     _this.cleanUpEventListeners = _this.cleanUpEventListeners.bind(_assertThisInitialized(_this));
     _this.setUpEventListeners = _this.setUpEventListeners.bind(_assertThisInitialized(_this));
+    _this.handleDrop = _this.handleDrop.bind(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -175,14 +163,6 @@ function (_React$Component2) {
     value: function handleDrag(evt) {
       evt.preventDefault();
       evt.stopPropagation();
-
-      if (evt.dataTransfer.items && evt.dataTransfer.items.length > 0) {
-        var data = evt.dataTransfer.files;
-
-        for (var i = 0; i < data.length; i++) {
-          console.log("data", data[i]);
-        }
-      }
     }
   }, {
     key: "handleDragIn",
@@ -191,8 +171,37 @@ function (_React$Component2) {
       evt.stopPropagation();
     }
   }, {
+    key: "handleDragOut",
+    value: function handleDragOut(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    }
+  }, {
+    key: "handleDrop",
+    value: function handleDrop(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      var _evt$dataTransfer = evt.dataTransfer,
+          items = _evt$dataTransfer.items,
+          files = _evt$dataTransfer.files;
+
+      if (items && items.length > 0) {
+        var fileArr = [];
+
+        for (var i = 0; i < files.length; i++) {
+          console.log(files[i]);
+          fileArr.push(files[i]);
+        }
+
+        this.setState({
+          files: fileArr
+        });
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
+      var files = this.state.files;
       return _react["default"].createElement("div", {
         className: "panel text-center",
         style: {
@@ -204,7 +213,21 @@ function (_React$Component2) {
           justifyContent: "center"
         },
         ref: this.dropZoneRef
-      }, "Drag a file here to upload");
+      }, files.length === 0 ? "Drag a file here to upload" : null, _react["default"].createElement("ul", {
+        style: {
+          listStyleType: "none",
+          display: "flex"
+        }
+      }, files.map(function (file) {
+        return _react["default"].createElement("li", {
+          key: file.name,
+          className: "m-1"
+        }, _react["default"].createElement(FileIcon, {
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type
+        }));
+      })));
     }
   }]);
 
@@ -212,3 +235,40 @@ function (_React$Component2) {
 }(_react["default"].Component);
 
 exports.DragAndDropZone = DragAndDropZone;
+
+function FileIcon(props) {
+  var fileType = props.fileType,
+      fileName = props.fileName,
+      fileSize = props.fileSize;
+  return _react["default"].createElement("div", {
+    style: {
+      flexDirection: "column",
+      maxWidth: "150px",
+      display: "flex"
+    }
+  }, _react["default"].createElement("i", {
+    className: "icon far icon-2x icon-".concat(function (mimetype) {
+      if (mimetype.match('^image/')) {
+        return 'file-image';
+      } else if (mimetype.match('^text/html')) {
+        return 'file-code';
+      } else if (mimetype.match('^text/plain')) {
+        return 'file-alt';
+      } else {
+        return 'file';
+      }
+    }(fileType)),
+    style: {
+      marginBottom: "5px",
+      color: "#444444"
+    }
+  }), _react["default"].createElement("span", {
+    style: {
+      fontSize: "12px"
+    }
+  }, fileName), _react["default"].createElement("span", {
+    style: {
+      fontSize: "10px"
+    }
+  }, fileSize, " bytes"));
+}
