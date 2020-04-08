@@ -73,10 +73,14 @@ function (_React$Component) {
       }, "Upload a [Field Type] for [Field Name Here]")), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, null)), _react["default"].createElement(_reactBootstrap.Modal.Footer, null, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-danger"
-      }, "Cancel"), _react["default"].createElement("button", {
+      }, _react["default"].createElement("i", {
+        className: "icon fas icon-close"
+      }), " Cancel"), _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-primary"
-      }, "Upload Files")));
+      }, _react["default"].createElement("i", {
+        className: "icon fas icon-upload"
+      }), " Upload Files")));
     }
   }]);
 
@@ -233,15 +237,26 @@ function (_React$Component2) {
           backgroundColor: '#eee',
           border: "1px solid #efefef",
           height: "30vh",
-          flexDirection: "column",
+          flexDirection: "row",
           display: "flex",
+          overflowY: "scroll",
+          overflowX: "hidden",
           justifyContent: "center"
         },
         ref: this.dropZoneRef
-      }, files.length === 0 ? "Drag a file here to upload" : null, _react["default"].createElement("ul", {
+      }, _react["default"].createElement("span", {
+        style: {
+          alignSelf: "center"
+        }
+      }, files.length === 0 ? "Drag a file here to upload" : null), _react["default"].createElement("ul", {
         style: {
           listStyleType: "none",
-          display: "flex"
+          display: "flex",
+          margin: "0",
+          paddingTop: "10px",
+          paddingLeft: "0",
+          flexWrap: "wrap",
+          justifyContent: "center"
         }
       }, files.map(function (file) {
         var fileId = "".concat(file.name, "|").concat(file.size, "|").concat(file.lastModified);

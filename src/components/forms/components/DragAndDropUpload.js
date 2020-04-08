@@ -39,10 +39,10 @@ export class DragAndDropFileUploadModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <button type="button" className="btn btn-danger">
-                        Cancel
+                        <i className="icon fas icon-close"></i> Cancel
                     </button>
                     <button type="button" className="btn btn-primary">
-                        Upload Files
+                        <i className="icon fas icon-upload"></i> Upload Files
                     </button>
                 </Modal.Footer>
             </Modal>
@@ -165,14 +165,26 @@ export class DragAndDropZone extends React.Component {
                     backgroundColor: '#eee',
                     border: "1px solid #efefef",
                     height: "30vh",
-                    flexDirection: "column",
+                    flexDirection: "row",
                     display: "flex",
+                    overflowY: "scroll",
+                    overflowX: "hidden",
                     justifyContent: "center"
                 }}
                 ref={this.dropZoneRef}
             >
-                { files.length === 0 ? "Drag a file here to upload" : null }
-                <ul style={{ listStyleType: "none", display: "flex" }}>
+                <span style={{ alignSelf: "center" }}>
+                    { files.length === 0 ? "Drag a file here to upload" : null }
+                </span>
+                <ul style={{
+                    listStyleType: "none",
+                    display: "flex",
+                    margin: "0",
+                    paddingTop: "10px",
+                    paddingLeft: "0",
+                    flexWrap: "wrap",
+                    justifyContent: "center"
+                }}>
                     { files.map(
                         (file) => {
                             const fileId = `${file.name}|${file.size}|${file.lastModified}`;
