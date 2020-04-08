@@ -42,7 +42,7 @@ export class DragAndDropFileUploadModal extends React.Component {
                         Cancel
                     </button>
                     <button type="button" className="btn btn-primary">
-                        Submit
+                        Upload Files
                     </button>
                 </Modal.Footer>
             </Modal>
@@ -77,6 +77,7 @@ export class DragAndDropZone extends React.Component {
         this.setUpEventListeners = this.setUpEventListeners.bind(this);
 
         this.handleDrop = this.handleDrop.bind(this);
+        this.handleRemoveFile = this.handleRemoveFile.bind(this);
     }
 
     componentDidMount() {
@@ -136,6 +137,24 @@ export class DragAndDropZone extends React.Component {
         }
     }
 
+    handleRemoveFile(id) {
+        const { files } = this.state;
+        const { 0: name, 1: size, 2: lastModified } = id.split("|");
+
+        // Filter to remove the clicked file by ID parts
+        const newFiles = files.filter((file) => {
+            if ((file.name === name) &&
+                (file.size === parseInt(size)) &&
+                (file.lastModified === parseInt(lastModified))
+            ) {
+                return false;
+            }
+            return true;
+        });
+
+        this.setState({ files: newFiles });
+    }
+
     render() {
         const { files } = this.state;
 
@@ -155,10 +174,16 @@ export class DragAndDropZone extends React.Component {
                 { files.length === 0 ? "Drag a file here to upload" : null }
                 <ul style={{ listStyleType: "none", display: "flex" }}>
                     { files.map(
-                        (file) =>
-                            <li key={file.name} className="m-1">
-                                <FileIcon fileName={file.name} fileSize={file.size} fileType={file.type}/>
-                            </li>
+                        (file) => {
+                            const fileId = `${file.name}|${file.size}|${file.lastModified}`;
+
+                            return (
+                                <li key={fileId} className="m-1">
+                                    <FileIcon fileName={file.name} fileSize={file.size}
+                                        fileType={file.type} fileId={fileId} handleRemoveFile={this.handleRemoveFile} />
+                                </li>
+                            );
+                        }
                     )}
                 </ul>
             </div>
@@ -167,7 +192,7 @@ export class DragAndDropZone extends React.Component {
 }
 
 function FileIcon(props) {
-    const { fileType, fileName, fileSize } = props;
+    const { fileType, fileName, fileSize, fileId, handleRemoveFile } = props;
 
     function getFileIconClass(mimetype){
         if (mimetype.match('^image/')) {
@@ -182,7 +207,8 @@ function FileIcon(props) {
     }
 
     return (
-        <div style={{ flexDirection: "column", maxWidth: "150px", display: "flex" }}>
+        <div style={{ flexDirection: "column", width: "150px", display: "flex" }}>
+            <i onClick={() => handleRemoveFile(fileId)} className="icon fas icon-close text-danger"></i>
             <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>
             <span style={{ fontSize: "12px" }}>{fileName}</span>
             <span style={{ fontSize: "10px" }}>{fileSize} bytes</span>

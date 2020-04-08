@@ -76,7 +76,7 @@ function (_React$Component) {
       }, "Cancel"), _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-primary"
-      }, "Submit")));
+      }, "Upload Files")));
     }
   }]);
 
@@ -127,6 +127,7 @@ function (_React$Component2) {
     _this.cleanUpEventListeners = _this.cleanUpEventListeners.bind(_assertThisInitialized(_this));
     _this.setUpEventListeners = _this.setUpEventListeners.bind(_assertThisInitialized(_this));
     _this.handleDrop = _this.handleDrop.bind(_assertThisInitialized(_this));
+    _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -199,8 +200,32 @@ function (_React$Component2) {
       }
     }
   }, {
+    key: "handleRemoveFile",
+    value: function handleRemoveFile(id) {
+      var files = this.state.files;
+
+      var _id$split = id.split("|"),
+          name = _id$split[0],
+          size = _id$split[1],
+          lastModified = _id$split[2]; // Filter to remove the clicked file by ID parts
+
+
+      var newFiles = files.filter(function (file) {
+        if (file.name === name && file.size === parseInt(size) && file.lastModified === parseInt(lastModified)) {
+          return false;
+        }
+
+        return true;
+      });
+      this.setState({
+        files: newFiles
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       var files = this.state.files;
       return _react["default"].createElement("div", {
         className: "panel text-center",
@@ -219,13 +244,16 @@ function (_React$Component2) {
           display: "flex"
         }
       }, files.map(function (file) {
+        var fileId = "".concat(file.name, "|").concat(file.size, "|").concat(file.lastModified);
         return _react["default"].createElement("li", {
-          key: file.name,
+          key: fileId,
           className: "m-1"
         }, _react["default"].createElement(FileIcon, {
           fileName: file.name,
           fileSize: file.size,
-          fileType: file.type
+          fileType: file.type,
+          fileId: fileId,
+          handleRemoveFile: _this2.handleRemoveFile
         }));
       })));
     }
@@ -239,14 +267,21 @@ exports.DragAndDropZone = DragAndDropZone;
 function FileIcon(props) {
   var fileType = props.fileType,
       fileName = props.fileName,
-      fileSize = props.fileSize;
+      fileSize = props.fileSize,
+      fileId = props.fileId,
+      handleRemoveFile = props.handleRemoveFile;
   return _react["default"].createElement("div", {
     style: {
       flexDirection: "column",
-      maxWidth: "150px",
+      width: "150px",
       display: "flex"
     }
   }, _react["default"].createElement("i", {
+    onClick: function onClick() {
+      return handleRemoveFile(fileId);
+    },
+    className: "icon fas icon-close text-danger"
+  }), _react["default"].createElement("i", {
     className: "icon far icon-2x icon-".concat(function (mimetype) {
       if (mimetype.match('^image/')) {
         return 'file-image';
