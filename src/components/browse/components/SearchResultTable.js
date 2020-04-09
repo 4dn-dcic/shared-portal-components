@@ -645,8 +645,6 @@ class ShadowBorderLayer extends React.Component {
 }
 
 
-
-
 class DimensioningContainer extends React.PureComponent {
 
     static setDetailPanesLeftOffset(detailPanes, leftOffset = 0, cb = null){
@@ -685,14 +683,12 @@ class DimensioningContainer extends React.PureComponent {
         if (!SearchResultTable.isDesktopClientside(windowWidth)){
             return {
                 'tableContainerWidth'       : (scrollContainer && scrollContainer.offsetWidth) || null,
-                'tableContainerScrollLeft'  : null,
-                'tableLeftOffset'           : null
+                'tableContainerScrollLeft'  : null
             };
         }
         return {
             'tableContainerWidth'       : (scrollContainer && scrollContainer.offsetWidth) || null,
-            'tableContainerScrollLeft'  : (scrollContainer && typeof scrollContainer.scrollLeft === 'number') ? scrollContainer.scrollLeft : null,
-            'tableLeftOffset'           : (scrollContainer && getElementOffset(scrollContainer).left) || null
+            'tableContainerScrollLeft'  : (scrollContainer && typeof scrollContainer.scrollLeft === 'number') ? scrollContainer.scrollLeft : null
         };
     }
 
@@ -885,16 +881,6 @@ class DimensioningContainer extends React.PureComponent {
         return false;
     }
 
-    // resetWidths(){
-    //     this.setState(function({ mounted }, { columnDefinitions, windowWidth }){
-    //         return { "widths" : DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth) };
-    //     });
-    // }
-
-    // setHeaderWidths(widths){
-    //     this.setState({ widths });
-    // }
-
     setResults(results, cb){
         this.setState({
             'results' : _.uniq(results, false, itemUtil.atId)
@@ -930,8 +916,7 @@ class DimensioningContainer extends React.PureComponent {
             ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse',
                 'defaultMinColumnWidth', 'renderDetailPane', 'windowWidth'),
             mounted, results, rowHeight, setColumnWidths, columnWidths,
-            tableContainerScrollLeft,
-            tableContainerWidth
+            tableContainerScrollLeft
         };
 
         const resultRowCommonProps = _.extend(

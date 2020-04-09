@@ -3,9 +3,6 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import Draggable from 'react-draggable';
-import url from 'url';
-import queryString from 'querystring';
-import { navigate as globalPageNavigate } from './../../../util/navigate';
 import { getColumnWidthFromDefinition } from './ColumnCombiner';
 
 /**
@@ -17,18 +14,8 @@ import { getColumnWidthFromDefinition } from './ColumnCombiner';
 export class HeadersRow extends React.Component {
 
     static propTypes = {
-        'columnDefinitions' : PropTypes.array.isRequired,//ResultRow.propTypes.columnDefinitions,
+        'columnDefinitions' : PropTypes.array.isRequired, //ResultRow.propTypes.columnDefinitions,
         'mounted' : PropTypes.bool.isRequired,
-        /** @deprecated */
-        'isSticky' : PropTypes.bool,
-        /** @deprecated */
-        'stickyStyle' : PropTypes.object,
-        /** @deprecated ?? */
-        'tableLeftOffset' : PropTypes.number,
-        /** @deprecated ?? */
-        'tableContainerWidth' : PropTypes.number,
-        /** @deprecated */
-        'stickyHeaderTopOffset' : PropTypes.number,
         'renderDetailPane' : PropTypes.func,
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'setColumnWidths' : PropTypes.func,
@@ -38,8 +25,6 @@ export class HeadersRow extends React.Component {
     };
 
     static defaultProps = {
-        'isSticky' : false,
-        'tableLeftOffset' : 0,
         'defaultMinColumnWidth' : 55,
         'tableContainerScrollLeft' : 0
     };
@@ -49,26 +34,25 @@ export class HeadersRow extends React.Component {
         this.setColumnWidthsFromState = this.setColumnWidthsFromState.bind(this);
         this.getWidthFor = this.getWidthFor.bind(this);
         this.onAdjusterDrag = this.onAdjusterDrag.bind(this);
-        this.state = {
-            'widths' : (props.columnWidths && _.clone(props.columnWidths)) || null
-        };
+        this.state = { 'widths' : {} };
     }
 
     componentDidUpdate(pastProps){
         const { columnWidths } = this.props;
         if (pastProps.columnWidths !== columnWidths){
-            this.setState({ 'widths' : (columnWidths && _.clone(columnWidths)) || null });
+            this.setState({ 'widths' : {} });
         }
     }
 
+    /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
     setColumnWidthsFromState(){
-        const { setColumnWidths } = this.props;
+        const { setColumnWidths, columnWidths } = this.props;
         const { widths } = this.state;
         if (typeof setColumnWidths !== 'function'){
             throw new Error('props.setHeaderWidths not a function');
         }
         setTimeout(function(){
-            setColumnWidths(widths);
+            setColumnWidths({ ...columnWidths, ...widths });
         }, 0);
     }
 
@@ -94,7 +78,6 @@ export class HeadersRow extends React.Component {
 
     render(){
         const {
-            tableLeftOffset,
             columnDefinitions,
             renderDetailPane,
             columnWidths,
@@ -102,19 +85,17 @@ export class HeadersRow extends React.Component {
             width,
             tableContainerScrollLeft
         } = this.props;
+
+        const leftOffset = 0 - tableContainerScrollLeft;
         const isAdjustable = !!(typeof setColumnWidths === "function" && columnWidths);
         const outerClassName = (
             "search-headers-row"
             + (isAdjustable ? '' : ' non-adjustable')
             + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '')
         );
-
         const outerStyle = {
             'width' : width || null // Only passed in from ItemPage
         };
-
-        const leftOffset = 0 - tableContainerScrollLeft - (tableLeftOffset || 0);
-
         const innerStyle = {
             left: leftOffset,
             //transform: "translate3d(" + leftOffset + "px, 0px, 0px)"
@@ -148,11 +129,13 @@ class HeadersRowColumn extends React.PureComponent {
         };
     }
 
+    /** Updates HeadersRow.state.widths {Object<string,numer>} */
     onDrag(event, res){
         const { colDef, onAdjusterDrag } = this.props;
         onAdjusterDrag(colDef, event, res);
     }
 
+    /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
     onStop(event, res){
         const { setHeaderWidths } = this.props;
         setHeaderWidths();

@@ -982,15 +982,13 @@ function (_React$PureComponent4) {
       if (!SearchResultTable.isDesktopClientside(windowWidth)) {
         return {
           'tableContainerWidth': scrollContainer && scrollContainer.offsetWidth || null,
-          'tableContainerScrollLeft': null,
-          'tableLeftOffset': null
+          'tableContainerScrollLeft': null
         };
       }
 
       return {
         'tableContainerWidth': scrollContainer && scrollContainer.offsetWidth || null,
-        'tableContainerScrollLeft': scrollContainer && typeof scrollContainer.scrollLeft === 'number' ? scrollContainer.scrollLeft : null,
-        'tableLeftOffset': scrollContainer && (0, _layout.getElementOffset)(scrollContainer).left || null
+        'tableContainerScrollLeft': scrollContainer && typeof scrollContainer.scrollLeft === 'number' ? scrollContainer.scrollLeft : null
       };
     }
   }, {
@@ -1234,15 +1232,7 @@ function (_React$PureComponent4) {
         delete _this10.horizScrollRAF;
       });
       return false;
-    } // resetWidths(){
-    //     this.setState(function({ mounted }, { columnDefinitions, windowWidth }){
-    //         return { "widths" : DimensioningContainer.resetHeaderColumnWidths(columnDefinitions, mounted, windowWidth) };
-    //     });
-    // }
-    // setHeaderWidths(widths){
-    //     this.setState({ widths });
-    // }
-
+    }
   }, {
     key: "setResults",
     value: function setResults(results, cb) {
@@ -1298,8 +1288,7 @@ function (_React$PureComponent4) {
         rowHeight: rowHeight,
         setColumnWidths: setColumnWidths,
         columnWidths: columnWidths,
-        tableContainerScrollLeft: tableContainerScrollLeft,
-        tableContainerWidth: tableContainerWidth
+        tableContainerScrollLeft: tableContainerScrollLeft
       });
 
       var resultRowCommonProps = _underscore["default"].extend(_underscore["default"].pick(this.props, 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'), {
