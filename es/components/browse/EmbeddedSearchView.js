@@ -41,6 +41,8 @@ var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _patchedConsole = require("./../util/patched-console");
 
+var _object = require("./../util/object");
+
 var _tableCommons = require("./components/table-commons");
 
 var _CustomColumnController = require("./components/CustomColumnController");
@@ -107,12 +109,9 @@ function (_React$PureComponent) {
      * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
      */
     value: function listToObj(hideFacetStrs) {
-      var obj = {};
-      hideFacetStrs.forEach(function (field) {
-        obj[field] = true;
-        obj[field + "!"] = true;
-      });
-      return obj;
+      return (0, _object.listToObj)(hideFacetStrs.concat(hideFacetStrs.map(function (facetStr) {
+        return facetStr + "!";
+      })));
     }
   }]);
 
@@ -145,14 +144,6 @@ function (_React$PureComponent) {
       if (idMap[facet.field]) return false;
       return true;
     }
-  }, {
-    key: "filterColumnFxn",
-    value: function filterColumnFxn() {
-      var _this$props$hideColum = this.props.hideColumns,
-          hideColumns = _this$props$hideColum === void 0 ? null : _this$props$hideColum;
-      if (!hideColumns) return true;
-      return hideColumns.indexOf(column) < 0;
-    }
     /**
      * All these controllers pass props down to their children.
      * So we don't need to be repetitive here; i.e. may assume 'context' is available
@@ -175,6 +166,7 @@ function (_React$PureComponent) {
           propNavigate = _this$props.navigate,
           _this$props$columns = _this$props.columns,
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
+          hideColumns = _this$props.hideColumns,
           facets = _this$props.facets,
           _this$props$showAbove = _this$props.showAboveTableControls,
           showAboveTableControls = _this$props$showAbove === void 0 ? false : _this$props$showAbove,
@@ -186,7 +178,8 @@ function (_React$PureComponent) {
           propFacetFilterFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
           _this$props$filterCol = _this$props.filterColumnFxn,
           propColumnFilterFxn = _this$props$filterCol === void 0 ? null : _this$props$filterCol,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          windowWidth = _this$props.windowWidth,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined;
@@ -211,7 +204,11 @@ function (_React$PureComponent) {
       }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
+      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, _extends({
+        windowWidth: windowWidth
+      }, {
+        hiddenColumns: hideColumns
+      }), _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
       })))))));
     }

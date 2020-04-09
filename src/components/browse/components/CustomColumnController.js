@@ -3,49 +3,85 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import memoize from 'memoize-one';
 import _ from 'underscore';
 import { Checkbox } from './../../forms/components/Checkbox';
+import { listToObj } from './../../util/object';
+import { getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
 
 /**
  * This component stores an object of `hiddenColumns` in state which contains field names as keys and booleans as values.
  * This, along with functions `addHiddenColumn(field: string)` and `removeHiddenColumn(field: string)`, are passed down to
  * this component instance's child component instances.
  *
+ * @todo Rename to something better maybe.
+ *
  * @prop {Object.<boolean>} [defaultHiddenColumns] - Initial hidden columns state object, if any.
  */
 export class CustomColumnController extends React.Component {
 
+    static combinedHiddenColumns(alwaysHiddenCols, stateHiddenCols){
+        if (Array.isArray(alwaysHiddenCols) && alwaysHiddenCols.length > 0){
+            const nextStateHiddenCols = { ...stateHiddenCols };
+            alwaysHiddenCols.forEach(function(field){
+                nextStateHiddenCols[field] = true;
+            });
+            return nextStateHiddenCols;
+        } else {
+            return stateHiddenCols;
+        }
+    }
+
+    /**
+     * Returns the finalized list of columns and their properties in response to
+     * {Object.<string,bool>} `state.hiddenColumns`.
+     *
+     * @param {{ columnDefinitions: Object[], hiddenColumns: Object.<boolean> }} props Component props.
+     */
+    static filterOutHiddenCols(columnDefinitions, hiddenColumns){
+        if (hiddenColumns){
+            return _.filter(columnDefinitions, function(colDef){
+                if (hiddenColumns[colDef.field] === true) return false;
+                return true;
+            });
+        }
+        return columnDefinitions;
+    }
+
+    static propTypes = {
+        'children' : PropTypes.instanceOf(React.Component),
+        'columnDefinitions' : PropTypes.arrayOf(PropTypes.shape({
+            'field' : PropTypes.string
+        })),
+        'hiddenColumns' : PropTypes.array
+    };
+
     constructor(props){
         super(props);
-        this.getAllHiddenColumns = this.getAllHiddenColumns.bind(this);
+        //this.getResetWidths = this.getResetWidths.bind(this);
+        this.setColumnWidths = this.setColumnWidths.bind(this);
         this.addHiddenColumn = this.addHiddenColumn.bind(this);
         this.removeHiddenColumn = this.removeHiddenColumn.bind(this);
+        this.memoized = {
+            hiddenColsListToObj: memoize(listToObj),
+            filterOutStateHiddenCols: memoize(CustomColumnController.filterOutHiddenCols),
+            filterOutPropHiddenCols: memoize(CustomColumnController.filterOutHiddenCols)
+        };
         this.state = {
-            'hiddenColumns' : _.clone(props.defaultHiddenColumns || {})
+            'hiddenColumns' : props.defaultHiddenColumns ? { ...props.defaultHiddenColumns } : {},
+            'columnWidths' : {}
         };
     }
 
     componentDidUpdate(pastProps){
         const { defaultHiddenColumns } = this.props;
         if (pastProps.defaultHiddenColumns !== defaultHiddenColumns){
-            this.setState({ 'hiddenColumns' : _.clone(defaultHiddenColumns || {}) });
+            this.setState({ "hiddenColumns" : _.clone(defaultHiddenColumns || {}) }); // Reset state.hiddenColumns.
         }
     }
 
-    /**
-     * @param {{ hiddenColumns?: string[], defaultHiddenColumns }} props - Component props.
-     * @returns {Object.<boolean>} Map of field names to boolean representing hidden or not.
-     */
-    getAllHiddenColumns(){
-        const { hiddenColumns: propHiddenCols } = this.props;
-        const { hiddenColumns: stateHiddenCols } = this.state;
-        if (Array.isArray(propHiddenCols)){
-            return _.extend(_.object(propHiddenCols.map(function(field){
-                return [ field, true ];
-            })), stateHiddenCols);
-        } else {
-            return stateHiddenCols;
-        }
+    setColumnWidths(columnWidths){
+        this.setState({ columnWidths });
     }
 
     addHiddenColumn(field){
@@ -71,22 +107,37 @@ export class CustomColumnController extends React.Component {
     }
 
     render(){
-        const { children, ...propsToPass } = this.props;
+        const {
+            children,
+            hiddenColumns: alwaysHiddenColsList = [],
+            columnDefinitions: allColumnDefinitions,
+            ...propsToPass
+        } = this.props;
+        const { hiddenColumns, columnWidths } = this.state;
         if (!React.isValidElement(children)){
             throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
         }
+
+        const alwaysHiddenCols = this.memoized.hiddenColsListToObj(alwaysHiddenColsList);
+        const columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols);
+        const visibleColumnDefinitions = this.memoized.filterOutStateHiddenCols(columnDefinitions, hiddenColumns);
+
         _.extend(propsToPass, {
-            'hiddenColumns'         : this.getAllHiddenColumns(),
-            'addHiddenColumn'       : this.addHiddenColumn,
-            'removeHiddenColumn'    : this.removeHiddenColumn
+            hiddenColumns,
+            columnDefinitions,
+            visibleColumnDefinitions,
+            columnWidths,
+            'setColumnWidths' : this.setColumnWidths,
+            'addHiddenColumn' : this.addHiddenColumn,
+            'removeHiddenColumn' : this.removeHiddenColumn
         });
+
         return React.Children.map(children, function(child){
             return React.cloneElement(child, propsToPass);
         });
     }
 
 }
-
 
 export class CustomColumnSelector extends React.PureComponent {
 

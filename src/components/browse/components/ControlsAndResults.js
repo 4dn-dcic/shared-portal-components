@@ -22,7 +22,6 @@ export class ControlsAndResults extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.forceUpdateOnSelf = this.forceUpdateOnSelf.bind(this);
         this.onClearFiltersClick = this.onClearFiltersClick.bind(this);
         this.renderSearchDetailPane = this.renderSearchDetailPane.bind(this);
 
@@ -32,12 +31,6 @@ export class ControlsAndResults extends React.PureComponent {
         };
 
         this.searchResultTableRef = React.createRef();
-    }
-
-    forceUpdateOnSelf(){
-        const searchResultTable = this.searchResultTableRef.current;
-        const dimContainer = searchResultTable && searchResultTable.getDimensionContainer();
-        return dimContainer && dimContainer.resetWidths();
     }
 
     onClearFiltersClick(evt, callback = null){
@@ -82,8 +75,9 @@ export class ControlsAndResults extends React.PureComponent {
             maxHeight = SearchResultTable.defaultProps.maxHeight,
 
             // From CustomColumnController:
-            hiddenColumns, addHiddenColumn, removeHiddenColumn,
-            // From ColumnCombiner:
+            hiddenColumns, addHiddenColumn, removeHiddenColumn, visibleColumnDefinitions,
+            setColumnWidths, columnWidths,
+            // From ColumnCombiner or CustomColumnController (if props.hideColumns present):
             columnDefinitions,
             // From SelectedItemsController:
             onCompleteSelection, onCancelSelection,
@@ -98,8 +92,9 @@ export class ControlsAndResults extends React.PureComponent {
         const searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
 
         const searchResultTableProps = {
-            context, href, navigate, currentAction, schemas, hiddenColumns, results, columnDefinitions, isOwnPage,
-            sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
+            context, href, navigate, currentAction, schemas, results, columnDefinitions, visibleColumnDefinitions,
+            setColumnWidths, columnWidths,
+            isOwnPage, sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 
@@ -131,7 +126,7 @@ export class ControlsAndResults extends React.PureComponent {
                     : null }
                 <div className={tableColumnClassName}>
                     { showAboveTableControls?
-                        <AboveSearchViewTableControls {...aboveTableControlsProps} parentForceUpdate={this.forceUpdateOnSelf} />
+                        <AboveSearchViewTableControls {...aboveTableControlsProps} />
                         : null }
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
                     { isSelectAction(currentAction) && selectedItems !== null ?

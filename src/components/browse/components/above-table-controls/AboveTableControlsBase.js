@@ -66,13 +66,9 @@ export class AboveTableControlsBase extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps, prevState){
-        const { isFullscreen, parentForceUpdate } = this.props;
         const { open } = this.state;
         if (open && prevState.open !== open){
             ReactTooltip.rebuild();
-        }
-        if (prevProps.isFullscreen !== isFullscreen && typeof parentForceUpdate === 'function'){
-            setTimeout(parentForceUpdate, 100);
         }
     }
 

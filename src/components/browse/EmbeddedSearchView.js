@@ -6,6 +6,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import { patchedConsoleInstance as console } from './../util/patched-console';
+import { listToObj } from './../util/object';
 
 import { basicColumnExtensionMap, ColumnCombiner } from './components/table-commons';
 import { CustomColumnController } from './components/CustomColumnController';
@@ -50,12 +51,11 @@ export class EmbeddedSearchView extends React.PureComponent {
     };
 
     static listToObj(hideFacetStrs){
-        const obj = {};
-        hideFacetStrs.forEach(function(field){
-            obj[field] = true;
-            obj[field + "!"] = true;
-        });
-        return obj;
+        return listToObj(
+            hideFacetStrs.concat(hideFacetStrs.map(function(facetStr){
+                return facetStr + "!";
+            }))
+        );
     }
 
     static defaultProps = {
@@ -86,12 +86,6 @@ export class EmbeddedSearchView extends React.PureComponent {
         return true;
     }
 
-    filterColumnFxn(columnKey, columnObject) {
-        const { hideColumns = null } = this.props;
-        if (!hideColumns) return true;
-        return hideColumns.indexOf(column) < 0;
-    }
-
     /**
      * All these controllers pass props down to their children.
      * So we don't need to be repetitive here; i.e. may assume 'context' is available
@@ -111,12 +105,14 @@ export class EmbeddedSearchView extends React.PureComponent {
             //facets : propFacets,
             navigate: propNavigate,  // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             columns = null,
+            hideColumns,
             facets,
             showAboveTableControls = false,
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
             filterColumnFxn: propColumnFilterFxn = null,
+            windowWidth,
             ...passProps
         } = this.props;
 
@@ -130,7 +126,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             <div className="embedded-search-container">
                 <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, filterColumnFxn }} key={searchHref}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
-                        <CustomColumnController>
+                        <CustomColumnController {...{ windowWidth }} hiddenColumns={hideColumns}>
                             <SortController>
                                 <ControlsAndResults {...viewProps} isOwnPage={false} />
                             </SortController>

@@ -117,17 +117,10 @@ function (_React$PureComponent) {
   _createClass(AboveTableControlsBase, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
-      var _this$props = this.props,
-          isFullscreen = _this$props.isFullscreen,
-          parentForceUpdate = _this$props.parentForceUpdate;
       var open = this.state.open;
 
       if (open && prevState.open !== open) {
         _reactTooltip["default"].rebuild();
-      }
-
-      if (prevProps.isFullscreen !== isFullscreen && typeof parentForceUpdate === 'function') {
-        setTimeout(parentForceUpdate, 100);
       }
     }
   }, {
@@ -175,10 +168,10 @@ function (_React$PureComponent) {
     value: function render() {
       var _this3 = this;
 
-      var _this$props2 = this.props,
-          children = _this$props2.children,
-          _this$props2$panelMap = _this$props2.panelMap,
-          panelMap = _this$props2$panelMap === void 0 ? {} : _this$props2$panelMap;
+      var _this$props = this.props,
+          children = _this$props.children,
+          _this$props$panelMap = _this$props.panelMap,
+          panelMap = _this$props$panelMap === void 0 ? {} : _this$props$panelMap;
       var _this$state = this.state,
           open = _this$state.open,
           reallyOpen = _this$state.reallyOpen;

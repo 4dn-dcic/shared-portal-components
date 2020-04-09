@@ -9,9 +9,15 @@ var _react = _interopRequireDefault(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
+
 var _underscore = _interopRequireDefault(require("underscore"));
 
 var _Checkbox = require("./../../forms/components/Checkbox");
+
+var _object = require("./../../util/object");
+
+var _ColumnCombiner = require("./table-commons/ColumnCombiner");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23,11 +29,11 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
@@ -35,14 +41,22 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * This component stores an object of `hiddenColumns` in state which contains field names as keys and booleans as values.
  * This, along with functions `addHiddenColumn(field: string)` and `removeHiddenColumn(field: string)`, are passed down to
  * this component instance's child component instances.
+ *
+ * @todo Rename to something better maybe.
  *
  * @prop {Object.<boolean>} [defaultHiddenColumns] - Initial hidden columns state object, if any.
  */
@@ -51,17 +65,59 @@ var CustomColumnController =
 function (_React$Component) {
   _inherits(CustomColumnController, _React$Component);
 
+  _createClass(CustomColumnController, null, [{
+    key: "combinedHiddenColumns",
+    value: function combinedHiddenColumns(alwaysHiddenCols, stateHiddenCols) {
+      if (Array.isArray(alwaysHiddenCols) && alwaysHiddenCols.length > 0) {
+        var nextStateHiddenCols = _objectSpread({}, stateHiddenCols);
+
+        alwaysHiddenCols.forEach(function (field) {
+          nextStateHiddenCols[field] = true;
+        });
+        return nextStateHiddenCols;
+      } else {
+        return stateHiddenCols;
+      }
+    }
+    /**
+     * Returns the finalized list of columns and their properties in response to
+     * {Object.<string,bool>} `state.hiddenColumns`.
+     *
+     * @param {{ columnDefinitions: Object[], hiddenColumns: Object.<boolean> }} props Component props.
+     */
+
+  }, {
+    key: "filterOutHiddenCols",
+    value: function filterOutHiddenCols(columnDefinitions, hiddenColumns) {
+      if (hiddenColumns) {
+        return _underscore["default"].filter(columnDefinitions, function (colDef) {
+          if (hiddenColumns[colDef.field] === true) return false;
+          return true;
+        });
+      }
+
+      return columnDefinitions;
+    }
+  }]);
+
   function CustomColumnController(props) {
     var _this;
 
     _classCallCheck(this, CustomColumnController);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(CustomColumnController).call(this, props));
-    _this.getAllHiddenColumns = _this.getAllHiddenColumns.bind(_assertThisInitialized(_this));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(CustomColumnController).call(this, props)); //this.getResetWidths = this.getResetWidths.bind(this);
+
+    _this.setColumnWidths = _this.setColumnWidths.bind(_assertThisInitialized(_this));
     _this.addHiddenColumn = _this.addHiddenColumn.bind(_assertThisInitialized(_this));
     _this.removeHiddenColumn = _this.removeHiddenColumn.bind(_assertThisInitialized(_this));
+    _this.memoized = {
+      hiddenColsListToObj: (0, _memoizeOne["default"])(_object.listToObj),
+      filterOutStateHiddenCols: (0, _memoizeOne["default"])(CustomColumnController.filterOutHiddenCols),
+      filterOutPropHiddenCols: (0, _memoizeOne["default"])(CustomColumnController.filterOutHiddenCols)
+    };
     _this.state = {
-      'hiddenColumns': _underscore["default"].clone(props.defaultHiddenColumns || {})
+      'hiddenColumns': props.defaultHiddenColumns ? _objectSpread({}, props.defaultHiddenColumns) : {},
+      'columnWidths': {}
     };
     return _this;
   }
@@ -73,28 +129,16 @@ function (_React$Component) {
 
       if (pastProps.defaultHiddenColumns !== defaultHiddenColumns) {
         this.setState({
-          'hiddenColumns': _underscore["default"].clone(defaultHiddenColumns || {})
-        });
+          "hiddenColumns": _underscore["default"].clone(defaultHiddenColumns || {})
+        }); // Reset state.hiddenColumns.
       }
     }
-    /**
-     * @param {{ hiddenColumns?: string[], defaultHiddenColumns }} props - Component props.
-     * @returns {Object.<boolean>} Map of field names to boolean representing hidden or not.
-     */
-
   }, {
-    key: "getAllHiddenColumns",
-    value: function getAllHiddenColumns() {
-      var propHiddenCols = this.props.hiddenColumns;
-      var stateHiddenCols = this.state.hiddenColumns;
-
-      if (Array.isArray(propHiddenCols)) {
-        return _underscore["default"].extend(_underscore["default"].object(propHiddenCols.map(function (field) {
-          return [field, true];
-        })), stateHiddenCols);
-      } else {
-        return stateHiddenCols;
-      }
+    key: "setColumnWidths",
+    value: function setColumnWidths(columnWidths) {
+      this.setState({
+        columnWidths: columnWidths
+      });
     }
   }, {
     key: "addHiddenColumn",
@@ -133,14 +177,29 @@ function (_React$Component) {
     value: function render() {
       var _this$props = this.props,
           children = _this$props.children,
-          propsToPass = _objectWithoutProperties(_this$props, ["children"]);
+          _this$props$hiddenCol = _this$props.hiddenColumns,
+          alwaysHiddenColsList = _this$props$hiddenCol === void 0 ? [] : _this$props$hiddenCol,
+          allColumnDefinitions = _this$props.columnDefinitions,
+          propsToPass = _objectWithoutProperties(_this$props, ["children", "hiddenColumns", "columnDefinitions"]);
+
+      var _this$state = this.state,
+          hiddenColumns = _this$state.hiddenColumns,
+          columnWidths = _this$state.columnWidths;
 
       if (!_react["default"].isValidElement(children)) {
         throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
       }
 
+      var alwaysHiddenCols = this.memoized.hiddenColsListToObj(alwaysHiddenColsList);
+      var columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols);
+      var visibleColumnDefinitions = this.memoized.filterOutStateHiddenCols(columnDefinitions, hiddenColumns);
+
       _underscore["default"].extend(propsToPass, {
-        'hiddenColumns': this.getAllHiddenColumns(),
+        hiddenColumns: hiddenColumns,
+        columnDefinitions: columnDefinitions,
+        visibleColumnDefinitions: visibleColumnDefinitions,
+        columnWidths: columnWidths,
+        'setColumnWidths': this.setColumnWidths,
         'addHiddenColumn': this.addHiddenColumn,
         'removeHiddenColumn': this.removeHiddenColumn
       });
@@ -155,6 +214,14 @@ function (_React$Component) {
 }(_react["default"].Component);
 
 exports.CustomColumnController = CustomColumnController;
+
+_defineProperty(CustomColumnController, "propTypes", {
+  'children': _propTypes["default"].instanceOf(_react["default"].Component),
+  'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].shape({
+    'field': _propTypes["default"].string
+  })),
+  'hiddenColumns': _propTypes["default"].array
+});
 
 var CustomColumnSelector =
 /*#__PURE__*/
