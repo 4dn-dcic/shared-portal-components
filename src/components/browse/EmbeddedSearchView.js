@@ -89,7 +89,10 @@ export class EmbeddedSearchView extends React.PureComponent {
     filterColumnFxn(columnKey, columnObject) {
         const { hideColumns = null } = this.props;
         if (!hideColumns) return true;
-        return hideColumns.indexOf(column) < 0;
+        // Eh... small enough data size for perf to not matter here.
+        // Similar func already present in CustomColumnController so
+        // this func here will be deprecated soon likely.
+        return hideColumns.indexOf(columnKey) < 0;
     }
 
     /**
