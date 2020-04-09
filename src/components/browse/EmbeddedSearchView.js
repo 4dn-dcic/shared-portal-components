@@ -68,7 +68,6 @@ export class EmbeddedSearchView extends React.PureComponent {
     constructor(props){
         super(props);
         this.filterFacetFxn = this.filterFacetFxn.bind(this);
-        this.filterColumnFxn = this.filterColumnFxn.bind(this);
         this.memoized = {
             listToObj: memoize(EmbeddedSearchView.listToObj)
         };
@@ -111,7 +110,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
-            filterColumnFxn: propColumnFilterFxn = null,
+            filterColumnFxn,
             windowWidth,
             ...passProps
         } = this.props;
@@ -120,13 +119,12 @@ export class EmbeddedSearchView extends React.PureComponent {
         const tableColumnClassName = facets === null ? "col-12" : undefined;
         const viewProps = { ...passProps, showAboveTableControls, tableColumnClassName };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
-        const filterColumnFxn = propColumnFilterFxn || this.filterColumnFxn;
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, filterColumnFxn }} key={searchHref}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn }} key={searchHref}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
-                        <CustomColumnController {...{ windowWidth }} hiddenColumns={hideColumns}>
+                        <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
                                 <ControlsAndResults {...viewProps} isOwnPage={false} />
                             </SortController>

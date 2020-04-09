@@ -235,10 +235,8 @@ function (_React$PureComponent) {
           filterFacetFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
           _this$props$columns = _this$props.columns,
           propColumns = _this$props$columns === void 0 ? null : _this$props$columns,
-          _this$props$filterCol = _this$props.filterColumnFxn,
-          filterColumnFxn = _this$props$filterCol === void 0 ? null : _this$props$filterCol,
           originalSearchHref = _this$props.searchHref,
-          passProps = _objectWithoutProperties(_this$props, ["children", "facets", "filterFacetFxn", "columns", "filterColumnFxn", "searchHref"]);
+          passProps = _objectWithoutProperties(_this$props, ["children", "facets", "filterFacetFxn", "columns", "searchHref"]);
 
       var _this$state4 = this.state,
           href = _this$state4.virtualHref,

@@ -20,28 +20,15 @@ import { getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
  */
 export class CustomColumnController extends React.Component {
 
-    static combinedHiddenColumns(alwaysHiddenCols, stateHiddenCols){
-        if (Array.isArray(alwaysHiddenCols) && alwaysHiddenCols.length > 0){
-            const nextStateHiddenCols = { ...stateHiddenCols };
-            alwaysHiddenCols.forEach(function(field){
-                nextStateHiddenCols[field] = true;
-            });
-            return nextStateHiddenCols;
-        } else {
-            return stateHiddenCols;
-        }
-    }
-
-    /**
-     * Returns the finalized list of columns and their properties in response to
-     * {Object.<string,bool>} `state.hiddenColumns`.
-     *
-     * @param {{ columnDefinitions: Object[], hiddenColumns: Object.<boolean> }} props Component props.
-     */
-    static filterOutHiddenCols(columnDefinitions, hiddenColumns){
-        if (hiddenColumns){
-            return _.filter(columnDefinitions, function(colDef){
-                if (hiddenColumns[colDef.field] === true) return false;
+    static filterOutHiddenCols(columnDefinitions, hiddenColumns = null, filterColumnFxn = null){
+        if (hiddenColumns || typeof filterColumnFxn === "function"){
+            return columnDefinitions.filter(function(colDef, i, a){
+                if (hiddenColumns && hiddenColumns[colDef.field] === true) {
+                    return false;
+                }
+                if (typeof filterColumnFxn === "function") {
+                    return filterColumnFxn(colDef, i, a);
+                }
                 return true;
             });
         }
@@ -111,6 +98,7 @@ export class CustomColumnController extends React.Component {
             children,
             hiddenColumns: alwaysHiddenColsList = [],
             columnDefinitions: allColumnDefinitions,
+            filterColumnFxn,
             ...propsToPass
         } = this.props;
         const { hiddenColumns, columnWidths } = this.state;
@@ -118,8 +106,8 @@ export class CustomColumnController extends React.Component {
             throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
         }
 
-        const alwaysHiddenCols = this.memoized.hiddenColsListToObj(alwaysHiddenColsList);
-        const columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols);
+        const alwaysHiddenCols = Array.isArray(alwaysHiddenColsList) ? this.memoized.hiddenColsListToObj(alwaysHiddenColsList) : null;
+        const columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols, filterColumnFxn);
         const visibleColumnDefinitions = this.memoized.filterOutStateHiddenCols(columnDefinitions, hiddenColumns);
 
         _.extend(propsToPass, {

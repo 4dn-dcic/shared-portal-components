@@ -155,7 +155,6 @@ export class VirtualHrefController extends React.PureComponent {
             facets: propFacets, // `null` has special meaning for `facets` (hidden) so do not default to it here.
             filterFacetFxn = null,
             columns: propColumns = null,
-            filterColumnFxn = null,
             searchHref: originalSearchHref,
             ...passProps
         } = this.props;

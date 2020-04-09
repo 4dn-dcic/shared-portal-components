@@ -66,32 +66,21 @@ function (_React$Component) {
   _inherits(CustomColumnController, _React$Component);
 
   _createClass(CustomColumnController, null, [{
-    key: "combinedHiddenColumns",
-    value: function combinedHiddenColumns(alwaysHiddenCols, stateHiddenCols) {
-      if (Array.isArray(alwaysHiddenCols) && alwaysHiddenCols.length > 0) {
-        var nextStateHiddenCols = _objectSpread({}, stateHiddenCols);
-
-        alwaysHiddenCols.forEach(function (field) {
-          nextStateHiddenCols[field] = true;
-        });
-        return nextStateHiddenCols;
-      } else {
-        return stateHiddenCols;
-      }
-    }
-    /**
-     * Returns the finalized list of columns and their properties in response to
-     * {Object.<string,bool>} `state.hiddenColumns`.
-     *
-     * @param {{ columnDefinitions: Object[], hiddenColumns: Object.<boolean> }} props Component props.
-     */
-
-  }, {
     key: "filterOutHiddenCols",
-    value: function filterOutHiddenCols(columnDefinitions, hiddenColumns) {
-      if (hiddenColumns) {
-        return _underscore["default"].filter(columnDefinitions, function (colDef) {
-          if (hiddenColumns[colDef.field] === true) return false;
+    value: function filterOutHiddenCols(columnDefinitions) {
+      var hiddenColumns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var filterColumnFxn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      if (hiddenColumns || typeof filterColumnFxn === "function") {
+        return columnDefinitions.filter(function (colDef, i, a) {
+          if (hiddenColumns && hiddenColumns[colDef.field] === true) {
+            return false;
+          }
+
+          if (typeof filterColumnFxn === "function") {
+            return filterColumnFxn(colDef, i, a);
+          }
+
           return true;
         });
       }
@@ -180,7 +169,8 @@ function (_React$Component) {
           _this$props$hiddenCol = _this$props.hiddenColumns,
           alwaysHiddenColsList = _this$props$hiddenCol === void 0 ? [] : _this$props$hiddenCol,
           allColumnDefinitions = _this$props.columnDefinitions,
-          propsToPass = _objectWithoutProperties(_this$props, ["children", "hiddenColumns", "columnDefinitions"]);
+          filterColumnFxn = _this$props.filterColumnFxn,
+          propsToPass = _objectWithoutProperties(_this$props, ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"]);
 
       var _this$state = this.state,
           hiddenColumns = _this$state.hiddenColumns,
@@ -190,8 +180,8 @@ function (_React$Component) {
         throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
       }
 
-      var alwaysHiddenCols = this.memoized.hiddenColsListToObj(alwaysHiddenColsList);
-      var columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols);
+      var alwaysHiddenCols = Array.isArray(alwaysHiddenColsList) ? this.memoized.hiddenColsListToObj(alwaysHiddenColsList) : null;
+      var columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols, filterColumnFxn);
       var visibleColumnDefinitions = this.memoized.filterOutStateHiddenCols(columnDefinitions, hiddenColumns);
 
       _underscore["default"].extend(propsToPass, {
