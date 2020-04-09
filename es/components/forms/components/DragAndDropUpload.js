@@ -27,9 +27,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -42,24 +42,71 @@ var DragAndDropFileUploadModal =
 function (_React$Component) {
   _inherits(DragAndDropFileUploadModal, _React$Component);
 
-  function DragAndDropFileUploadModal() {
+  /*
+      Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
+      Functions for hiding, and handles files.
+  */
+  function DragAndDropFileUploadModal(props) {
+    var _this;
+
     _classCallCheck(this, DragAndDropFileUploadModal);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadModal).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadModal).call(this, props));
+    _this.state = {
+      files: []
+    };
+    _this.handleAddFile = _this.handleAddFile.bind(_assertThisInitialized(_this));
+    _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
+    return _this;
   }
 
   _createClass(DragAndDropFileUploadModal, [{
-    key: "render",
+    key: "handleAddFile",
+    value: function handleAddFile(evt) {
+      var _evt$dataTransfer = evt.dataTransfer,
+          items = _evt$dataTransfer.items,
+          files = _evt$dataTransfer.files;
 
-    /*
-        Stateless Drag and Drop Component that accepts an onHide and onContainerKeyDown function
-        Functions for hiding
-    */
-    // constructor(props){
-    //     super(props);
-    // }
+      if (items && items.length > 0) {
+        var fileArr = [];
+
+        for (var i = 0; i < files.length; i++) {
+          console.log(files[i]);
+          fileArr.push(files[i]);
+        }
+
+        this.setState({
+          files: fileArr
+        });
+      }
+    }
+  }, {
+    key: "handleRemoveFile",
+    value: function handleRemoveFile(id) {
+      var files = this.state.files;
+
+      var _id$split = id.split("|"),
+          name = _id$split[0],
+          size = _id$split[1],
+          lastModified = _id$split[2]; // Filter to remove the clicked file by ID parts
+
+
+      var newFiles = files.filter(function (file) {
+        if (file.name === name && file.size === parseInt(size) && file.lastModified === parseInt(lastModified)) {
+          return false;
+        }
+
+        return true;
+      });
+      this.setState({
+        files: newFiles
+      });
+    }
+  }, {
+    key: "render",
     value: function render() {
       var show = this.props.show;
+      var files = this.state.files;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
       }, {
@@ -70,14 +117,20 @@ function (_React$Component) {
         closeButton: true
       }, _react["default"].createElement(_reactBootstrap.Modal.Title, {
         className: "text-500"
-      }, "Upload a [Field Type] for [Field Name Here]")), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, null)), _react["default"].createElement(_reactBootstrap.Modal.Footer, null, _react["default"].createElement("button", {
+      }, "Upload a [Field Type] for [Field Name Here]")), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
+        files: files
+      }, {
+        handleAddFile: this.handleAddFile,
+        handleRemoveFile: this.handleRemoveFile
+      }))), _react["default"].createElement(_reactBootstrap.Modal.Footer, null, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-danger"
       }, _react["default"].createElement("i", {
         className: "icon fas icon-close"
       }), " Cancel"), _react["default"].createElement("button", {
         type: "button",
-        className: "btn btn-primary"
+        className: "btn btn-primary",
+        disabled: files.length === 0
       }, _react["default"].createElement("i", {
         className: "icon fas icon-upload"
       }), " Upload Files")));
@@ -118,21 +171,19 @@ function (_React$Component2) {
   //     'dropMessage'       : "Drop Item Here"
   // };
   function DragAndDropZone(props) {
-    var _this;
+    var _this2;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
-    _this.state = {
-      dragging: false,
-      files: []
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
+    _this2.state = {
+      dragging: false
     };
-    _this.dropZoneRef = _react["default"].createRef();
-    _this.cleanUpEventListeners = _this.cleanUpEventListeners.bind(_assertThisInitialized(_this));
-    _this.setUpEventListeners = _this.setUpEventListeners.bind(_assertThisInitialized(_this));
-    _this.handleDrop = _this.handleDrop.bind(_assertThisInitialized(_this));
-    _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
-    return _this;
+    _this2.dropZoneRef = _react["default"].createRef();
+    _this2.cleanUpEventListeners = _this2.cleanUpEventListeners.bind(_assertThisInitialized(_this2));
+    _this2.setUpEventListeners = _this2.setUpEventListeners.bind(_assertThisInitialized(_this2));
+    _this2.handleDrop = _this2.handleDrop.bind(_assertThisInitialized(_this2));
+    return _this2;
   }
 
   _createClass(DragAndDropZone, [{
@@ -185,52 +236,17 @@ function (_React$Component2) {
     key: "handleDrop",
     value: function handleDrop(evt) {
       evt.preventDefault();
-      evt.stopPropagation();
-      var _evt$dataTransfer = evt.dataTransfer,
-          items = _evt$dataTransfer.items,
-          files = _evt$dataTransfer.files;
+      evt.stopPropagation(); // Add dropped files to the file manager
 
-      if (items && items.length > 0) {
-        var fileArr = [];
-
-        for (var i = 0; i < files.length; i++) {
-          console.log(files[i]);
-          fileArr.push(files[i]);
-        }
-
-        this.setState({
-          files: fileArr
-        });
-      }
-    }
-  }, {
-    key: "handleRemoveFile",
-    value: function handleRemoveFile(id) {
-      var files = this.state.files;
-
-      var _id$split = id.split("|"),
-          name = _id$split[0],
-          size = _id$split[1],
-          lastModified = _id$split[2]; // Filter to remove the clicked file by ID parts
-
-
-      var newFiles = files.filter(function (file) {
-        if (file.name === name && file.size === parseInt(size) && file.lastModified === parseInt(lastModified)) {
-          return false;
-        }
-
-        return true;
-      });
-      this.setState({
-        files: newFiles
-      });
+      var handleAddFile = this.props.handleAddFile;
+      handleAddFile(evt);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
-
-      var files = this.state.files;
+      var _this$props = this.props,
+          files = _this$props.files,
+          handleRemoveFile = _this$props.handleRemoveFile;
       return _react["default"].createElement("div", {
         className: "panel text-center",
         style: {
@@ -239,7 +255,8 @@ function (_React$Component2) {
           height: "30vh",
           flexDirection: "row",
           display: "flex",
-          overflowY: "scroll",
+
+          /*overflowY: "auto",*/
           overflowX: "hidden",
           justifyContent: "center"
         },
@@ -263,13 +280,14 @@ function (_React$Component2) {
         return _react["default"].createElement("li", {
           key: fileId,
           className: "m-1"
-        }, _react["default"].createElement(FileIcon, {
+        }, _react["default"].createElement(FileIcon, _extends({
           fileName: file.name,
           fileSize: file.size,
           fileType: file.type,
-          fileId: fileId,
-          handleRemoveFile: _this2.handleRemoveFile
-        }));
+          fileId: fileId
+        }, {
+          handleRemoveFile: handleRemoveFile
+        })));
       })));
     }
   }]);

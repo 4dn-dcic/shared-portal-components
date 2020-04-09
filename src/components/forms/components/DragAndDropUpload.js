@@ -5,8 +5,8 @@ import _ from 'underscore';
 
 export class DragAndDropFileUploadModal extends React.Component {
     /*
-        Stateless Drag and Drop Component that accepts an onHide and onContainerKeyDown function
-        Functions for hiding
+        Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
+        Functions for hiding, and handles files.
     */
     static propTypes = {
         show: PropTypes.bool,
@@ -17,9 +17,49 @@ export class DragAndDropFileUploadModal extends React.Component {
         show: true
     }
 
-    // constructor(props){
-    //     super(props);
-    // }
+    constructor(props){
+        super(props);
+        this.state = {
+            files: []
+        };
+
+        this.handleAddFile = this.handleAddFile.bind(this);
+        this.handleRemoveFile = this.handleRemoveFile.bind(this);
+    }
+
+    handleAddFile(evt) {
+        const { items, files } = evt.dataTransfer;
+
+        if (items && items.length > 0) {
+            const fileArr = [];
+            for (var i = 0; i < files.length; i++) {
+                console.log(files[i]);
+                fileArr.push(files[i]);
+            }
+
+            this.setState({
+                files: fileArr
+            });
+        }
+    }
+
+    handleRemoveFile(id) {
+        const { files } = this.state;
+        const { 0: name, 1: size, 2: lastModified } = id.split("|");
+
+        // Filter to remove the clicked file by ID parts
+        const newFiles = files.filter((file) => {
+            if ((file.name === name) &&
+                (file.size === parseInt(size)) &&
+                (file.lastModified === parseInt(lastModified))
+            ) {
+                return false;
+            }
+            return true;
+        });
+
+        this.setState({ files: newFiles });
+    }
 
     render(){
         const {
@@ -27,6 +67,7 @@ export class DragAndDropFileUploadModal extends React.Component {
             // onContainerKeyDown,
             show
         } = this.props;
+        const { files } = this.state;
         return (
             <Modal centered {...{ show }} className="submission-view-modal">
                 <Modal.Header closeButton>
@@ -35,13 +76,21 @@ export class DragAndDropFileUploadModal extends React.Component {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <DragAndDropZone />
+                    <DragAndDropZone {...{ files }}
+                        handleAddFile={this.handleAddFile}
+                        handleRemoveFile={this.handleRemoveFile} />
                 </Modal.Body>
                 <Modal.Footer>
                     <button type="button" className="btn btn-danger">
                         <i className="icon fas icon-close"></i> Cancel
                     </button>
-                    <button type="button" className="btn btn-primary">
+                    {/* TODO: Controlled file inputs are complicated... maybe wait to implement this
+                    // Refer to https://medium.com/trabe/controlled-file-input-components-in-react-3f0d42f901b8
+                    <input type="files" name="filesFromBrowse[]" className="btn btn-primary">
+                        <i className="icon fas icon-folder-open"></i> Browse
+                    </input> */}
+                    <button type="button" className="btn btn-primary"
+                        disabled={files.length === 0}>
                         <i className="icon fas icon-upload"></i> Upload Files
                     </button>
                 </Modal.Footer>
@@ -69,15 +118,12 @@ export class DragAndDropZone extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            dragging: false,
-            files: []
+            dragging: false
         };
         this.dropZoneRef = React.createRef();
         this.cleanUpEventListeners = this.cleanUpEventListeners.bind(this);
         this.setUpEventListeners = this.setUpEventListeners.bind(this);
-
         this.handleDrop = this.handleDrop.bind(this);
-        this.handleRemoveFile = this.handleRemoveFile.bind(this);
     }
 
     componentDidMount() {
@@ -122,41 +168,14 @@ export class DragAndDropZone extends React.Component {
     handleDrop(evt) {
         evt.preventDefault();
         evt.stopPropagation();
-        const { items, files } = evt.dataTransfer;
 
-        if (items && items.length > 0) {
-            const fileArr = [];
-            for (var i = 0; i < files.length; i++) {
-                console.log(files[i]);
-                fileArr.push(files[i]);
-            }
-
-            this.setState({
-                files: fileArr
-            });
-        }
-    }
-
-    handleRemoveFile(id) {
-        const { files } = this.state;
-        const { 0: name, 1: size, 2: lastModified } = id.split("|");
-
-        // Filter to remove the clicked file by ID parts
-        const newFiles = files.filter((file) => {
-            if ((file.name === name) &&
-                (file.size === parseInt(size)) &&
-                (file.lastModified === parseInt(lastModified))
-            ) {
-                return false;
-            }
-            return true;
-        });
-
-        this.setState({ files: newFiles });
+        // Add dropped files to the file manager
+        const { handleAddFile } = this.props;
+        handleAddFile(evt);
     }
 
     render() {
-        const { files } = this.state;
+        const { files, handleRemoveFile } = this.props;
 
         return (
             <div
@@ -167,7 +186,7 @@ export class DragAndDropZone extends React.Component {
                     height: "30vh",
                     flexDirection: "row",
                     display: "flex",
-                    overflowY: "scroll",
+                    /*overflowY: "auto",*/
                     overflowX: "hidden",
                     justifyContent: "center"
                 }}
@@ -192,7 +211,7 @@ export class DragAndDropZone extends React.Component {
                             return (
                                 <li key={fileId} className="m-1">
                                     <FileIcon fileName={file.name} fileSize={file.size}
-                                        fileType={file.type} fileId={fileId} handleRemoveFile={this.handleRemoveFile} />
+                                        fileType={file.type} fileId={fileId} {...{ handleRemoveFile }} />
                                 </li>
                             );
                         }
