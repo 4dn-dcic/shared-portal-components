@@ -3,6 +3,12 @@ import { Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 
+function createAndSubmitItem(fieldType, files) {
+
+}
+
+
+
 export class DragAndDropFileUploadModal extends React.Component {
     /*
         Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
@@ -10,17 +16,19 @@ export class DragAndDropFileUploadModal extends React.Component {
     */
     static propTypes = {
         show: PropTypes.bool,
+        multiselect: PropTypes.bool
         // onHide: PropTypes.func.isRequired,
         // onContainerKeyDown: PropTypes.func.isRequired
     }
     static defaultProps = {
-        show: true
+        show: true,
+        multiselect: true
     }
 
     constructor(props){
         super(props);
         this.state = {
-            files: []
+            files: [] // Always in an array, even if multiselect enabled
         };
 
         this.handleAddFile = this.handleAddFile.bind(this);
@@ -29,17 +37,35 @@ export class DragAndDropFileUploadModal extends React.Component {
 
     handleAddFile(evt) {
         const { items, files } = evt.dataTransfer;
+        const { multiselect } = this.props;
+        const { files: currFiles } = this.state;
 
         if (items && items.length > 0) {
-            const fileArr = [];
-            for (var i = 0; i < files.length; i++) {
-                console.log(files[i]);
-                fileArr.push(files[i]);
-            }
+            if (multiselect) {
+                // Add all dragged items
+                const fileArr = [];
 
-            this.setState({
-                files: fileArr
-            });
+                // Populate an array with all of the new files
+                for (var i = 0; i < files.length; i++) {
+                    console.log(files[i]);
+                    fileArr.push(files[i]);
+                }
+
+                // Concat with current array
+                const allFiles = currFiles.concat(fileArr);
+
+                // Filter out duplicates (based on just filename for now; may need more criteria in future)
+                const dedupedFiles = _.uniq(allFiles, false, (file) => file.name);
+
+                this.setState({
+                    files: dedupedFiles
+                });
+            } else {
+                // Select only one file at a time
+                this.setState({
+                    files: [files[0]]
+                });
+            }
         }
     }
 
@@ -100,20 +126,16 @@ export class DragAndDropFileUploadModal extends React.Component {
 }
 
 export class DragAndDropZone extends React.Component {
-    // static propTypes = {
-    //     /** Whether component should be listening for Item to be selected */
-    //     'isSelecting'       : PropTypes.bool.isRequired,
-    //     /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
-    //     'onSelect'          : PropTypes.func.isRequired,
-    // };
+    static propTypes = {
+        /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
+        'handleAddFile'          : PropTypes.func.isRequired,
+        'handleRemoveFile'       : PropTypes.func.isRequired,
+        'files'                  : PropTypes.array
+    };
 
-    // static defaultProps = {
-    //     'isSelecting'       : false,
-    //     'onSelect': function (items, endDataPost) {
-    //         console.log("Selected", items, endDataPost);
-    //     },
-    //     'dropMessage'       : "Drop Item Here"
-    // };
+    static defaultProps = {
+        'files'             : []
+    };
 
     constructor(props){
         super(props);
@@ -165,6 +187,7 @@ export class DragAndDropZone extends React.Component {
         evt.stopPropagation();
     }
 
+    // TODO: Consider making handlers props for even more modularity
     handleDrop(evt) {
         evt.preventDefault();
         evt.stopPropagation();
@@ -195,6 +218,9 @@ export class DragAndDropZone extends React.Component {
                 <span style={{ alignSelf: "center" }}>
                     { files.length === 0 ? "Drag a file here to upload" : null }
                 </span>
+                {/* TODO: Consider making the file list a separate component...
+                think about potential future features like listing files without icons/in rows
+                or even sorting... would be best to have this be separate if implementing those */}
                 <ul style={{
                     listStyleType: "none",
                     display: "flex",

@@ -37,6 +37,8 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function createAndSubmitItem() {}
+
 var DragAndDropFileUploadModal =
 /*#__PURE__*/
 function (_React$Component) {
@@ -53,7 +55,8 @@ function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadModal).call(this, props));
     _this.state = {
-      files: []
+      files: [] // Always in an array, even if multiselect enabled
+
     };
     _this.handleAddFile = _this.handleAddFile.bind(_assertThisInitialized(_this));
     _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
@@ -66,18 +69,35 @@ function (_React$Component) {
       var _evt$dataTransfer = evt.dataTransfer,
           items = _evt$dataTransfer.items,
           files = _evt$dataTransfer.files;
+      var multiselect = this.props.multiselect;
+      var currFiles = this.state.files;
 
       if (items && items.length > 0) {
-        var fileArr = [];
+        if (multiselect) {
+          // Add all dragged items
+          var fileArr = []; // Populate an array with all of the new files
 
-        for (var i = 0; i < files.length; i++) {
-          console.log(files[i]);
-          fileArr.push(files[i]);
+          for (var i = 0; i < files.length; i++) {
+            console.log(files[i]);
+            fileArr.push(files[i]);
+          } // Concat with current array
+
+
+          var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
+
+          var dedupedFiles = _underscore["default"].uniq(allFiles, false, function (file) {
+            return file.name;
+          });
+
+          this.setState({
+            files: dedupedFiles
+          });
+        } else {
+          // Select only one file at a time
+          this.setState({
+            files: [files[0]]
+          });
         }
-
-        this.setState({
-          files: fileArr
-        });
       }
     }
   }, {
@@ -143,13 +163,15 @@ function (_React$Component) {
 exports.DragAndDropFileUploadModal = DragAndDropFileUploadModal;
 
 _defineProperty(DragAndDropFileUploadModal, "propTypes", {
-  show: _propTypes["default"].bool // onHide: PropTypes.func.isRequired,
+  show: _propTypes["default"].bool,
+  multiselect: _propTypes["default"].bool // onHide: PropTypes.func.isRequired,
   // onContainerKeyDown: PropTypes.func.isRequired
 
 });
 
 _defineProperty(DragAndDropFileUploadModal, "defaultProps", {
-  show: true
+  show: true,
+  multiselect: true
 });
 
 var DragAndDropZone =
@@ -157,19 +179,6 @@ var DragAndDropZone =
 function (_React$Component2) {
   _inherits(DragAndDropZone, _React$Component2);
 
-  // static propTypes = {
-  //     /** Whether component should be listening for Item to be selected */
-  //     'isSelecting'       : PropTypes.bool.isRequired,
-  //     /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
-  //     'onSelect'          : PropTypes.func.isRequired,
-  // };
-  // static defaultProps = {
-  //     'isSelecting'       : false,
-  //     'onSelect': function (items, endDataPost) {
-  //         console.log("Selected", items, endDataPost);
-  //     },
-  //     'dropMessage'       : "Drop Item Here"
-  // };
   function DragAndDropZone(props) {
     var _this2;
 
@@ -231,7 +240,8 @@ function (_React$Component2) {
     value: function handleDragOut(evt) {
       evt.preventDefault();
       evt.stopPropagation();
-    }
+    } // TODO: Consider making handlers props for even more modularity
+
   }, {
     key: "handleDrop",
     value: function handleDrop(evt) {
@@ -296,6 +306,17 @@ function (_React$Component2) {
 }(_react["default"].Component);
 
 exports.DragAndDropZone = DragAndDropZone;
+
+_defineProperty(DragAndDropZone, "propTypes", {
+  /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
+  'handleAddFile': _propTypes["default"].func.isRequired,
+  'handleRemoveFile': _propTypes["default"].func.isRequired,
+  'files': _propTypes["default"].array
+});
+
+_defineProperty(DragAndDropZone, "defaultProps", {
+  'files': []
+});
 
 function FileIcon(props) {
   var fileType = props.fileType,
