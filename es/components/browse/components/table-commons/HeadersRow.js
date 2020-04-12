@@ -322,8 +322,11 @@ function (_React$PureComponent2) {
       var noSort = columnDefinition.noSort,
           colTitle = columnDefinition.colTitle,
           title = columnDefinition.title,
-          field = columnDefinition.field;
-      var tooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
+          field = columnDefinition.field,
+          _columnDefinition$des = columnDefinition.description,
+          description = _columnDefinition$des === void 0 ? null : _columnDefinition$des;
+      var titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
+      var tooltip = description ? titleTooltip ? "<h5 class=\"mt-0 mb-03\">".concat(titleTooltip, "</h5>") + description : description : titleTooltip ? titleTooltip : null;
       var sorterIcon;
 
       if (!noSort && typeof sortByFxn === 'function' && width >= 50) {
@@ -425,6 +428,13 @@ function (_React$PureComponent3) {
         });
       }
     }
+    /**
+     * Sorts column or opens/closes multisort menu
+     * if multiple options.
+     *
+     * @param {React.SyntheticEvent} e - Click event object.
+     */
+
   }, {
     key: "onIconClick",
     value: function onIconClick(e) {
@@ -454,6 +464,12 @@ function (_React$PureComponent3) {
 
       this.sortByField(sort_fields[0] || field);
     }
+    /**
+     * Determines direction of next sort (descending vs ascending) and sets
+     * `state.isLoading` to true (to be unset by `componentDidUpdate`)
+     * before calling `props.sortByFxn`.
+     */
+
   }, {
     key: "sortByField",
     value: function sortByField(field) {
@@ -542,14 +558,14 @@ var SortOptionsMenu = _react["default"].memo(function (_ref3) {
         title = _ref4$title === void 0 ? null : _ref4$title;
     // TODO grab title from schemas if not provided.
     var isActive = currentSortColumn === field;
-    var cls = "dropdown-item clickable" + (isActive ? " active" : "");
+    var cls = "dropdown-item clickable no-highlight d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
     var onClick = sortByField.bind(sortByField, field);
     return _react["default"].createElement("div", {
       className: cls,
       key: field,
       onClick: onClick
     }, title || field, !isActive ? null : _react["default"].createElement("i", {
-      className: "icon fas ml-1 icon-angle-".concat(descend ? "down" : "up")
+      className: "icon fas ml-12 icon-angle-".concat(descend ? "down" : "up")
     }));
   });
   return _react["default"].createElement("div", {

@@ -212,9 +212,10 @@ class HeadersRowColumn extends React.PureComponent {
             showingSortFieldsForColumn,
             setShowingSortFieldsFor
         } = this.props;
-        const { noSort, colTitle, title, field } = columnDefinition;
+        const { noSort, colTitle, title, field, description = null } = columnDefinition;
         const showTitle = colTitle || title;
-        const tooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
+        const titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
+        const tooltip = description ? (titleTooltip ? `<h5 class="mt-0 mb-03">${titleTooltip}</h5>` + description : description) : (titleTooltip? titleTooltip : null);
         let sorterIcon;
         if (!noSort && typeof sortByFxn === 'function' && width >= 50){
             sorterIcon = <ColumnSorterIcon {...{ columnDefinition, sortByFxn, currentSortColumn, descend, showingSortFieldsForColumn, setShowingSortFieldsFor }} />;
@@ -286,6 +287,12 @@ class ColumnSorterIcon extends React.PureComponent {
         }
     }
 
+    /**
+     * Sorts column or opens/closes multisort menu
+     * if multiple options.
+     *
+     * @param {React.SyntheticEvent} e - Click event object.
+     */
     onIconClick(e){
         e.preventDefault();
         const {
@@ -311,6 +318,11 @@ class ColumnSorterIcon extends React.PureComponent {
         this.sortByField(sort_fields[0] || field);
     }
 
+    /**
+     * Determines direction of next sort (descending vs ascending) and sets
+     * `state.isLoading` to true (to be unset by `componentDidUpdate`)
+     * before calling `props.sortByFxn`.
+     */
     sortByField(field){
         const { descend, currentSortColumn, sortByFxn } = this.props;
         const isActive = currentSortColumn === field;
@@ -358,12 +370,12 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({ currentSortColumn,
     const options = sort_fields.map(function({ field, title = null }){
         // TODO grab title from schemas if not provided.
         const isActive = currentSortColumn === field;
-        const cls = ("dropdown-item clickable" + (isActive ? " active" : ""));
+        const cls = ("dropdown-item clickable no-highlight d-flex align-items-center justify-content-between" + (isActive ? " active" : ""));
         const onClick = sortByField.bind(sortByField, field);
         return (
             <div className={cls} key={field} onClick={onClick}>
                 { title || field }
-                { !isActive ? null : <i className={`icon fas ml-1 icon-angle-${descend ? "down" : "up"}`}/> }
+                { !isActive ? null : <i className={`icon fas ml-12 icon-angle-${descend ? "down" : "up"}`}/> }
             </div>
         );
     });
