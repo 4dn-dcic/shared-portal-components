@@ -400,29 +400,43 @@ function (_React$PureComponent3) {
 
     _this5 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
     _this5.onIconClick = _this5.onIconClick.bind(_assertThisInitialized(_this5));
+    _this5.sortByField = _this5.sortByField.bind(_assertThisInitialized(_this5));
     _this5.memoized = {
       isActive: (0, _memoizeOne["default"])(ColumnSorterIcon.isActive)
+    };
+    _this5.state = {
+      isLoading: false
     };
     return _this5;
   }
 
   _createClass(ColumnSorterIcon, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(pastProps) {
+      var isLoading = this.state.isLoading;
+      if (!isLoading) return;
+      var _this$props6 = this.props,
+          currentSortColumn = _this$props6.currentSortColumn,
+          descend = _this$props6.descend;
+
+      if (currentSortColumn !== pastProps.currentSortColumn || descend !== pastProps.descend) {
+        this.setState({
+          isLoading: false
+        });
+      }
+    }
+  }, {
     key: "onIconClick",
     value: function onIconClick(e) {
       e.preventDefault();
-      var _this$props6 = this.props,
-          _this$props6$columnDe = _this$props6.columnDefinition,
-          field = _this$props6$columnDe.field,
-          _this$props6$columnDe2 = _this$props6$columnDe.sort_fields,
-          sort_fields = _this$props6$columnDe2 === void 0 ? [] : _this$props6$columnDe2,
-          _this$props6$descend = _this$props6.descend,
-          descend = _this$props6$descend === void 0 ? false : _this$props6$descend,
-          _this$props6$currentS = _this$props6.currentSortColumn,
-          currentSortColumn = _this$props6$currentS === void 0 ? null : _this$props6$currentS,
-          sortByFxn = _this$props6.sortByFxn,
-          _this$props6$showingS = _this$props6.showingSortFieldsForColumn,
-          showingSortFieldsForColumn = _this$props6$showingS === void 0 ? null : _this$props6$showingS,
-          setShowingSortFieldsFor = _this$props6.setShowingSortFieldsFor;
+      var _this$props7 = this.props,
+          _this$props7$columnDe = _this$props7.columnDefinition,
+          field = _this$props7$columnDe.field,
+          _this$props7$columnDe2 = _this$props7$columnDe.sort_fields,
+          sort_fields = _this$props7$columnDe2 === void 0 ? [] : _this$props7$columnDe2,
+          _this$props7$showingS = _this$props7.showingSortFieldsForColumn,
+          showingSortFieldsForColumn = _this$props7$showingS === void 0 ? null : _this$props7$showingS,
+          setShowingSortFieldsFor = _this$props7.setShowingSortFieldsFor;
 
       if (showingSortFieldsForColumn === field) {
         // We're currently showing options for this col/icon; unset.
@@ -438,23 +452,32 @@ function (_React$PureComponent3) {
       // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
 
 
-      var useField = sort_fields[0] || field;
-      sortByFxn(useField, currentSortColumn !== useField || !descend && currentSortColumn === useField);
-
-      if (showingSortFieldsForColumn !== null) {
-        setShowingSortFieldsFor(null);
-      }
+      this.sortByField(sort_fields[0] || field);
+    }
+  }, {
+    key: "sortByField",
+    value: function sortByField(field) {
+      var _this$props8 = this.props,
+          descend = _this$props8.descend,
+          currentSortColumn = _this$props8.currentSortColumn,
+          sortByFxn = _this$props8.sortByFxn;
+      var isActive = currentSortColumn === field;
+      this.setState({
+        isLoading: true
+      }, function () {
+        sortByFxn(field, !isActive || isActive && !descend);
+      });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props7 = this.props,
-          columnDefinition = _this$props7.columnDefinition,
-          descend = _this$props7.descend,
-          currentSortColumn = _this$props7.currentSortColumn,
-          sortByFxn = _this$props7.sortByFxn,
-          _this$props7$showingS = _this$props7.showingSortFieldsForColumn,
-          showingSortFieldsForColumn = _this$props7$showingS === void 0 ? null : _this$props7$showingS;
+      var _this$props9 = this.props,
+          columnDefinition = _this$props9.columnDefinition,
+          descend = _this$props9.descend,
+          currentSortColumn = _this$props9.currentSortColumn,
+          _this$props9$showingS = _this$props9.showingSortFieldsForColumn,
+          showingSortFieldsForColumn = _this$props9$showingS === void 0 ? null : _this$props9$showingS;
+      var isLoading = this.state.isLoading;
       var field = columnDefinition.field,
           _columnDefinition$sor2 = columnDefinition.sort_fields,
           sort_fields = _columnDefinition$sor2 === void 0 ? [] : _columnDefinition$sor2;
@@ -470,21 +493,24 @@ function (_React$PureComponent3) {
       var icon = _react["default"].createElement("span", {
         className: cls,
         onClick: this.onIconClick
-      }, _react["default"].createElement(ColumnSorterIconElement, {
-        descend: !isActive || descend,
+      }, _react["default"].createElement(ColumnSorterIconElement, _extends({
+        isLoading: isLoading,
         isShowingSortFields: isShowingSortFields
-      }));
+      }, {
+        descend: !isActive || descend
+      })));
 
       if (!isShowingSortFields) {
         return icon;
       }
 
-      return _react["default"].createElement(_react["default"].Fragment, null, icon, _react["default"].createElement(SortOptionsMenu, {
+      return _react["default"].createElement(_react["default"].Fragment, null, icon, _react["default"].createElement(SortOptionsMenu, _extends({
         currentSortColumn: currentSortColumn,
         sort_fields: sort_fields,
-        sortByFxn: sortByFxn,
         descend: descend
-      }));
+      }, {
+        sortByField: this.sortByField
+      })));
     }
   }]);
 
@@ -507,7 +533,7 @@ _defineProperty(ColumnSorterIcon, "defaultProps", {
 var SortOptionsMenu = _react["default"].memo(function (_ref3) {
   var currentSortColumn = _ref3.currentSortColumn,
       sort_fields = _ref3.sort_fields,
-      sortByFxn = _ref3.sortByFxn,
+      sortByField = _ref3.sortByField,
       _ref3$descend = _ref3.descend,
       descend = _ref3$descend === void 0 ? false : _ref3$descend;
   var options = sort_fields.map(function (_ref4) {
@@ -516,16 +542,15 @@ var SortOptionsMenu = _react["default"].memo(function (_ref3) {
         title = _ref4$title === void 0 ? null : _ref4$title;
     // TODO grab title from schemas if not provided.
     var isActive = currentSortColumn === field;
-    var cls = "dropdown-item" + (isActive ? " active" : "");
-    return _react["default"].createElement("a", {
+    var cls = "dropdown-item clickable" + (isActive ? " active" : "");
+    var onClick = sortByField.bind(sortByField, field);
+    return _react["default"].createElement("div", {
       className: cls,
-      href: "#",
       key: field,
-      onClick: function onMenuItemClick(evt) {
-        evt.preventDefault();
-        sortByFxn(field, !isActive || !descend && isActive);
-      }
-    }, title || field);
+      onClick: onClick
+    }, title || field, !isActive ? null : _react["default"].createElement("i", {
+      className: "icon fas ml-1 icon-angle-".concat(descend ? "down" : "up")
+    }));
   });
   return _react["default"].createElement("div", {
     className: "dropdown-menu dropdown-menu-right show"
@@ -534,7 +559,15 @@ var SortOptionsMenu = _react["default"].memo(function (_ref3) {
 
 var ColumnSorterIconElement = _react["default"].memo(function (_ref5) {
   var descend = _ref5.descend,
-      isShowingSortFields = _ref5.isShowingSortFields;
+      isShowingSortFields = _ref5.isShowingSortFields,
+      _ref5$isLoading = _ref5.isLoading,
+      isLoading = _ref5$isLoading === void 0 ? false : _ref5$isLoading;
+
+  if (isLoading) {
+    return _react["default"].createElement("i", {
+      className: "icon icon-fw icon-circle-o-notch icon-spin fas"
+    });
+  }
 
   if (isShowingSortFields) {
     return _react["default"].createElement("i", {

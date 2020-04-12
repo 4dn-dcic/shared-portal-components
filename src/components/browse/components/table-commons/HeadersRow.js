@@ -268,18 +268,28 @@ class ColumnSorterIcon extends React.PureComponent {
     constructor(props){
         super(props);
         this.onIconClick = this.onIconClick.bind(this);
+        this.sortByField = this.sortByField.bind(this);
         this.memoized = {
             isActive: memoize(ColumnSorterIcon.isActive)
         };
+        this.state = {
+            isLoading: false
+        };
+    }
+
+    componentDidUpdate(pastProps){
+        const { isLoading } = this.state;
+        if (!isLoading) return;
+        const { currentSortColumn, descend } = this.props;
+        if (currentSortColumn !== pastProps.currentSortColumn || descend !== pastProps.descend) {
+            this.setState({ isLoading: false });
+        }
     }
 
     onIconClick(e){
         e.preventDefault();
         const {
             columnDefinition : { field, sort_fields = [] },
-            descend = false,
-            currentSortColumn = null,
-            sortByFxn,
             showingSortFieldsForColumn = null,
             setShowingSortFieldsFor
         } = this.props;
@@ -298,16 +308,21 @@ class ColumnSorterIcon extends React.PureComponent {
 
         // If not multiple options, just sort on the only sort field available.
         // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
-        const useField = sort_fields[0] || field;
-        const beDescending = currentSortColumn !== useField || (!descend && currentSortColumn === useField);
-        sortByFxn(useField, beDescending);
-        if (showingSortFieldsForColumn !== null) {
-            setShowingSortFieldsFor(null);
-        }
+        this.sortByField(sort_fields[0] || field);
+    }
+
+    sortByField(field){
+        const { descend, currentSortColumn, sortByFxn } = this.props;
+        const isActive = currentSortColumn === field;
+        const beDescending = !isActive || (isActive && !descend);
+        this.setState({ isLoading: true }, function(){
+            sortByFxn(field, beDescending);
+        });
     }
 
     render(){
-        const { columnDefinition, descend, currentSortColumn, sortByFxn, showingSortFieldsForColumn = null } = this.props;
+        const { columnDefinition, descend, currentSortColumn, showingSortFieldsForColumn = null } = this.props;
+        const { isLoading } = this.state;
         const { field, sort_fields = [] } = columnDefinition;
         if (typeof field !== 'string' || field.length === 0) {
             return null;
@@ -321,7 +336,7 @@ class ColumnSorterIcon extends React.PureComponent {
         );
         const icon = (
             <span className={cls} onClick={this.onIconClick}>
-                <ColumnSorterIconElement descend={!isActive || descend} isShowingSortFields={isShowingSortFields} />
+                <ColumnSorterIconElement {...{ isLoading, isShowingSortFields }} descend={!isActive || descend} />
             </span>
         );
 
@@ -332,30 +347,34 @@ class ColumnSorterIcon extends React.PureComponent {
         return (
             <React.Fragment>
                 { icon }
-                <SortOptionsMenu {...{ currentSortColumn, sort_fields, sortByFxn, descend }} />
+                <SortOptionsMenu {...{ currentSortColumn, sort_fields, descend }} sortByField={this.sortByField} />
             </React.Fragment>
         );
     }
 }
 
-const SortOptionsMenu = React.memo(function SortOptionsMenu({ currentSortColumn, sort_fields, sortByFxn, descend = false }){
+const SortOptionsMenu = React.memo(function SortOptionsMenu({ currentSortColumn, sort_fields, sortByField, descend = false }){
 
     const options = sort_fields.map(function({ field, title = null }){
         // TODO grab title from schemas if not provided.
         const isActive = currentSortColumn === field;
-        const onMenuItemClick = function(evt){
-            evt.preventDefault();
-            const beDescending = !isActive || (!descend && isActive);
-            sortByFxn(field, beDescending);
-        };
-        const cls = ("dropdown-item" + (isActive ? " active" : ""));
-        return <a className={cls} href="#" key={field} onClick={onMenuItemClick}>{ title || field }</a>;
+        const cls = ("dropdown-item clickable" + (isActive ? " active" : ""));
+        const onClick = sortByField.bind(sortByField, field);
+        return (
+            <div className={cls} key={field} onClick={onClick}>
+                { title || field }
+                { !isActive ? null : <i className={`icon fas ml-1 icon-angle-${descend ? "down" : "up"}`}/> }
+            </div>
+        );
     });
 
     return <div className="dropdown-menu dropdown-menu-right show">{ options }</div>;
 });
 
-const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ descend, isShowingSortFields }){
+const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ descend, isShowingSortFields, isLoading = false }){
+    if (isLoading) {
+        return <i className="icon icon-fw icon-circle-o-notch icon-spin fas"/>;
+    }
     if (isShowingSortFields) {
         return <i className="icon icon-fw icon-times-circle far"/>;
     }
