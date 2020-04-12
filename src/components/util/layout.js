@@ -371,6 +371,24 @@ export function isDOMElementChildOfElementWithClass(elem, className, maxDepth=5)
     return false;
 }
 
+/**
+ * Designed to work similarly to `Array.find()`.
+ *
+ * @param {HTMLElement} Element to find ancestor (or self) of.
+ * @param {function} Assertion function, should return `true` if valid element or false if not.
+ * @returns {HTMLElement|undefined} Ancestor (or self) element for which searchFxn returns true, if any.
+ */
+export function findParentElement(startElement, searchFxn) {
+    let domElem = startElement;
+    while (domElem) {
+        if (searchFxn(domElem)) {
+            return domElem;
+        }
+        domElem = domElem.parentElement;
+    }
+    return; // undefined
+}
+
 
 /**
  * Meant to be used in click handlers. See app.js.
@@ -378,12 +396,11 @@ export function isDOMElementChildOfElementWithClass(elem, className, maxDepth=5)
  * event bubble chain (same event bubbles up).
  */
 export const elementIsChildOfLink = memoize(function(initDomElement){
-    let domElem = initDomElement;
-    // SVG anchor elements have tagName == 'a' while HTML anchor elements have tagName == 'A'
-    while (domElem && (domElem.tagName.toLowerCase() !== 'a' && !domElem.getAttribute('data-href'))) {
-        domElem = domElem.parentElement;
-    }
-    return domElem;
+    const foundElem = findParentElement(initDomElement, function(domElem){
+        // SVG anchor elements have tagName == 'a' while HTML anchor elements have tagName == 'A'
+        return (domElem.tagName.toLowerCase() === "a" || domElem.getAttribute('data-href'));
+    });
+    return foundElem || initDomElement;
 });
 
 

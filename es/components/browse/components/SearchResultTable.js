@@ -479,16 +479,7 @@ _defineProperty(ResultRow, "propTypes", {
   'rowNumber': _propTypes["default"].number.isRequired,
   'rowHeight': _propTypes["default"].number,
   'mounted': _propTypes["default"].bool.isRequired,
-  'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-    'title': _propTypes["default"].string.isRequired,
-    'field': _propTypes["default"].string.isRequired,
-    'render': _propTypes["default"].func,
-    'widthMap': _propTypes["default"].shape({
-      'lg': _propTypes["default"].number.isRequired,
-      'md': _propTypes["default"].number.isRequired,
-      'sm': _propTypes["default"].number.isRequired
-    })
-  })).isRequired,
+  'columnDefinitions': _HeadersRow.HeadersRow.propTypes.columnDefinitions,
   'columnWidths': _propTypes["default"].objectOf(_propTypes["default"].number),
   'renderDetailPane': _propTypes["default"].func.isRequired,
   'detailOpen': _propTypes["default"].bool.isRequired,

@@ -69,8 +69,8 @@ const DefaultDetailPane = React.memo(function DefaultDetailPane({ result }){
 class ResultDetail extends React.PureComponent{
 
     static propTypes = {
-        'result'    : PropTypes.object.isRequired,
-        'open'      : PropTypes.bool.isRequired,
+        'result' : PropTypes.object.isRequired,
+        'open' : PropTypes.bool.isRequired,
         'renderDetailPane': PropTypes.func.isRequired,
         'rowNumber' : PropTypes.number,
         'toggleDetailOpen' : PropTypes.func.isRequired,
@@ -189,16 +189,7 @@ class ResultRow extends React.PureComponent {
         'rowNumber'         : PropTypes.number.isRequired,
         'rowHeight'         : PropTypes.number,
         'mounted'           : PropTypes.bool.isRequired,
-        'columnDefinitions'     : PropTypes.arrayOf(PropTypes.shape({
-            'title'             : PropTypes.string.isRequired,
-            'field'             : PropTypes.string.isRequired,
-            'render'            : PropTypes.func,
-            'widthMap'          : PropTypes.shape({
-                'lg'                : PropTypes.number.isRequired,
-                'md'                : PropTypes.number.isRequired,
-                'sm'                : PropTypes.number.isRequired
-            })
-        })).isRequired,
+        'columnDefinitions'     : HeadersRow.propTypes.columnDefinitions,
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'renderDetailPane'  : PropTypes.func.isRequired,
         'detailOpen' : PropTypes.bool.isRequired,

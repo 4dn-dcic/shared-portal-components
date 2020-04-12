@@ -152,10 +152,7 @@ export function columnsToColumnDefinitions(columns, columnDefinitionMap, default
             var colDef2 = _.extend({}, colDefOverride, colDef);
             colDef = colDef2;
         }
-        // Add defaults for any required-for-view but not-present properties.
-        if (colDef.widthMap && colDef.widthMap.sm && typeof colDef.widthMap.xs !== 'number'){
-            colDef.widthMap.xs = colDef.widthMap.sm;
-        }
+
         colDef.widthMap = colDef.widthMap || defaultWidthMap;
         colDef.render = colDef.render || null;
         colDef.order = typeof colDef.order === 'number' ? colDef.order : i;

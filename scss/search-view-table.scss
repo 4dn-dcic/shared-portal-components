@@ -486,11 +486,11 @@ $search-results-header-text-color: #fff !default;
 } // .search-results-outer-container
 
 
+
 .search-headers-row {
 	background-color: $brand-primary-dark;
 	z-index: 50;
 	transform: translate3d(0,0,0) !important;
-	overflow-x: hidden;
 
 	> .columns {
 		display: -webkit-box;

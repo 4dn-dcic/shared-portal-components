@@ -4,6 +4,8 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import Draggable from 'react-draggable';
 import { getColumnWidthFromDefinition } from './ColumnCombiner';
+import { WindowClickEventDelegator } from './../../../util/WindowClickEventDelegator';
+import { findParentElement } from './../../../util/layout';
 
 /**
  * Assumes that is rendered by SearchResultTable and that a SortController instance
@@ -11,17 +13,35 @@ import { getColumnWidthFromDefinition } from './ColumnCombiner';
  *
  * Can exclude props passed by those two and HeadersRow features/UI will degrade gracefully.
  */
-export class HeadersRow extends React.Component {
+export class HeadersRow extends React.PureComponent {
 
     static propTypes = {
-        'columnDefinitions' : PropTypes.array.isRequired, //ResultRow.propTypes.columnDefinitions,
+        'columnDefinitions' : PropTypes.arrayOf(PropTypes.shape({
+            'field' : PropTypes.string.isRequired,
+            'title' : PropTypes.string,
+            'sort_fields' : PropTypes.arrayOf(PropTypes.shape({
+                'field' : PropTypes.string.isRequired,
+                'title' : PropTypes.string,
+            })),
+            'render' : PropTypes.func,
+            'widthMap' : PropTypes.shape({
+                'lg' : PropTypes.number.isRequired,
+                'md' : PropTypes.number.isRequired,
+                'sm' : PropTypes.number.isRequired
+            })
+        })).isRequired,
         'mounted' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
-        'columnWidths' : PropTypes.objectOf(PropTypes.number),
-        'setColumnWidths' : PropTypes.func,
         'width' : PropTypes.number,
         'defaultMinColumnWidth' : PropTypes.number,
-        'tableContainerScrollLeft' : PropTypes.number
+        'tableContainerScrollLeft' : PropTypes.number,
+        // Passed down from CustomColumnController (if used)
+        'columnWidths' : PropTypes.objectOf(PropTypes.number),
+        'setColumnWidths' : PropTypes.func,
+        // Passed down from SortController (if used)
+        'sortColumn' : PropTypes.string,
+        'sortReverse' : PropTypes.bool,
+        'sortByFxn' : PropTypes.func
     };
 
     static defaultProps = {
@@ -31,17 +51,46 @@ export class HeadersRow extends React.Component {
 
     constructor(props){
         super(props);
+        this.onWindowClick = this.onWindowClick.bind(this);
+        this.setShowingSortFieldsFor = this.setShowingSortFieldsFor.bind(this);
         this.setColumnWidthsFromState = this.setColumnWidthsFromState.bind(this);
         this.getWidthFor = this.getWidthFor.bind(this);
         this.onAdjusterDrag = this.onAdjusterDrag.bind(this);
-        this.state = { 'widths' : {} };
+        this.state = {
+            'widths' : {}, // Store for temporary column widths used while a header's 'width' edge/grabber is being dragged.
+            'showingSortFieldsForColumn' : null // Key/field of column for which sort fields/options are being shown.
+        };
     }
 
-    componentDidUpdate(pastProps){
+    componentDidUpdate(pastProps, pastState){
         const { columnWidths } = this.props;
+        const { showingSortFieldsForColumn } = this.state;
+
         if (pastProps.columnWidths !== columnWidths){
             this.setState({ 'widths' : {} });
         }
+
+        if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn){
+            WindowClickEventDelegator.addHandler("click", this.onWindowClick, { passive: true });
+        } else if (!showingSortFieldsForColumn && pastState.showingSortFieldsForColumn) {
+            WindowClickEventDelegator.removeHandler("click", this.onWindowClick);
+        }
+    }
+
+    /** Close dropdown on window click unless click within menu. */
+    onWindowClick(evt){
+        setTimeout(()=>{
+            const { showingSortFieldsForColumn } = this.state;
+            const clickedElement = evt.target;
+            const clickedChildOfDropdownMenu = !!(findParentElement(clickedElement, (el) => el.getAttribute("data-column-key") === showingSortFieldsForColumn));
+            if (!clickedChildOfDropdownMenu) {
+                this.setShowingSortFieldsFor(null);
+            }
+        }, 0);
+    }
+
+    setShowingSortFieldsFor(showingSortFieldsForColumn) {
+        this.setState({ showingSortFieldsForColumn });
     }
 
     /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
@@ -80,11 +129,15 @@ export class HeadersRow extends React.Component {
         const {
             columnDefinitions,
             renderDetailPane,
+            sortColumn = null,
+            sortReverse = false,
+            sortBy,
             columnWidths,
             setColumnWidths,
             width,
             tableContainerScrollLeft
         } = this.props;
+        const { showingSortFieldsForColumn } = this.state;
 
         const leftOffset = 0 - tableContainerScrollLeft;
         const isAdjustable = !!(typeof setColumnWidths === "function" && columnWidths);
@@ -101,13 +154,19 @@ export class HeadersRow extends React.Component {
             //transform: "translate3d(" + leftOffset + "px, 0px, 0px)"
         };
 
+        const commonProps = {
+            sortColumn, sortReverse, sortBy, columnWidths, showingSortFieldsForColumn,
+            setHeaderWidths: this.setColumnWidthsFromState,
+            onAdjusterDrag: this.onAdjusterDrag,
+            setShowingSortFieldsFor: this.setShowingSortFieldsFor
+        };
+
         return (
             <div className={outerClassName} style={outerStyle}>
                 <div className="columns clearfix" style={innerStyle}>
                     {
-                        _.map(columnDefinitions, (colDef, i) =>
-                            <HeadersRowColumn {..._.pick(this.props, 'sortColumn', 'sortReverse', 'sortBy', 'columnWidths')} colDef={colDef} index={i}
-                                onAdjusterDrag={this.onAdjusterDrag} setHeaderWidths={this.setColumnWidthsFromState} width={this.getWidthFor(colDef, i)} key={colDef.field}  />
+                        columnDefinitions.map((columnDefinition, index) =>
+                            <HeadersRowColumn {...commonProps} {...{ columnDefinition, index }} width={this.getWidthFor(columnDefinition, index)} key={columnDefinition.field} />
                         )
                     }
                 </div>
@@ -131,8 +190,8 @@ class HeadersRowColumn extends React.PureComponent {
 
     /** Updates HeadersRow.state.widths {Object<string,numer>} */
     onDrag(event, res){
-        const { colDef, onAdjusterDrag } = this.props;
-        onAdjusterDrag(colDef, event, res);
+        const { columnDefinition, onAdjusterDrag } = this.props;
+        onAdjusterDrag(columnDefinition, event, res);
     }
 
     /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
@@ -142,16 +201,26 @@ class HeadersRowColumn extends React.PureComponent {
     }
 
     render(){
-        const { sortColumn, sortBy, sortReverse, width, colDef, columnWidths, onAdjusterDrag } = this.props;
-        const { noSort, colTitle, title, field } = colDef;
+        const {
+            sortColumn: currentSortColumn,
+            sortBy: sortByFxn,
+            sortReverse: descend,
+            width,
+            columnDefinition,
+            columnWidths,
+            onAdjusterDrag,
+            showingSortFieldsForColumn,
+            setShowingSortFieldsFor
+        } = this.props;
+        const { noSort, colTitle, title, field } = columnDefinition;
         const showTitle = colTitle || title;
         const tooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
         let sorterIcon;
-        if (!colDef.noSort && typeof sortBy === 'function' && width >= 50){
-            sorterIcon = <ColumnSorterIcon sortByFxn={sortBy} currentSortColumn={sortColumn} descend={sortReverse} value={colDef.field} />;
+        if (!noSort && typeof sortByFxn === 'function' && width >= 50){
+            sorterIcon = <ColumnSorterIcon {...{ columnDefinition, sortByFxn, currentSortColumn, descend, showingSortFieldsForColumn, setShowingSortFieldsFor }} />;
         }
         return (
-            <div data-field={field} key={field} data-tip={tooltip}
+            <div data-field={field} data-column-key={field} key={field} data-tip={tooltip}
                 className={"search-headers-column-block" + (noSort ? " no-sort" : '')}
                 style={{ width }}>
                 <div className="inner">
@@ -170,11 +239,26 @@ class HeadersRowColumn extends React.PureComponent {
 
 class ColumnSorterIcon extends React.PureComponent {
 
+    static isActive(columnDefinition, currentSortColumn) {
+        const { field, sort_fields = null } = columnDefinition;
+        if (!Array.isArray(sort_fields)){
+            return field === currentSortColumn;
+        }
+        for (var i = 0; i < sort_fields.length; i++) {
+            if (sort_fields[i].field === currentSortColumn) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static propTypes = {
         'currentSortColumn' : PropTypes.string,
         'descend' : PropTypes.bool,
-        'value' : PropTypes.string.isRequired,
-        'sortByFxn' : PropTypes.func.isRequired
+        'columnDefinition' : HeadersRow.propTypes.columnDefinitions,
+        'sortByFxn' : PropTypes.func.isRequired,
+        'showingSortFieldsForColumn' : PropTypes.string,
+        'setShowingSortFieldsFor' : PropTypes.func
     };
 
     static defaultProps = {
@@ -183,40 +267,101 @@ class ColumnSorterIcon extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.sortClickFxn = this.sortClickFxn.bind(this);
+        this.onIconClick = this.onIconClick.bind(this);
+        this.memoized = {
+            isActive: memoize(ColumnSorterIcon.isActive)
+        };
     }
 
-    sortClickFxn(e){
-        const { value, descend, currentSortColumn, sortByFxn } = this.props;
+    onIconClick(e){
         e.preventDefault();
-        const reverse = (currentSortColumn === value) && !descend;
-        sortByFxn(value, reverse);
+        const {
+            columnDefinition : { field, sort_fields = [] },
+            descend = false,
+            currentSortColumn = null,
+            sortByFxn,
+            showingSortFieldsForColumn = null,
+            setShowingSortFieldsFor
+        } = this.props;
+
+        if (showingSortFieldsForColumn === field) {
+            // We're currently showing options for this col/icon; unset.
+            setShowingSortFieldsFor(null);
+            return;
+        }
+
+        if (sort_fields.length >= 2) {
+            // Show options in UI
+            setShowingSortFieldsFor(field);
+            return;
+        }
+
+        // If not multiple options, just sort on the only sort field available.
+        // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
+        const useField = sort_fields[0] || field;
+        const beDescending = currentSortColumn !== useField || (!descend && currentSortColumn === useField);
+        sortByFxn(useField, beDescending);
+        if (showingSortFieldsForColumn !== null) {
+            setShowingSortFieldsFor(null);
+        }
     }
 
     render(){
-        const { value, descend, currentSortColumn } = this.props;
-        if (typeof value !== 'string' || value.length === 0) {
+        const { columnDefinition, descend, currentSortColumn, sortByFxn, showingSortFieldsForColumn = null } = this.props;
+        const { field, sort_fields = [] } = columnDefinition;
+        if (typeof field !== 'string' || field.length === 0) {
             return null;
         }
-        const style = !descend && currentSortColumn === value ? 'ascend' : 'descend';
-        const linkClass = (
-            (currentSortColumn === value ? 'active ' : '') +
+        const isActive = this.memoized.isActive(columnDefinition, currentSortColumn);
+        const isShowingSortFields = showingSortFieldsForColumn === field;
+        const cls = (
+            (isActive ? 'active ' : '') +
+            (sort_fields.length >= 2 ? 'multiple-sort-options ' : '') +
             'column-sort-icon'
         );
-        return (
-            <span className={linkClass} onClick={this.sortClickFxn}>
-                <ColumnSorterIconElement style={style} />
+        const icon = (
+            <span className={cls} onClick={this.onIconClick}>
+                <ColumnSorterIconElement descend={!isActive || descend} isShowingSortFields={isShowingSortFields} />
             </span>
+        );
+
+        if (!isShowingSortFields) {
+            return icon;
+        }
+
+        return (
+            <React.Fragment>
+                { icon }
+                <SortOptionsMenu {...{ currentSortColumn, sort_fields, sortByFxn, descend }} />
+            </React.Fragment>
         );
     }
 }
 
-const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ style }){
-    if (style === 'descend'){
-        return <i className="icon icon-sort-down fas align-text-top"/>;
+const SortOptionsMenu = React.memo(function SortOptionsMenu({ currentSortColumn, sort_fields, sortByFxn, descend = false }){
+
+    const options = sort_fields.map(function({ field, title = null }){
+        // TODO grab title from schemas if not provided.
+        const isActive = currentSortColumn === field;
+        const onMenuItemClick = function(evt){
+            evt.preventDefault();
+            const beDescending = !isActive || (!descend && isActive);
+            sortByFxn(field, beDescending);
+        };
+        const cls = ("dropdown-item" + (isActive ? " active" : ""));
+        return <a className={cls} href="#" key={field} onClick={onMenuItemClick}>{ title || field }</a>;
+    });
+
+    return <div className="dropdown-menu dropdown-menu-right show">{ options }</div>;
+});
+
+const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ descend, isShowingSortFields }){
+    if (isShowingSortFields) {
+        return <i className="icon icon-fw icon-times-circle far"/>;
     }
-    if (style === 'ascend'){
-        return <i className="icon icon-sort-up fas align-bottom"/>;
+    if (descend){
+        return <i className="sort-icon icon icon-fw icon-angle-down fas"/>;
+    } else {
+        return <i className="sort-icon icon icon-fw icon-angle-up fas"/>;
     }
-    throw new Error("Unsupported - " + style);
 });

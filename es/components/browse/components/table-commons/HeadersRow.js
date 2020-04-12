@@ -17,6 +17,10 @@ var _reactDraggable = _interopRequireDefault(require("react-draggable"));
 
 var _ColumnCombiner = require("./ColumnCombiner");
 
+var _WindowClickEventDelegator = require("./../../../util/WindowClickEventDelegator");
+
+var _layout = require("./../../../util/layout");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -57,8 +61,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  */
 var HeadersRow =
 /*#__PURE__*/
-function (_React$Component) {
-  _inherits(HeadersRow, _React$Component);
+function (_React$PureComponent) {
+  _inherits(HeadersRow, _React$PureComponent);
 
   function HeadersRow(props) {
     var _this;
@@ -66,25 +70,65 @@ function (_React$Component) {
     _classCallCheck(this, HeadersRow);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRow).call(this, props));
+    _this.onWindowClick = _this.onWindowClick.bind(_assertThisInitialized(_this));
+    _this.setShowingSortFieldsFor = _this.setShowingSortFieldsFor.bind(_assertThisInitialized(_this));
     _this.setColumnWidthsFromState = _this.setColumnWidthsFromState.bind(_assertThisInitialized(_this));
     _this.getWidthFor = _this.getWidthFor.bind(_assertThisInitialized(_this));
     _this.onAdjusterDrag = _this.onAdjusterDrag.bind(_assertThisInitialized(_this));
     _this.state = {
-      'widths': {}
+      'widths': {},
+      // Store for temporary column widths used while a header's 'width' edge/grabber is being dragged.
+      'showingSortFieldsForColumn': null // Key/field of column for which sort fields/options are being shown.
+
     };
     return _this;
   }
 
   _createClass(HeadersRow, [{
     key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps) {
+    value: function componentDidUpdate(pastProps, pastState) {
       var columnWidths = this.props.columnWidths;
+      var showingSortFieldsForColumn = this.state.showingSortFieldsForColumn;
 
       if (pastProps.columnWidths !== columnWidths) {
         this.setState({
           'widths': {}
         });
       }
+
+      if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn) {
+        _WindowClickEventDelegator.WindowClickEventDelegator.addHandler("click", this.onWindowClick, {
+          passive: true
+        });
+      } else if (!showingSortFieldsForColumn && pastState.showingSortFieldsForColumn) {
+        _WindowClickEventDelegator.WindowClickEventDelegator.removeHandler("click", this.onWindowClick);
+      }
+    }
+    /** Close dropdown on window click unless click within menu. */
+
+  }, {
+    key: "onWindowClick",
+    value: function onWindowClick(evt) {
+      var _this2 = this;
+
+      setTimeout(function () {
+        var showingSortFieldsForColumn = _this2.state.showingSortFieldsForColumn;
+        var clickedElement = evt.target;
+        var clickedChildOfDropdownMenu = !!(0, _layout.findParentElement)(clickedElement, function (el) {
+          return el.getAttribute("data-column-key") === showingSortFieldsForColumn;
+        });
+
+        if (!clickedChildOfDropdownMenu) {
+          _this2.setShowingSortFieldsFor(null);
+        }
+      }, 0);
+    }
+  }, {
+    key: "setShowingSortFieldsFor",
+    value: function setShowingSortFieldsFor(showingSortFieldsForColumn) {
+      this.setState({
+        showingSortFieldsForColumn: showingSortFieldsForColumn
+      });
     }
     /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
 
@@ -134,16 +178,32 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       var _this$props3 = this.props,
           columnDefinitions = _this$props3.columnDefinitions,
           renderDetailPane = _this$props3.renderDetailPane,
+          _this$props3$sortColu = _this$props3.sortColumn,
+          sortColumn = _this$props3$sortColu === void 0 ? null : _this$props3$sortColu,
+          _this$props3$sortReve = _this$props3.sortReverse,
+          sortReverse = _this$props3$sortReve === void 0 ? false : _this$props3$sortReve,
+          sortBy = _this$props3.sortBy,
           columnWidths = _this$props3.columnWidths,
           setColumnWidths = _this$props3.setColumnWidths,
           width = _this$props3.width,
           tableContainerScrollLeft = _this$props3.tableContainerScrollLeft;
+      var showingSortFieldsForColumn = this.state.showingSortFieldsForColumn;
       var outerClassName = "search-headers-row" + (!!(typeof setColumnWidths === "function" && columnWidths) ? '' : ' non-adjustable') + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '');
+      var commonProps = {
+        sortColumn: sortColumn,
+        sortReverse: sortReverse,
+        sortBy: sortBy,
+        columnWidths: columnWidths,
+        showingSortFieldsForColumn: showingSortFieldsForColumn,
+        setHeaderWidths: this.setColumnWidthsFromState,
+        onAdjusterDrag: this.onAdjusterDrag,
+        setShowingSortFieldsFor: this.setShowingSortFieldsFor
+      };
       return _react["default"].createElement("div", {
         className: outerClassName,
         style: {
@@ -156,34 +216,50 @@ function (_React$Component) {
           left: 0 - tableContainerScrollLeft //transform: "translate3d(" + leftOffset + "px, 0px, 0px)"
 
         }
-      }, _underscore["default"].map(columnDefinitions, function (colDef, i) {
-        return _react["default"].createElement(HeadersRowColumn, _extends({}, _underscore["default"].pick(_this2.props, 'sortColumn', 'sortReverse', 'sortBy', 'columnWidths'), {
-          colDef: colDef,
-          index: i,
-          onAdjusterDrag: _this2.onAdjusterDrag,
-          setHeaderWidths: _this2.setColumnWidthsFromState,
-          width: _this2.getWidthFor(colDef, i),
-          key: colDef.field
+      }, columnDefinitions.map(function (columnDefinition, index) {
+        return _react["default"].createElement(HeadersRowColumn, _extends({}, commonProps, {
+          columnDefinition: columnDefinition,
+          index: index
+        }, {
+          width: _this3.getWidthFor(columnDefinition, index),
+          key: columnDefinition.field
         }));
       })));
     }
   }]);
 
   return HeadersRow;
-}(_react["default"].Component);
+}(_react["default"].PureComponent);
 
 exports.HeadersRow = HeadersRow;
 
 _defineProperty(HeadersRow, "propTypes", {
-  'columnDefinitions': _propTypes["default"].array.isRequired,
-  //ResultRow.propTypes.columnDefinitions,
+  'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].shape({
+    'field': _propTypes["default"].string.isRequired,
+    'title': _propTypes["default"].string,
+    'sort_fields': _propTypes["default"].arrayOf(_propTypes["default"].shape({
+      'field': _propTypes["default"].string.isRequired,
+      'title': _propTypes["default"].string
+    })),
+    'render': _propTypes["default"].func,
+    'widthMap': _propTypes["default"].shape({
+      'lg': _propTypes["default"].number.isRequired,
+      'md': _propTypes["default"].number.isRequired,
+      'sm': _propTypes["default"].number.isRequired
+    })
+  })).isRequired,
   'mounted': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
-  'columnWidths': _propTypes["default"].objectOf(_propTypes["default"].number),
-  'setColumnWidths': _propTypes["default"].func,
   'width': _propTypes["default"].number,
   'defaultMinColumnWidth': _propTypes["default"].number,
-  'tableContainerScrollLeft': _propTypes["default"].number
+  'tableContainerScrollLeft': _propTypes["default"].number,
+  // Passed down from CustomColumnController (if used)
+  'columnWidths': _propTypes["default"].objectOf(_propTypes["default"].number),
+  'setColumnWidths': _propTypes["default"].func,
+  // Passed down from SortController (if used)
+  'sortColumn': _propTypes["default"].string,
+  'sortReverse': _propTypes["default"].bool,
+  'sortByFxn': _propTypes["default"].func
 });
 
 _defineProperty(HeadersRow, "defaultProps", {
@@ -193,23 +269,23 @@ _defineProperty(HeadersRow, "defaultProps", {
 
 var HeadersRowColumn =
 /*#__PURE__*/
-function (_React$PureComponent) {
-  _inherits(HeadersRowColumn, _React$PureComponent);
+function (_React$PureComponent2) {
+  _inherits(HeadersRowColumn, _React$PureComponent2);
 
   function HeadersRowColumn(props) {
-    var _this3;
+    var _this4;
 
     _classCallCheck(this, HeadersRowColumn);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
-    _this3.onDrag = _this3.onDrag.bind(_assertThisInitialized(_this3));
-    _this3.onStop = _this3.onStop.bind(_assertThisInitialized(_this3));
-    _this3.memoized = {
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
+    _this4.onDrag = _this4.onDrag.bind(_assertThisInitialized(_this4));
+    _this4.onStop = _this4.onStop.bind(_assertThisInitialized(_this4));
+    _this4.memoized = {
       showTooltip: (0, _memoizeOne["default"])(function (colWidth, titleStr) {
         return (colWidth - 40) / 7 < (titleStr || "").length;
       })
     };
-    return _this3;
+    return _this4;
   }
   /** Updates HeadersRow.state.widths {Object<string,numer>} */
 
@@ -218,9 +294,9 @@ function (_React$PureComponent) {
     key: "onDrag",
     value: function onDrag(event, res) {
       var _this$props4 = this.props,
-          colDef = _this$props4.colDef,
+          columnDefinition = _this$props4.columnDefinition,
           onAdjusterDrag = _this$props4.onAdjusterDrag;
-      onAdjusterDrag(colDef, event, res);
+      onAdjusterDrag(columnDefinition, event, res);
     }
     /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
 
@@ -234,31 +310,36 @@ function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props5 = this.props,
-          sortColumn = _this$props5.sortColumn,
-          sortBy = _this$props5.sortBy,
-          sortReverse = _this$props5.sortReverse,
+          currentSortColumn = _this$props5.sortColumn,
+          sortByFxn = _this$props5.sortBy,
+          descend = _this$props5.sortReverse,
           width = _this$props5.width,
-          colDef = _this$props5.colDef,
+          columnDefinition = _this$props5.columnDefinition,
           columnWidths = _this$props5.columnWidths,
-          onAdjusterDrag = _this$props5.onAdjusterDrag;
-      var noSort = colDef.noSort,
-          colTitle = colDef.colTitle,
-          title = colDef.title,
-          field = colDef.field;
+          onAdjusterDrag = _this$props5.onAdjusterDrag,
+          showingSortFieldsForColumn = _this$props5.showingSortFieldsForColumn,
+          setShowingSortFieldsFor = _this$props5.setShowingSortFieldsFor;
+      var noSort = columnDefinition.noSort,
+          colTitle = columnDefinition.colTitle,
+          title = columnDefinition.title,
+          field = columnDefinition.field;
       var tooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
       var sorterIcon;
 
-      if (!colDef.noSort && typeof sortBy === 'function' && width >= 50) {
+      if (!noSort && typeof sortByFxn === 'function' && width >= 50) {
         sorterIcon = _react["default"].createElement(ColumnSorterIcon, {
-          sortByFxn: sortBy,
-          currentSortColumn: sortColumn,
-          descend: sortReverse,
-          value: colDef.field
+          columnDefinition: columnDefinition,
+          sortByFxn: sortByFxn,
+          currentSortColumn: currentSortColumn,
+          descend: descend,
+          showingSortFieldsForColumn: showingSortFieldsForColumn,
+          setShowingSortFieldsFor: setShowingSortFieldsFor
         });
       }
 
       return _react["default"].createElement("div", {
         "data-field": field,
+        "data-column-key": field,
         key: field,
         "data-tip": tooltip,
         className: "search-headers-column-block" + (noSort ? " no-sort" : ''),
@@ -288,49 +369,121 @@ function (_React$PureComponent) {
 
 var ColumnSorterIcon =
 /*#__PURE__*/
-function (_React$PureComponent2) {
-  _inherits(ColumnSorterIcon, _React$PureComponent2);
+function (_React$PureComponent3) {
+  _inherits(ColumnSorterIcon, _React$PureComponent3);
+
+  _createClass(ColumnSorterIcon, null, [{
+    key: "isActive",
+    value: function isActive(columnDefinition, currentSortColumn) {
+      var field = columnDefinition.field,
+          _columnDefinition$sor = columnDefinition.sort_fields,
+          sort_fields = _columnDefinition$sor === void 0 ? null : _columnDefinition$sor;
+
+      if (!Array.isArray(sort_fields)) {
+        return field === currentSortColumn;
+      }
+
+      for (var i = 0; i < sort_fields.length; i++) {
+        if (sort_fields[i].field === currentSortColumn) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+  }]);
 
   function ColumnSorterIcon(props) {
-    var _this4;
+    var _this5;
 
     _classCallCheck(this, ColumnSorterIcon);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
-    _this4.sortClickFxn = _this4.sortClickFxn.bind(_assertThisInitialized(_this4));
-    return _this4;
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
+    _this5.onIconClick = _this5.onIconClick.bind(_assertThisInitialized(_this5));
+    _this5.memoized = {
+      isActive: (0, _memoizeOne["default"])(ColumnSorterIcon.isActive)
+    };
+    return _this5;
   }
 
   _createClass(ColumnSorterIcon, [{
-    key: "sortClickFxn",
-    value: function sortClickFxn(e) {
-      var _this$props6 = this.props,
-          value = _this$props6.value,
-          descend = _this$props6.descend,
-          currentSortColumn = _this$props6.currentSortColumn,
-          sortByFxn = _this$props6.sortByFxn;
+    key: "onIconClick",
+    value: function onIconClick(e) {
       e.preventDefault();
-      sortByFxn(value, currentSortColumn === value && !descend);
+      var _this$props6 = this.props,
+          _this$props6$columnDe = _this$props6.columnDefinition,
+          field = _this$props6$columnDe.field,
+          _this$props6$columnDe2 = _this$props6$columnDe.sort_fields,
+          sort_fields = _this$props6$columnDe2 === void 0 ? [] : _this$props6$columnDe2,
+          _this$props6$descend = _this$props6.descend,
+          descend = _this$props6$descend === void 0 ? false : _this$props6$descend,
+          _this$props6$currentS = _this$props6.currentSortColumn,
+          currentSortColumn = _this$props6$currentS === void 0 ? null : _this$props6$currentS,
+          sortByFxn = _this$props6.sortByFxn,
+          _this$props6$showingS = _this$props6.showingSortFieldsForColumn,
+          showingSortFieldsForColumn = _this$props6$showingS === void 0 ? null : _this$props6$showingS,
+          setShowingSortFieldsFor = _this$props6.setShowingSortFieldsFor;
+
+      if (showingSortFieldsForColumn === field) {
+        // We're currently showing options for this col/icon; unset.
+        setShowingSortFieldsFor(null);
+        return;
+      }
+
+      if (sort_fields.length >= 2) {
+        // Show options in UI
+        setShowingSortFieldsFor(field);
+        return;
+      } // If not multiple options, just sort on the only sort field available.
+      // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
+
+
+      var useField = sort_fields[0] || field;
+      sortByFxn(useField, currentSortColumn !== useField || !descend && currentSortColumn === useField);
+
+      if (showingSortFieldsForColumn !== null) {
+        setShowingSortFieldsFor(null);
+      }
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props7 = this.props,
-          value = _this$props7.value,
+          columnDefinition = _this$props7.columnDefinition,
           descend = _this$props7.descend,
-          currentSortColumn = _this$props7.currentSortColumn;
+          currentSortColumn = _this$props7.currentSortColumn,
+          sortByFxn = _this$props7.sortByFxn,
+          _this$props7$showingS = _this$props7.showingSortFieldsForColumn,
+          showingSortFieldsForColumn = _this$props7$showingS === void 0 ? null : _this$props7$showingS;
+      var field = columnDefinition.field,
+          _columnDefinition$sor2 = columnDefinition.sort_fields,
+          sort_fields = _columnDefinition$sor2 === void 0 ? [] : _columnDefinition$sor2;
 
-      if (typeof value !== 'string' || value.length === 0) {
+      if (typeof field !== 'string' || field.length === 0) {
         return null;
       }
 
-      var style = !descend && currentSortColumn === value ? 'ascend' : 'descend';
-      var linkClass = (currentSortColumn === value ? 'active ' : '') + 'column-sort-icon';
-      return _react["default"].createElement("span", {
-        className: linkClass,
-        onClick: this.sortClickFxn
+      var isActive = this.memoized.isActive(columnDefinition, currentSortColumn);
+      var isShowingSortFields = showingSortFieldsForColumn === field;
+      var cls = (isActive ? 'active ' : '') + (sort_fields.length >= 2 ? 'multiple-sort-options ' : '') + 'column-sort-icon';
+
+      var icon = _react["default"].createElement("span", {
+        className: cls,
+        onClick: this.onIconClick
       }, _react["default"].createElement(ColumnSorterIconElement, {
-        style: style
+        descend: !isActive || descend,
+        isShowingSortFields: isShowingSortFields
+      }));
+
+      if (!isShowingSortFields) {
+        return icon;
+      }
+
+      return _react["default"].createElement(_react["default"].Fragment, null, icon, _react["default"].createElement(SortOptionsMenu, {
+        currentSortColumn: currentSortColumn,
+        sort_fields: sort_fields,
+        sortByFxn: sortByFxn,
+        descend: descend
       }));
     }
   }]);
@@ -341,28 +494,61 @@ function (_React$PureComponent2) {
 _defineProperty(ColumnSorterIcon, "propTypes", {
   'currentSortColumn': _propTypes["default"].string,
   'descend': _propTypes["default"].bool,
-  'value': _propTypes["default"].string.isRequired,
-  'sortByFxn': _propTypes["default"].func.isRequired
+  'columnDefinition': HeadersRow.propTypes.columnDefinitions,
+  'sortByFxn': _propTypes["default"].func.isRequired,
+  'showingSortFieldsForColumn': _propTypes["default"].string,
+  'setShowingSortFieldsFor': _propTypes["default"].func
 });
 
 _defineProperty(ColumnSorterIcon, "defaultProps", {
   'descend': false
 });
 
-var ColumnSorterIconElement = _react["default"].memo(function (_ref3) {
-  var style = _ref3.style;
+var SortOptionsMenu = _react["default"].memo(function (_ref3) {
+  var currentSortColumn = _ref3.currentSortColumn,
+      sort_fields = _ref3.sort_fields,
+      sortByFxn = _ref3.sortByFxn,
+      _ref3$descend = _ref3.descend,
+      descend = _ref3$descend === void 0 ? false : _ref3$descend;
+  var options = sort_fields.map(function (_ref4) {
+    var field = _ref4.field,
+        _ref4$title = _ref4.title,
+        title = _ref4$title === void 0 ? null : _ref4$title;
+    // TODO grab title from schemas if not provided.
+    var isActive = currentSortColumn === field;
+    var cls = "dropdown-item" + (isActive ? " active" : "");
+    return _react["default"].createElement("a", {
+      className: cls,
+      href: "#",
+      key: field,
+      onClick: function onMenuItemClick(evt) {
+        evt.preventDefault();
+        sortByFxn(field, !isActive || !descend && isActive);
+      }
+    }, title || field);
+  });
+  return _react["default"].createElement("div", {
+    className: "dropdown-menu dropdown-menu-right show"
+  }, options);
+});
 
-  if (style === 'descend') {
+var ColumnSorterIconElement = _react["default"].memo(function (_ref5) {
+  var descend = _ref5.descend,
+      isShowingSortFields = _ref5.isShowingSortFields;
+
+  if (isShowingSortFields) {
     return _react["default"].createElement("i", {
-      className: "icon icon-sort-down fas align-text-top"
+      className: "icon icon-fw icon-times-circle far"
     });
   }
 
-  if (style === 'ascend') {
+  if (descend) {
     return _react["default"].createElement("i", {
-      className: "icon icon-sort-up fas align-bottom"
+      className: "sort-icon icon icon-fw icon-angle-down fas"
+    });
+  } else {
+    return _react["default"].createElement("i", {
+      className: "sort-icon icon icon-fw icon-angle-up fas"
     });
   }
-
-  throw new Error("Unsupported - " + style);
 });
