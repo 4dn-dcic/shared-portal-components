@@ -33,6 +33,9 @@ From parent component:
 
 .. should handled entirely by parent repo such as cgap-portal or fourfront. The `npm run dev-quick` command in each respective portal repo will determine if `shared-portal-components` is sym-linked, and if so, will compile the "es" directory of shared-portal-components' working directory. Contents from "es" directory are then imported and used in portal(s). Alternatively, if not running `npm run dev-quick`, can build from working dir of `shared-portal-components` using command `npm run build`.
 
+#### Future
+If we ever decide to publish this on NPM (maybe as private org/package), we can add `/es/` stuff to `.gitignore` and `/src/` stuff to `.npmignore` to no longer clutter our PRs as much.
+
 # Important Notes
 
 ## Updating (any) NPM dependencies
