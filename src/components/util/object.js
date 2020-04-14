@@ -75,6 +75,18 @@ export function mapToObject(esMap){
     return retObj;
 }
 
+/**
+ * Convert an array of strings into {Object<string,bool>}.
+ */
+export function listToObj(listOfStrings){
+    const listLen = listOfStrings.length;
+    const obj = {};
+    for (var i = 0; i < listLen; i++) {
+        obj[listOfStrings[i]] = true;
+    }
+    return obj;
+}
+
 
 
 /** TODO: Move these 3 functions to Schemas.js */

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.atIdFromObject = atIdFromObject;
 exports.linkFromItem = linkFromItem;
 exports.mapToObject = mapToObject;
+exports.listToObj = listToObj;
 exports.tipsFromSchema = tipsFromSchema;
 exports.tipsFromSchemaByType = tipsFromSchemaByType;
 exports.listFromTips = listFromTips;
@@ -186,6 +187,21 @@ function mapToObject(esMap) {
   }
 
   return retObj;
+}
+/**
+ * Convert an array of strings into {Object<string,bool>}.
+ */
+
+
+function listToObj(listOfStrings) {
+  var listLen = listOfStrings.length;
+  var obj = {};
+
+  for (var i = 0; i < listLen; i++) {
+    obj[listOfStrings[i]] = true;
+  }
+
+  return obj;
 }
 /** TODO: Move these 3 functions to Schemas.js */
 
