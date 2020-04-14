@@ -1136,11 +1136,9 @@ function (_React$PureComponent4) {
         var nextState = DimensioningContainer.getTableDims(scrollContainer, windowWidth);
         this.setState(nextState, didMount ? _reactTooltip["default"].rebuild : null);
 
-        if (scrollContainer) {
+        if (didMount && scrollContainer) {
           scrollContainer.addEventListener('scroll', this.onHorizontalScroll);
         }
-
-        this.setState(nextState, didMount ? _reactTooltip["default"].rebuild : null);
       }
     }
   }, {

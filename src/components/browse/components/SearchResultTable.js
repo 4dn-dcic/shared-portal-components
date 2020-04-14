@@ -800,10 +800,9 @@ class DimensioningContainer extends React.PureComponent {
             const scrollContainer = this.getScrollContainer();
             const nextState = DimensioningContainer.getTableDims(scrollContainer, windowWidth);
             this.setState(nextState, didMount ? ReactTooltip.rebuild : null);
-            if (scrollContainer) {
+            if (didMount && scrollContainer) {
                 scrollContainer.addEventListener('scroll', this.onHorizontalScroll);
             }
-            this.setState(nextState, didMount ? ReactTooltip.rebuild : null);
         }
 
     }
