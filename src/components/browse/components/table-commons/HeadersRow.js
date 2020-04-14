@@ -162,14 +162,15 @@ export class HeadersRow extends React.PureComponent {
         };
 
         return (
-            <div className={outerClassName} style={outerStyle}>
-                <div className="columns clearfix" style={innerStyle}>
-                    {
-                        columnDefinitions.map((columnDefinition, index) =>
+            <div className={outerClassName} style={outerStyle} data-showing-sort-fields-for={showingSortFieldsForColumn}>
+                <div className="headers-columns-overflow-container">
+                    <div className="columns clearfix" style={innerStyle}>
+                        { columnDefinitions.map((columnDefinition, index) =>
                             <HeadersRowColumn {...commonProps} {...{ columnDefinition, index }} width={this.getWidthFor(columnDefinition, index)} key={columnDefinition.field} />
-                        )
-                    }
+                        ) }
+                    </div>
                 </div>
+
             </div>
         );
     }
@@ -220,10 +221,13 @@ class HeadersRowColumn extends React.PureComponent {
         if (!noSort && typeof sortByFxn === 'function' && width >= 50){
             sorterIcon = <ColumnSorterIcon {...{ columnDefinition, sortByFxn, currentSortColumn, descend, showingSortFieldsForColumn, setShowingSortFieldsFor }} />;
         }
+        const cls = (
+            "search-headers-column-block"
+            + (noSort ? " no-sort" : '')
+            + (field === showingSortFieldsForColumn ? " showing-sort-field-options" : "")
+        );
         return (
-            <div data-field={field} data-column-key={field} key={field}
-                className={"search-headers-column-block" + (noSort ? " no-sort" : '')}
-                style={{ width }}>
+            <div data-field={field} data-column-key={field} key={field} className={cls} style={{ width }}>
                 <div className="inner">
                     <div className="column-title">
                         <span data-tip={tooltip} data-html>{ showTitle }</span>

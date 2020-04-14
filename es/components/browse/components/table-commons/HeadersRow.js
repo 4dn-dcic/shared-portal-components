@@ -209,7 +209,10 @@ function (_React$PureComponent) {
         style: {
           'width': width || null // Only passed in from ItemPage
 
-        }
+        },
+        "data-showing-sort-fields-for": showingSortFieldsForColumn
+      }, _react["default"].createElement("div", {
+        className: "headers-columns-overflow-container"
       }, _react["default"].createElement("div", {
         className: "columns clearfix",
         style: {
@@ -224,7 +227,7 @@ function (_React$PureComponent) {
           width: _this3.getWidthFor(columnDefinition, index),
           key: columnDefinition.field
         }));
-      })));
+      }))));
     }
   }]);
 
@@ -340,11 +343,12 @@ function (_React$PureComponent2) {
         });
       }
 
+      var cls = "search-headers-column-block" + (noSort ? " no-sort" : '') + (field === showingSortFieldsForColumn ? " showing-sort-field-options" : "");
       return _react["default"].createElement("div", {
         "data-field": field,
         "data-column-key": field,
         key: field,
-        className: "search-headers-column-block" + (noSort ? " no-sort" : ''),
+        className: cls,
         style: {
           width: width
         }

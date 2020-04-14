@@ -99,19 +99,26 @@ export class ResultRowColumnBlockValue extends React.Component {
             renderFxn(result, columnDefinition, _.omit(this.props, 'columnDefinition', 'result'), termTransformFxn)
         );
 
+        // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
+        // Could prly make this less verbose later.. we _do_ want to wrap primitive values output from custom render fxn.
+
         let tooltip;
         if (typeof value === 'number'){
             value = <span className="value">{ value }</span>;
         } else if (typeof value === 'string') {
             if (propTooltip === true && value.length > 25) tooltip = value;
-            value = <span className="value">{ value }</span>;
+            value = <span className="value text-center">{ value }</span>;
         } else if (value === null){
-            value = <small className="value">-</small>;
+            value = <small className="value text-center">-</small>;
         } else if (React.isValidElement(value) && value.type === "a") {
             // We let other columnRender funcs define their `value` container (if any)
             // But if is link, e.g. from termTransformFxn, then wrap it to center it.
-            value = <span className="value">{ value }</span>;
-        }
+            value = <span className="value text-center">{ value }</span>;
+        } else if (typeof value === "boolean") {
+            value = <span className="value text-center">{ value }</span>;
+        } else if (renderFxn === this.memoized.transformIfNeeded){
+            value = <span className="value">{ value }</span>; // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
+        } // else is likely JSX from custom render function -- leave as-is
 
         let cls = "inner";
         if (typeof className === 'string'){

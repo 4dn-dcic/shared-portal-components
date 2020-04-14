@@ -137,7 +137,9 @@ function (_React$Component) {
           className = _this$props2.className,
           termTransformFxn = _this$props2.termTransformFxn;
       var renderFxn = columnDefinition.render || this.memoized.transformIfNeeded;
-      var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore["default"].omit(this.props, 'columnDefinition', 'result'), termTransformFxn));
+      var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore["default"].omit(this.props, 'columnDefinition', 'result'), termTransformFxn)); // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
+      // Could prly make this less verbose later.. we _do_ want to wrap primitive values output from custom render fxn.
+
       var tooltip;
 
       if (typeof value === 'number') {
@@ -147,19 +149,28 @@ function (_React$Component) {
       } else if (typeof value === 'string') {
         if (propTooltip === true && value.length > 25) tooltip = value;
         value = _react["default"].createElement("span", {
-          className: "value"
+          className: "value text-center"
         }, value);
       } else if (value === null) {
         value = _react["default"].createElement("small", {
-          className: "value"
+          className: "value text-center"
         }, "-");
       } else if (_react["default"].isValidElement(value) && value.type === "a") {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
         value = _react["default"].createElement("span", {
-          className: "value"
+          className: "value text-center"
         }, value);
-      }
+      } else if (typeof value === "boolean") {
+        value = _react["default"].createElement("span", {
+          className: "value text-center"
+        }, value);
+      } else if (renderFxn === this.memoized.transformIfNeeded) {
+        value = _react["default"].createElement("span", {
+          className: "value"
+        }, value); // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
+      } // else is likely JSX from custom render function -- leave as-is
+
 
       var cls = "inner";
 
