@@ -858,8 +858,8 @@ class DimensioningContainer extends React.PureComponent {
                 nextScrollLeft = 0; // Might occur right after changing column widths or something.
             }
 
-            const headersElem = innerElem.parentElement.childNodes[0].childNodes[0];
-            headersElem.style.left = `-${nextScrollLeft}px`;
+            const columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
+            columnsWrapperElement.style.left = `-${nextScrollLeft}px`;
 
             if (nextScrollLeft !== tableContainerScrollLeft) { // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
                 this.setContainerScrollLeft(nextScrollLeft);

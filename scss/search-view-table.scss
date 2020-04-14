@@ -528,7 +528,7 @@ $search-results-header-text-color: #fff !default;
 					}
 
 					> .column-sort-icon {
-						color: transparentize($color: $search-results-header-text-color, $amount: 0.65); //   rgba(255,255,255,0.35);
+						color: transparentize($color: $search-results-header-text-color, $amount: 0.6); //   rgba(255,255,255,0.35);
 						text-decoration: none !important;
 						padding-left: 0;
 						padding-right: 5px;
@@ -549,16 +549,17 @@ $search-results-header-text-color: #fff !default;
 						&.multiple-sort-options {
 							> i {
 								&:after {
-									content: "\f141";
+									content: "\f142";
 									position: absolute;
 									display: block;
-									//top: 1px;
-									bottom: -1px;
-									right: 2px;
-									font-size: 50%;
+									top: 50%;
+									margin-top: -5px;
+									right: 1px;
+									font-size: 65%;
 									font-family: $fa-font-family;
 									font-weight: 900; /* fas */
 									opacity: 0;
+									text-shadow: none;
 									transition: opacity .35s ease-out;
 								}
 								&.sort-icon:after {
@@ -618,15 +619,16 @@ $search-results-header-text-color: #fff !default;
 
 	}
 
+	> .headers-columns-dropdown-menu-container { // Sibling to headers-columns-overflow-container, since don't want it clipped.
+		> .dropdown-menu {
+			min-width: 200px;
+			transform: translate(-100%, 0);
+		}
+	}
+
 	&[data-showing-sort-fields-for] > .headers-columns-overflow-container {
-		overflow: visible;
 		> .columns > .search-headers-column-block:not(.showing-sort-field-options) {
-			// Some of these may now overlap elements to side(s) of table,
-			// so need to hide somehow/somewhat.
-			opacity: 0;
-			transition: none;
-			pointer-events: none;
-			z-index: -10;
+			opacity: 0.6;
 		}
 	}
 

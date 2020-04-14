@@ -1210,8 +1210,8 @@ function (_React$PureComponent4) {
           nextScrollLeft = 0; // Might occur right after changing column widths or something.
         }
 
-        var headersElem = innerElem.parentElement.childNodes[0].childNodes[0];
-        headersElem.style.left = "-".concat(nextScrollLeft, "px");
+        var columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
+        columnsWrapperElement.style.left = "-".concat(nextScrollLeft, "px");
 
         if (nextScrollLeft !== tableContainerScrollLeft) {
           // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
