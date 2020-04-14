@@ -70,7 +70,7 @@ export class TermsFacet extends React.PureComponent {
             isStatic
         } = this.props;
         const { filtering } = this.state;
-        const { field, title, description = null } = facet || {};
+        const { field, title } = facet || {};
 
         const showTitle = title || field;
 
@@ -78,7 +78,7 @@ export class TermsFacet extends React.PureComponent {
             // Only one term exists.
             return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, getTermStatus, extraClassname, termTransformFxn }} />;
         } else {
-            return <FacetTermsList {...this.props} onTermClick={this.handleTermClick} tooltip={description} title={showTitle} />;
+            return <FacetTermsList {...this.props} onTermClick={this.handleTermClick} title={showTitle} />;
         }
 
     }

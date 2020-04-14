@@ -215,17 +215,19 @@ class HeadersRowColumn extends React.PureComponent {
         const { noSort, colTitle, title, field, description = null } = columnDefinition;
         const showTitle = colTitle || title;
         const titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
-        const tooltip = description ? (titleTooltip ? `<h5 class="mt-0 mb-03">${titleTooltip}</h5>` + description : description) : (titleTooltip? titleTooltip : null);
+        const tooltip = description ? (titleTooltip ? `<h5 class="mb-03">${titleTooltip}</h5>` + description : description) : (titleTooltip? titleTooltip : null);
         let sorterIcon;
         if (!noSort && typeof sortByFxn === 'function' && width >= 50){
             sorterIcon = <ColumnSorterIcon {...{ columnDefinition, sortByFxn, currentSortColumn, descend, showingSortFieldsForColumn, setShowingSortFieldsFor }} />;
         }
         return (
-            <div data-field={field} data-column-key={field} key={field} data-tip={tooltip}
+            <div data-field={field} data-column-key={field} key={field}
                 className={"search-headers-column-block" + (noSort ? " no-sort" : '')}
                 style={{ width }}>
                 <div className="inner">
-                    <span className="column-title">{ showTitle }</span>
+                    <div className="column-title">
+                        <span data-tip={tooltip} data-html>{ showTitle }</span>
+                    </div>
                     { sorterIcon }
                 </div>
                 { columnWidths && typeof onAdjusterDrag === "function" ?
@@ -340,15 +342,23 @@ class ColumnSorterIcon extends React.PureComponent {
             return null;
         }
         const isActive = this.memoized.isActive(columnDefinition, currentSortColumn);
+        const hasMultipleSortOptions = sort_fields.length >= 2;
         const isShowingSortFields = showingSortFieldsForColumn === field;
         const cls = (
             (isActive ? 'active ' : '') +
-            (sort_fields.length >= 2 ? 'multiple-sort-options ' : '') +
+            (hasMultipleSortOptions ? 'multiple-sort-options ' : '') +
             'column-sort-icon'
         );
+        let tooltip = null;
+        if (isShowingSortFields) {
+            tooltip = "Close sort options";
+        } else if (hasMultipleSortOptions && isActive) {
+            const sortedBy = sort_fields.find(function({ field: f }){ return f === currentSortColumn; });
+            tooltip = sortedBy ? `Sorted by <span class="text-600">${sortedBy.title || sortedBy.field}</span>` : null;
+        }
         const icon = (
-            <span className={cls} onClick={this.onIconClick}>
-                <ColumnSorterIconElement {...{ isLoading, isShowingSortFields }} descend={!isActive || descend} />
+            <span className={cls} onClick={this.onIconClick} data-tip={tooltip} data-html>
+                <ColumnSorterIconElement {...{ isLoading, isShowingSortFields, hasMultipleSortOptions }} descend={!isActive || descend} />
             </span>
         );
 
@@ -370,12 +380,17 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({ currentSortColumn,
     const options = sort_fields.map(function({ field, title = null }){
         // TODO grab title from schemas if not provided.
         const isActive = currentSortColumn === field;
-        const cls = ("dropdown-item clickable no-highlight d-flex align-items-center justify-content-between" + (isActive ? " active" : ""));
+        const cls = (
+            "dropdown-item" +
+            " clickable no-highlight no-user-select" +
+            " d-flex align-items-center justify-content-between" +
+            (isActive ? " active" : "")
+        );
         const onClick = sortByField.bind(sortByField, field);
         return (
             <div className={cls} key={field} onClick={onClick}>
                 { title || field }
-                { !isActive ? null : <i className={`icon fas ml-12 icon-angle-${descend ? "down" : "up"}`}/> }
+                { !isActive ? null : <i className={`small icon fas ml-12 icon-arrow-${descend ? "down" : "up"}`}/> }
             </div>
         );
     });
@@ -388,11 +403,11 @@ const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ de
         return <i className="icon icon-fw icon-circle-o-notch icon-spin fas"/>;
     }
     if (isShowingSortFields) {
-        return <i className="icon icon-fw icon-times-circle far"/>;
+        return <i className="icon icon-fw icon-times fas"/>;
     }
     if (descend){
-        return <i className="sort-icon icon icon-fw icon-angle-down fas"/>;
+        return <i className="sort-icon icon icon-fw icon-arrow-down fas"/>;
     } else {
-        return <i className="sort-icon icon icon-fw icon-angle-up fas"/>;
+        return <i className="sort-icon icon icon-fw icon-arrow-up fas"/>;
     }
 });

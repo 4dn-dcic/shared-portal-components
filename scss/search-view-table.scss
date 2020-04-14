@@ -521,7 +521,7 @@ $search-results-header-text-color: #fff !default;
                 }
 
 				> .column-sort-icon {
-					color: rgba(255,255,255,0.5);
+					color: transparentize($color: $search-results-header-text-color, $amount: 0.65); //   rgba(255,255,255,0.35);
 					text-decoration: none !important;
 					padding-left: 0;
 					padding-right: 5px;
@@ -530,12 +530,40 @@ $search-results-header-text-color: #fff !default;
 					position: absolute;
 					cursor: pointer;
 					right: 9px;
+					transition: color .35s ease-out;
 					&:hover, &:active, &:focus {
 						color: $search-results-header-text-color;
 					}
 					&.active {
 						color: $search-results-header-text-color;
 						text-shadow: 0 0 0 $search-results-header-text-color;
+					}
+
+					&.multiple-sort-options {
+						> i {
+							&:after {
+								content: "\f141";
+								position: absolute;
+								display: block;
+								//top: 1px;
+								bottom: -1px;
+								right: 2px;
+								font-size: 50%;
+								font-family: $fa-font-family;
+								font-weight: 900; /* fas */
+								opacity: 0;
+								transition: opacity .35s ease-out;
+							}
+							&.sort-icon:after {
+								opacity: 1;
+							}
+							&.icon-times {
+								color: $search-results-header-text-color;
+							}
+						}
+						&.active > i.sort-icon:after {
+							opacity: 0.8;
+						}
 					}
 				}
 

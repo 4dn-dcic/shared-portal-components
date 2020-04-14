@@ -228,7 +228,6 @@ export class FacetTermsList extends React.PureComponent {
         const {
             facet,
             terms,
-            tooltip,
             title,
             isStatic,
             anyTermsSelected: anySelected,
@@ -239,6 +238,7 @@ export class FacetTermsList extends React.PureComponent {
             termTransformFxn,
             facetOpen
         } = this.props;
+        const { description = null } = facet;
         const { expanded } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
@@ -275,7 +275,7 @@ export class FacetTermsList extends React.PureComponent {
                         <i className={"icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")}/>
                     </span>
                     <div className="col px-0 line-height-1">
-                        <span data-tip={tooltip} data-place="right">{ title }</span>
+                        <span data-tip={description} data-html data-place="right">{ title }</span>
                     </div>
                     { indicator }
                 </h5>

@@ -326,7 +326,7 @@ function (_React$PureComponent2) {
           _columnDefinition$des = columnDefinition.description,
           description = _columnDefinition$des === void 0 ? null : _columnDefinition$des;
       var titleTooltip = this.memoized.showTooltip(width, typeof colTitle === "string" ? colTitle : title) ? title : null;
-      var tooltip = description ? titleTooltip ? "<h5 class=\"mt-0 mb-03\">".concat(titleTooltip, "</h5>") + description : description : titleTooltip ? titleTooltip : null;
+      var tooltip = description ? titleTooltip ? "<h5 class=\"mb-03\">".concat(titleTooltip, "</h5>") + description : description : titleTooltip ? titleTooltip : null;
       var sorterIcon;
 
       if (!noSort && typeof sortByFxn === 'function' && width >= 50) {
@@ -344,16 +344,18 @@ function (_React$PureComponent2) {
         "data-field": field,
         "data-column-key": field,
         key: field,
-        "data-tip": tooltip,
         className: "search-headers-column-block" + (noSort ? " no-sort" : ''),
         style: {
           width: width
         }
       }, _react["default"].createElement("div", {
         className: "inner"
-      }, _react["default"].createElement("span", {
+      }, _react["default"].createElement("div", {
         className: "column-title"
-      }, colTitle || title), sorterIcon), columnWidths && typeof onAdjusterDrag === "function" ? _react["default"].createElement(_reactDraggable["default"], {
+      }, _react["default"].createElement("span", {
+        "data-tip": tooltip,
+        "data-html": true
+      }, colTitle || title)), sorterIcon), columnWidths && typeof onAdjusterDrag === "function" ? _react["default"].createElement(_reactDraggable["default"], {
         position: {
           x: width,
           y: 0
@@ -503,15 +505,30 @@ function (_React$PureComponent3) {
       }
 
       var isActive = this.memoized.isActive(columnDefinition, currentSortColumn);
+      var hasMultipleSortOptions = sort_fields.length >= 2;
       var isShowingSortFields = showingSortFieldsForColumn === field;
-      var cls = (isActive ? 'active ' : '') + (sort_fields.length >= 2 ? 'multiple-sort-options ' : '') + 'column-sort-icon';
+      var cls = (isActive ? 'active ' : '') + (hasMultipleSortOptions ? 'multiple-sort-options ' : '') + 'column-sort-icon';
+      var tooltip = null;
+
+      if (isShowingSortFields) {
+        tooltip = "Close sort options";
+      } else if (hasMultipleSortOptions && isActive) {
+        var sortedBy = sort_fields.find(function (_ref3) {
+          var f = _ref3.field;
+          return f === currentSortColumn;
+        });
+        tooltip = sortedBy ? "Sorted by <span class=\"text-600\">".concat(sortedBy.title || sortedBy.field, "</span>") : null;
+      }
 
       var icon = _react["default"].createElement("span", {
         className: cls,
-        onClick: this.onIconClick
+        onClick: this.onIconClick,
+        "data-tip": tooltip,
+        "data-html": true
       }, _react["default"].createElement(ColumnSorterIconElement, _extends({
         isLoading: isLoading,
-        isShowingSortFields: isShowingSortFields
+        isShowingSortFields: isShowingSortFields,
+        hasMultipleSortOptions: hasMultipleSortOptions
       }, {
         descend: !isActive || descend
       })));
@@ -546,26 +563,26 @@ _defineProperty(ColumnSorterIcon, "defaultProps", {
   'descend': false
 });
 
-var SortOptionsMenu = _react["default"].memo(function (_ref3) {
-  var currentSortColumn = _ref3.currentSortColumn,
-      sort_fields = _ref3.sort_fields,
-      sortByField = _ref3.sortByField,
-      _ref3$descend = _ref3.descend,
-      descend = _ref3$descend === void 0 ? false : _ref3$descend;
-  var options = sort_fields.map(function (_ref4) {
-    var field = _ref4.field,
-        _ref4$title = _ref4.title,
-        title = _ref4$title === void 0 ? null : _ref4$title;
+var SortOptionsMenu = _react["default"].memo(function (_ref4) {
+  var currentSortColumn = _ref4.currentSortColumn,
+      sort_fields = _ref4.sort_fields,
+      sortByField = _ref4.sortByField,
+      _ref4$descend = _ref4.descend,
+      descend = _ref4$descend === void 0 ? false : _ref4$descend;
+  var options = sort_fields.map(function (_ref5) {
+    var field = _ref5.field,
+        _ref5$title = _ref5.title,
+        title = _ref5$title === void 0 ? null : _ref5$title;
     // TODO grab title from schemas if not provided.
     var isActive = currentSortColumn === field;
-    var cls = "dropdown-item clickable no-highlight d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
+    var cls = "dropdown-item" + " clickable no-highlight no-user-select" + " d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
     var onClick = sortByField.bind(sortByField, field);
     return _react["default"].createElement("div", {
       className: cls,
       key: field,
       onClick: onClick
     }, title || field, !isActive ? null : _react["default"].createElement("i", {
-      className: "icon fas ml-12 icon-angle-".concat(descend ? "down" : "up")
+      className: "small icon fas ml-12 icon-arrow-".concat(descend ? "down" : "up")
     }));
   });
   return _react["default"].createElement("div", {
@@ -573,11 +590,11 @@ var SortOptionsMenu = _react["default"].memo(function (_ref3) {
   }, options);
 });
 
-var ColumnSorterIconElement = _react["default"].memo(function (_ref5) {
-  var descend = _ref5.descend,
-      isShowingSortFields = _ref5.isShowingSortFields,
-      _ref5$isLoading = _ref5.isLoading,
-      isLoading = _ref5$isLoading === void 0 ? false : _ref5$isLoading;
+var ColumnSorterIconElement = _react["default"].memo(function (_ref6) {
+  var descend = _ref6.descend,
+      isShowingSortFields = _ref6.isShowingSortFields,
+      _ref6$isLoading = _ref6.isLoading,
+      isLoading = _ref6$isLoading === void 0 ? false : _ref6$isLoading;
 
   if (isLoading) {
     return _react["default"].createElement("i", {
@@ -587,17 +604,17 @@ var ColumnSorterIconElement = _react["default"].memo(function (_ref5) {
 
   if (isShowingSortFields) {
     return _react["default"].createElement("i", {
-      className: "icon icon-fw icon-times-circle far"
+      className: "icon icon-fw icon-times fas"
     });
   }
 
   if (descend) {
     return _react["default"].createElement("i", {
-      className: "sort-icon icon icon-fw icon-angle-down fas"
+      className: "sort-icon icon icon-fw icon-arrow-down fas"
     });
   } else {
     return _react["default"].createElement("i", {
-      className: "sort-icon icon icon-fw icon-angle-up fas"
+      className: "sort-icon icon icon-fw icon-arrow-up fas"
     });
   }
 });
