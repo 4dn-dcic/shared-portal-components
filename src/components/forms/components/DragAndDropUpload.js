@@ -3,23 +3,160 @@ import { Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 
-function createAndSubmitItem(fieldType, files) {
-
+export class DragAndDropUploadSubmissionViewController extends React.Component {
+    /* Will become a submission-view specific version of the standalone controller to wrap
+    it and pass through the appropriate functions */
 }
 
 
+export class DragAndDropUploadStandaloneController extends React.Component {
+    /* Will become a generic data controller for managing upload state */
 
-export class DragAndDropFileUploadModal extends React.Component {
+    // function createItem(fieldType, files) {
+//     let destination = ``
+
+//     return ajax.promise(destination, actionMethod, {}, payload).then((response) => {
+//         console.log(response);
+//         if (response.status && response.status !== 'success'){ // error
+//             stateToSet.keyValid[inKey] = 2;
+//             if(!suppressWarnings){
+//                 var errorList = response.errors || [response.detail] || [];
+//                 // make an alert for each error description
+//                 stateToSet.errorCount = errorList.length;
+//                 for(i = 0; i<errorList.length; i++){
+//                     var detail = errorList[i].description || errorList[i] || "Unidentified error";
+//                     if (errorList[i].name){
+//                         detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
+//                     } else {
+//                         detail += ('. See ' + keyDisplay[inKey]);
+//                     }
+//                     Alerts.queue({
+//                         'title' : "Validation error " + parseInt(i + 1),
+//                         'message': detail,
+//                         'style': 'danger'
+//                     });
+//                 }
+//                 setTimeout(layout.animateScrollTo(0), 100); // scroll to top
+//             }
+//             this.setState(stateToSet);
+//         } else { // response successful
+//             let responseData;
+//             let submitted_at_id;
+//             if (test){
+//                 stateToSet.keyValid[inKey] = 3;
+//                 this.setState(stateToSet);
+//                 return;
+//             } else {
+//                 [ responseData ] = response['@graph'];
+//                 submitted_at_id = object.itemUtil.atId(responseData);
+//                 console.log("submittedAtid=",submitted_at_id);
+//             }
+//             // handle submission for round two
+//             if (roundTwo){
+//                 // there is a file
+//                 if (file && responseData.upload_credentials){
+
+//                     // add important info to result from finalizedContext
+//                     // that is not added from /types/file.py get_upload
+//                     const creds = responseData.upload_credentials;
+
+//                     import(
+//                         /* webpackChunkName: "aws-utils" */
+//                         /* webpackMode: "lazy" */
+//                         '../util/aws'
+//                     ).then(({ s3UploadFile })=>{
+//                         //const awsUtil = require('../util/aws');
+//                         const upload_manager = s3UploadFile(file, creds);
+
+//                         if (upload_manager === null){
+//                             // bad upload manager. Cause an alert
+//                             alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
+//                         } else {
+//                             // this will set off a chain of aync events.
+//                             // first, md5 will be calculated and then the
+//                             // file will be uploaded to s3. If all of this
+//                             // is succesful, call finishRoundTwo.
+//                             stateToSet.uploadStatus = null;
+//                             this.setState(stateToSet);
+//                             this.updateUpload(upload_manager);
+//                         }
+//                     });
+
+//                 } else {
+//                     // state cleanup for this key
+//                     this.finishRoundTwo();
+   
+   
+//                     this.setState(stateToSet);
+//                 }
+
+//                 */
+// }
+}
+
+export class DragAndDropUploadButton extends React.Component {
+    static propTypes = {
+        fieldType: PropTypes.string,
+        multiselect: PropTypes.bool,
+        onUploadStart: PropTypes.func
+    }
+
+    static defaultProps = {
+        // TODO: Double check that these assumptions make sense...
+        fieldType: "Document",
+        multiselect: false
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            showModal: false
+        };
+
+        this.onHide = this.onHide.bind(this);
+        this.onShow = this.onShow.bind(this);
+    }
+
+    onHide() {
+        const { showModal } = this.state;
+        if (showModal) {
+            this.setState({ showModal: false });
+        }
+    }
+
+    onShow() {
+        const { showModal } = this.state;
+        if (!showModal) {
+            this.setState({ showModal: true });
+        }
+    }
+
+    render() {
+        const { showModal: show, multiselect } = this.state;
+
+        return (
+            <div>
+                <DragAndDropFileUploadModal onHide={this.onHide}
+                    {...{ multiselect, show, onUploadStart }}
+                />
+                <button type="button" onClick={this.onShow}>Upload a new image</button>
+            </div>
+        );
+    }
+}
+
+class DragAndDropFileUploadModal extends React.Component {
     /*
         Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
         Functions for hiding, and handles files.
     */
     static propTypes = {
-        show: PropTypes.bool,
+        show: PropTypes.bool.isRequired,
+        onHide: PropTypes.func.isRequired,
+        onUploadStart: PropTypes.func.isRequired,
         multiselect: PropTypes.bool
-        // onHide: PropTypes.func.isRequired,
-        // onContainerKeyDown: PropTypes.func.isRequired
     }
+
     static defaultProps = {
         show: true,
         multiselect: true
@@ -89,13 +226,13 @@ export class DragAndDropFileUploadModal extends React.Component {
 
     render(){
         const {
-            // onHide,
+            onHide,
             // onContainerKeyDown,
             show
         } = this.props;
         const { files } = this.state;
         return (
-            <Modal centered {...{ show }} className="submission-view-modal">
+            <Modal centered {...{ show, onHide }} className="submission-view-modal">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
                         Upload a [Field Type] for [Field Name Here]
@@ -107,7 +244,7 @@ export class DragAndDropFileUploadModal extends React.Component {
                         handleRemoveFile={this.handleRemoveFile} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <button type="button" className="btn btn-danger">
+                    <button type="button" className="btn btn-danger" onClick={onHide}>
                         <i className="icon fas icon-close"></i> Cancel
                     </button>
                     {/* TODO: Controlled file inputs are complicated... maybe wait to implement this

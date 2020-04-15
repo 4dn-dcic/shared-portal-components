@@ -1936,8 +1936,9 @@ function (_React$PureComponent) {
       return _react["default"].createElement("div", {
         className: "submission-view-page-container container",
         id: "content"
-      }, _react["default"].createElement(_DragAndDropUpload.DragAndDropFileUploadModal, {
-        show: true
+      }, _react["default"].createElement(_DragAndDropUpload.SelfContainedFileUploadController, {
+        fieldType: "Image",
+        multiselect: false
       }), _react["default"].createElement(TypeSelectModal, _extends({
         show: showAmbiguousModal
       }, _underscore["default"].pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _underscore["default"].pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {

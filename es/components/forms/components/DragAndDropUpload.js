@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DragAndDropZone = exports.DragAndDropFileUploadModal = void 0;
+exports.DragAndDropZone = exports.DragAndDropUploadButton = exports.DragAndDropUploadStandaloneController = exports.DragAndDropUploadSubmissionViewController = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -19,48 +19,155 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var DragAndDropUploadSubmissionViewController =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(DragAndDropUploadSubmissionViewController, _React$Component);
 
-function createAndSubmitItem() {}
+  function DragAndDropUploadSubmissionViewController() {
+    _classCallCheck(this, DragAndDropUploadSubmissionViewController);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadSubmissionViewController).apply(this, arguments));
+  }
+
+  return DragAndDropUploadSubmissionViewController;
+}(_react["default"].Component);
+
+exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
+
+var DragAndDropUploadStandaloneController =
+/*#__PURE__*/
+function (_React$Component2) {
+  _inherits(DragAndDropUploadStandaloneController, _React$Component2);
+
+  function DragAndDropUploadStandaloneController() {
+    _classCallCheck(this, DragAndDropUploadStandaloneController);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadStandaloneController).apply(this, arguments));
+  }
+
+  return DragAndDropUploadStandaloneController;
+}(_react["default"].Component);
+
+exports.DragAndDropUploadStandaloneController = DragAndDropUploadStandaloneController;
+
+var DragAndDropUploadButton =
+/*#__PURE__*/
+function (_React$Component3) {
+  _inherits(DragAndDropUploadButton, _React$Component3);
+
+  function DragAndDropUploadButton(props) {
+    var _this;
+
+    _classCallCheck(this, DragAndDropUploadButton);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadButton).call(this, props));
+    _this.state = {
+      showModal: false
+    };
+    _this.onHide = _this.onHide.bind(_assertThisInitialized(_this));
+    _this.onShow = _this.onShow.bind(_assertThisInitialized(_this));
+    return _this;
+  }
+
+  _createClass(DragAndDropUploadButton, [{
+    key: "onHide",
+    value: function onHide() {
+      var showModal = this.state.showModal;
+
+      if (showModal) {
+        this.setState({
+          showModal: false
+        });
+      }
+    }
+  }, {
+    key: "onShow",
+    value: function onShow() {
+      var showModal = this.state.showModal;
+
+      if (!showModal) {
+        this.setState({
+          showModal: true
+        });
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$state = this.state,
+          show = _this$state.showModal,
+          multiselect = _this$state.multiselect;
+      return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropFileUploadModal, _extends({
+        onHide: this.onHide
+      }, {
+        multiselect: multiselect,
+        show: show,
+        onUploadStart: onUploadStart
+      })), _react["default"].createElement("button", {
+        type: "button",
+        onClick: this.onShow
+      }, "Upload a new image"));
+    }
+  }]);
+
+  return DragAndDropUploadButton;
+}(_react["default"].Component);
+
+exports.DragAndDropUploadButton = DragAndDropUploadButton;
+
+_defineProperty(DragAndDropUploadButton, "propTypes", {
+  fieldType: _propTypes["default"].string,
+  multiselect: _propTypes["default"].bool,
+  onUploadStart: _propTypes["default"].func
+});
+
+_defineProperty(DragAndDropUploadButton, "defaultProps", {
+  // TODO: Double check that these assumptions make sense...
+  fieldType: "Document",
+  multiselect: false
+});
 
 var DragAndDropFileUploadModal =
 /*#__PURE__*/
-function (_React$Component) {
-  _inherits(DragAndDropFileUploadModal, _React$Component);
+function (_React$Component4) {
+  _inherits(DragAndDropFileUploadModal, _React$Component4);
 
   /*
       Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
       Functions for hiding, and handles files.
   */
   function DragAndDropFileUploadModal(props) {
-    var _this;
+    var _this2;
 
     _classCallCheck(this, DragAndDropFileUploadModal);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadModal).call(this, props));
-    _this.state = {
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadModal).call(this, props));
+    _this2.state = {
       files: [] // Always in an array, even if multiselect enabled
 
     };
-    _this.handleAddFile = _this.handleAddFile.bind(_assertThisInitialized(_this));
-    _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
-    return _this;
+    _this2.handleAddFile = _this2.handleAddFile.bind(_assertThisInitialized(_this2));
+    _this2.handleRemoveFile = _this2.handleRemoveFile.bind(_assertThisInitialized(_this2));
+    return _this2;
   }
 
   _createClass(DragAndDropFileUploadModal, [{
@@ -125,12 +232,15 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var show = this.props.show;
+      var _this$props = this.props,
+          onHide = _this$props.onHide,
+          show = _this$props.show;
       var files = this.state.files;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
       }, {
-        show: show
+        show: show,
+        onHide: onHide
       }, {
         className: "submission-view-modal"
       }), _react["default"].createElement(_reactBootstrap.Modal.Header, {
@@ -144,7 +254,8 @@ function (_React$Component) {
         handleRemoveFile: this.handleRemoveFile
       }))), _react["default"].createElement(_reactBootstrap.Modal.Footer, null, _react["default"].createElement("button", {
         type: "button",
-        className: "btn btn-danger"
+        className: "btn btn-danger",
+        onClick: onHide
       }, _react["default"].createElement("i", {
         className: "icon fas icon-close"
       }), " Cancel"), _react["default"].createElement("button", {
@@ -160,13 +271,11 @@ function (_React$Component) {
   return DragAndDropFileUploadModal;
 }(_react["default"].Component);
 
-exports.DragAndDropFileUploadModal = DragAndDropFileUploadModal;
-
 _defineProperty(DragAndDropFileUploadModal, "propTypes", {
-  show: _propTypes["default"].bool,
-  multiselect: _propTypes["default"].bool // onHide: PropTypes.func.isRequired,
-  // onContainerKeyDown: PropTypes.func.isRequired
-
+  show: _propTypes["default"].bool.isRequired,
+  onHide: _propTypes["default"].func.isRequired,
+  onUploadStart: _propTypes["default"].func.isRequired,
+  multiselect: _propTypes["default"].bool
 });
 
 _defineProperty(DragAndDropFileUploadModal, "defaultProps", {
@@ -176,23 +285,23 @@ _defineProperty(DragAndDropFileUploadModal, "defaultProps", {
 
 var DragAndDropZone =
 /*#__PURE__*/
-function (_React$Component2) {
-  _inherits(DragAndDropZone, _React$Component2);
+function (_React$Component5) {
+  _inherits(DragAndDropZone, _React$Component5);
 
   function DragAndDropZone(props) {
-    var _this2;
+    var _this3;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
-    _this2.state = {
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
+    _this3.state = {
       dragging: false
     };
-    _this2.dropZoneRef = _react["default"].createRef();
-    _this2.cleanUpEventListeners = _this2.cleanUpEventListeners.bind(_assertThisInitialized(_this2));
-    _this2.setUpEventListeners = _this2.setUpEventListeners.bind(_assertThisInitialized(_this2));
-    _this2.handleDrop = _this2.handleDrop.bind(_assertThisInitialized(_this2));
-    return _this2;
+    _this3.dropZoneRef = _react["default"].createRef();
+    _this3.cleanUpEventListeners = _this3.cleanUpEventListeners.bind(_assertThisInitialized(_this3));
+    _this3.setUpEventListeners = _this3.setUpEventListeners.bind(_assertThisInitialized(_this3));
+    _this3.handleDrop = _this3.handleDrop.bind(_assertThisInitialized(_this3));
+    return _this3;
   }
 
   _createClass(DragAndDropZone, [{
@@ -254,9 +363,9 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          files = _this$props.files,
-          handleRemoveFile = _this$props.handleRemoveFile;
+      var _this$props2 = this.props,
+          files = _this$props2.files,
+          handleRemoveFile = _this$props2.handleRemoveFile;
       return _react["default"].createElement("div", {
         className: "panel text-center",
         style: {
