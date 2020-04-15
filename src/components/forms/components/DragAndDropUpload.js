@@ -283,7 +283,7 @@ class DragAndDropFileUploadModal extends React.Component {
                     <input type="files" name="filesFromBrowse[]" className="btn btn-primary">
                         <i className="icon fas icon-folder-open"></i> Browse
                     </input> */}
-                    <button type="button" className="btn btn-primary" onClick={onUploadStart(files)}
+                    <button type="button" className="btn btn-primary" onClick={() => onUploadStart(files)}
                         disabled={files.length === 0}>
                         <i className="icon fas icon-upload"></i> Upload Files
                     </button>
@@ -433,7 +433,7 @@ function FileIcon(props) {
 
     return (
         <div style={{ flexDirection: "column", width: "150px", display: "flex" }}>
-            <i onClick={() => handleRemoveFile(fileId)} className="icon fas icon-close text-danger"></i>
+            <i onClick={() => handleRemoveFile(fileId)} className="icon fas icon-window-close text-danger"></i>
             <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>
             <span style={{ fontSize: "12px" }}>{fileName}</span>
             <span style={{ fontSize: "10px" }}>{fileSize} bytes</span>

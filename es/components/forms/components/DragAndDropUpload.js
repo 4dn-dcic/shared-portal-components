@@ -378,7 +378,9 @@ function (_React$Component4) {
       }), " Cancel"), _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-primary",
-        onClick: onUploadStart(files),
+        onClick: function onClick() {
+          return onUploadStart(files);
+        },
         disabled: files.length === 0
       }, _react["default"].createElement("i", {
         className: "icon fas icon-upload"
@@ -566,7 +568,7 @@ function FileIcon(props) {
     onClick: function onClick() {
       return handleRemoveFile(fileId);
     },
-    className: "icon fas icon-close text-danger"
+    className: "icon fas icon-window-close text-danger"
   }), _react["default"].createElement("i", {
     className: "icon far icon-2x icon-".concat(function (mimetype) {
       if (mimetype.match('^image/')) {
