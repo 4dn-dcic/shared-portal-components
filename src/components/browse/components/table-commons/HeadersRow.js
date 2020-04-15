@@ -422,6 +422,8 @@ class ColumnSorterIcon extends React.PureComponent {
                 return title || field;
             }).join(", ");
             tooltip = sortedByFieldTitles.length > 0 ? `Sorted by <span class="text-600">${sortedByFieldTitles}</span>` : null;
+        } else if (hasMultipleSortOptions) {
+            tooltip = "" + sort_fields.length + " sort options";
         }
         return (
             <span className={cls} onClick={this.onIconClick} data-tip={tooltip} data-html>

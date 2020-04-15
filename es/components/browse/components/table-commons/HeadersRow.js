@@ -608,6 +608,8 @@ function (_React$PureComponent3) {
           return title || field;
         }).join(", ");
         tooltip = sortedByFieldTitles.length > 0 ? "Sorted by <span class=\"text-600\">".concat(sortedByFieldTitles, "</span>") : null;
+      } else if (hasMultipleSortOptions) {
+        tooltip = "" + sort_fields.length + " sort options";
       }
 
       return _react["default"].createElement("span", {
