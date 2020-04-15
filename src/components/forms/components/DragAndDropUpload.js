@@ -10,6 +10,14 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
 
 
 export class DragAndDropUploadStandaloneController extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            // TODO: Figure out exactly how granular we can get with upload state
+        };
+
+        this.onUploadStart = this.onUploadStart.bind(this);
+    }
     /* Will become a generic data controller for managing upload state */
 
     // function createItem(fieldType, files) {
@@ -92,13 +100,21 @@ export class DragAndDropUploadStandaloneController extends React.Component {
 
 //                 */
 // }
+
+    onUploadStart(files) {
+        console.log("Attempting to start upload with files... ", files);
+    }
+
+    render() {
+        return <DragAndDropUploadButton onUploadStart={this.onUploadStart} />;
+    }
 }
 
-export class DragAndDropUploadButton extends React.Component {
+class DragAndDropUploadButton extends React.Component {
     static propTypes = {
-        fieldType: PropTypes.string,
-        multiselect: PropTypes.bool,
-        onUploadStart: PropTypes.func
+        onUploadStart: PropTypes.func.isRequired,     // Actions to take upon upload; exact status of upload controlled by data controller wrapper
+        fieldType: PropTypes.string,                  // Field name of item being added
+        multiselect: PropTypes.bool
     }
 
     static defaultProps = {
@@ -133,11 +149,12 @@ export class DragAndDropUploadButton extends React.Component {
 
     render() {
         const { showModal: show, multiselect } = this.state;
+        const { onUploadStart, fieldType } = this.props;
 
         return (
             <div>
                 <DragAndDropFileUploadModal onHide={this.onHide}
-                    {...{ multiselect, show, onUploadStart }}
+                    {...{ multiselect, show, onUploadStart, fieldType }}
                 />
                 <button type="button" onClick={this.onShow}>Upload a new image</button>
             </div>
@@ -151,10 +168,11 @@ class DragAndDropFileUploadModal extends React.Component {
         Functions for hiding, and handles files.
     */
     static propTypes = {
-        show: PropTypes.bool.isRequired,
-        onHide: PropTypes.func.isRequired,
-        onUploadStart: PropTypes.func.isRequired,
-        multiselect: PropTypes.bool
+        onHide: PropTypes.func.isRequired,              // Should control show state/prop below
+        onUploadStart: PropTypes.func.isRequired,       // Should trigger the creation of a new object, and start upload
+        show: PropTypes.bool,                           // Controlled by state method onHide passed in as prop
+        multiselect: PropTypes.bool,                    // Passed in from Schema, along with field and item types
+        fieldType: PropTypes.string
     }
 
     static defaultProps = {
@@ -170,6 +188,8 @@ class DragAndDropFileUploadModal extends React.Component {
 
         this.handleAddFile = this.handleAddFile.bind(this);
         this.handleRemoveFile = this.handleRemoveFile.bind(this);
+        this.handleClearAllFiles = this.handleClearAllFiles.bind(this);
+        this.handleHideModal = this.handleHideModal.bind(this);
     }
 
     handleAddFile(evt) {
@@ -224,18 +244,29 @@ class DragAndDropFileUploadModal extends React.Component {
         this.setState({ files: newFiles });
     }
 
+    handleClearAllFiles() {
+        this.setState({ files: [] });
+    }
+
+    handleHideModal() {
+        // Force to clear files before hiding modal, so each time it is opened
+        // anew, user doesn't have to re-clear it.
+        const { onHide: propsOnHideFxn } = this.props;
+
+        this.handleClearAllFiles();
+        propsOnHideFxn();
+    }
+
     render(){
         const {
-            onHide,
-            // onContainerKeyDown,
-            show
+            show, onUploadStart, fieldType
         } = this.props;
         const { files } = this.state;
         return (
-            <Modal centered {...{ show, onHide }} className="submission-view-modal">
+            <Modal centered {...{ show }} onHide={this.handleHideModal} className="submission-view-modal">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
-                        Upload a [Field Type] for [Field Name Here]
+                        Upload a {fieldType} for [Field Name Here]
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -244,7 +275,7 @@ class DragAndDropFileUploadModal extends React.Component {
                         handleRemoveFile={this.handleRemoveFile} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <button type="button" className="btn btn-danger" onClick={onHide}>
+                    <button type="button" className="btn btn-danger" onClick={this.handleHideModal}>
                         <i className="icon fas icon-close"></i> Cancel
                     </button>
                     {/* TODO: Controlled file inputs are complicated... maybe wait to implement this
@@ -252,7 +283,7 @@ class DragAndDropFileUploadModal extends React.Component {
                     <input type="files" name="filesFromBrowse[]" className="btn btn-primary">
                         <i className="icon fas icon-folder-open"></i> Browse
                     </input> */}
-                    <button type="button" className="btn btn-primary"
+                    <button type="button" className="btn btn-primary" onClick={onUploadStart(files)}
                         disabled={files.length === 0}>
                         <i className="icon fas icon-upload"></i> Upload Files
                     </button>

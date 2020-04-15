@@ -23,8 +23,7 @@ import { buildContext, findFieldFromContext, gatherLinkToTitlesFromContextEmbedd
 import { SubmissionTree, fieldSchemaLinkToType } from './components/SubmissionTree';
 import { BuildField, AliasInputField, isValueNull } from './components/submission-fields';
 import {
-    DragAndDropFileUploadModal,
-    SelfContainedFileUploadController
+    DragAndDropUploadStandaloneController
 } from './components/DragAndDropUpload';
 
 /**
@@ -1458,7 +1457,7 @@ export default class SubmissionView extends React.PureComponent{
         const currObjDisplay = keyDisplay[currKey] || currType;
         return (
             <div className="submission-view-page-container container" id="content">
-                <SelfContainedFileUploadController fieldType="Image" multiselect={false} />
+                <DragAndDropUploadStandaloneController />
                 <TypeSelectModal show={showAmbiguousModal} {..._.pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx')}
                     {..._.pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject')} schemas={schemas}
                 />
