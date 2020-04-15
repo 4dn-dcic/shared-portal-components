@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import { ajax } from './../../util';
 import _ from 'underscore';
 
 export class DragAndDropUploadSubmissionViewController extends React.Component {
@@ -10,6 +11,18 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
 
 
 export class DragAndDropUploadStandaloneController extends React.Component {
+    static propTypes = {
+        fieldType: PropTypes.string.isRequired,
+        award: PropTypes.string.isRequired,
+        lab: PropTypes.string.isRequired
+    }
+
+    static defaultProps = {
+        fieldType: "Document",
+        award: "/awards/1U01CA200059-01/",
+        lab: "/labs/4dn-dcic-lab"
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -18,91 +31,122 @@ export class DragAndDropUploadStandaloneController extends React.Component {
 
         this.onUploadStart = this.onUploadStart.bind(this);
     }
-    /* Will become a generic data controller for managing upload state */
+    // /* Will become a generic data controller for managing upload state */
 
-    // function createItem(fieldType, files) {
-//     let destination = ``
+    createItem(file) {
+        const { fieldType, award, lab } = this.props;
+        const destination = `/${fieldType}/?check_only=true`; // testing only
 
-//     return ajax.promise(destination, actionMethod, {}, payload).then((response) => {
-//         console.log(response);
-//         if (response.status && response.status !== 'success'){ // error
-//             stateToSet.keyValid[inKey] = 2;
-//             if(!suppressWarnings){
-//                 var errorList = response.errors || [response.detail] || [];
-//                 // make an alert for each error description
-//                 stateToSet.errorCount = errorList.length;
-//                 for(i = 0; i<errorList.length; i++){
-//                     var detail = errorList[i].description || errorList[i] || "Unidentified error";
-//                     if (errorList[i].name){
-//                         detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
-//                     } else {
-//                         detail += ('. See ' + keyDisplay[inKey]);
-//                     }
-//                     Alerts.queue({
-//                         'title' : "Validation error " + parseInt(i + 1),
-//                         'message': detail,
-//                         'style': 'danger'
-//                     });
-//                 }
-//                 setTimeout(layout.animateScrollTo(0), 100); // scroll to top
-//             }
-//             this.setState(stateToSet);
-//         } else { // response successful
-//             let responseData;
-//             let submitted_at_id;
-//             if (test){
-//                 stateToSet.keyValid[inKey] = 3;
-//                 this.setState(stateToSet);
-//                 return;
-//             } else {
-//                 [ responseData ] = response['@graph'];
-//                 submitted_at_id = object.itemUtil.atId(responseData);
-//                 console.log("submittedAtid=",submitted_at_id);
-//             }
-//             // handle submission for round two
-//             if (roundTwo){
-//                 // there is a file
-//                 if (file && responseData.upload_credentials){
+        // Generate an alias for the file
+        const aliasLab = lab.split('/')[2];
+        const aliasFilename = file.name.split(' ').join('-');
+        const alias = aliasLab + ":" + aliasFilename + "-" + Date.now();
 
-//                     // add important info to result from finalizedContext
-//                     // that is not added from /types/file.py get_upload
-//                     const creds = responseData.upload_credentials;
+        // Build a payload with info from the various files
+        const payload = JSON.stringify({
+            award,
+            lab,
+            attachment: file,
+            aliases: [alias]
+        });
 
-//                     import(
-//                         /* webpackChunkName: "aws-utils" */
-//                         /* webpackMode: "lazy" */
-//                         '../util/aws'
-//                     ).then(({ s3UploadFile })=>{
-//                         //const awsUtil = require('../util/aws');
-//                         const upload_manager = s3UploadFile(file, creds);
+        return ajax.promise(destination, 'POST', {}, payload).then((response) => {
+            console.log("response", response);
 
-//                         if (upload_manager === null){
-//                             // bad upload manager. Cause an alert
-//                             alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
-//                         } else {
-//                             // this will set off a chain of aync events.
-//                             // first, md5 will be calculated and then the
-//                             // file will be uploaded to s3. If all of this
-//                             // is succesful, call finishRoundTwo.
-//                             stateToSet.uploadStatus = null;
-//                             this.setState(stateToSet);
-//                             this.updateUpload(upload_manager);
-//                         }
-//                     });
+            if (response.status && response.status !== 'success'){ // error
+                console.log("ERROR");
+            } else {
+                let responseData;
+                let submitted_at_id;
+                [ responseData ] = response['@graph'];
+                submitted_at_id = object.itemUtil.atId(responseData);
+                console.log("submittedAtid=",submitted_at_id);
+                // here you would attach some onchange function from submission view
+            }
+        });
+        //     if (response.status && response.status !== 'success'){ // error
+        //         stateToSet.keyValid[inKey] = 2;
+        //         if(!suppressWarnings){
+        //             var errorList = response.errors || [response.detail] || [];
+        //             // make an alert for each error description
+        //             stateToSet.errorCount = errorList.length;
+        //             for(i = 0; i<errorList.length; i++){
+        //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
+        //                 if (errorList[i].name){
+        //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
+        //                 } else {
+        //                     detail += ('. See ' + keyDisplay[inKey]);
+        //                 }
+        //                 Alerts.queue({
+        //                     'title' : "Validation error " + parseInt(i + 1),
+        //                     'message': detail,
+        //                     'style': 'danger'
+        //                 });
+        //             }
+        //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
+        //         }
+        //         this.setState(stateToSet);
+        //     } else { // response successful
+        //         let responseData;
+        //         let submitted_at_id;
+        //         if (test){
+        //             stateToSet.keyValid[inKey] = 3;
+        //             this.setState(stateToSet);
+        //             return;
+        //         } else {
+        //             [ responseData ] = response['@graph'];
+        //             submitted_at_id = object.itemUtil.atId(responseData);
+        //             console.log("submittedAtid=",submitted_at_id);
+        //         }
+        //         // handle submission for round two
+        //         if (roundTwo){
+        //             // there is a file
+        //             if (file && responseData.upload_credentials){
 
-//                 } else {
-//                     // state cleanup for this key
-//                     this.finishRoundTwo();
-   
-   
-//                     this.setState(stateToSet);
-//                 }
+        //                 // add important info to result from finalizedContext
+        //                 // that is not added from /types/file.py get_upload
+        //                 const creds = responseData.upload_credentials;
 
-//                 */
-// }
+        //                 import(
+        //                     /* webpackChunkName: "aws-utils" */
+        //                     /* webpackMode: "lazy" */
+        //                     '../util/aws'
+        //                 ).then(({ s3UploadFile })=>{
+        //                     //const awsUtil = require('../util/aws');
+        //                     const upload_manager = s3UploadFile(file, creds);
+
+        //                     if (upload_manager === null){
+        //                         // bad upload manager. Cause an alert
+        //                         alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
+        //                     } else {
+        //                         // this will set off a chain of aync events.
+        //                         // first, md5 will be calculated and then the
+        //                         // file will be uploaded to s3. If all of this
+        //                         // is succesful, call finishRoundTwo.
+        //                         stateToSet.uploadStatus = null;
+        //                         this.setState(stateToSet);
+        //                         this.updateUpload(upload_manager);
+        //                     }
+        //                 });
+
+        //             } else {
+        //                 // state cleanup for this key
+        //                 // this.finishRoundTwo();
+        //                 this.setState(stateToSet);
+        //             }
+        //     }
+        // }
+    }
 
     onUploadStart(files) {
         console.log("Attempting to start upload with files... ", files);
+        const promises = [];
+
+        files.forEach((file) => {
+            promises.push(this.createItem(file));
+        });
+
+        console.log(promises);
     }
 
     render() {
@@ -156,7 +200,7 @@ class DragAndDropUploadButton extends React.Component {
                 <DragAndDropFileUploadModal onHide={this.onHide}
                     {...{ multiselect, show, onUploadStart, fieldType }}
                 />
-                <button type="button" onClick={this.onShow}>Upload a new image</button>
+                <button type="button" onClick={this.onShow}>Upload a new document</button>
             </div>
         );
     }
@@ -266,7 +310,7 @@ class DragAndDropFileUploadModal extends React.Component {
             <Modal centered {...{ show }} onHide={this.handleHideModal} className="submission-view-modal">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
-                        Upload a {fieldType} for [Field Name Here]
+                        Upload a {fieldType}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>

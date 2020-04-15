@@ -11,6 +11,8 @@ var _reactBootstrap = require("react-bootstrap");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
+var _util = require("./../../util");
+
 var _underscore = _interopRequireDefault(require("underscore"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -19,11 +21,19 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -68,86 +78,125 @@ function (_React$Component2) {
     };
     _this.onUploadStart = _this.onUploadStart.bind(_assertThisInitialized(_this));
     return _this;
-  }
-  /* Will become a generic data controller for managing upload state */
-  // function createItem(fieldType, files) {
-  //     let destination = ``
-  //     return ajax.promise(destination, actionMethod, {}, payload).then((response) => {
-  //         console.log(response);
-  //         if (response.status && response.status !== 'success'){ // error
-  //             stateToSet.keyValid[inKey] = 2;
-  //             if(!suppressWarnings){
-  //                 var errorList = response.errors || [response.detail] || [];
-  //                 // make an alert for each error description
-  //                 stateToSet.errorCount = errorList.length;
-  //                 for(i = 0; i<errorList.length; i++){
-  //                     var detail = errorList[i].description || errorList[i] || "Unidentified error";
-  //                     if (errorList[i].name){
-  //                         detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
-  //                     } else {
-  //                         detail += ('. See ' + keyDisplay[inKey]);
-  //                     }
-  //                     Alerts.queue({
-  //                         'title' : "Validation error " + parseInt(i + 1),
-  //                         'message': detail,
-  //                         'style': 'danger'
-  //                     });
-  //                 }
-  //                 setTimeout(layout.animateScrollTo(0), 100); // scroll to top
-  //             }
-  //             this.setState(stateToSet);
-  //         } else { // response successful
-  //             let responseData;
-  //             let submitted_at_id;
-  //             if (test){
-  //                 stateToSet.keyValid[inKey] = 3;
-  //                 this.setState(stateToSet);
-  //                 return;
-  //             } else {
-  //                 [ responseData ] = response['@graph'];
-  //                 submitted_at_id = object.itemUtil.atId(responseData);
-  //                 console.log("submittedAtid=",submitted_at_id);
-  //             }
-  //             // handle submission for round two
-  //             if (roundTwo){
-  //                 // there is a file
-  //                 if (file && responseData.upload_credentials){
-  //                     // add important info to result from finalizedContext
-  //                     // that is not added from /types/file.py get_upload
-  //                     const creds = responseData.upload_credentials;
-  //                     import(
-  //                         /* webpackChunkName: "aws-utils" */
-  //                         /* webpackMode: "lazy" */
-  //                         '../util/aws'
-  //                     ).then(({ s3UploadFile })=>{
-  //                         //const awsUtil = require('../util/aws');
-  //                         const upload_manager = s3UploadFile(file, creds);
-  //                         if (upload_manager === null){
-  //                             // bad upload manager. Cause an alert
-  //                             alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
-  //                         } else {
-  //                             // this will set off a chain of aync events.
-  //                             // first, md5 will be calculated and then the
-  //                             // file will be uploaded to s3. If all of this
-  //                             // is succesful, call finishRoundTwo.
-  //                             stateToSet.uploadStatus = null;
-  //                             this.setState(stateToSet);
-  //                             this.updateUpload(upload_manager);
-  //                         }
-  //                     });
-  //                 } else {
-  //                     // state cleanup for this key
-  //                     this.finishRoundTwo();
-  //                     this.setState(stateToSet);
-  //                 }
-  //                 */
-  // }
+  } // /* Will become a generic data controller for managing upload state */
 
 
   _createClass(DragAndDropUploadStandaloneController, [{
+    key: "createItem",
+    value: function createItem(file) {
+      var _this$props = this.props,
+          fieldType = _this$props.fieldType,
+          award = _this$props.award,
+          lab = _this$props.lab;
+      var destination = "/".concat(fieldType, "/?check_only=true"); // testing only
+      // Generate an alias for the file
+
+      var aliasLab = lab.split('/')[2];
+      var aliasFilename = file.name.split(' ').join('-');
+      var alias = aliasLab + ":" + aliasFilename + "-" + Date.now(); // Build a payload with info from the various files
+
+      var payload = JSON.stringify({
+        award: award,
+        lab: lab,
+        attachment: file,
+        aliases: [alias]
+      });
+      return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
+        console.log("response", response);
+
+        if (response.status && response.status !== 'success') {
+          // error
+          console.log("ERROR");
+        } else {
+          var responseData;
+          var submitted_at_id;
+
+          var _response$Graph = _slicedToArray(response['@graph'], 1);
+
+          responseData = _response$Graph[0];
+          submitted_at_id = object.itemUtil.atId(responseData);
+          console.log("submittedAtid=", submitted_at_id); // here you would attach some onchange function from submission view
+        }
+      }); //     if (response.status && response.status !== 'success'){ // error
+      //         stateToSet.keyValid[inKey] = 2;
+      //         if(!suppressWarnings){
+      //             var errorList = response.errors || [response.detail] || [];
+      //             // make an alert for each error description
+      //             stateToSet.errorCount = errorList.length;
+      //             for(i = 0; i<errorList.length; i++){
+      //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
+      //                 if (errorList[i].name){
+      //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
+      //                 } else {
+      //                     detail += ('. See ' + keyDisplay[inKey]);
+      //                 }
+      //                 Alerts.queue({
+      //                     'title' : "Validation error " + parseInt(i + 1),
+      //                     'message': detail,
+      //                     'style': 'danger'
+      //                 });
+      //             }
+      //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
+      //         }
+      //         this.setState(stateToSet);
+      //     } else { // response successful
+      //         let responseData;
+      //         let submitted_at_id;
+      //         if (test){
+      //             stateToSet.keyValid[inKey] = 3;
+      //             this.setState(stateToSet);
+      //             return;
+      //         } else {
+      //             [ responseData ] = response['@graph'];
+      //             submitted_at_id = object.itemUtil.atId(responseData);
+      //             console.log("submittedAtid=",submitted_at_id);
+      //         }
+      //         // handle submission for round two
+      //         if (roundTwo){
+      //             // there is a file
+      //             if (file && responseData.upload_credentials){
+      //                 // add important info to result from finalizedContext
+      //                 // that is not added from /types/file.py get_upload
+      //                 const creds = responseData.upload_credentials;
+      //                 import(
+      //                     /* webpackChunkName: "aws-utils" */
+      //                     /* webpackMode: "lazy" */
+      //                     '../util/aws'
+      //                 ).then(({ s3UploadFile })=>{
+      //                     //const awsUtil = require('../util/aws');
+      //                     const upload_manager = s3UploadFile(file, creds);
+      //                     if (upload_manager === null){
+      //                         // bad upload manager. Cause an alert
+      //                         alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
+      //                     } else {
+      //                         // this will set off a chain of aync events.
+      //                         // first, md5 will be calculated and then the
+      //                         // file will be uploaded to s3. If all of this
+      //                         // is succesful, call finishRoundTwo.
+      //                         stateToSet.uploadStatus = null;
+      //                         this.setState(stateToSet);
+      //                         this.updateUpload(upload_manager);
+      //                     }
+      //                 });
+      //             } else {
+      //                 // state cleanup for this key
+      //                 // this.finishRoundTwo();
+      //                 this.setState(stateToSet);
+      //             }
+      //     }
+      // }
+    }
+  }, {
     key: "onUploadStart",
     value: function onUploadStart(files) {
+      var _this2 = this;
+
       console.log("Attempting to start upload with files... ", files);
+      var promises = [];
+      files.forEach(function (file) {
+        promises.push(_this2.createItem(file));
+      });
+      console.log(promises);
     }
   }, {
     key: "render",
@@ -163,23 +212,35 @@ function (_React$Component2) {
 
 exports.DragAndDropUploadStandaloneController = DragAndDropUploadStandaloneController;
 
+_defineProperty(DragAndDropUploadStandaloneController, "propTypes", {
+  fieldType: _propTypes["default"].string.isRequired,
+  award: _propTypes["default"].string.isRequired,
+  lab: _propTypes["default"].string.isRequired
+});
+
+_defineProperty(DragAndDropUploadStandaloneController, "defaultProps", {
+  fieldType: "Document",
+  award: "/awards/1U01CA200059-01/",
+  lab: "/labs/4dn-dcic-lab"
+});
+
 var DragAndDropUploadButton =
 /*#__PURE__*/
 function (_React$Component3) {
   _inherits(DragAndDropUploadButton, _React$Component3);
 
   function DragAndDropUploadButton(props) {
-    var _this2;
+    var _this3;
 
     _classCallCheck(this, DragAndDropUploadButton);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadButton).call(this, props));
-    _this2.state = {
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadButton).call(this, props));
+    _this3.state = {
       showModal: false
     };
-    _this2.onHide = _this2.onHide.bind(_assertThisInitialized(_this2));
-    _this2.onShow = _this2.onShow.bind(_assertThisInitialized(_this2));
-    return _this2;
+    _this3.onHide = _this3.onHide.bind(_assertThisInitialized(_this3));
+    _this3.onShow = _this3.onShow.bind(_assertThisInitialized(_this3));
+    return _this3;
   }
 
   _createClass(DragAndDropUploadButton, [{
@@ -210,9 +271,9 @@ function (_React$Component3) {
       var _this$state = this.state,
           show = _this$state.showModal,
           multiselect = _this$state.multiselect;
-      var _this$props = this.props,
-          onUploadStart = _this$props.onUploadStart,
-          fieldType = _this$props.fieldType;
+      var _this$props2 = this.props,
+          onUploadStart = _this$props2.onUploadStart,
+          fieldType = _this$props2.fieldType;
       return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropFileUploadModal, _extends({
         onHide: this.onHide
       }, {
@@ -223,7 +284,7 @@ function (_React$Component3) {
       })), _react["default"].createElement("button", {
         type: "button",
         onClick: this.onShow
-      }, "Upload a new image"));
+      }, "Upload a new document"));
     }
   }]);
 
@@ -254,20 +315,20 @@ function (_React$Component4) {
       Functions for hiding, and handles files.
   */
   function DragAndDropFileUploadModal(props) {
-    var _this3;
+    var _this4;
 
     _classCallCheck(this, DragAndDropFileUploadModal);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadModal).call(this, props));
-    _this3.state = {
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadModal).call(this, props));
+    _this4.state = {
       files: [] // Always in an array, even if multiselect enabled
 
     };
-    _this3.handleAddFile = _this3.handleAddFile.bind(_assertThisInitialized(_this3));
-    _this3.handleRemoveFile = _this3.handleRemoveFile.bind(_assertThisInitialized(_this3));
-    _this3.handleClearAllFiles = _this3.handleClearAllFiles.bind(_assertThisInitialized(_this3));
-    _this3.handleHideModal = _this3.handleHideModal.bind(_assertThisInitialized(_this3));
-    return _this3;
+    _this4.handleAddFile = _this4.handleAddFile.bind(_assertThisInitialized(_this4));
+    _this4.handleRemoveFile = _this4.handleRemoveFile.bind(_assertThisInitialized(_this4));
+    _this4.handleClearAllFiles = _this4.handleClearAllFiles.bind(_assertThisInitialized(_this4));
+    _this4.handleHideModal = _this4.handleHideModal.bind(_assertThisInitialized(_this4));
+    return _this4;
   }
 
   _createClass(DragAndDropFileUploadModal, [{
@@ -348,10 +409,10 @@ function (_React$Component4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          show = _this$props2.show,
-          onUploadStart = _this$props2.onUploadStart,
-          fieldType = _this$props2.fieldType;
+      var _this$props3 = this.props,
+          show = _this$props3.show,
+          onUploadStart = _this$props3.onUploadStart,
+          fieldType = _this$props3.fieldType;
       var files = this.state.files;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
@@ -364,7 +425,7 @@ function (_React$Component4) {
         closeButton: true
       }, _react["default"].createElement(_reactBootstrap.Modal.Title, {
         className: "text-500"
-      }, "Upload a ", fieldType, " for [Field Name Here]")), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
+      }, "Upload a ", fieldType)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
         files: files
       }, {
         handleAddFile: this.handleAddFile,
@@ -414,19 +475,19 @@ function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
 
   function DragAndDropZone(props) {
-    var _this4;
+    var _this5;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
-    _this4.state = {
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
+    _this5.state = {
       dragging: false
     };
-    _this4.dropZoneRef = _react["default"].createRef();
-    _this4.cleanUpEventListeners = _this4.cleanUpEventListeners.bind(_assertThisInitialized(_this4));
-    _this4.setUpEventListeners = _this4.setUpEventListeners.bind(_assertThisInitialized(_this4));
-    _this4.handleDrop = _this4.handleDrop.bind(_assertThisInitialized(_this4));
-    return _this4;
+    _this5.dropZoneRef = _react["default"].createRef();
+    _this5.cleanUpEventListeners = _this5.cleanUpEventListeners.bind(_assertThisInitialized(_this5));
+    _this5.setUpEventListeners = _this5.setUpEventListeners.bind(_assertThisInitialized(_this5));
+    _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
+    return _this5;
   }
 
   _createClass(DragAndDropZone, [{
@@ -488,9 +549,9 @@ function (_React$Component5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          files = _this$props3.files,
-          handleRemoveFile = _this$props3.handleRemoveFile;
+      var _this$props4 = this.props,
+          files = _this$props4.files,
+          handleRemoveFile = _this$props4.handleRemoveFile;
       return _react["default"].createElement("div", {
         className: "panel text-center",
         style: {

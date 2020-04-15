@@ -1146,6 +1146,8 @@ export default class SubmissionView extends React.PureComponent{
                 console.log('DESTINATION:', destination);
             }
 
+            console.log('DESTINATION:', destination);
+            console.log('PAYLOAD: ', payload);
             // Perform request
             ajax.promise(destination, actionMethod, {}, payload).then((response) => {
                 if (response.status && response.status !== 'success'){ // error

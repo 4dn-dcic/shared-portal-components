@@ -1536,7 +1536,11 @@ function (_React$PureComponent) {
           destination = destination + (test ? '&' : '?') + 'delete_fields=' + deleteString;
 
           _util.console.log('DESTINATION:', destination);
-        } // Perform request
+        }
+
+        _util.console.log('DESTINATION:', destination);
+
+        _util.console.log('PAYLOAD: ', payload); // Perform request
 
 
         _util.ajax.promise(destination, actionMethod, {}, payload).then(function (response) {
