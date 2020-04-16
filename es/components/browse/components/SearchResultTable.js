@@ -88,6 +88,7 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 var ResultRowColumnBlock = _react["default"].memo(function (props) {
   var columnDefinition = props.columnDefinition,
+      columnNumber = props.columnNumber,
       mounted = props.mounted,
       columnWidths = props.columnWidths,
       schemas = props.schemas,
@@ -107,7 +108,8 @@ var ResultRowColumnBlock = _react["default"].memo(function (props) {
       style: {
         "width": blockWidth
       },
-      "data-field": columnDefinition.field
+      "data-field": field,
+      "data-column-even": columnNumber % 2 === 0
     }, _react["default"].createElement(_ResultRowColumnBlockValue.ResultRowColumnBlockValue, _extends({}, props, {
       width: blockWidth,
       schemas: schemas
@@ -295,11 +297,11 @@ function (_React$PureComponent2) {
     }
   }, {
     key: "getStyles",
-    value: function getStyles(rowWidth, rowHeight) {
+    value: function getStyles(rowWidth) {
+      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 47;
+      arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
       return {
-        inner: {
-          minHeight: rowHeight - 1
-        },
+        /* inner: { minHeight: rowHeight - rowBottomPadding }, */
         outer: {
           minWidth: rowWidth
         }
@@ -312,8 +314,7 @@ function (_React$PureComponent2) {
 
     _classCallCheck(this, ResultRow);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ResultRow).call(this, props)); //this.shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
-
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ResultRow).call(this, props));
     _this2.toggleDetailOpen = _underscore["default"].throttle(_this2.toggleDetailOpen.bind(_assertThisInitialized(_this2)), 250);
     _this2.setDetailHeight = _this2.setDetailHeight.bind(_assertThisInitialized(_this2));
     _this2.handleDragStart = _this2.handleDragStart.bind(_assertThisInitialized(_this2));
@@ -395,19 +396,19 @@ function (_React$PureComponent2) {
       // to make more reusable re: e.g. `selectedFiles` (= 4DN-specific).
       var _this$props6 = this.props,
           columnDefinitions = _this$props6.columnDefinitions,
-          selectedFiles = _this$props6.selectedFiles,
-          detailOpen = _this$props6.detailOpen;
+          selectedFiles = _this$props6.selectedFiles; // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction', 'detailOpen'
+
+      var commonProps = _underscore["default"].omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id');
+
       return columnDefinitions.map(function (columnDefinition, columnNumber) {
         // todo: rename columnNumber to columnIndex
         var field = columnDefinition.field;
 
-        var passedProps = _underscore["default"].extend( // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction
-        _underscore["default"].omit(_this3.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id'), {
+        var passedProps = _objectSpread({}, commonProps, {
           columnDefinition: columnDefinition,
           columnNumber: columnNumber,
-          detailOpen: detailOpen,
-          'toggleDetailOpen': _this3.toggleDetailOpen,
           // Only needed on first column (contains title, checkbox)
+          'toggleDetailOpen': columnNumber === 0 ? _this3.toggleDetailOpen : null,
           'selectedFiles': columnNumber === 0 ? selectedFiles : null
         });
 
@@ -721,12 +722,11 @@ _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'mounted': _propTypes["default"].bool,
   'onDuplicateResultsFoundCallback': _propTypes["default"].func,
   'navigate': _propTypes["default"].func,
-  'openRowHeight': _propTypes["default"].number
+  'openRowHeight': _propTypes["default"].number.isRequired
 });
 
 _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   'debouncePointerEvents': 150,
-  'openRowHeight': 57,
   'onDuplicateResultsFoundCallback': function onDuplicateResultsFoundCallback() {
     _Alerts.Alerts.queue({
       'title': 'Results Refreshed',
@@ -1255,6 +1255,8 @@ function (_React$PureComponent4) {
           navigate = _this$props15.navigate,
           _this$props15$rowHeig = _this$props15.rowHeight,
           rowHeight = _this$props15$rowHeig === void 0 ? 47 : _this$props15$rowHeig,
+          _this$props15$openRow = _this$props15.openRowHeight,
+          openRowHeight = _this$props15$openRow === void 0 ? 57 : _this$props15$openRow,
           _this$props15$maxHeig = _this$props15.maxHeight,
           maxHeight = _this$props15$maxHeig === void 0 ? 500 : _this$props15$maxHeig,
           _this$props15$isConte = _this$props15.isContextLoading,
@@ -1299,6 +1301,7 @@ function (_React$PureComponent4) {
       var loadMoreAsYouScrollProps = _objectSpread({}, _underscore["default"].pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate'), {
         context: context,
         rowHeight: rowHeight,
+        openRowHeight: openRowHeight,
         results: results,
         openDetailPanes: openDetailPanes,
         maxHeight: maxHeight,
@@ -1509,8 +1512,9 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'defaultMinColumnWidth': 55,
   'hiddenColumns': null,
   // This value (the default or if passed in) should be aligned to value in CSS.
-  // Value in CSS is decremented by 1px to account for border height.
+  // Must account for any border or padding at bottom/top of row, as well.
   'rowHeight': 47,
+  'openRowHeight': 57,
   'fullWidthInitOffset': 60,
   'fullWidthContainerSelectorString': '.browse-page-container',
   'currentAction': null,

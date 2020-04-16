@@ -458,7 +458,7 @@ const SortOptionsMenuContainer = React.memo(function SortOptionsMenuContainer(pr
         return -1;
     }, [ columnDefinitions, showingSortFieldsForColumn ]);
 
-
+    // Position it under col for which open for in headers row.
     const widthUntilActiveColumnEnd = useMemo(function(){
         let sumWidths = 0;
         for (var i = 0; i <= activeColumnDefinitionIndex; i++){
@@ -469,9 +469,8 @@ const SortOptionsMenuContainer = React.memo(function SortOptionsMenuContainer(pr
 
     const activeColumnDefinition = columnDefinitions[activeColumnDefinitionIndex];
     const { sort_fields } = activeColumnDefinition;
-    const style = {
-        left: Math.max(205, widthUntilActiveColumnEnd + leftOffset)
-    }; // Align it to col in headers row.
+    // Account for scrollLeft of searchresults/header; 200 is min width for menu
+    const style = { left: Math.max(200, widthUntilActiveColumnEnd + leftOffset) };
 
     return (
         <div className="headers-columns-dropdown-menu-container">
@@ -480,8 +479,14 @@ const SortOptionsMenuContainer = React.memo(function SortOptionsMenuContainer(pr
     );
 });
 
-const SortOptionsMenu = React.memo(function SortOptionsMenu({ currentSortColumn, sort_fields, sortByField, descend = false, style = null }){
-
+const SortOptionsMenu = React.memo(function SortOptionsMenu({
+    header = <h5 className="dropdown-header mt-0 px-3 pt-03 text-600">Sort by</h5>,
+    currentSortColumn,
+    sort_fields,
+    sortByField,
+    descend = false,
+    style = null
+}){
     const options = sort_fields.map(function({ field, title = null }){
         // TODO grab title from schemas if not provided.
         const isActive = currentSortColumn === field;
@@ -500,7 +505,12 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({ currentSortColumn,
         );
     });
 
-    return <div className="dropdown-menu show" style={style}>{ options }</div>;
+    return (
+        <div className="dropdown-menu show" style={style}>
+            { header }
+            { options }
+        </div>
+    );
 });
 
 const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ descend, showingSortOptionsMenu, isLoading = false }){

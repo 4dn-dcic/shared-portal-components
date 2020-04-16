@@ -667,7 +667,8 @@ var SortOptionsMenuContainer = _react["default"].memo(function (props) {
     }
 
     return -1;
-  }, [columnDefinitions, showingSortFieldsForColumn]);
+  }, [columnDefinitions, showingSortFieldsForColumn]); // Position it under col for which open for in headers row.
+
   var widthUntilActiveColumnEnd = (0, _react.useMemo)(function () {
     var sumWidths = 0;
 
@@ -678,11 +679,11 @@ var SortOptionsMenuContainer = _react["default"].memo(function (props) {
     return sumWidths;
   }, [alignedWidths, activeColumnDefinitionIndex]);
   var activeColumnDefinition = columnDefinitions[activeColumnDefinitionIndex];
-  var sort_fields = activeColumnDefinition.sort_fields;
-  var style = {
-    left: Math.max(205, widthUntilActiveColumnEnd + leftOffset)
-  }; // Align it to col in headers row.
+  var sort_fields = activeColumnDefinition.sort_fields; // Account for scrollLeft of searchresults/header; 200 is min width for menu
 
+  var style = {
+    left: Math.max(200, widthUntilActiveColumnEnd + leftOffset)
+  };
   return _react["default"].createElement("div", {
     className: "headers-columns-dropdown-menu-container"
   }, _react["default"].createElement(SortOptionsMenu, {
@@ -695,7 +696,11 @@ var SortOptionsMenuContainer = _react["default"].memo(function (props) {
 });
 
 var SortOptionsMenu = _react["default"].memo(function (_ref7) {
-  var currentSortColumn = _ref7.currentSortColumn,
+  var _ref7$header = _ref7.header,
+      header = _ref7$header === void 0 ? _react["default"].createElement("h5", {
+    className: "dropdown-header mt-0 px-3 pt-03 text-600"
+  }, "Sort by") : _ref7$header,
+      currentSortColumn = _ref7.currentSortColumn,
       sort_fields = _ref7.sort_fields,
       sortByField = _ref7.sortByField,
       _ref7$descend = _ref7.descend,
@@ -721,7 +726,7 @@ var SortOptionsMenu = _react["default"].memo(function (_ref7) {
   return _react["default"].createElement("div", {
     className: "dropdown-menu show",
     style: style
-  }, options);
+  }, header, options);
 });
 
 var ColumnSorterIconElement = _react["default"].memo(function (_ref9) {
