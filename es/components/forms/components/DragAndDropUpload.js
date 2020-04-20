@@ -21,13 +21,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
@@ -83,120 +79,114 @@ function (_React$Component2) {
 
   _createClass(DragAndDropUploadStandaloneController, [{
     key: "createItem",
-    value: function createItem(file) {
-      var _this$props = this.props,
-          fieldType = _this$props.fieldType,
-          award = _this$props.award,
-          lab = _this$props.lab;
-      var destination = "/".concat(fieldType, "/?check_only=true"); // testing only
-      // Generate an alias for the file
+    value: function () {
+      var _createItem = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee(file) {
+        var _this$props, fieldType, award, lab, destination, aliasLab, aliasFilename, alias, payload, submitted_at_id, response, responseData;
 
-      var aliasLab = lab.split('/')[2];
-      var aliasFilename = file.name.split(' ').join('-');
-      var alias = aliasLab + ":" + aliasFilename + "-" + Date.now(); // Build a payload with info from the various files
+        return regeneratorRuntime.wrap(function (_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _this$props = this.props, fieldType = _this$props.fieldType, award = _this$props.award, lab = _this$props.lab;
+                destination = "/".concat(fieldType, "/?check_only=true"); // testing only
+                // Generate an alias for the file
 
-      var payload = JSON.stringify({
-        award: award,
-        lab: lab,
-        attachment: file,
-        aliases: [alias]
-      });
-      return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
-        console.log("response", response);
+                aliasLab = lab.split('/')[2];
+                aliasFilename = file.name.split(' ').join('-');
+                alias = aliasLab + ":" + aliasFilename + "-" + Date.now(); // Build a payload WITHOUT the current file information
 
-        if (response.status && response.status !== 'success') {
-          // error
-          console.log("ERROR");
-        } else {
-          var responseData;
-          var submitted_at_id;
+                payload = {
+                  award: award,
+                  lab: lab,
+                  aliases: [alias]
+                }; // Submit the object without the file
 
-          var _response$Graph = _slicedToArray(response['@graph'], 1);
+                _context.prev = 6;
+                _context.next = 9;
+                return _util.ajax.promise(destination, 'POST', {}, payload);
 
-          responseData = _response$Graph[0];
-          submitted_at_id = object.itemUtil.atId(responseData);
-          console.log("submittedAtid=", submitted_at_id); // here you would attach some onchange function from submission view
-        }
-      }); //     if (response.status && response.status !== 'success'){ // error
-      //         stateToSet.keyValid[inKey] = 2;
-      //         if(!suppressWarnings){
-      //             var errorList = response.errors || [response.detail] || [];
-      //             // make an alert for each error description
-      //             stateToSet.errorCount = errorList.length;
-      //             for(i = 0; i<errorList.length; i++){
-      //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
-      //                 if (errorList[i].name){
-      //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
-      //                 } else {
-      //                     detail += ('. See ' + keyDisplay[inKey]);
-      //                 }
-      //                 Alerts.queue({
-      //                     'title' : "Validation error " + parseInt(i + 1),
-      //                     'message': detail,
-      //                     'style': 'danger'
-      //                 });
-      //             }
-      //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
-      //         }
-      //         this.setState(stateToSet);
-      //     } else { // response successful
-      //         let responseData;
-      //         let submitted_at_id;
-      //         if (test){
-      //             stateToSet.keyValid[inKey] = 3;
-      //             this.setState(stateToSet);
-      //             return;
-      //         } else {
-      //             [ responseData ] = response['@graph'];
-      //             submitted_at_id = object.itemUtil.atId(responseData);
-      //             console.log("submittedAtid=",submitted_at_id);
-      //         }
-      //         // handle submission for round two
-      //         if (roundTwo){
-      //             // there is a file
-      //             if (file && responseData.upload_credentials){
-      //                 // add important info to result from finalizedContext
-      //                 // that is not added from /types/file.py get_upload
-      //                 const creds = responseData.upload_credentials;
-      //                 import(
-      //                     /* webpackChunkName: "aws-utils" */
-      //                     /* webpackMode: "lazy" */
-      //                     '../util/aws'
-      //                 ).then(({ s3UploadFile })=>{
-      //                     //const awsUtil = require('../util/aws');
-      //                     const upload_manager = s3UploadFile(file, creds);
-      //                     if (upload_manager === null){
-      //                         // bad upload manager. Cause an alert
-      //                         alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
-      //                     } else {
-      //                         // this will set off a chain of aync events.
-      //                         // first, md5 will be calculated and then the
-      //                         // file will be uploaded to s3. If all of this
-      //                         // is succesful, call finishRoundTwo.
-      //                         stateToSet.uploadStatus = null;
-      //                         this.setState(stateToSet);
-      //                         this.updateUpload(upload_manager);
-      //                     }
-      //                 });
-      //             } else {
-      //                 // state cleanup for this key
-      //                 // this.finishRoundTwo();
-      //                 this.setState(stateToSet);
-      //             }
-      //     }
-      // }
-    }
+              case 9:
+                response = _context.sent;
+                console.log("response", response);
+
+                if (response.status && response.status !== 'success') {
+                  // error
+                  console.log("ERROR");
+                } else {
+                  // Retrieve the atID for future use
+                  responseData = response['@graph'];
+                  submitted_at_id = object.itemUtil.atId(responseData);
+                  console.log("submittedAtid=", submitted_at_id); // here you would attach some onchange function from submission view
+                }
+
+                _context.next = 17;
+                break;
+
+              case 14:
+                _context.prev = 14;
+                _context.t0 = _context["catch"](6);
+                console.log("error occurred, ", _context.t0);
+
+              case 17:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this, [[6, 14]]);
+      }));
+
+      return function createItem() {
+        return _createItem.apply(this, arguments);
+      };
+    }()
   }, {
     key: "onUploadStart",
     value: function onUploadStart(files) {
       var _this2 = this;
 
       console.log("Attempting to start upload with files... ", files);
-      var promises = [];
-      files.forEach(function (file) {
-        promises.push(_this2.createItem(file));
-      });
-      console.log(promises);
+      files.forEach(
+      /*#__PURE__*/
+      function () {
+        var _ref = _asyncToGenerator(
+        /*#__PURE__*/
+        regeneratorRuntime.mark(function _callee2(file) {
+          var promise;
+          return regeneratorRuntime.wrap(function (_context2) {
+            while (1) {
+              switch (_context2.prev = _context2.next) {
+                case 0:
+                  _context2.prev = 0;
+                  _context2.next = 3;
+                  return _this2.createItem(file);
+
+                case 3:
+                  promise = _context2.sent;
+                  console.log("promise", promise); // promises.push(promise);
+
+                  _context2.next = 10;
+                  break;
+
+                case 7:
+                  _context2.prev = 7;
+                  _context2.t0 = _context2["catch"](0);
+                  console.log("eerror", _context2.t0);
+
+                case 10:
+                case "end":
+                  return _context2.stop();
+              }
+            }
+          }, _callee2, null, [[0, 7]]);
+        }));
+
+        return function () {
+          return _ref.apply(this, arguments);
+        };
+      }());
+      console.log([]);
     }
   }, {
     key: "render",
