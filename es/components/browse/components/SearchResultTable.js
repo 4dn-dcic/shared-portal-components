@@ -687,7 +687,7 @@ function (_React$PureComponent3) {
         ,
         loadingSpinnerDelegate: _react["default"].createElement(LoadingSpinner, {
           width: tableContainerWidth,
-          tableContainerScrollLeft: tableContainerScrollLeft
+          scrollLeft: tableContainerScrollLeft
         }),
         infiniteLoadBeginEdgeOffset: canLoadMore ? 200 : undefined,
         preloadAdditionalHeight: _reactInfinite["default"].containerHeightScaleFactor(1.5),
@@ -738,17 +738,19 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
 });
 
 var LoadingSpinner = _react["default"].memo(function (_ref3) {
-  var width = _ref3.width,
-      tableContainerScrollLeft = _ref3.tableContainerScrollLeft;
+  var maxWidth = _ref3.width,
+      _ref3$scrollLeft = _ref3.scrollLeft,
+      scrollLeft = _ref3$scrollLeft === void 0 ? 0 : _ref3$scrollLeft;
+  var style = {
+    maxWidth: maxWidth,
+    'transform': _utilities.style.translate3d(scrollLeft)
+  };
   return _react["default"].createElement("div", {
-    className: "search-result-row loading text-center",
-    style: {
-      'maxWidth': width,
-      'transform': _utilities.style.translate3d(tableContainerScrollLeft)
-    }
-  }, _react["default"].createElement("i", {
+    className: "search-result-row loading text-center d-flex align-items-center justify-content-center",
+    style: style
+  }, _react["default"].createElement("span", null, _react["default"].createElement("i", {
     className: "icon icon-circle-notch icon-spin fas"
-  }), "\xA0 Loading...");
+  }), "\xA0 Loading..."));
 });
 
 var ShadowBorderLayer =
@@ -1068,6 +1070,18 @@ function (_React$PureComponent4) {
     value: function componentDidMount() {
       var _this9 = this;
 
+      // Maybe todo: play with 'experimental technology' for controlling columing widths (& compare performance),
+      // see https://developer.mozilla.org/en-US/docs/Web/API/DocumentOrShadowRoot/styleSheets
+      // and https://developer.mozilla.org/en-US/docs/Web/API/CSSStylesheet.
+      // Probably do in separate component since seems like hefty-enough logic to separate/modularize.
+      // this.isDynamicStylesheetSupported = typeof document.styleSheets !== "undefined";
+      // if (this.isDynamicStylesheetSupported) {
+      //    insert new <style> element somewhere (new stylesheet?), save reference (prly doesnt do ton.. w/e)
+      //    check that new sheet exists in document.styleSheets, start setting widths per column via CSS rules
+      //    deleting and inserting upon any changes, accordingly. Use componentDidUpdate or useEffect for this,
+      //    re: props.widths (this table's state.widths) changes.
+      //    (This all within new component if supported, else pass widths down to cols as fallback (?) from this component)
+      // }
       // Detect if table width changes (and update dims if true) every 5sec
       // No way to attach resize event listener to an element (only to window)
       // and element might change width independent of window (e.g. open/hide
@@ -1110,18 +1124,11 @@ function (_React$PureComponent4) {
     value: function componentDidUpdate(pastProps, pastState) {
       var _this$state2 = this.state,
           loadedResults = _this$state2.results,
-          mounted = _this$state2.mounted,
-          widths = _this$state2.widths;
+          mounted = _this$state2.mounted;
       var pastLoadedResults = pastState.results,
           pastMounted = pastState.mounted;
-      var _this$props13 = this.props,
-          propResults = _this$props13.results,
-          columnDefinitions = _this$props13.columnDefinitions,
-          windowWidth = _this$props13.windowWidth,
-          isOwnPage = _this$props13.isOwnPage;
-      var pastPropResults = pastProps.results,
-          pastColDefs = pastProps.columnDefinitions,
-          pastWindowWidth = pastProps.windowWidth;
+      var windowWidth = this.props.windowWidth;
+      var pastWindowWidth = pastProps.windowWidth;
 
       if (pastLoadedResults !== loadedResults) {
         _reactTooltip["default"].rebuild();
@@ -1232,13 +1239,13 @@ function (_React$PureComponent4) {
   }, {
     key: "canLoadMore",
     value: function canLoadMore() {
-      var _this$props14 = this.props,
-          _this$props14$context = _this$props14.context;
-      _this$props14$context = _this$props14$context === void 0 ? {} : _this$props14$context;
-      var _this$props14$context2 = _this$props14$context.total,
-          total = _this$props14$context2 === void 0 ? 0 : _this$props14$context2,
-          _this$props14$isConte = _this$props14.isContextLoading,
-          isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte;
+      var _this$props13 = this.props,
+          _this$props13$context = _this$props13.context;
+      _this$props13$context = _this$props13$context === void 0 ? {} : _this$props13$context;
+      var _this$props13$context2 = _this$props13$context.total,
+          total = _this$props13$context2 === void 0 ? 0 : _this$props13$context2,
+          _this$props13$isConte = _this$props13.isContextLoading,
+          isContextLoading = _this$props13$isConte === void 0 ? false : _this$props13$isConte;
       var _this$state$results = this.state.results,
           results = _this$state$results === void 0 ? [] : _this$state$results;
       return !isContextLoading && LoadMoreAsYouScroll.canLoadMore(total, results);
@@ -1246,23 +1253,23 @@ function (_React$PureComponent4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-          columnDefinitions = _this$props15.columnDefinitions,
-          windowWidth = _this$props15.windowWidth,
-          context = _this$props15.context,
-          _this$props15$isOwnPa = _this$props15.isOwnPage,
-          isOwnPage = _this$props15$isOwnPa === void 0 ? true : _this$props15$isOwnPa,
-          navigate = _this$props15.navigate,
-          _this$props15$rowHeig = _this$props15.rowHeight,
-          rowHeight = _this$props15$rowHeig === void 0 ? 47 : _this$props15$rowHeig,
-          _this$props15$openRow = _this$props15.openRowHeight,
-          openRowHeight = _this$props15$openRow === void 0 ? 57 : _this$props15$openRow,
-          _this$props15$maxHeig = _this$props15.maxHeight,
-          maxHeight = _this$props15$maxHeig === void 0 ? 500 : _this$props15$maxHeig,
-          _this$props15$isConte = _this$props15.isContextLoading,
-          isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
-          setColumnWidths = _this$props15.setColumnWidths,
-          columnWidths = _this$props15.columnWidths;
+      var _this$props14 = this.props,
+          columnDefinitions = _this$props14.columnDefinitions,
+          windowWidth = _this$props14.windowWidth,
+          context = _this$props14.context,
+          _this$props14$isOwnPa = _this$props14.isOwnPage,
+          isOwnPage = _this$props14$isOwnPa === void 0 ? true : _this$props14$isOwnPa,
+          navigate = _this$props14.navigate,
+          _this$props14$rowHeig = _this$props14.rowHeight,
+          rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
+          _this$props14$openRow = _this$props14.openRowHeight,
+          openRowHeight = _this$props14$openRow === void 0 ? 57 : _this$props14$openRow,
+          _this$props14$maxHeig = _this$props14.maxHeight,
+          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig,
+          _this$props14$isConte = _this$props14.isContextLoading,
+          isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte,
+          setColumnWidths = _this$props14.setColumnWidths,
+          columnWidths = _this$props14.columnWidths;
       var _this$state3 = this.state,
           results = _this$state3.results,
           tableContainerWidth = _this$state3.tableContainerWidth,
@@ -1425,13 +1432,13 @@ function (_React$PureComponent5) {
   _createClass(SearchResultTable, [{
     key: "render",
     value: function render() {
-      var _this$props16 = this.props,
-          context = _this$props16.context,
-          visibleColumnDefinitions = _this$props16.visibleColumnDefinitions,
-          columnDefinitions = _this$props16.columnDefinitions,
-          _this$props16$isConte = _this$props16.isContextLoading,
-          isContextLoading = _this$props16$isConte === void 0 ? false : _this$props16$isConte,
-          isOwnPage = _this$props16.isOwnPage;
+      var _this$props15 = this.props,
+          context = _this$props15.context,
+          visibleColumnDefinitions = _this$props15.visibleColumnDefinitions,
+          columnDefinitions = _this$props15.columnDefinitions,
+          _this$props15$isConte = _this$props15.isContextLoading,
+          isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
+          isOwnPage = _this$props15.isOwnPage;
 
       if (isContextLoading && !context) {
         // Initial context (pre-sort, filter, etc) loading.

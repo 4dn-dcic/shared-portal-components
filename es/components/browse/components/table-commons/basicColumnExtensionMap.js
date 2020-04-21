@@ -53,7 +53,10 @@ var basicColumnExtensionMap = {
           detailOpen = props.detailOpen,
           toggleDetailOpen = props.toggleDetailOpen; // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
 
-      var title = _object.itemUtil.getTitleStringFromContext(result);
+      var title = _object.itemUtil.getTitleStringFromContext(result); // Monospace accessions, file formats
+
+
+      var shouldMonospace = _object.itemUtil.isDisplayTitleAccession(result, title) || result.file_format && result.file_format === title;
 
       var link = _object.itemUtil.atId(result);
 
@@ -88,21 +91,20 @@ var basicColumnExtensionMap = {
         if (typeof result.email === 'string' && result.email.indexOf('@') > -1) {
           // Specific case for User items. May be removed or more cases added, if needed.
           hasPhoto = true;
-          title = _react["default"].createElement("span", {
-            key: "title"
-          }, _object.itemUtil.User.gravatar(result.email, 32, {
+          title = _react["default"].createElement(_react["default"].Fragment, null, _object.itemUtil.User.gravatar(result.email, 32, {
             'className': 'in-search-table-title-image',
             'data-tip': result.email
           }, 'mm'), title);
         }
       }
 
+      var cls = "title-block" + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container") + (shouldMonospace ? " text-monospace text-small" : "");
       return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(TableRowToggleOpenButton, {
         open: detailOpen,
         onClick: toggleDetailOpen
       }), _react["default"].createElement("div", {
         key: "title-container",
-        className: "title-block" + (hasPhoto ? ' has-photo' : " text-ellipsis-container"),
+        className: cls,
         "data-tip": tooltip
       }, title));
     }
@@ -117,7 +119,7 @@ var basicColumnExtensionMap = {
       return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         className: "icon-container"
       }, _react["default"].createElement("i", {
-        className: "icon icon-fw fas icon-filter clickable mr-05",
+        className: "icon icon-fw fas icon-filter clickable mr-08",
         onClick: function onClick(e) {
           // Preserve search query, if any, but remove filters (which are usually per-type).
           if (!props.href || props.href.indexOf('/search/') === -1) return;
@@ -192,7 +194,7 @@ var TableRowToggleOpenButton = _react["default"].memo(function (_ref) {
       toggleDetailOpen = _ref.toggleDetailOpen,
       open = _ref.open;
   return _react["default"].createElement("div", {
-    className: "inline-block toggle-detail-button-container"
+    className: "toggle-detail-button-container"
   }, _react["default"].createElement("button", {
     type: "button",
     className: "toggle-detail-button",

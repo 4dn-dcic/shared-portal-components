@@ -20,6 +20,8 @@ export const basicColumnExtensionMap = {
             const { href, context, rowNumber, detailOpen, toggleDetailOpen } = props;
             // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
             let title = itemUtil.getTitleStringFromContext(result);
+            // Monospace accessions, file formats
+            const shouldMonospace = (itemUtil.isDisplayTitleAccession(result, title) || (result.file_format && result.file_format === title));
             const link = itemUtil.atId(result);
             let tooltip;
             let hasPhoto = false;
@@ -48,18 +50,28 @@ export const basicColumnExtensionMap = {
                     // Specific case for User items. May be removed or more cases added, if needed.
                     hasPhoto = true;
                     title = (
-                        <span key="title">
+                        <React.Fragment>
                             { itemUtil.User.gravatar(result.email, 32, { 'className' : 'in-search-table-title-image', 'data-tip' : result.email }, 'mm') }
                             { title }
-                        </span>
+                        </React.Fragment>
                     );
                 }
             }
 
+            const cls = (
+                "title-block"
+                + (hasPhoto ? " has-photo d-flex align-items-center"
+                    : " text-ellipsis-container"
+                )
+                + (shouldMonospace ? " text-monospace text-small" : "")
+            );
+
             return (
                 <React.Fragment>
                     <TableRowToggleOpenButton open={detailOpen} onClick={toggleDetailOpen} />
-                    <div key="title-container" className={"title-block" + (hasPhoto ? ' has-photo' : " text-ellipsis-container")} data-tip={tooltip}>{ title }</div>
+                    <div key="title-container" className={cls} data-tip={tooltip}>
+                        { title }
+                    </div>
                 </React.Fragment>
             );
         }
@@ -88,7 +100,7 @@ export const basicColumnExtensionMap = {
             return (
                 <React.Fragment>
                     <div className="icon-container">
-                        <i className="icon icon-fw fas icon-filter clickable mr-05" onClick={onClick} data-tip={"Filter down to only " + itemTypeTitle}/>
+                        <i className="icon icon-fw fas icon-filter clickable mr-08" onClick={onClick} data-tip={"Filter down to only " + itemTypeTitle}/>
                     </div>
                     <span className="item-type-title value">{ itemTypeTitle }</span>
                 </React.Fragment>
@@ -128,7 +140,7 @@ export const basicColumnExtensionMap = {
 /** Button shown in first column (display_title) to open/close detail pane. */
 export const TableRowToggleOpenButton = React.memo(function TableRowToggleOpenButton({ onClick, toggleDetailOpen, open }){
     return (
-        <div className="inline-block toggle-detail-button-container">
+        <div className="toggle-detail-button-container">
             <button type="button" className="toggle-detail-button" onClick={onClick || toggleDetailOpen}>
                 <div className="icon-container">
                     <i className={"icon icon-fw fas icon-" + (open ? 'minus' : 'plus') }/>

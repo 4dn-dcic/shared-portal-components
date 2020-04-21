@@ -20,7 +20,7 @@ import { itemUtil } from './../../util/object';
 import { load } from './../../util/ajax';
 import { getPageVerticalScrollPosition, getElementOffset, responsiveGridState } from './../../util/layout';
 import { getItemTypeTitle } from './../../util/schema-transforms';
-import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style } from './../../viz/utilities';
+import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style as vizStyle } from './../../viz/utilities';
 import { Alerts } from './../../ui/Alerts';
 
 import { filterOutHiddenCols } from './CustomColumnController';
@@ -151,7 +151,7 @@ class ResultDetail extends React.PureComponent{
                 { open ?
                     <div className="result-table-detail" ref={this.detailRef} style={{
                         width : useWidth,
-                        transform : style.translate3d(tableContainerScrollLeft)
+                        transform : vizStyle.translate3d(tableContainerScrollLeft)
                     }}>
                         { renderDetailPane(
                             result, rowNumber, useWidth,
@@ -500,7 +500,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                 isInfiniteLoading={isLoading}
                 timeScrollStateLastsForAfterUserScrolls={250}
                 //onChangeScrollState={this.handleScrollingStateChange}
-                loadingSpinnerDelegate={<LoadingSpinner width={tableContainerWidth} tableContainerScrollLeft={tableContainerScrollLeft} />}
+                loadingSpinnerDelegate={<LoadingSpinner width={tableContainerWidth} scrollLeft={tableContainerScrollLeft} />}
                 infiniteLoadBeginEdgeOffset={canLoadMore ? 200 : undefined}
                 preloadAdditionalHeight={Infinite.containerHeightScaleFactor(1.5)}
                 preloadBatchSize={Infinite.containerHeightScaleFactor(1.5)}
@@ -511,13 +511,13 @@ class LoadMoreAsYouScroll extends React.PureComponent {
     }
 }
 
-const LoadingSpinner = React.memo(function LoadingSpinner({ width, tableContainerScrollLeft }){
+const LoadingSpinner = React.memo(function LoadingSpinner({ width: maxWidth, scrollLeft = 0 }){
+    const style = { maxWidth, 'transform' : vizStyle.translate3d(scrollLeft) };
     return (
-        <div className="search-result-row loading text-center" style={{
-            'maxWidth' : width,
-            'transform' : style.translate3d(tableContainerScrollLeft)
-        }}>
-            <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
+        <div className="search-result-row loading text-center d-flex align-items-center justify-content-center" style={style}>
+            <span>
+                <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
+            </span>
         </div>
     );
 });
@@ -637,7 +637,7 @@ class DimensioningContainer extends React.PureComponent {
 
     static setDetailPanesLeftOffset(detailPanes, leftOffset = 0, cb = null){
         if (detailPanes && detailPanes.length > 0){
-            var transformStyle = style.translate3d(leftOffset);
+            var transformStyle = vizStyle.translate3d(leftOffset);
             _.forEach(detailPanes, function(d){
                 d.style.transform = transformStyle;
             });
@@ -749,6 +749,19 @@ class DimensioningContainer extends React.PureComponent {
     componentDidMount(){
         const nextState = { 'mounted' : true };
 
+        // Maybe todo: play with 'experimental technology' for controlling columing widths (& compare performance),
+        // see https://developer.mozilla.org/en-US/docs/Web/API/DocumentOrShadowRoot/styleSheets
+        // and https://developer.mozilla.org/en-US/docs/Web/API/CSSStylesheet.
+        // Probably do in separate component since seems like hefty-enough logic to separate/modularize.
+        // this.isDynamicStylesheetSupported = typeof document.styleSheets !== "undefined";
+        // if (this.isDynamicStylesheetSupported) {
+        //    insert new <style> element somewhere (new stylesheet?), save reference (prly doesnt do ton.. w/e)
+        //    check that new sheet exists in document.styleSheets, start setting widths per column via CSS rules
+        //    deleting and inserting upon any changes, accordingly. Use componentDidUpdate or useEffect for this,
+        //    re: props.widths (this table's state.widths) changes.
+        //    (This all within new component if supported, else pass widths down to cols as fallback (?) from this component)
+        // }
+
         // Detect if table width changes (and update dims if true) every 5sec
         // No way to attach resize event listener to an element (only to window)
         // and element might change width independent of window (e.g. open/hide
@@ -780,10 +793,10 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
-        const { results: loadedResults, mounted, widths } = this.state;
+        const { results: loadedResults, mounted } = this.state;
         const { results: pastLoadedResults, mounted: pastMounted } = pastState;
-        const { results: propResults, columnDefinitions, windowWidth, isOwnPage } = this.props;
-        const { results: pastPropResults, columnDefinitions: pastColDefs, windowWidth: pastWindowWidth } = pastProps;
+        const { windowWidth } = this.props;
+        const { windowWidth: pastWindowWidth } = pastProps;
 
         if (pastLoadedResults !== loadedResults){
             ReactTooltip.rebuild();
@@ -960,7 +973,7 @@ class DimensioningContainer extends React.PureComponent {
                 <div className="fin search-result-row" key="fin-last-item" style={{
                     // Account for vertical scrollbar decreasing width of container.
                     width: tableContainerWidth - (isOwnPage ? 0 : 30),
-                    transform: style.translate3d(tableContainerScrollLeft)
+                    transform: vizStyle.translate3d(tableContainerScrollLeft)
                 }}>
                     <div className="inner">
                         - <span>fin</span> -

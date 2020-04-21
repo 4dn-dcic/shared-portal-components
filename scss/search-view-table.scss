@@ -3,18 +3,21 @@
 
 /*** In Parent Portal CSS, must define "postition: sticky" for HeadersRow + top offset, depending on usage/placement ***/
 
+$search-results-edge-background-color : #f8f8f8 !default;
 $search-results-edge-shadow-color : rgba(0,0,0,0.125) !default;
+
 $search-results-result-row-height: 46px !default;
+
+$search-results-header-row-height: $search-results-result-row-height !default;
+$search-results-header-text-color: #fff !default;
+
 $search-results-above-results-row-height: 40px !default;
 $search-results-above-results-row-bottom-padding: 5px !default;
-$search-results-header-text-color: #fff !default;
 
 // Common definitions
 @mixin search-result-column-and-header-block {
-	//float: left;
-	//transform: translate3d(0,0,0);
 	> .inner {
-		height : $search-results-result-row-height;
+		// height : $search-results-result-row-height;
 		padding: 0 8px;
 		line-height: 16px;
 		// text-align: center;
@@ -28,13 +31,17 @@ $search-results-header-text-color: #fff !default;
 }
 
 @mixin search-result-column-block {
-    @include search-result-column-and-header-block;
-
-    > .inner > .value {
-        // Default style -- can be overriden
-        @include text-ellipsis-container;
-        flex-grow: 1;
-    }
+	@include search-result-column-and-header-block;
+	
+	> .inner {
+		height: $search-results-result-row-height;
+		> .value {
+			// Default style -- can be overriden
+			overflow: hidden;
+			text-overflow: ellipsis;
+			flex-grow: 1;
+		}
+	}
 
     /** Some Common Styles **/
     &[data-field="display_title"],
@@ -151,7 +158,7 @@ $search-results-header-text-color: #fff !default;
 
 	.search-results-container {
 		position: relative;
-		transform: translate3d(0,0,0); // New coordplane/topleft for position:fixed children
+		// transform: translate3d(0,0,0); // New coordplane/topleft for position:fixed children
 
 		&:not(.fully-loaded){
 			::-webkit-scrollbar {
@@ -169,7 +176,7 @@ $search-results-header-text-color: #fff !default;
 				position: absolute;
 				top: 0;
 				bottom: 0;
-				background: #f8f8f8;
+				background: $search-results-edge-background-color;
 				width: 15px;
 				pointer-events: all;
 				opacity: 1;
@@ -198,7 +205,7 @@ $search-results-header-text-color: #fff !default;
 				&.right-edge {
 					right: -15px;
 					border-radius: 0 4px 4px 0;
-					box-shadow: inset -5px 0 10px #fff, -5px 0 10px -5px $search-results-edge-shadow-color;
+					box-shadow: inset -5px 0 10px #fff2, -5px 0 10px -5px $search-results-edge-shadow-color;
 					&:hover {
 						box-shadow: -5px 0 10px -5px $search-results-edge-shadow-color;
 					}
@@ -206,7 +213,7 @@ $search-results-header-text-color: #fff !default;
 				&.left-edge {
 					left: -15px;
 					border-radius: 4px 0 0 4px;
-					box-shadow: inset 5px 0 10px #fff, 5px 0 10px -5px $search-results-edge-shadow-color;
+					box-shadow: inset 5px 0 10px #fff2, 5px 0 10px -5px $search-results-edge-shadow-color;
 					&:hover {
 						box-shadow: 5px 0 10px -5px $search-results-edge-shadow-color;
 					}
@@ -292,7 +299,14 @@ $search-results-header-text-color: #fff !default;
 							}
 						}
 						.title-block {
-							display: inline-block;
+							flex-grow: 1;
+							flex-shrink: 1;
+							flex-basis: auto;
+							min-width: 0;
+							a {
+								overflow: hidden;
+    							text-overflow: ellipsis;
+							}
 						}
 					}
 
@@ -380,7 +394,8 @@ $search-results-header-text-color: #fff !default;
 				height : 67px;
 				line-height: $search-results-result-row-height;
 				transition: transform .5s ease;
-				border-bottom: none;
+				box-shadow: none !important;
+				border: none !important;
 			}
 
 			&.empty-block {
@@ -516,6 +531,7 @@ $search-results-header-text-color: #fff !default;
 				}
 
 				> .inner {
+					height: $search-results-header-row-height;
 					color: $search-results-header-text-color;
 					font-weight: 500;
 					padding-right: 32px;
@@ -729,7 +745,7 @@ $search-results-header-text-color: #fff !default;
 				font-size: $font-size-base * 1.125;
                 display: flex;
                 align-items: center;
-                height: $search-results-result-row-height;
+                height: $search-results-header-row-height;
 				padding-left: 10px;
     			padding-right: 10px;
 				font-weight: 500;

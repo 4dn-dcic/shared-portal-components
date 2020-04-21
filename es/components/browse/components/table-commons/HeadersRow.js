@@ -21,6 +21,8 @@ var _WindowClickEventDelegator = require("./../../../util/WindowClickEventDelega
 
 var _layout = require("./../../../util/layout");
 
+var _utilities = require("./../../../viz/utilities");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -250,18 +252,20 @@ function (_React$PureComponent) {
   }, {
     key: "setColumnWidthsFromState",
     value: function setColumnWidthsFromState() {
-      var _this$props3 = this.props,
-          setColumnWidths = _this$props3.setColumnWidths,
-          columnWidths = _this$props3.columnWidths;
-      var widths = this.state.widths;
+      var _this3 = this;
 
-      if (typeof setColumnWidths !== 'function') {
-        throw new Error('props.setHeaderWidths not a function');
-      }
+      (0, _utilities.requestAnimationFrame)(function () {
+        var _this3$props = _this3.props,
+            setColumnWidths = _this3$props.setColumnWidths,
+            columnWidths = _this3$props.columnWidths;
+        var widths = _this3.state.widths;
 
-      setTimeout(function () {
+        if (typeof setColumnWidths !== 'function') {
+          throw new Error('props.setHeaderWidths not a function');
+        }
+
         setColumnWidths(_objectSpread({}, columnWidths, {}, widths));
-      }, 0);
+      });
     }
   }, {
     key: "onAdjusterDrag",
@@ -270,31 +274,27 @@ function (_React$PureComponent) {
       this.setState(function (_ref3, _ref4) {
         var widths = _ref3.widths;
         var defaultMinColumnWidth = _ref4.defaultMinColumnWidth;
-
-        var nextWidths = _underscore["default"].clone(widths);
-
-        nextWidths[field] = Math.max(columnDefinition.minColumnWidth || defaultMinColumnWidth || 55, r.x);
         return {
-          'widths': nextWidths
+          'widths': _objectSpread({}, widths, _defineProperty({}, field, Math.max(columnDefinition.minColumnWidth || defaultMinColumnWidth || 55, r.x)))
         };
       });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-          columnDefinitions = _this$props4.columnDefinitions,
-          renderDetailPane = _this$props4.renderDetailPane,
-          _this$props4$sortColu = _this$props4.sortColumn,
-          sortColumn = _this$props4$sortColu === void 0 ? null : _this$props4$sortColu,
-          _this$props4$sortReve = _this$props4.sortReverse,
-          sortReverse = _this$props4$sortReve === void 0 ? false : _this$props4$sortReve,
-          sortBy = _this$props4.sortBy,
-          columnWidths = _this$props4.columnWidths,
-          setColumnWidths = _this$props4.setColumnWidths,
-          width = _this$props4.width,
-          tableContainerScrollLeft = _this$props4.tableContainerScrollLeft,
-          windowWidth = _this$props4.windowWidth;
+      var _this$props3 = this.props,
+          columnDefinitions = _this$props3.columnDefinitions,
+          renderDetailPane = _this$props3.renderDetailPane,
+          _this$props3$sortColu = _this$props3.sortColumn,
+          sortColumn = _this$props3$sortColu === void 0 ? null : _this$props3$sortColu,
+          _this$props3$sortReve = _this$props3.sortReverse,
+          sortReverse = _this$props3$sortReve === void 0 ? false : _this$props3$sortReve,
+          sortBy = _this$props3.sortBy,
+          columnWidths = _this$props3.columnWidths,
+          setColumnWidths = _this$props3.setColumnWidths,
+          width = _this$props3.width,
+          tableContainerScrollLeft = _this$props3.tableContainerScrollLeft,
+          windowWidth = _this$props3.windowWidth;
       var _this$state2 = this.state,
           showingSortFieldsForColumn = _this$state2.showingSortFieldsForColumn,
           widths = _this$state2.widths,
@@ -404,19 +404,19 @@ function (_React$PureComponent2) {
   _inherits(HeadersRowColumn, _React$PureComponent2);
 
   function HeadersRowColumn(props) {
-    var _this3;
+    var _this4;
 
     _classCallCheck(this, HeadersRowColumn);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
-    _this3.onDrag = _this3.onDrag.bind(_assertThisInitialized(_this3));
-    _this3.onStop = _this3.onStop.bind(_assertThisInitialized(_this3));
-    _this3.memoized = {
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
+    _this4.onDrag = _this4.onDrag.bind(_assertThisInitialized(_this4));
+    _this4.onStop = _this4.onStop.bind(_assertThisInitialized(_this4));
+    _this4.memoized = {
       showTooltip: (0, _memoizeOne["default"])(function (colWidth, titleStr) {
         return (colWidth - 40) / 7 < (titleStr || "").length;
       })
     };
-    return _this3;
+    return _this4;
   }
   /** Updates HeadersRow.state.widths {Object<string,numer>} */
 
@@ -424,9 +424,9 @@ function (_React$PureComponent2) {
   _createClass(HeadersRowColumn, [{
     key: "onDrag",
     value: function onDrag(event, res) {
-      var _this$props5 = this.props,
-          columnDefinition = _this$props5.columnDefinition,
-          onAdjusterDrag = _this$props5.onAdjusterDrag;
+      var _this$props4 = this.props,
+          columnDefinition = _this$props4.columnDefinition,
+          onAdjusterDrag = _this$props4.onAdjusterDrag;
       onAdjusterDrag(columnDefinition, event, res);
     }
     /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
@@ -440,16 +440,16 @@ function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props6 = this.props,
-          sortByField = _this$props6.sortByField,
-          width = _this$props6.width,
-          columnDefinition = _this$props6.columnDefinition,
-          onAdjusterDrag = _this$props6.onAdjusterDrag,
-          showingSortOptionsMenu = _this$props6.showingSortOptionsMenu,
-          setShowingSortFieldsFor = _this$props6.setShowingSortFieldsFor,
-          active = _this$props6.active,
-          _this$props6$isLoadin = _this$props6.isLoading,
-          isLoading = _this$props6$isLoadin === void 0 ? false : _this$props6$isLoadin;
+      var _this$props5 = this.props,
+          sortByField = _this$props5.sortByField,
+          width = _this$props5.width,
+          columnDefinition = _this$props5.columnDefinition,
+          onAdjusterDrag = _this$props5.onAdjusterDrag,
+          showingSortOptionsMenu = _this$props5.showingSortOptionsMenu,
+          setShowingSortFieldsFor = _this$props5.setShowingSortFieldsFor,
+          active = _this$props5.active,
+          _this$props5$isLoadin = _this$props5.isLoading,
+          isLoading = _this$props5$isLoadin === void 0 ? false : _this$props5$isLoadin;
       var noSort = columnDefinition.noSort,
           colTitle = columnDefinition.colTitle,
           title = columnDefinition.title,
@@ -522,16 +522,16 @@ function (_React$PureComponent3) {
   }]);
 
   function ColumnSorterIcon(props) {
-    var _this4;
+    var _this5;
 
     _classCallCheck(this, ColumnSorterIcon);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
-    _this4.onIconClick = _this4.onIconClick.bind(_assertThisInitialized(_this4));
-    _this4.memoized = {
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
+    _this5.onIconClick = _this5.onIconClick.bind(_assertThisInitialized(_this5));
+    _this5.memoized = {
       isActive: (0, _memoizeOne["default"])(ColumnSorterIcon.isActive)
     };
-    return _this4;
+    return _this5;
   }
   /**
    * Sorts column or opens/closes multisort menu
@@ -545,15 +545,15 @@ function (_React$PureComponent3) {
     key: "onIconClick",
     value: function onIconClick(e) {
       e.preventDefault();
-      var _this$props7 = this.props,
-          _this$props7$columnDe = _this$props7.columnDefinition,
-          field = _this$props7$columnDe.field,
-          _this$props7$columnDe2 = _this$props7$columnDe.sort_fields,
-          sort_fields = _this$props7$columnDe2 === void 0 ? [] : _this$props7$columnDe2,
-          _this$props7$showingS = _this$props7.showingSortOptionsMenu,
-          showingSortOptionsMenu = _this$props7$showingS === void 0 ? false : _this$props7$showingS,
-          setShowingSortFieldsFor = _this$props7.setShowingSortFieldsFor,
-          sortByField = _this$props7.sortByField;
+      var _this$props6 = this.props,
+          _this$props6$columnDe = _this$props6.columnDefinition,
+          field = _this$props6$columnDe.field,
+          _this$props6$columnDe2 = _this$props6$columnDe.sort_fields,
+          sort_fields = _this$props6$columnDe2 === void 0 ? [] : _this$props6$columnDe2,
+          _this$props6$showingS = _this$props6.showingSortOptionsMenu,
+          showingSortOptionsMenu = _this$props6$showingS === void 0 ? false : _this$props6$showingS,
+          setShowingSortFieldsFor = _this$props6.setShowingSortFieldsFor,
+          sortByField = _this$props6.sortByField;
 
       if (showingSortOptionsMenu) {
         // We're currently showing options for this col/icon; unset.
@@ -574,14 +574,14 @@ function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props8 = this.props,
-          columnDefinition = _this$props8.columnDefinition,
-          _this$props8$active = _this$props8.active,
-          active = _this$props8$active === void 0 ? null : _this$props8$active,
-          _this$props8$showingS = _this$props8.showingSortOptionsMenu,
-          showingSortOptionsMenu = _this$props8$showingS === void 0 ? false : _this$props8$showingS,
-          _this$props8$isLoadin = _this$props8.isLoading,
-          isLoading = _this$props8$isLoadin === void 0 ? false : _this$props8$isLoadin;
+      var _this$props7 = this.props,
+          columnDefinition = _this$props7.columnDefinition,
+          _this$props7$active = _this$props7.active,
+          active = _this$props7$active === void 0 ? null : _this$props7$active,
+          _this$props7$showingS = _this$props7.showingSortOptionsMenu,
+          showingSortOptionsMenu = _this$props7$showingS === void 0 ? false : _this$props7$showingS,
+          _this$props7$isLoadin = _this$props7.isLoading,
+          isLoading = _this$props7$isLoadin === void 0 ? false : _this$props7$isLoadin;
       var field = columnDefinition.field,
           _columnDefinition$sor = columnDefinition.sort_fields,
           sort_fields = _columnDefinition$sor === void 0 ? [] : _columnDefinition$sor;

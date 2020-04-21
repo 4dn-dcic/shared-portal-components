@@ -6,6 +6,7 @@ import Draggable from 'react-draggable';
 import { getColumnWidthFromDefinition } from './ColumnCombiner';
 import { WindowClickEventDelegator } from './../../../util/WindowClickEventDelegator';
 import { findParentElement } from './../../../util/layout';
+import { requestAnimationFrame as raf } from './../../../viz/utilities';
 
 /**
  * Assumes that is rendered by SearchResultTable and that a SortController instance
@@ -184,22 +185,20 @@ export class HeadersRow extends React.PureComponent {
 
     /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
     setColumnWidthsFromState(){
-        const { setColumnWidths, columnWidths } = this.props;
-        const { widths } = this.state;
-        if (typeof setColumnWidths !== 'function'){
-            throw new Error('props.setHeaderWidths not a function');
-        }
-        setTimeout(function(){
+        raf(() => {
+            const { setColumnWidths, columnWidths } = this.props;
+            const { widths } = this.state;
+            if (typeof setColumnWidths !== 'function'){
+                throw new Error('props.setHeaderWidths not a function');
+            }
             setColumnWidths({ ...columnWidths, ...widths });
-        }, 0);
+        });
     }
 
     onAdjusterDrag(columnDefinition, evt, r){
         const { field } = columnDefinition;
-        this.setState(({ widths }, { defaultMinColumnWidth })=>{
-            const nextWidths = _.clone(widths);
-            nextWidths[field] = Math.max(columnDefinition.minColumnWidth || defaultMinColumnWidth || 55, r.x);
-            return { 'widths' : nextWidths };
+        this.setState(function({ widths }, { defaultMinColumnWidth }){
+            return { 'widths' : { ...widths, [field] : Math.max(columnDefinition.minColumnWidth || defaultMinColumnWidth || 55, r.x) } };
         });
     }
 
