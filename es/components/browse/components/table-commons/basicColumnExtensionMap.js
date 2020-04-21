@@ -47,6 +47,10 @@ var basicColumnExtensionMap = {
     'minColumnWidth': 90,
     'order': -100,
     'render': function (result, columnDefinition, props, termTransformFxn, width) {
+      // TODO think about how to more easily customize this for different Item types.
+      // Likely make reusable component containing handleClick and most of its UI...
+      // which this and portals can use for "display_title" column, and then have per-type
+      // overrides/extensions.
       var href = props.href,
           context = props.context,
           rowNumber = props.rowNumber,

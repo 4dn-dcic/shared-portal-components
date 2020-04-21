@@ -17,6 +17,12 @@ export const basicColumnExtensionMap = {
         'minColumnWidth' : 90,
         'order' : -100,
         'render' : function renderDisplayTitleColumn(result, columnDefinition, props, termTransformFxn, width){
+
+            // TODO think about how to more easily customize this for different Item types.
+            // Likely make reusable component containing handleClick and most of its UI...
+            // which this and portals can use for "display_title" column, and then have per-type
+            // overrides/extensions.
+
             const { href, context, rowNumber, detailOpen, toggleDetailOpen } = props;
             // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
             let title = itemUtil.getTitleStringFromContext(result);
