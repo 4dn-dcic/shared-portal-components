@@ -129,7 +129,7 @@ function (_React$PureComponent) {
      *
      * @todo maybe memoize this and replace usage of state.keyValid w/ it.
      */
-    value: function findValidationState(keyIdx, prevKeyHierarchy, keyContext, keyComplete) {
+    value: function findValidationState(keyIdx, prevKeyHierarchy) {
       var hierarchy = _util.object.deepClone(prevKeyHierarchy);
 
       var keyHierarchy = (0, _submissionView.searchHierarchy)(hierarchy, keyIdx);
@@ -137,10 +137,10 @@ function (_React$PureComponent) {
       var validationReturn = 1;
 
       _underscore["default"].keys(keyHierarchy).forEach(function (key) {
+        // If key is a number, item has not been submitted yet... see note below
         if (!isNaN(key)) {
-          if (!keyComplete[key] && keyContext[key]) {
-            validationReturn = 0;
-          }
+          // NOTE: as of SAYTAJAX, ONLY unsubmitted items are stored with numeric keys
+          validationReturn = 0;
         }
       });
 
@@ -1713,11 +1713,18 @@ function (_React$PureComponent) {
                   _this6.setState(stateToSet);
                 }
               } else {
+                // Check if parent validation state will change based on current submission... update that alongside rest of state, if so
+                var newParentValidState = SubmissionView.findValidationState(parentKey, stateToSet.keyHierarchy, stateToSet.keyContext, stateToSet.keyComplete);
+
+                if (newParentValidState !== stateToSet.keyValid[parentKey]) {
+                  stateToSet.keyValid[parentKey] = newParentValidState;
+                }
+
                 _util.console.log("updating state with stateToSet: ", stateToSet);
 
                 _util.console.log("keyDisplay, ", keyDisplay);
 
-                _util.console.log("inKey: , ", inKey);
+                _util.console.log("inKey: ", inKey);
 
                 alert(keyDisplay[inKey] + ' was successfully submitted.');
 
@@ -2810,8 +2817,7 @@ function (_React$Component2) {
       //     atIds=${atIds},
       //     customSelectField=${customSelectField},
       //     customSelectType=${customSelectType},
-      //     customArrayIdx=${customArrayIdx},
-      //     valueToReplace=${valueToReplace}`);
+      //     customArrayIdx=${customArrayIdx}`);
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
           stateSelectField = _this$state7.selectField,
