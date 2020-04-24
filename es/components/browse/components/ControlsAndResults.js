@@ -72,7 +72,6 @@ function (_React$PureComponent) {
     _classCallCheck(this, ControlsAndResults);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ControlsAndResults).call(this, props));
-    _this.forceUpdateOnSelf = _this.forceUpdateOnSelf.bind(_assertThisInitialized(_this));
     _this.onClearFiltersClick = _this.onClearFiltersClick.bind(_assertThisInitialized(_this));
     _this.renderSearchDetailPane = _this.renderSearchDetailPane.bind(_assertThisInitialized(_this));
     _this.memoized = {
@@ -84,13 +83,6 @@ function (_React$PureComponent) {
   }
 
   _createClass(ControlsAndResults, [{
-    key: "forceUpdateOnSelf",
-    value: function forceUpdateOnSelf() {
-      var searchResultTable = this.searchResultTableRef.current;
-      var dimContainer = searchResultTable && searchResultTable.getDimensionContainer();
-      return dimContainer && dimContainer.resetWidths();
-    }
-  }, {
     key: "onClearFiltersClick",
     value: function onClearFiltersClick(evt) {
       var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -167,6 +159,9 @@ function (_React$PureComponent) {
           hiddenColumns = _this$props2.hiddenColumns,
           addHiddenColumn = _this$props2.addHiddenColumn,
           removeHiddenColumn = _this$props2.removeHiddenColumn,
+          visibleColumnDefinitions = _this$props2.visibleColumnDefinitions,
+          setColumnWidths = _this$props2.setColumnWidths,
+          columnWidths = _this$props2.columnWidths,
           columnDefinitions = _this$props2.columnDefinitions,
           onCompleteSelection = _this$props2.onCompleteSelection,
           onCancelSelection = _this$props2.onCancelSelection,
@@ -212,7 +207,7 @@ function (_React$PureComponent) {
         className: "above-results-table-row"
       }) : null, _react["default"].createElement(_FacetList.FacetList, facetListProps)) : null, _react["default"].createElement("div", {
         className: tableColumnClassName
-      }, showAboveTableControls ? _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, _extends({}, {
+      }, showAboveTableControls ? _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, {
         // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
         // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
         context: context,
@@ -227,17 +222,17 @@ function (_React$PureComponent) {
         windowWidth: windowWidth,
         windowHeight: windowHeight,
         topLeftChildren: topLeftChildren
-      }, {
-        parentForceUpdate: this.forceUpdateOnSelf
-      })) : null, _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
+      }) : null, _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
         context: context,
         href: href,
         navigate: navigate,
         currentAction: currentAction,
         schemas: schemas,
-        hiddenColumns: hiddenColumns,
         results: results,
         columnDefinitions: columnDefinitions,
+        visibleColumnDefinitions: visibleColumnDefinitions,
+        setColumnWidths: setColumnWidths,
+        columnWidths: columnWidths,
         isOwnPage: isOwnPage,
         sortBy: sortBy,
         sortColumn: sortColumn,

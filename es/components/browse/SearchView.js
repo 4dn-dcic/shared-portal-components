@@ -137,7 +137,8 @@ function (_React$PureComponent) {
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
           placeholderReplacementFxn = _this$props.placeholderReplacementFxn,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn"]);
+          windowWidth = _this$props.windowWidth,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "windowWidth"]);
 
       var contextFacets = context.facets; // All these controllers pass props down to their children.
       // So we don't need to be repetitive here; i.e. may assume 'context' is available
@@ -159,7 +160,9 @@ function (_React$PureComponent) {
       }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
+      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, {
+        windowWidth: windowWidth
+      }, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
 
       if ((0, _misc.isSelectAction)(currentAction)) {
         // We don't allow "SelectionMode" unless is own page.

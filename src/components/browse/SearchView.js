@@ -80,6 +80,7 @@ export class SearchView extends React.PureComponent {
             columnExtensionMap = basicColumnExtensionMap,
             placeholderReplacementFxn,
             //isOwnPage = true,
+            windowWidth,
             ...passProps
         } = this.props;
 
@@ -101,7 +102,7 @@ export class SearchView extends React.PureComponent {
         let controllersAndView = (
             <WindowNavigationController {...{ href, context }} navigate={propNavigate}>
                 <ColumnCombiner {...{ columns, columnExtensionMap }}>
-                    <CustomColumnController>
+                    <CustomColumnController {...{ windowWidth }}>
                         <SortController>
                             <ControlsAndResults {...childViewProps} />
                         </SortController>
