@@ -2,7 +2,6 @@ import React from 'react';
 import { Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { ajax } from './../../util';
-// import { getLargeMD5 } from './../../util/file';
 import _ from 'underscore';
 
 export class DragAndDropUploadSubmissionViewController extends React.Component {
@@ -34,123 +33,37 @@ export class DragAndDropUploadStandaloneController extends React.Component {
     }
     // /* Will become a generic data controller for managing upload state */
 
-    async createItem(file) {
+    createItem(file) {
         const { fieldType, award, lab } = this.props;
-        let destination = `/${fieldType}/?check_only=true`; // testing only
+        const destination = `/${fieldType}/?check_only=true`; // testing only
 
         // Generate an alias for the file
         const aliasLab = lab.split('/')[2];
         const aliasFilename = file.name.split(' ').join('-');
         const alias = aliasLab + ":" + aliasFilename + "-" + Date.now();
 
-        // Build a payload WITHOUT the current file information
-        const payload = {
+        // Build a payload with info from the various files
+        const payload = JSON.stringify({
             award,
             lab,
+            attachment: file,
             aliases: [alias]
-        };
+        });
 
-        // Submit the object without the file
-        let submitted_at_id;
-        try {
-            const response = await ajax.promise(destination, 'POST', {}, payload);
-
+        return ajax.promise(destination, 'POST', {}, payload).then((response) => {
             console.log("response", response);
+
             if (response.status && response.status !== 'success'){ // error
                 console.log("ERROR");
             } else {
-                // Retrieve the atID for future use
-                const responseData = response['@graph'];
+                let responseData;
+                let submitted_at_id;
+                [ responseData ] = response['@graph'];
                 submitted_at_id = object.itemUtil.atId(responseData);
                 console.log("submittedAtid=",submitted_at_id);
-
                 // here you would attach some onchange function from submission view
             }
-        } catch (error) {
-            console.log("error occurred, ", error);
-        }
-
-        // if (file !== null) {
-        //     try {
-        //         let hash = await getLargeMD5(file, this.modifyMD5Progess);
-        //         var payload = JSON.stringify({ 'md5sum': hash });
-
-        //         // perform async patch to set md5sum field of the file
-        //         ajax.promise(destination, 'PATCH', {}, payload).then((data) => {
-        //             if(data.status && data.status == 'success'){
-        //                 console.info('HASH SET TO:', hash, 'FOR', destination);
-        //                 stateToSet.upload = uploadInfo;
-        //                 stateToSet.md5Progress = null;
-        //                 stateToSet.uploadStatus = null;
-        //                 this.setState(stateToSet);
-        //             }else if(data.status && data.title && data.status == 'error' && data.title == 'Conflict'){
-        //                 // md5 key conflict
-        //                 stateToSet.uploadStatus = 'MD5 conflicts with another file';
-        //                 stateToSet.md5Progress = null;
-        //                 this.setState(stateToSet);
-        //             }else{
-        //                 // error setting md5
-        //                 stateToSet.uploadStatus = 'MD5 calculation error';
-        //                 stateToSet.md5Progress = null;
-        //                 this.setState(stateToSet);
-        //             }
-        //     }
-        //     catch {
-
-        //     }
-        //     .then((hash) => {
-        //         // perform async patch to set md5sum field of the file
-        //         var payload = JSON.stringify({ 'md5sum': hash });
-        //         ajax.promise(destination, 'PATCH', {}, payload).then((data) => {
-        //             if(data.status && data.status == 'success'){
-        //                 console.info('HASH SET TO:', hash, 'FOR', destination);
-        //                 stateToSet.upload = uploadInfo;
-        //                 stateToSet.md5Progress = null;
-        //                 stateToSet.uploadStatus = null;
-        //                 this.setState(stateToSet);
-        //             }else if(data.status && data.title && data.status == 'error' && data.title == 'Conflict'){
-        //                 // md5 key conflict
-        //                 stateToSet.uploadStatus = 'MD5 conflicts with another file';
-        //                 stateToSet.md5Progress = null;
-        //                 this.setState(stateToSet);
-        //             }else{
-        //                 // error setting md5
-        //                 stateToSet.uploadStatus = 'MD5 calculation error';
-        //                 stateToSet.md5Progress = null;
-        //                 this.setState(stateToSet);
-        //             }
-        //         });
-
-        //     }).catch((error) => {
-        //         stateToSet.uploadStatus = 'MD5 calculation error';
-        //         stateToSet.file = null;
-        //         stateToSet.md5Progress = null;
-        //         this.setState(stateToSet);
-        //     });
-        // }
-
-
-        // const payload = JSON.stringify(payloadObj);
-
-        // return ajax.promise(destination, 'POST', {}, payload).then((response) => {
-        //     console.log("response", response);
-
-        //     if (response.status && response.status !== 'success'){ // error
-        //         console.log("ERROR");
-        //     } else {
-        //         let responseData;
-        //         let submitted_at_id;
-        //         [ responseData ] = response['@graph'];
-        //         submitted_at_id = object.itemUtil.atId(responseData);
-        //         console.log("submittedAtid=",submitted_at_id);
-        //         // here you would attach some onchange function from submission view
-        //     }
-        // });
-
-
-
-
-
+        });
         //     if (response.status && response.status !== 'success'){ // error
         //         stateToSet.keyValid[inKey] = 2;
         //         if(!suppressWarnings){
@@ -229,14 +142,8 @@ export class DragAndDropUploadStandaloneController extends React.Component {
         console.log("Attempting to start upload with files... ", files);
         const promises = [];
 
-        files.forEach(async (file) => {
-            try {
-                let promise = await this.createItem(file);
-                console.log("promise", promise);
-                // promises.push(promise);
-            } catch (e) {
-                console.log("eerror", e);
-            }
+        files.forEach((file) => {
+            promises.push(this.createItem(file));
         });
 
         console.log(promises);
