@@ -35,8 +35,6 @@ var _SubmissionTree = require("./components/SubmissionTree");
 
 var _submissionFields = require("./components/submission-fields");
 
-var _DragAndDropUpload = require("./components/DragAndDropUpload");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -1940,7 +1938,7 @@ function (_React$PureComponent) {
       return _react["default"].createElement("div", {
         className: "submission-view-page-container container",
         id: "content"
-      }, _react["default"].createElement(_DragAndDropUpload.DragAndDropUploadStandaloneController, null), _react["default"].createElement(TypeSelectModal, _extends({
+      }, _react["default"].createElement(TypeSelectModal, _extends({
         show: showAmbiguousModal
       }, _underscore["default"].pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _underscore["default"].pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
         schemas: schemas
