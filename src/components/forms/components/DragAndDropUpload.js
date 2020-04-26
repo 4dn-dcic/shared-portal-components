@@ -12,15 +12,17 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
 
 export class DragAndDropUploadStandaloneController extends React.Component {
     static propTypes = {
-        fieldType: PropTypes.string.isRequired,
+        fieldType: PropTypes.string,
+        fieldName: PropTypes.string, // If this isn't passed in, use fieldtype instead
         award: PropTypes.string.isRequired,
-        lab: PropTypes.string.isRequired
+        lab: PropTypes.string.isRequired,
+        cls: PropTypes.string
     }
 
     static defaultProps = {
-        fieldType: "Document",
         award: "/awards/1U01CA200059-01/",
-        lab: "/labs/4dn-dcic-lab"
+        lab: "/labs/4dn-dcic-lab",
+        cls: "btn"
     }
 
     constructor(props) {
@@ -150,15 +152,20 @@ export class DragAndDropUploadStandaloneController extends React.Component {
     }
 
     render() {
-        return <DragAndDropUploadButton onUploadStart={this.onUploadStart} />;
+        const { cls, fieldName, fieldType } = this.props;
+
+        return <DragAndDropUploadButton {...{ cls, fieldName, fieldType }}
+            onUploadStart={this.onUploadStart} />;
     }
 }
 
 class DragAndDropUploadButton extends React.Component {
     static propTypes = {
         onUploadStart: PropTypes.func.isRequired,     // Actions to take upon upload; exact status of upload controlled by data controller wrapper
-        fieldType: PropTypes.string,                  // Field name of item being added
-        multiselect: PropTypes.bool
+        fieldType: PropTypes.string,                  // Schema-formatted type (Ex. Item, Document, etc)
+        fieldName: PropTypes.string,                  // Name of specific field (Ex. Related Documents)
+        multiselect: PropTypes.bool,
+        cls: PropTypes.string
     }
 
     static defaultProps = {
@@ -193,14 +200,14 @@ class DragAndDropUploadButton extends React.Component {
 
     render() {
         const { showModal: show, multiselect } = this.state;
-        const { onUploadStart, fieldType } = this.props;
+        const { onUploadStart, fieldType, cls, fieldName } = this.props;
 
         return (
             <div>
                 <DragAndDropFileUploadModal onHide={this.onHide}
-                    {...{ multiselect, show, onUploadStart, fieldType }}
+                    {...{ multiselect, show, onUploadStart, fieldType, fieldName }}
                 />
-                <button type="button" onClick={this.onShow}>Upload a new document</button>
+                <button type="button" onClick={this.onShow} className={cls}><i className="icon icon-upload fas"></i> Quick Upload a new {fieldType}</button>
             </div>
         );
     }
@@ -216,7 +223,8 @@ class DragAndDropFileUploadModal extends React.Component {
         onUploadStart: PropTypes.func.isRequired,       // Should trigger the creation of a new object, and start upload
         show: PropTypes.bool,                           // Controlled by state method onHide passed in as prop
         multiselect: PropTypes.bool,                    // Passed in from Schema, along with field and item types
-        fieldType: PropTypes.string
+        fieldType: PropTypes.string,
+        fieldName: PropTypes.string
     }
 
     static defaultProps = {
@@ -303,14 +311,17 @@ class DragAndDropFileUploadModal extends React.Component {
 
     render(){
         const {
-            show, onUploadStart, fieldType
+            show, onUploadStart, fieldType, fieldName
         } = this.props;
         const { files } = this.state;
+
+        let showFieldName = fieldName && fieldType !== fieldName;
+
         return (
             <Modal centered {...{ show }} onHide={this.handleHideModal} className="submission-view-modal">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
-                        Upload a {fieldType}
+                        Upload a {fieldType} { showFieldName ? "for " + fieldName : null}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -329,7 +340,7 @@ class DragAndDropFileUploadModal extends React.Component {
                     </input> */}
                     <button type="button" className="btn btn-primary" onClick={() => onUploadStart(files)}
                         disabled={files.length === 0}>
-                        <i className="icon fas icon-upload"></i> Upload Files
+                        <i className="icon fas icon-upload"></i> Upload {fieldName}
                     </button>
                 </Modal.Footer>
             </Modal>

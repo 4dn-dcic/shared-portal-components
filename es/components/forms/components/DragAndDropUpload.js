@@ -17,7 +17,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -201,9 +201,17 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      return _react["default"].createElement(DragAndDropUploadButton, {
+      var _this$props2 = this.props,
+          cls = _this$props2.cls,
+          fieldName = _this$props2.fieldName,
+          fieldType = _this$props2.fieldType;
+      return _react["default"].createElement(DragAndDropUploadButton, _extends({
+        cls: cls,
+        fieldName: fieldName,
+        fieldType: fieldType
+      }, {
         onUploadStart: this.onUploadStart
-      });
+      }));
     }
   }]);
 
@@ -213,15 +221,18 @@ function (_React$Component2) {
 exports.DragAndDropUploadStandaloneController = DragAndDropUploadStandaloneController;
 
 _defineProperty(DragAndDropUploadStandaloneController, "propTypes", {
-  fieldType: _propTypes["default"].string.isRequired,
+  fieldType: _propTypes["default"].string,
+  fieldName: _propTypes["default"].string,
+  // If this isn't passed in, use fieldtype instead
   award: _propTypes["default"].string.isRequired,
-  lab: _propTypes["default"].string.isRequired
+  lab: _propTypes["default"].string.isRequired,
+  cls: _propTypes["default"].string
 });
 
 _defineProperty(DragAndDropUploadStandaloneController, "defaultProps", {
-  fieldType: "Document",
   award: "/awards/1U01CA200059-01/",
-  lab: "/labs/4dn-dcic-lab"
+  lab: "/labs/4dn-dcic-lab",
+  cls: "btn"
 });
 
 var DragAndDropUploadButton =
@@ -271,20 +282,26 @@ function (_React$Component3) {
       var _this$state = this.state,
           show = _this$state.showModal,
           multiselect = _this$state.multiselect;
-      var _this$props2 = this.props,
-          onUploadStart = _this$props2.onUploadStart,
-          fieldType = _this$props2.fieldType;
+      var _this$props3 = this.props,
+          onUploadStart = _this$props3.onUploadStart,
+          fieldType = _this$props3.fieldType,
+          cls = _this$props3.cls,
+          fieldName = _this$props3.fieldName;
       return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropFileUploadModal, _extends({
         onHide: this.onHide
       }, {
         multiselect: multiselect,
         show: show,
         onUploadStart: onUploadStart,
-        fieldType: fieldType
+        fieldType: fieldType,
+        fieldName: fieldName
       })), _react["default"].createElement("button", {
         type: "button",
-        onClick: this.onShow
-      }, "Upload a new document"));
+        onClick: this.onShow,
+        className: cls
+      }, _react["default"].createElement("i", {
+        className: "icon icon-upload fas"
+      }), " Quick Upload a new ", fieldType));
     }
   }]);
 
@@ -295,8 +312,11 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
   onUploadStart: _propTypes["default"].func.isRequired,
   // Actions to take upon upload; exact status of upload controlled by data controller wrapper
   fieldType: _propTypes["default"].string,
-  // Field name of item being added
-  multiselect: _propTypes["default"].bool
+  // Schema-formatted type (Ex. Item, Document, etc)
+  fieldName: _propTypes["default"].string,
+  // Name of specific field (Ex. Related Documents)
+  multiselect: _propTypes["default"].bool,
+  cls: _propTypes["default"].string
 });
 
 _defineProperty(DragAndDropUploadButton, "defaultProps", {
@@ -409,10 +429,11 @@ function (_React$Component4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          show = _this$props3.show,
-          onUploadStart = _this$props3.onUploadStart,
-          fieldType = _this$props3.fieldType;
+      var _this$props4 = this.props,
+          show = _this$props4.show,
+          onUploadStart = _this$props4.onUploadStart,
+          fieldType = _this$props4.fieldType,
+          fieldName = _this$props4.fieldName;
       var files = this.state.files;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
@@ -425,7 +446,7 @@ function (_React$Component4) {
         closeButton: true
       }, _react["default"].createElement(_reactBootstrap.Modal.Title, {
         className: "text-500"
-      }, "Upload a ", fieldType)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
+      }, "Upload a ", fieldType, " ", fieldName && fieldType !== fieldName ? "for " + fieldName : null)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
         files: files
       }, {
         handleAddFile: this.handleAddFile,
@@ -445,7 +466,7 @@ function (_React$Component4) {
         disabled: files.length === 0
       }, _react["default"].createElement("i", {
         className: "icon fas icon-upload"
-      }), " Upload Files")));
+      }), " Upload ", fieldName)));
     }
   }]);
 
@@ -461,7 +482,8 @@ _defineProperty(DragAndDropFileUploadModal, "propTypes", {
   // Controlled by state method onHide passed in as prop
   multiselect: _propTypes["default"].bool,
   // Passed in from Schema, along with field and item types
-  fieldType: _propTypes["default"].string
+  fieldType: _propTypes["default"].string,
+  fieldName: _propTypes["default"].string
 });
 
 _defineProperty(DragAndDropFileUploadModal, "defaultProps", {
@@ -549,9 +571,9 @@ function (_React$Component5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-          files = _this$props4.files,
-          handleRemoveFile = _this$props4.handleRemoveFile;
+      var _this$props5 = this.props,
+          files = _this$props5.files,
+          handleRemoveFile = _this$props5.handleRemoveFile;
       return _react["default"].createElement("div", {
         className: "panel text-center",
         style: {
