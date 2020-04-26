@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DragAndDropZone = exports.DragAndDropUploadStandaloneController = exports.DragAndDropUploadSubmissionViewController = void 0;
+exports.DragAndDropZone = exports.DragAndDropUploadFileUploadController = exports.DragAndDropUploadSubmissionViewController = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -55,25 +55,102 @@ function (_React$Component) {
 
 exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
 
-var DragAndDropUploadStandaloneController =
+var DragAndDropUploadFileUploadController =
 /*#__PURE__*/
 function (_React$Component2) {
-  _inherits(DragAndDropUploadStandaloneController, _React$Component2);
+  _inherits(DragAndDropUploadFileUploadController, _React$Component2);
 
-  function DragAndDropUploadStandaloneController(props) {
+  function DragAndDropUploadFileUploadController(props) {
     var _this;
 
-    _classCallCheck(this, DragAndDropUploadStandaloneController);
+    _classCallCheck(this, DragAndDropUploadFileUploadController);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadStandaloneController).call(this, props));
-    _this.state = {// TODO: Figure out exactly how granular we can get with upload state
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadFileUploadController).call(this, props));
+    _this.state = {
+      files: [] // Always in an array, even if multiselect enabled
+
     };
+    _this.handleAddFile = _this.handleAddFile.bind(_assertThisInitialized(_this));
+    _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
+    _this.handleClearAllFiles = _this.handleClearAllFiles.bind(_assertThisInitialized(_this));
     _this.onUploadStart = _this.onUploadStart.bind(_assertThisInitialized(_this));
     return _this;
   } // /* Will become a generic data controller for managing upload state */
 
 
-  _createClass(DragAndDropUploadStandaloneController, [{
+  _createClass(DragAndDropUploadFileUploadController, [{
+    key: "handleAddFile",
+    value: function handleAddFile(evt) {
+      var _evt$dataTransfer = evt.dataTransfer,
+          items = _evt$dataTransfer.items,
+          files = _evt$dataTransfer.files;
+      var multiselect = this.props.multiselect;
+      var currFiles = this.state.files;
+
+      if (items && items.length > 0) {
+        if (multiselect) {
+          // Add all dragged items
+          var fileArr = []; // Populate an array with all of the new files
+
+          for (var i = 0; i < files.length; i++) {
+            console.log(files[i]);
+            fileArr.push(files[i]);
+          } // Concat with current array
+
+
+          var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
+
+          var dedupedFiles = _underscore["default"].uniq(allFiles, false, function (file) {
+            return file.name;
+          });
+
+          this.setState({
+            files: dedupedFiles
+          });
+        } else {
+          // Select only one file at a time
+          this.setState({
+            files: [files[0]]
+          });
+        }
+      }
+    }
+  }, {
+    key: "handleRemoveFile",
+    value: function handleRemoveFile(id) {
+      var multiselect = this.props.multiselect;
+
+      if (multiselect) {
+        var files = this.state.files;
+
+        var _id$split = id.split("|"),
+            name = _id$split[0],
+            size = _id$split[1],
+            lastModified = _id$split[2]; // Filter to remove the clicked file by ID parts
+
+
+        var newFiles = files.filter(function (file) {
+          if (file.name === name && file.size === parseInt(size) && file.lastModified === parseInt(lastModified)) {
+            return false;
+          }
+
+          return true;
+        });
+        this.setState({
+          files: newFiles
+        });
+      } else {
+        this.handleClearAllFiles();
+      }
+    }
+  }, {
+    key: "handleClearAllFiles",
+    value: function handleClearAllFiles() {
+      this.setState({
+        files: []
+      });
+    }
+  }, {
     key: "createItem",
     value: function createItem(file) {
       var _this$props = this.props,
@@ -197,22 +274,27 @@ function (_React$Component2) {
           cls = _this$props2.cls,
           fieldName = _this$props2.fieldName,
           fieldType = _this$props2.fieldType;
+      var files = this.state.files;
       return _react["default"].createElement(DragAndDropUploadButton, _extends({
         cls: cls,
         fieldName: fieldName,
-        fieldType: fieldType
+        fieldType: fieldType,
+        files: files
       }, {
-        onUploadStart: this.onUploadStart
+        onUploadStart: this.onUploadStart,
+        handleAddFile: this.handleAddFile,
+        handleClearAllFiles: this.handleClearAllFiles,
+        handleRemoveFile: this.handleRemoveFile
       }));
     }
   }]);
 
-  return DragAndDropUploadStandaloneController;
+  return DragAndDropUploadFileUploadController;
 }(_react["default"].Component);
 
-exports.DragAndDropUploadStandaloneController = DragAndDropUploadStandaloneController;
+exports.DragAndDropUploadFileUploadController = DragAndDropUploadFileUploadController;
 
-_defineProperty(DragAndDropUploadStandaloneController, "propTypes", {
+_defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
   fieldType: _propTypes["default"].string.isRequired,
   fieldName: _propTypes["default"].string,
   // If this isn't passed in, use fieldtype instead
@@ -224,13 +306,16 @@ _defineProperty(DragAndDropUploadStandaloneController, "propTypes", {
   // Required for CGAP
   project: _propTypes["default"].object,
   // Required for CGAP
-  cls: _propTypes["default"].string
+  cls: _propTypes["default"].string,
+  multiselect: _propTypes["default"].bool // Should you be able to upload/link multiple files at once?
+
 });
 
-_defineProperty(DragAndDropUploadStandaloneController, "defaultProps", {
+_defineProperty(DragAndDropUploadFileUploadController, "defaultProps", {
   // award: "/awards/1U01CA200059-01/", // for testing
   // lab: "/labs/4dn-dcic-lab", // for testing
-  cls: "btn"
+  cls: "btn",
+  multiselect: true
 });
 
 var DragAndDropUploadButton =
@@ -249,6 +334,7 @@ function (_React$Component3) {
     };
     _this3.onHide = _this3.onHide.bind(_assertThisInitialized(_this3));
     _this3.onShow = _this3.onShow.bind(_assertThisInitialized(_this3));
+    _this3.handleHideModal = _this3.handleHideModal.bind(_assertThisInitialized(_this3));
     return _this3;
   }
 
@@ -275,6 +361,15 @@ function (_React$Component3) {
       }
     }
   }, {
+    key: "handleHideModal",
+    value: function handleHideModal() {
+      // Force to clear files before hiding modal, so each time it is opened
+      // anew, user doesn't have to re-clear it.
+      var handleClearAllFiles = this.props.handleClearAllFiles;
+      handleClearAllFiles();
+      this.onHide();
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$state = this.state,
@@ -282,17 +377,25 @@ function (_React$Component3) {
           multiselect = _this$state.multiselect;
       var _this$props3 = this.props,
           onUploadStart = _this$props3.onUploadStart,
+          handleAddFile = _this$props3.handleAddFile,
+          handleRemoveFile = _this$props3.handleRemoveFile,
+          handleClearAllFiles = _this$props3.handleClearAllFiles,
           fieldType = _this$props3.fieldType,
           cls = _this$props3.cls,
-          fieldName = _this$props3.fieldName;
-      return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropFileUploadModal, _extends({
-        onHide: this.onHide
+          fieldName = _this$props3.fieldName,
+          files = _this$props3.files;
+      return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropModal, _extends({
+        handleHideModal: this.handleHideModal
       }, {
         multiselect: multiselect,
         show: show,
         onUploadStart: onUploadStart,
         fieldType: fieldType,
-        fieldName: fieldName
+        fieldName: fieldName,
+        handleAddFile: handleAddFile,
+        handleRemoveFile: handleRemoveFile,
+        handleClearAllFiles: handleClearAllFiles,
+        files: files
       })), _react["default"].createElement("button", {
         type: "button",
         onClick: this.onShow,
@@ -309,6 +412,10 @@ function (_React$Component3) {
 _defineProperty(DragAndDropUploadButton, "propTypes", {
   onUploadStart: _propTypes["default"].func.isRequired,
   // Actions to take upon upload; exact status of upload controlled by data controller wrapper
+  handleAddFile: _propTypes["default"].func.isRequired,
+  handleRemoveFile: _propTypes["default"].func.isRequired,
+  files: _propTypes["default"].array,
+  handleClearAllFiles: _propTypes["default"].func.isRequired,
   fieldType: _propTypes["default"].string,
   // Schema-formatted type (Ex. Item, Document, etc)
   fieldName: _propTypes["default"].string,
@@ -323,122 +430,40 @@ _defineProperty(DragAndDropUploadButton, "defaultProps", {
   multiselect: false
 });
 
-var DragAndDropFileUploadModal =
+var DragAndDropModal =
 /*#__PURE__*/
 function (_React$Component4) {
-  _inherits(DragAndDropFileUploadModal, _React$Component4);
+  _inherits(DragAndDropModal, _React$Component4);
 
-  /*
-      Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
-      Functions for hiding, and handles files.
-  */
-  function DragAndDropFileUploadModal(props) {
-    var _this4;
+  function DragAndDropModal() {
+    _classCallCheck(this, DragAndDropModal);
 
-    _classCallCheck(this, DragAndDropFileUploadModal);
-
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadModal).call(this, props));
-    _this4.state = {
-      files: [] // Always in an array, even if multiselect enabled
-
-    };
-    _this4.handleAddFile = _this4.handleAddFile.bind(_assertThisInitialized(_this4));
-    _this4.handleRemoveFile = _this4.handleRemoveFile.bind(_assertThisInitialized(_this4));
-    _this4.handleClearAllFiles = _this4.handleClearAllFiles.bind(_assertThisInitialized(_this4));
-    _this4.handleHideModal = _this4.handleHideModal.bind(_assertThisInitialized(_this4));
-    return _this4;
+    return _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropModal).apply(this, arguments));
   }
 
-  _createClass(DragAndDropFileUploadModal, [{
-    key: "handleAddFile",
-    value: function handleAddFile(evt) {
-      var _evt$dataTransfer = evt.dataTransfer,
-          items = _evt$dataTransfer.items,
-          files = _evt$dataTransfer.files;
-      var multiselect = this.props.multiselect;
-      var currFiles = this.state.files;
-
-      if (items && items.length > 0) {
-        if (multiselect) {
-          // Add all dragged items
-          var fileArr = []; // Populate an array with all of the new files
-
-          for (var i = 0; i < files.length; i++) {
-            console.log(files[i]);
-            fileArr.push(files[i]);
-          } // Concat with current array
-
-
-          var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
-
-          var dedupedFiles = _underscore["default"].uniq(allFiles, false, function (file) {
-            return file.name;
-          });
-
-          this.setState({
-            files: dedupedFiles
-          });
-        } else {
-          // Select only one file at a time
-          this.setState({
-            files: [files[0]]
-          });
-        }
-      }
-    }
-  }, {
-    key: "handleRemoveFile",
-    value: function handleRemoveFile(id) {
-      var files = this.state.files;
-
-      var _id$split = id.split("|"),
-          name = _id$split[0],
-          size = _id$split[1],
-          lastModified = _id$split[2]; // Filter to remove the clicked file by ID parts
-
-
-      var newFiles = files.filter(function (file) {
-        if (file.name === name && file.size === parseInt(size) && file.lastModified === parseInt(lastModified)) {
-          return false;
-        }
-
-        return true;
-      });
-      this.setState({
-        files: newFiles
-      });
-    }
-  }, {
-    key: "handleClearAllFiles",
-    value: function handleClearAllFiles() {
-      this.setState({
-        files: []
-      });
-    }
-  }, {
-    key: "handleHideModal",
-    value: function handleHideModal() {
-      // Force to clear files before hiding modal, so each time it is opened
-      // anew, user doesn't have to re-clear it.
-      var propsOnHideFxn = this.props.onHide;
-      this.handleClearAllFiles();
-      propsOnHideFxn();
-    }
-  }, {
+  _createClass(DragAndDropModal, [{
     key: "render",
+
+    /*
+        Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
+        Functions for hiding, and handles files.
+    */
     value: function render() {
       var _this$props4 = this.props,
           show = _this$props4.show,
           onUploadStart = _this$props4.onUploadStart,
           fieldType = _this$props4.fieldType,
-          fieldName = _this$props4.fieldName;
-      var files = this.state.files;
+          fieldName = _this$props4.fieldName,
+          handleAddFile = _this$props4.handleAddFile,
+          handleRemoveFile = _this$props4.handleRemoveFile,
+          files = _this$props4.files,
+          handleHideModal = _this$props4.handleHideModal;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
       }, {
         show: show
       }, {
-        onHide: this.handleHideModal,
+        onHide: handleHideModal,
         className: "submission-view-modal"
       }), _react["default"].createElement(_reactBootstrap.Modal.Header, {
         closeButton: true
@@ -447,12 +472,12 @@ function (_React$Component4) {
       }, "Upload a ", fieldType, " ", fieldName && fieldType !== fieldName ? "for " + fieldName : null)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
         files: files
       }, {
-        handleAddFile: this.handleAddFile,
-        handleRemoveFile: this.handleRemoveFile
+        handleAddFile: handleAddFile,
+        handleRemoveFile: handleRemoveFile
       }))), _react["default"].createElement(_reactBootstrap.Modal.Footer, null, _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-danger",
-        onClick: this.handleHideModal
+        onClick: handleHideModal
       }, _react["default"].createElement("i", {
         className: "icon fas icon-close"
       }), " Cancel"), _react["default"].createElement("button", {
@@ -468,25 +493,25 @@ function (_React$Component4) {
     }
   }]);
 
-  return DragAndDropFileUploadModal;
+  return DragAndDropModal;
 }(_react["default"].Component);
 
-_defineProperty(DragAndDropFileUploadModal, "propTypes", {
-  onHide: _propTypes["default"].func.isRequired,
-  // Should control show state/prop below
+_defineProperty(DragAndDropModal, "propTypes", {
+  handleAddFile: _propTypes["default"].func.isRequired,
+  handleRemoveFile: _propTypes["default"].func.isRequired,
+  handleClearAllFiles: _propTypes["default"].func.isRequired,
+  handleHideModal: _propTypes["default"].func.isRequired,
+  files: _propTypes["default"].array,
   onUploadStart: _propTypes["default"].func.isRequired,
   // Should trigger the creation of a new object, and start upload
   show: _propTypes["default"].bool,
   // Controlled by state method onHide passed in as prop
-  multiselect: _propTypes["default"].bool,
-  // Passed in from Schema, along with field and item types
   fieldType: _propTypes["default"].string,
   fieldName: _propTypes["default"].string
 });
 
-_defineProperty(DragAndDropFileUploadModal, "defaultProps", {
-  show: true,
-  multiselect: true
+_defineProperty(DragAndDropModal, "defaultProps", {
+  show: false
 });
 
 var DragAndDropZone =
@@ -495,19 +520,19 @@ function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
 
   function DragAndDropZone(props) {
-    var _this5;
+    var _this4;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
-    _this5.state = {
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
+    _this4.state = {
       dragging: false
     };
-    _this5.dropZoneRef = _react["default"].createRef();
-    _this5.cleanUpEventListeners = _this5.cleanUpEventListeners.bind(_assertThisInitialized(_this5));
-    _this5.setUpEventListeners = _this5.setUpEventListeners.bind(_assertThisInitialized(_this5));
-    _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this4.dropZoneRef = _react["default"].createRef();
+    _this4.cleanUpEventListeners = _this4.cleanUpEventListeners.bind(_assertThisInitialized(_this4));
+    _this4.setUpEventListeners = _this4.setUpEventListeners.bind(_assertThisInitialized(_this4));
+    _this4.handleDrop = _this4.handleDrop.bind(_assertThisInitialized(_this4));
+    return _this4;
   }
 
   _createClass(DragAndDropZone, [{

@@ -10,7 +10,7 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
 }
 
 
-export class DragAndDropUploadStandaloneController extends React.Component {
+export class DragAndDropUploadFileUploadController extends React.Component {
     static propTypes = {
         fieldType: PropTypes.string.isRequired,
         fieldName: PropTypes.string, // If this isn't passed in, use fieldtype instead
@@ -18,24 +18,92 @@ export class DragAndDropUploadStandaloneController extends React.Component {
         lab: PropTypes.string, // Required for 4DN
         institution: PropTypes.object, // Required for CGAP
         project: PropTypes.object, // Required for CGAP
-        cls: PropTypes.string
+        cls: PropTypes.string,
+        multiselect: PropTypes.bool // Should you be able to upload/link multiple files at once?
     }
 
     static defaultProps = {
         // award: "/awards/1U01CA200059-01/", // for testing
         // lab: "/labs/4dn-dcic-lab", // for testing
-        cls: "btn"
+        cls: "btn",
+        multiselect: true
     }
 
     constructor(props) {
         super(props);
         this.state = {
-            // TODO: Figure out exactly how granular we can get with upload state
+            files: [] // Always in an array, even if multiselect enabled
         };
+
+        this.handleAddFile = this.handleAddFile.bind(this);
+        this.handleRemoveFile = this.handleRemoveFile.bind(this);
+        this.handleClearAllFiles = this.handleClearAllFiles.bind(this);
 
         this.onUploadStart = this.onUploadStart.bind(this);
     }
     // /* Will become a generic data controller for managing upload state */
+
+    handleAddFile(evt) {
+        const { items, files } = evt.dataTransfer;
+        const { multiselect } = this.props;
+        const { files: currFiles } = this.state;
+
+        if (items && items.length > 0) {
+            if (multiselect) {
+                // Add all dragged items
+                const fileArr = [];
+
+                // Populate an array with all of the new files
+                for (var i = 0; i < files.length; i++) {
+                    console.log(files[i]);
+                    fileArr.push(files[i]);
+                }
+
+                // Concat with current array
+                const allFiles = currFiles.concat(fileArr);
+
+                // Filter out duplicates (based on just filename for now; may need more criteria in future)
+                const dedupedFiles = _.uniq(allFiles, false, (file) => file.name);
+
+                this.setState({
+                    files: dedupedFiles
+                });
+            } else {
+                // Select only one file at a time
+                this.setState({
+                    files: [files[0]]
+                });
+            }
+        }
+    }
+
+    handleRemoveFile(id) {
+        const { multiselect } = this.props;
+
+        if (multiselect) {
+            const { files } = this.state;
+            const { 0: name, 1: size, 2: lastModified } = id.split("|");
+
+            // Filter to remove the clicked file by ID parts
+            const newFiles = files.filter((file) => {
+                if ((file.name === name) &&
+                    (file.size === parseInt(size)) &&
+                    (file.lastModified === parseInt(lastModified))
+                ) {
+                    return false;
+                }
+                return true;
+            });
+
+            this.setState({ files: newFiles });
+        } else {
+            this.handleClearAllFiles();
+        }
+    }
+
+    handleClearAllFiles() {
+        this.setState({ files: [] });
+    }
 
     createItem(file) {
         const { fieldType, award, lab, institution, project } = this.props;
@@ -167,15 +235,21 @@ export class DragAndDropUploadStandaloneController extends React.Component {
 
     render() {
         const { cls, fieldName, fieldType } = this.props;
+        const { files } = this.state;
 
-        return <DragAndDropUploadButton {...{ cls, fieldName, fieldType }}
-            onUploadStart={this.onUploadStart} />;
+        return <DragAndDropUploadButton {...{ cls, fieldName, fieldType, files }}
+            onUploadStart={this.onUploadStart} handleAddFile={this.handleAddFile}
+            handleClearAllFiles={this.handleClearAllFiles} handleRemoveFile={this.handleRemoveFile} />;
     }
 }
 
 class DragAndDropUploadButton extends React.Component {
     static propTypes = {
         onUploadStart: PropTypes.func.isRequired,     // Actions to take upon upload; exact status of upload controlled by data controller wrapper
+        handleAddFile: PropTypes.func.isRequired,
+        handleRemoveFile: PropTypes.func.isRequired,
+        files: PropTypes.array,
+        handleClearAllFiles: PropTypes.func.isRequired,
         fieldType: PropTypes.string,                  // Schema-formatted type (Ex. Item, Document, etc)
         fieldName: PropTypes.string,                  // Name of specific field (Ex. Related Documents)
         multiselect: PropTypes.bool,
@@ -196,6 +270,7 @@ class DragAndDropUploadButton extends React.Component {
 
         this.onHide = this.onHide.bind(this);
         this.onShow = this.onShow.bind(this);
+        this.handleHideModal = this.handleHideModal.bind(this);
     }
 
     onHide() {
@@ -212,14 +287,25 @@ class DragAndDropUploadButton extends React.Component {
         }
     }
 
+    handleHideModal() {
+        // Force to clear files before hiding modal, so each time it is opened
+        // anew, user doesn't have to re-clear it.
+        const { handleClearAllFiles } = this.props;
+
+        handleClearAllFiles();
+        this.onHide();
+    }
+
     render() {
         const { showModal: show, multiselect } = this.state;
-        const { onUploadStart, fieldType, cls, fieldName } = this.props;
+        const { onUploadStart, handleAddFile, handleRemoveFile, handleClearAllFiles,
+            fieldType, cls, fieldName, files } = this.props;
 
         return (
             <div>
-                <DragAndDropFileUploadModal onHide={this.onHide}
-                    {...{ multiselect, show, onUploadStart, fieldType, fieldName }}
+                <DragAndDropModal handleHideModal={this.handleHideModal}
+                    {...{ multiselect, show, onUploadStart, fieldType, fieldName, handleAddFile, handleRemoveFile,
+                        handleClearAllFiles, files }}
                 />
                 <button type="button" onClick={this.onShow} className={cls}><i className="icon icon-upload fas"></i> Quick Upload a new {fieldType}</button>
             </div>
@@ -227,112 +313,36 @@ class DragAndDropUploadButton extends React.Component {
     }
 }
 
-class DragAndDropFileUploadModal extends React.Component {
+class DragAndDropModal extends React.Component {
     /*
         Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
         Functions for hiding, and handles files.
     */
     static propTypes = {
-        onHide: PropTypes.func.isRequired,              // Should control show state/prop below
+        handleAddFile: PropTypes.func.isRequired,
+        handleRemoveFile: PropTypes.func.isRequired,
+        handleClearAllFiles: PropTypes.func.isRequired,
+        handleHideModal: PropTypes.func.isRequired,
+        files: PropTypes.array,
         onUploadStart: PropTypes.func.isRequired,       // Should trigger the creation of a new object, and start upload
         show: PropTypes.bool,                           // Controlled by state method onHide passed in as prop
-        multiselect: PropTypes.bool,                    // Passed in from Schema, along with field and item types
         fieldType: PropTypes.string,
         fieldName: PropTypes.string
     }
 
     static defaultProps = {
-        show: true,
-        multiselect: true
-    }
-
-    constructor(props){
-        super(props);
-        this.state = {
-            files: [] // Always in an array, even if multiselect enabled
-        };
-
-        this.handleAddFile = this.handleAddFile.bind(this);
-        this.handleRemoveFile = this.handleRemoveFile.bind(this);
-        this.handleClearAllFiles = this.handleClearAllFiles.bind(this);
-        this.handleHideModal = this.handleHideModal.bind(this);
-    }
-
-    handleAddFile(evt) {
-        const { items, files } = evt.dataTransfer;
-        const { multiselect } = this.props;
-        const { files: currFiles } = this.state;
-
-        if (items && items.length > 0) {
-            if (multiselect) {
-                // Add all dragged items
-                const fileArr = [];
-
-                // Populate an array with all of the new files
-                for (var i = 0; i < files.length; i++) {
-                    console.log(files[i]);
-                    fileArr.push(files[i]);
-                }
-
-                // Concat with current array
-                const allFiles = currFiles.concat(fileArr);
-
-                // Filter out duplicates (based on just filename for now; may need more criteria in future)
-                const dedupedFiles = _.uniq(allFiles, false, (file) => file.name);
-
-                this.setState({
-                    files: dedupedFiles
-                });
-            } else {
-                // Select only one file at a time
-                this.setState({
-                    files: [files[0]]
-                });
-            }
-        }
-    }
-
-    handleRemoveFile(id) {
-        const { files } = this.state;
-        const { 0: name, 1: size, 2: lastModified } = id.split("|");
-
-        // Filter to remove the clicked file by ID parts
-        const newFiles = files.filter((file) => {
-            if ((file.name === name) &&
-                (file.size === parseInt(size)) &&
-                (file.lastModified === parseInt(lastModified))
-            ) {
-                return false;
-            }
-            return true;
-        });
-
-        this.setState({ files: newFiles });
-    }
-
-    handleClearAllFiles() {
-        this.setState({ files: [] });
-    }
-
-    handleHideModal() {
-        // Force to clear files before hiding modal, so each time it is opened
-        // anew, user doesn't have to re-clear it.
-        const { onHide: propsOnHideFxn } = this.props;
-
-        this.handleClearAllFiles();
-        propsOnHideFxn();
+        show: false,
     }
 
     render(){
         const {
-            show, onUploadStart, fieldType, fieldName
+            show, onUploadStart, fieldType, fieldName, handleAddFile, handleRemoveFile, files, handleHideModal
         } = this.props;
-        const { files } = this.state;
 
         let showFieldName = fieldName && fieldType !== fieldName;
 
         return (
-            <Modal centered {...{ show }} onHide={this.handleHideModal} className="submission-view-modal">
+            <Modal centered {...{ show }} onHide={handleHideModal} className="submission-view-modal">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
                         Upload a {fieldType} { showFieldName ? "for " + fieldName : null}
@@ -340,11 +350,11 @@ class DragAndDropFileUploadModal extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <DragAndDropZone {...{ files }}
-                        handleAddFile={this.handleAddFile}
-                        handleRemoveFile={this.handleRemoveFile} />
+                        handleAddFile={handleAddFile}
+                        handleRemoveFile={handleRemoveFile} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <button type="button" className="btn btn-danger" onClick={this.handleHideModal}>
+                    <button type="button" className="btn btn-danger" onClick={handleHideModal}>
                         <i className="icon fas icon-close"></i> Cancel
                     </button>
                     {/* TODO: Controlled file inputs are complicated... maybe wait to implement this
