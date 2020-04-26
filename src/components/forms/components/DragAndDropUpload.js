@@ -12,16 +12,18 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
 
 export class DragAndDropUploadStandaloneController extends React.Component {
     static propTypes = {
-        fieldType: PropTypes.string,
+        fieldType: PropTypes.string.isRequired,
         fieldName: PropTypes.string, // If this isn't passed in, use fieldtype instead
-        award: PropTypes.string.isRequired,
-        lab: PropTypes.string.isRequired,
+        award: PropTypes.string, // Required for 4DN
+        lab: PropTypes.string, // Required for 4DN
+        institution: PropTypes.object, // Required for CGAP
+        project: PropTypes.object, // Required for CGAP
         cls: PropTypes.string
     }
 
     static defaultProps = {
-        award: "/awards/1U01CA200059-01/",
-        lab: "/labs/4dn-dcic-lab",
+        // award: "/awards/1U01CA200059-01/", // for testing
+        // lab: "/labs/4dn-dcic-lab", // for testing
         cls: "btn"
     }
 
@@ -36,21 +38,33 @@ export class DragAndDropUploadStandaloneController extends React.Component {
     // /* Will become a generic data controller for managing upload state */
 
     createItem(file) {
-        const { fieldType, award, lab } = this.props;
-        const destination = `/${fieldType}/?check_only=true`; // testing only
+        const { fieldType, award, lab, institution, project } = this.props;
 
-        // Generate an alias for the file
-        const aliasLab = lab.split('/')[2];
-        const aliasFilename = file.name.split(' ').join('-');
-        const alias = aliasLab + ":" + aliasFilename + "-" + Date.now();
+        const destination = `/${fieldType}/`; //?check_only=true`; // testing only
 
-        // Build a payload with info from the various files
-        const payload = JSON.stringify({
-            award,
-            lab,
-            attachment: file,
-            aliases: [alias]
-        });
+        const payloadObj = {};
+        const aliasFilename = file.name.split(' ').join('');
+        let alias;
+
+        // If on 4DN, use lab and award data
+        if (lab && award) {
+
+            // Generate an alias for the file
+            const aliasLab = lab.split('/')[2];
+            alias = aliasLab + ":" + aliasFilename + Date.now();
+
+            payloadObj.award = award;
+            payloadObj.lab = lab;
+            payloadObj.aliases = [alias];
+
+        // on CGAP, use this data instead
+        } else if (institution && project) {
+            payloadObj.institution = institution['@id'];
+            payloadObj.project = project['@id'];
+        }
+
+        // Build a payload with info to create metadata Item
+        const payload = JSON.stringify([payloadObj, {}]);
 
         return ajax.promise(destination, 'POST', {}, payload).then((response) => {
             console.log("response", response);
@@ -58,12 +72,12 @@ export class DragAndDropUploadStandaloneController extends React.Component {
             if (response.status && response.status !== 'success'){ // error
                 console.log("ERROR");
             } else {
-                let responseData;
-                let submitted_at_id;
-                [ responseData ] = response['@graph'];
-                submitted_at_id = object.itemUtil.atId(responseData);
-                console.log("submittedAtid=",submitted_at_id);
-                // here you would attach some onchange function from submission view
+                // let responseData;
+                // let submitted_at_id;
+                // [ responseData ] = response['@graph'];
+            //     submitted_at_id = object.itemUtil.atId(responseData);
+            //     console.log("submittedAtid=",submitted_at_id);
+            //     // here you would attach some onchange function from submission view
             }
         });
         //     if (response.status && response.status !== 'success'){ // error

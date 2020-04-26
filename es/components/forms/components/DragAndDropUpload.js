@@ -21,14 +21,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -87,35 +79,35 @@ function (_React$Component2) {
       var _this$props = this.props,
           fieldType = _this$props.fieldType,
           award = _this$props.award,
-          lab = _this$props.lab;
-      var destination = "/".concat(fieldType, "/?check_only=true"); // testing only
-      // Generate an alias for the file
+          lab = _this$props.lab,
+          institution = _this$props.institution,
+          project = _this$props.project;
+      var destination = "/".concat(fieldType, "/"); //?check_only=true`; // testing only
 
-      var aliasLab = lab.split('/')[2];
-      var aliasFilename = file.name.split(' ').join('-');
-      var alias = aliasLab + ":" + aliasFilename + "-" + Date.now(); // Build a payload with info from the various files
+      var payloadObj = {};
+      var aliasFilename = file.name.split(' ').join('');
+      var alias; // If on 4DN, use lab and award data
 
-      var payload = JSON.stringify({
-        award: award,
-        lab: lab,
-        attachment: file,
-        aliases: [alias]
-      });
+      if (lab && award) {
+        // Generate an alias for the file
+        var aliasLab = lab.split('/')[2];
+        alias = aliasLab + ":" + aliasFilename + Date.now();
+        payloadObj.award = award;
+        payloadObj.lab = lab;
+        payloadObj.aliases = [alias]; // on CGAP, use this data instead
+      } else if (institution && project) {
+        payloadObj.institution = institution['@id'];
+        payloadObj.project = project['@id'];
+      } // Build a payload with info to create metadata Item
+
+
+      var payload = JSON.stringify([payloadObj, {}]);
       return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
         console.log("response", response);
 
         if (response.status && response.status !== 'success') {
           // error
           console.log("ERROR");
-        } else {
-          var responseData;
-          var submitted_at_id;
-
-          var _response$Graph = _slicedToArray(response['@graph'], 1);
-
-          responseData = _response$Graph[0];
-          submitted_at_id = object.itemUtil.atId(responseData);
-          console.log("submittedAtid=", submitted_at_id); // here you would attach some onchange function from submission view
         }
       }); //     if (response.status && response.status !== 'success'){ // error
       //         stateToSet.keyValid[inKey] = 2;
@@ -221,17 +213,23 @@ function (_React$Component2) {
 exports.DragAndDropUploadStandaloneController = DragAndDropUploadStandaloneController;
 
 _defineProperty(DragAndDropUploadStandaloneController, "propTypes", {
-  fieldType: _propTypes["default"].string,
+  fieldType: _propTypes["default"].string.isRequired,
   fieldName: _propTypes["default"].string,
   // If this isn't passed in, use fieldtype instead
-  award: _propTypes["default"].string.isRequired,
-  lab: _propTypes["default"].string.isRequired,
+  award: _propTypes["default"].string,
+  // Required for 4DN
+  lab: _propTypes["default"].string,
+  // Required for 4DN
+  institution: _propTypes["default"].object,
+  // Required for CGAP
+  project: _propTypes["default"].object,
+  // Required for CGAP
   cls: _propTypes["default"].string
 });
 
 _defineProperty(DragAndDropUploadStandaloneController, "defaultProps", {
-  award: "/awards/1U01CA200059-01/",
-  lab: "/labs/4dn-dcic-lab",
+  // award: "/awards/1U01CA200059-01/", // for testing
+  // lab: "/labs/4dn-dcic-lab", // for testing
   cls: "btn"
 });
 
