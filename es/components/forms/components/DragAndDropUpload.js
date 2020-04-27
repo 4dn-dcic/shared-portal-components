@@ -13,6 +13,10 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _util = require("./../../util");
 
+var _aws = require("@hms-dbmi-bgm/shared-portal-components/es/components/util/aws");
+
+var _util2 = require("@hms-dbmi-bgm/shared-portal-components/es/components/util");
+
 var _underscore = _interopRequireDefault(require("underscore"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -68,6 +72,7 @@ function (_React$Component2) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadFileUploadController).call(this, props));
     _this.state = {
       files: [] // Always in an array, even if multiselect enabled
+      // file object will start as a simple 
 
     };
     _this.handleAddFile = _this.handleAddFile.bind(_assertThisInitialized(_this));
@@ -150,20 +155,24 @@ function (_React$Component2) {
         files: []
       });
     }
+    /**
+     * Uses file information to generate an alias, and constructs payload from props. If
+     * this is a payload for PATCH request with attachment, set attachmentPresent to true.
+     * @param {object} file                  A single file object, equivalent to something in this.state.files[i]
+     * @param {boolean} attachmentPresent    Is this a PATCH request/are you uploading a file? If so, set this to yes.
+     */
+
   }, {
-    key: "createItem",
-    value: function createItem(file) {
+    key: "generatePayload",
+    value: function generatePayload(file, attachmentPresent) {
       var _this$props = this.props,
-          fieldType = _this$props.fieldType,
           award = _this$props.award,
           lab = _this$props.lab,
           institution = _this$props.institution,
           project = _this$props.project;
-      var destination = "/".concat(fieldType, "/"); //?check_only=true`; // testing only
-
-      var payloadObj = {};
       var aliasFilename = file.name.split(' ').join('');
-      var alias; // If on 4DN, use lab and award data
+      var alias;
+      var payloadObj = {}; // If on 4DN, use lab and award data (institution/project should be null)
 
       if (lab && award) {
         // Generate an alias for the file
@@ -171,101 +180,149 @@ function (_React$Component2) {
         alias = aliasLab + ":" + aliasFilename + Date.now();
         payloadObj.award = award;
         payloadObj.lab = lab;
-        payloadObj.aliases = [alias]; // on CGAP, use this data instead
+        payloadObj.aliases = [alias]; // on CGAP, use this data instead (lab & award should be null)
       } else if (institution && project) {
         payloadObj.institution = institution['@id'];
         payloadObj.project = project['@id'];
-      } // Build a payload with info to create metadata Item
+      } // Add attachment, if provided
 
 
-      var payload = JSON.stringify([payloadObj, {}]);
-      return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
-        console.log("response", response);
+      if (attachmentPresent) {
+        payloadObj.attachment = attachment;
+      }
 
-        if (response.status && response.status !== 'success') {
-          // error
-          console.log("ERROR");
-        }
-      }); //     if (response.status && response.status !== 'success'){ // error
-      //         stateToSet.keyValid[inKey] = 2;
-      //         if(!suppressWarnings){
-      //             var errorList = response.errors || [response.detail] || [];
-      //             // make an alert for each error description
-      //             stateToSet.errorCount = errorList.length;
-      //             for(i = 0; i<errorList.length; i++){
-      //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
-      //                 if (errorList[i].name){
-      //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
-      //                 } else {
-      //                     detail += ('. See ' + keyDisplay[inKey]);
-      //                 }
-      //                 Alerts.queue({
-      //                     'title' : "Validation error " + parseInt(i + 1),
-      //                     'message': detail,
-      //                     'style': 'danger'
-      //                 });
-      //             }
-      //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
-      //         }
-      //         this.setState(stateToSet);
-      //     } else { // response successful
-      //         let responseData;
-      //         let submitted_at_id;
-      //         if (test){
-      //             stateToSet.keyValid[inKey] = 3;
-      //             this.setState(stateToSet);
-      //             return;
-      //         } else {
-      //             [ responseData ] = response['@graph'];
-      //             submitted_at_id = object.itemUtil.atId(responseData);
-      //             console.log("submittedAtid=",submitted_at_id);
-      //         }
-      //         // handle submission for round two
-      //         if (roundTwo){
-      //             // there is a file
-      //             if (file && responseData.upload_credentials){
-      //                 // add important info to result from finalizedContext
-      //                 // that is not added from /types/file.py get_upload
-      //                 const creds = responseData.upload_credentials;
-      //                 import(
-      //                     /* webpackChunkName: "aws-utils" */
-      //                     /* webpackMode: "lazy" */
-      //                     '../util/aws'
-      //                 ).then(({ s3UploadFile })=>{
-      //                     //const awsUtil = require('../util/aws');
-      //                     const upload_manager = s3UploadFile(file, creds);
-      //                     if (upload_manager === null){
-      //                         // bad upload manager. Cause an alert
-      //                         alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
-      //                     } else {
-      //                         // this will set off a chain of aync events.
-      //                         // first, md5 will be calculated and then the
-      //                         // file will be uploaded to s3. If all of this
-      //                         // is succesful, call finishRoundTwo.
-      //                         stateToSet.uploadStatus = null;
-      //                         this.setState(stateToSet);
-      //                         this.updateUpload(upload_manager);
-      //                     }
-      //                 });
-      //             } else {
-      //                 // state cleanup for this key
-      //                 // this.finishRoundTwo();
-      //                 this.setState(stateToSet);
-      //             }
-      //     }
-      // }
+      console.log("Payload:", payloadObj);
+      return payloadObj;
     }
+  }, {
+    key: "validateItem",
+    value: function validateItem(file) {
+      var fieldType = this.props.fieldType;
+      var destination = "/".concat(fieldType, "/?check_only=true"); // testing only
+
+      var payloadObj = this.generatePayload(file, false);
+      var payload = JSON.stringify(payloadObj);
+      return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
+        console.log("validateItem response", response);
+        return response;
+      });
+    }
+  }, {
+    key: "createItem",
+    value: function createItem(file) {
+      var fieldType = this.props.fieldType;
+      var destination = "/".concat(fieldType, "/"); // Build a payload with info to create metadata Item
+
+      var payloadObj = this.generatePayload(file, false);
+      var payload = JSON.stringify(payloadObj);
+      return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
+        console.log("createItem response", response);
+        return response; // here you could attach some onchange function from submission view
+      });
+    }
+    /**
+     * 
+     * @param {*} file 
+     * @param {*} atId             submitted_at_id = object.itemUtil.atId(response['@graph'][responseData]);
+     * @param {*} credentials      Data from responseData.upload_credentials from item creation POST request
+     */
+
+  }, {
+    key: "patchItem",
+    value: function patchItem(file, atId, credentials) {
+      var upload_manager = (0, _aws.s3UploadFile)(file, credentials);
+
+      if (upload_manager === null) {
+        // bad upload manager. Cause an alert
+        alert("Something went wrong while initializing the file upload. Please contact the 4DN-DCIC team.");
+      } else {
+        // this will set off a chain of aync events.
+        // first, md5 will be calculated and then the
+        // file will be uploaded to s3. If all of this
+        // is succesful, call finishRoundTwo.
+        stateToSet.uploadStatus = null;
+        this.setState(stateToSet);
+        this.updateUpload(upload_manager);
+      }
+    }
+  }, {
+    key: "patchToParent",
+    value: function patchToParent(createItemResponse) {
+      var individualId = this.props.individualId;
+      var responseData = createItemResponse['@graph'][0];
+      console.log(responseData);
+      var submitted_at_id = responseData['@id'];
+      console.log("submittedAtid=", submitted_at_id);
+      return _util.ajax.promise(individualId, "PATCH", {}, JSON.stringify({
+        related_documents: [submitted_at_id]
+      })).then(function (response) {
+        console.log(response);
+        return response;
+      });
+    } //     if (response.status && response.status !== 'success'){ // error
+    //         stateToSet.keyValid[inKey] = 2;
+    //         if(!suppressWarnings){
+    //             var errorList = response.errors || [response.detail] || [];
+    //             // make an alert for each error description
+    //             stateToSet.errorCount = errorList.length;
+    //             for(i = 0; i<errorList.length; i++){
+    //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
+    //                 if (errorList[i].name){
+    //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
+    //                 } else {
+    //                     detail += ('. See ' + keyDisplay[inKey]);
+    //                 }
+    //                 Alerts.queue({
+    //                     'title' : "Validation error " + parseInt(i + 1),
+    //                     'message': detail,
+    //                     'style': 'danger'
+    //                 });
+    //             }
+    //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
+    //         }
+    //         this.setState(stateToSet);
+    //     } else { // response successful
+    //         let responseData;
+    //         let submitted_at_id;
+    //         if (test){
+    //             stateToSet.keyValid[inKey] = 3;
+    //             this.setState(stateToSet);
+    //             return;
+    //         } else {
+    //             [ responseData ] = response['@graph'];
+    //             submitted_at_id = object.itemUtil.atId(responseData);
+    //             console.log("submittedAtid=",submitted_at_id);
+    //         }
+    // }
+
   }, {
     key: "onUploadStart",
     value: function onUploadStart(files) {
       var _this2 = this;
 
-      console.log("Attempting to start upload with files... ", files);
-      var promises = [];
       files.forEach(function (file) {
-        promises.push(_this2.createItem(file));
+        console.log("Attempting to upload file... ", file);
+
+        _this2.validateItem(file).then(function (response) {
+          if (response.status && response.status !== 'success') {
+            alert("validation failed");
+          } else {
+            console.log("validation succeeded");
+          }
+
+          return _this2.createItem(file);
+        }).then(function (resp) {
+          if (resp.status && resp.status !== 'success') {
+            alert("item creation failed");
+          } else {
+            console.log("create item succeded");
+          }
+
+          return _this2.patchToParent(resp);
+        })["catch"](function (error) {
+          console.log("error occurred", error);
+        });
       });
-      console.log(promises);
     }
   }, {
     key: "render",
@@ -296,6 +353,7 @@ exports.DragAndDropUploadFileUploadController = DragAndDropUploadFileUploadContr
 
 _defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
   fieldType: _propTypes["default"].string.isRequired,
+  individualId: _propTypes["default"].string.isRequired,
   fieldName: _propTypes["default"].string,
   // If this isn't passed in, use fieldtype instead
   award: _propTypes["default"].string,

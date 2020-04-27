@@ -2,6 +2,11 @@ import React from 'react';
 import { Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { ajax } from './../../util';
+import { s3UploadFile } from '@hms-dbmi-bgm/shared-portal-components/es/components/util/aws';
+/* webpackChunkName: "aws-utils" */
+/* webpackMode: "lazy" */
+
+import { object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import _ from 'underscore';
 
 export class DragAndDropUploadSubmissionViewController extends React.Component {
@@ -13,6 +18,7 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
 export class DragAndDropUploadFileUploadController extends React.Component {
     static propTypes = {
         fieldType: PropTypes.string.isRequired,
+        individualId: PropTypes.string.isRequired,
         fieldName: PropTypes.string, // If this isn't passed in, use fieldtype instead
         award: PropTypes.string, // Required for 4DN
         lab: PropTypes.string, // Required for 4DN
@@ -33,6 +39,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         super(props);
         this.state = {
             files: [] // Always in an array, even if multiselect enabled
+            // file object will start as a simple 
         };
 
         this.handleAddFile = this.handleAddFile.bind(this);
@@ -105,16 +112,21 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         this.setState({ files: [] });
     }
 
-    createItem(file) {
-        const { fieldType, award, lab, institution, project } = this.props;
+    /**
+     * Uses file information to generate an alias, and constructs payload from props. If
+     * this is a payload for PATCH request with attachment, set attachmentPresent to true.
+     * @param {object} file                  A single file object, equivalent to something in this.state.files[i]
+     * @param {boolean} attachmentPresent    Is this a PATCH request/are you uploading a file? If so, set this to yes.
+     */
+    generatePayload(file, attachmentPresent) {
+        const { award, lab, institution, project } = this.props;
 
-        const destination = `/${fieldType}/`; //?check_only=true`; // testing only
-
-        const payloadObj = {};
         const aliasFilename = file.name.split(' ').join('');
         let alias;
 
-        // If on 4DN, use lab and award data
+        const payloadObj = {};
+
+        // If on 4DN, use lab and award data (institution/project should be null)
         if (lab && award) {
 
             // Generate an alias for the file
@@ -125,112 +137,151 @@ export class DragAndDropUploadFileUploadController extends React.Component {
             payloadObj.lab = lab;
             payloadObj.aliases = [alias];
 
-        // on CGAP, use this data instead
+        // on CGAP, use this data instead (lab & award should be null)
         } else if (institution && project) {
             payloadObj.institution = institution['@id'];
             payloadObj.project = project['@id'];
         }
 
-        // Build a payload with info to create metadata Item
-        const payload = JSON.stringify([payloadObj, {}]);
+        // Add attachment, if provided
+        if (attachmentPresent) {
+            payloadObj.attachment = attachment;
+        }
+        console.log("Payload:", payloadObj);
 
-        return ajax.promise(destination, 'POST', {}, payload).then((response) => {
-            console.log("response", response);
-
-            if (response.status && response.status !== 'success'){ // error
-                console.log("ERROR");
-            } else {
-                // let responseData;
-                // let submitted_at_id;
-                // [ responseData ] = response['@graph'];
-            //     submitted_at_id = object.itemUtil.atId(responseData);
-            //     console.log("submittedAtid=",submitted_at_id);
-            //     // here you would attach some onchange function from submission view
-            }
-        });
-        //     if (response.status && response.status !== 'success'){ // error
-        //         stateToSet.keyValid[inKey] = 2;
-        //         if(!suppressWarnings){
-        //             var errorList = response.errors || [response.detail] || [];
-        //             // make an alert for each error description
-        //             stateToSet.errorCount = errorList.length;
-        //             for(i = 0; i<errorList.length; i++){
-        //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
-        //                 if (errorList[i].name){
-        //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
-        //                 } else {
-        //                     detail += ('. See ' + keyDisplay[inKey]);
-        //                 }
-        //                 Alerts.queue({
-        //                     'title' : "Validation error " + parseInt(i + 1),
-        //                     'message': detail,
-        //                     'style': 'danger'
-        //                 });
-        //             }
-        //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
-        //         }
-        //         this.setState(stateToSet);
-        //     } else { // response successful
-        //         let responseData;
-        //         let submitted_at_id;
-        //         if (test){
-        //             stateToSet.keyValid[inKey] = 3;
-        //             this.setState(stateToSet);
-        //             return;
-        //         } else {
-        //             [ responseData ] = response['@graph'];
-        //             submitted_at_id = object.itemUtil.atId(responseData);
-        //             console.log("submittedAtid=",submitted_at_id);
-        //         }
-        //         // handle submission for round two
-        //         if (roundTwo){
-        //             // there is a file
-        //             if (file && responseData.upload_credentials){
-
-        //                 // add important info to result from finalizedContext
-        //                 // that is not added from /types/file.py get_upload
-        //                 const creds = responseData.upload_credentials;
-
-        //                 import(
-        //                     /* webpackChunkName: "aws-utils" */
-        //                     /* webpackMode: "lazy" */
-        //                     '../util/aws'
-        //                 ).then(({ s3UploadFile })=>{
-        //                     //const awsUtil = require('../util/aws');
-        //                     const upload_manager = s3UploadFile(file, creds);
-
-        //                     if (upload_manager === null){
-        //                         // bad upload manager. Cause an alert
-        //                         alert("Something went wrong initializing the upload. Please contact the 4DN-DCIC team.");
-        //                     } else {
-        //                         // this will set off a chain of aync events.
-        //                         // first, md5 will be calculated and then the
-        //                         // file will be uploaded to s3. If all of this
-        //                         // is succesful, call finishRoundTwo.
-        //                         stateToSet.uploadStatus = null;
-        //                         this.setState(stateToSet);
-        //                         this.updateUpload(upload_manager);
-        //                     }
-        //                 });
-
-        //             } else {
-        //                 // state cleanup for this key
-        //                 // this.finishRoundTwo();
-        //                 this.setState(stateToSet);
-        //             }
-        //     }
-        // }
+        return payloadObj;
     }
 
-    onUploadStart(files) {
-        console.log("Attempting to start upload with files... ", files);
-        const promises = [];
+    validateItem(file) {
+        const { fieldType } = this.props;
 
-        files.forEach((file) => {
-            promises.push(this.createItem(file));
+        const destination = `/${fieldType}/?check_only=true`; // testing only
+
+        const payloadObj = this.generatePayload(file, false);
+        const payload = JSON.stringify(payloadObj);
+
+        return ajax.promise(destination, 'POST', {}, payload).then((response) => {
+            console.log("validateItem response", response);
+            return response;
         });
+    }
 
-        console.log(promises);
+    createItem(file) {
+        const { fieldType } = this.props;
+
+        const destination = `/${fieldType}/`;
+
+        // Build a payload with info to create metadata Item
+        const payloadObj = this.generatePayload(file, false);
+        const payload = JSON.stringify(payloadObj);
+
+        return ajax.promise(destination, 'POST', {}, payload).then((response) => {
+            console.log("createItem response", response);
+            return response;
+            // here you could attach some onchange function from submission view
+        });
+    }
+
+
+    /**
+     * 
+     * @param {*} file 
+     * @param {*} atId             submitted_at_id = object.itemUtil.atId(response['@graph'][responseData]);
+     * @param {*} credentials      Data from responseData.upload_credentials from item creation POST request
+     */
+    patchItem(file, atId, credentials) {
+        const upload_manager = s3UploadFile(file, credentials);
+
+        if (upload_manager === null){
+            // bad upload manager. Cause an alert
+            alert("Something went wrong while initializing the file upload. Please contact the 4DN-DCIC team.");
+        } else {
+            // this will set off a chain of aync events.
+            // first, md5 will be calculated and then the
+            // file will be uploaded to s3. If all of this
+            // is succesful, call finishRoundTwo.
+            stateToSet.uploadStatus = null;
+            this.setState(stateToSet);
+            this.updateUpload(upload_manager);
+        }
+    }
+
+    patchToParent(createItemResponse) {
+        const { individualId } = this.props;
+        const { 0: responseData } = createItemResponse['@graph'];
+
+        console.log(responseData);
+        const submitted_at_id = responseData['@id'];
+        console.log("submittedAtid=", submitted_at_id);
+
+        return ajax.promise(individualId, "PATCH", { }, JSON.stringify({ related_documents: [submitted_at_id] })).then(
+            (response) =>  {
+                console.log(response);
+                return response;
+            }
+        );
+    }
+
+    //     if (response.status && response.status !== 'success'){ // error
+    //         stateToSet.keyValid[inKey] = 2;
+    //         if(!suppressWarnings){
+    //             var errorList = response.errors || [response.detail] || [];
+    //             // make an alert for each error description
+    //             stateToSet.errorCount = errorList.length;
+    //             for(i = 0; i<errorList.length; i++){
+    //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
+    //                 if (errorList[i].name){
+    //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
+    //                 } else {
+    //                     detail += ('. See ' + keyDisplay[inKey]);
+    //                 }
+    //                 Alerts.queue({
+    //                     'title' : "Validation error " + parseInt(i + 1),
+    //                     'message': detail,
+    //                     'style': 'danger'
+    //                 });
+    //             }
+    //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
+    //         }
+    //         this.setState(stateToSet);
+    //     } else { // response successful
+    //         let responseData;
+    //         let submitted_at_id;
+    //         if (test){
+    //             stateToSet.keyValid[inKey] = 3;
+    //             this.setState(stateToSet);
+    //             return;
+    //         } else {
+    //             [ responseData ] = response['@graph'];
+    //             submitted_at_id = object.itemUtil.atId(responseData);
+    //             console.log("submittedAtid=",submitted_at_id);
+    //         }
+    // }
+
+    onUploadStart(files) {
+        files.forEach((file) => {
+            console.log("Attempting to upload file... ", file);
+            this.validateItem(file)
+                .then((response) => {
+                    if (response.status && response.status !== 'success') {
+                        alert("validation failed");
+                    } else {
+                        console.log("validation succeeded");
+                    }
+                    return this.createItem(file);
+                })
+                .then((resp) => {
+                    if (resp.status && resp.status !== 'success') {
+                        alert("item creation failed");
+                    } else {
+                        console.log("create item succeded");
+                    }
+                    return this.patchToParent(resp);
+                })
+                .catch((error) => {
+                    console.log("error occurred", error);
+                });
+        });
     }
 
     render() {
