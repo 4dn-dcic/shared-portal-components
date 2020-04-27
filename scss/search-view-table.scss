@@ -39,6 +39,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 			// Default style -- can be overriden
 			overflow: hidden;
 			text-overflow: ellipsis;
+			white-space: nowrap; // Need to consider how could make multiline...
 			flex-grow: 1;
 		}
 	}
@@ -303,6 +304,11 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 							flex-shrink: 1;
 							flex-basis: auto;
 							min-width: 0;
+							max-height: 100%;
+							// This can be overriden on a per-Item basis.
+							// If rowHeight is high and title for type is
+							// expected be short.
+							white-space: nowrap;
 							a {
 								overflow: hidden;
     							text-overflow: ellipsis;
@@ -455,11 +461,12 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				line-height: $search-results-result-row-height;
 				height: $search-results-result-row-height + 1px;
 				font-style: italic;
-				border-bottom: none;
-				background-color: #fff;
 				position: relative;
 				transition: transform .3s ease;
 				width: 100%; // overriden by px value after mount. Should visually remain same.
+
+				box-shadow: none !important;
+				border: none !important;
 				> .inner {
 					// position: fixed;
 					width: inherit;

@@ -412,7 +412,7 @@ $facetlist-term-block-height: default !default;
                 float: right;
                 text-align: left;
                 @include font-size($facetlist-facet-font-size);
-                @include no-user-select();
+                @include no-user-select;
 
                 span {
                     cursor: pointer;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import url from 'url';
 import queryString from 'querystring';
 import { navigate as globalPageNavigate } from './../../../util/navigate';
@@ -16,91 +16,30 @@ export const basicColumnExtensionMap = {
         'widthMap' : { 'lg' : 280, 'md' : 250, 'sm' : 200 },
         'minColumnWidth' : 90,
         'order' : -100,
-        'render' : function renderDisplayTitleColumn(result, columnDefinition, props, termTransformFxn, width){
-
-            // TODO think about how to more easily customize this for different Item types.
-            // Likely make reusable component containing handleClick and most of its UI...
-            // which this and portals can use for "display_title" column, and then have per-type
-            // overrides/extensions.
-
-            const { href, context, rowNumber, detailOpen, toggleDetailOpen } = props;
-            // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
-            let title = itemUtil.getTitleStringFromContext(result);
-            // Monospace accessions, file formats
-            const shouldMonospace = (itemUtil.isDisplayTitleAccession(result, title) || (result.file_format && result.file_format === title));
-            const link = itemUtil.atId(result);
-            let tooltip;
-            let hasPhoto = false;
-
-            /** Registers a list click event for Google Analytics then performs navigation. */
-            function handleClick(evt){
-                evt.preventDefault();
-                evt.stopPropagation();
-                trackProductClick(
-                    result,
-                    { list : hrefToListName(href), position: rowNumber + 1 },
-                    function(){
-                        // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
-                        // to VirtualHrefController.virtualNavigate and would not bring you to new page.
-                        globalPageNavigate(link);
-                    },
-                    context
-                );
-                return false;
-            }
-
-            if (title && (title.length > 20 || width < 100)) tooltip = title;
-            if (link){ // This should be the case always
-                title = <a key="title" href={link || '#'} onClick={handleClick}>{ title }</a>;
-                if (typeof result.email === 'string' && result.email.indexOf('@') > -1){
-                    // Specific case for User items. May be removed or more cases added, if needed.
-                    hasPhoto = true;
-                    title = (
-                        <React.Fragment>
-                            { itemUtil.User.gravatar(result.email, 32, { 'className' : 'in-search-table-title-image', 'data-tip' : result.email }, 'mm') }
-                            { title }
-                        </React.Fragment>
-                    );
-                }
-            }
-
-            const cls = (
-                "title-block"
-                + (hasPhoto ? " has-photo d-flex align-items-center"
-                    : " text-ellipsis-container"
-                )
-                + (shouldMonospace ? " text-monospace text-small" : "")
-            );
-
-            return (
-                <React.Fragment>
-                    <TableRowToggleOpenButton open={detailOpen} onClick={toggleDetailOpen} />
-                    <div key="title-container" className={cls} data-tip={tooltip}>
-                        { title }
-                    </div>
-                </React.Fragment>
-            );
+        'render' : function renderDisplayTitleColumn(result, parentProps){
+            return <DisplayTitleColumn {...parentProps} result={result} />;
         }
     },
     '@type' : {
         'noSort' : true,
         'order' : -80,
-        'render' : function(result, columnDefinition, props, termTransformFxn, width){
+        'render' : function(result, props){
             if (!Array.isArray(result['@type'])) return null;
+            const { schemas = null, href = null, navigate: propNavigate = null } = props;
             const leafItemType = getItemType(result);
-            const itemTypeTitle = getTitleForType(leafItemType, props.schemas || null);
+            const itemTypeTitle = getTitleForType(leafItemType, schemas);
             const onClick = function(e){
                 // Preserve search query, if any, but remove filters (which are usually per-type).
-                if (!props.href || props.href.indexOf('/search/') === -1) return;
+                if (!href || href.indexOf('/search/') === -1) return;
                 e.preventDefault();
                 e.stopPropagation();
-                const urlParts = url.parse(props.href, true);
+                const urlParts = url.parse(href, true);
                 const query = { ...urlParts.query, 'type' : leafItemType };
                 if (urlParts.query.q) query.q = urlParts.query.q;
                 const nextHref = '/search/?' + queryString.stringify(query);
                 // We use props.navigate here first which may refer to VirtualHrefController.virtualNavigate
                 // since we're navigating to a search href here.
-                (props.navigate || globalPageNavigate)(nextHref);
+                (propNavigate || globalPageNavigate)(nextHref);
             };
 
             return (
@@ -117,7 +56,7 @@ export const basicColumnExtensionMap = {
         'title' : 'Date Created',
         'colTitle' : 'Created',
         'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
-        'render' : function dateCreatedTitle(result, columnDefinition, props, termTransformFxn, width){
+        'render' : function dateCreatedTitle(result, props){
             if (!result.date_created) return null;
             return (
                 <span className="value">
@@ -130,18 +69,96 @@ export const basicColumnExtensionMap = {
     'last_modified.date_modified' : {
         'title' : 'Date Modified',
         'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
-        'render' : function lastModifiedDate(result, columnDefinition, props, termTransformFxn, width){
-            if (!result.last_modified) return null;
-            if (!result.last_modified.date_modified) return null;
+        'render' : function lastModifiedDate(result, props){
+            const { last_modified : { date_modified = null } = {} } = result;
+            if (!date_modified) return null;
             return (
                 <span className="value">
-                    <LocalizedTime timestamp={result.last_modified.date_modified} formatType="date-sm" />
+                    <LocalizedTime timestamp={date_modified} formatType="date-sm" />
                 </span>
             );
         },
         'order' : 515
     }
 };
+
+
+/**
+ * @todo
+ * Think about how to more easily customize this for different Item types.
+ * Likely make reusable component containing handleClick and most of its UI...
+ * which this and portals can use for "display_title" column, and then have per-type
+ * overrides/extensions.
+ */
+export const DisplayTitleColumn = React.memo(function DisplayTitleColumn(props){
+    const {
+        result,
+        columnDefinition, termTransformFxn, width,
+        href, context, rowNumber, detailOpen, toggleDetailOpen
+    } = props;
+
+    // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
+    let title = itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
+
+    // Monospace accessions, file formats
+    const shouldMonospace = (itemUtil.isDisplayTitleAccession(result, title) || (result.file_format && result.file_format === title));
+    const link = itemUtil.atId(result);
+    const tooltip = (title && (title.length > 20 || width < 100) && title) || null;
+    let hasPhoto = false;
+
+
+    /** Registers a list click event for Google Analytics then performs navigation. */
+    const onClick = useMemo(function(){
+        return function handleClick(evt){
+            evt.preventDefault();
+            evt.stopPropagation();
+            trackProductClick(
+                result,
+                { list : hrefToListName(href), position: rowNumber + 1 },
+                function(){
+                    // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
+                    // to VirtualHrefController.virtualNavigate and would not bring you to new page.
+                    globalPageNavigate(link);
+                },
+                context
+            );
+            return false;
+        };
+    }, [ link, rowNumber ]);
+
+    if (link){ // This should be the case always
+        title = <a key="title" href={link || '#'} onClick={onClick}>{ title }</a>;
+        if (typeof result.email === 'string' && result.email.indexOf('@') > -1){
+            // Specific case for User items. May be removed or more cases added, if needed.
+            hasPhoto = true;
+            title = (
+                <React.Fragment>
+                    { itemUtil.User.gravatar(result.email, 32, { 'className' : 'in-search-table-title-image', 'data-tip' : result.email }, 'mm') }
+                    { title }
+                </React.Fragment>
+            );
+        }
+    }
+
+    const cls = (
+        "title-block"
+        + (hasPhoto ? " has-photo d-flex align-items-center"
+            : " text-ellipsis-container"
+        )
+        + (shouldMonospace ? " text-monospace text-small" : "")
+    );
+
+    return (
+        <React.Fragment>
+            <TableRowToggleOpenButton open={detailOpen} onClick={toggleDetailOpen} />
+            <div key="title-container" className={cls} data-tip={tooltip}>
+                { title }
+            </div>
+        </React.Fragment>
+    );
+
+});
+
 
 /** Button shown in first column (display_title) to open/close detail pane. */
 export const TableRowToggleOpenButton = React.memo(function TableRowToggleOpenButton({ onClick, toggleDetailOpen, open }){

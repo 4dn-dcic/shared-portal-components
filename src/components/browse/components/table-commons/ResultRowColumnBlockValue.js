@@ -16,44 +16,45 @@ export class ResultRowColumnBlockValue extends React.Component {
      * Default value rendering function. Fallback when no `render` func defined in columnDefinition.
      * Uses columnDefinition field (column key) to get nested property value from result and display it.
      *
+     * @todo Maybe use Sets if more performant.
      * @param {Item} result - JSON object representing row data.
-     * @param {ColumnDefinition} columnDefinition - Object with column definition data - field, title, widthMap, render function (self)
-     * @param {Object} props - Props passed down from SearchResultTable/ResultRowColumnBlock instance.
-     * @param {number} width - Unused. Todo - remove?
+     * @param {string} field - Field for which this value is for.
+     * @param {function} termTransformFxn - Transform value(s)
      * @returns {string|null} String value or null. Your function may return a React element, as well.
      */
-    static transformIfNeeded(result, columnDefinition, props, termTransformFxn){
+    static transformIfNeeded(result, field, termTransformFxn){
 
-        function filterAndUniq(vals){
-            return _.uniq(_.filter(vals, function(v){
-                return v !== null && typeof v !== 'undefined';
-            }));
+        function flattenSet(valArr, uniqSet = null){
+            uniqSet = uniqSet || new Set();
+            if (Array.isArray(valArr)){
+                for (var i = 0; i < valArr.length; i++) {
+                    flattenSet(valArr[i], uniqSet);
+                }
+                return uniqSet;
+            }
+            // Else is single value (not array) -
+            if (valArr !== null && typeof valArr !== 'undefined'){
+                uniqSet.add(valArr);
+            }
+            return uniqSet;
         }
 
-        let value = getNestedProperty(result, columnDefinition.field, true);
-        if (typeof value === "undefined") value = null;
-        if (Array.isArray(value)){ // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
-            value = filterAndUniq(value.map(function(v){
-                if (Array.isArray(v)){
-                    v = filterAndUniq(v);
-                    if (v.length === 1) v = v[0];
-                    if (v.length === 0) v = null;
-                }
-                if (typeof termTransformFxn === 'function'){
-                    return termTransformFxn(columnDefinition.field, v, false);
-                }
-                console.warn("No termTransformFxn supplied.");
-                return v;
-            })).map(function(v){
-                if (typeof termTransformFxn === 'function'){
-                    return termTransformFxn(columnDefinition.field, v, false);
-                }
-                return v;
-            }).join(', ');
-        } else if (typeof termTransformFxn === 'function'){
-            value = termTransformFxn(columnDefinition.field, value, true);
+        const uniquedValues = [ ...flattenSet(getNestedProperty(result, field, true)) ];
+        const uniquedValuesLen = uniquedValues.length;
+
+        // No value found - let it default to 'null' and be handled as such
+        if (uniquedValuesLen === 0) { // All null or undefined.
+            return null;
         }
-        return value;
+
+        if (typeof termTransformFxn === "function") {
+            return uniquedValues.map(function(v){
+                return termTransformFxn(field, v, false);
+            }).join(', '); // Most often will be just 1 value in set/array.
+        } else {
+            console.warn("No termTransformFxn supplied.");
+            return uniquedValues.join(', ');
+        }
     }
 
     static defaultProps = {
@@ -92,12 +93,15 @@ export class ResultRowColumnBlockValue extends React.Component {
             className,
             termTransformFxn
         } = this.props;
+        const {
+            field,
+            render: renderFxn = null,
+        } = columnDefinition;
 
-        const renderFxn = columnDefinition.render || this.memoized.transformIfNeeded;
 
-        let value = sanitizeOutputValue(
-            renderFxn(result, columnDefinition, _.omit(this.props, 'columnDefinition', 'result'), termTransformFxn)
-        );
+        let value = renderFxn ?
+            renderFxn(result, _.omit(this.props, 'columnDefinition', 'result'))
+            : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
 
         // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
         // Could prly make this less verbose later.. we _do_ want to wrap primitive values output from custom render fxn.
@@ -116,7 +120,7 @@ export class ResultRowColumnBlockValue extends React.Component {
             value = <span className="value text-center">{ value }</span>;
         } else if (typeof value === "boolean") {
             value = <span className="value text-center">{ value }</span>;
-        } else if (renderFxn === this.memoized.transformIfNeeded){
+        } else if (!renderFxn){
             value = <span className="value">{ value }</span>; // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
         } // else is likely JSX from custom render function -- leave as-is
 

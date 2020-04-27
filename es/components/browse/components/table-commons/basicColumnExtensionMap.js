@@ -3,9 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TableRowToggleOpenButton = exports.basicColumnExtensionMap = exports.DEFAULT_WIDTH_MAP = void 0;
+exports.TableRowToggleOpenButton = exports.DisplayTitleColumn = exports.basicColumnExtensionMap = exports.DEFAULT_WIDTH_MAP = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _url = _interopRequireDefault(require("url"));
 
@@ -23,11 +23,17 @@ var _LocalizedTime = require("./../../../ui/LocalizedTime");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 var DEFAULT_WIDTH_MAP = {
   'lg': 200,
@@ -46,91 +52,36 @@ var basicColumnExtensionMap = {
     },
     'minColumnWidth': 90,
     'order': -100,
-    'render': function (result, columnDefinition, props, termTransformFxn, width) {
-      // TODO think about how to more easily customize this for different Item types.
-      // Likely make reusable component containing handleClick and most of its UI...
-      // which this and portals can use for "display_title" column, and then have per-type
-      // overrides/extensions.
-      var href = props.href,
-          context = props.context,
-          rowNumber = props.rowNumber,
-          detailOpen = props.detailOpen,
-          toggleDetailOpen = props.toggleDetailOpen; // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
-
-      var title = _object.itemUtil.getTitleStringFromContext(result); // Monospace accessions, file formats
-
-
-      var shouldMonospace = _object.itemUtil.isDisplayTitleAccession(result, title) || result.file_format && result.file_format === title;
-
-      var link = _object.itemUtil.atId(result);
-
-      var tooltip;
-      var hasPhoto = false;
-      /** Registers a list click event for Google Analytics then performs navigation. */
-
-      function handleClick(evt) {
-        evt.preventDefault();
-        evt.stopPropagation();
-        (0, _analytics.productClick)(result, {
-          list: (0, _analytics.hrefToListName)(href),
-          position: rowNumber + 1
-        }, function () {
-          // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
-          // to VirtualHrefController.virtualNavigate and would not bring you to new page.
-          (0, _navigate.navigate)(link);
-        }, context);
-        return false;
-      }
-
-      if (title && (title.length > 20 || width < 100)) tooltip = title;
-
-      if (link) {
-        // This should be the case always
-        title = _react["default"].createElement("a", {
-          key: "title",
-          href: link || '#',
-          onClick: handleClick
-        }, title);
-
-        if (typeof result.email === 'string' && result.email.indexOf('@') > -1) {
-          // Specific case for User items. May be removed or more cases added, if needed.
-          hasPhoto = true;
-          title = _react["default"].createElement(_react["default"].Fragment, null, _object.itemUtil.User.gravatar(result.email, 32, {
-            'className': 'in-search-table-title-image',
-            'data-tip': result.email
-          }, 'mm'), title);
-        }
-      }
-
-      var cls = "title-block" + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container") + (shouldMonospace ? " text-monospace text-small" : "");
-      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(TableRowToggleOpenButton, {
-        open: detailOpen,
-        onClick: toggleDetailOpen
-      }), _react["default"].createElement("div", {
-        key: "title-container",
-        className: cls,
-        "data-tip": tooltip
-      }, title));
+    'render': function (result, parentProps) {
+      return _react["default"].createElement(DisplayTitleColumn, _extends({}, parentProps, {
+        result: result
+      }));
     }
   },
   '@type': {
     'noSort': true,
     'order': -80,
-    'render': function render(result, columnDefinition, props) {
+    'render': function render(result, props) {
       if (!Array.isArray(result['@type'])) return null;
+      var _props$schemas = props.schemas,
+          schemas = _props$schemas === void 0 ? null : _props$schemas,
+          _props$href = props.href,
+          href = _props$href === void 0 ? null : _props$href,
+          _props$navigate = props.navigate,
+          propNavigate = _props$navigate === void 0 ? null : _props$navigate;
       var leafItemType = (0, _schemaTransforms.getItemType)(result);
-      var itemTypeTitle = (0, _schemaTransforms.getTitleForType)(leafItemType, props.schemas || null);
+      var itemTypeTitle = (0, _schemaTransforms.getTitleForType)(leafItemType, schemas);
       return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         className: "icon-container"
       }, _react["default"].createElement("i", {
         className: "icon icon-fw fas icon-filter clickable mr-08",
         onClick: function onClick(e) {
           // Preserve search query, if any, but remove filters (which are usually per-type).
-          if (!props.href || props.href.indexOf('/search/') === -1) return;
+          if (!href || href.indexOf('/search/') === -1) return;
           e.preventDefault();
           e.stopPropagation();
 
-          var urlParts = _url["default"].parse(props.href, true);
+          var urlParts = _url["default"].parse(href, true);
 
           var query = _objectSpread({}, urlParts.query, {
             'type': leafItemType
@@ -142,7 +93,7 @@ var basicColumnExtensionMap = {
           // since we're navigating to a search href here.
 
 
-          (props.navigate || _navigate.navigate)(nextHref);
+          (propNavigate || _navigate.navigate)(nextHref);
         },
         "data-tip": "Filter down to only " + itemTypeTitle
       })), _react["default"].createElement("span", {
@@ -177,21 +128,102 @@ var basicColumnExtensionMap = {
       'sm': 120
     },
     'render': function (result) {
-      if (!result.last_modified) return null;
-      if (!result.last_modified.date_modified) return null;
+      var _result$last_modified = result.last_modified;
+      _result$last_modified = _result$last_modified === void 0 ? {} : _result$last_modified;
+      var _result$last_modified2 = _result$last_modified.date_modified,
+          date_modified = _result$last_modified2 === void 0 ? null : _result$last_modified2;
+      if (!date_modified) return null;
       return _react["default"].createElement("span", {
         className: "value"
       }, _react["default"].createElement(_LocalizedTime.LocalizedTime, {
-        timestamp: result.last_modified.date_modified,
+        timestamp: date_modified,
         formatType: "date-sm"
       }));
     },
     'order': 515
   }
 };
-/** Button shown in first column (display_title) to open/close detail pane. */
+/**
+ * @todo
+ * Think about how to more easily customize this for different Item types.
+ * Likely make reusable component containing handleClick and most of its UI...
+ * which this and portals can use for "display_title" column, and then have per-type
+ * overrides/extensions.
+ */
 
 exports.basicColumnExtensionMap = basicColumnExtensionMap;
+
+var DisplayTitleColumn = _react["default"].memo(function (props) {
+  var result = props.result,
+      columnDefinition = props.columnDefinition,
+      termTransformFxn = props.termTransformFxn,
+      width = props.width,
+      href = props.href,
+      context = props.context,
+      rowNumber = props.rowNumber,
+      detailOpen = props.detailOpen,
+      toggleDetailOpen = props.toggleDetailOpen; // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
+
+  var title = _object.itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
+  // Monospace accessions, file formats
+
+
+  var shouldMonospace = _object.itemUtil.isDisplayTitleAccession(result, title) || result.file_format && result.file_format === title;
+
+  var link = _object.itemUtil.atId(result);
+
+  var tooltip = title && (title.length > 20 || width < 100) && title || null;
+  var hasPhoto = false;
+  /** Registers a list click event for Google Analytics then performs navigation. */
+
+  var onClick = (0, _react.useMemo)(function () {
+    return function (evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      (0, _analytics.productClick)(result, {
+        list: (0, _analytics.hrefToListName)(href),
+        position: rowNumber + 1
+      }, function () {
+        // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
+        // to VirtualHrefController.virtualNavigate and would not bring you to new page.
+        (0, _navigate.navigate)(link);
+      }, context);
+      return false;
+    };
+  }, [link, rowNumber]);
+
+  if (link) {
+    // This should be the case always
+    title = _react["default"].createElement("a", {
+      key: "title",
+      href: link || '#',
+      onClick: onClick
+    }, title);
+
+    if (typeof result.email === 'string' && result.email.indexOf('@') > -1) {
+      // Specific case for User items. May be removed or more cases added, if needed.
+      hasPhoto = true;
+      title = _react["default"].createElement(_react["default"].Fragment, null, _object.itemUtil.User.gravatar(result.email, 32, {
+        'className': 'in-search-table-title-image',
+        'data-tip': result.email
+      }, 'mm'), title);
+    }
+  }
+
+  var cls = "title-block" + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container") + (shouldMonospace ? " text-monospace text-small" : "");
+  return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(TableRowToggleOpenButton, {
+    open: detailOpen,
+    onClick: toggleDetailOpen
+  }), _react["default"].createElement("div", {
+    key: "title-container",
+    className: cls,
+    "data-tip": tooltip
+  }, title));
+});
+/** Button shown in first column (display_title) to open/close detail pane. */
+
+
+exports.DisplayTitleColumn = DisplayTitleColumn;
 
 var TableRowToggleOpenButton = _react["default"].memo(function (_ref) {
   var onClick = _ref.onClick,
