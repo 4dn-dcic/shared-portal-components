@@ -352,6 +352,8 @@ function (_React$Component2) {
 exports.DragAndDropUploadFileUploadController = DragAndDropUploadFileUploadController;
 
 _defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
+  fileSchema: _propTypes["default"].object.isRequired,
+  // Used to validate extension types
   fieldType: _propTypes["default"].string.isRequired,
   individualId: _propTypes["default"].string.isRequired,
   fieldName: _propTypes["default"].string,

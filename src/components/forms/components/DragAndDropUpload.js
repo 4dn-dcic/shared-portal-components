@@ -17,6 +17,7 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
 
 export class DragAndDropUploadFileUploadController extends React.Component {
     static propTypes = {
+        fileSchema: PropTypes.object.isRequired, // Used to validate extension types
         fieldType: PropTypes.string.isRequired,
         individualId: PropTypes.string.isRequired,
         fieldName: PropTypes.string, // If this isn't passed in, use fieldtype instead
