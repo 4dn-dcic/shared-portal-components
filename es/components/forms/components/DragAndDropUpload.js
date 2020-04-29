@@ -228,8 +228,8 @@ function (_React$Component2) {
      */
 
   }, {
-    key: "patchItem",
-    value: function patchItem(file, atId, credentials) {
+    key: "patchWithImage",
+    value: function patchWithImage(file, atId, credentials) {
       var upload_manager = (0, _aws.s3UploadFile)(file, credentials);
 
       if (upload_manager === null) {
@@ -248,13 +248,21 @@ function (_React$Component2) {
   }, {
     key: "patchToParent",
     value: function patchToParent(createItemResponse) {
-      var individualId = this.props.individualId;
+      var _this$props2 = this.props,
+          individualId = _this$props2.individualId,
+          files = _this$props2.files;
       var responseData = createItemResponse['@graph'][0];
       console.log(responseData);
       var submitted_at_id = responseData['@id'];
       console.log("submittedAtid=", submitted_at_id);
+      var current_docs = [];
+      files.forEach(function (file) {
+        return current_docs.push(file["@id"]);
+      });
+      current_docs.push(submitted_at_id);
+      current_docs = _underscore["default"].uniq(current_docs);
       return _util.ajax.promise(individualId, "PATCH", {}, JSON.stringify({
-        related_documents: [submitted_at_id]
+        related_documents: current_docs
       })).then(function (response) {
         console.log(response);
         return response;
@@ -327,10 +335,10 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          cls = _this$props2.cls,
-          fieldName = _this$props2.fieldName,
-          fieldType = _this$props2.fieldType;
+      var _this$props3 = this.props,
+          cls = _this$props3.cls,
+          fieldName = _this$props3.fieldName,
+          fieldType = _this$props3.fieldType;
       var files = this.state.files;
       return _react["default"].createElement(DragAndDropUploadButton, _extends({
         cls: cls,
@@ -352,6 +360,7 @@ function (_React$Component2) {
 exports.DragAndDropUploadFileUploadController = DragAndDropUploadFileUploadController;
 
 _defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
+  files: _propTypes["default"].array.isRequired,
   fileSchema: _propTypes["default"].object.isRequired,
   // Used to validate extension types
   fieldType: _propTypes["default"].string.isRequired,
@@ -435,15 +444,15 @@ function (_React$Component3) {
       var _this$state = this.state,
           show = _this$state.showModal,
           multiselect = _this$state.multiselect;
-      var _this$props3 = this.props,
-          onUploadStart = _this$props3.onUploadStart,
-          handleAddFile = _this$props3.handleAddFile,
-          handleRemoveFile = _this$props3.handleRemoveFile,
-          handleClearAllFiles = _this$props3.handleClearAllFiles,
-          fieldType = _this$props3.fieldType,
-          cls = _this$props3.cls,
-          fieldName = _this$props3.fieldName,
-          files = _this$props3.files;
+      var _this$props4 = this.props,
+          onUploadStart = _this$props4.onUploadStart,
+          handleAddFile = _this$props4.handleAddFile,
+          handleRemoveFile = _this$props4.handleRemoveFile,
+          handleClearAllFiles = _this$props4.handleClearAllFiles,
+          fieldType = _this$props4.fieldType,
+          cls = _this$props4.cls,
+          fieldName = _this$props4.fieldName,
+          files = _this$props4.files;
       return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropModal, _extends({
         handleHideModal: this.handleHideModal
       }, {
@@ -509,15 +518,15 @@ function (_React$Component4) {
         Functions for hiding, and handles files.
     */
     value: function render() {
-      var _this$props4 = this.props,
-          show = _this$props4.show,
-          onUploadStart = _this$props4.onUploadStart,
-          fieldType = _this$props4.fieldType,
-          fieldName = _this$props4.fieldName,
-          handleAddFile = _this$props4.handleAddFile,
-          handleRemoveFile = _this$props4.handleRemoveFile,
-          files = _this$props4.files,
-          handleHideModal = _this$props4.handleHideModal;
+      var _this$props5 = this.props,
+          show = _this$props5.show,
+          onUploadStart = _this$props5.onUploadStart,
+          fieldType = _this$props5.fieldType,
+          fieldName = _this$props5.fieldName,
+          handleAddFile = _this$props5.handleAddFile,
+          handleRemoveFile = _this$props5.handleRemoveFile,
+          files = _this$props5.files,
+          handleHideModal = _this$props5.handleHideModal;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
       }, {
@@ -654,9 +663,9 @@ function (_React$Component5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props5 = this.props,
-          files = _this$props5.files,
-          handleRemoveFile = _this$props5.handleRemoveFile;
+      var _this$props6 = this.props,
+          files = _this$props6.files,
+          handleRemoveFile = _this$props6.handleRemoveFile;
       return _react["default"].createElement("div", {
         className: "panel text-center",
         style: {

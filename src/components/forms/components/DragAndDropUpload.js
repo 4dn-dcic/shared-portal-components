@@ -17,6 +17,7 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
 
 export class DragAndDropUploadFileUploadController extends React.Component {
     static propTypes = {
+        files: PropTypes.array.isRequired,
         fileSchema: PropTypes.object.isRequired, // Used to validate extension types
         fieldType: PropTypes.string.isRequired,
         individualId: PropTypes.string.isRequired,
@@ -190,7 +191,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
      * @param {*} atId             submitted_at_id = object.itemUtil.atId(response['@graph'][responseData]);
      * @param {*} credentials      Data from responseData.upload_credentials from item creation POST request
      */
-    patchItem(file, atId, credentials) {
+    patchWithImage(file, atId, credentials) {
         const upload_manager = s3UploadFile(file, credentials);
 
         if (upload_manager === null){
@@ -208,14 +209,20 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     }
 
     patchToParent(createItemResponse) {
-        const { individualId } = this.props;
+        const { individualId, files } = this.props;
         const { 0: responseData } = createItemResponse['@graph'];
 
         console.log(responseData);
         const submitted_at_id = responseData['@id'];
         console.log("submittedAtid=", submitted_at_id);
 
-        return ajax.promise(individualId, "PATCH", { }, JSON.stringify({ related_documents: [submitted_at_id] })).then(
+        let current_docs = [];
+        files.forEach((file) => current_docs.push(file["@id"]));
+        current_docs.push(submitted_at_id);
+
+        current_docs = _.uniq(current_docs);
+
+        return ajax.promise(individualId, "PATCH", { }, JSON.stringify({ related_documents: current_docs })).then(
             (response) =>  {
                 console.log(response);
                 return response;
