@@ -250,7 +250,8 @@ function (_React$Component2) {
     value: function patchToParent(createItemResponse) {
       var _this$props2 = this.props,
           individualId = _this$props2.individualId,
-          files = _this$props2.files;
+          files = _this$props2.files,
+          fieldName = _this$props2.fieldName;
       var responseData = createItemResponse['@graph'][0];
       console.log(responseData);
       var submitted_at_id = responseData['@id'];
@@ -261,48 +262,11 @@ function (_React$Component2) {
       });
       current_docs.push(submitted_at_id);
       current_docs = _underscore["default"].uniq(current_docs);
-      return _util.ajax.promise(individualId, "PATCH", {}, JSON.stringify({
-        related_documents: current_docs
-      })).then(function (response) {
+      return _util.ajax.promise(individualId, "PATCH", {}, JSON.stringify(_defineProperty({}, fieldName, current_docs))).then(function (response) {
         console.log(response);
         return response;
       });
-    } //     if (response.status && response.status !== 'success'){ // error
-    //         stateToSet.keyValid[inKey] = 2;
-    //         if(!suppressWarnings){
-    //             var errorList = response.errors || [response.detail] || [];
-    //             // make an alert for each error description
-    //             stateToSet.errorCount = errorList.length;
-    //             for(i = 0; i<errorList.length; i++){
-    //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
-    //                 if (errorList[i].name){
-    //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
-    //                 } else {
-    //                     detail += ('. See ' + keyDisplay[inKey]);
-    //                 }
-    //                 Alerts.queue({
-    //                     'title' : "Validation error " + parseInt(i + 1),
-    //                     'message': detail,
-    //                     'style': 'danger'
-    //                 });
-    //             }
-    //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
-    //         }
-    //         this.setState(stateToSet);
-    //     } else { // response successful
-    //         let responseData;
-    //         let submitted_at_id;
-    //         if (test){
-    //             stateToSet.keyValid[inKey] = 3;
-    //             this.setState(stateToSet);
-    //             return;
-    //         } else {
-    //             [ responseData ] = response['@graph'];
-    //             submitted_at_id = object.itemUtil.atId(responseData);
-    //             console.log("submittedAtid=",submitted_at_id);
-    //         }
-    // }
-
+    }
   }, {
     key: "onUploadStart",
     value: function onUploadStart(files) {
@@ -337,12 +301,12 @@ function (_React$Component2) {
     value: function render() {
       var _this$props3 = this.props,
           cls = _this$props3.cls,
-          fieldName = _this$props3.fieldName,
+          fieldDisplayTitle = _this$props3.fieldDisplayTitle,
           fieldType = _this$props3.fieldType;
       var files = this.state.files;
       return _react["default"].createElement(DragAndDropUploadButton, _extends({
         cls: cls,
-        fieldName: fieldName,
+        fieldDisplayTitle: fieldDisplayTitle,
         fieldType: fieldType,
         files: files
       }, {
@@ -365,7 +329,8 @@ _defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
   // Used to validate extension types
   fieldType: _propTypes["default"].string.isRequired,
   individualId: _propTypes["default"].string.isRequired,
-  fieldName: _propTypes["default"].string,
+  fieldName: _propTypes["default"].string.isRequired,
+  fieldDisplayTitle: _propTypes["default"].string,
   // If this isn't passed in, use fieldtype instead
   award: _propTypes["default"].string,
   // Required for 4DN
@@ -451,7 +416,7 @@ function (_React$Component3) {
           handleClearAllFiles = _this$props4.handleClearAllFiles,
           fieldType = _this$props4.fieldType,
           cls = _this$props4.cls,
-          fieldName = _this$props4.fieldName,
+          fieldDisplayTitle = _this$props4.fieldDisplayTitle,
           files = _this$props4.files;
       return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropModal, _extends({
         handleHideModal: this.handleHideModal
@@ -460,7 +425,7 @@ function (_React$Component3) {
         show: show,
         onUploadStart: onUploadStart,
         fieldType: fieldType,
-        fieldName: fieldName,
+        fieldDisplayTitle: fieldDisplayTitle,
         handleAddFile: handleAddFile,
         handleRemoveFile: handleRemoveFile,
         handleClearAllFiles: handleClearAllFiles,
@@ -487,7 +452,7 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
   handleClearAllFiles: _propTypes["default"].func.isRequired,
   fieldType: _propTypes["default"].string,
   // Schema-formatted type (Ex. Item, Document, etc)
-  fieldName: _propTypes["default"].string,
+  fieldDisplayTitle: _propTypes["default"].string,
   // Name of specific field (Ex. Related Documents)
   multiselect: _propTypes["default"].bool,
   cls: _propTypes["default"].string
@@ -522,7 +487,7 @@ function (_React$Component4) {
           show = _this$props5.show,
           onUploadStart = _this$props5.onUploadStart,
           fieldType = _this$props5.fieldType,
-          fieldName = _this$props5.fieldName,
+          fieldDisplayTitle = _this$props5.fieldDisplayTitle,
           handleAddFile = _this$props5.handleAddFile,
           handleRemoveFile = _this$props5.handleRemoveFile,
           files = _this$props5.files,
@@ -538,7 +503,7 @@ function (_React$Component4) {
         closeButton: true
       }, _react["default"].createElement(_reactBootstrap.Modal.Title, {
         className: "text-500"
-      }, "Upload a ", fieldType, " ", fieldName && fieldType !== fieldName ? "for " + fieldName : null)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
+      }, "Upload a ", fieldType, " ", fieldDisplayTitle && fieldType !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
         files: files
       }, {
         handleAddFile: handleAddFile,
@@ -558,7 +523,7 @@ function (_React$Component4) {
         disabled: files.length === 0
       }, _react["default"].createElement("i", {
         className: "icon fas icon-upload"
-      }), " Upload ", fieldName)));
+      }), " Upload ", fieldDisplayTitle)));
     }
   }]);
 
@@ -576,7 +541,7 @@ _defineProperty(DragAndDropModal, "propTypes", {
   show: _propTypes["default"].bool,
   // Controlled by state method onHide passed in as prop
   fieldType: _propTypes["default"].string,
-  fieldName: _propTypes["default"].string
+  fieldDisplayTitle: _propTypes["default"].string
 });
 
 _defineProperty(DragAndDropModal, "defaultProps", {

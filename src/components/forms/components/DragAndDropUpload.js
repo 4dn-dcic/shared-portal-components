@@ -21,7 +21,8 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         fileSchema: PropTypes.object.isRequired, // Used to validate extension types
         fieldType: PropTypes.string.isRequired,
         individualId: PropTypes.string.isRequired,
-        fieldName: PropTypes.string, // If this isn't passed in, use fieldtype instead
+        fieldName: PropTypes.string.isRequired,
+        fieldDisplayTitle: PropTypes.string, // If this isn't passed in, use fieldtype instead
         award: PropTypes.string, // Required for 4DN
         lab: PropTypes.string, // Required for 4DN
         institution: PropTypes.object, // Required for CGAP
@@ -209,7 +210,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     }
 
     patchToParent(createItemResponse) {
-        const { individualId, files } = this.props;
+        const { individualId, files, fieldName } = this.props;
         const { 0: responseData } = createItemResponse['@graph'];
 
         console.log(responseData);
@@ -222,49 +223,13 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
         current_docs = _.uniq(current_docs);
 
-        return ajax.promise(individualId, "PATCH", { }, JSON.stringify({ related_documents: current_docs })).then(
+        return ajax.promise(individualId, "PATCH", { }, JSON.stringify({ [fieldName]: current_docs })).then(
             (response) =>  {
                 console.log(response);
                 return response;
             }
         );
     }
-
-    //     if (response.status && response.status !== 'success'){ // error
-    //         stateToSet.keyValid[inKey] = 2;
-    //         if(!suppressWarnings){
-    //             var errorList = response.errors || [response.detail] || [];
-    //             // make an alert for each error description
-    //             stateToSet.errorCount = errorList.length;
-    //             for(i = 0; i<errorList.length; i++){
-    //                 var detail = errorList[i].description || errorList[i] || "Unidentified error";
-    //                 if (errorList[i].name){
-    //                     detail += ('. ' + errorList[i].name + ' in ' + keyDisplay[inKey]);
-    //                 } else {
-    //                     detail += ('. See ' + keyDisplay[inKey]);
-    //                 }
-    //                 Alerts.queue({
-    //                     'title' : "Validation error " + parseInt(i + 1),
-    //                     'message': detail,
-    //                     'style': 'danger'
-    //                 });
-    //             }
-    //             setTimeout(layout.animateScrollTo(0), 100); // scroll to top
-    //         }
-    //         this.setState(stateToSet);
-    //     } else { // response successful
-    //         let responseData;
-    //         let submitted_at_id;
-    //         if (test){
-    //             stateToSet.keyValid[inKey] = 3;
-    //             this.setState(stateToSet);
-    //             return;
-    //         } else {
-    //             [ responseData ] = response['@graph'];
-    //             submitted_at_id = object.itemUtil.atId(responseData);
-    //             console.log("submittedAtid=",submitted_at_id);
-    //         }
-    // }
 
     onUploadStart(files) {
         files.forEach((file) => {
@@ -293,10 +258,10 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     }
 
     render() {
-        const { cls, fieldName, fieldType } = this.props;
+        const { cls, fieldDisplayTitle, fieldType } = this.props;
         const { files } = this.state;
 
-        return <DragAndDropUploadButton {...{ cls, fieldName, fieldType, files }}
+        return <DragAndDropUploadButton {...{ cls, fieldDisplayTitle, fieldType, files }}
             onUploadStart={this.onUploadStart} handleAddFile={this.handleAddFile}
             handleClearAllFiles={this.handleClearAllFiles} handleRemoveFile={this.handleRemoveFile} />;
     }
@@ -310,7 +275,7 @@ class DragAndDropUploadButton extends React.Component {
         files: PropTypes.array,
         handleClearAllFiles: PropTypes.func.isRequired,
         fieldType: PropTypes.string,                  // Schema-formatted type (Ex. Item, Document, etc)
-        fieldName: PropTypes.string,                  // Name of specific field (Ex. Related Documents)
+        fieldDisplayTitle: PropTypes.string,                  // Name of specific field (Ex. Related Documents)
         multiselect: PropTypes.bool,
         cls: PropTypes.string
     }
@@ -358,12 +323,12 @@ class DragAndDropUploadButton extends React.Component {
     render() {
         const { showModal: show, multiselect } = this.state;
         const { onUploadStart, handleAddFile, handleRemoveFile, handleClearAllFiles,
-            fieldType, cls, fieldName, files } = this.props;
+            fieldType, cls, fieldDisplayTitle, files } = this.props;
 
         return (
             <div>
                 <DragAndDropModal handleHideModal={this.handleHideModal}
-                    {...{ multiselect, show, onUploadStart, fieldType, fieldName, handleAddFile, handleRemoveFile,
+                    {...{ multiselect, show, onUploadStart, fieldType, fieldDisplayTitle, handleAddFile, handleRemoveFile,
                         handleClearAllFiles, files }}
                 />
                 <button type="button" onClick={this.onShow} className={cls}><i className="icon icon-upload fas"></i> Quick Upload a new {fieldType}</button>
@@ -386,7 +351,7 @@ class DragAndDropModal extends React.Component {
         onUploadStart: PropTypes.func.isRequired,       // Should trigger the creation of a new object, and start upload
         show: PropTypes.bool,                           // Controlled by state method onHide passed in as prop
         fieldType: PropTypes.string,
-        fieldName: PropTypes.string
+        fieldDisplayTitle: PropTypes.string
     }
 
     static defaultProps = {
@@ -395,16 +360,16 @@ class DragAndDropModal extends React.Component {
 
     render(){
         const {
-            show, onUploadStart, fieldType, fieldName, handleAddFile, handleRemoveFile, files, handleHideModal
+            show, onUploadStart, fieldType, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal
         } = this.props;
 
-        let showFieldName = fieldName && fieldType !== fieldName;
+        let showFieldName = fieldDisplayTitle && fieldType !== fieldDisplayTitle;
 
         return (
             <Modal centered {...{ show }} onHide={handleHideModal} className="submission-view-modal">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
-                        Upload a {fieldType} { showFieldName ? "for " + fieldName : null}
+                        Upload a {fieldType} { showFieldName ? "for " + fieldDisplayTitle : null}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -423,7 +388,7 @@ class DragAndDropModal extends React.Component {
                     </input> */}
                     <button type="button" className="btn btn-primary" onClick={() => onUploadStart(files)}
                         disabled={files.length === 0}>
-                        <i className="icon fas icon-upload"></i> Upload {fieldName}
+                        <i className="icon fas icon-upload"></i> Upload {fieldDisplayTitle}
                     </button>
                 </Modal.Footer>
             </Modal>
