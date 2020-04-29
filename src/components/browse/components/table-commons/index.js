@@ -4,7 +4,10 @@
 export {
     basicColumnExtensionMap,
     DEFAULT_WIDTH_MAP,
-    TableRowToggleOpenButton                    // Might be useful if defining some wicked custom tables.
+    TableRowToggleOpenButton,                    // Might be useful if defining some wicked custom tables.
+    DisplayTitleColumnWrapper,
+    DisplayTitleColumnDefault,
+    DisplayTitleColumnUser
 } from './basicColumnExtensionMap';
 
 export {

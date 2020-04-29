@@ -17,7 +17,19 @@ export const basicColumnExtensionMap = {
         'minColumnWidth' : 90,
         'order' : -100,
         'render' : function renderDisplayTitleColumn(result, parentProps){
-            return <DisplayTitleColumn {...parentProps} result={result} />;
+            const { href, context, rowNumber, detailOpen, toggleDetailOpen } = parentProps;
+            const { '@type' : itemTypeList = ["Item"] } = result;
+            let renderElem;
+            if (itemTypeList[0] === "User") {
+                renderElem = <DisplayTitleColumnUser {...{ result }}/>;
+            } else {
+                renderElem = <DisplayTitleColumnDefault {...{ result }}/>;
+            }
+            return (
+                <DisplayTitleColumnWrapper {...{ result, href, context, rowNumber, detailOpen, toggleDetailOpen }}>
+                    { renderElem }
+                </DisplayTitleColumnWrapper>
+            );
         }
     },
     '@type' : {
@@ -83,6 +95,43 @@ export const basicColumnExtensionMap = {
 };
 
 
+
+export const DisplayTitleColumnUser = React.memo(function DisplayTitleColumnUser({ result, link, onClick }){
+    const { email = null } = result;
+
+    // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
+    let title = itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
+
+    const tooltip = (typeof title === "string" && title.length > 20 && title) || null;
+    let hasPhoto = false;
+
+    if (link){ // This should be the case always
+        title = <a key="title" href={link || '#'} onClick={onClick}>{ title }</a>;
+        if (typeof email === 'string' && email.indexOf('@') > -1){
+            // Specific case for User items. May be removed or more cases added, if needed.
+            hasPhoto = true;
+            title = (
+                <React.Fragment>
+                    { itemUtil.User.gravatar(email, 32, { 'className' : 'in-search-table-title-image', 'data-tip' : email }, 'mm') }
+                    { title }
+                </React.Fragment>
+            );
+        }
+    }
+
+    const cls = (
+        "title-block"
+        + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container")
+    );
+
+    return (
+        <div key="title-container" className={cls} data-tip={tooltip} data-delay-show={750}>
+            { title }
+        </div>
+    );
+
+});
+
 /**
  * @todo
  * Think about how to more easily customize this for different Item types.
@@ -90,22 +139,38 @@ export const basicColumnExtensionMap = {
  * which this and portals can use for "display_title" column, and then have per-type
  * overrides/extensions.
  */
-export const DisplayTitleColumn = React.memo(function DisplayTitleColumn(props){
-    const {
-        result,
-        columnDefinition, termTransformFxn, width,
-        href, context, rowNumber, detailOpen, toggleDetailOpen
-    } = props;
-
-    // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
+export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnDefault({ result, link, onClick }){
     let title = itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
 
     // Monospace accessions, file formats
     const shouldMonospace = (itemUtil.isDisplayTitleAccession(result, title) || (result.file_format && result.file_format === title));
-    const link = itemUtil.atId(result);
-    const tooltip = (title && (title.length > 20 || width < 100) && title) || null;
-    let hasPhoto = false;
+    const tooltip = (typeof title === "string" && title.length > 20 && title) || null;
 
+    if (link){ // This should be the case always
+        title = <a key="title" href={link || '#'} onClick={onClick}>{ title }</a>;
+    }
+
+    const cls = (
+        "title-block text-ellipsis-container"
+        + (shouldMonospace ? " text-monospace text-small" : "")
+    );
+
+    return (
+        <div key="title-container" className={cls} data-tip={tooltip} data-delay-show={750}>
+            { title }
+        </div>
+    );
+});
+
+export const DisplayTitleColumnWrapper = React.memo(function(props){
+    const {
+        result,
+        children,
+        //columnDefinition, termTransformFxn, width,
+        href, context, rowNumber, detailOpen, toggleDetailOpen
+    } = props;
+
+    const link = itemUtil.atId(result);
 
     /** Registers a list click event for Google Analytics then performs navigation. */
     const onClick = useMemo(function(){
@@ -126,37 +191,16 @@ export const DisplayTitleColumn = React.memo(function DisplayTitleColumn(props){
         };
     }, [ link, rowNumber ]);
 
-    if (link){ // This should be the case always
-        title = <a key="title" href={link || '#'} onClick={onClick}>{ title }</a>;
-        if (typeof result.email === 'string' && result.email.indexOf('@') > -1){
-            // Specific case for User items. May be removed or more cases added, if needed.
-            hasPhoto = true;
-            title = (
-                <React.Fragment>
-                    { itemUtil.User.gravatar(result.email, 32, { 'className' : 'in-search-table-title-image', 'data-tip' : result.email }, 'mm') }
-                    { title }
-                </React.Fragment>
-            );
-        }
-    }
-
-    const cls = (
-        "title-block"
-        + (hasPhoto ? " has-photo d-flex align-items-center"
-            : " text-ellipsis-container"
-        )
-        + (shouldMonospace ? " text-monospace text-small" : "")
-    );
+    const renderChildren = React.Children.map(children, function(child){
+        return React.cloneElement(child, { link, onClick });
+    });
 
     return (
         <React.Fragment>
             <TableRowToggleOpenButton open={detailOpen} onClick={toggleDetailOpen} />
-            <div key="title-container" className={cls} data-tip={tooltip}>
-                { title }
-            </div>
+            { renderChildren }
         </React.Fragment>
     );
-
 });
 
 

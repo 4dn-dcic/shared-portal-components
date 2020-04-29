@@ -277,7 +277,7 @@ class ResultRow extends React.PureComponent {
         // to make more reusable re: e.g. `selectedFiles` (= 4DN-specific).
         const { columnDefinitions, selectedFiles } = this.props;
         // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction', 'detailOpen'
-        const commonProps = _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id');
+        const commonProps = _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id', 'toggleDetailPaneOpen');
         return columnDefinitions.map((columnDefinition, columnNumber) => { // todo: rename columnNumber to columnIndex
             const { field } = columnDefinition;
             const passedProps = {

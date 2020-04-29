@@ -148,7 +148,7 @@ function (_React$Component) {
       var field = columnDefinition.field,
           _columnDefinition$ren = columnDefinition.render,
           renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren;
-      var value = renderFxn ? renderFxn(result, _underscore["default"].omit(this.props, 'columnDefinition', 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
+      var value = renderFxn ? renderFxn(result, _underscore["default"].omit(this.props, 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
       // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
       // Could prly make this less verbose later.. we _do_ want to wrap primitive values output from custom render fxn.
 

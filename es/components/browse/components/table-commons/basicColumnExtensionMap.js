@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TableRowToggleOpenButton = exports.DisplayTitleColumn = exports.basicColumnExtensionMap = exports.DEFAULT_WIDTH_MAP = void 0;
+exports.TableRowToggleOpenButton = exports.DisplayTitleColumnWrapper = exports.DisplayTitleColumnDefault = exports.DisplayTitleColumnUser = exports.basicColumnExtensionMap = exports.DEFAULT_WIDTH_MAP = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -33,8 +33,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
 var DEFAULT_WIDTH_MAP = {
   'lg': 200,
   'md': 180,
@@ -53,9 +51,33 @@ var basicColumnExtensionMap = {
     'minColumnWidth': 90,
     'order': -100,
     'render': function (result, parentProps) {
-      return _react["default"].createElement(DisplayTitleColumn, _extends({}, parentProps, {
-        result: result
-      }));
+      var href = parentProps.href,
+          context = parentProps.context,
+          rowNumber = parentProps.rowNumber,
+          detailOpen = parentProps.detailOpen,
+          toggleDetailOpen = parentProps.toggleDetailOpen;
+      var _result$Type = result['@type'],
+          itemTypeList = _result$Type === void 0 ? ["Item"] : _result$Type;
+      var renderElem;
+
+      if (itemTypeList[0] === "User") {
+        renderElem = _react["default"].createElement(DisplayTitleColumnUser, {
+          result: result
+        });
+      } else {
+        renderElem = _react["default"].createElement(DisplayTitleColumnDefault, {
+          result: result
+        });
+      }
+
+      return _react["default"].createElement(DisplayTitleColumnWrapper, {
+        result: result,
+        href: href,
+        context: context,
+        rowNumber: rowNumber,
+        detailOpen: detailOpen,
+        toggleDetailOpen: toggleDetailOpen
+      }, renderElem);
     }
   },
   '@type': {
@@ -143,6 +165,47 @@ var basicColumnExtensionMap = {
     'order': 515
   }
 };
+exports.basicColumnExtensionMap = basicColumnExtensionMap;
+
+var DisplayTitleColumnUser = _react["default"].memo(function (_ref) {
+  var result = _ref.result,
+      link = _ref.link,
+      onClick = _ref.onClick;
+  var _result$email = result.email,
+      email = _result$email === void 0 ? null : _result$email; // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
+
+  var title = _object.itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
+
+
+  var tooltip = typeof title === "string" && title.length > 20 && title || null;
+  var hasPhoto = false;
+
+  if (link) {
+    // This should be the case always
+    title = _react["default"].createElement("a", {
+      key: "title",
+      href: link || '#',
+      onClick: onClick
+    }, title);
+
+    if (typeof email === 'string' && email.indexOf('@') > -1) {
+      // Specific case for User items. May be removed or more cases added, if needed.
+      hasPhoto = true;
+      title = _react["default"].createElement(_react["default"].Fragment, null, _object.itemUtil.User.gravatar(email, 32, {
+        'className': 'in-search-table-title-image',
+        'data-tip': email
+      }, 'mm'), title);
+    }
+  }
+
+  var cls = "title-block" + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container");
+  return _react["default"].createElement("div", {
+    key: "title-container",
+    className: cls,
+    "data-tip": tooltip,
+    "data-delay-show": 750
+  }, title);
+});
 /**
  * @todo
  * Think about how to more easily customize this for different Item types.
@@ -151,30 +214,53 @@ var basicColumnExtensionMap = {
  * overrides/extensions.
  */
 
-exports.basicColumnExtensionMap = basicColumnExtensionMap;
 
-var DisplayTitleColumn = _react["default"].memo(function (props) {
-  var result = props.result,
-      columnDefinition = props.columnDefinition,
-      termTransformFxn = props.termTransformFxn,
-      width = props.width,
-      href = props.href,
-      context = props.context,
-      rowNumber = props.rowNumber,
-      detailOpen = props.detailOpen,
-      toggleDetailOpen = props.toggleDetailOpen; // `href` and `context` reliably refer to search href and context here, i.e. will be passed in from VirtualHrefController.
+exports.DisplayTitleColumnUser = DisplayTitleColumnUser;
+
+var DisplayTitleColumnDefault = _react["default"].memo(function (_ref2) {
+  var result = _ref2.result,
+      link = _ref2.link,
+      onClick = _ref2.onClick;
 
   var title = _object.itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
   // Monospace accessions, file formats
 
 
   var shouldMonospace = _object.itemUtil.isDisplayTitleAccession(result, title) || result.file_format && result.file_format === title;
+  var tooltip = typeof title === "string" && title.length > 20 && title || null;
+
+  if (link) {
+    // This should be the case always
+    title = _react["default"].createElement("a", {
+      key: "title",
+      href: link || '#',
+      onClick: onClick
+    }, title);
+  }
+
+  var cls = "title-block text-ellipsis-container" + (shouldMonospace ? " text-monospace text-small" : "");
+  return _react["default"].createElement("div", {
+    key: "title-container",
+    className: cls,
+    "data-tip": tooltip,
+    "data-delay-show": 750
+  }, title);
+});
+
+exports.DisplayTitleColumnDefault = DisplayTitleColumnDefault;
+
+var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
+  var result = props.result,
+      children = props.children,
+      href = props.href,
+      context = props.context,
+      rowNumber = props.rowNumber,
+      detailOpen = props.detailOpen,
+      toggleDetailOpen = props.toggleDetailOpen;
 
   var link = _object.itemUtil.atId(result);
-
-  var tooltip = title && (title.length > 20 || width < 100) && title || null;
-  var hasPhoto = false;
   /** Registers a list click event for Google Analytics then performs navigation. */
+
 
   var onClick = (0, _react.useMemo)(function () {
     return function (evt) {
@@ -192,43 +278,27 @@ var DisplayTitleColumn = _react["default"].memo(function (props) {
     };
   }, [link, rowNumber]);
 
-  if (link) {
-    // This should be the case always
-    title = _react["default"].createElement("a", {
-      key: "title",
-      href: link || '#',
+  var renderChildren = _react["default"].Children.map(children, function (child) {
+    return _react["default"].cloneElement(child, {
+      link: link,
       onClick: onClick
-    }, title);
+    });
+  });
 
-    if (typeof result.email === 'string' && result.email.indexOf('@') > -1) {
-      // Specific case for User items. May be removed or more cases added, if needed.
-      hasPhoto = true;
-      title = _react["default"].createElement(_react["default"].Fragment, null, _object.itemUtil.User.gravatar(result.email, 32, {
-        'className': 'in-search-table-title-image',
-        'data-tip': result.email
-      }, 'mm'), title);
-    }
-  }
-
-  var cls = "title-block" + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container") + (shouldMonospace ? " text-monospace text-small" : "");
   return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(TableRowToggleOpenButton, {
     open: detailOpen,
     onClick: toggleDetailOpen
-  }), _react["default"].createElement("div", {
-    key: "title-container",
-    className: cls,
-    "data-tip": tooltip
-  }, title));
+  }), renderChildren);
 });
 /** Button shown in first column (display_title) to open/close detail pane. */
 
 
-exports.DisplayTitleColumn = DisplayTitleColumn;
+exports.DisplayTitleColumnWrapper = DisplayTitleColumnWrapper;
 
-var TableRowToggleOpenButton = _react["default"].memo(function (_ref) {
-  var onClick = _ref.onClick,
-      toggleDetailOpen = _ref.toggleDetailOpen,
-      open = _ref.open;
+var TableRowToggleOpenButton = _react["default"].memo(function (_ref3) {
+  var onClick = _ref3.onClick,
+      toggleDetailOpen = _ref3.toggleDetailOpen,
+      open = _ref3.open;
   return _react["default"].createElement("div", {
     className: "toggle-detail-button-container"
   }, _react["default"].createElement("button", {

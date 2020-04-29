@@ -100,7 +100,7 @@ export class ResultRowColumnBlockValue extends React.Component {
 
 
         let value = renderFxn ?
-            renderFxn(result, _.omit(this.props, 'columnDefinition', 'result'))
+            renderFxn(result, _.omit(this.props, 'result'))
             : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
 
         // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
