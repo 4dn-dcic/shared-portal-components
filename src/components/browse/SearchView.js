@@ -95,6 +95,7 @@ export class SearchView extends React.PureComponent {
             ...passProps,
             currentAction,
             schemas,
+            windowWidth,
             isOwnPage: true,
             facets: propFacets || contextFacets
         };
@@ -102,7 +103,7 @@ export class SearchView extends React.PureComponent {
         let controllersAndView = (
             <WindowNavigationController {...{ href, context }} navigate={propNavigate}>
                 <ColumnCombiner {...{ columns, columnExtensionMap }}>
-                    <CustomColumnController {...{ windowWidth }}>
+                    <CustomColumnController>
                         <SortController>
                             <ControlsAndResults {...childViewProps} />
                         </SortController>
