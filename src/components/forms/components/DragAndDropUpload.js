@@ -2,11 +2,6 @@ import React from 'react';
 import { Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { ajax } from './../../util';
-import { s3UploadFile } from '@hms-dbmi-bgm/shared-portal-components/es/components/util/aws';
-/* webpackChunkName: "aws-utils" */
-/* webpackMode: "lazy" */
-
-import { object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import _ from 'underscore';
 
 export class DragAndDropUploadSubmissionViewController extends React.Component {
@@ -65,15 +60,33 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
                 // Populate an array with all of the new files
                 for (var i = 0; i < files.length; i++) {
-                    console.log(files[i]);
-                    fileArr.push(files[i]);
+                    const attachment = {};
+                    const file = files[i];
+                    attachment.type = file.type;
+                    if (file.size) { attachment.size = file.size; }
+                    if (file.name) { attachment.download = file.name; }
+
+                    var fileReader = new window.FileReader();
+                    fileReader.readAsDataURL(file);
+                    fileReader.onloadend = function (e) {
+                        if(e.target.result){
+                            attachment.href = e.target.result;
+                        }else{
+                            alert('There was a problem reading the given file.');
+                            return;
+                        }
+            
+                    }.bind(this);
+
+                    console.log(attachment, files[i]);
+                    fileArr.push(attachment);
                 }
 
                 // Concat with current array
                 const allFiles = currFiles.concat(fileArr);
 
                 // Filter out duplicates (based on just filename for now; may need more criteria in future)
-                const dedupedFiles = _.uniq(allFiles, false, (file) => file.name);
+                const dedupedFiles = _.uniq(allFiles, false, (file) => file.download);
 
                 this.setState({
                     files: dedupedFiles
@@ -92,13 +105,12 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
         if (multiselect) {
             const { files } = this.state;
-            const { 0: name, 1: size, 2: lastModified } = id.split("|");
+            const { 0: download, 1: size } = id.split("|");
 
             // Filter to remove the clicked file by ID parts
             const newFiles = files.filter((file) => {
-                if ((file.name === name) &&
-                    (file.size === parseInt(size)) &&
-                    (file.lastModified === parseInt(lastModified))
+                if ((file.download === download) &&
+                    (file.size === parseInt(size))
                 ) {
                     return false;
                 }
@@ -124,7 +136,9 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     generatePayload(file, attachmentPresent) {
         const { award, lab, institution, project } = this.props;
 
-        const aliasFilename = file.name.split(' ').join('');
+        console.log("file,", file);
+
+        const aliasFilename = file.download.split(' ').join('');
         let alias;
 
         const payloadObj = {};
@@ -148,7 +162,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
         // Add attachment, if provided
         if (attachmentPresent) {
-            payloadObj.attachment = attachment;
+            payloadObj.attachment = file;
         }
         console.log("Payload:", payloadObj);
 
@@ -160,7 +174,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
         const destination = `/${fieldType}/?check_only=true`; // testing only
 
-        const payloadObj = this.generatePayload(file, false);
+        const payloadObj = this.generatePayload(file, true);
         const payload = JSON.stringify(payloadObj);
 
         return ajax.promise(destination, 'POST', {}, payload).then((response) => {
@@ -175,7 +189,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         const destination = `/${fieldType}/`;
 
         // Build a payload with info to create metadata Item
-        const payloadObj = this.generatePayload(file, false);
+        const payloadObj = this.generatePayload(file, true);
         const payload = JSON.stringify(payloadObj);
 
         return ajax.promise(destination, 'POST', {}, payload).then((response) => {
@@ -183,30 +197,6 @@ export class DragAndDropUploadFileUploadController extends React.Component {
             return response;
             // here you could attach some onchange function from submission view
         });
-    }
-
-
-    /**
-     * 
-     * @param {*} file 
-     * @param {*} atId             submitted_at_id = object.itemUtil.atId(response['@graph'][responseData]);
-     * @param {*} credentials      Data from responseData.upload_credentials from item creation POST request
-     */
-    patchWithImage(file, atId, credentials) {
-        const upload_manager = s3UploadFile(file, credentials);
-
-        if (upload_manager === null){
-            // bad upload manager. Cause an alert
-            alert("Something went wrong while initializing the file upload. Please contact the 4DN-DCIC team.");
-        } else {
-            // this will set off a chain of aync events.
-            // first, md5 will be calculated and then the
-            // file will be uploaded to s3. If all of this
-            // is succesful, call finishRoundTwo.
-            stateToSet.uploadStatus = null;
-            this.setState(stateToSet);
-            this.updateUpload(upload_manager);
-        }
     }
 
     patchToParent(createItemResponse) {
@@ -238,6 +228,11 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                 .then((response) => {
                     if (response.status && response.status !== 'success') {
                         alert("validation failed");
+                        const { errors = [] } = response;
+                        console.log("errors", errors);
+                        if (errors.length > 0) {
+                            errors.forEach((error) => console.log(error.description));
+                        }
                     } else {
                         console.log("validation succeeded");
                     }
@@ -250,6 +245,14 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                         console.log("create item succeded");
                     }
                     return this.patchToParent(resp);
+                })
+                .then((resp) => {
+                    if (resp.status && resp.status !== 'success') {
+                        alert("patching to parent failed");
+                    } else {
+                        alert(`${file.download} uploaded and linked successfully.`);
+                        this.handleRemoveFile(`${file.download}|${file.size}`);
+                    }
                 })
                 .catch((error) => {
                     console.log("error occurred", error);
@@ -503,11 +506,11 @@ export class DragAndDropZone extends React.Component {
                 }}>
                     { files.map(
                         (file) => {
-                            const fileId = `${file.name}|${file.size}|${file.lastModified}`;
+                            const fileId = `${file.download}|${file.size}`;
 
                             return (
                                 <li key={fileId} className="m-1">
-                                    <FileIcon fileName={file.name} fileSize={file.size}
+                                    <FileIcon fileName={file.download} fileSize={file.size}
                                         fileType={file.type} fileId={fileId} {...{ handleRemoveFile }} />
                                 </li>
                             );

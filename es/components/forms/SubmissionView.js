@@ -1595,8 +1595,10 @@ function (_React$PureComponent) {
             if (roundTwo) {
               // there is a file
               if (file && responseData.upload_credentials) {
-                // add important info to result from finalizedContext
+                _util.console.log("RESPONSE DATA", responseData); // add important info to result from finalizedContext
                 // that is not added from /types/file.py get_upload
+
+
                 var creds = responseData.upload_credentials;
                 Promise.resolve().then(function () {
                   return _interopRequireWildcard(require('../util/aws'));

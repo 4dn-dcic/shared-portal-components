@@ -1185,6 +1185,7 @@ export default class SubmissionView extends React.PureComponent{
                     if (roundTwo){
                         // there is a file
                         if (file && responseData.upload_credentials){
+                            console.log("RESPONSE DATA", responseData);
 
                             // add important info to result from finalizedContext
                             // that is not added from /types/file.py get_upload
