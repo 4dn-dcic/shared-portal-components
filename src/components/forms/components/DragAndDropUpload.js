@@ -9,6 +9,56 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
     it and pass through the appropriate functions */
 }
 
+class PromiseQueue {
+    static queue = [];
+    static pendingPromise = false;
+    static stop = false;
+
+    static enqueue(promise) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({
+                promise,
+                resolve,
+                reject,
+            });
+            this.dequeue();
+        });
+    }
+
+    static dequeue() {
+        if (this.workingOnPromise) {
+            return false;
+        }
+        if (this.stop) {
+            this.queue = [];
+            this.stop = false;
+            return;
+        }
+        const item = this.queue.shift();
+        if (!item) {
+            return false;
+        }
+        try {
+            this.workingOnPromise = true;
+            item.promise()
+                .then((value) => {
+                    this.workingOnPromise = false;
+                    item.resolve(value);
+                    this.dequeue();
+                })
+                .catch((err) => {
+                    this.workingOnPromise = false;
+                    item.reject(err);
+                    this.dequeue();
+                });
+        } catch (err) {
+            this.workingOnPromise = false;
+            item.reject(err);
+            this.dequeue();
+        }
+        return true;
+    }
+}
 
 export class DragAndDropUploadFileUploadController extends React.Component {
     static propTypes = {
@@ -199,7 +249,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         });
     }
 
-    patchToParent(createItemResponse) {
+    patchToParent(createItemResponse, recentlyCreatedItems) {
         const { individualId, files, fieldName } = this.props;
         const { 0: responseData } = createItemResponse['@graph'];
 
@@ -208,7 +258,14 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         console.log("submittedAtid=", submitted_at_id);
 
         let current_docs = [];
+        // Add items that were loaded from db w/individual
         files.forEach((file) => current_docs.push(file["@id"]));
+
+        // Add recently created items to the list of items to patch
+        if (recentlyCreatedItems && recentlyCreatedItems.length > 0) {
+            recentlyCreatedItems.forEach((atId) => current_docs.push(atId));
+        }
+        // Add the current item
         current_docs.push(submitted_at_id);
 
         current_docs = _.uniq(current_docs);
@@ -222,9 +279,11 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     }
 
     onUploadStart(files) {
-        files.forEach((file) => {
+        const previouslySubmittedAtIds = [];
+
+        const newFileSubmit = (file) => {
             console.log("Attempting to upload file... ", file);
-            this.validateItem(file)
+            return this.validateItem(file)
                 .then((response) => {
                     if (response.status && response.status !== 'success') {
                         alert("validation failed");
@@ -242,9 +301,14 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                     if (resp.status && resp.status !== 'success') {
                         alert("item creation failed");
                     } else {
-                        console.log("create item succeded");
+                        console.log("Create item succeeded");
+                        const { 0: responseData } = resp['@graph'];
+                        const submitted_at_id = responseData['@id'];
+
+                        // Also pass through the atIds of other new files
+                        previouslySubmittedAtIds.push(submitted_at_id);
                     }
-                    return this.patchToParent(resp);
+                    return this.patchToParent(resp, previouslySubmittedAtIds);
                 })
                 .then((resp) => {
                     if (resp.status && resp.status !== 'success') {
@@ -257,7 +321,10 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                 .catch((error) => {
                     console.log("error occurred", error);
                 });
-        });
+        };
+
+        // Add each file submission chain to the queue, so each file uploads sequentially
+        files.forEach((file) => PromiseQueue.enqueue(() => newFileSubmit(file)));
     }
 
     render() {

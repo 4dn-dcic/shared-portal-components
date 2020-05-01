@@ -55,34 +55,109 @@ function (_React$Component) {
 
 exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
 
+var PromiseQueue =
+/*#__PURE__*/
+function () {
+  function PromiseQueue() {
+    _classCallCheck(this, PromiseQueue);
+  }
+
+  _createClass(PromiseQueue, null, [{
+    key: "enqueue",
+    value: function enqueue(promise) {
+      var _this = this;
+
+      return new Promise(function (resolve, reject) {
+        _this.queue.push({
+          promise: promise,
+          resolve: resolve,
+          reject: reject
+        });
+
+        _this.dequeue();
+      });
+    }
+  }, {
+    key: "dequeue",
+    value: function dequeue() {
+      var _this2 = this;
+
+      if (this.workingOnPromise) {
+        return false;
+      }
+
+      if (this.stop) {
+        this.queue = [];
+        this.stop = false;
+        return;
+      }
+
+      var item = this.queue.shift();
+
+      if (!item) {
+        return false;
+      }
+
+      try {
+        this.workingOnPromise = true;
+        item.promise().then(function (value) {
+          _this2.workingOnPromise = false;
+          item.resolve(value);
+
+          _this2.dequeue();
+        })["catch"](function (err) {
+          _this2.workingOnPromise = false;
+          item.reject(err);
+
+          _this2.dequeue();
+        });
+      } catch (err) {
+        this.workingOnPromise = false;
+        item.reject(err);
+        this.dequeue();
+      }
+
+      return true;
+    }
+  }]);
+
+  return PromiseQueue;
+}();
+
+_defineProperty(PromiseQueue, "queue", []);
+
+_defineProperty(PromiseQueue, "pendingPromise", false);
+
+_defineProperty(PromiseQueue, "stop", false);
+
 var DragAndDropUploadFileUploadController =
 /*#__PURE__*/
 function (_React$Component2) {
   _inherits(DragAndDropUploadFileUploadController, _React$Component2);
 
   function DragAndDropUploadFileUploadController(props) {
-    var _this;
+    var _this3;
 
     _classCallCheck(this, DragAndDropUploadFileUploadController);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadFileUploadController).call(this, props));
-    _this.state = {
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadFileUploadController).call(this, props));
+    _this3.state = {
       files: [] // Always in an array, even if multiselect enabled
       // file object will start as a simple 
 
     };
-    _this.handleAddFile = _this.handleAddFile.bind(_assertThisInitialized(_this));
-    _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
-    _this.handleClearAllFiles = _this.handleClearAllFiles.bind(_assertThisInitialized(_this));
-    _this.onUploadStart = _this.onUploadStart.bind(_assertThisInitialized(_this));
-    return _this;
+    _this3.handleAddFile = _this3.handleAddFile.bind(_assertThisInitialized(_this3));
+    _this3.handleRemoveFile = _this3.handleRemoveFile.bind(_assertThisInitialized(_this3));
+    _this3.handleClearAllFiles = _this3.handleClearAllFiles.bind(_assertThisInitialized(_this3));
+    _this3.onUploadStart = _this3.onUploadStart.bind(_assertThisInitialized(_this3));
+    return _this3;
   } // /* Will become a generic data controller for managing upload state */
 
 
   _createClass(DragAndDropUploadFileUploadController, [{
     key: "handleAddFile",
     value: function handleAddFile(evt) {
-      var _this2 = this;
+      var _this4 = this;
 
       var _evt$dataTransfer = evt.dataTransfer,
           items = _evt$dataTransfer.items,
@@ -117,7 +192,7 @@ function (_React$Component2) {
               } else {
                 alert('There was a problem reading the given file.');
               }
-            }.bind(_this2);
+            }.bind(_this4);
 
             console.log(attachment, files[i]);
             fileArr.push(attachment);
@@ -249,7 +324,7 @@ function (_React$Component2) {
     }
   }, {
     key: "patchToParent",
-    value: function patchToParent(createItemResponse) {
+    value: function patchToParent(createItemResponse, recentlyCreatedItems) {
       var _this$props2 = this.props,
           individualId = _this$props2.individualId,
           files = _this$props2.files,
@@ -258,10 +333,19 @@ function (_React$Component2) {
       console.log(responseData);
       var submitted_at_id = responseData['@id'];
       console.log("submittedAtid=", submitted_at_id);
-      var current_docs = [];
+      var current_docs = []; // Add items that were loaded from db w/individual
+
       files.forEach(function (file) {
         return current_docs.push(file["@id"]);
-      });
+      }); // Add recently created items to the list of items to patch
+
+      if (recentlyCreatedItems && recentlyCreatedItems.length > 0) {
+        recentlyCreatedItems.forEach(function (atId) {
+          return current_docs.push(atId);
+        });
+      } // Add the current item
+
+
       current_docs.push(submitted_at_id);
       current_docs = _underscore["default"].uniq(current_docs);
       return _util.ajax.promise(individualId, "PATCH", {}, JSON.stringify(_defineProperty({}, fieldName, current_docs))).then(function (response) {
@@ -272,12 +356,13 @@ function (_React$Component2) {
   }, {
     key: "onUploadStart",
     value: function onUploadStart(files) {
-      var _this3 = this;
+      var _this5 = this;
 
-      files.forEach(function (file) {
+      var previouslySubmittedAtIds = [];
+
+      var newFileSubmit = function (file) {
         console.log("Attempting to upload file... ", file);
-
-        _this3.validateItem(file).then(function (response) {
+        return _this5.validateItem(file).then(function (response) {
           if (response.status && response.status !== 'success') {
             alert("validation failed");
             var _response$errors = response.errors,
@@ -293,25 +378,36 @@ function (_React$Component2) {
             console.log("validation succeeded");
           }
 
-          return _this3.createItem(file);
+          return _this5.createItem(file);
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
             alert("item creation failed");
           } else {
-            console.log("create item succeded");
+            console.log("Create item succeeded");
+            var responseData = resp['@graph'][0];
+            var submitted_at_id = responseData['@id']; // Also pass through the atIds of other new files
+
+            previouslySubmittedAtIds.push(submitted_at_id);
           }
 
-          return _this3.patchToParent(resp);
+          return _this5.patchToParent(resp, previouslySubmittedAtIds);
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
             alert("patching to parent failed");
           } else {
             alert("".concat(file.download, " uploaded and linked successfully."));
 
-            _this3.handleRemoveFile("".concat(file.download, "|").concat(file.size));
+            _this5.handleRemoveFile("".concat(file.download, "|").concat(file.size));
           }
         })["catch"](function (error) {
           console.log("error occurred", error);
+        });
+      }; // Add each file submission chain to the queue, so each file uploads sequentially
+
+
+      files.forEach(function (file) {
+        return PromiseQueue.enqueue(function () {
+          return newFileSubmit(file);
         });
       });
     }
@@ -377,18 +473,18 @@ function (_React$Component3) {
   _inherits(DragAndDropUploadButton, _React$Component3);
 
   function DragAndDropUploadButton(props) {
-    var _this4;
+    var _this6;
 
     _classCallCheck(this, DragAndDropUploadButton);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadButton).call(this, props));
-    _this4.state = {
+    _this6 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadButton).call(this, props));
+    _this6.state = {
       showModal: false
     };
-    _this4.onHide = _this4.onHide.bind(_assertThisInitialized(_this4));
-    _this4.onShow = _this4.onShow.bind(_assertThisInitialized(_this4));
-    _this4.handleHideModal = _this4.handleHideModal.bind(_assertThisInitialized(_this4));
-    return _this4;
+    _this6.onHide = _this6.onHide.bind(_assertThisInitialized(_this6));
+    _this6.onShow = _this6.onShow.bind(_assertThisInitialized(_this6));
+    _this6.handleHideModal = _this6.handleHideModal.bind(_assertThisInitialized(_this6));
+    return _this6;
   }
 
   _createClass(DragAndDropUploadButton, [{
@@ -573,19 +669,19 @@ function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
 
   function DragAndDropZone(props) {
-    var _this5;
+    var _this7;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
-    _this5.state = {
+    _this7 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
+    _this7.state = {
       dragging: false
     };
-    _this5.dropZoneRef = _react["default"].createRef();
-    _this5.cleanUpEventListeners = _this5.cleanUpEventListeners.bind(_assertThisInitialized(_this5));
-    _this5.setUpEventListeners = _this5.setUpEventListeners.bind(_assertThisInitialized(_this5));
-    _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this7.dropZoneRef = _react["default"].createRef();
+    _this7.cleanUpEventListeners = _this7.cleanUpEventListeners.bind(_assertThisInitialized(_this7));
+    _this7.setUpEventListeners = _this7.setUpEventListeners.bind(_assertThisInitialized(_this7));
+    _this7.handleDrop = _this7.handleDrop.bind(_assertThisInitialized(_this7));
+    return _this7;
   }
 
   _createClass(DragAndDropZone, [{
