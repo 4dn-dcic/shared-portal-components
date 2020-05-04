@@ -87,7 +87,6 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         super(props);
         this.state = {
             files: [] // Always in an array, even if multiselect enabled
-            // file object will start as a simple 
         };
 
         this.handleAddFile = this.handleAddFile.bind(this);
@@ -119,9 +118,9 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                     var fileReader = new window.FileReader();
                     fileReader.readAsDataURL(file);
                     fileReader.onloadend = function (e) {
-                        if(e.target.result){
+                        if (e.target.result){
                             attachment.href = e.target.result;
-                        }else{
+                        } else {
                             alert('There was a problem reading the given file.');
                             return;
                         }
@@ -251,7 +250,8 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
     patchToParent(createItemResponse, recentlyCreatedItems) {
         const { individualId, files, fieldName } = this.props;
-        const { 0: responseData } = createItemResponse['@graph'];
+        const { '@graph': graph = [] } = createItemResponse;
+        const { 0: responseData } = graph;
 
         console.log(responseData);
         const submitted_at_id = responseData['@id'];
@@ -286,20 +286,18 @@ export class DragAndDropUploadFileUploadController extends React.Component {
             return this.validateItem(file)
                 .then((response) => {
                     if (response.status && response.status !== 'success') {
-                        alert("validation failed");
-                        const { errors = [] } = response;
-                        console.log("errors", errors);
-                        if (errors.length > 0) {
-                            errors.forEach((error) => console.log(error.description));
-                        }
+                        const errorMessage = `Validation failed!\n\n${response.description} ${response.detail}`;
+                        throw new Error(errorMessage);
                     } else {
                         console.log("validation succeeded");
+                        return this.createItem(file);
                     }
-                    return this.createItem(file);
                 })
                 .then((resp) => {
                     if (resp.status && resp.status !== 'success') {
-                        alert("item creation failed");
+                        const errorMessage = `Create item failed!\n\n${resp.description} ${resp.detail}`;
+                        alert(errorMessage);
+                        throw new Error(errorMessage);
                     } else {
                         console.log("Create item succeeded");
                         const { 0: responseData } = resp['@graph'];
@@ -307,19 +305,21 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
                         // Also pass through the atIds of other new files
                         previouslySubmittedAtIds.push(submitted_at_id);
+                        return this.patchToParent(resp, previouslySubmittedAtIds);
                     }
-                    return this.patchToParent(resp, previouslySubmittedAtIds);
                 })
-                .then((resp) => {
-                    if (resp.status && resp.status !== 'success') {
-                        alert("patching to parent failed");
+                .then((res) => {
+                    if (res.status && res.status !== 'success') {
+                        const errorMessage = `Link Item to Individual failed!\n\n${res.description} ${res.detail}`;
+                        alert(errorMessage);
+                        throw new Error(errorMessage);
                     } else {
                         alert(`${file.download} uploaded and linked successfully.`);
                         this.handleRemoveFile(`${file.download}|${file.size}`);
                     }
                 })
                 .catch((error) => {
-                    console.log("error occurred", error);
+                    console.log("Error occurred", error);
                 });
         };
 
@@ -430,7 +430,7 @@ class DragAndDropModal extends React.Component {
 
     render(){
         const {
-            show, onUploadStart, fieldType, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal
+            show, onUploadStart, fieldType, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal, uploading
         } = this.props;
 
         let showFieldName = fieldDisplayTitle && fieldType !== fieldDisplayTitle;
@@ -457,7 +457,7 @@ class DragAndDropModal extends React.Component {
                         <i className="icon fas icon-folder-open"></i> Browse
                     </input> */}
                     <button type="button" className="btn btn-primary" onClick={() => onUploadStart(files)}
-                        disabled={files.length === 0}>
+                        disabled={files.length === 0 }>
                         <i className="icon fas icon-upload"></i> Upload {fieldDisplayTitle}
                     </button>
                 </Modal.Footer>
@@ -590,7 +590,7 @@ export class DragAndDropZone extends React.Component {
 }
 
 function FileIcon(props) {
-    const { fileType, fileName, fileSize, fileId, handleRemoveFile } = props;
+    const { fileType, fileName, fileSize, fileId, handleRemoveFile, thisUploading = false } = props;
 
     function getFileIconClass(mimetype){
         if (mimetype.match('^image/')) {
@@ -606,7 +606,9 @@ function FileIcon(props) {
 
     return (
         <div style={{ flexDirection: "column", width: "150px", display: "flex" }}>
-            <i onClick={() => handleRemoveFile(fileId)} className="icon fas icon-window-close text-danger"></i>
+            { thisUploading ?
+                <i className="icon icon-spin icon-circle-notch fas"></i> :
+                <i onClick={() => handleRemoveFile(fileId)} className="icon fas icon-window-close text-danger"></i> }
             <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>
             <span style={{ fontSize: "12px" }}>{fileName}</span>
             <span style={{ fontSize: "10px" }}>{fileSize} bytes</span>

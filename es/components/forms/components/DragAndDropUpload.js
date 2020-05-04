@@ -143,7 +143,6 @@ function (_React$Component2) {
     _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadFileUploadController).call(this, props));
     _this3.state = {
       files: [] // Always in an array, even if multiselect enabled
-      // file object will start as a simple 
 
     };
     _this3.handleAddFile = _this3.handleAddFile.bind(_assertThisInitialized(_this3));
@@ -329,7 +328,9 @@ function (_React$Component2) {
           individualId = _this$props2.individualId,
           files = _this$props2.files,
           fieldName = _this$props2.fieldName;
-      var responseData = createItemResponse['@graph'][0];
+      var _createItemResponse$ = createItemResponse['@graph'],
+          graph = _createItemResponse$ === void 0 ? [] : _createItemResponse$;
+      var responseData = graph[0];
       console.log(responseData);
       var submitted_at_id = responseData['@id'];
       console.log("submittedAtid=", submitted_at_id);
@@ -364,43 +365,37 @@ function (_React$Component2) {
         console.log("Attempting to upload file... ", file);
         return _this5.validateItem(file).then(function (response) {
           if (response.status && response.status !== 'success') {
-            alert("validation failed");
-            var _response$errors = response.errors,
-                errors = _response$errors === void 0 ? [] : _response$errors;
-            console.log("errors", errors);
-
-            if (errors.length > 0) {
-              errors.forEach(function (error) {
-                return console.log(error.description);
-              });
-            }
+            var errorMessage = "Validation failed!\n\n".concat(response.description, " ").concat(response.detail);
+            throw new Error(errorMessage);
           } else {
             console.log("validation succeeded");
+            return _this5.createItem(file);
           }
-
-          return _this5.createItem(file);
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
-            alert("item creation failed");
+            var errorMessage = "Create item failed!\n\n".concat(resp.description, " ").concat(resp.detail);
+            alert(errorMessage);
+            throw new Error(errorMessage);
           } else {
             console.log("Create item succeeded");
             var responseData = resp['@graph'][0];
             var submitted_at_id = responseData['@id']; // Also pass through the atIds of other new files
 
             previouslySubmittedAtIds.push(submitted_at_id);
+            return _this5.patchToParent(resp, previouslySubmittedAtIds);
           }
-
-          return _this5.patchToParent(resp, previouslySubmittedAtIds);
-        }).then(function (resp) {
-          if (resp.status && resp.status !== 'success') {
-            alert("patching to parent failed");
+        }).then(function (res) {
+          if (res.status && res.status !== 'success') {
+            var errorMessage = "Link Item to Individual failed!\n\n".concat(res.description, " ").concat(res.detail);
+            alert(errorMessage);
+            throw new Error(errorMessage);
           } else {
             alert("".concat(file.download, " uploaded and linked successfully."));
 
             _this5.handleRemoveFile("".concat(file.download, "|").concat(file.size));
           }
         })["catch"](function (error) {
-          console.log("error occurred", error);
+          console.log("Error occurred", error);
         });
       }; // Add each file submission chain to the queue, so each file uploads sequentially
 
@@ -606,7 +601,8 @@ function (_React$Component4) {
           handleAddFile = _this$props5.handleAddFile,
           handleRemoveFile = _this$props5.handleRemoveFile,
           files = _this$props5.files,
-          handleHideModal = _this$props5.handleHideModal;
+          handleHideModal = _this$props5.handleHideModal,
+          uploading = _this$props5.uploading;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
       }, {
@@ -812,14 +808,18 @@ function FileIcon(props) {
       fileName = props.fileName,
       fileSize = props.fileSize,
       fileId = props.fileId,
-      handleRemoveFile = props.handleRemoveFile;
+      handleRemoveFile = props.handleRemoveFile,
+      _props$thisUploading = props.thisUploading,
+      thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
   return _react["default"].createElement("div", {
     style: {
       flexDirection: "column",
       width: "150px",
       display: "flex"
     }
-  }, _react["default"].createElement("i", {
+  }, thisUploading ? _react["default"].createElement("i", {
+    className: "icon icon-spin icon-circle-notch fas"
+  }) : _react["default"].createElement("i", {
     onClick: function onClick() {
       return handleRemoveFile(fileId);
     },
