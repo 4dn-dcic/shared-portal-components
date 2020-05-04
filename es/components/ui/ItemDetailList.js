@@ -1085,7 +1085,7 @@ _defineProperty(Detail, "defaultProps", {
   'end_date', 'project', 'uri', 'ID', // Document
   'attachment', // Things to go at bottom consistently
   'aliases'],
-  'alwaysCollapsibleKeys': ['@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'dbxrefs', 'status', 'external_references', 'date_created', 'last_modified', 'submitted_by', 'project_release', 'short_attribution', 'validation-errors'],
+  'alwaysCollapsibleKeys': ['@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'status', 'external_references', 'date_created', 'last_modified', 'submitted_by', 'project_release', 'short_attribution', 'validation-errors'],
   'open': null,
   'columnDefinitionMap': {
     '@id': {

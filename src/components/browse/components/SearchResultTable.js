@@ -20,7 +20,7 @@ import { itemUtil } from './../../util/object';
 import { load } from './../../util/ajax';
 import { getPageVerticalScrollPosition, getElementOffset, responsiveGridState } from './../../util/layout';
 import { getItemTypeTitle } from './../../util/schema-transforms';
-import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style } from './../../viz/utilities';
+import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style as vizStyle } from './../../viz/utilities';
 import { Alerts } from './../../ui/Alerts';
 
 import { filterOutHiddenCols } from './CustomColumnController';
@@ -31,7 +31,7 @@ import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap
 
 
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
-    const { columnDefinition, mounted, columnWidths, schemas, windowWidth } = props;
+    const { columnDefinition, columnNumber, mounted, columnWidths, schemas, windowWidth } = props;
     const { field } = columnDefinition;
     let blockWidth;
 
@@ -42,7 +42,8 @@ const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
     }
 
     return ( // props includes result
-        <div className="search-result-column-block" style={{ "width" : blockWidth }} data-field={columnDefinition.field}>
+        <div className="search-result-column-block" style={{ "width" : blockWidth }}
+            data-field={field} data-column-even={columnNumber % 2 === 0}>
             <ResultRowColumnBlockValue {...props} width={blockWidth} schemas={schemas} />
         </div>
     );
@@ -69,8 +70,8 @@ const DefaultDetailPane = React.memo(function DefaultDetailPane({ result }){
 class ResultDetail extends React.PureComponent{
 
     static propTypes = {
-        'result'    : PropTypes.object.isRequired,
-        'open'      : PropTypes.bool.isRequired,
+        'result' : PropTypes.object.isRequired,
+        'open' : PropTypes.bool.isRequired,
         'renderDetailPane': PropTypes.func.isRequired,
         'rowNumber' : PropTypes.number,
         'toggleDetailOpen' : PropTypes.func.isRequired,
@@ -150,7 +151,7 @@ class ResultDetail extends React.PureComponent{
                 { open ?
                     <div className="result-table-detail" ref={this.detailRef} style={{
                         width : useWidth,
-                        transform : style.translate3d(tableContainerScrollLeft)
+                        transform : vizStyle.translate3d(tableContainerScrollLeft)
                     }}>
                         { renderDetailPane(
                             result, rowNumber, useWidth,
@@ -177,6 +178,13 @@ class ResultRow extends React.PureComponent {
         return true;
     }
 
+    static getStyles(rowWidth, rowHeight = 47, rowBottomPadding = 1){
+        return {
+            /* inner: { minHeight: rowHeight - rowBottomPadding }, */
+            outer: { minWidth: rowWidth }
+        };
+    }
+
     static propTypes = {
         'result'            : PropTypes.shape({
             '@type'             : PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -189,16 +197,7 @@ class ResultRow extends React.PureComponent {
         'rowNumber'         : PropTypes.number.isRequired,
         'rowHeight'         : PropTypes.number,
         'mounted'           : PropTypes.bool.isRequired,
-        'columnDefinitions'     : PropTypes.arrayOf(PropTypes.shape({
-            'title'             : PropTypes.string.isRequired,
-            'field'             : PropTypes.string.isRequired,
-            'render'            : PropTypes.func,
-            'widthMap'          : PropTypes.shape({
-                'lg'                : PropTypes.number.isRequired,
-                'md'                : PropTypes.number.isRequired,
-                'sm'                : PropTypes.number.isRequired
-            })
-        })).isRequired,
+        'columnDefinitions'     : HeadersRow.propTypes.columnDefinitions,
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'renderDetailPane'  : PropTypes.func.isRequired,
         'detailOpen' : PropTypes.bool.isRequired,
@@ -207,16 +206,8 @@ class ResultRow extends React.PureComponent {
         'context' : PropTypes.object.isRequired
     };
 
-    static getStyles(rowWidth, rowHeight){
-        return {
-            inner: { minHeight: rowHeight - 1 },
-            outer: { minWidth: rowWidth }
-        };
-    }
-
     constructor(props){
         super(props);
-        //this.shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
         this.toggleDetailOpen = _.throttle(this.toggleDetailOpen.bind(this), 250);
         this.setDetailHeight = this.setDetailHeight.bind(this);
         this.handleDragStart = this.handleDragStart.bind(this);
@@ -284,19 +275,17 @@ class ResultRow extends React.PureComponent {
     renderColumns(){
         // TODO (?) prop func to do this to control which columns get which props.
         // to make more reusable re: e.g. `selectedFiles` (= 4DN-specific).
-        const { columnDefinitions, selectedFiles, detailOpen } = this.props;
+        const { columnDefinitions, selectedFiles } = this.props;
+        // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction', 'detailOpen'
+        const commonProps = _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id', 'toggleDetailPaneOpen');
         return columnDefinitions.map((columnDefinition, columnNumber) => { // todo: rename columnNumber to columnIndex
             const { field } = columnDefinition;
-            const passedProps = _.extend(
-                // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction
-                _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id'),
-                {
-                    columnDefinition, columnNumber, detailOpen,
-                    'toggleDetailOpen' : this.toggleDetailOpen,
-                    // Only needed on first column (contains title, checkbox)
-                    'selectedFiles' : columnNumber === 0 ? selectedFiles : null
-                }
-            );
+            const passedProps = {
+                ...commonProps, columnDefinition, columnNumber,
+                // Only needed on first column (contains title, checkbox)
+                'toggleDetailOpen' : columnNumber === 0 ? this.toggleDetailOpen : null,
+                'selectedFiles' : columnNumber === 0 ? selectedFiles : null
+            };
             return <ResultRowColumnBlock {...passedProps} key={field} />;
         });
     }
@@ -361,12 +350,11 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         'mounted' : PropTypes.bool,
         'onDuplicateResultsFoundCallback' : PropTypes.func,
         'navigate' : PropTypes.func,
-        'openRowHeight' : PropTypes.number
+        'openRowHeight' : PropTypes.number.isRequired
     };
 
     static defaultProps = {
         'debouncePointerEvents' : 150,
-        'openRowHeight' : 57,
         'onDuplicateResultsFoundCallback' : function(){
             Alerts.queue({ 'title' : 'Results Refreshed', 'message' : 'Results have changed while loading and have been refreshed.', 'navigateDisappearThreshold' : 1 });
         },
@@ -512,7 +500,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                 isInfiniteLoading={isLoading}
                 timeScrollStateLastsForAfterUserScrolls={250}
                 //onChangeScrollState={this.handleScrollingStateChange}
-                loadingSpinnerDelegate={<LoadingSpinner width={tableContainerWidth} tableContainerScrollLeft={tableContainerScrollLeft} />}
+                loadingSpinnerDelegate={<LoadingSpinner width={tableContainerWidth} scrollLeft={tableContainerScrollLeft} />}
                 infiniteLoadBeginEdgeOffset={canLoadMore ? 200 : undefined}
                 preloadAdditionalHeight={Infinite.containerHeightScaleFactor(1.5)}
                 preloadBatchSize={Infinite.containerHeightScaleFactor(1.5)}
@@ -523,13 +511,13 @@ class LoadMoreAsYouScroll extends React.PureComponent {
     }
 }
 
-const LoadingSpinner = React.memo(function LoadingSpinner({ width, tableContainerScrollLeft }){
+const LoadingSpinner = React.memo(function LoadingSpinner({ width: maxWidth, scrollLeft = 0 }){
+    const style = { maxWidth, 'transform' : vizStyle.translate3d(scrollLeft) };
     return (
-        <div className="search-result-row loading text-center" style={{
-            'maxWidth' : width,
-            'transform' : style.translate3d(tableContainerScrollLeft)
-        }}>
-            <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
+        <div className="search-result-row loading text-center d-flex align-items-center justify-content-center" style={style}>
+            <span>
+                <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
+            </span>
         </div>
     );
 });
@@ -649,7 +637,7 @@ class DimensioningContainer extends React.PureComponent {
 
     static setDetailPanesLeftOffset(detailPanes, leftOffset = 0, cb = null){
         if (detailPanes && detailPanes.length > 0){
-            var transformStyle = style.translate3d(leftOffset);
+            var transformStyle = vizStyle.translate3d(leftOffset);
             _.forEach(detailPanes, function(d){
                 d.style.transform = transformStyle;
             });
@@ -761,6 +749,19 @@ class DimensioningContainer extends React.PureComponent {
     componentDidMount(){
         const nextState = { 'mounted' : true };
 
+        // Maybe todo: play with 'experimental technology' for controlling columing widths (& compare performance),
+        // see https://developer.mozilla.org/en-US/docs/Web/API/DocumentOrShadowRoot/styleSheets
+        // and https://developer.mozilla.org/en-US/docs/Web/API/CSSStylesheet.
+        // Probably do in separate component since seems like hefty-enough logic to separate/modularize.
+        // this.isDynamicStylesheetSupported = typeof document.styleSheets !== "undefined";
+        // if (this.isDynamicStylesheetSupported) {
+        //    insert new <style> element somewhere (new stylesheet?), save reference (prly doesnt do ton.. w/e)
+        //    check that new sheet exists in document.styleSheets, start setting widths per column via CSS rules
+        //    deleting and inserting upon any changes, accordingly. Use componentDidUpdate or useEffect for this,
+        //    re: props.widths (this table's state.widths) changes.
+        //    (This all within new component if supported, else pass widths down to cols as fallback (?) from this component)
+        // }
+
         // Detect if table width changes (and update dims if true) every 5sec
         // No way to attach resize event listener to an element (only to window)
         // and element might change width independent of window (e.g. open/hide
@@ -792,10 +793,10 @@ class DimensioningContainer extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState){
-        const { results: loadedResults, mounted, widths } = this.state;
+        const { results: loadedResults, mounted } = this.state;
         const { results: pastLoadedResults, mounted: pastMounted } = pastState;
-        const { results: propResults, columnDefinitions, windowWidth, isOwnPage } = this.props;
-        const { results: pastPropResults, columnDefinitions: pastColDefs, windowWidth: pastWindowWidth } = pastProps;
+        const { windowWidth } = this.props;
+        const { windowWidth: pastWindowWidth } = pastProps;
 
         if (pastLoadedResults !== loadedResults){
             ReactTooltip.rebuild();
@@ -867,8 +868,8 @@ class DimensioningContainer extends React.PureComponent {
                 nextScrollLeft = 0; // Might occur right after changing column widths or something.
             }
 
-            const headersElem = innerElem.parentElement.childNodes[0].childNodes[0];
-            headersElem.style.left = `-${nextScrollLeft}px`;
+            const columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
+            columnsWrapperElement.style.left = `-${nextScrollLeft}px`;
 
             if (nextScrollLeft !== tableContainerScrollLeft) { // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
                 this.setContainerScrollLeft(nextScrollLeft);
@@ -899,7 +900,8 @@ class DimensioningContainer extends React.PureComponent {
             context, // May be page context or virtualContext
             isOwnPage = true,
             navigate,
-            rowHeight = 47, // Must be aligned in CSS stylesheets
+            rowHeight = 47, // `rowHeight - rowBottomPadding` must be aligned in CSS stylesheets
+            openRowHeight = 57,
             maxHeight = 500, // Only used if not isOwnPage
             isContextLoading = false,
             setColumnWidths,
@@ -932,7 +934,7 @@ class DimensioningContainer extends React.PureComponent {
 
         const loadMoreAsYouScrollProps = {
             ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate'),
-            context, rowHeight,
+            context, rowHeight, openRowHeight,
             results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
             setResults: this.setResults
@@ -971,7 +973,7 @@ class DimensioningContainer extends React.PureComponent {
                 <div className="fin search-result-row" key="fin-last-item" style={{
                     // Account for vertical scrollbar decreasing width of container.
                     width: tableContainerWidth - (isOwnPage ? 0 : 30),
-                    transform: style.translate3d(tableContainerScrollLeft)
+                    transform: vizStyle.translate3d(tableContainerScrollLeft)
                 }}>
                     <div className="inner">
                         - <span>fin</span> -
@@ -1052,8 +1054,9 @@ export class SearchResultTable extends React.PureComponent {
         'defaultMinColumnWidth' : 55,
         'hiddenColumns' : null,
         // This value (the default or if passed in) should be aligned to value in CSS.
-        // Value in CSS is decremented by 1px to account for border height.
+        // Must account for any border or padding at bottom/top of row, as well.
         'rowHeight' : 47,
+        'openRowHeight' : 57,
         'fullWidthInitOffset' : 60,
         'fullWidthContainerSelectorString' : '.browse-page-container',
         'currentAction' : null,

@@ -804,7 +804,6 @@ export class Detail extends React.PureComponent {
             'schema_version',
             'uuid',
             'replicate_exps',
-            'dbxrefs',
             'status',
             'external_references',
             'date_created',

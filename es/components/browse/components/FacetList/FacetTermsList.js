@@ -349,7 +349,6 @@ function (_React$PureComponent2) {
       var _this$props4 = this.props,
           facet = _this$props4.facet,
           terms = _this$props4.terms,
-          tooltip = _this$props4.tooltip,
           title = _this$props4.title,
           isStatic = _this$props4.isStatic,
           anySelected = _this$props4.anyTermsSelected,
@@ -359,6 +358,8 @@ function (_React$PureComponent2) {
           getTermStatus = _this$props4.getTermStatus,
           termTransformFxn = _this$props4.termTransformFxn,
           facetOpen = _this$props4.facetOpen;
+      var _facet$description = facet.description,
+          description = _facet$description === void 0 ? null : _facet$description;
       var expanded = this.state.expanded;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
@@ -406,7 +407,8 @@ function (_React$PureComponent2) {
       })), _react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, _react["default"].createElement("span", {
-        "data-tip": tooltip,
+        "data-tip": description,
+        "data-html": true,
         "data-place": "right"
       }, title)), indicator), _react["default"].createElement(ListOfTerms, _extends({
         facet: facet,

@@ -126,9 +126,7 @@ function (_React$PureComponent) {
 
       var _ref = facet || {},
           field = _ref.field,
-          title = _ref.title,
-          _ref$description = _ref.description,
-          description = _ref$description === void 0 ? null : _ref$description;
+          title = _ref.title;
 
       var showTitle = title || field;
 
@@ -147,7 +145,6 @@ function (_React$PureComponent) {
       } else {
         return _react["default"].createElement(_FacetTermsList.FacetTermsList, _extends({}, this.props, {
           onTermClick: this.handleTermClick,
-          tooltip: description,
           title: showTitle
         }));
       }

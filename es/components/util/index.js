@@ -33,6 +33,12 @@ Object.defineProperty(exports, "navigate", {
     return _navigate.navigate;
   }
 });
+Object.defineProperty(exports, "WindowClickEventDelegator", {
+  enumerable: true,
+  get: function get() {
+    return _WindowClickEventDelegator.WindowClickEventDelegator;
+  }
+});
 exports.submissionStateUtil = exports.commonFileUtil = exports.valueTransforms = exports.schemaTransforms = exports.searchFilters = exports.JWT = exports.typedefs = exports.console = exports.ajax = exports.layout = exports.analytics = exports.object = void 0;
 
 var _misc = require("./misc");
@@ -62,6 +68,8 @@ var valueTransformsImported = _interopRequireWildcard(require("./value-transform
 var fileUtilities = _interopRequireWildcard(require("./file"));
 
 var submissionViewUtilities = _interopRequireWildcard(require("./submission-view"));
+
+var _WindowClickEventDelegator = require("./WindowClickEventDelegator");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 

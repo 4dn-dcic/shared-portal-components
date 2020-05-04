@@ -12,6 +12,7 @@ exports.getPageVerticalScrollPosition = getPageVerticalScrollPosition;
 exports.animateScrollTo = animateScrollTo;
 exports.toggleBodyClass = toggleBodyClass;
 exports.isDOMElementChildOfElementWithClass = isDOMElementChildOfElementWithClass;
+exports.findParentElement = findParentElement;
 exports.BrowserFeat = exports.elementIsChildOfLink = exports.textContentWidth = exports.textHeight = exports.textWidth = exports.responsiveGridState = exports.shortenString = void 0;
 
 var _react = _interopRequireDefault(require("react"));
@@ -433,6 +434,27 @@ function isDOMElementChildOfElementWithClass(elem, className) {
   return false;
 }
 /**
+ * Designed to work similarly to `Array.find()`.
+ *
+ * @param {HTMLElement} Element to find ancestor (or self) of.
+ * @param {function} Assertion function, should return `true` if valid element or false if not.
+ * @returns {HTMLElement|undefined} Ancestor (or self) element for which searchFxn returns true, if any.
+ */
+
+
+function findParentElement(startElement, searchFxn) {
+  var domElem = startElement;
+
+  while (domElem) {
+    if (searchFxn(domElem)) {
+      return domElem;
+    }
+
+    domElem = domElem.parentElement;
+  } // undefined
+
+}
+/**
  * Meant to be used in click handlers. See app.js.
  * Memoized in case multiple click handlers bound to
  * event bubble chain (same event bubbles up).
@@ -440,13 +462,11 @@ function isDOMElementChildOfElementWithClass(elem, className) {
 
 
 var elementIsChildOfLink = (0, _memoizeOne["default"])(function (initDomElement) {
-  var domElem = initDomElement; // SVG anchor elements have tagName == 'a' while HTML anchor elements have tagName == 'A'
-
-  while (domElem && domElem.tagName.toLowerCase() !== 'a' && !domElem.getAttribute('data-href')) {
-    domElem = domElem.parentElement;
-  }
-
-  return domElem;
+  var foundElem = findParentElement(initDomElement, function (domElem) {
+    // SVG anchor elements have tagName == 'a' while HTML anchor elements have tagName == 'A'
+    return domElem.tagName.toLowerCase() === "a" || domElem.getAttribute('data-href');
+  });
+  return foundElem || initDomElement;
 });
 /**
  * Handle browser capabilities, a la Modernizr.

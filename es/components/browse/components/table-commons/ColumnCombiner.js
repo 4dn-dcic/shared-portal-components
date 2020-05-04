@@ -256,11 +256,6 @@ function columnsToColumnDefinitions(columns, columnDefinitionMap) {
       var colDef2 = _underscore["default"].extend({}, colDefOverride, colDef);
 
       colDef = colDef2;
-    } // Add defaults for any required-for-view but not-present properties.
-
-
-    if (colDef.widthMap && colDef.widthMap.sm && typeof colDef.widthMap.xs !== 'number') {
-      colDef.widthMap.xs = colDef.widthMap.sm;
     }
 
     colDef.widthMap = colDef.widthMap || defaultWidthMap;
