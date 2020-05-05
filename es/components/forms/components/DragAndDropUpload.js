@@ -123,6 +123,12 @@ function () {
 
   return PromiseQueue;
 }();
+/**
+ * Main component for independent drag and drop file upload. Note: Files are uploaded one after another due to
+ * use of PromiseQueue. This will help with managing state updates if we ever choose to get more granular in
+ * how upload/error status is indicated (perhaps on a per-file basis).
+ */
+
 
 _defineProperty(PromiseQueue, "queue", []);
 
@@ -142,7 +148,7 @@ function (_React$Component2) {
 
     _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadFileUploadController).call(this, props));
     _this3.state = {
-      files: [] // Always in an array, even if multiselect enabled
+      files: [] // Always in an array, even if multiselect disabled
 
     };
     _this3.handleAddFile = _this3.handleAddFile.bind(_assertThisInitialized(_this3));
@@ -150,8 +156,7 @@ function (_React$Component2) {
     _this3.handleClearAllFiles = _this3.handleClearAllFiles.bind(_assertThisInitialized(_this3));
     _this3.onUploadStart = _this3.onUploadStart.bind(_assertThisInitialized(_this3));
     return _this3;
-  } // /* Will become a generic data controller for managing upload state */
-
+  }
 
   _createClass(DragAndDropUploadFileUploadController, [{
     key: "handleAddFile",
@@ -179,7 +184,7 @@ function (_React$Component2) {
 
             if (_underscore["default"].indexOf(acceptableFileTypes, file.type) === -1) {
               var listOfTypes = acceptableFileTypes.toString();
-              alert("Error: File \"".concat(file.name, "\" is not of the correct file type for this field.\nMust be of type: ").concat(listOfTypes, "."));
+              alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\nMust be of type: ").concat(listOfTypes, "."));
               return "continue";
             }
 
@@ -200,11 +205,11 @@ function (_React$Component2) {
               if (e.target.result) {
                 attachment.href = e.target.result;
               } else {
-                alert('There was a problem reading the given file.');
+                alert('ERROR: There was a problem reading the given file. Please try again.');
               }
-            }.bind(_this4);
+            }.bind(_this4); // console.log(attachment, files[i]);
 
-            console.log(attachment, files[i]);
+
             fileArr.push(attachment);
           };
 
@@ -214,7 +219,7 @@ function (_React$Component2) {
             var _ret = _loop();
 
             if (_ret === "continue") continue;
-          } // Concat with current array
+          } // Concat with previous files
 
 
           var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
@@ -236,19 +241,14 @@ function (_React$Component2) {
     }
   }, {
     key: "handleRemoveFile",
-    value: function handleRemoveFile(id) {
+    value: function handleRemoveFile(filename) {
       var multiselect = this.props.multiselect;
 
       if (multiselect) {
-        var files = this.state.files;
-
-        var _id$split = id.split("|"),
-            download = _id$split[0],
-            size = _id$split[1]; // Filter to remove the clicked file by ID parts
-
+        var files = this.state.files; // Filter to remove the clicked file by name (assuming no duplicate filenames)
 
         var newFiles = files.filter(function (file) {
-          if (file.download === download && file.size === parseInt(size)) {
+          if (file.download === filename) {
             return false;
           }
 
@@ -269,10 +269,13 @@ function (_React$Component2) {
       });
     }
     /**
-     * Uses file information to generate an alias, and constructs payload from props. If
-     * this is a payload for PATCH request with attachment, set attachmentPresent to true.
+     * Constructs payload from props. If this is a payload for PATCH request with attachment, set attachmentPresent to true.
      * @param {object} file                  A single file object, equivalent to something in this.state.files[i]
      * @param {boolean} attachmentPresent    Is this a PATCH request/are you uploading a file? If so, set this to yes.
+     *
+     * Note: Started updating to use file information to auto-generate an alias for objects on 4DN & CGAP submission view;
+     * this isn't necessary in the current non-SV implementation, so has been left in a half-working state until that
+     * functionality is needed. In non-SV cases on CGAP pedigreeviz, this will skip those conditionals.
      */
 
   }, {
@@ -283,7 +286,6 @@ function (_React$Component2) {
           lab = _this$props2.lab,
           institution = _this$props2.institution,
           project = _this$props2.project;
-      console.log("file,", file);
       var aliasFilename = file.download.split(' ').join('');
       var alias;
       var payloadObj = {}; // If on 4DN, use lab and award data (institution/project should be null)
@@ -303,21 +305,26 @@ function (_React$Component2) {
 
       if (attachmentPresent) {
         payloadObj.attachment = file;
-      }
+      } // console.log("Generated payload:", payloadObj);
 
-      console.log("Payload:", payloadObj);
+
       return payloadObj;
     }
+    /**
+     * Returns a promise that resolves when Item has been successfully validated. Might consolidate with
+     * createItem, since they share similar code.
+     */
+
   }, {
     key: "validateItem",
     value: function validateItem(file) {
       var fieldType = this.props.fieldType;
-      var destination = "/".concat(fieldType, "/?check_only=true"); // testing only
-
+      var destination = "/".concat(fieldType, "/?check_only=true");
       var payloadObj = this.generatePayload(file, true);
       var payload = JSON.stringify(payloadObj);
       return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
-        console.log("validateItem response", response);
+        console.log("validateItem response", response); // for testing
+
         return response;
       });
     }
@@ -330,10 +337,18 @@ function (_React$Component2) {
       var payloadObj = this.generatePayload(file, true);
       var payload = JSON.stringify(payloadObj);
       return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
-        console.log("createItem response", response);
-        return response; // here you could attach some onchange function from submission view
+        console.log("createItem response", response); // for testing
+
+        return response;
       });
     }
+    /**
+     * Makes a patch request to link new file metadata object to the current Individual (or other Item).
+     * @param {object}  createItemResponse      JSON response from server post-Item creation.
+     * @param {array}   recentlyCreatedItems    Array of atIDs of other items created in this batch of uploads
+     * Note: This method is meant to chain off of a f(x) like this.createItem.
+     */
+
   }, {
     key: "patchToParent",
     value: function patchToParent(createItemResponse, recentlyCreatedItems) {
@@ -369,9 +384,10 @@ function (_React$Component2) {
     }
   }, {
     key: "onUploadStart",
-    value: function onUploadStart(files) {
+    value: function onUploadStart() {
       var _this5 = this;
 
+      var files = this.state.files;
       var previouslySubmittedAtIds = [];
 
       var newFileSubmit = function (file) {
@@ -405,7 +421,7 @@ function (_React$Component2) {
           } else {
             alert("".concat(file.download, " uploaded and linked successfully."));
 
-            _this5.handleRemoveFile("".concat(file.download, "|").concat(file.size));
+            _this5.handleRemoveFile(file.download);
           }
         })["catch"](function (error) {
           console.log("Error occurred", error);
@@ -456,14 +472,15 @@ _defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
   fieldDisplayTitle: _propTypes["default"].string,
   // If this isn't passed in, use fieldtype instead
   award: _propTypes["default"].string,
-  // Required for 4DN
+  // Will be required for 4DN SV
   lab: _propTypes["default"].string,
-  // Required for 4DN
+  // Will be required for 4DN SV
   institution: _propTypes["default"].object,
-  // Required for CGAP
+  // Will be required for CGAP SV
   project: _propTypes["default"].object,
-  // Required for CGAP
+  // Will be required for CGAP SV
   cls: _propTypes["default"].string,
+  // Classes to apply to the main "Quick Upload" button
   multiselect: _propTypes["default"].bool // Should you be able to upload/link multiple files at once?
 
 });
@@ -641,9 +658,7 @@ function (_React$Component4) {
       }), " Cancel"), _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-primary",
-        onClick: function onClick() {
-          return onUploadStart(files);
-        },
+        onClick: onUploadStart,
         disabled: files.length === 0
       }, _react["default"].createElement("i", {
         className: "icon fas icon-upload"
@@ -784,15 +799,13 @@ function (_React$Component5) {
           justifyContent: "center"
         }
       }, files.map(function (file) {
-        var fileId = "".concat(file.download, "|").concat(file.size);
         return _react["default"].createElement("li", {
-          key: fileId,
+          key: file.download,
           className: "m-1"
         }, _react["default"].createElement(FileIcon, _extends({
           fileName: file.download,
           fileSize: file.size,
-          fileType: file.type,
-          fileId: fileId
+          fileType: file.type
         }, {
           handleRemoveFile: handleRemoveFile
         })));
@@ -820,7 +833,6 @@ function FileIcon(props) {
   var fileType = props.fileType,
       fileName = props.fileName,
       fileSize = props.fileSize,
-      fileId = props.fileId,
       handleRemoveFile = props.handleRemoveFile,
       _props$thisUploading = props.thisUploading,
       thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
@@ -834,19 +846,33 @@ function FileIcon(props) {
     className: "icon icon-spin icon-circle-notch fas"
   }) : _react["default"].createElement("i", {
     onClick: function onClick() {
-      return handleRemoveFile(fileId);
+      return handleRemoveFile(fileName);
     },
     className: "icon fas icon-window-close text-danger"
   }), _react["default"].createElement("i", {
     className: "icon far icon-2x icon-".concat(function (mimetype) {
       if (mimetype.match('^image/')) {
         return 'file-image';
-      } else if (mimetype.match('^text/html')) {
-        return 'file-code';
-      } else if (mimetype.match('^text/plain')) {
-        return 'file-alt';
       } else {
-        return 'file';
+        switch (mimetype) {
+          case 'text/html':
+            return 'file-code';
+
+          case 'text/plain':
+            return 'file-alt';
+
+          case 'application/msword':
+            return 'file-word';
+
+          case 'application/vnd.ms-excel':
+            return 'file-excel';
+
+          case 'application/pdf':
+            return 'file-pdf';
+
+          default:
+            return 'file';
+        }
       }
     }(fileType)),
     style: {

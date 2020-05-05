@@ -6,7 +6,7 @@ import _ from 'underscore';
 
 export class DragAndDropUploadSubmissionViewController extends React.Component {
     /* Will become a submission-view specific version of the standalone controller to wrap
-    it and pass through the appropriate functions */
+    it and pass through unique versions of onUploadStart, patchToParent, etc f(x)s in DragAndDropFileUploadController */
 }
 
 class PromiseQueue {
@@ -60,6 +60,11 @@ class PromiseQueue {
     }
 }
 
+/**
+ * Main component for independent drag and drop file upload. Note: Files are uploaded one after another due to
+ * use of PromiseQueue. This will help with managing state updates if we ever choose to get more granular in
+ * how upload/error status is indicated (perhaps on a per-file basis).
+ */
 export class DragAndDropUploadFileUploadController extends React.Component {
     static propTypes = {
         files: PropTypes.array.isRequired,
@@ -68,11 +73,11 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         individualId: PropTypes.string.isRequired,
         fieldName: PropTypes.string.isRequired,
         fieldDisplayTitle: PropTypes.string, // If this isn't passed in, use fieldtype instead
-        award: PropTypes.string, // Required for 4DN
-        lab: PropTypes.string, // Required for 4DN
-        institution: PropTypes.object, // Required for CGAP
-        project: PropTypes.object, // Required for CGAP
-        cls: PropTypes.string,
+        award: PropTypes.string, // Will be required for 4DN SV
+        lab: PropTypes.string, // Will be required for 4DN SV
+        institution: PropTypes.object, // Will be required for CGAP SV
+        project: PropTypes.object, // Will be required for CGAP SV
+        cls: PropTypes.string, // Classes to apply to the main "Quick Upload" button
         multiselect: PropTypes.bool // Should you be able to upload/link multiple files at once?
     }
 
@@ -86,7 +91,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            files: [] // Always in an array, even if multiselect enabled
+            files: [] // Always in an array, even if multiselect disabled
         };
 
         this.handleAddFile = this.handleAddFile.bind(this);
@@ -95,7 +100,6 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
         this.onUploadStart = this.onUploadStart.bind(this);
     }
-    // /* Will become a generic data controller for managing upload state */
 
     handleAddFile(evt) {
         const { items, files } = evt.dataTransfer;
@@ -116,7 +120,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                     const acceptableFileTypes = fileSchema.properties.attachment.properties.type.enum;
                     if (_.indexOf(acceptableFileTypes, file.type) === -1) {
                         const listOfTypes = acceptableFileTypes.toString();
-                        alert(`Error: File "${file.name}" is not of the correct file type for this field.\nMust be of type: ${listOfTypes}.`);
+                        alert(`FILE NOT ADDED: File "${file.name}" is not of the correct file type for this field.\nMust be of type: ${listOfTypes}.`);
                         continue;
                     }
                     attachment.type = file.type;
@@ -131,16 +135,16 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                         if (e.target.result){
                             attachment.href = e.target.result;
                         } else {
-                            alert('There was a problem reading the given file.');
+                            alert('ERROR: There was a problem reading the given file. Please try again.');
                             return;
                         }
                     }.bind(this);
 
-                    console.log(attachment, files[i]);
+                    // console.log(attachment, files[i]);
                     fileArr.push(attachment);
                 }
 
-                // Concat with current array
+                // Concat with previous files
                 const allFiles = currFiles.concat(fileArr);
 
                 // Filter out duplicates (based on just filename for now; may need more criteria in future)
@@ -158,18 +162,15 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         }
     }
 
-    handleRemoveFile(id) {
+    handleRemoveFile(filename) {
         const { multiselect } = this.props;
 
         if (multiselect) {
             const { files } = this.state;
-            const { 0: download, 1: size } = id.split("|");
 
-            // Filter to remove the clicked file by ID parts
+            // Filter to remove the clicked file by name (assuming no duplicate filenames)
             const newFiles = files.filter((file) => {
-                if ((file.download === download) &&
-                    (file.size === parseInt(size))
-                ) {
+                if ((file.download === filename)) {
                     return false;
                 }
                 return true;
@@ -186,15 +187,16 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     }
 
     /**
-     * Uses file information to generate an alias, and constructs payload from props. If
-     * this is a payload for PATCH request with attachment, set attachmentPresent to true.
+     * Constructs payload from props. If this is a payload for PATCH request with attachment, set attachmentPresent to true.
      * @param {object} file                  A single file object, equivalent to something in this.state.files[i]
      * @param {boolean} attachmentPresent    Is this a PATCH request/are you uploading a file? If so, set this to yes.
+     *
+     * Note: Started updating to use file information to auto-generate an alias for objects on 4DN & CGAP submission view;
+     * this isn't necessary in the current non-SV implementation, so has been left in a half-working state until that
+     * functionality is needed. In non-SV cases on CGAP pedigreeviz, this will skip those conditionals.
      */
     generatePayload(file, attachmentPresent) {
         const { award, lab, institution, project } = this.props;
-
-        console.log("file,", file);
 
         const aliasFilename = file.download.split(' ').join('');
         let alias;
@@ -222,21 +224,25 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         if (attachmentPresent) {
             payloadObj.attachment = file;
         }
-        console.log("Payload:", payloadObj);
 
+        // console.log("Generated payload:", payloadObj);
         return payloadObj;
     }
 
+    /**
+     * Returns a promise that resolves when Item has been successfully validated. Might consolidate with
+     * createItem, since they share similar code.
+     */
     validateItem(file) {
         const { fieldType } = this.props;
 
-        const destination = `/${fieldType}/?check_only=true`; // testing only
+        const destination = `/${fieldType}/?check_only=true`;
 
         const payloadObj = this.generatePayload(file, true);
         const payload = JSON.stringify(payloadObj);
 
         return ajax.promise(destination, 'POST', {}, payload).then((response) => {
-            console.log("validateItem response", response);
+            console.log("validateItem response", response); // for testing
             return response;
         });
     }
@@ -251,12 +257,17 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         const payload = JSON.stringify(payloadObj);
 
         return ajax.promise(destination, 'POST', {}, payload).then((response) => {
-            console.log("createItem response", response);
+            console.log("createItem response", response); // for testing
             return response;
-            // here you could attach some onchange function from submission view
         });
     }
 
+    /**
+     * Makes a patch request to link new file metadata object to the current Individual (or other Item).
+     * @param {object}  createItemResponse      JSON response from server post-Item creation.
+     * @param {array}   recentlyCreatedItems    Array of atIDs of other items created in this batch of uploads
+     * Note: This method is meant to chain off of a f(x) like this.createItem.
+     */
     patchToParent(createItemResponse, recentlyCreatedItems) {
         const { individualId, files, fieldName } = this.props;
         const { '@graph': graph = [] } = createItemResponse;
@@ -287,7 +298,8 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         );
     }
 
-    onUploadStart(files) {
+    onUploadStart() {
+        const { files } = this.state;
         const previouslySubmittedAtIds = [];
 
         const newFileSubmit = (file) => {
@@ -324,7 +336,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                         throw new Error(errorMessage);
                     } else {
                         alert(`${file.download} uploaded and linked successfully.`);
-                        this.handleRemoveFile(`${file.download}|${file.size}`);
+                        this.handleRemoveFile(file.download);
                     }
                 })
                 .catch((error) => {
@@ -465,7 +477,7 @@ class DragAndDropModal extends React.Component {
                     <input type="files" name="filesFromBrowse[]" className="btn btn-primary">
                         <i className="icon fas icon-folder-open"></i> Browse
                     </input> */}
-                    <button type="button" className="btn btn-primary" onClick={() => onUploadStart(files)}
+                    <button type="button" className="btn btn-primary" onClick={onUploadStart}
                         disabled={files.length === 0 }>
                         <i className="icon fas icon-upload"></i> Upload {fieldDisplayTitle}
                     </button>
@@ -580,18 +592,11 @@ export class DragAndDropZone extends React.Component {
                     flexWrap: "wrap",
                     justifyContent: "center"
                 }}>
-                    { files.map(
-                        (file) => {
-                            const fileId = `${file.download}|${file.size}`;
-
-                            return (
-                                <li key={fileId} className="m-1">
-                                    <FileIcon fileName={file.download} fileSize={file.size}
-                                        fileType={file.type} fileId={fileId} {...{ handleRemoveFile }} />
-                                </li>
-                            );
-                        }
-                    )}
+                    { files.map((file) => (
+                        <li key={file.download} className="m-1">
+                            <FileIcon fileName={file.download} fileSize={file.size}
+                                fileType={file.type} {...{ handleRemoveFile }} />
+                        </li> ))}
                 </ul>
             </div>
         );
@@ -599,17 +604,26 @@ export class DragAndDropZone extends React.Component {
 }
 
 function FileIcon(props) {
-    const { fileType, fileName, fileSize, fileId, handleRemoveFile, thisUploading = false } = props;
+    const { fileType, fileName, fileSize, handleRemoveFile, thisUploading = false } = props;
 
     function getFileIconClass(mimetype){
         if (mimetype.match('^image/')) {
             return 'file-image';
-        } else if (mimetype.match('^text/html')) {
-            return 'file-code';
-        } else if (mimetype.match('^text/plain')) {
-            return 'file-alt';
         } else {
-            return 'file';
+            switch(mimetype) {
+                case 'text/html':
+                    return 'file-code';
+                case 'text/plain':
+                    return 'file-alt';
+                case 'application/msword':
+                    return 'file-word';
+                case 'application/vnd.ms-excel':
+                    return 'file-excel';
+                case 'application/pdf':
+                    return 'file-pdf';
+                default:
+                    return 'file';
+            }
         }
     }
 
@@ -617,7 +631,7 @@ function FileIcon(props) {
         <div style={{ flexDirection: "column", width: "150px", display: "flex" }}>
             { thisUploading ?
                 <i className="icon icon-spin icon-circle-notch fas"></i> :
-                <i onClick={() => handleRemoveFile(fileId)} className="icon fas icon-window-close text-danger"></i> }
+                <i onClick={() => handleRemoveFile(fileName)} className="icon fas icon-window-close text-danger"></i> }
             <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>
             <span style={{ fontSize: "12px" }}>{fileName}</span>
             <span style={{ fontSize: "10px" }}>{fileSize} bytes</span>
