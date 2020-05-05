@@ -138,6 +138,8 @@ function () {
  * Note: Files are uploaded one after another due to
  * use of PromiseQueue. This will help with managing state updates if we ever choose to get more granular in
  * how upload/error status is indicated (i.e. on a per-file basis in UI rather than via alerts).
+ *
+ * Heavily reworked from this reference: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
  */
 
 
@@ -159,8 +161,9 @@ function (_React$Component2) {
 
     _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadFileUploadController).call(this, props));
     _this3.state = {
-      files: [] // Always in an array, even if multiselect disabled
-
+      files: [],
+      // Always in an array, even if multiselect disabled
+      isLoading: false
     };
     console.log("DragAndDropUploadFileControlller props", props);
     _this3.handleAddFile = _this3.handleAddFile.bind(_assertThisInitialized(_this3));
@@ -423,12 +426,31 @@ function (_React$Component2) {
         })["catch"](function (error) {
           console.log("Error occurred", error);
         });
-      }; // Add each file submission chain to the queue, so each file uploads sequentially
+      };
 
+      this.setState({
+        isLoading: true
+      }, function () {
+        var allPromises = []; // Add each file submission chain to the queue, so each file uploads sequentially
 
-      files.forEach(function (file) {
-        return PromiseQueue.enqueue(function () {
-          return newFileSubmit(file);
+        files.forEach(function (file) {
+          allPromises.push(PromiseQueue.enqueue(function () {
+            return newFileSubmit(file);
+          }));
+        }); // Update loading state once everything is resolved
+
+        Promise.all(allPromises).then(function (result) {
+          console.log("Completed all uploads!", result);
+
+          _this5.setState({
+            isLoading: false
+          });
+        })["catch"](function (error) {
+          console.log("May not have completed all uploads!", error);
+
+          _this5.setState({
+            isLoading: false
+          });
         });
       });
     }
@@ -439,12 +461,15 @@ function (_React$Component2) {
           cls = _this$props4.cls,
           fieldDisplayTitle = _this$props4.fieldDisplayTitle,
           fieldName = _this$props4.fieldName;
-      var files = this.state.files;
+      var _this$state = this.state,
+          files = _this$state.files,
+          isLoading = _this$state.isLoading;
       return _react["default"].createElement(DragAndDropUploadButton, _extends({
         cls: cls,
         fieldDisplayTitle: fieldDisplayTitle,
         fieldName: fieldName,
-        files: files
+        files: files,
+        isLoading: isLoading
       }, {
         onUploadStart: this.onUploadStart,
         handleAddFile: this.handleAddFile,
@@ -542,9 +567,9 @@ function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$state = this.state,
-          show = _this$state.showModal,
-          multiselect = _this$state.multiselect;
+      var _this$state2 = this.state,
+          show = _this$state2.showModal,
+          multiselect = _this$state2.multiselect;
       var _this$props5 = this.props,
           onUploadStart = _this$props5.onUploadStart,
           handleAddFile = _this$props5.handleAddFile,
@@ -553,7 +578,8 @@ function (_React$Component3) {
           fieldName = _this$props5.fieldName,
           cls = _this$props5.cls,
           fieldDisplayTitle = _this$props5.fieldDisplayTitle,
-          files = _this$props5.files;
+          files = _this$props5.files,
+          isLoading = _this$props5.isLoading;
       return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropModal, _extends({
         handleHideModal: this.handleHideModal
       }, {
@@ -565,7 +591,8 @@ function (_React$Component3) {
         handleAddFile: handleAddFile,
         handleRemoveFile: handleRemoveFile,
         handleClearAllFiles: handleClearAllFiles,
-        files: files
+        files: files,
+        isLoading: isLoading
       })), _react["default"].createElement("button", {
         type: "button",
         onClick: this.onShow,
@@ -589,14 +616,16 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
   handleClearAllFiles: _propTypes["default"].func.isRequired,
   // DragAndDropUploadFileUploadController method for removing all files
   files: _propTypes["default"].array,
-  // File objects containing pre-existing files (will eventually be updated via websockets)
+  // File objects containing files currently in the dropzone workspace
   fieldName: _propTypes["default"].string,
   // Human readable type (Ex. Item, Document, Image, etc)
   fieldDisplayTitle: _propTypes["default"].string,
   // Name of specific field (Ex. Related Documents)
   multiselect: _propTypes["default"].bool,
   // Can field link multiple files at once?/Is array field?
-  cls: _propTypes["default"].string // Classes to apply to the main "Quick Upload" button
+  cls: _propTypes["default"].string,
+  // Classes to apply to the main "Quick Upload" button
+  isLoading: _propTypes["default"].bool // Are items currently being uploaded?
 
 });
 
@@ -634,7 +663,7 @@ function (_React$Component4) {
           handleRemoveFile = _this$props6.handleRemoveFile,
           files = _this$props6.files,
           handleHideModal = _this$props6.handleHideModal,
-          uploading = _this$props6.uploading;
+          isLoading = _this$props6.isLoading;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
       }, {
@@ -646,7 +675,29 @@ function (_React$Component4) {
         closeButton: true
       }, _react["default"].createElement(_reactBootstrap.Modal.Title, {
         className: "text-500"
-      }, "Upload a ", fieldName, " ", fieldDisplayTitle && fieldName !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
+      }, "Upload a ", fieldName, " ", fieldDisplayTitle && fieldName !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, isLoading ? _react["default"].createElement("div", {
+        style: {
+          backgroundColor: 'rgba(255,255,255,.8)',
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999
+        }
+      }, _react["default"].createElement("div", {
+        style: {
+          position: 'absolute',
+          top: '50%',
+          right: 0,
+          left: 0,
+          textAlign: 'center',
+          color: 'grey',
+          fontSize: 36
+        }
+      }, _react["default"].createElement("div", null, _react["default"].createElement("i", {
+        className: "icon icon-spin icon-circle-notch fas"
+      })))) : null, _react["default"].createElement(DragAndDropZone, _extends({
         files: files
       }, {
         handleAddFile: handleAddFile,
@@ -673,20 +724,30 @@ function (_React$Component4) {
 
 _defineProperty(DragAndDropModal, "propTypes", {
   handleAddFile: _propTypes["default"].func.isRequired,
+  // DragAndDropUploadFileUploadController method for adding multiple files
   handleRemoveFile: _propTypes["default"].func.isRequired,
+  // DragAndDropUploadFileUploadController method for removing single files
   handleClearAllFiles: _propTypes["default"].func.isRequired,
-  handleHideModal: _propTypes["default"].func.isRequired,
-  files: _propTypes["default"].array,
+  // DragAndDropUploadFileUploadController method for removing all files
   onUploadStart: _propTypes["default"].func.isRequired,
-  // Should trigger the creation of a new object, and start upload
+  // DragAndDropUploadFileUploadController method for starting upload promise chain
+  handleHideModal: _propTypes["default"].func.isRequired,
+  // DragAndDropUploadButton method for editing show state of modal
+  files: _propTypes["default"].array,
+  // Files currently in the dropzone workspace. Controlled by DragAndDropFileUploadController
   show: _propTypes["default"].bool,
-  // Controlled by state method onHide passed in as prop
+  // Show state of modal; edited in DragAndDropUploadButton
   fieldName: _propTypes["default"].string,
-  fieldDisplayTitle: _propTypes["default"].string
+  // Human readable type (Ex. Item, Document, Image, etc)
+  fieldDisplayTitle: _propTypes["default"].string,
+  // Name of specific field (Ex. Related Documents)
+  isLoading: _propTypes["default"].bool // Are items currently being uploaded?
+
 });
 
 _defineProperty(DragAndDropModal, "defaultProps", {
-  show: false
+  show: false,
+  isLoading: false
 });
 
 var DragAndDropZone =
@@ -755,8 +816,7 @@ function (_React$Component5) {
     value: function handleDragOut(evt) {
       evt.preventDefault();
       evt.stopPropagation();
-    } // TODO: Consider making handlers props for even more modularity
-
+    }
   }, {
     key: "handleDrop",
     value: function handleDrop(evt) {
@@ -827,6 +887,7 @@ _defineProperty(DragAndDropZone, "defaultProps", {
 });
 
 function FileIcon(props) {
+  // Note: thisUploading not yet in use; currently just a placeholder for potential future per-file loading indicator
   var fileType = props.fileType,
       fileName = props.fileName,
       fileSize = props.fileSize,
