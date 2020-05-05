@@ -174,8 +174,9 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
             // Filter to remove the clicked file by ID parts
             const newFiles = files.filter((file) => {
-                if ((file.download === download) &&
-                    (file.size === parseInt(size))
+                const { attachment = {} } = file;
+                if ((attachment.download === download) &&
+                    (attachment.size === parseInt(size))
                 ) {
                     return false;
                 }

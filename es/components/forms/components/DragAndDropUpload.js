@@ -247,7 +247,10 @@ function (_React$Component2) {
 
 
         var newFiles = files.filter(function (file) {
-          if (file.download === download && file.size === parseInt(size)) {
+          var _file$attachment = file.attachment,
+              attachment = _file$attachment === void 0 ? {} : _file$attachment;
+
+          if (attachment.download === download && attachment.size === parseInt(size)) {
             return false;
           }
 
