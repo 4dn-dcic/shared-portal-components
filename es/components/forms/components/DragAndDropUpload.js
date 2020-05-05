@@ -431,15 +431,14 @@ function (_React$Component2) {
       this.setState({
         isLoading: true
       }, function () {
-        var allPromises = []; // Add each file submission chain to the queue, so each file uploads sequentially
-
+        // Add each file submission chain to the queue, so each file uploads sequentially
         files.forEach(function (file) {
-          allPromises.push(PromiseQueue.enqueue(function () {
+          PromiseQueue.enqueue(function () {
             return newFileSubmit(file);
-          }));
+          });
         }); // Update loading state once everything is resolved
 
-        Promise.all(allPromises).then(function (result) {
+        Promise.all(PromiseQueue.queue).then(function (result) {
           console.log("Completed all uploads!", result);
 
           _this5.setState({

@@ -338,15 +338,13 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         };
 
         this.setState({ isLoading: true }, () => {
-            const allPromises = [];
-
             // Add each file submission chain to the queue, so each file uploads sequentially
             files.forEach((file) => {
-                allPromises.push(PromiseQueue.enqueue(() => newFileSubmit(file)));
+                PromiseQueue.enqueue(() => newFileSubmit(file));
             });
 
             // Update loading state once everything is resolved
-            Promise.all(allPromises)
+            Promise.all(PromiseQueue.queue)
                 .then((result) => {
                     console.log("Completed all uploads!", result);
                     this.setState({ isLoading: false });
