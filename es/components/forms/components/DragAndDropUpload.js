@@ -55,6 +55,14 @@ function (_React$Component) {
 
 exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
 
+/**
+ * A class utility for executing promise-chains in a sequential manner. Includes some
+ * scaffolding for aborting promises; needs more work in future.
+ *
+ * In drag-and-drop upload, this class ensures that each Item is uploaded and linked
+ * before starting the upload of the next item, so that the new atIds can be collected
+ * and patched to the parent together.
+ */
 var PromiseQueue =
 /*#__PURE__*/
 function () {
@@ -124,9 +132,12 @@ function () {
   return PromiseQueue;
 }();
 /**
- * Main component for independent drag and drop file upload. Note: Files are uploaded one after another due to
+ * Main component for independent drag and drop file upload. May eventually be updated to take a prop
+ * for onUploadStart... OR patchToParent, to update SV SAYTAJAX interface via SV-onchange or SV-selectcomplete.
+ *
+ * Note: Files are uploaded one after another due to
  * use of PromiseQueue. This will help with managing state updates if we ever choose to get more granular in
- * how upload/error status is indicated (perhaps on a per-file basis).
+ * how upload/error status is indicated (i.e. on a per-file basis in UI rather than via alerts).
  */
 
 
@@ -151,6 +162,7 @@ function (_React$Component2) {
       files: [] // Always in an array, even if multiselect disabled
 
     };
+    console.log("DragAndDropUploadFileControlller props", props);
     _this3.handleAddFile = _this3.handleAddFile.bind(_assertThisInitialized(_this3));
     _this3.handleRemoveFile = _this3.handleRemoveFile.bind(_assertThisInitialized(_this3));
     _this3.handleClearAllFiles = _this3.handleClearAllFiles.bind(_assertThisInitialized(_this3));
@@ -172,71 +184,64 @@ function (_React$Component2) {
       var currFiles = this.state.files;
 
       if (items && items.length > 0) {
-        if (multiselect) {
-          // Add all dragged items
-          var fileArr = []; // Populate an array with all of the new files
+        // Add all dragged items
+        var fileArr = [];
+        var fileLimit = multiselect ? files.length : 1; // Populate an array with all of the new files
 
-          var _loop = function () {
-            var attachment = {};
-            var file = files[i]; // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
+        var _loop = function () {
+          var attachment = {};
+          var file = files[i]; // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
 
-            var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
+          var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
 
-            if (_underscore["default"].indexOf(acceptableFileTypes, file.type) === -1) {
-              var listOfTypes = acceptableFileTypes.toString();
-              alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\nMust be of type: ").concat(listOfTypes, "."));
-              return "continue";
+          if (_underscore["default"].indexOf(acceptableFileTypes, file.type) === -1) {
+            var listOfTypes = acceptableFileTypes.toString();
+            alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\n                        Must be of type: ").concat(listOfTypes, "."));
+            return "continue";
+          }
+
+          attachment.type = file.type; // TODO: Figure out how best to check/limit file size pre-attachment...
+
+          if (file.size) {
+            attachment.size = file.size;
+          }
+
+          if (file.name) {
+            attachment.download = file.name;
+          }
+
+          fileReader = new window.FileReader();
+          fileReader.readAsDataURL(file);
+
+          fileReader.onloadend = function (e) {
+            if (e.target.result) {
+              attachment.href = e.target.result;
+            } else {
+              alert('ERROR: There was a problem reading the given file. Please try again.');
             }
+          }.bind(_this4);
 
-            attachment.type = file.type; // TODO: Figure out how best to check/limit file size pre-attachment...
+          fileArr.push(attachment);
+        };
 
-            if (file.size) {
-              attachment.size = file.size;
-            }
+        for (var i = 0; i < fileLimit; i++) {
+          var fileReader;
 
-            if (file.name) {
-              attachment.download = file.name;
-            }
+          var _ret = _loop();
 
-            fileReader = new window.FileReader();
-            fileReader.readAsDataURL(file);
-
-            fileReader.onloadend = function (e) {
-              if (e.target.result) {
-                attachment.href = e.target.result;
-              } else {
-                alert('ERROR: There was a problem reading the given file. Please try again.');
-              }
-            }.bind(_this4); // console.log(attachment, files[i]);
+          if (_ret === "continue") continue;
+        } // Concat with previous files
 
 
-            fileArr.push(attachment);
-          };
+        var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
 
-          for (var i = 0; i < files.length; i++) {
-            var fileReader;
+        var dedupedFiles = _underscore["default"].uniq(allFiles, false, function (file) {
+          return file.download;
+        });
 
-            var _ret = _loop();
-
-            if (_ret === "continue") continue;
-          } // Concat with previous files
-
-
-          var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
-
-          var dedupedFiles = _underscore["default"].uniq(allFiles, false, function (file) {
-            return file.download;
-          });
-
-          this.setState({
-            files: dedupedFiles
-          });
-        } else {
-          // Select only one file at a time
-          this.setState({
-            files: [files[0]]
-          });
-        }
+        this.setState({
+          files: dedupedFiles
+        });
       }
     }
   }, {
@@ -311,33 +316,23 @@ function (_React$Component2) {
       return payloadObj;
     }
     /**
-     * Returns a promise that resolves when Item has been successfully validated. Might consolidate with
-     * createItem, since they share similar code.
+     * Returns a promise that resolves when Item has been successfully validated/submitted
      */
 
   }, {
-    key: "validateItem",
-    value: function validateItem(file) {
-      var fieldType = this.props.fieldType;
-      var destination = "/".concat(fieldType, "/?check_only=true");
+    key: "createItem",
+    value: function createItem(file, isValidationTest) {
+      var fieldName = this.props.fieldName;
+      var destination = "/".concat(fieldName, "/");
+
+      if (isValidationTest) {
+        destination = "/".concat(fieldName, "/?check_only=true");
+      }
+
       var payloadObj = this.generatePayload(file, true);
       var payload = JSON.stringify(payloadObj);
       return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
         console.log("validateItem response", response); // for testing
-
-        return response;
-      });
-    }
-  }, {
-    key: "createItem",
-    value: function createItem(file) {
-      var fieldType = this.props.fieldType;
-      var destination = "/".concat(fieldType, "/"); // Build a payload with info to create metadata Item
-
-      var payloadObj = this.generatePayload(file, true);
-      var payload = JSON.stringify(payloadObj);
-      return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
-        console.log("createItem response", response); // for testing
 
         return response;
       });
@@ -355,32 +350,33 @@ function (_React$Component2) {
       var _this$props3 = this.props,
           individualId = _this$props3.individualId,
           files = _this$props3.files,
-          fieldName = _this$props3.fieldName;
+          fieldType = _this$props3.fieldType,
+          multiselect = _this$props3.multiselect;
       var _createItemResponse$ = createItemResponse['@graph'],
           graph = _createItemResponse$ === void 0 ? [] : _createItemResponse$;
       var responseData = graph[0];
-      console.log(responseData);
-      var submitted_at_id = responseData['@id'];
-      console.log("submittedAtid=", submitted_at_id);
-      var current_docs = []; // Add items that were loaded from db w/individual
+      var submitted_at_id = responseData['@id']; // Update with passed down items, other items that were just created
 
-      files.forEach(function (file) {
-        return current_docs.push(file["@id"]);
-      }); // Add recently created items to the list of items to patch
+      var current_docs = [];
 
-      if (recentlyCreatedItems && recentlyCreatedItems.length > 0) {
-        recentlyCreatedItems.forEach(function (atId) {
-          return current_docs.push(atId);
-        });
+      if (multiselect) {
+        // Add items that were loaded from db w/individual
+        files.forEach(function (file) {
+          return current_docs.push(file["@id"]);
+        }); // Add recently created items to the list of items to patch
+
+        if (recentlyCreatedItems && recentlyCreatedItems.length > 0) {
+          recentlyCreatedItems.forEach(function (atId) {
+            return current_docs.push(atId);
+          });
+        }
       } // Add the current item
 
 
-      current_docs.push(submitted_at_id);
+      current_docs.push(submitted_at_id); // Ensure no duplicates (obviously more relevant in multiselect cases)
+
       current_docs = _underscore["default"].uniq(current_docs);
-      return _util.ajax.promise(individualId, "PATCH", {}, JSON.stringify(_defineProperty({}, fieldName, current_docs))).then(function (response) {
-        console.log(response);
-        return response;
-      });
+      return _util.ajax.promise(individualId, "PATCH", {}, JSON.stringify(_defineProperty({}, fieldType, current_docs)));
     }
   }, {
     key: "onUploadStart",
@@ -392,13 +388,14 @@ function (_React$Component2) {
 
       var newFileSubmit = function (file) {
         console.log("Attempting to upload file... ", file);
-        return _this5.validateItem(file).then(function (response) {
+        return _this5.createItem(file, true) // Validate
+        .then(function (response) {
           if (response.status && response.status !== 'success') {
             var errorMessage = "Validation failed!\n\n".concat(response.description, " ").concat(response.detail);
             throw new Error(errorMessage);
           } else {
             console.log("validation succeeded");
-            return _this5.createItem(file);
+            return _this5.createItem(file, false); // Submit item
           }
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
@@ -441,12 +438,12 @@ function (_React$Component2) {
       var _this$props4 = this.props,
           cls = _this$props4.cls,
           fieldDisplayTitle = _this$props4.fieldDisplayTitle,
-          fieldType = _this$props4.fieldType;
+          fieldName = _this$props4.fieldName;
       var files = this.state.files;
       return _react["default"].createElement(DragAndDropUploadButton, _extends({
         cls: cls,
         fieldDisplayTitle: fieldDisplayTitle,
-        fieldType: fieldType,
+        fieldName: fieldName,
         files: files
       }, {
         onUploadStart: this.onUploadStart,
@@ -464,30 +461,28 @@ exports.DragAndDropUploadFileUploadController = DragAndDropUploadFileUploadContr
 
 _defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
   files: _propTypes["default"].array.isRequired,
+  // File objects containing already-linked files (will eventually be updated via websockets)
   fileSchema: _propTypes["default"].object.isRequired,
-  // Used to validate extension types
-  fieldType: _propTypes["default"].string.isRequired,
+  // Used to validate extension types on drop
   individualId: _propTypes["default"].string.isRequired,
+  // AtID of the parent item to link the new File object to
+  fieldType: _propTypes["default"].string.isRequired,
+  // Item field type (e.g. "related_documents", "images")
   fieldName: _propTypes["default"].string.isRequired,
+  // Item name (e.g. "Documents")
   fieldDisplayTitle: _propTypes["default"].string,
-  // If this isn't passed in, use fieldtype instead
-  award: _propTypes["default"].string,
-  // Will be required for 4DN SV
-  lab: _propTypes["default"].string,
-  // Will be required for 4DN SV
-  institution: _propTypes["default"].object,
-  // Will be required for CGAP SV
-  project: _propTypes["default"].object,
-  // Will be required for CGAP SV
+  // Display title of field (e.g. "Related Documents")
   cls: _propTypes["default"].string,
   // Classes to apply to the main "Quick Upload" button
-  multiselect: _propTypes["default"].bool // Should you be able to upload/link multiple files at once?
+  multiselect: _propTypes["default"].bool // Can field link multiple files at once?/Is array field?
+  // award: PropTypes.string,                    // Will be required for 4DN SV
+  // lab: PropTypes.string,                      // Will be required for 4DN SV
+  // institution: PropTypes.object,              // Will be required for CGAP SV
+  // project: PropTypes.object,                  // Will be required for CGAP SV
 
 });
 
 _defineProperty(DragAndDropUploadFileUploadController, "defaultProps", {
-  // award: "/awards/1U01CA200059-01/", // for testing
-  // lab: "/labs/4dn-dcic-lab", // for testing
   cls: "btn",
   multiselect: true
 });
@@ -506,6 +501,7 @@ function (_React$Component3) {
     _this6.state = {
       showModal: false
     };
+    console.log("props, ", props);
     _this6.onHide = _this6.onHide.bind(_assertThisInitialized(_this6));
     _this6.onShow = _this6.onShow.bind(_assertThisInitialized(_this6));
     _this6.handleHideModal = _this6.handleHideModal.bind(_assertThisInitialized(_this6));
@@ -554,7 +550,7 @@ function (_React$Component3) {
           handleAddFile = _this$props5.handleAddFile,
           handleRemoveFile = _this$props5.handleRemoveFile,
           handleClearAllFiles = _this$props5.handleClearAllFiles,
-          fieldType = _this$props5.fieldType,
+          fieldName = _this$props5.fieldName,
           cls = _this$props5.cls,
           fieldDisplayTitle = _this$props5.fieldDisplayTitle,
           files = _this$props5.files;
@@ -564,7 +560,7 @@ function (_React$Component3) {
         multiselect: multiselect,
         show: show,
         onUploadStart: onUploadStart,
-        fieldType: fieldType,
+        fieldName: fieldName,
         fieldDisplayTitle: fieldDisplayTitle,
         handleAddFile: handleAddFile,
         handleRemoveFile: handleRemoveFile,
@@ -576,7 +572,7 @@ function (_React$Component3) {
         className: cls
       }, _react["default"].createElement("i", {
         className: "icon icon-upload fas"
-      }), " Quick Upload a new ", fieldType));
+      }), " Quick Upload a new ", fieldName));
     }
   }]);
 
@@ -587,21 +583,27 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
   onUploadStart: _propTypes["default"].func.isRequired,
   // Actions to take upon upload; exact status of upload controlled by data controller wrapper
   handleAddFile: _propTypes["default"].func.isRequired,
+  // DragAndDropUploadFileUploadController method for adding multiple files
   handleRemoveFile: _propTypes["default"].func.isRequired,
-  files: _propTypes["default"].array,
+  // DragAndDropUploadFileUploadController method for removing single files
   handleClearAllFiles: _propTypes["default"].func.isRequired,
-  fieldType: _propTypes["default"].string,
-  // Schema-formatted type (Ex. Item, Document, etc)
+  // DragAndDropUploadFileUploadController method for removing all files
+  files: _propTypes["default"].array,
+  // File objects containing pre-existing files (will eventually be updated via websockets)
+  fieldName: _propTypes["default"].string,
+  // Human readable type (Ex. Item, Document, Image, etc)
   fieldDisplayTitle: _propTypes["default"].string,
   // Name of specific field (Ex. Related Documents)
   multiselect: _propTypes["default"].bool,
-  cls: _propTypes["default"].string
+  // Can field link multiple files at once?/Is array field?
+  cls: _propTypes["default"].string // Classes to apply to the main "Quick Upload" button
+
 });
 
 _defineProperty(DragAndDropUploadButton, "defaultProps", {
-  // TODO: Double check that these assumptions make sense...
-  fieldType: "Document",
-  multiselect: false
+  fieldName: "Document",
+  multiselect: false,
+  files: []
 });
 
 var DragAndDropModal =
@@ -626,7 +628,7 @@ function (_React$Component4) {
       var _this$props6 = this.props,
           show = _this$props6.show,
           onUploadStart = _this$props6.onUploadStart,
-          fieldType = _this$props6.fieldType,
+          fieldName = _this$props6.fieldName,
           fieldDisplayTitle = _this$props6.fieldDisplayTitle,
           handleAddFile = _this$props6.handleAddFile,
           handleRemoveFile = _this$props6.handleRemoveFile,
@@ -644,7 +646,7 @@ function (_React$Component4) {
         closeButton: true
       }, _react["default"].createElement(_reactBootstrap.Modal.Title, {
         className: "text-500"
-      }, "Upload a ", fieldType, " ", fieldDisplayTitle && fieldType !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
+      }, "Upload a ", fieldName, " ", fieldDisplayTitle && fieldName !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement(DragAndDropZone, _extends({
         files: files
       }, {
         handleAddFile: handleAddFile,
@@ -679,7 +681,7 @@ _defineProperty(DragAndDropModal, "propTypes", {
   // Should trigger the creation of a new object, and start upload
   show: _propTypes["default"].bool,
   // Controlled by state method onHide passed in as prop
-  fieldType: _propTypes["default"].string,
+  fieldName: _propTypes["default"].string,
   fieldDisplayTitle: _propTypes["default"].string
 });
 
@@ -771,17 +773,12 @@ function (_React$Component5) {
           files = _this$props7.files,
           handleRemoveFile = _this$props7.handleRemoveFile;
       return _react["default"].createElement("div", {
-        className: "panel text-center",
+        className: "panel text-center d-flex flex-row justify-content-center",
         style: {
           backgroundColor: '#eee',
           border: "1px solid #efefef",
           height: "30vh",
-          flexDirection: "row",
-          display: "flex",
-
-          /*overflowY: "auto",*/
-          overflowX: "hidden",
-          justifyContent: "center"
+          overflowX: "hidden"
         },
         ref: this.dropZoneRef
       }, _react["default"].createElement("span", {
@@ -837,10 +834,9 @@ function FileIcon(props) {
       _props$thisUploading = props.thisUploading,
       thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
   return _react["default"].createElement("div", {
+    className: "d-flex flex-column",
     style: {
-      flexDirection: "column",
-      width: "150px",
-      display: "flex"
+      width: "150px"
     }
   }, thisUploading ? _react["default"].createElement("i", {
     className: "icon icon-spin icon-circle-notch fas"

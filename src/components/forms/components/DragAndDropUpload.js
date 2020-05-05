@@ -9,6 +9,14 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
     it and pass through unique versions of onUploadStart, patchToParent, etc f(x)s in DragAndDropFileUploadController */
 }
 
+/**
+ * A class utility for executing promise-chains in a sequential manner. Includes some
+ * scaffolding for aborting promises; needs more work in future.
+ *
+ * In drag-and-drop upload, this class ensures that each Item is uploaded and linked
+ * before starting the upload of the next item, so that the new atIds can be collected
+ * and patched to the parent together.
+ */
 class PromiseQueue {
     static queue = [];
     static pendingPromise = false;
@@ -61,29 +69,30 @@ class PromiseQueue {
 }
 
 /**
- * Main component for independent drag and drop file upload. Note: Files are uploaded one after another due to
+ * Main component for independent drag and drop file upload. May eventually be updated to take a prop
+ * for onUploadStart... OR patchToParent, to update SV SAYTAJAX interface via SV-onchange or SV-selectcomplete.
+ *
+ * Note: Files are uploaded one after another due to
  * use of PromiseQueue. This will help with managing state updates if we ever choose to get more granular in
- * how upload/error status is indicated (perhaps on a per-file basis).
+ * how upload/error status is indicated (i.e. on a per-file basis in UI rather than via alerts).
  */
 export class DragAndDropUploadFileUploadController extends React.Component {
     static propTypes = {
-        files: PropTypes.array.isRequired,
-        fileSchema: PropTypes.object.isRequired, // Used to validate extension types
-        fieldType: PropTypes.string.isRequired,
-        individualId: PropTypes.string.isRequired,
-        fieldName: PropTypes.string.isRequired,
-        fieldDisplayTitle: PropTypes.string, // If this isn't passed in, use fieldtype instead
-        award: PropTypes.string, // Will be required for 4DN SV
-        lab: PropTypes.string, // Will be required for 4DN SV
-        institution: PropTypes.object, // Will be required for CGAP SV
-        project: PropTypes.object, // Will be required for CGAP SV
-        cls: PropTypes.string, // Classes to apply to the main "Quick Upload" button
-        multiselect: PropTypes.bool // Should you be able to upload/link multiple files at once?
+        files: PropTypes.array.isRequired,          // File objects containing already-linked files (will eventually be updated via websockets)
+        fileSchema: PropTypes.object.isRequired,    // Used to validate extension types on drop
+        individualId: PropTypes.string.isRequired,  // AtID of the parent item to link the new File object to
+        fieldType: PropTypes.string.isRequired,     // Item field type (e.g. "related_documents", "images")
+        fieldName: PropTypes.string.isRequired,     // Item name (e.g. "Documents")
+        fieldDisplayTitle: PropTypes.string,        // Display title of field (e.g. "Related Documents")
+        cls: PropTypes.string,                      // Classes to apply to the main "Quick Upload" button
+        multiselect: PropTypes.bool,                // Can field link multiple files at once?/Is array field?
+        // award: PropTypes.string,                    // Will be required for 4DN SV
+        // lab: PropTypes.string,                      // Will be required for 4DN SV
+        // institution: PropTypes.object,              // Will be required for CGAP SV
+        // project: PropTypes.object,                  // Will be required for CGAP SV
     }
 
     static defaultProps = {
-        // award: "/awards/1U01CA200059-01/", // for testing
-        // lab: "/labs/4dn-dcic-lab", // for testing
         cls: "btn",
         multiselect: true
     }
@@ -93,6 +102,8 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         this.state = {
             files: [] // Always in an array, even if multiselect disabled
         };
+
+        console.log("DragAndDropUploadFileControlller props", props);
 
         this.handleAddFile = this.handleAddFile.bind(this);
         this.handleRemoveFile = this.handleRemoveFile.bind(this);
@@ -107,58 +118,52 @@ export class DragAndDropUploadFileUploadController extends React.Component {
         const { files: currFiles } = this.state;
 
         if (items && items.length > 0) {
-            if (multiselect) {
-                // Add all dragged items
-                const fileArr = [];
+            // Add all dragged items
+            const fileArr = [];
 
-                // Populate an array with all of the new files
-                for (var i = 0; i < files.length; i++) {
-                    const attachment = {};
-                    const file = files[i];
+            const fileLimit = multiselect ? files.length : 1;
+            // Populate an array with all of the new files
+            for (var i = 0; i < fileLimit; i++) {
+                const attachment = {};
+                const file = files[i];
 
-                    // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
-                    const acceptableFileTypes = fileSchema.properties.attachment.properties.type.enum;
-                    if (_.indexOf(acceptableFileTypes, file.type) === -1) {
-                        const listOfTypes = acceptableFileTypes.toString();
-                        alert(`FILE NOT ADDED: File "${file.name}" is not of the correct file type for this field.\nMust be of type: ${listOfTypes}.`);
-                        continue;
-                    }
-                    attachment.type = file.type;
-
-                    // TODO: Figure out how best to check/limit file size pre-attachment...
-                    if (file.size) { attachment.size = file.size; }
-                    if (file.name) { attachment.download = file.name; }
-
-                    var fileReader = new window.FileReader();
-                    fileReader.readAsDataURL(file);
-                    fileReader.onloadend = function (e) {
-                        if (e.target.result){
-                            attachment.href = e.target.result;
-                        } else {
-                            alert('ERROR: There was a problem reading the given file. Please try again.');
-                            return;
-                        }
-                    }.bind(this);
-
-                    // console.log(attachment, files[i]);
-                    fileArr.push(attachment);
+                // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
+                const acceptableFileTypes = fileSchema.properties.attachment.properties.type.enum;
+                if (_.indexOf(acceptableFileTypes, file.type) === -1) {
+                    const listOfTypes = acceptableFileTypes.toString();
+                    alert(`FILE NOT ADDED: File "${file.name}" is not of the correct file type for this field.\n
+                        Must be of type: ${listOfTypes}.`);
+                    continue;
                 }
+                attachment.type = file.type;
 
-                // Concat with previous files
-                const allFiles = currFiles.concat(fileArr);
+                // TODO: Figure out how best to check/limit file size pre-attachment...
+                if (file.size) { attachment.size = file.size; }
+                if (file.name) { attachment.download = file.name; }
 
-                // Filter out duplicates (based on just filename for now; may need more criteria in future)
-                const dedupedFiles = _.uniq(allFiles, false, (file) => file.download);
+                var fileReader = new window.FileReader();
+                fileReader.readAsDataURL(file);
+                fileReader.onloadend = function (e) {
+                    if (e.target.result){
+                        attachment.href = e.target.result;
+                    } else {
+                        alert('ERROR: There was a problem reading the given file. Please try again.');
+                        return;
+                    }
+                }.bind(this);
 
-                this.setState({
-                    files: dedupedFiles
-                });
-            } else {
-                // Select only one file at a time
-                this.setState({
-                    files: [files[0]]
-                });
+                fileArr.push(attachment);
             }
+
+            // Concat with previous files
+            const allFiles = currFiles.concat(fileArr);
+
+            // Filter out duplicates (based on just filename for now; may need more criteria in future)
+            const dedupedFiles = _.uniq(allFiles, false, (file) => file.download);
+
+            this.setState({
+                files: dedupedFiles
+            });
         }
     }
 
@@ -230,34 +235,21 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     }
 
     /**
-     * Returns a promise that resolves when Item has been successfully validated. Might consolidate with
-     * createItem, since they share similar code.
+     * Returns a promise that resolves when Item has been successfully validated/submitted
      */
-    validateItem(file) {
-        const { fieldType } = this.props;
+    createItem(file, isValidationTest) {
+        const { fieldName } = this.props;
 
-        const destination = `/${fieldType}/?check_only=true`;
+        let destination = `/${fieldName}/`;
+        if (isValidationTest) {
+            destination = `/${fieldName}/?check_only=true`;
+        }
 
         const payloadObj = this.generatePayload(file, true);
         const payload = JSON.stringify(payloadObj);
 
         return ajax.promise(destination, 'POST', {}, payload).then((response) => {
             console.log("validateItem response", response); // for testing
-            return response;
-        });
-    }
-
-    createItem(file) {
-        const { fieldType } = this.props;
-
-        const destination = `/${fieldType}/`;
-
-        // Build a payload with info to create metadata Item
-        const payloadObj = this.generatePayload(file, true);
-        const payload = JSON.stringify(payloadObj);
-
-        return ajax.promise(destination, 'POST', {}, payload).then((response) => {
-            console.log("createItem response", response); // for testing
             return response;
         });
     }
@@ -269,33 +261,31 @@ export class DragAndDropUploadFileUploadController extends React.Component {
      * Note: This method is meant to chain off of a f(x) like this.createItem.
      */
     patchToParent(createItemResponse, recentlyCreatedItems) {
-        const { individualId, files, fieldName } = this.props;
+        const { individualId, files, fieldType, multiselect } = this.props;
         const { '@graph': graph = [] } = createItemResponse;
         const { 0: responseData } = graph;
 
-        console.log(responseData);
         const submitted_at_id = responseData['@id'];
-        console.log("submittedAtid=", submitted_at_id);
 
+        // Update with passed down items, other items that were just created
         let current_docs = [];
-        // Add items that were loaded from db w/individual
-        files.forEach((file) => current_docs.push(file["@id"]));
+        if (multiselect) {
+            // Add items that were loaded from db w/individual
+            files.forEach((file) => current_docs.push(file["@id"]));
 
-        // Add recently created items to the list of items to patch
-        if (recentlyCreatedItems && recentlyCreatedItems.length > 0) {
-            recentlyCreatedItems.forEach((atId) => current_docs.push(atId));
+            // Add recently created items to the list of items to patch
+            if (recentlyCreatedItems && recentlyCreatedItems.length > 0) {
+                recentlyCreatedItems.forEach((atId) => current_docs.push(atId));
+            }
         }
+
         // Add the current item
         current_docs.push(submitted_at_id);
 
+        // Ensure no duplicates (obviously more relevant in multiselect cases)
         current_docs = _.uniq(current_docs);
 
-        return ajax.promise(individualId, "PATCH", { }, JSON.stringify({ [fieldName]: current_docs })).then(
-            (response) =>  {
-                console.log(response);
-                return response;
-            }
-        );
+        return ajax.promise(individualId, "PATCH", { }, JSON.stringify({ [fieldType]: current_docs }));
     }
 
     onUploadStart() {
@@ -304,14 +294,14 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
         const newFileSubmit = (file) => {
             console.log("Attempting to upload file... ", file);
-            return this.validateItem(file)
+            return this.createItem(file, true) // Validate
                 .then((response) => {
                     if (response.status && response.status !== 'success') {
                         const errorMessage = `Validation failed!\n\n${response.description} ${response.detail}`;
                         throw new Error(errorMessage);
                     } else {
                         console.log("validation succeeded");
-                        return this.createItem(file);
+                        return this.createItem(file, false); // Submit item
                     }
                 })
                 .then((resp) => {
@@ -349,10 +339,10 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     }
 
     render() {
-        const { cls, fieldDisplayTitle, fieldType } = this.props;
+        const { cls, fieldDisplayTitle, fieldName } = this.props;
         const { files } = this.state;
 
-        return <DragAndDropUploadButton {...{ cls, fieldDisplayTitle, fieldType, files }}
+        return <DragAndDropUploadButton {...{ cls, fieldDisplayTitle, fieldName, files }}
             onUploadStart={this.onUploadStart} handleAddFile={this.handleAddFile}
             handleClearAllFiles={this.handleClearAllFiles} handleRemoveFile={this.handleRemoveFile} />;
     }
@@ -360,21 +350,21 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
 class DragAndDropUploadButton extends React.Component {
     static propTypes = {
-        onUploadStart: PropTypes.func.isRequired,     // Actions to take upon upload; exact status of upload controlled by data controller wrapper
-        handleAddFile: PropTypes.func.isRequired,
-        handleRemoveFile: PropTypes.func.isRequired,
-        files: PropTypes.array,
-        handleClearAllFiles: PropTypes.func.isRequired,
-        fieldType: PropTypes.string,                  // Schema-formatted type (Ex. Item, Document, etc)
-        fieldDisplayTitle: PropTypes.string,                  // Name of specific field (Ex. Related Documents)
-        multiselect: PropTypes.bool,
-        cls: PropTypes.string
+        onUploadStart: PropTypes.func.isRequired,       // Actions to take upon upload; exact status of upload controlled by data controller wrapper
+        handleAddFile: PropTypes.func.isRequired,       // DragAndDropUploadFileUploadController method for adding multiple files
+        handleRemoveFile: PropTypes.func.isRequired,    // DragAndDropUploadFileUploadController method for removing single files
+        handleClearAllFiles: PropTypes.func.isRequired, // DragAndDropUploadFileUploadController method for removing all files
+        files: PropTypes.array,                         // File objects containing pre-existing files (will eventually be updated via websockets)
+        fieldName: PropTypes.string,                    // Human readable type (Ex. Item, Document, Image, etc)
+        fieldDisplayTitle: PropTypes.string,            // Name of specific field (Ex. Related Documents)
+        multiselect: PropTypes.bool,                    // Can field link multiple files at once?/Is array field?
+        cls: PropTypes.string                           // Classes to apply to the main "Quick Upload" button
     }
 
     static defaultProps = {
-        // TODO: Double check that these assumptions make sense...
-        fieldType: "Document",
-        multiselect: false
+        fieldName: "Document",
+        multiselect: false,
+        files: []
     }
 
     constructor(props) {
@@ -383,6 +373,7 @@ class DragAndDropUploadButton extends React.Component {
             showModal: false
         };
 
+        console.log("props, ", props);
         this.onHide = this.onHide.bind(this);
         this.onShow = this.onShow.bind(this);
         this.handleHideModal = this.handleHideModal.bind(this);
@@ -414,15 +405,17 @@ class DragAndDropUploadButton extends React.Component {
     render() {
         const { showModal: show, multiselect } = this.state;
         const { onUploadStart, handleAddFile, handleRemoveFile, handleClearAllFiles,
-            fieldType, cls, fieldDisplayTitle, files } = this.props;
+            fieldName, cls, fieldDisplayTitle, files } = this.props;
 
         return (
             <div>
                 <DragAndDropModal handleHideModal={this.handleHideModal}
-                    {...{ multiselect, show, onUploadStart, fieldType, fieldDisplayTitle, handleAddFile, handleRemoveFile,
+                    {...{ multiselect, show, onUploadStart, fieldName, fieldDisplayTitle, handleAddFile, handleRemoveFile,
                         handleClearAllFiles, files }}
                 />
-                <button type="button" onClick={this.onShow} className={cls}><i className="icon icon-upload fas"></i> Quick Upload a new {fieldType}</button>
+                <button type="button" onClick={this.onShow} className={cls}>
+                    <i className="icon icon-upload fas"></i> Quick Upload a new {fieldName}
+                </button>
             </div>
         );
     }
@@ -441,7 +434,7 @@ class DragAndDropModal extends React.Component {
         files: PropTypes.array,
         onUploadStart: PropTypes.func.isRequired,       // Should trigger the creation of a new object, and start upload
         show: PropTypes.bool,                           // Controlled by state method onHide passed in as prop
-        fieldType: PropTypes.string,
+        fieldName: PropTypes.string,
         fieldDisplayTitle: PropTypes.string
     }
 
@@ -451,16 +444,16 @@ class DragAndDropModal extends React.Component {
 
     render(){
         const {
-            show, onUploadStart, fieldType, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal, uploading
+            show, onUploadStart, fieldName, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal, uploading
         } = this.props;
 
-        let showFieldName = fieldDisplayTitle && fieldType !== fieldDisplayTitle;
+        const showFieldName = fieldDisplayTitle && fieldName !== fieldDisplayTitle;
 
         return (
             <Modal centered {...{ show }} onHide={handleHideModal} className="submission-view-modal">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
-                        Upload a {fieldType} { showFieldName ? "for " + fieldDisplayTitle : null}
+                        Upload a {fieldName} { showFieldName ? "for " + fieldDisplayTitle : null}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -564,16 +557,12 @@ export class DragAndDropZone extends React.Component {
 
         return (
             <div
-                className="panel text-center"
+                className="panel text-center d-flex flex-row justify-content-center"
                 style={{
                     backgroundColor: '#eee',
                     border: "1px solid #efefef",
                     height: "30vh",
-                    flexDirection: "row",
-                    display: "flex",
-                    /*overflowY: "auto",*/
-                    overflowX: "hidden",
-                    justifyContent: "center"
+                    overflowX: "hidden"
                 }}
                 ref={this.dropZoneRef}
             >
@@ -628,7 +617,7 @@ function FileIcon(props) {
     }
 
     return (
-        <div style={{ flexDirection: "column", width: "150px", display: "flex" }}>
+        <div className="d-flex flex-column" style={{ width: "150px" }}>
             { thisUploading ?
                 <i className="icon icon-spin icon-circle-notch fas"></i> :
                 <i onClick={() => handleRemoveFile(fileName)} className="icon fas icon-window-close text-danger"></i> }
