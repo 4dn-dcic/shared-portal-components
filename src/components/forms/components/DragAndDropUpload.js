@@ -97,6 +97,28 @@ export class DragAndDropUploadFileUploadController extends React.Component {
     }
     // /* Will become a generic data controller for managing upload state */
 
+    generateAttachmentObj(file) {
+        const attachment = {};
+
+        attachment.type = file.type;
+        if (file.size) { attachment.size = file.size; }
+        if (file.name) { attachment.download = file.name; }
+
+        // Read the file and save the href
+        var fileReader = new window.FileReader();
+        fileReader.readAsDataURL(file);
+        fileReader.onloadend = function (e) {
+            if (e.target.result){
+                attachment.href = e.target.result;
+            } else {
+                alert('There was a problem reading the given file.');
+                return null;
+            }
+        }.bind(this);
+
+        return attachment;
+    }
+
     handleAddFile(evt) {
         const { items, files } = evt.dataTransfer;
         const { multiselect } = this.props;
@@ -109,41 +131,35 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
                 // Populate an array with all of the new files
                 for (var i = 0; i < files.length; i++) {
-                    const attachment = {};
+                    // Create an object with all of the file data necessary for upload
                     const file = files[i];
-                    attachment.type = file.type;
-                    if (file.size) { attachment.size = file.size; }
-                    if (file.name) { attachment.download = file.name; }
+                    const attachment = this.generateAttachmentObj(file);
+                    console.log("attachment, ", attachment);
 
-                    var fileReader = new window.FileReader();
-                    fileReader.readAsDataURL(file);
-                    fileReader.onloadend = function (e) {
-                        if (e.target.result){
-                            attachment.href = e.target.result;
-                        } else {
-                            alert('There was a problem reading the given file.');
-                            return;
-                        }
-            
-                    }.bind(this);
+                    // Create a container item with some additional status data
+                    const fileData = {};
+                    fileData.attachment = attachment;
+                    fileData.status = "idle";
 
-                    console.log(attachment, files[i]);
-                    fileArr.push(attachment);
+                    console.log(fileData, files[i]);
+                    fileArr.push(fileData);
                 }
 
                 // Concat with current array
                 const allFiles = currFiles.concat(fileArr);
 
                 // Filter out duplicates (based on just filename for now; may need more criteria in future)
-                const dedupedFiles = _.uniq(allFiles, false, (file) => file.download);
+                const dedupedFiles = _.uniq(allFiles, false, (fileData) => fileData.attachment.download);
 
                 this.setState({
                     files: dedupedFiles
                 });
             } else {
                 // Select only one file at a time
+                const attachment = this.generateAttachmentObj(files[0]);
+                console.log("attachment", attachment);
                 this.setState({
-                    files: [files[0]]
+                    files: [{ attachment, status: "idle" }]
                 });
             }
         }
@@ -573,12 +589,14 @@ export class DragAndDropZone extends React.Component {
                 }}>
                     { files.map(
                         (file) => {
-                            const fileId = `${file.download}|${file.size}`;
+                            const { attachment, status } = file;
+                            const { download, size, type } = attachment;
+                            const fileId = `${download}|${size}`;
 
                             return (
                                 <li key={fileId} className="m-1">
-                                    <FileIcon fileName={file.download} fileSize={file.size}
-                                        fileType={file.type} fileId={fileId} {...{ handleRemoveFile }} />
+                                    <FileIcon fileName={download} fileSize={size}
+                                        fileType={type} fileId={fileId} {...{ status, handleRemoveFile }} />
                                 </li>
                             );
                         }
@@ -590,7 +608,7 @@ export class DragAndDropZone extends React.Component {
 }
 
 function FileIcon(props) {
-    const { fileType, fileName, fileSize, fileId, handleRemoveFile, thisUploading = false } = props;
+    const { fileType, fileName, fileSize, fileId, handleRemoveFile } = props;
 
     function getFileIconClass(mimetype){
         if (mimetype.match('^image/')) {
@@ -606,7 +624,7 @@ function FileIcon(props) {
 
     return (
         <div style={{ flexDirection: "column", width: "150px", display: "flex" }}>
-            { thisUploading ?
+            { status === "linking" || status === "uploading" ?
                 <i className="icon icon-spin icon-circle-notch fas"></i> :
                 <i onClick={() => handleRemoveFile(fileId)} className="icon fas icon-window-close text-danger"></i> }
             <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>

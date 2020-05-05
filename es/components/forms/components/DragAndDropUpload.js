@@ -154,10 +154,37 @@ function (_React$Component2) {
 
 
   _createClass(DragAndDropUploadFileUploadController, [{
+    key: "generateAttachmentObj",
+    value: function generateAttachmentObj(file) {
+      var attachment = {};
+      attachment.type = file.type;
+
+      if (file.size) {
+        attachment.size = file.size;
+      }
+
+      if (file.name) {
+        attachment.download = file.name;
+      } // Read the file and save the href
+
+
+      var fileReader = new window.FileReader();
+      fileReader.readAsDataURL(file);
+
+      fileReader.onloadend = function (e) {
+        if (e.target.result) {
+          attachment.href = e.target.result;
+        } else {
+          alert('There was a problem reading the given file.');
+          return null;
+        }
+      }.bind(this);
+
+      return attachment;
+    }
+  }, {
     key: "handleAddFile",
     value: function handleAddFile(evt) {
-      var _this4 = this;
-
       var _evt$dataTransfer = evt.dataTransfer,
           items = _evt$dataTransfer.items,
           files = _evt$dataTransfer.files;
@@ -169,45 +196,24 @@ function (_React$Component2) {
           // Add all dragged items
           var fileArr = []; // Populate an array with all of the new files
 
-          var _loop = function () {
-            var attachment = {};
-            var file = files[i];
-            attachment.type = file.type;
-
-            if (file.size) {
-              attachment.size = file.size;
-            }
-
-            if (file.name) {
-              attachment.download = file.name;
-            }
-
-            fileReader = new window.FileReader();
-            fileReader.readAsDataURL(file);
-
-            fileReader.onloadend = function (e) {
-              if (e.target.result) {
-                attachment.href = e.target.result;
-              } else {
-                alert('There was a problem reading the given file.');
-              }
-            }.bind(_this4);
-
-            console.log(attachment, files[i]);
-            fileArr.push(attachment);
-          };
-
           for (var i = 0; i < files.length; i++) {
-            var fileReader;
+            // Create an object with all of the file data necessary for upload
+            var file = files[i];
+            var attachment = this.generateAttachmentObj(file);
+            console.log("attachment, ", attachment); // Create a container item with some additional status data
 
-            _loop();
+            var fileData = {};
+            fileData.attachment = attachment;
+            fileData.status = "idle";
+            console.log(fileData, files[i]);
+            fileArr.push(fileData);
           } // Concat with current array
 
 
           var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
 
-          var dedupedFiles = _underscore["default"].uniq(allFiles, false, function (file) {
-            return file.download;
+          var dedupedFiles = _underscore["default"].uniq(allFiles, false, function (fileData) {
+            return fileData.attachment.download;
           });
 
           this.setState({
@@ -215,8 +221,14 @@ function (_React$Component2) {
           });
         } else {
           // Select only one file at a time
+          var _attachment = this.generateAttachmentObj(files[0]);
+
+          console.log("attachment", _attachment);
           this.setState({
-            files: [files[0]]
+            files: [{
+              attachment: _attachment,
+              status: "idle"
+            }]
           });
         }
       }
@@ -357,19 +369,19 @@ function (_React$Component2) {
   }, {
     key: "onUploadStart",
     value: function onUploadStart(files) {
-      var _this5 = this;
+      var _this4 = this;
 
       var previouslySubmittedAtIds = [];
 
       var newFileSubmit = function (file) {
         console.log("Attempting to upload file... ", file);
-        return _this5.validateItem(file).then(function (response) {
+        return _this4.validateItem(file).then(function (response) {
           if (response.status && response.status !== 'success') {
             var errorMessage = "Validation failed!\n\n".concat(response.description, " ").concat(response.detail);
             throw new Error(errorMessage);
           } else {
             console.log("validation succeeded");
-            return _this5.createItem(file);
+            return _this4.createItem(file);
           }
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
@@ -382,7 +394,7 @@ function (_React$Component2) {
             var submitted_at_id = responseData['@id']; // Also pass through the atIds of other new files
 
             previouslySubmittedAtIds.push(submitted_at_id);
-            return _this5.patchToParent(resp, previouslySubmittedAtIds);
+            return _this4.patchToParent(resp, previouslySubmittedAtIds);
           }
         }).then(function (res) {
           if (res.status && res.status !== 'success') {
@@ -392,7 +404,7 @@ function (_React$Component2) {
           } else {
             alert("".concat(file.download, " uploaded and linked successfully."));
 
-            _this5.handleRemoveFile("".concat(file.download, "|").concat(file.size));
+            _this4.handleRemoveFile("".concat(file.download, "|").concat(file.size));
           }
         })["catch"](function (error) {
           console.log("Error occurred", error);
@@ -468,18 +480,18 @@ function (_React$Component3) {
   _inherits(DragAndDropUploadButton, _React$Component3);
 
   function DragAndDropUploadButton(props) {
-    var _this6;
+    var _this5;
 
     _classCallCheck(this, DragAndDropUploadButton);
 
-    _this6 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadButton).call(this, props));
-    _this6.state = {
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadButton).call(this, props));
+    _this5.state = {
       showModal: false
     };
-    _this6.onHide = _this6.onHide.bind(_assertThisInitialized(_this6));
-    _this6.onShow = _this6.onShow.bind(_assertThisInitialized(_this6));
-    _this6.handleHideModal = _this6.handleHideModal.bind(_assertThisInitialized(_this6));
-    return _this6;
+    _this5.onHide = _this5.onHide.bind(_assertThisInitialized(_this5));
+    _this5.onShow = _this5.onShow.bind(_assertThisInitialized(_this5));
+    _this5.handleHideModal = _this5.handleHideModal.bind(_assertThisInitialized(_this5));
+    return _this5;
   }
 
   _createClass(DragAndDropUploadButton, [{
@@ -665,19 +677,19 @@ function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
 
   function DragAndDropZone(props) {
-    var _this7;
+    var _this6;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this7 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
-    _this7.state = {
+    _this6 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropZone).call(this, props));
+    _this6.state = {
       dragging: false
     };
-    _this7.dropZoneRef = _react["default"].createRef();
-    _this7.cleanUpEventListeners = _this7.cleanUpEventListeners.bind(_assertThisInitialized(_this7));
-    _this7.setUpEventListeners = _this7.setUpEventListeners.bind(_assertThisInitialized(_this7));
-    _this7.handleDrop = _this7.handleDrop.bind(_assertThisInitialized(_this7));
-    return _this7;
+    _this6.dropZoneRef = _react["default"].createRef();
+    _this6.cleanUpEventListeners = _this6.cleanUpEventListeners.bind(_assertThisInitialized(_this6));
+    _this6.setUpEventListeners = _this6.setUpEventListeners.bind(_assertThisInitialized(_this6));
+    _this6.handleDrop = _this6.handleDrop.bind(_assertThisInitialized(_this6));
+    return _this6;
   }
 
   _createClass(DragAndDropZone, [{
@@ -771,16 +783,22 @@ function (_React$Component5) {
           justifyContent: "center"
         }
       }, files.map(function (file) {
-        var fileId = "".concat(file.download, "|").concat(file.size);
+        var attachment = file.attachment,
+            status = file.status;
+        var download = attachment.download,
+            size = attachment.size,
+            type = attachment.type;
+        var fileId = "".concat(download, "|").concat(size);
         return _react["default"].createElement("li", {
           key: fileId,
           className: "m-1"
         }, _react["default"].createElement(FileIcon, _extends({
-          fileName: file.download,
-          fileSize: file.size,
-          fileType: file.type,
+          fileName: download,
+          fileSize: size,
+          fileType: type,
           fileId: fileId
         }, {
+          status: status,
           handleRemoveFile: handleRemoveFile
         })));
       })));
@@ -808,16 +826,14 @@ function FileIcon(props) {
       fileName = props.fileName,
       fileSize = props.fileSize,
       fileId = props.fileId,
-      handleRemoveFile = props.handleRemoveFile,
-      _props$thisUploading = props.thisUploading,
-      thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
+      handleRemoveFile = props.handleRemoveFile;
   return _react["default"].createElement("div", {
     style: {
       flexDirection: "column",
       width: "150px",
       display: "flex"
     }
-  }, thisUploading ? _react["default"].createElement("i", {
+  }, status === "linking" || status === "uploading" ? _react["default"].createElement("i", {
     className: "icon icon-spin icon-circle-notch fas"
   }) : _react["default"].createElement("i", {
     onClick: function onClick() {
