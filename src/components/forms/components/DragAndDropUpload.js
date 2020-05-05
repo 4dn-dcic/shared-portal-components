@@ -99,7 +99,7 @@ export class DragAndDropUploadFileUploadController extends React.Component {
 
     handleAddFile(evt) {
         const { items, files } = evt.dataTransfer;
-        const { multiselect } = this.props;
+        const { multiselect, fileSchema } = this.props;
         const { files: currFiles } = this.state;
 
         if (items && items.length > 0) {
@@ -111,7 +111,17 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                 for (var i = 0; i < files.length; i++) {
                     const attachment = {};
                     const file = files[i];
+
+                    // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
+                    const acceptableFileTypes = fileSchema.properties.attachment.properties.type.enum;
+                    if (_.indexOf(acceptableFileTypes, file.type) === -1) {
+                        const listOfTypes = acceptableFileTypes.toString();
+                        alert(`Error: File "${file.name}" is not of the correct file type for this field.\nMust be of type: ${listOfTypes}.`);
+                        continue;
+                    }
                     attachment.type = file.type;
+
+                    // TODO: Figure out how best to check/limit file size pre-attachment...
                     if (file.size) { attachment.size = file.size; }
                     if (file.name) { attachment.download = file.name; }
 
@@ -124,7 +134,6 @@ export class DragAndDropUploadFileUploadController extends React.Component {
                             alert('There was a problem reading the given file.');
                             return;
                         }
-            
                     }.bind(this);
 
                     console.log(attachment, files[i]);

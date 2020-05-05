@@ -161,7 +161,9 @@ function (_React$Component2) {
       var _evt$dataTransfer = evt.dataTransfer,
           items = _evt$dataTransfer.items,
           files = _evt$dataTransfer.files;
-      var multiselect = this.props.multiselect;
+      var _this$props = this.props,
+          multiselect = _this$props.multiselect,
+          fileSchema = _this$props.fileSchema;
       var currFiles = this.state.files;
 
       if (items && items.length > 0) {
@@ -171,8 +173,17 @@ function (_React$Component2) {
 
           var _loop = function () {
             var attachment = {};
-            var file = files[i];
-            attachment.type = file.type;
+            var file = files[i]; // Check that file type is in schema (TODO: Is this too strict? MIME-types can get complicated...)
+
+            var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
+
+            if (_underscore["default"].indexOf(acceptableFileTypes, file.type) === -1) {
+              var listOfTypes = acceptableFileTypes.toString();
+              alert("Error: File \"".concat(file.name, "\" is not of the correct file type for this field.\nMust be of type: ").concat(listOfTypes, "."));
+              return "continue";
+            }
+
+            attachment.type = file.type; // TODO: Figure out how best to check/limit file size pre-attachment...
 
             if (file.size) {
               attachment.size = file.size;
@@ -200,7 +211,9 @@ function (_React$Component2) {
           for (var i = 0; i < files.length; i++) {
             var fileReader;
 
-            _loop();
+            var _ret = _loop();
+
+            if (_ret === "continue") continue;
           } // Concat with current array
 
 
@@ -265,11 +278,11 @@ function (_React$Component2) {
   }, {
     key: "generatePayload",
     value: function generatePayload(file, attachmentPresent) {
-      var _this$props = this.props,
-          award = _this$props.award,
-          lab = _this$props.lab,
-          institution = _this$props.institution,
-          project = _this$props.project;
+      var _this$props2 = this.props,
+          award = _this$props2.award,
+          lab = _this$props2.lab,
+          institution = _this$props2.institution,
+          project = _this$props2.project;
       console.log("file,", file);
       var aliasFilename = file.download.split(' ').join('');
       var alias;
@@ -324,10 +337,10 @@ function (_React$Component2) {
   }, {
     key: "patchToParent",
     value: function patchToParent(createItemResponse, recentlyCreatedItems) {
-      var _this$props2 = this.props,
-          individualId = _this$props2.individualId,
-          files = _this$props2.files,
-          fieldName = _this$props2.fieldName;
+      var _this$props3 = this.props,
+          individualId = _this$props3.individualId,
+          files = _this$props3.files,
+          fieldName = _this$props3.fieldName;
       var _createItemResponse$ = createItemResponse['@graph'],
           graph = _createItemResponse$ === void 0 ? [] : _createItemResponse$;
       var responseData = graph[0];
@@ -409,10 +422,10 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          cls = _this$props3.cls,
-          fieldDisplayTitle = _this$props3.fieldDisplayTitle,
-          fieldType = _this$props3.fieldType;
+      var _this$props4 = this.props,
+          cls = _this$props4.cls,
+          fieldDisplayTitle = _this$props4.fieldDisplayTitle,
+          fieldType = _this$props4.fieldType;
       var files = this.state.files;
       return _react["default"].createElement(DragAndDropUploadButton, _extends({
         cls: cls,
@@ -519,15 +532,15 @@ function (_React$Component3) {
       var _this$state = this.state,
           show = _this$state.showModal,
           multiselect = _this$state.multiselect;
-      var _this$props4 = this.props,
-          onUploadStart = _this$props4.onUploadStart,
-          handleAddFile = _this$props4.handleAddFile,
-          handleRemoveFile = _this$props4.handleRemoveFile,
-          handleClearAllFiles = _this$props4.handleClearAllFiles,
-          fieldType = _this$props4.fieldType,
-          cls = _this$props4.cls,
-          fieldDisplayTitle = _this$props4.fieldDisplayTitle,
-          files = _this$props4.files;
+      var _this$props5 = this.props,
+          onUploadStart = _this$props5.onUploadStart,
+          handleAddFile = _this$props5.handleAddFile,
+          handleRemoveFile = _this$props5.handleRemoveFile,
+          handleClearAllFiles = _this$props5.handleClearAllFiles,
+          fieldType = _this$props5.fieldType,
+          cls = _this$props5.cls,
+          fieldDisplayTitle = _this$props5.fieldDisplayTitle,
+          files = _this$props5.files;
       return _react["default"].createElement("div", null, _react["default"].createElement(DragAndDropModal, _extends({
         handleHideModal: this.handleHideModal
       }, {
@@ -593,16 +606,16 @@ function (_React$Component4) {
         Functions for hiding, and handles files.
     */
     value: function render() {
-      var _this$props5 = this.props,
-          show = _this$props5.show,
-          onUploadStart = _this$props5.onUploadStart,
-          fieldType = _this$props5.fieldType,
-          fieldDisplayTitle = _this$props5.fieldDisplayTitle,
-          handleAddFile = _this$props5.handleAddFile,
-          handleRemoveFile = _this$props5.handleRemoveFile,
-          files = _this$props5.files,
-          handleHideModal = _this$props5.handleHideModal,
-          uploading = _this$props5.uploading;
+      var _this$props6 = this.props,
+          show = _this$props6.show,
+          onUploadStart = _this$props6.onUploadStart,
+          fieldType = _this$props6.fieldType,
+          fieldDisplayTitle = _this$props6.fieldDisplayTitle,
+          handleAddFile = _this$props6.handleAddFile,
+          handleRemoveFile = _this$props6.handleRemoveFile,
+          files = _this$props6.files,
+          handleHideModal = _this$props6.handleHideModal,
+          uploading = _this$props6.uploading;
       return _react["default"].createElement(_reactBootstrap.Modal, _extends({
         centered: true
       }, {
@@ -739,9 +752,9 @@ function (_React$Component5) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props6 = this.props,
-          files = _this$props6.files,
-          handleRemoveFile = _this$props6.handleRemoveFile;
+      var _this$props7 = this.props,
+          files = _this$props7.files,
+          handleRemoveFile = _this$props7.handleRemoveFile;
       return _react["default"].createElement("div", {
         className: "panel text-center",
         style: {
