@@ -217,25 +217,6 @@ function defaultHiddenColumnMapFromColumns(columns){
 
 
 
-
-/**
- * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).
- * Used in 4DN ItemPageTable, otherwise is deprecated?
- *
- * @deprecated
- */
-export function columnDefinitionsToScaledColumnDefinitions(columnDefinitions){
-    return columnDefinitions.map(function(colDef){
-        const colDef2 = _.clone(colDef);
-        colDef2.baseWidth = colDef.widthMap.sm || colDef.widthMap.md || colDef.widthMap.lg || 100;
-        if (typeof colDef.render !== 'function'){
-            colDef2.render = null;
-        }
-        return colDef2;
-    });
-}
-
-
 /**
  * Determine the typical column width, given current browser width. Defaults to large width if server-side.
  * @todo Consider instead of using this func frequently, storing "scaledWidth" on (new instance of) `columnDefinition`.

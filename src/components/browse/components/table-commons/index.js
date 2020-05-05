@@ -13,8 +13,7 @@ export {
 export {
     ColumnCombiner,
     columnsToColumnDefinitions,                 // Should be private function but still used by 4DN ItemPageTable
-    haveContextColumnsChanged,
-    columnDefinitionsToScaledColumnDefinitions  // Deprecated - still used by 4DN ItemPageTable
+    haveContextColumnsChanged
 } from './ColumnCombiner';
 
 export { HeadersRow } from './HeadersRow';

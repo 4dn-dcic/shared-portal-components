@@ -737,7 +737,7 @@ var ColumnSorterIconElement = _react["default"].memo(function (_ref9) {
 
   if (isLoading) {
     return _react["default"].createElement("i", {
-      className: "icon icon-fw icon-circle-o-notch icon-spin fas"
+      className: "icon icon-fw icon-circle-notch icon-spin fas"
     });
   }
 
@@ -749,11 +749,11 @@ var ColumnSorterIconElement = _react["default"].memo(function (_ref9) {
 
   if (descend) {
     return _react["default"].createElement("i", {
-      className: "sort-icon icon icon-fw icon-sort-desc fas align-top"
+      className: "sort-icon icon icon-fw icon-sort-down fas align-top"
     });
   } else {
     return _react["default"].createElement("i", {
-      className: "sort-icon icon icon-fw icon-sort-asc fas align-bottom"
+      className: "sort-icon icon icon-fw icon-sort-up fas align-bottom"
     });
   }
 });

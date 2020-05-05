@@ -139,7 +139,9 @@ export const DisplayTitleColumnUser = React.memo(function DisplayTitleColumnUser
  * which this and portals can use for "display_title" column, and then have per-type
  * overrides/extensions.
  */
-export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnDefault({ result, link, onClick }){
+export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnDefault(props){
+    const { result, link, onClick, className = null } = props;
+
     let title = itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
 
     // Monospace accessions, file formats
@@ -153,6 +155,7 @@ export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnD
     const cls = (
         "title-block text-ellipsis-container"
         + (shouldMonospace ? " text-monospace text-small" : "")
+        + (className ? " " + className : "")
     );
 
     return (
@@ -167,7 +170,9 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
         result,
         children,
         //columnDefinition, termTransformFxn, width,
-        href, context, rowNumber, detailOpen, toggleDetailOpen
+        href = null,
+        context,
+        rowNumber, detailOpen, toggleDetailOpen
     } = props;
 
     const link = itemUtil.atId(result);
@@ -177,9 +182,10 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
         return function handleClick(evt){
             evt.preventDefault();
             evt.stopPropagation();
+            const useHref = href || (window && window.location.href) || null;
             trackProductClick(
                 result,
-                { list : hrefToListName(href), position: rowNumber + 1 },
+                { list : hrefToListName(useHref), position: rowNumber + 1 },
                 function(){
                     // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
                     // to VirtualHrefController.virtualNavigate and would not bring you to new page.
@@ -192,7 +198,7 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
     }, [ link, rowNumber ]);
 
     const renderChildren = React.Children.map(children, function(child){
-        return React.cloneElement(child, { link, onClick });
+        return React.cloneElement(child, { link, onClick, result });
     });
 
     return (

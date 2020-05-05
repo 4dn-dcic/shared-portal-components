@@ -31,7 +31,8 @@ var AboveSearchViewTableControls = _react["default"].memo(function (props) {
       },
       className: "inline-block"
     }, _react["default"].createElement("span", {
-      className: "text-500"
+      className: "text-500",
+      id: "results-count"
     }, typeof showTotalResults === 'number' ? showTotalResults : context && typeof context.total === 'number' ? context.total : null), " Results");
   } // FOR NOW, we'll stick 'add' button here. -- IF NO SELECTED FILES CONTROLS
 

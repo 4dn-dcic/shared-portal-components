@@ -57,12 +57,6 @@ Object.defineProperty(exports, "haveContextColumnsChanged", {
     return _ColumnCombiner.haveContextColumnsChanged;
   }
 });
-Object.defineProperty(exports, "columnDefinitionsToScaledColumnDefinitions", {
-  enumerable: true,
-  get: function get() {
-    return _ColumnCombiner.columnDefinitionsToScaledColumnDefinitions;
-  }
-});
 Object.defineProperty(exports, "HeadersRow", {
   enumerable: true,
   get: function get() {

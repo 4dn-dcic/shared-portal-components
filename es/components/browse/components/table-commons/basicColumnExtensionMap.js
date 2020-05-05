@@ -217,10 +217,12 @@ var DisplayTitleColumnUser = _react["default"].memo(function (_ref) {
 
 exports.DisplayTitleColumnUser = DisplayTitleColumnUser;
 
-var DisplayTitleColumnDefault = _react["default"].memo(function (_ref2) {
-  var result = _ref2.result,
-      link = _ref2.link,
-      onClick = _ref2.onClick;
+var DisplayTitleColumnDefault = _react["default"].memo(function (props) {
+  var result = props.result,
+      link = props.link,
+      onClick = props.onClick,
+      _props$className = props.className,
+      className = _props$className === void 0 ? null : _props$className;
 
   var title = _object.itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
   // Monospace accessions, file formats
@@ -238,7 +240,7 @@ var DisplayTitleColumnDefault = _react["default"].memo(function (_ref2) {
     }, title);
   }
 
-  var cls = "title-block text-ellipsis-container" + (shouldMonospace ? " text-monospace text-small" : "");
+  var cls = "title-block text-ellipsis-container" + (shouldMonospace ? " text-monospace text-small" : "") + (className ? " " + className : "");
   return _react["default"].createElement("div", {
     key: "title-container",
     className: cls,
@@ -252,7 +254,8 @@ exports.DisplayTitleColumnDefault = DisplayTitleColumnDefault;
 var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
   var result = props.result,
       children = props.children,
-      href = props.href,
+      _props$href2 = props.href,
+      href = _props$href2 === void 0 ? null : _props$href2,
       context = props.context,
       rowNumber = props.rowNumber,
       detailOpen = props.detailOpen,
@@ -266,8 +269,9 @@ var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
     return function (evt) {
       evt.preventDefault();
       evt.stopPropagation();
+      var useHref = href || window && window.location.href || null;
       (0, _analytics.productClick)(result, {
-        list: (0, _analytics.hrefToListName)(href),
+        list: (0, _analytics.hrefToListName)(useHref),
         position: rowNumber + 1
       }, function () {
         // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
@@ -281,7 +285,8 @@ var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
   var renderChildren = _react["default"].Children.map(children, function (child) {
     return _react["default"].cloneElement(child, {
       link: link,
-      onClick: onClick
+      onClick: onClick,
+      result: result
     });
   });
 
@@ -295,10 +300,10 @@ var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
 
 exports.DisplayTitleColumnWrapper = DisplayTitleColumnWrapper;
 
-var TableRowToggleOpenButton = _react["default"].memo(function (_ref3) {
-  var onClick = _ref3.onClick,
-      toggleDetailOpen = _ref3.toggleDetailOpen,
-      open = _ref3.open;
+var TableRowToggleOpenButton = _react["default"].memo(function (_ref2) {
+  var onClick = _ref2.onClick,
+      toggleDetailOpen = _ref2.toggleDetailOpen,
+      open = _ref2.open;
   return _react["default"].createElement("div", {
     className: "toggle-detail-button-container"
   }, _react["default"].createElement("button", {

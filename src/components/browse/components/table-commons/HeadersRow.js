@@ -514,14 +514,14 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({
 
 const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ descend, showingSortOptionsMenu, isLoading = false }){
     if (isLoading) {
-        return <i className="icon icon-fw icon-circle-o-notch icon-spin fas"/>;
+        return <i className="icon icon-fw icon-circle-notch icon-spin fas"/>;
     }
     if (showingSortOptionsMenu) {
         return <i className="icon icon-fw icon-times fas"/>;
     }
     if (descend){
-        return <i className="sort-icon icon icon-fw icon-sort-desc fas align-top"/>;
+        return <i className="sort-icon icon icon-fw icon-sort-down fas align-top"/>;
     } else {
-        return <i className="sort-icon icon icon-fw icon-sort-asc fas align-bottom"/>;
+        return <i className="sort-icon icon icon-fw icon-sort-up fas align-bottom"/>;
     }
 });

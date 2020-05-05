@@ -1394,7 +1394,7 @@ function (_React$Component3) {
           'paddingTop': '10px'
         }
       }, _react["default"].createElement("i", {
-        className: "icon icon-spin icon-circle-o-notch",
+        className: "icon icon-spin icon-circle-notch",
         style: {
           'opacity': '0.5'
         }
