@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DragAndDropZone = exports.DragAndDropUploadFileUploadController = exports.DragAndDropUploadSubmissionViewController = void 0;
+exports.DragAndDropZone = exports.DragAndDropFileUploadController = exports.DragAndDropUploadSubmissionViewController = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -149,17 +149,17 @@ _defineProperty(PromiseQueue, "pendingPromise", false);
 
 _defineProperty(PromiseQueue, "stop", false);
 
-var DragAndDropUploadFileUploadController =
+var DragAndDropFileUploadController =
 /*#__PURE__*/
 function (_React$Component2) {
-  _inherits(DragAndDropUploadFileUploadController, _React$Component2);
+  _inherits(DragAndDropFileUploadController, _React$Component2);
 
-  function DragAndDropUploadFileUploadController(props) {
+  function DragAndDropFileUploadController(props) {
     var _this3;
 
-    _classCallCheck(this, DragAndDropUploadFileUploadController);
+    _classCallCheck(this, DragAndDropFileUploadController);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropUploadFileUploadController).call(this, props));
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(DragAndDropFileUploadController).call(this, props));
     _this3.state = {
       files: [],
       // Always in an array, even if multiselect disabled
@@ -173,7 +173,7 @@ function (_React$Component2) {
     return _this3;
   }
 
-  _createClass(DragAndDropUploadFileUploadController, [{
+  _createClass(DragAndDropFileUploadController, [{
     key: "handleAddFile",
     value: function handleAddFile(evt) {
       var _this4 = this;
@@ -478,12 +478,12 @@ function (_React$Component2) {
     }
   }]);
 
-  return DragAndDropUploadFileUploadController;
+  return DragAndDropFileUploadController;
 }(_react["default"].Component);
 
-exports.DragAndDropUploadFileUploadController = DragAndDropUploadFileUploadController;
+exports.DragAndDropFileUploadController = DragAndDropFileUploadController;
 
-_defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
+_defineProperty(DragAndDropFileUploadController, "propTypes", {
   files: _propTypes["default"].array.isRequired,
   // File objects containing already-linked files (will eventually be updated via websockets)
   fileSchema: _propTypes["default"].object.isRequired,
@@ -506,7 +506,7 @@ _defineProperty(DragAndDropUploadFileUploadController, "propTypes", {
 
 });
 
-_defineProperty(DragAndDropUploadFileUploadController, "defaultProps", {
+_defineProperty(DragAndDropFileUploadController, "defaultProps", {
   cls: "btn",
   multiselect: true
 });

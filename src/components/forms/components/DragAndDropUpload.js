@@ -78,7 +78,7 @@ class PromiseQueue {
  *
  * Heavily reworked from this reference: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
  */
-export class DragAndDropUploadFileUploadController extends React.Component {
+export class DragAndDropFileUploadController extends React.Component {
     static propTypes = {
         files: PropTypes.array.isRequired,          // File objects containing already-linked files (will eventually be updated via websockets)
         fileSchema: PropTypes.object.isRequired,    // Used to validate extension types on drop
