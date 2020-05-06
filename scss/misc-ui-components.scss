@@ -92,3 +92,7 @@
 .line-height-1 {
     line-height: 1;
 }
+
+.no-user-select {
+	@include no-user-select;
+}

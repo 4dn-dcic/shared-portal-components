@@ -88,6 +88,7 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 var ResultRowColumnBlock = _react["default"].memo(function (props) {
   var columnDefinition = props.columnDefinition,
+      columnNumber = props.columnNumber,
       mounted = props.mounted,
       columnWidths = props.columnWidths,
       schemas = props.schemas,
@@ -107,7 +108,8 @@ var ResultRowColumnBlock = _react["default"].memo(function (props) {
       style: {
         "width": blockWidth
       },
-      "data-field": columnDefinition.field
+      "data-field": field,
+      "data-column-even": columnNumber % 2 === 0
     }, _react["default"].createElement(_ResultRowColumnBlockValue.ResultRowColumnBlockValue, _extends({}, props, {
       width: blockWidth,
       schemas: schemas
@@ -295,11 +297,11 @@ function (_React$PureComponent2) {
     }
   }, {
     key: "getStyles",
-    value: function getStyles(rowWidth, rowHeight) {
+    value: function getStyles(rowWidth) {
+      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 47;
+      arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
       return {
-        inner: {
-          minHeight: rowHeight - 1
-        },
+        /* inner: { minHeight: rowHeight - rowBottomPadding }, */
         outer: {
           minWidth: rowWidth
         }
@@ -312,8 +314,7 @@ function (_React$PureComponent2) {
 
     _classCallCheck(this, ResultRow);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ResultRow).call(this, props)); //this.shouldComponentUpdate = this.shouldComponentUpdate.bind(this);
-
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ResultRow).call(this, props));
     _this2.toggleDetailOpen = _underscore["default"].throttle(_this2.toggleDetailOpen.bind(_assertThisInitialized(_this2)), 250);
     _this2.setDetailHeight = _this2.setDetailHeight.bind(_assertThisInitialized(_this2));
     _this2.handleDragStart = _this2.handleDragStart.bind(_assertThisInitialized(_this2));
@@ -395,19 +396,19 @@ function (_React$PureComponent2) {
       // to make more reusable re: e.g. `selectedFiles` (= 4DN-specific).
       var _this$props6 = this.props,
           columnDefinitions = _this$props6.columnDefinitions,
-          selectedFiles = _this$props6.selectedFiles,
-          detailOpen = _this$props6.detailOpen;
+          selectedFiles = _this$props6.selectedFiles; // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction', 'detailOpen'
+
+      var commonProps = _underscore["default"].omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id', 'toggleDetailPaneOpen');
+
       return columnDefinitions.map(function (columnDefinition, columnNumber) {
         // todo: rename columnNumber to columnIndex
         var field = columnDefinition.field;
 
-        var passedProps = _underscore["default"].extend( // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction
-        _underscore["default"].omit(_this3.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id'), {
+        var passedProps = _objectSpread({}, commonProps, {
           columnDefinition: columnDefinition,
           columnNumber: columnNumber,
-          detailOpen: detailOpen,
-          'toggleDetailOpen': _this3.toggleDetailOpen,
           // Only needed on first column (contains title, checkbox)
+          'toggleDetailOpen': columnNumber === 0 ? _this3.toggleDetailOpen : null,
           'selectedFiles': columnNumber === 0 ? selectedFiles : null
         });
 
@@ -479,16 +480,7 @@ _defineProperty(ResultRow, "propTypes", {
   'rowNumber': _propTypes["default"].number.isRequired,
   'rowHeight': _propTypes["default"].number,
   'mounted': _propTypes["default"].bool.isRequired,
-  'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-    'title': _propTypes["default"].string.isRequired,
-    'field': _propTypes["default"].string.isRequired,
-    'render': _propTypes["default"].func,
-    'widthMap': _propTypes["default"].shape({
-      'lg': _propTypes["default"].number.isRequired,
-      'md': _propTypes["default"].number.isRequired,
-      'sm': _propTypes["default"].number.isRequired
-    })
-  })).isRequired,
+  'columnDefinitions': _HeadersRow.HeadersRow.propTypes.columnDefinitions,
   'columnWidths': _propTypes["default"].objectOf(_propTypes["default"].number),
   'renderDetailPane': _propTypes["default"].func.isRequired,
   'detailOpen': _propTypes["default"].bool.isRequired,
@@ -695,7 +687,7 @@ function (_React$PureComponent3) {
         ,
         loadingSpinnerDelegate: _react["default"].createElement(LoadingSpinner, {
           width: tableContainerWidth,
-          tableContainerScrollLeft: tableContainerScrollLeft
+          scrollLeft: tableContainerScrollLeft
         }),
         infiniteLoadBeginEdgeOffset: canLoadMore ? 200 : undefined,
         preloadAdditionalHeight: _reactInfinite["default"].containerHeightScaleFactor(1.5),
@@ -730,12 +722,11 @@ _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'mounted': _propTypes["default"].bool,
   'onDuplicateResultsFoundCallback': _propTypes["default"].func,
   'navigate': _propTypes["default"].func,
-  'openRowHeight': _propTypes["default"].number
+  'openRowHeight': _propTypes["default"].number.isRequired
 });
 
 _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   'debouncePointerEvents': 150,
-  'openRowHeight': 57,
   'onDuplicateResultsFoundCallback': function onDuplicateResultsFoundCallback() {
     _Alerts.Alerts.queue({
       'title': 'Results Refreshed',
@@ -747,17 +738,19 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
 });
 
 var LoadingSpinner = _react["default"].memo(function (_ref3) {
-  var width = _ref3.width,
-      tableContainerScrollLeft = _ref3.tableContainerScrollLeft;
+  var maxWidth = _ref3.width,
+      _ref3$scrollLeft = _ref3.scrollLeft,
+      scrollLeft = _ref3$scrollLeft === void 0 ? 0 : _ref3$scrollLeft;
+  var style = {
+    maxWidth: maxWidth,
+    'transform': _utilities.style.translate3d(scrollLeft)
+  };
   return _react["default"].createElement("div", {
-    className: "search-result-row loading text-center",
-    style: {
-      'maxWidth': width,
-      'transform': _utilities.style.translate3d(tableContainerScrollLeft)
-    }
-  }, _react["default"].createElement("i", {
+    className: "search-result-row loading text-center d-flex align-items-center justify-content-center",
+    style: style
+  }, _react["default"].createElement("span", null, _react["default"].createElement("i", {
     className: "icon icon-circle-notch icon-spin fas"
-  }), "\xA0 Loading...");
+  }), "\xA0 Loading..."));
 });
 
 var ShadowBorderLayer =
@@ -1077,6 +1070,18 @@ function (_React$PureComponent4) {
     value: function componentDidMount() {
       var _this9 = this;
 
+      // Maybe todo: play with 'experimental technology' for controlling columing widths (& compare performance),
+      // see https://developer.mozilla.org/en-US/docs/Web/API/DocumentOrShadowRoot/styleSheets
+      // and https://developer.mozilla.org/en-US/docs/Web/API/CSSStylesheet.
+      // Probably do in separate component since seems like hefty-enough logic to separate/modularize.
+      // this.isDynamicStylesheetSupported = typeof document.styleSheets !== "undefined";
+      // if (this.isDynamicStylesheetSupported) {
+      //    insert new <style> element somewhere (new stylesheet?), save reference (prly doesnt do ton.. w/e)
+      //    check that new sheet exists in document.styleSheets, start setting widths per column via CSS rules
+      //    deleting and inserting upon any changes, accordingly. Use componentDidUpdate or useEffect for this,
+      //    re: props.widths (this table's state.widths) changes.
+      //    (This all within new component if supported, else pass widths down to cols as fallback (?) from this component)
+      // }
       // Detect if table width changes (and update dims if true) every 5sec
       // No way to attach resize event listener to an element (only to window)
       // and element might change width independent of window (e.g. open/hide
@@ -1119,18 +1124,11 @@ function (_React$PureComponent4) {
     value: function componentDidUpdate(pastProps, pastState) {
       var _this$state2 = this.state,
           loadedResults = _this$state2.results,
-          mounted = _this$state2.mounted,
-          widths = _this$state2.widths;
+          mounted = _this$state2.mounted;
       var pastLoadedResults = pastState.results,
           pastMounted = pastState.mounted;
-      var _this$props13 = this.props,
-          propResults = _this$props13.results,
-          columnDefinitions = _this$props13.columnDefinitions,
-          windowWidth = _this$props13.windowWidth,
-          isOwnPage = _this$props13.isOwnPage;
-      var pastPropResults = pastProps.results,
-          pastColDefs = pastProps.columnDefinitions,
-          pastWindowWidth = pastProps.windowWidth;
+      var windowWidth = this.props.windowWidth;
+      var pastWindowWidth = pastProps.windowWidth;
 
       if (pastLoadedResults !== loadedResults) {
         _reactTooltip["default"].rebuild();
@@ -1219,8 +1217,8 @@ function (_React$PureComponent4) {
           nextScrollLeft = 0; // Might occur right after changing column widths or something.
         }
 
-        var headersElem = innerElem.parentElement.childNodes[0].childNodes[0];
-        headersElem.style.left = "-".concat(nextScrollLeft, "px");
+        var columnsWrapperElement = innerElem.parentElement.childNodes[0].childNodes[0].childNodes[0];
+        columnsWrapperElement.style.left = "-".concat(nextScrollLeft, "px");
 
         if (nextScrollLeft !== tableContainerScrollLeft) {
           // Shouldn't occur or matter but presence of this seems to improve smoothness (?)
@@ -1241,13 +1239,13 @@ function (_React$PureComponent4) {
   }, {
     key: "canLoadMore",
     value: function canLoadMore() {
-      var _this$props14 = this.props,
-          _this$props14$context = _this$props14.context;
-      _this$props14$context = _this$props14$context === void 0 ? {} : _this$props14$context;
-      var _this$props14$context2 = _this$props14$context.total,
-          total = _this$props14$context2 === void 0 ? 0 : _this$props14$context2,
-          _this$props14$isConte = _this$props14.isContextLoading,
-          isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte;
+      var _this$props13 = this.props,
+          _this$props13$context = _this$props13.context;
+      _this$props13$context = _this$props13$context === void 0 ? {} : _this$props13$context;
+      var _this$props13$context2 = _this$props13$context.total,
+          total = _this$props13$context2 === void 0 ? 0 : _this$props13$context2,
+          _this$props13$isConte = _this$props13.isContextLoading,
+          isContextLoading = _this$props13$isConte === void 0 ? false : _this$props13$isConte;
       var _this$state$results = this.state.results,
           results = _this$state$results === void 0 ? [] : _this$state$results;
       return !isContextLoading && LoadMoreAsYouScroll.canLoadMore(total, results);
@@ -1255,21 +1253,23 @@ function (_React$PureComponent4) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-          columnDefinitions = _this$props15.columnDefinitions,
-          windowWidth = _this$props15.windowWidth,
-          context = _this$props15.context,
-          _this$props15$isOwnPa = _this$props15.isOwnPage,
-          isOwnPage = _this$props15$isOwnPa === void 0 ? true : _this$props15$isOwnPa,
-          navigate = _this$props15.navigate,
-          _this$props15$rowHeig = _this$props15.rowHeight,
-          rowHeight = _this$props15$rowHeig === void 0 ? 47 : _this$props15$rowHeig,
-          _this$props15$maxHeig = _this$props15.maxHeight,
-          maxHeight = _this$props15$maxHeig === void 0 ? 500 : _this$props15$maxHeig,
-          _this$props15$isConte = _this$props15.isContextLoading,
-          isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
-          setColumnWidths = _this$props15.setColumnWidths,
-          columnWidths = _this$props15.columnWidths;
+      var _this$props14 = this.props,
+          columnDefinitions = _this$props14.columnDefinitions,
+          windowWidth = _this$props14.windowWidth,
+          context = _this$props14.context,
+          _this$props14$isOwnPa = _this$props14.isOwnPage,
+          isOwnPage = _this$props14$isOwnPa === void 0 ? true : _this$props14$isOwnPa,
+          navigate = _this$props14.navigate,
+          _this$props14$rowHeig = _this$props14.rowHeight,
+          rowHeight = _this$props14$rowHeig === void 0 ? 47 : _this$props14$rowHeig,
+          _this$props14$openRow = _this$props14.openRowHeight,
+          openRowHeight = _this$props14$openRow === void 0 ? 57 : _this$props14$openRow,
+          _this$props14$maxHeig = _this$props14.maxHeight,
+          maxHeight = _this$props14$maxHeig === void 0 ? 500 : _this$props14$maxHeig,
+          _this$props14$isConte = _this$props14.isContextLoading,
+          isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte,
+          setColumnWidths = _this$props14.setColumnWidths,
+          columnWidths = _this$props14.columnWidths;
       var _this$state3 = this.state,
           results = _this$state3.results,
           tableContainerWidth = _this$state3.tableContainerWidth,
@@ -1308,6 +1308,7 @@ function (_React$PureComponent4) {
       var loadMoreAsYouScrollProps = _objectSpread({}, _underscore["default"].pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate'), {
         context: context,
         rowHeight: rowHeight,
+        openRowHeight: openRowHeight,
         results: results,
         openDetailPanes: openDetailPanes,
         maxHeight: maxHeight,
@@ -1431,13 +1432,13 @@ function (_React$PureComponent5) {
   _createClass(SearchResultTable, [{
     key: "render",
     value: function render() {
-      var _this$props16 = this.props,
-          context = _this$props16.context,
-          visibleColumnDefinitions = _this$props16.visibleColumnDefinitions,
-          columnDefinitions = _this$props16.columnDefinitions,
-          _this$props16$isConte = _this$props16.isContextLoading,
-          isContextLoading = _this$props16$isConte === void 0 ? false : _this$props16$isConte,
-          isOwnPage = _this$props16.isOwnPage;
+      var _this$props15 = this.props,
+          context = _this$props15.context,
+          visibleColumnDefinitions = _this$props15.visibleColumnDefinitions,
+          columnDefinitions = _this$props15.columnDefinitions,
+          _this$props15$isConte = _this$props15.isContextLoading,
+          isContextLoading = _this$props15$isConte === void 0 ? false : _this$props15$isConte,
+          isOwnPage = _this$props15.isOwnPage;
 
       if (isContextLoading && !context) {
         // Initial context (pre-sort, filter, etc) loading.
@@ -1518,8 +1519,9 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'defaultMinColumnWidth': 55,
   'hiddenColumns': null,
   // This value (the default or if passed in) should be aligned to value in CSS.
-  // Value in CSS is decremented by 1px to account for border height.
+  // Must account for any border or padding at bottom/top of row, as well.
   'rowHeight': 47,
+  'openRowHeight': 57,
   'fullWidthInitOffset': 60,
   'fullWidthContainerSelectorString': '.browse-page-container',
   'currentAction': null,

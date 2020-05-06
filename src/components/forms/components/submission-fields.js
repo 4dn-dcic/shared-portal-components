@@ -924,7 +924,7 @@ class S3FileInput extends React.Component{
                 }
                 { md5Progress ?
                     <div style={{ 'paddingTop':'10px' }}>
-                        <i className="icon icon-spin icon-circle-o-notch" style={{ 'opacity': '0.5' }}></i>
+                        <i className="icon icon-spin icon-circle-notch" style={{ 'opacity': '0.5' }}></i>
                         <span style={{ 'paddingLeft': '10px' }}>
                             {'Calculating MD5... ' +  md5Progress + '%'}
                         </span>

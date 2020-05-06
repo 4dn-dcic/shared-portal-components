@@ -18,6 +18,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
@@ -53,49 +61,50 @@ function (_React$Component) {
      * Default value rendering function. Fallback when no `render` func defined in columnDefinition.
      * Uses columnDefinition field (column key) to get nested property value from result and display it.
      *
+     * @todo Maybe use Sets if more performant.
      * @param {Item} result - JSON object representing row data.
-     * @param {ColumnDefinition} columnDefinition - Object with column definition data - field, title, widthMap, render function (self)
-     * @param {Object} props - Props passed down from SearchResultTable/ResultRowColumnBlock instance.
-     * @param {number} width - Unused. Todo - remove?
+     * @param {string} field - Field for which this value is for.
+     * @param {function} termTransformFxn - Transform value(s)
      * @returns {string|null} String value or null. Your function may return a React element, as well.
      */
-    value: function transformIfNeeded(result, columnDefinition, props, termTransformFxn) {
-      function filterAndUniq(vals) {
-        return _underscore["default"].uniq(_underscore["default"].filter(vals, function (v) {
-          return v !== null && typeof v !== 'undefined';
-        }));
+    value: function transformIfNeeded(result, field, termTransformFxn) {
+      function flattenSet(valArr) {
+        var uniqSet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        uniqSet = uniqSet || new Set();
+
+        if (Array.isArray(valArr)) {
+          for (var i = 0; i < valArr.length; i++) {
+            flattenSet(valArr[i], uniqSet);
+          }
+
+          return uniqSet;
+        } // Else is single value (not array) -
+
+
+        if (valArr !== null && typeof valArr !== 'undefined') {
+          uniqSet.add(valArr);
+        }
+
+        return uniqSet;
       }
 
-      var value = (0, _object.getNestedProperty)(result, columnDefinition.field, true);
-      if (typeof value === "undefined") value = null;
+      var uniquedValues = _toConsumableArray(flattenSet((0, _object.getNestedProperty)(result, field, true)));
 
-      if (Array.isArray(value)) {
-        // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
-        value = filterAndUniq(value.map(function (v) {
-          if (Array.isArray(v)) {
-            v = filterAndUniq(v);
-            if (v.length === 1) v = v[0];
-            if (v.length === 0) v = null;
-          }
+      var uniquedValuesLen = uniquedValues.length; // No value found - let it default to 'null' and be handled as such
 
-          if (typeof termTransformFxn === 'function') {
-            return termTransformFxn(columnDefinition.field, v, false);
-          }
-
-          console.warn("No termTransformFxn supplied.");
-          return v;
-        })).map(function (v) {
-          if (typeof termTransformFxn === 'function') {
-            return termTransformFxn(columnDefinition.field, v, false);
-          }
-
-          return v;
-        }).join(', ');
-      } else if (typeof termTransformFxn === 'function') {
-        value = termTransformFxn(columnDefinition.field, value, true);
+      if (uniquedValuesLen === 0) {
+        // All null or undefined.
+        return null;
       }
 
-      return value;
+      if (typeof termTransformFxn === "function") {
+        return uniquedValues.map(function (v) {
+          return termTransformFxn(field, v, false);
+        }).join(', '); // Most often will be just 1 value in set/array.
+      } else {
+        console.warn("No termTransformFxn supplied.");
+        return uniquedValues.join(', ');
+      }
     }
   }]);
 
@@ -136,8 +145,13 @@ function (_React$Component) {
           propTooltip = _this$props2.tooltip,
           className = _this$props2.className,
           termTransformFxn = _this$props2.termTransformFxn;
-      var renderFxn = columnDefinition.render || this.memoized.transformIfNeeded;
-      var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore["default"].omit(this.props, 'columnDefinition', 'result'), termTransformFxn));
+      var field = columnDefinition.field,
+          _columnDefinition$ren = columnDefinition.render,
+          renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren;
+      var value = renderFxn ? renderFxn(result, _underscore["default"].omit(this.props, 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
+      // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
+      // Could prly make this less verbose later.. we _do_ want to wrap primitive values output from custom render fxn.
+
       var tooltip;
 
       if (typeof value === 'number') {
@@ -147,19 +161,28 @@ function (_React$Component) {
       } else if (typeof value === 'string') {
         if (propTooltip === true && value.length > 25) tooltip = value;
         value = _react["default"].createElement("span", {
-          className: "value"
+          className: "value text-center"
         }, value);
       } else if (value === null) {
         value = _react["default"].createElement("small", {
-          className: "value"
+          className: "value text-center"
         }, "-");
       } else if (_react["default"].isValidElement(value) && value.type === "a") {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
         value = _react["default"].createElement("span", {
-          className: "value"
+          className: "value text-center"
         }, value);
-      }
+      } else if (typeof value === "boolean") {
+        value = _react["default"].createElement("span", {
+          className: "value text-center"
+        }, value);
+      } else if (!renderFxn) {
+        value = _react["default"].createElement("span", {
+          className: "value"
+        }, value); // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
+      } // else is likely JSX from custom render function -- leave as-is
+
 
       var cls = "inner";
 

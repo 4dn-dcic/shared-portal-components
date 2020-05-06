@@ -148,6 +148,7 @@ function (_React$PureComponent) {
       var childViewProps = _objectSpread({}, passProps, {
         currentAction: currentAction,
         schemas: schemas,
+        windowWidth: windowWidth,
         isOwnPage: true,
         facets: propFacets || contextFacets
       });
@@ -160,9 +161,7 @@ function (_React$PureComponent) {
       }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, {
-        windowWidth: windowWidth
-      }, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
+      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
 
       if ((0, _misc.isSelectAction)(currentAction)) {
         // We don't allow "SelectionMode" unless is own page.

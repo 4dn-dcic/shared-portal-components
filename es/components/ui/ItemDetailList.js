@@ -938,18 +938,22 @@ function (_React$PureComponent2) {
             key: item,
             href: item
           }, item);
-        } else if (item.slice(0, 4) === 'http') {
+        } else {
           // TODO: more comprehensive regexp url validator needed, look at: https://stackoverflow.com/a/5717133
           // Is a URL. Check if we should render it as a link/uri.
           var schemaProperty = (0, _schemaTransforms.getSchemaProperty)(keyPrefix, schemas || {}, atType);
-          if (schemaProperty && typeof schemaProperty.format === 'string' && ['uri', 'url'].indexOf(schemaProperty.format.toLowerCase()) > -1) return _react["default"].createElement("a", {
-            key: item,
-            href: item,
-            target: "_blank",
-            rel: "noreferrer noopener"
-          }, item);
-        } else {
-          return _react["default"].createElement("span", null, termTransformFxn(keyPrefix, item));
+          var schemaPropertyFormat = schemaProperty && typeof schemaProperty.format === 'string' && schemaProperty.format.toLowerCase() || null;
+
+          if (schemaPropertyFormat && ['uri', 'url'].indexOf(schemaPropertyFormat) > -1 && item.slice(0, 4) === 'http') {
+            return _react["default"].createElement("a", {
+              key: item,
+              href: item,
+              target: "_blank",
+              rel: "noreferrer noopener"
+            }, item);
+          } else {
+            return _react["default"].createElement("span", null, termTransformFxn(keyPrefix, item));
+          }
         }
       } else if (typeof item === 'number') {
         return _react["default"].createElement("span", null, termTransformFxn(keyPrefix, item));
@@ -1081,7 +1085,7 @@ _defineProperty(Detail, "defaultProps", {
   'end_date', 'project', 'uri', 'ID', // Document
   'attachment', // Things to go at bottom consistently
   'aliases'],
-  'alwaysCollapsibleKeys': ['@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'dbxrefs', 'status', 'external_references', 'date_created', 'last_modified', 'submitted_by', 'project_release', 'short_attribution', 'validation-errors'],
+  'alwaysCollapsibleKeys': ['@type', 'accession', 'schema_version', 'uuid', 'replicate_exps', 'status', 'external_references', 'date_created', 'last_modified', 'submitted_by', 'project_release', 'short_attribution', 'validation-errors'],
   'open': null,
   'columnDefinitionMap': {
     '@id': {

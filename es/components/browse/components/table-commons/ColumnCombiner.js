@@ -5,7 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.columnsToColumnDefinitions = columnsToColumnDefinitions;
 exports.haveContextColumnsChanged = haveContextColumnsChanged;
-exports.columnDefinitionsToScaledColumnDefinitions = columnDefinitionsToScaledColumnDefinitions;
 exports.getColumnWidthFromDefinition = getColumnWidthFromDefinition;
 exports.ColumnCombiner = void 0;
 
@@ -256,11 +255,6 @@ function columnsToColumnDefinitions(columns, columnDefinitionMap) {
       var colDef2 = _underscore["default"].extend({}, colDefOverride, colDef);
 
       colDef = colDef2;
-    } // Add defaults for any required-for-view but not-present properties.
-
-
-    if (colDef.widthMap && colDef.widthMap.sm && typeof colDef.widthMap.xs !== 'number') {
-      colDef.widthMap.xs = colDef.widthMap.sm;
     }
 
     colDef.widthMap = colDef.widthMap || defaultWidthMap;
@@ -328,27 +322,6 @@ function defaultHiddenColumnMapFromColumns(columns) {
   });
 
   return hiddenColMap;
-}
-/**
- * Adds a `baseWidth` property to each columnDefinition based off widthMap or default value (100).
- * Used in 4DN ItemPageTable, otherwise is deprecated?
- *
- * @deprecated
- */
-
-
-function columnDefinitionsToScaledColumnDefinitions(columnDefinitions) {
-  return columnDefinitions.map(function (colDef) {
-    var colDef2 = _underscore["default"].clone(colDef);
-
-    colDef2.baseWidth = colDef.widthMap.sm || colDef.widthMap.md || colDef.widthMap.lg || 100;
-
-    if (typeof colDef.render !== 'function') {
-      colDef2.render = null;
-    }
-
-    return colDef2;
-  });
 }
 /**
  * Determine the typical column width, given current browser width. Defaults to large width if server-side.

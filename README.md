@@ -14,20 +14,20 @@ For both usage & development installation use cases, you may need to make sure y
 
 First, if not already the case, clone both parent/portal repo as well as this repo into their own separate working directories on your local machine.
 
-From child component (shared-portal-components working dir):
-- `npm install`
+1. From **child** component (shared-portal-components working dir):
+   - `npm install`
 
-From parent component (CGAP portal or 4DN portal working dir):
-- `npm install`
+2. From **parent** component (CGAP portal or 4DN portal working dir):
+   - `npm install`
 
-From child component:
-- `npm link` (if not globally linked already)
-- `node ./setup-npm-links-for-local-development.js <path_to_parent_repo>`
-   e.g. _`<path_to_parent_repo>`_ might be `../../cgap_portal`.
+3. From **child** component:
+   - `npm link` (if not globally linked already)
+   - `node ./setup-npm-links-for-local-development.js <path_to_parent_repo>`
+       - e.g. _`<path_to_parent_repo>`_ might be `../../cgap_portal`.
 
-From parent component:
-- `npm link @hms-dbmi-bgm/shared-portal-components`
-- followed by your build/dev script, e.g. `npm run dev-quick`, `npm run build`, etc.
+4. From **parent** component:
+   - `npm link @hms-dbmi-bgm/shared-portal-components`
+   - followed by your build/dev script, e.g. `npm run dev-quick`, `npm run build`, etc.
 
 ### ESM (ECMAScript Module) Compilation of shared-portal-components
 
