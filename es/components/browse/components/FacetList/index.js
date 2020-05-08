@@ -72,12 +72,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -85,6 +79,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -185,6 +215,8 @@ var FacetList =
 function (_React$PureComponent) {
   _inherits(FacetList, _React$PureComponent);
 
+  var _super = _createSuper(FacetList);
+
   _createClass(FacetList, null, [{
     key: "sortedFinalFacetObjects",
 
@@ -194,7 +226,7 @@ function (_React$PureComponent) {
         return f.field;
       }), // Ensure facets are unique, field-wise.
       function (f) {
-        var newFacet = _objectSpread({}, f, {
+        var newFacet = _objectSpread(_objectSpread({}, f), {}, {
           order: f.order || 0
         });
 
@@ -287,16 +319,19 @@ function (_React$PureComponent) {
               toVal = _ref$toVal === void 0 ? null : _ref$toVal;
 
           var isStatic = facet.min === facet.max;
-          return _react["default"].createElement(_RangeFacet.RangeFacet, _extends({}, props, {
-            facet: facet,
-            key: facetField,
-            anyTermsSelected: fromVal !== null || toVal !== null
-          }, {
-            isStatic: isStatic,
-            grouping: grouping,
-            fromVal: fromVal,
-            toVal: toVal
-          }));
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement(_RangeFacet.RangeFacet, _extends({}, props, {
+              facet: facet,
+              key: facetField,
+              anyTermsSelected: fromVal !== null || toVal !== null
+            }, {
+              isStatic: isStatic,
+              grouping: grouping,
+              fromVal: fromVal,
+              toVal: toVal
+            }))
+          );
         }
 
         if (aggregation_type === "terms") {
@@ -306,16 +341,19 @@ function (_React$PureComponent) {
 
           var _isStatic = !_anySelected && facet.terms.length === 1;
 
-          return _react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, props, {
-            terms: facet.terms,
-            facet: facet,
-            key: facetField,
-            anyTermsSelected: _anySelected
-          }, {
-            isStatic: _isStatic,
-            grouping: grouping,
-            termsSelectedCount: termsSelectedCount
-          }));
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, props, {
+              terms: facet.terms,
+              facet: facet,
+              key: facetField,
+              anyTermsSelected: _anySelected
+            }, {
+              isStatic: _isStatic,
+              grouping: grouping,
+              termsSelectedCount: termsSelectedCount
+            }))
+          );
         }
 
         throw new Error("Unknown aggregation_type");
@@ -372,7 +410,9 @@ function (_React$PureComponent) {
         } // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
 
 
-        var renderedGroup = _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, props, facetGroup, {
+        var renderedGroup =
+        /*#__PURE__*/
+        _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, props, facetGroup, {
           title: groupTitle,
           key: groupTitle
         }));
@@ -450,7 +490,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, FacetList);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FacetList).call(this, props));
+    _this = _super.call(this, props);
     _this.onFilterExtended = _this.onFilterExtended.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.handleToggleFacetOpen = _this.handleToggleFacetOpen.bind(_assertThisInitialized(_this));
@@ -692,12 +732,15 @@ function (_React$PureComponent) {
       var openFacets = this.state.openFacets;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
-        return _react["default"].createElement("div", {
-          className: "pt-2 pb-2",
-          style: {
-            color: "#aaa"
-          }
-        }, "No facets available");
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
+            className: "pt-2 pb-2",
+            style: {
+              color: "#aaa"
+            }
+          }, "No facets available")
+        );
       }
 
       var bodyProps = {
@@ -712,41 +755,70 @@ function (_React$PureComponent) {
           selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
 
       var anyFacetsOpen = _underscore["default"].keys(openFacets).length !== 0;
-      return _react["default"].createElement("div", {
-        className: "facets-container facets" + (className ? ' ' + className : '')
-      }, _react["default"].createElement("div", {
-        className: "row facets-header"
-      }, _react["default"].createElement("div", {
-        className: "col facets-title-column text-ellipsis-container"
-      }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-filter fas"
-      }), "\xA0", _react["default"].createElement("h4", {
-        className: "facets-title"
-      }, title)), _react["default"].createElement("div", {
-        className: "col-auto"
-      }, _react["default"].createElement("div", {
-        className: "btn-group btn-group-sm properties-controls",
-        role: "group",
-        "aria-label": "Properties Controls"
-      }, anyFacetsOpen ? _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-outline-light",
-        onClick: this.handleCollapseAllFacets,
-        "data-tip": "Collapse all facets below"
-      }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-minus fas"
-      })) : null, showClearFiltersButton && typeof onClearFilters === "function" ? _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-outline-light",
-        onClick: onClearFilters,
-        "data-tip": "Clear all filters"
-      }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-times fas"
-      })) : null))), _react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? _react["default"].createElement("div", {
-        className: "row facet-list-separator"
-      }, _react["default"].createElement("div", {
-        className: "col-12"
-      }, staticFacetElements.length, " Common Properties")) : null, staticFacetElements));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "facets-container facets" + (className ? ' ' + className : '')
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "row facets-header"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "col facets-title-column text-ellipsis-container"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-filter fas"
+        }), "\xA0",
+        /*#__PURE__*/
+        _react["default"].createElement("h4", {
+          className: "facets-title"
+        }, title)),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "col-auto"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "btn-group btn-group-sm properties-controls",
+          role: "group",
+          "aria-label": "Properties Controls"
+        }, anyFacetsOpen ?
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-outline-light",
+          onClick: this.handleCollapseAllFacets,
+          "data-tip": "Collapse all facets below"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-minus fas"
+        })) : null, showClearFiltersButton && typeof onClearFilters === "function" ?
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-outline-light",
+          onClick: onClearFilters,
+          "data-tip": "Clear all filters"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-times fas"
+        })) : null))),
+        /*#__PURE__*/
+        _react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "row facet-list-separator"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "col-12"
+        }, staticFacetElements.length, " Common Properties")) : null, staticFacetElements))
+      );
     }
   }]);
 

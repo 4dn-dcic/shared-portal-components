@@ -33,7 +33,10 @@ exports.DropdownItem = DropdownItem;
 
 function DropdownButton(props) {
   var variant = props.variant || props.bsStyle;
-  return _react["default"].createElement(DropdownButtonImported, _extends({}, props, {
-    variant: variant
-  }));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement(DropdownButtonImported, _extends({}, props, {
+      variant: variant
+    }))
+  );
 }

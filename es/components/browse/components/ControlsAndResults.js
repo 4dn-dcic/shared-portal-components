@@ -51,27 +51,59 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 var ControlsAndResults =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(ControlsAndResults, _React$PureComponent);
 
+  var _super = _createSuper(ControlsAndResults);
+
   function ControlsAndResults(props) {
     var _this;
 
     _classCallCheck(this, ControlsAndResults);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ControlsAndResults).call(this, props));
+    _this = _super.call(this, props);
     _this.onClearFiltersClick = _this.onClearFiltersClick.bind(_assertThisInitialized(_this));
     _this.renderSearchDetailPane = _this.renderSearchDetailPane.bind(_assertThisInitialized(_this));
     _this.memoized = {
@@ -100,19 +132,22 @@ function (_React$PureComponent) {
           schemas = _this$props.schemas;
 
       if (typeof renderDetailPane === "function") {
-        return renderDetailPane(result, rowNumber, containerWidth, _objectSpread({}, propsFromTable, {
+        return renderDetailPane(result, rowNumber, containerWidth, _objectSpread(_objectSpread({}, propsFromTable), {}, {
           schemas: schemas,
           windowWidth: windowWidth
         }));
       }
 
-      return _react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {
-        result: result,
-        rowNumber: rowNumber,
-        containerWidth: containerWidth,
-        schemas: schemas,
-        windowWidth: windowWidth
-      });
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {
+          result: result,
+          rowNumber: rowNumber,
+          containerWidth: containerWidth,
+          schemas: schemas,
+          windowWidth: windowWidth
+        })
+      );
     }
     /**
      * Expands `this.props` and feeds them into appropriate places in view.
@@ -196,67 +231,84 @@ function (_React$PureComponent) {
         maxBodyHeight: !isOwnPage && maxHeight || null,
         onClearFilters: this.onClearFiltersClick
       };
-      return _react["default"].createElement("div", {
-        className: "row search-view-controls-and-results",
-        "data-search-item-type": searchItemType,
-        "data-search-abstract-type": searchAbstractItemType
-      }, Array.isArray(facets) && facets.length ? _react["default"].createElement("div", {
-        className: facetColumnClassName
-      }, showAboveTableControls ? // temporary-ish
-      _react["default"].createElement("div", {
-        className: "above-results-table-row"
-      }) : null, _react["default"].createElement(_FacetList.FacetList, facetListProps)) : null, _react["default"].createElement("div", {
-        className: tableColumnClassName
-      }, showAboveTableControls ? _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, {
-        // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
-        // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
-        context: context,
-        showTotalResults: showTotalResults,
-        hiddenColumns: hiddenColumns,
-        columnDefinitions: columnDefinitions,
-        addHiddenColumn: addHiddenColumn,
-        removeHiddenColumn: removeHiddenColumn,
-        isFullscreen: isFullscreen,
-        toggleFullScreen: toggleFullScreen,
-        currentAction: currentAction,
-        windowWidth: windowWidth,
-        windowHeight: windowHeight,
-        topLeftChildren: topLeftChildren
-      }) : null, _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
-        context: context,
-        href: href,
-        navigate: navigate,
-        currentAction: currentAction,
-        schemas: schemas,
-        results: results,
-        columnDefinitions: columnDefinitions,
-        visibleColumnDefinitions: visibleColumnDefinitions,
-        setColumnWidths: setColumnWidths,
-        columnWidths: columnWidths,
-        isOwnPage: isOwnPage,
-        sortBy: sortBy,
-        sortColumn: sortColumn,
-        sortReverse: sortReverse,
-        termTransformFxn: termTransformFxn,
-        windowWidth: windowWidth,
-        registerWindowOnScrollHandler: registerWindowOnScrollHandler,
-        rowHeight: rowHeight,
-        defaultOpenIndices: defaultOpenIndices,
-        maxHeight: maxHeight,
-        isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "row search-view-controls-and-results",
+          "data-search-item-type": searchItemType,
+          "data-search-abstract-type": searchAbstractItemType
+        }, Array.isArray(facets) && facets.length ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: facetColumnClassName
+        }, showAboveTableControls ?
+        /*#__PURE__*/
+        // temporary-ish
+        _react["default"].createElement("div", {
+          className: "above-results-table-row"
+        }) : null,
+        /*#__PURE__*/
+        _react["default"].createElement(_FacetList.FacetList, facetListProps)) : null,
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: tableColumnClassName
+        }, showAboveTableControls ?
+        /*#__PURE__*/
+        _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, {
+          // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
+          // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
+          context: context,
+          showTotalResults: showTotalResults,
+          hiddenColumns: hiddenColumns,
+          columnDefinitions: columnDefinitions,
+          addHiddenColumn: addHiddenColumn,
+          removeHiddenColumn: removeHiddenColumn,
+          isFullscreen: isFullscreen,
+          toggleFullScreen: toggleFullScreen,
+          currentAction: currentAction,
+          windowWidth: windowWidth,
+          windowHeight: windowHeight,
+          topLeftChildren: topLeftChildren
+        }) : null,
+        /*#__PURE__*/
+        _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
+          context: context,
+          href: href,
+          navigate: navigate,
+          currentAction: currentAction,
+          schemas: schemas,
+          results: results,
+          columnDefinitions: columnDefinitions,
+          visibleColumnDefinitions: visibleColumnDefinitions,
+          setColumnWidths: setColumnWidths,
+          columnWidths: columnWidths,
+          isOwnPage: isOwnPage,
+          sortBy: sortBy,
+          sortColumn: sortColumn,
+          sortReverse: sortReverse,
+          termTransformFxn: termTransformFxn,
+          windowWidth: windowWidth,
+          registerWindowOnScrollHandler: registerWindowOnScrollHandler,
+          rowHeight: rowHeight,
+          defaultOpenIndices: defaultOpenIndices,
+          maxHeight: maxHeight,
+          isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
 
-      }, {
-        ref: this.searchResultTableRef,
-        renderDetailPane: this.renderSearchDetailPane
-      })), (0, _misc.isSelectAction)(currentAction) && selectedItems !== null ? _react["default"].createElement(_SelectedItemsController.SelectStickyFooter, _extends({
-        context: context,
-        schemas: schemas,
-        selectedItems: selectedItems,
-        currentAction: currentAction
-      }, {
-        onComplete: onCompleteSelection,
-        onCancel: onCancelSelection
-      })) : null));
+        }, {
+          ref: this.searchResultTableRef,
+          renderDetailPane: this.renderSearchDetailPane
+        })), (0, _misc.isSelectAction)(currentAction) && selectedItems !== null ?
+        /*#__PURE__*/
+        _react["default"].createElement(_SelectedItemsController.SelectStickyFooter, _extends({
+          context: context,
+          schemas: schemas,
+          selectedItems: selectedItems,
+          currentAction: currentAction
+        }, {
+          onComplete: onCompleteSelection,
+          onCancel: onCancelSelection
+        })) : null))
+      );
     }
   }]);
 

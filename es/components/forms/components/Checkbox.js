@@ -28,15 +28,22 @@ var Checkbox = _react["default"].memo(function (props) {
 
   var disabled = passProps.disabled;
   var cls = "checkbox checkbox-with-label" + (disabled ? " disabled" : "") + (className ? " " + className : "");
-  return _react["default"].createElement("div", {
-    className: cls
-  }, _react["default"].createElement("label", {
-    title: title,
-    className: labelClassName
-  }, _react["default"].createElement("input", _extends({
-    type: "checkbox",
-    className: inputClassName
-  }, passProps)), children));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: cls
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("label", {
+      title: title,
+      className: labelClassName
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("input", _extends({
+      type: "checkbox",
+      className: inputClassName
+    }, passProps)), children))
+  );
 });
 
 exports.Checkbox = Checkbox;

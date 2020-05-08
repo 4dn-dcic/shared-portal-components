@@ -41,15 +41,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -60,10 +90,12 @@ var SubmissionTree =
 function (_React$PureComponent) {
   _inherits(SubmissionTree, _React$PureComponent);
 
+  var _super = _createSuper(SubmissionTree);
+
   function SubmissionTree() {
     _classCallCheck(this, SubmissionTree);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(SubmissionTree).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
 
   _createClass(SubmissionTree, [{
@@ -78,14 +110,23 @@ function (_React$PureComponent) {
           keyIdx = _this$props.keyIdx,
           others = _objectWithoutProperties(_this$props, ["keyIdx"]);
 
-      return _react["default"].createElement("div", {
-        className: "submission-view-navigation-tree"
-      }, _react["default"].createElement("h4", {
-        className: "form-section-heading mb-08"
-      }, "Navigation ", _react["default"].createElement(InfoIcon, null, '<h5>This panel is for navigating between objects in the creation process</h5> Click on Item/dependency titles to navigate around and edit each individually. Dependencies must be submitted before their parent can be.')), _react["default"].createElement(SubmissionLeaf, _extends({}, others, {
-        keyIdx: 0,
-        open: true
-      })));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "submission-view-navigation-tree"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("h4", {
+          className: "form-section-heading mb-08"
+        }, "Navigation ",
+        /*#__PURE__*/
+        _react["default"].createElement(InfoIcon, null, '<h5>This panel is for navigating between objects in the creation process</h5> Click on Item/dependency titles to navigate around and edit each individually. Dependencies must be submitted before their parent can be.')),
+        /*#__PURE__*/
+        _react["default"].createElement(SubmissionLeaf, _extends({}, others, {
+          keyIdx: 0,
+          open: true
+        })))
+      );
     }
   }]);
 
@@ -118,12 +159,14 @@ var SubmissionLeaf =
 function (_React$PureComponent2) {
   _inherits(SubmissionLeaf, _React$PureComponent2);
 
+  var _super2 = _createSuper(SubmissionLeaf);
+
   function SubmissionLeaf(props) {
     var _this;
 
     _classCallCheck(this, SubmissionLeaf);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionLeaf).call(this, props));
+    _this = _super2.call(this, props);
     _this.handleClick = _underscore["default"].throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 500, {
       'trailing': false
     });
@@ -145,13 +188,16 @@ function (_React$PureComponent2) {
           keyIdx = _this$props2.keyIdx,
           depth = _this$props2.depth; // replace key and hierarchy in props
 
-      return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
-        key: childKey,
-        keyIdx: childKey,
-        hierarchy: hierarchy[keyIdx],
-        open: true,
-        depth: depth + 1
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
+          key: childKey,
+          keyIdx: childKey,
+          hierarchy: hierarchy[keyIdx],
+          open: true,
+          depth: depth + 1
+        }))
+      );
     }
   }, {
     key: "placeholderSortFxn",
@@ -202,10 +248,13 @@ function (_React$PureComponent2) {
           keyLinkBookmarks = _this$props4.keyLinkBookmarks;
       var fieldsWithLinkTosToShow = keyLinkBookmarks[keyIdx].sort(this.placeholderSortFxn);
       return _underscore["default"].map(fieldsWithLinkTosToShow, function (field) {
-        return _react["default"].createElement(SubmissionProperty, _extends({}, _this2.props, {
-          field: field,
-          key: field
-        }));
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement(SubmissionProperty, _extends({}, _this2.props, {
+            field: field,
+            key: field
+          }))
+        );
       });
     }
     /** Open a new tab on click or change the currKey of submissionView to that of props.keyIdx */
@@ -273,7 +322,9 @@ function (_React$PureComponent2) {
         statusClass = 'existing-item';
         iconClass = "icon-hdd far";
         tip = "Successfully submitted or pre-existing item; already exists in the database.<br>Click to view this item/dependency in new tab/window.";
-        extIcon = _react["default"].createElement("i", {
+        extIcon =
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon icon-external-link-alt fas"
         });
       } else {
@@ -308,31 +359,44 @@ function (_React$PureComponent2) {
         }
       }
 
-      var icon = _react["default"].createElement("i", {
+      var icon =
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
         className: "icon indicator-icon " + iconClass
       });
 
       if (keyIdx === currKey) {
         // We're currently on this Item
         isCurrentlySelected = true;
-        extIcon = _react["default"].createElement("i", {
+        extIcon =
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon icon-pencil pull-right fas",
           "data-tip": "Item which you are currently editing."
         });
       }
 
-      return _react["default"].createElement("div", {
-        className: "submission-nav-leaf linked-item-title leaf-depth-" + depth + (isCurrentlySelected ? ' active' : '')
-      }, _react["default"].createElement("div", {
-        className: "clearfix inner-title " + statusClass,
-        onClick: this.handleClick,
-        "data-tip": tip,
-        "data-html": true
-      }, icon, _react["default"].createElement("span", {
-        className: "title-text"
-      }, titleText), extIcon), placeholders && placeholders.length > 0 ? _react["default"].createElement("div", {
-        className: "list-of-properties"
-      }, placeholders) : null);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "submission-nav-leaf linked-item-title leaf-depth-" + depth + (isCurrentlySelected ? ' active' : '')
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "clearfix inner-title " + statusClass,
+          onClick: this.handleClick,
+          "data-tip": tip,
+          "data-html": true
+        }, icon,
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "title-text"
+        }, titleText), extIcon), placeholders && placeholders.length > 0 ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "list-of-properties"
+        }, placeholders) : null)
+      );
     }
   }]);
 
@@ -348,12 +412,14 @@ var SubmissionProperty =
 function (_React$Component) {
   _inherits(SubmissionProperty, _React$Component);
 
+  var _super3 = _createSuper(SubmissionProperty);
+
   function SubmissionProperty(props) {
     var _this3;
 
     _classCallCheck(this, SubmissionProperty);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionProperty).call(this, props));
+    _this3 = _super3.call(this, props);
     _this3.handleToggle = _underscore["default"].throttle(_this3.handleToggle.bind(_assertThisInitialized(_this3)), 500, {
       'trailing': false
     });
@@ -385,13 +451,16 @@ function (_React$Component) {
           hierarchy = _this$props7.hierarchy;
       if (!isNaN(childKey)) childKey = parseInt(childKey); // replace key and hierarchy in props
 
-      return _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
-        key: childKey,
-        keyIdx: childKey,
-        hierarchy: hierarchy[keyIdx],
-        open: true,
-        depth: depth + 1
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
+          key: childKey,
+          keyIdx: childKey,
+          hierarchy: hierarchy[keyIdx],
+          open: true,
+          depth: depth + 1
+        }))
+      );
     }
   }, {
     key: "render",
@@ -423,19 +492,32 @@ function (_React$Component) {
       }), this.generateChild);
 
       var noChildren = children.length === 0;
-      return _react["default"].createElement("div", {
-        key: bookmark,
-        className: "submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '')
-      }, _react["default"].createElement("div", {
-        className: "clearfix inner-title" + (!noChildren ? ' clickable' : ''),
-        onClick: !noChildren ? this.handleToggle : undefined
-      }, _react["default"].createElement("i", {
-        className: "icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')
-      }), _react["default"].createElement("span", null, children.length, " ", bookmark || field)), !noChildren ? _react["default"].createElement(_Collapse.Collapse, {
-        "in": open
-      }, _react["default"].createElement("div", {
-        className: "children-container"
-      }, children)) : null);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          key: bookmark,
+          className: "submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '')
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "clearfix inner-title" + (!noChildren ? ' clickable' : ''),
+          onClick: !noChildren ? this.handleToggle : undefined
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement("span", null, children.length, " ", bookmark || field)), !noChildren ?
+        /*#__PURE__*/
+        _react["default"].createElement(_Collapse.Collapse, {
+          "in": open
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "children-container"
+        }, children)) : null)
+      );
     }
   }]);
 
@@ -446,16 +528,19 @@ function InfoIcon(_ref2) {
   var children = _ref2.children,
       className = _ref2.className;
   if (!children) return null;
-  return _react["default"].createElement("i", {
-    style: {
-      "marginLeft": "6px",
-      'fontSize': '0.8em'
-    },
-    className: "icon fas icon-info-circle" + (className ? ' ' + className : ''),
-    "data-place": "right",
-    "data-html": true,
-    "data-tip": children
-  });
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      style: {
+        "marginLeft": "6px",
+        'fontSize': '0.8em'
+      },
+      className: "icon fas icon-info-circle" + (className ? ' ' + className : ''),
+      "data-place": "right",
+      "data-html": true,
+      "data-tip": children
+    })
+  );
 }
 /**
  * Function to recursively find whether a schema for a field contains a linkTo to

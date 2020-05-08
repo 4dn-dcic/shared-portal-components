@@ -77,12 +77,6 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -91,12 +85,50 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var EmbeddedSearchView =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(EmbeddedSearchView, _React$PureComponent);
+
+  var _super = _createSuper(EmbeddedSearchView);
 
   _createClass(EmbeddedSearchView, null, [{
     key: "listToObj",
@@ -120,7 +152,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, EmbeddedSearchView);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(EmbeddedSearchView).call(this, props));
+    _this = _super.call(this, props);
     _this.filterFacetFxn = _this.filterFacetFxn.bind(_assertThisInitialized(_this));
     _this.memoized = {
       listToObj: (0, _memoizeOne["default"])(EmbeddedSearchView.listToObj)
@@ -182,32 +214,45 @@ function (_React$PureComponent) {
 
       var tableColumnClassName = facets === null ? "col-12" : undefined;
 
-      var viewProps = _objectSpread({}, passProps, {
+      var viewProps = _objectSpread(_objectSpread({}, passProps), {}, {
         showAboveTableControls: showAboveTableControls,
         tableColumnClassName: tableColumnClassName
       });
 
       var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
-      return _react["default"].createElement("div", {
-        className: "embedded-search-container"
-      }, _react["default"].createElement(_VirtualHrefController.VirtualHrefController, _extends({
-        searchHref: searchHref,
-        facets: facets,
-        onLoad: onLoad,
-        filterFacetFxn: filterFacetFxn
-      }, {
-        key: searchHref
-      }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
-        columns: columns,
-        columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, _extends({
-        windowWidth: windowWidth,
-        filterColumnFxn: filterColumnFxn
-      }, {
-        hiddenColumns: hideColumns
-      }), _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
-        isOwnPage: false
-      })))))));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "embedded-search-container"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_VirtualHrefController.VirtualHrefController, _extends({
+          searchHref: searchHref,
+          facets: facets,
+          onLoad: onLoad,
+          filterFacetFxn: filterFacetFxn
+        }, {
+          key: searchHref
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement(_tableCommons.ColumnCombiner, {
+          columns: columns,
+          columnExtensionMap: columnExtensionMap
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_CustomColumnController.CustomColumnController, _extends({
+          windowWidth: windowWidth,
+          filterColumnFxn: filterColumnFxn
+        }, {
+          hiddenColumns: hideColumns
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement(_SortController.SortController, null,
+        /*#__PURE__*/
+        _react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
+          isOwnPage: false
+        })))))))
+      );
     }
   }]);
 

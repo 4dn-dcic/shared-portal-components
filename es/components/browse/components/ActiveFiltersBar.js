@@ -39,15 +39,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -56,12 +86,14 @@ var ActiveFiltersBar =
 function (_React$PureComponent) {
   _inherits(ActiveFiltersBar, _React$PureComponent);
 
+  var _super = _createSuper(ActiveFiltersBar);
+
   function ActiveFiltersBar(props) {
     var _this;
 
     _classCallCheck(this, ActiveFiltersBar);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ActiveFiltersBar).call(this, props));
+    _this = _super.call(this, props);
     _this.updateHoverNodes = _underscore["default"].throttle(_this.updateHoverNodes.bind(_assertThisInitialized(_this)), 200);
     _this.renderCrumbs = _this.renderCrumbs.bind(_assertThisInitialized(_this));
     _this.memoized = {
@@ -134,7 +166,9 @@ function (_React$PureComponent) {
           try {
             for (var _iterator2 = termSet[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
               var term = _step2.value;
-              renderedNodes.push(_react["default"].createElement(RegularCrumb, _extends({
+              renderedNodes.push(
+              /*#__PURE__*/
+              _react["default"].createElement(RegularCrumb, _extends({
                 filters: filters,
                 field: field,
                 term: term,
@@ -160,11 +194,15 @@ function (_React$PureComponent) {
             }
           }
 
-          renderedFieldFilterGroups.push(_react["default"].createElement("div", {
+          renderedFieldFilterGroups.push(
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
             className: fieldGroupClassName,
             key: field,
             "data-field": field
-          }, renderedNodes, _react["default"].createElement("div", {
+          }, renderedNodes,
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
             className: "field-label"
           }, fieldTitle)));
         }
@@ -189,10 +227,13 @@ function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var parentId = this.props.parentId;
-      return _react["default"].createElement("div", {
-        className: "active-filters-bar",
-        id: parentId + '-crumbs'
-      }, this.renderCrumbs());
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "active-filters-bar",
+          id: parentId + '-crumbs'
+        }, this.renderCrumbs())
+      );
     }
   }]);
 
@@ -225,11 +266,16 @@ function Container(_ref2) {
   var sequential = _ref2.sequential,
       children = _ref2.children;
   var title = sequential ? "Examining" : "Currently-selected Filters";
-  return _react["default"].createElement("div", {
-    className: "active-filters-bar-container"
-  }, _react["default"].createElement("h5", {
-    className: "crumbs-title"
-  }, title), children);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "active-filters-bar-container"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("h5", {
+      className: "crumbs-title"
+    }, title), children)
+  );
 }
 
 var RegularCrumb = _react["default"].memo(function (props) {
@@ -240,18 +286,25 @@ var RegularCrumb = _react["default"].memo(function (props) {
       termTransformFxn = props.termTransformFxn,
       _onClick = props.onClick,
       className = props.className;
-  return _react["default"].createElement("span", {
-    className: className,
-    "data-term": term,
-    style: {
-      backgroundColor: color
-    }
-  }, termTransformFxn(field, term, true), _react["default"].createElement("span", {
-    className: "icon-container",
-    onClick: function onClick(evt) {
-      _onClick(evt, field, term);
-    }
-  }, _react["default"].createElement("i", {
-    className: "icon icon-times fas"
-  })));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
+      className: className,
+      "data-term": term,
+      style: {
+        backgroundColor: color
+      }
+    }, termTransformFxn(field, term, true),
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
+      className: "icon-container",
+      onClick: function onClick(evt) {
+        _onClick(evt, field, term);
+      }
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon icon-times fas"
+    })))
+  );
 });

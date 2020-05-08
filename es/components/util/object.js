@@ -70,12 +70,6 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -83,6 +77,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -128,7 +158,10 @@ function linkFromItem(item) {
 
   if (!href || !title) {
     if (item && _typeof(item) === 'object' && typeof item.error === 'string') {
-      return _react["default"].createElement("em", null, item.error);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("em", null, item.error)
+      );
     } // Uh oh, probably not an Item
 
 
@@ -147,9 +180,12 @@ function linkFromItem(item) {
     propsToInclude.className = (propsToInclude.className || '') + ' inline-block';
   }
 
-  return _react["default"].createElement("a", _extends({
-    href: href
-  }, propsToInclude), title);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("a", _extends({
+      href: href
+    }, propsToInclude), title)
+  );
 }
 /**
  * Convert an ES6 Map to an object literal.
@@ -460,9 +496,12 @@ function htmlToJSX(htmlString) {
   } catch (e) {
     _patchedConsole.patchedConsoleInstance.error('HTML parsing error', e);
 
-    return _react["default"].createElement("div", {
-      className: "error"
-    }, "Parsing Error. Check your markup.");
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("div", {
+        className: "error"
+      }, "Parsing Error. Check your markup.")
+    );
   }
   /**
    * Filters out nodes and node children recursively if detect an invalid tag name.
@@ -500,9 +539,12 @@ function htmlToJSX(htmlString) {
   } catch (e) {
     _patchedConsole.patchedConsoleInstance.error('HTML parsing error', e);
 
-    return _react["default"].createElement("div", {
-      className: "error"
-    }, "Parsing Error. Check your markup.");
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("div", {
+        className: "error"
+      }, "Parsing Error. Check your markup.")
+    );
   }
 
   return result;
@@ -603,7 +645,11 @@ function TooltipInfoIconContainer(props) {
       children = props.children;
   return _react["default"].createElement(elementType || 'div', {
     'className': "tooltip-info-container" + (typeof className === 'string' ? ' ' + className : '')
-  }, _react["default"].createElement("span", null, title || children, "\xA0", typeof tooltip === 'string' ? _react["default"].createElement("i", {
+  },
+  /*#__PURE__*/
+  _react["default"].createElement("span", null, title || children, "\xA0", typeof tooltip === 'string' ?
+  /*#__PURE__*/
+  _react["default"].createElement("i", {
     "data-tip": tooltip,
     className: "icon fas icon-info-circle"
   }) : null));
@@ -643,11 +689,14 @@ function TooltipInfoIconContainerAuto(props) {
     if (!showTitle) showTitle = schemaProperty && schemaProperty.title || null;
   }
 
-  return _react["default"].createElement(TooltipInfoIconContainer, _extends({}, props, {
-    tooltip: tooltip,
-    title: showTitle || fallbackTitle || property,
-    elementType: elementType
-  }));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement(TooltipInfoIconContainer, _extends({}, props, {
+      tooltip: tooltip,
+      title: showTitle || fallbackTitle || property,
+      elementType: elementType
+    }))
+  );
 }
 
 TooltipInfoIconContainerAuto.propTypes = {
@@ -673,6 +722,8 @@ var CopyWrapper =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(CopyWrapper, _React$PureComponent);
+
+  var _super = _createSuper(CopyWrapper);
 
   _createClass(CopyWrapper, null, [{
     key: "copyToClipboard",
@@ -723,7 +774,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, CopyWrapper);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(CopyWrapper).call(this, props));
+    _this = _super.call(this, props);
     _this.flashEffect = _this.flashEffect.bind(_assertThisInitialized(_this));
 
     if (typeof props.mounted !== 'boolean') {
@@ -801,7 +852,9 @@ function (_React$PureComponent) {
       var elemsToWrap = [];
       if (children) elemsToWrap.push(children);
       if (children && isMounted) elemsToWrap.push(' ');
-      if (isMounted && includeIcon) elemsToWrap.push(_react["default"].createElement("i", _extends({}, iconProps, {
+      if (isMounted && includeIcon) elemsToWrap.push(
+      /*#__PURE__*/
+      _react["default"].createElement("i", _extends({}, iconProps, {
         key: "copy-icon",
         className: "icon icon-fw icon-copy far",
         title: "Copy to clipboard"
@@ -980,12 +1033,15 @@ var itemUtil = {
       var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var props = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       var defaultImg = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'retro';
-      return _react["default"].createElement("img", _extends({
-        title: "Obtained via Gravatar"
-      }, props, {
-        src: itemUtil.User.buildGravatarURL(email, size, defaultImg),
-        className: 'gravatar' + (props.className ? ' ' + props.className : '')
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("img", _extends({
+          title: "Obtained via Gravatar"
+        }, props, {
+          src: itemUtil.User.buildGravatarURL(email, size, defaultImg),
+          className: 'gravatar' + (props.className ? ' ' + props.className : '')
+        }))
+      );
     },
 
     /**

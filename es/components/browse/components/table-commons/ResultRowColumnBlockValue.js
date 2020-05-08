@@ -28,12 +28,6 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -41,6 +35,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -53,6 +83,8 @@ var ResultRowColumnBlockValue =
 /*#__PURE__*/
 function (_React$Component) {
   _inherits(ResultRowColumnBlockValue, _React$Component);
+
+  var _super = _createSuper(ResultRowColumnBlockValue);
 
   _createClass(ResultRowColumnBlockValue, null, [{
     key: "transformIfNeeded",
@@ -113,7 +145,7 @@ function (_React$Component) {
 
     _classCallCheck(this, ResultRowColumnBlockValue);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ResultRowColumnBlockValue).call(this, props));
+    _this = _super.call(this, props);
     _this.memoized = {
       transformIfNeeded: (0, _memoizeOne["default"])(ResultRowColumnBlockValue.transformIfNeeded)
     };
@@ -155,30 +187,42 @@ function (_React$Component) {
       var tooltip;
 
       if (typeof value === 'number') {
-        value = _react["default"].createElement("span", {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "value"
         }, value);
       } else if (typeof value === 'string') {
         if (propTooltip === true && value.length > 25) tooltip = value;
-        value = _react["default"].createElement("span", {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "value text-center"
         }, value);
       } else if (value === null) {
-        value = _react["default"].createElement("small", {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("small", {
           className: "value text-center"
         }, "-");
       } else if (_react["default"].isValidElement(value) && value.type === "a") {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
-        value = _react["default"].createElement("span", {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "value text-center"
         }, value);
       } else if (typeof value === "boolean") {
-        value = _react["default"].createElement("span", {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "value text-center"
         }, value);
       } else if (!renderFxn) {
-        value = _react["default"].createElement("span", {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "value"
         }, value); // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
       } // else is likely JSX from custom render function -- leave as-is
@@ -190,10 +234,13 @@ function (_React$Component) {
         cls += ' ' + className;
       }
 
-      return _react["default"].createElement("div", {
-        className: cls,
-        "data-tip": tooltip
-      }, value);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: cls,
+          "data-tip": tooltip
+        }, value)
+      );
     }
   }]);
 
@@ -228,9 +275,12 @@ function sanitizeOutputValue(value) {
         var atId = _object.itemUtil.atId(value);
 
         if (atId) {
-          return _react["default"].createElement("a", {
-            href: atId
-          }, value.display_title);
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement("a", {
+              href: atId
+            }, value.display_title)
+          );
         } else {
           return value.display_title;
         }

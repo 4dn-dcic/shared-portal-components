@@ -48,16 +48,23 @@ function FileDownloadButton(props) {
       size = props.size,
       onClick = props.onClick;
   var cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
-  return _react["default"].createElement("a", _extends({
-    href: href,
-    onClick: onClick
-  }, {
-    className: cls,
-    download: true,
-    "data-tip": filename || null
-  }), _react["default"].createElement("i", {
-    className: "icon icon-fw icon-cloud-download-alt fas"
-  }), title ? _react["default"].createElement("span", null, "\xA0 ", title) : null);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("a", _extends({
+      href: href,
+      onClick: onClick
+    }, {
+      className: cls,
+      download: true,
+      "data-tip": filename || null
+    }),
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon icon-fw icon-cloud-download-alt fas"
+    }), title ?
+    /*#__PURE__*/
+    _react["default"].createElement("span", null, "\xA0 ", title) : null)
+  );
 }
 
 FileDownloadButton.defaultProps = {
@@ -99,7 +106,10 @@ var FileDownloadButtonAuto = _react["default"].memo(function (props) {
     'disabled': isDisabled,
     'title': isDisabled ? 'Not ready to download' : FileDownloadButton.defaultProps.title
   };
-  return _react["default"].createElement(FileDownloadButton, _extends({}, props, passProps));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement(FileDownloadButton, _extends({}, props, passProps))
+  );
 });
 
 exports.FileDownloadButtonAuto = FileDownloadButtonAuto;
@@ -132,7 +142,9 @@ var ViewFileButton = _react["default"].memo(function (props) {
   var extLink = null; // Unsure if really used. Maybe should test href for presence of http[s]:// instd of target="_blank"?
 
   var preLink = null;
-  preLink = _react["default"].createElement("i", {
+  preLink =
+  /*#__PURE__*/
+  _react["default"].createElement("i", {
     className: "icon icon-fw icon-cloud-download-alt fas"
   });
   var fileNameLower = filename && filename.length > 0 && filename.toLowerCase() || '';
@@ -144,19 +156,25 @@ var ViewFileButton = _react["default"].memo(function (props) {
 
   if ((0, _file.isFilenameAnImage)(fileNameLowerEnds)) {
     action = 'View';
-    preLink = _react["default"].createElement("i", {
+    preLink =
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
       className: "icon icon-fw icon-image far"
     });
   } else if (fileNameLowerEnds['4'] === '.pdf') {
     action = 'View';
 
     if (target === '_blank') {
-      extLink = _react["default"].createElement("i", {
+      extLink =
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
         className: "icon icon-fw icon-external-link fas"
       });
     }
 
-    preLink = _react["default"].createElement("i", {
+    preLink =
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
       className: "icon icon-fw icon-file-pdf far"
     });
   } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx') {
@@ -165,7 +183,7 @@ var ViewFileButton = _react["default"].memo(function (props) {
 
   var cls = "btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (" btn-" + (bsStyle || variant || "primary"));
 
-  var btnProps = _objectSpread({}, passProps, {
+  var btnProps = _objectSpread(_objectSpread({}, passProps), {}, {
     onClick: function () {
       event("ViewFileButton", "Clicked", {
         eventLabel: filename
@@ -180,14 +198,19 @@ var ViewFileButton = _react["default"].memo(function (props) {
     target: target
   });
 
-  return _react["default"].createElement("a", _extends({}, btnProps, {
-    className: cls,
-    download: action === 'Download' ? filename || true : null,
-    title: filename,
-    "data-tip": mimeType
-  }), preLink, " ", action, " ", title || filename && _react["default"].createElement("span", {
-    className: "text-600"
-  }, filename) || 'File', " ", extLink);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("a", _extends({}, btnProps, {
+      className: cls,
+      download: action === 'Download' ? filename || true : null,
+      title: filename,
+      "data-tip": mimeType
+    }), preLink, " ", action, " ", title || filename &&
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
+      className: "text-600"
+    }, filename) || 'File', " ", extLink)
+  );
 });
 
 exports.ViewFileButton = ViewFileButton;
