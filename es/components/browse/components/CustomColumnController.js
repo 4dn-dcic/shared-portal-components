@@ -35,12 +35,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -48,6 +42,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -64,6 +94,8 @@ var CustomColumnController =
 /*#__PURE__*/
 function (_React$Component) {
   _inherits(CustomColumnController, _React$Component);
+
+  var _super = _createSuper(CustomColumnController);
 
   _createClass(CustomColumnController, null, [{
     key: "filterOutHiddenCols",
@@ -94,7 +126,7 @@ function (_React$Component) {
 
     _classCallCheck(this, CustomColumnController);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(CustomColumnController).call(this, props)); //this.getResetWidths = this.getResetWidths.bind(this);
+    _this = _super.call(this, props); //this.getResetWidths = this.getResetWidths.bind(this);
 
     _this.setColumnWidths = _this.setColumnWidths.bind(_assertThisInitialized(_this));
     _this.addHiddenColumn = _this.addHiddenColumn.bind(_assertThisInitialized(_this));
@@ -218,12 +250,14 @@ var CustomColumnSelector =
 function (_React$PureComponent) {
   _inherits(CustomColumnSelector, _React$PureComponent);
 
+  var _super2 = _createSuper(CustomColumnSelector);
+
   function CustomColumnSelector(props) {
     var _this2;
 
     _classCallCheck(this, CustomColumnSelector);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(CustomColumnSelector).call(this, props));
+    _this2 = _super2.call(this, props);
     _this2.columnDefinitionsWithHiddenState = _this2.columnDefinitionsWithHiddenState.bind(_assertThisInitialized(_this2));
     _this2.handleOptionVisibilityChange = _underscore["default"].throttle(_this2.handleOptionVisibilityChange.bind(_assertThisInitialized(_this2)), 300);
     return _this2;
@@ -272,16 +306,22 @@ function (_React$PureComponent) {
     value: function render() {
       var _this3 = this;
 
-      return _react["default"].createElement("div", {
-        className: "row clearfix"
-      }, _underscore["default"].map(this.columnDefinitionsWithHiddenState(), function (colDef, idx, all) {
-        return _react["default"].createElement(ColumnOption, _extends({}, colDef, {
-          key: colDef.field || idx,
-          allColumns: all,
-          index: idx,
-          handleOptionVisibilityChange: _this3.handleOptionVisibilityChange
-        }));
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "row clearfix"
+        }, _underscore["default"].map(this.columnDefinitionsWithHiddenState(), function (colDef, idx, all) {
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement(ColumnOption, _extends({}, colDef, {
+              key: colDef.field || idx,
+              allColumns: all,
+              index: idx,
+              handleOptionVisibilityChange: _this3.handleOptionVisibilityChange
+            }))
+          );
+        }))
+      );
     }
   }]);
 
@@ -320,17 +360,22 @@ var ColumnOption = _react["default"].memo(function (props) {
     }
   }
 
-  return _react["default"].createElement("div", {
-    className: "col-12 col-sm-6 col-lg-3 column-option",
-    key: field,
-    "data-tip": showDescription,
-    "data-html": true
-  }, _react["default"].createElement(_Checkbox.Checkbox, {
-    checked: isChecked,
-    onChange: function onChange(e) {
-      return handleOptionVisibilityChange(field, e);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "col-12 col-sm-6 col-lg-3 column-option",
+      key: field,
+      "data-tip": showDescription,
+      "data-html": true
     },
-    value: field,
-    className: cls
-  }, title));
+    /*#__PURE__*/
+    _react["default"].createElement(_Checkbox.Checkbox, {
+      checked: isChecked,
+      onChange: function onChange(e) {
+        return handleOptionVisibilityChange(field, e);
+      },
+      value: field,
+      className: cls
+    }, title))
+  );
 });

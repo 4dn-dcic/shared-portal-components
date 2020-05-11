@@ -79,15 +79,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -96,10 +126,12 @@ var SearchView =
 function (_React$PureComponent) {
   _inherits(SearchView, _React$PureComponent);
 
+  var _super = _createSuper(SearchView);
+
   function SearchView() {
     _classCallCheck(this, SearchView);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(SearchView).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
 
   _createClass(SearchView, [{
@@ -145,7 +177,7 @@ function (_React$PureComponent) {
       // in each controller that's child of <ColumnCombiner {...{ context, columns, columnExtensionMap }}>.
       // As well as in ControlsAndResults.
 
-      var childViewProps = _objectSpread({}, passProps, {
+      var childViewProps = _objectSpread(_objectSpread({}, passProps), {}, {
         currentAction: currentAction,
         schemas: schemas,
         windowWidth: windowWidth,
@@ -153,20 +185,32 @@ function (_React$PureComponent) {
         facets: propFacets || contextFacets
       });
 
-      var controllersAndView = _react["default"].createElement(_WindowNavigationController.WindowNavigationController, _extends({
+      var controllersAndView =
+      /*#__PURE__*/
+      _react["default"].createElement(_WindowNavigationController.WindowNavigationController, _extends({
         href: href,
         context: context
       }, {
         navigate: propNavigate
-      }), _react["default"].createElement(_tableCommons.ColumnCombiner, {
+      }),
+      /*#__PURE__*/
+      _react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, _react["default"].createElement(_CustomColumnController.CustomColumnController, null, _react["default"].createElement(_SortController.SortController, null, _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
+      },
+      /*#__PURE__*/
+      _react["default"].createElement(_CustomColumnController.CustomColumnController, null,
+      /*#__PURE__*/
+      _react["default"].createElement(_SortController.SortController, null,
+      /*#__PURE__*/
+      _react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
 
       if ((0, _misc.isSelectAction)(currentAction)) {
         // We don't allow "SelectionMode" unless is own page.
         // Could consider changing later once a use case exists.
-        controllersAndView = // SelectedItemsController must be above ColumnCombiner because it adjusts
+        controllersAndView =
+        /*#__PURE__*/
+        // SelectedItemsController must be above ColumnCombiner because it adjusts
         // columnExtensionMap, rather than columnDefinitions. This can be easily changed
         // though if desired.
         _react["default"].createElement(_SelectedItemsController.SelectedItemsController, {
@@ -175,12 +219,17 @@ function (_React$PureComponent) {
         }, controllersAndView);
       }
 
-      return _react["default"].createElement("div", {
-        className: "search-page-container"
-      }, _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
-        context: context,
-        placeholderReplacementFxn: placeholderReplacementFxn
-      }), controllersAndView);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "search-page-container"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
+          context: context,
+          placeholderReplacementFxn: placeholderReplacementFxn
+        }), controllersAndView)
+      );
     }
   }]);
 

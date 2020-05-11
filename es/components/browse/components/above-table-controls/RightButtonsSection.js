@@ -23,15 +23,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 var RightButtonsSection = _react["default"].memo(function (props) {
   var currentOpenPanel = props.currentOpenPanel,
@@ -39,16 +69,23 @@ var RightButtonsSection = _react["default"].memo(function (props) {
       windowWidth = props.windowWidth,
       isFullscreen = props.isFullscreen,
       toggleFullScreen = props.toggleFullScreen;
-  return _react["default"].createElement("div", {
-    className: "right-buttons"
-  }, _react["default"].createElement(ConfigureVisibleColumnsButton, {
-    onClick: onColumnsBtnClick,
-    open: currentOpenPanel === "customColumns"
-  }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ? _react["default"].createElement(ToggleLayoutButton, {
-    windowWidth: windowWidth,
-    isFullscreen: isFullscreen,
-    toggleFullScreen: toggleFullScreen
-  }) : null);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "right-buttons"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement(ConfigureVisibleColumnsButton, {
+      onClick: onColumnsBtnClick,
+      open: currentOpenPanel === "customColumns"
+    }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ?
+    /*#__PURE__*/
+    _react["default"].createElement(ToggleLayoutButton, {
+      windowWidth: windowWidth,
+      isFullscreen: isFullscreen,
+      toggleFullScreen: toggleFullScreen
+    }) : null)
+  );
 });
 
 exports.RightButtonsSection = RightButtonsSection;
@@ -57,19 +94,26 @@ var ConfigureVisibleColumnsButton = _react["default"].memo(function (_ref) {
   var open = _ref.open,
       onClick = _ref.onClick,
       className = _ref.className;
-  return _react["default"].createElement("button", {
-    type: "button",
-    key: "toggle-visible-columns",
-    "data-tip": "Configure visible columns",
-    "data-event-off": "click",
-    active: open.toString(),
-    onClick: onClick,
-    className: (className || "") + (open ? " active" : "")
-  }, _react["default"].createElement("i", {
-    className: "icon icon-fw icon-table fas"
-  }), _react["default"].createElement("i", {
-    className: "icon icon-fw icon-angle-down ml-03 fas"
-  }));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("button", {
+      type: "button",
+      key: "toggle-visible-columns",
+      "data-tip": "Configure visible columns",
+      "data-event-off": "click",
+      active: open.toString(),
+      onClick: onClick,
+      className: (className || "") + (open ? " active" : "")
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon icon-fw icon-table fas"
+    }),
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon icon-fw icon-angle-down ml-03 fas"
+    }))
+  );
 });
 
 exports.ConfigureVisibleColumnsButton = ConfigureVisibleColumnsButton;
@@ -83,12 +127,14 @@ var ToggleLayoutButton =
 function (_React$PureComponent) {
   _inherits(ToggleLayoutButton, _React$PureComponent);
 
+  var _super = _createSuper(ToggleLayoutButton);
+
   function ToggleLayoutButton(props) {
     var _this;
 
     _classCallCheck(this, ToggleLayoutButton);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToggleLayoutButton).call(this, props));
+    _this = _super.call(this, props);
     _this.handleLayoutToggle = _underscore["default"].throttle(_this.handleLayoutToggle.bind(_assertThisInitialized(_this)), 350);
     return _this;
   }
@@ -116,16 +162,23 @@ function (_React$PureComponent) {
           isFullscreen = _this$props2.isFullscreen,
           className = _this$props2.className;
       var cls = className + " expand-layout-button" + (!isFullscreen ? '' : ' expanded');
-      return _react["default"].createElement("button", {
-        type: "button",
-        className: cls,
-        onClick: this.handleLayoutToggle,
-        "data-tip": (!isFullscreen ? 'Expand' : 'Collapse') + " table width"
-      }, _react["default"].createElement("i", {
-        className: "icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')
-      }), _react["default"].createElement("span", {
-        className: "ml-05 d-none d-xl-inline"
-      }, !isFullscreen ? "Full Screen" : "Collapse Table Width"));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: cls,
+          onClick: this.handleLayoutToggle,
+          "data-tip": (!isFullscreen ? 'Expand' : 'Collapse') + " table width"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "ml-05 d-none d-xl-inline"
+        }, !isFullscreen ? "Full Screen" : "Collapse Table Width"))
+      );
     }
   }]);
 

@@ -21,12 +21,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -35,6 +29,42 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 /**
  * Used to render individual facet fields and their available terms in FacetList.
  */
@@ -42,6 +72,8 @@ var FacetOfFacets =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(FacetOfFacets, _React$PureComponent);
+
+  var _super = _createSuper(FacetOfFacets);
 
   _createClass(FacetOfFacets, null, [{
     key: "anyFacetsHaveSelection",
@@ -66,7 +98,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, FacetOfFacets);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FacetOfFacets).call(this, props));
+    _this = _super.call(this, props);
     _this.handleOpenToggleClick = _this.handleOpenToggleClick.bind(_assertThisInitialized(_this));
     _this.memoized = {
       anyFacetsHaveSelection: (0, _memoizeOne["default"])(FacetOfFacets.anyFacetsHaveSelection)
@@ -106,34 +138,57 @@ function (_React$PureComponent) {
         });
       });
 
-      return _react["default"].createElement("div", {
-        className: "facet" + (facetOpen || anySelections ? ' open' : ' closed'),
-        "data-group": title
-      }, _react["default"].createElement("h5", {
-        className: "facet-title",
-        onClick: this.handleOpenToggleClick
-      }, _react["default"].createElement("span", {
-        className: "expand-toggle col-auto px-0"
-      }, _react["default"].createElement("i", {
-        className: "icon icon-fw icon-" + (anySelections ? "dot-circle far" : facetOpen ? "minus fas" : "plus fas")
-      })), _react["default"].createElement("div", {
-        className: "col px-0 line-height-1"
-      }, _react["default"].createElement("span", {
-        "data-tip": tooltip,
-        "data-place": "right"
-      }, title)), _react["default"].createElement(_Fade.Fade, {
-        "in": !facetOpen && !anySelections
-      }, _react["default"].createElement("span", {
-        className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
-        "data-place": "right",
-        "data-tip": "Group of ".concat(extendedFacets.length, " facets ").concat(anySelections ? " with at least 1 having a selection." : "")
-      }, _react["default"].createElement("i", {
-        className: "icon fas icon-layer-group"
-      })))), _react["default"].createElement(_Collapse.Collapse, {
-        "in": facetOpen || anySelections
-      }, _react["default"].createElement("div", {
-        className: "facet-group-list-container"
-      }, extendedFacets)));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "facet" + (facetOpen || anySelections ? ' open' : ' closed'),
+          "data-group": title
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("h5", {
+          className: "facet-title",
+          onClick: this.handleOpenToggleClick
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "expand-toggle col-auto px-0"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-" + (anySelections ? "dot-circle far" : facetOpen ? "minus fas" : "plus fas")
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "col px-0 line-height-1"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          "data-tip": tooltip,
+          "data-place": "right"
+        }, title)),
+        /*#__PURE__*/
+        _react["default"].createElement(_Fade.Fade, {
+          "in": !facetOpen && !anySelections
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
+          "data-place": "right",
+          "data-tip": "Group of ".concat(extendedFacets.length, " facets ").concat(anySelections ? " with at least 1 having a selection." : "")
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon fas icon-layer-group"
+        })))),
+        /*#__PURE__*/
+        _react["default"].createElement(_Collapse.Collapse, {
+          "in": facetOpen || anySelections
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "facet-group-list-container"
+        }, extendedFacets)))
+      );
     }
   }]);
 

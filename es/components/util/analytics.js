@@ -183,7 +183,7 @@ function initializeGoogleAnalytics() {
       initialHref = _appOptions$initialHr === void 0 ? null : _appOptions$initialHr,
       appOpts = _objectWithoutProperties(appOptions, ["initialContext", "initialHref"]);
 
-  var options = _objectSpread({}, defaultOptions, {}, appOpts); // TODO: Check for user-scoped 'do not track' flag, set state.enabled=false
+  var options = _objectSpread(_objectSpread({}, defaultOptions), appOpts); // TODO: Check for user-scoped 'do not track' flag, set state.enabled=false
 
 
   var _ref = JWT.getUserDetails() || {},
@@ -270,7 +270,7 @@ function registerPageView() {
 
   var parts = _url["default"].parse(href, true);
 
-  var pageViewObject = _objectSpread({}, eventObjectFromCtx(context), {
+  var pageViewObject = _objectSpread(_objectSpread({}, eventObjectFromCtx(context)), {}, {
     hitType: 'pageview'
   });
 
@@ -550,7 +550,7 @@ function productClick(item) {
   var href = extraData.href || window.location.href;
   var evtFromCtx = eventObjectFromCtx(context);
 
-  var eventObj = _objectSpread({}, evtFromCtx, {
+  var eventObj = _objectSpread(_objectSpread({}, evtFromCtx), {}, {
     'hitType': 'event',
     'eventCategory': evtFromCtx.currentFilters ? 'Search Result Link' : 'Product List Link',
     'eventAction': 'click',
@@ -883,7 +883,7 @@ function addProductsEE(items) {
       return;
     }
 
-    ga2('ec:addProduct', _objectSpread({}, pObj, {
+    ga2('ec:addProduct', _objectSpread(_objectSpread({}, pObj), {}, {
       quantity: 1
     }));
     count++;

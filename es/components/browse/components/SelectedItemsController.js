@@ -57,15 +57,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 /**
  * Utility function to post message to parent window
@@ -107,12 +137,14 @@ var SelectedItemsController =
 function (_React$PureComponent) {
   _inherits(SelectedItemsController, _React$PureComponent);
 
+  var _super = _createSuper(SelectedItemsController);
+
   function SelectedItemsController(props) {
     var _this;
 
     _classCallCheck(this, SelectedItemsController);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SelectedItemsController).call(this, props));
+    _this = _super.call(this, props);
     _this.handleSelectItem = _this.handleSelectItem.bind(_assertThisInitialized(_this));
     _this.handleSelectItemCompleteClick = _this.handleSelectItemCompleteClick.bind(_assertThisInitialized(_this));
     _this.handleSelectCancelClick = _this.handleSelectCancelClick.bind(_assertThisInitialized(_this));
@@ -252,7 +284,7 @@ function (_React$PureComponent) {
         // Remove lab.display_title and type columns on selection
         var newColumnExtensionMap = _underscore["default"].clone(originalColumnExtensionMap);
 
-        newColumnExtensionMap.display_title = _objectSpread({}, newColumnExtensionMap.display_title, {
+        newColumnExtensionMap.display_title = _objectSpread(_objectSpread({}, newColumnExtensionMap.display_title), {}, {
           'minColumnWidth': (originalColumnExtensionMap.display_title.minColumnWidth || 100) + 20,
           'render': function render(result, parentProps) {
             var selectedItems = _this2.state.selectedItems;
@@ -261,19 +293,26 @@ function (_React$PureComponent) {
                 toggleDetailOpen = parentProps.toggleDetailOpen,
                 href = parentProps.href,
                 context = parentProps.context;
-            return _react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnWrapper, {
-              result: result,
-              href: href,
-              context: context,
-              rowNumber: rowNumber,
-              detailOpen: detailOpen,
-              toggleDetailOpen: toggleDetailOpen
-            }, _react["default"].createElement(SelectionItemCheckbox, _extends({
-              selectedItems: selectedItems,
-              isMultiSelect: currentAction === 'multiselect'
-            }, {
-              handleSelectItem: _this2.handleSelectItem
-            })), _react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnDefault, null));
+            return (
+              /*#__PURE__*/
+              _react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnWrapper, {
+                result: result,
+                href: href,
+                context: context,
+                rowNumber: rowNumber,
+                detailOpen: detailOpen,
+                toggleDetailOpen: toggleDetailOpen
+              },
+              /*#__PURE__*/
+              _react["default"].createElement(SelectionItemCheckbox, _extends({
+                selectedItems: selectedItems,
+                isMultiSelect: currentAction === 'multiselect'
+              }, {
+                handleSelectItem: _this2.handleSelectItem
+              })),
+              /*#__PURE__*/
+              _react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnDefault, null))
+            );
           }
         });
         return newColumnExtensionMap;
@@ -322,12 +361,15 @@ var SelectionItemCheckbox = _react["default"].memo(function (props) {
   var onChange = (0, _react.useMemo)(function () {
     return handleSelectItem.bind(handleSelectItem, result, isMultiSelect);
   }, [handleSelectItem, result, isMultiSelect]);
-  return _react["default"].createElement("input", {
-    type: "checkbox",
-    checked: isChecked,
-    onChange: onChange,
-    className: "mr-2"
-  });
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("input", {
+      type: "checkbox",
+      checked: isChecked,
+      onChange: onChange,
+      className: "mr-2"
+    })
+  );
 });
 /** Move to own file later maybe. Especially if functionality expands. */
 
@@ -341,40 +383,69 @@ var SelectStickyFooter = _react["default"].memo(function (props) {
       currentAction = props.currentAction;
   var itemTypeFriendlyName = (0, _schemaTransforms.getTitleForType)((0, _schemaTransforms.getSchemaTypeFromSearchContext)(context), schemas);
   var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
-  return _react["default"].createElement(StickyFooter, null, _react["default"].createElement("div", {
-    className: "row selection-controls-footer"
-  }, _react["default"].createElement("div", {
-    className: "col mb-05 mt-05"
-  }, currentAction === 'multiselect' ? _react["default"].createElement("div", {
-    className: "row"
-  }, _react["default"].createElement("h3", {
-    className: "mt-0 mb-0 col-auto text-600"
-  }, selectedItems.size), _react["default"].createElement("h4", {
-    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
-  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : _react["default"].createElement("div", {
-    className: "row"
-  }, _react["default"].createElement("h4", {
-    className: "mt-0 mb-0 col-auto text-400"
-  }, selectedItemDisplayTitle), _react["default"].createElement("h4", {
-    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
-  }, "selected"))), _react["default"].createElement("div", {
-    className: "col-12 col-md-auto"
-  }, _react["default"].createElement("button", {
-    type: "button",
-    className: "btn btn-success",
-    onClick: onComplete,
-    disabled: selectedItems.size === 0,
-    "data-tip": "Select checked items and close window"
-  }, _react["default"].createElement("i", {
-    className: "icon icon-fw fas icon-check"
-  }), "\xA0 Apply"), _react["default"].createElement("button", {
-    type: "button",
-    className: "btn btn-outline-warning ml-1",
-    onClick: onCancel,
-    "data-tip": "Cancel selection and close window"
-  }, _react["default"].createElement("i", {
-    className: "icon icon-fw fas icon-times"
-  }), "\xA0 Cancel"))));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement(StickyFooter, null,
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "row selection-controls-footer"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "col mb-05 mt-05"
+    }, currentAction === 'multiselect' ?
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "row"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("h3", {
+      className: "mt-0 mb-0 col-auto text-600"
+    }, selectedItems.size),
+    /*#__PURE__*/
+    _react["default"].createElement("h4", {
+      className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+    }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) :
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "row"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("h4", {
+      className: "mt-0 mb-0 col-auto text-400"
+    }, selectedItemDisplayTitle),
+    /*#__PURE__*/
+    _react["default"].createElement("h4", {
+      className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+    }, "selected"))),
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "col-12 col-md-auto"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("button", {
+      type: "button",
+      className: "btn btn-success",
+      onClick: onComplete,
+      disabled: selectedItems.size === 0,
+      "data-tip": "Select checked items and close window"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon icon-fw fas icon-check"
+    }), "\xA0 Apply"),
+    /*#__PURE__*/
+    _react["default"].createElement("button", {
+      type: "button",
+      className: "btn btn-outline-warning ml-1",
+      onClick: onCancel,
+      "data-tip": "Cancel selection and close window"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon icon-fw fas icon-times"
+    }), "\xA0 Cancel"))))
+  );
 });
 /**
  * General purpose sticky footer component
@@ -388,9 +459,14 @@ function StickyFooter(_ref2) {
   var children = _ref2.children,
       passProps = _objectWithoutProperties(_ref2, ["children"]);
 
-  return _react["default"].createElement("div", _extends({
-    className: "sticky-page-footer"
-  }, passProps), _react["default"].createElement("div", {
-    className: "container"
-  }, children));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", _extends({
+      className: "sticky-page-footer"
+    }, passProps),
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "container"
+    }, children))
+  );
 }

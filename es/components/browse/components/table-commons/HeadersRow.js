@@ -39,12 +39,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -52,6 +46,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -65,6 +95,8 @@ var HeadersRow =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(HeadersRow, _React$PureComponent);
+
+  var _super = _createSuper(HeadersRow);
 
   _createClass(HeadersRow, null, [{
     key: "alignedWidths",
@@ -138,7 +170,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, HeadersRow);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRow).call(this, props));
+    _this = _super.call(this, props);
     _this.onWindowClick = _this.onWindowClick.bind(_assertThisInitialized(_this));
     _this.setShowingSortFieldsFor = _this.setShowingSortFieldsFor.bind(_assertThisInitialized(_this));
     _this.sortByField = _this.sortByField.bind(_assertThisInitialized(_this));
@@ -264,7 +296,7 @@ function (_React$PureComponent) {
           throw new Error('props.setHeaderWidths not a function');
         }
 
-        setColumnWidths(_objectSpread({}, columnWidths, {}, widths));
+        setColumnWidths(_objectSpread(_objectSpread({}, columnWidths), widths));
       });
     }
   }, {
@@ -275,7 +307,7 @@ function (_React$PureComponent) {
         var widths = _ref3.widths;
         var defaultMinColumnWidth = _ref4.defaultMinColumnWidth;
         return {
-          'widths': _objectSpread({}, widths, _defineProperty({}, field, Math.max(columnDefinition.minColumnWidth || defaultMinColumnWidth || 55, r.x)))
+          'widths': _objectSpread(_objectSpread({}, widths), {}, _defineProperty({}, field, Math.max(columnDefinition.minColumnWidth || defaultMinColumnWidth || 55, r.x)))
         };
       });
     }
@@ -316,45 +348,56 @@ function (_React$PureComponent) {
       };
       var alignedWidths = this.memoized.alignedWidths(columnDefinitions, columnWidths, widths, windowWidth);
       var rootLoadingField = this.memoized.getRootLoadingField(columnDefinitions, loadingField);
-      return _react["default"].createElement("div", {
-        className: outerClassName,
-        style: {
-          'width': width || null // Only passed in from ItemPage
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: outerClassName,
+          style: {
+            'width': width || null // Only passed in from ItemPage
 
+          },
+          "data-showing-sort-fields-for": showingSortFieldsForColumn
         },
-        "data-showing-sort-fields-for": showingSortFieldsForColumn
-      }, _react["default"].createElement("div", {
-        className: "headers-columns-overflow-container"
-      }, _react["default"].createElement("div", {
-        className: "columns clearfix",
-        style: {
-          left: leftOffset //transform: "translate3d(" + leftOffset + "px, 0px, 0px)"
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "headers-columns-overflow-container"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "columns clearfix",
+          style: {
+            left: leftOffset //transform: "translate3d(" + leftOffset + "px, 0px, 0px)"
 
-        }
-      }, columnDefinitions.map(function (columnDefinition, index) {
-        var field = columnDefinition.field;
-        return (// `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
-          _react["default"].createElement(HeadersRowColumn, _extends({}, commonProps, {
-            columnDefinition: columnDefinition,
-            index: index,
-            showingSortOptionsMenu: showingSortFieldsForColumn && showingSortFieldsForColumn === field,
-            isLoading: rootLoadingField && rootLoadingField === field
-          }, {
-            width: alignedWidths[index],
-            active: activeColumnMap[field],
-            key: field
-          }))
-        );
-      }))), showingSortFieldsForColumn !== null ? _react["default"].createElement(SortOptionsMenuContainer, _extends({
-        showingSortFieldsForColumn: showingSortFieldsForColumn,
-        columnDefinitions: columnDefinitions,
-        sortColumn: sortColumn,
-        sortReverse: sortReverse,
-        alignedWidths: alignedWidths,
-        leftOffset: leftOffset
-      }, {
-        sortByField: this.sortByField
-      })) : null);
+          }
+        }, columnDefinitions.map(function (columnDefinition, index) {
+          var field = columnDefinition.field;
+          return (
+            /*#__PURE__*/
+            // `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
+            _react["default"].createElement(HeadersRowColumn, _extends({}, commonProps, {
+              columnDefinition: columnDefinition,
+              index: index,
+              showingSortOptionsMenu: showingSortFieldsForColumn && showingSortFieldsForColumn === field,
+              isLoading: rootLoadingField && rootLoadingField === field
+            }, {
+              width: alignedWidths[index],
+              active: activeColumnMap[field],
+              key: field
+            }))
+          );
+        }))), showingSortFieldsForColumn !== null ?
+        /*#__PURE__*/
+        _react["default"].createElement(SortOptionsMenuContainer, _extends({
+          showingSortFieldsForColumn: showingSortFieldsForColumn,
+          columnDefinitions: columnDefinitions,
+          sortColumn: sortColumn,
+          sortReverse: sortReverse,
+          alignedWidths: alignedWidths,
+          leftOffset: leftOffset
+        }, {
+          sortByField: this.sortByField
+        })) : null)
+      );
     }
   }]);
 
@@ -403,12 +446,14 @@ var HeadersRowColumn =
 function (_React$PureComponent2) {
   _inherits(HeadersRowColumn, _React$PureComponent2);
 
+  var _super2 = _createSuper(HeadersRowColumn);
+
   function HeadersRowColumn(props) {
     var _this4;
 
     _classCallCheck(this, HeadersRowColumn);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(HeadersRowColumn).call(this, props));
+    _this4 = _super2.call(this, props);
     _this4.onDrag = _this4.onDrag.bind(_assertThisInitialized(_this4));
     _this4.onStop = _this4.onStop.bind(_assertThisInitialized(_this4));
     _this4.memoized = {
@@ -461,7 +506,9 @@ function (_React$PureComponent2) {
       var sorterIcon;
 
       if (!noSort && typeof sortByField === 'function' && width >= 50) {
-        sorterIcon = _react["default"].createElement(ColumnSorterIcon, {
+        sorterIcon =
+        /*#__PURE__*/
+        _react["default"].createElement(ColumnSorterIcon, {
           columnDefinition: columnDefinition,
           sortByField: sortByField,
           showingSortOptionsMenu: showingSortOptionsMenu,
@@ -472,32 +519,45 @@ function (_React$PureComponent2) {
       }
 
       var cls = "search-headers-column-block" + (noSort ? " no-sort" : '') + (showingSortOptionsMenu ? " showing-sort-field-options" : "");
-      return _react["default"].createElement("div", {
-        "data-field": field,
-        "data-column-key": field,
-        key: field,
-        className: cls,
-        style: {
-          width: width
-        }
-      }, _react["default"].createElement("div", {
-        className: "inner"
-      }, _react["default"].createElement("div", {
-        className: "column-title"
-      }, _react["default"].createElement("span", {
-        "data-tip": tooltip,
-        "data-html": true
-      }, colTitle || title)), sorterIcon), typeof onAdjusterDrag === "function" ? _react["default"].createElement(_reactDraggable["default"], {
-        position: {
-          x: width,
-          y: 0
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          "data-field": field,
+          "data-column-key": field,
+          key: field,
+          className: cls,
+          style: {
+            width: width
+          }
         },
-        axis: "x",
-        onDrag: this.onDrag,
-        onStop: this.onStop
-      }, _react["default"].createElement("div", {
-        className: "width-adjuster"
-      })) : null);
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "inner"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "column-title"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          "data-tip": tooltip,
+          "data-html": true
+        }, colTitle || title)), sorterIcon), typeof onAdjusterDrag === "function" ?
+        /*#__PURE__*/
+        _react["default"].createElement(_reactDraggable["default"], {
+          position: {
+            x: width,
+            y: 0
+          },
+          axis: "x",
+          onDrag: this.onDrag,
+          onStop: this.onStop
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "width-adjuster"
+        })) : null)
+      );
     }
   }]);
 
@@ -508,6 +568,8 @@ var ColumnSorterIcon =
 /*#__PURE__*/
 function (_React$PureComponent3) {
   _inherits(ColumnSorterIcon, _React$PureComponent3);
+
+  var _super3 = _createSuper(ColumnSorterIcon);
 
   _createClass(ColumnSorterIcon, null, [{
     key: "getDescend",
@@ -526,7 +588,7 @@ function (_React$PureComponent3) {
 
     _classCallCheck(this, ColumnSorterIcon);
 
-    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(ColumnSorterIcon).call(this, props));
+    _this5 = _super3.call(this, props);
     _this5.onIconClick = _this5.onIconClick.bind(_assertThisInitialized(_this5));
     _this5.memoized = {
       isActive: (0, _memoizeOne["default"])(ColumnSorterIcon.isActive)
@@ -612,18 +674,23 @@ function (_React$PureComponent3) {
         tooltip = "" + sort_fields.length + " sort options";
       }
 
-      return _react["default"].createElement("span", {
-        className: cls,
-        onClick: this.onIconClick,
-        "data-tip": tooltip,
-        "data-html": true
-      }, _react["default"].createElement(ColumnSorterIconElement, _extends({
-        showingSortOptionsMenu: showingSortOptionsMenu,
-        hasMultipleSortOptions: hasMultipleSortOptions,
-        isLoading: isLoading
-      }, {
-        descend: !active || descend
-      })));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: cls,
+          onClick: this.onIconClick,
+          "data-tip": tooltip,
+          "data-html": true
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(ColumnSorterIconElement, _extends({
+          showingSortOptionsMenu: showingSortOptionsMenu,
+          hasMultipleSortOptions: hasMultipleSortOptions,
+          isLoading: isLoading
+        }, {
+          descend: !active || descend
+        })))
+      );
     }
   }]);
 
@@ -684,20 +751,27 @@ var SortOptionsMenuContainer = _react["default"].memo(function (props) {
   var style = {
     left: Math.max(200, widthUntilActiveColumnEnd + leftOffset)
   };
-  return _react["default"].createElement("div", {
-    className: "headers-columns-dropdown-menu-container"
-  }, _react["default"].createElement(SortOptionsMenu, {
-    currentSortColumn: currentSortColumn,
-    descend: descend,
-    sort_fields: sort_fields,
-    sortByField: sortByField,
-    style: style
-  }));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "headers-columns-dropdown-menu-container"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement(SortOptionsMenu, {
+      currentSortColumn: currentSortColumn,
+      descend: descend,
+      sort_fields: sort_fields,
+      sortByField: sortByField,
+      style: style
+    }))
+  );
 });
 
 var SortOptionsMenu = _react["default"].memo(function (_ref7) {
   var _ref7$header = _ref7.header,
-      header = _ref7$header === void 0 ? _react["default"].createElement("h5", {
+      header = _ref7$header === void 0 ?
+  /*#__PURE__*/
+  _react["default"].createElement("h5", {
     className: "dropdown-header mt-0 px-3 pt-03 text-600"
   }, "Sort by") : _ref7$header,
       currentSortColumn = _ref7.currentSortColumn,
@@ -715,18 +789,26 @@ var SortOptionsMenu = _react["default"].memo(function (_ref7) {
     var isActive = currentSortColumn === field;
     var cls = "dropdown-item" + " clickable no-highlight no-user-select" + " d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
     var onClick = sortByField.bind(sortByField, field);
-    return _react["default"].createElement("div", {
-      className: cls,
-      key: field,
-      onClick: onClick
-    }, title || field, !isActive ? null : _react["default"].createElement("i", {
-      className: "small icon fas ml-12 icon-arrow-".concat(descend ? "down" : "up")
-    }));
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("div", {
+        className: cls,
+        key: field,
+        onClick: onClick
+      }, title || field, !isActive ? null :
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
+        className: "small icon fas ml-12 icon-arrow-".concat(descend ? "down" : "up")
+      }))
+    );
   });
-  return _react["default"].createElement("div", {
-    className: "dropdown-menu show",
-    style: style
-  }, header, options);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "dropdown-menu show",
+      style: style
+    }, header, options)
+  );
 });
 
 var ColumnSorterIconElement = _react["default"].memo(function (_ref9) {
@@ -736,24 +818,36 @@ var ColumnSorterIconElement = _react["default"].memo(function (_ref9) {
       isLoading = _ref9$isLoading === void 0 ? false : _ref9$isLoading;
 
   if (isLoading) {
-    return _react["default"].createElement("i", {
-      className: "icon icon-fw icon-circle-notch icon-spin fas"
-    });
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
+        className: "icon icon-fw icon-circle-notch icon-spin fas"
+      })
+    );
   }
 
   if (showingSortOptionsMenu) {
-    return _react["default"].createElement("i", {
-      className: "icon icon-fw icon-times fas"
-    });
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
+        className: "icon icon-fw icon-times fas"
+      })
+    );
   }
 
   if (descend) {
-    return _react["default"].createElement("i", {
-      className: "sort-icon icon icon-fw icon-sort-down fas align-top"
-    });
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
+        className: "sort-icon icon icon-fw icon-sort-down fas align-top"
+      })
+    );
   } else {
-    return _react["default"].createElement("i", {
-      className: "sort-icon icon icon-fw icon-sort-up fas align-bottom"
-    });
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
+        className: "sort-icon icon icon-fw icon-sort-up fas align-bottom"
+      })
+    );
   }
 });
