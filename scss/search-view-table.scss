@@ -905,12 +905,13 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 	&.row {
 		align-items: center;
 		> .col {
-			align-items: center;
 			> .row {
 				flex-wrap: nowrap;
+				align-items: center;
 				> * {
-					overflow-x: hidden;
 					text-overflow: ellipsis;
+					flex-grow: 0;
+					flex-shrink: 1;
 				}
 			}
 		}

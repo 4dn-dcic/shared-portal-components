@@ -181,21 +181,21 @@ function (_React$PureComponent) {
       if (typeof min === "number") {
         if (min === numVal) {
           return null;
-        }
+        } // todo: maybe move to an onBlur + onSubmit
+        // if (numVal < min){
+        //     return min;
+        // }
 
-        if (numVal < min) {
-          return min;
-        }
       }
 
       if (typeof max === "number") {
         if (max === numVal) {
           return null;
-        }
+        } // todo: maybe move to an onBlur + onSubmit
+        // if (numVal > max){
+        //     return max;
+        // }
 
-        if (numVal > max) {
-          return max;
-        }
       }
 
       return numVal;
@@ -268,25 +268,22 @@ function (_React$PureComponent) {
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
         this.setState(function (_ref2) {
-          var toVal = _ref2.toVal;
+          _ref2.toVal;
 
           if (fromVal === null || fromVal === min) {
             return {
               fromVal: null
             };
-          }
+          } // if (typeof toVal === "number" && toVal < fromVal){
+          //     fromVal = toVal;
+          // }
+          // if (typeof min === "number" && fromVal < min){
+          //     fromVal = min;
+          // }
+          // if (typeof max === "number" && fromVal > max){
+          //     fromVal = max;
+          // }
 
-          if (typeof toVal === "number" && toVal < fromVal) {
-            fromVal = toVal;
-          }
-
-          if (typeof min === "number" && fromVal < min) {
-            fromVal = min;
-          }
-
-          if (typeof max === "number" && fromVal > max) {
-            fromVal = max;
-          }
 
           return {
             fromVal: fromVal
@@ -306,25 +303,22 @@ function (_React$PureComponent) {
       try {
         var toVal = RangeFacet.parseAndValidate(facet, value);
         this.setState(function (_ref3) {
-          var fromVal = _ref3.fromVal;
+          _ref3.fromVal;
 
           if (toVal === null || toVal === max) {
             return {
               toVal: null
             };
-          }
+          } // if (typeof fromVal === "number" && fromVal > toVal){
+          //     toVal = fromVal;
+          // }
+          // if (typeof min === "number" && toVal < min){
+          //     toVal = min;
+          // }
+          // if (typeof max === "number" && toVal > max){
+          //     toVal = max;
+          // }
 
-          if (typeof fromVal === "number" && fromVal > toVal) {
-            toVal = fromVal;
-          }
-
-          if (typeof min === "number" && toVal < min) {
-            toVal = min;
-          }
-
-          if (typeof max === "number" && toVal > max) {
-            toVal = max;
-          }
 
           return {
             toVal: toVal
