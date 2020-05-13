@@ -34,7 +34,7 @@ class PromiseQueue {
     }
 
     static dequeue() {
-        if (this.workingOnPromise) {
+        if (this.pendingPromise) {
             return false;
         }
         if (this.stop) {
@@ -47,20 +47,20 @@ class PromiseQueue {
             return false;
         }
         try {
-            this.workingOnPromise = true;
+            this.pendingPromise = true;
             item.promise()
                 .then((value) => {
-                    this.workingOnPromise = false;
+                    this.pendingPromise = false;
                     item.resolve(value);
                     this.dequeue();
                 })
                 .catch((err) => {
-                    this.workingOnPromise = false;
+                    this.pendingPromise = false;
                     item.reject(err);
                     this.dequeue();
                 });
         } catch (err) {
-            this.workingOnPromise = false;
+            this.pendingPromise = false;
             item.reject(err);
             this.dequeue();
         }
@@ -338,19 +338,21 @@ export class DragAndDropFileUploadController extends React.Component {
         };
 
         this.setState({ isLoading: true }, () => {
+            const allPromises = [];
             // Add each file submission chain to the queue, so each file uploads sequentially
             files.forEach((file) => {
-                PromiseQueue.enqueue(() => newFileSubmit(file));
+                allPromises.push(PromiseQueue.enqueue(() => newFileSubmit(file)));
             });
 
             // Update loading state once everything is resolved
-            Promise.all(PromiseQueue.queue)
+            Promise.all(allPromises)
                 .then((result) => {
                     console.log("Completed all uploads!", result);
-                    this.setState({ isLoading: false });
                 })
                 .catch((error) => {
                     console.log("May not have completed all uploads!", error);
+                })
+                .finally(() => {
                     this.setState({ isLoading: false });
                 });
         });
@@ -467,6 +469,7 @@ class DragAndDropModal extends React.Component {
         const {
             show, onUploadStart, fieldName, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal, isLoading
         } = this.props;
+        console.log("isLoading:", isLoading);
 
         const showFieldName = fieldDisplayTitle && fieldName !== fieldDisplayTitle;
 
