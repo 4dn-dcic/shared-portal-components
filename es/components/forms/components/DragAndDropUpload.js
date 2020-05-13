@@ -233,7 +233,7 @@ function (_React$Component2) {
 
           if (_underscore["default"].indexOf(acceptableFileTypes, file.type) === -1) {
             var listOfTypes = acceptableFileTypes.toString();
-            alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\n                        Must be of type: ").concat(listOfTypes, "."));
+            alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\nMust be of type: ").concat(listOfTypes, "."));
             return "continue";
           }
 

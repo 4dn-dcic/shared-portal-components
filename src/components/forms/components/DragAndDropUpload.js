@@ -134,8 +134,7 @@ export class DragAndDropFileUploadController extends React.Component {
                 const acceptableFileTypes = fileSchema.properties.attachment.properties.type.enum;
                 if (_.indexOf(acceptableFileTypes, file.type) === -1) {
                     const listOfTypes = acceptableFileTypes.toString();
-                    alert(`FILE NOT ADDED: File "${file.name}" is not of the correct file type for this field.\n
-                        Must be of type: ${listOfTypes}.`);
+                    alert(`FILE NOT ADDED: File "${file.name}" is not of the correct file type for this field.\n\nMust be of type: ${listOfTypes}.`);
                     continue;
                 }
                 attachment.type = file.type;
