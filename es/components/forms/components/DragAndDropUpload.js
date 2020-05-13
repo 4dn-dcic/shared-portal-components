@@ -719,7 +719,7 @@ function (_React$Component4) {
           show: show
         }, {
           onHide: handleHideModal,
-          className: "submission-view-modal"
+          className: "submission-view-modal drag-and-drop-upload"
         }),
         /*#__PURE__*/
         _react["default"].createElement(_reactBootstrap.Modal.Header, {
@@ -733,28 +733,10 @@ function (_React$Component4) {
         _react["default"].createElement(_reactBootstrap.Modal.Body, null, isLoading ?
         /*#__PURE__*/
         _react["default"].createElement("div", {
-          style: {
-            backgroundColor: 'rgba(255,255,255,.8)',
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 9999
-          }
+          className: "is-loading-overlay-cont"
         },
         /*#__PURE__*/
-        _react["default"].createElement("div", {
-          style: {
-            position: 'absolute',
-            top: '50%',
-            right: 0,
-            left: 0,
-            textAlign: 'center',
-            color: 'grey',
-            fontSize: 36
-          }
-        },
+        _react["default"].createElement("div", null,
         /*#__PURE__*/
         _react["default"].createElement("div", null,
         /*#__PURE__*/
@@ -913,13 +895,7 @@ function (_React$Component5) {
       return (
         /*#__PURE__*/
         _react["default"].createElement("div", {
-          className: "panel text-center d-flex flex-row justify-content-center",
-          style: {
-            backgroundColor: '#eee',
-            border: "1px solid #efefef",
-            height: "30vh",
-            overflowX: "hidden"
-          },
+          className: "dropzone panel text-center d-flex flex-row justify-content-center",
           ref: this.dropZoneRef
         },
         /*#__PURE__*/
@@ -930,15 +906,7 @@ function (_React$Component5) {
         }, files.length === 0 ? "Drag a file here to upload" : null),
         /*#__PURE__*/
         _react["default"].createElement("ul", {
-          style: {
-            listStyleType: "none",
-            display: "flex",
-            margin: "0",
-            paddingTop: "10px",
-            paddingLeft: "0",
-            flexWrap: "wrap",
-            justifyContent: "center"
-          }
+          className: "d-flex flex-wrap m-0 pt-1 pl-0 justify-content-center"
         }, files.map(function (file) {
           return (
             /*#__PURE__*/
@@ -1037,15 +1005,11 @@ function FileIcon(props) {
     }),
     /*#__PURE__*/
     _react["default"].createElement("span", {
-      style: {
-        fontSize: "12px"
-      }
+      className: "filename"
     }, fileName),
     /*#__PURE__*/
     _react["default"].createElement("span", {
-      style: {
-        fontSize: "10px"
-      }
+      className: "filesize"
     }, fileSize, " bytes"))
   );
 }

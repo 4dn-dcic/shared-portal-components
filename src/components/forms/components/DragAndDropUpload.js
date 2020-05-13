@@ -474,7 +474,7 @@ class DragAndDropModal extends React.Component {
         const showFieldName = fieldDisplayTitle && fieldName !== fieldDisplayTitle;
 
         return (
-            <Modal centered {...{ show }} onHide={handleHideModal} className="submission-view-modal">
+            <Modal centered {...{ show }} onHide={handleHideModal} className="submission-view-modal drag-and-drop-upload">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
                         Upload a {fieldName} { showFieldName ? "for " + fieldDisplayTitle : null}
@@ -482,28 +482,8 @@ class DragAndDropModal extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     { isLoading ?
-                        <div
-                            style={{
-                                backgroundColor: 'rgba(255,255,255,.8)',
-                                position: 'absolute',
-                                top: 0,
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                zIndex: 9999
-                            }}
-                        >
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    right: 0,
-                                    left: 0,
-                                    textAlign: 'center',
-                                    color: 'grey',
-                                    fontSize: 36
-                                }}
-                            >
+                        <div className="is-loading-overlay-cont">
+                            <div>
                                 <div><i className="icon icon-spin icon-circle-notch fas"></i></div>
                             </div>
                         </div> : null}
@@ -606,13 +586,7 @@ export class DragAndDropZone extends React.Component {
 
         return (
             <div
-                className="panel text-center d-flex flex-row justify-content-center"
-                style={{
-                    backgroundColor: '#eee',
-                    border: "1px solid #efefef",
-                    height: "30vh",
-                    overflowX: "hidden"
-                }}
+                className="dropzone panel text-center d-flex flex-row justify-content-center"
                 ref={this.dropZoneRef}
             >
                 <span style={{ alignSelf: "center" }}>
@@ -621,15 +595,7 @@ export class DragAndDropZone extends React.Component {
                 {/* TODO: Consider making the file list a separate component...
                 think about potential future features like listing files without icons/in rows
                 or even sorting... would be best to have this be separate if implementing those */}
-                <ul style={{
-                    listStyleType: "none",
-                    display: "flex",
-                    margin: "0",
-                    paddingTop: "10px",
-                    paddingLeft: "0",
-                    flexWrap: "wrap",
-                    justifyContent: "center"
-                }}>
+                <ul className="d-flex flex-wrap m-0 pt-1 pl-0 justify-content-center">
                     { files.map((file) => (
                         <li key={file.download} className="m-1">
                             <FileIcon fileName={file.download} fileSize={file.size}
@@ -672,8 +638,8 @@ function FileIcon(props) {
                 <i className="icon icon-spin icon-circle-notch fas"></i> :
                 <i onClick={() => handleRemoveFile(fileName)} className="icon fas icon-window-close text-danger"></i> }
             <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>
-            <span style={{ fontSize: "12px" }}>{fileName}</span>
-            <span style={{ fontSize: "10px" }}>{fileSize} bytes</span>
+            <span className="filename">{fileName}</span>
+            <span className="filesize">{fileSize} bytes</span>
         </div>
     );
 }
