@@ -825,9 +825,11 @@ function (_React$Component5) {
       dragging: false
     };
     _this7.dropZoneRef = _react["default"].createRef();
+    _this7.fileUploadRef = _react["default"].createRef();
     _this7.cleanUpEventListeners = _this7.cleanUpEventListeners.bind(_assertThisInitialized(_this7));
     _this7.setUpEventListeners = _this7.setUpEventListeners.bind(_assertThisInitialized(_this7));
     _this7.handleDrop = _this7.handleDrop.bind(_assertThisInitialized(_this7));
+    _this7.handleDropzoneClick = _this7.handleDropzoneClick.bind(_assertThisInitialized(_this7));
     return _this7;
   }
 
@@ -887,8 +889,37 @@ function (_React$Component5) {
       handleAddFile(evt);
     }
   }, {
+    key: "handleDropzoneClick",
+    value: function handleDropzoneClick(evt) {
+      evt.stopPropagation();
+      console.log("fileuploadref", this.fileUploadRef);
+      this.fileUploadRef.current.click();
+    }
+  }, {
+    key: "handleAddFromBrowse",
+    value: function handleAddFromBrowse(evt) {
+      var handleAddFile = this.props.handleAddFile;
+      var files = evt.target.files;
+      var numFiles = files.length;
+      var items = [];
+
+      for (var i = 0; i < numFiles; i++) {
+        items.push(files[i]);
+      }
+
+      var obj = {
+        dataTransfer: {
+          items: items,
+          files: evt.target.files
+        }
+      };
+      handleAddFile(obj);
+    }
+  }, {
     key: "render",
     value: function render() {
+      var _this8 = this;
+
       var _this$props7 = this.props,
           files = _this$props7.files,
           handleRemoveFile = _this$props7.handleRemoveFile;
@@ -896,8 +927,20 @@ function (_React$Component5) {
         /*#__PURE__*/
         _react["default"].createElement("div", {
           className: "dropzone panel text-center d-flex flex-row justify-content-center",
-          ref: this.dropZoneRef
+          ref: this.dropZoneRef,
+          onClick: this.handleDropzoneClick
         },
+        /*#__PURE__*/
+        _react["default"].createElement("input", {
+          type: "file",
+          ref: this.fileUploadRef,
+          multiple: true,
+          onChange: function onChange(e) {
+            return _this8.handleAddFromBrowse(e);
+          },
+          name: "filesFromBrowse",
+          className: "d-none"
+        }),
         /*#__PURE__*/
         _react["default"].createElement("span", {
           style: {
@@ -966,8 +1009,9 @@ function FileIcon(props) {
     }) :
     /*#__PURE__*/
     _react["default"].createElement("i", {
-      onClick: function onClick() {
-        return handleRemoveFile(fileName);
+      onClick: function onClick(e) {
+        e.stopPropagation();
+        handleRemoveFile(fileName);
       },
       className: "icon fas icon-window-close text-danger"
     }),

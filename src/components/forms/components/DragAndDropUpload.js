@@ -495,10 +495,8 @@ class DragAndDropModal extends React.Component {
                         <i className="icon fas icon-close"></i> Cancel
                     </button>
                     {/* TODO: Controlled file inputs are complicated... maybe wait to implement this
-                    // Refer to https://medium.com/trabe/controlled-file-input-components-in-react-3f0d42f901b8
-                    <input type="files" name="filesFromBrowse[]" className="btn btn-primary">
-                        <i className="icon fas icon-folder-open"></i> Browse
-                    </input> */}
+                    // Refer to https://medium.com/trabe/controlled-file-input-components-in-react-3f0d42f901b8 */}
+                   
                     <button type="button" className="btn btn-primary" onClick={onUploadStart}
                         disabled={files.length === 0 }>
                         <i className="icon fas icon-upload"></i> Upload {fieldDisplayTitle}
@@ -527,9 +525,11 @@ export class DragAndDropZone extends React.Component {
             dragging: false
         };
         this.dropZoneRef = React.createRef();
+        this.fileUploadRef = React.createRef();
         this.cleanUpEventListeners = this.cleanUpEventListeners.bind(this);
         this.setUpEventListeners = this.setUpEventListeners.bind(this);
         this.handleDrop = this.handleDrop.bind(this);
+        this.handleDropzoneClick = this.handleDropzoneClick.bind(this);
     }
 
     componentDidMount() {
@@ -580,6 +580,32 @@ export class DragAndDropZone extends React.Component {
         handleAddFile(evt);
     }
 
+    handleDropzoneClick(evt) {
+        evt.stopPropagation();
+        console.log("fileuploadref", this.fileUploadRef);
+        this.fileUploadRef.current.click();
+    }
+
+    handleAddFromBrowse(evt) {
+        const { handleAddFile } = this.props;
+        const { files } = evt.target;
+        const numFiles = files.length;
+        const items = [];
+
+        for (let i = 0; i < numFiles; i++) {
+            items.push(files[i]);
+        }
+
+        const obj = {
+            dataTransfer: {
+                items,
+                files: evt.target.files
+            }
+        };
+
+        handleAddFile(obj);
+    }
+
     render() {
         const { files, handleRemoveFile } = this.props;
 
@@ -587,7 +613,11 @@ export class DragAndDropZone extends React.Component {
             <div
                 className="dropzone panel text-center d-flex flex-row justify-content-center"
                 ref={this.dropZoneRef}
+                onClick={this.handleDropzoneClick}
             >
+                <input type="file" ref={this.fileUploadRef} multiple
+                    onChange={(e) => this.handleAddFromBrowse(e)}
+                    name="filesFromBrowse" className="d-none" />
                 <span style={{ alignSelf: "center" }}>
                     { files.length === 0 ? "Drag a file here to upload" : null }
                 </span>
@@ -635,7 +665,7 @@ function FileIcon(props) {
         <div className="d-flex flex-column" style={{ width: "150px" }}>
             { thisUploading ?
                 <i className="icon icon-spin icon-circle-notch fas"></i> :
-                <i onClick={() => handleRemoveFile(fileName)} className="icon fas icon-window-close text-danger"></i> }
+                <i onClick={(e) => { e.stopPropagation(); handleRemoveFile(fileName);}} className="icon fas icon-window-close text-danger"></i> }
             <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>
             <span className="filename">{fileName}</span>
             <span className="filesize">{fileSize} bytes</span>
