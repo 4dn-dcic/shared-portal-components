@@ -619,7 +619,7 @@ export class DragAndDropZone extends React.Component {
                     onChange={(e) => this.handleAddFromBrowse(e)}
                     name="filesFromBrowse" className="d-none" />
                 <span style={{ alignSelf: "center" }}>
-                    { files.length === 0 ? "Drag a file here to upload" : null }
+                    { files.length === 0 ? "Click or drag a file here to upload" : null }
                 </span>
                 {/* TODO: Consider making the file list a separate component...
                 think about potential future features like listing files without icons/in rows
