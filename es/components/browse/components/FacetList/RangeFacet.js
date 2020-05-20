@@ -44,6 +44,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -51,42 +57,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function getRangeValuesFromFiltersByField() {
   var facets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
@@ -127,8 +97,6 @@ var RangeFacet =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(RangeFacet, _React$PureComponent);
-
-  var _super = _createSuper(RangeFacet);
 
   _createClass(RangeFacet, null, [{
     key: "parseNumber",
@@ -241,7 +209,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, RangeFacet);
 
-    _this = _super.call(this, props);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(RangeFacet).call(this, props));
     _this.handleOpenToggleClick = _this.handleOpenToggleClick.bind(_assertThisInitialized(_this));
     _this.setFrom = _this.setFrom.bind(_assertThisInitialized(_this));
     _this.setTo = _this.setTo.bind(_assertThisInitialized(_this));
@@ -338,7 +306,7 @@ function (_React$PureComponent) {
           onFilter = _this$props.onFilter,
           facet = _this$props.facet;
       var fromVal = this.state.fromVal;
-      onFilter(_objectSpread(_objectSpread({}, facet), {}, {
+      onFilter(_objectSpread({}, facet, {
         field: facet.field + ".from"
       }), {
         key: fromVal
@@ -351,7 +319,7 @@ function (_React$PureComponent) {
           onFilter = _this$props2.onFilter,
           facet = _this$props2.facet;
       var toVal = this.state.toVal;
-      onFilter(_objectSpread(_objectSpread({}, facet), {}, {
+      onFilter(_objectSpread({}, facet, {
         field: facet.field + ".to"
       }), {
         key: toVal
@@ -426,134 +394,83 @@ function (_React$PureComponent) {
           toIncrements = _this$memoized$validI.toIncrements;
 
       var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
-          "data-field": facet.field
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "facet-title",
-          onClick: this.handleOpenToggleClick
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "expand-toggle col-auto px-0"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "col px-0 line-height-1"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          "data-tip": tooltip,
-          "data-place": "right"
-        }, propTitle || facetTitle || field)),
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Fade, {
-          "in": !isOpen
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
-        }, isStatic ?
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle"),
-          style: {
-            opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25
-          }
-        }) :
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-greater-than-equal fas"
-        })))),
-        /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
-          "in": isOpen
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "inner-panel"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "row"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("label", {
-          className: "col-auto mb-0"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-greater-than-equal fas small"
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement(RangeDropdown, {
-          title: this.termTitle(facet.field, typeof fromVal === 'number' ? fromVal : min || 0),
-          value: fromVal,
-          savedValue: savedFromVal,
-          max: toVal || null,
-          increments: fromIncrements,
-          variant: typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark",
-          onSelect: this.setFrom,
-          update: this.performUpdateFrom,
-          termTransformFxn: this.termTitle,
-          facet: facet,
-          id: "from_" + field
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable"),
-          onClick: fromVal !== null ? this.resetFrom : null
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")
-        }))),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "row"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("label", {
-          className: "col-auto mb-0"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-less-than-equal fas small"
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement(RangeDropdown, {
-          title: this.termTitle(facet.field, typeof toVal === 'number' ? toVal : max) ||
-          /*#__PURE__*/
-          _react["default"].createElement("em", null, "Infinity"),
-          value: toVal,
-          savedValue: savedToVal,
-          min: fromVal || null,
-          increments: toIncrements,
-          variant: typeof toVal === "number" || savedToVal ? "primary" : "outline-dark",
-          onSelect: this.setTo,
-          update: this.performUpdateTo,
-          termTransformFxn: this.termTitle,
-          facet: facet,
-          id: "to_" + field
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable"),
-          onClick: toVal !== null ? this.resetTo : null
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw fas icon-" + (toVal === null ? "pencil" : "times-circle")
-        }))))))
-      );
+      return _react["default"].createElement("div", {
+        className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
+        "data-field": facet.field
+      }, _react["default"].createElement("h5", {
+        className: "facet-title",
+        onClick: this.handleOpenToggleClick
+      }, _react["default"].createElement("span", {
+        className: "expand-toggle col-auto px-0"
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
+      })), _react["default"].createElement("div", {
+        className: "col px-0 line-height-1"
+      }, _react["default"].createElement("span", {
+        "data-tip": tooltip,
+        "data-place": "right"
+      }, propTitle || facetTitle || field)), _react["default"].createElement(_reactBootstrap.Fade, {
+        "in": !isOpen
+      }, _react["default"].createElement("span", {
+        className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
+      }, isStatic ? _react["default"].createElement("i", {
+        className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle"),
+        style: {
+          opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25
+        }
+      }) : _react["default"].createElement("i", {
+        className: "icon icon-fw icon-greater-than-equal fas"
+      })))), _react["default"].createElement(_Collapse.Collapse, {
+        "in": isOpen
+      }, _react["default"].createElement("div", {
+        className: "inner-panel"
+      }, _react["default"].createElement("div", {
+        className: "row"
+      }, _react["default"].createElement("label", {
+        className: "col-auto mb-0"
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-greater-than-equal fas small"
+      })), _react["default"].createElement(RangeDropdown, {
+        title: this.termTitle(facet.field, typeof fromVal === 'number' ? fromVal : min || 0),
+        value: fromVal,
+        savedValue: savedFromVal,
+        max: toVal || null,
+        increments: fromIncrements,
+        variant: typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark",
+        onSelect: this.setFrom,
+        update: this.performUpdateFrom,
+        termTransformFxn: this.termTitle,
+        facet: facet,
+        id: "from_" + field
+      }), _react["default"].createElement("div", {
+        className: "clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable"),
+        onClick: fromVal !== null ? this.resetFrom : null
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")
+      }))), _react["default"].createElement("div", {
+        className: "row"
+      }, _react["default"].createElement("label", {
+        className: "col-auto mb-0"
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-less-than-equal fas small"
+      })), _react["default"].createElement(RangeDropdown, {
+        title: this.termTitle(facet.field, typeof toVal === 'number' ? toVal : max) || _react["default"].createElement("em", null, "Infinity"),
+        value: toVal,
+        savedValue: savedToVal,
+        min: fromVal || null,
+        increments: toIncrements,
+        variant: typeof toVal === "number" || savedToVal ? "primary" : "outline-dark",
+        onSelect: this.setTo,
+        update: this.performUpdateTo,
+        termTransformFxn: this.termTitle,
+        facet: facet,
+        id: "to_" + field
+      }), _react["default"].createElement("div", {
+        className: "clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable"),
+        onClick: toVal !== null ? this.resetTo : null
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw fas icon-" + (toVal === null ? "pencil" : "times-circle")
+      }))))));
     }
   }]);
 
@@ -567,14 +484,12 @@ var RangeDropdown =
 function (_React$PureComponent2) {
   _inherits(RangeDropdown, _React$PureComponent2);
 
-  var _super2 = _createSuper(RangeDropdown);
-
   function RangeDropdown(props) {
     var _this2;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this2 = _super2.call(this, props);
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(RangeDropdown).call(this, props));
     _this2.onTextInputChange = _this2.onTextInputChange.bind(_assertThisInitialized(_this2));
     _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
     _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
@@ -660,67 +575,47 @@ function (_React$PureComponent2) {
 
         return m;
       }, new Set())).map(function (increment) {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement(_reactBootstrap.DropdownItem, {
-            disabled: typeof min === "number" && increment <= min || typeof max === "number" && increment >= max,
-            key: increment,
-            eventKey: increment,
-            active: increment === savedValue
-          }, termTransformFxn(facet.field, increment, true), increment === min ?
-          /*#__PURE__*/
-          _react["default"].createElement("small", null, " (min)") : null, increment === max ?
-          /*#__PURE__*/
-          _react["default"].createElement("small", null, " (max)") : null)
-        );
+        return _react["default"].createElement(_reactBootstrap.DropdownItem, {
+          disabled: typeof min === "number" && increment <= min || typeof max === "number" && increment >= max,
+          key: increment,
+          eventKey: increment,
+          active: increment === savedValue
+        }, termTransformFxn(facet.field, increment, true), increment === min ? _react["default"].createElement("small", null, " (min)") : null, increment === max ? _react["default"].createElement("small", null, " (max)") : null);
       });
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.DropdownButton, _extends({
-          variant: variant,
-          disabled: disabled,
-          className: className,
-          title: title,
-          size: size,
-          id: id
-        }, {
-          alignRight: true,
-          onSelect: this.onDropdownSelect
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("form", {
-          className: "inline-input-container",
-          onSubmit: this.onTextInputFormSubmit
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "input-element-container"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("input", _extends({
-          type: "number",
-          className: "form-control"
-        }, {
-          min: min,
-          max: max,
-          value: value,
-          placeholder: placeholder,
-          step: step
-        }, {
-          onChange: this.onTextInputChange
-        }))),
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "submit",
-          disabled: !(savedValue !== value),
-          className: "btn"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-check fas"
-        }))), menuOptions)
-      );
+      return _react["default"].createElement(_reactBootstrap.DropdownButton, _extends({
+        variant: variant,
+        disabled: disabled,
+        className: className,
+        title: title,
+        size: size,
+        id: id
+      }, {
+        alignRight: true,
+        onSelect: this.onDropdownSelect
+      }), _react["default"].createElement("form", {
+        className: "inline-input-container",
+        onSubmit: this.onTextInputFormSubmit
+      }, _react["default"].createElement("div", {
+        className: "input-element-container"
+      }, _react["default"].createElement("input", _extends({
+        type: "number",
+        className: "form-control"
+      }, {
+        min: min,
+        max: max,
+        value: value,
+        placeholder: placeholder,
+        step: step
+      }, {
+        onChange: this.onTextInputChange
+      }))), _react["default"].createElement("button", {
+        type: "submit",
+        disabled: !(savedValue !== value),
+        className: "btn"
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-check fas"
+      }))), menuOptions);
     }
   }]);
 

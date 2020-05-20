@@ -19,45 +19,15 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -72,14 +42,12 @@ var DropdownButton =
 function (_React$PureComponent) {
   _inherits(DropdownButton, _React$PureComponent);
 
-  var _super = _createSuper(DropdownButton);
-
   function DropdownButton(props) {
     var _this;
 
     _classCallCheck(this, DropdownButton);
 
-    _this = _super.call(this, props);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DropdownButton).call(this, props));
     _this.onWindowClick = _this.onWindowClick.bind(_assertThisInitialized(_this));
     _this.state = {
       'open': false
@@ -113,27 +81,20 @@ function (_React$PureComponent) {
           variant = _this$props.variant,
           size = _this$props.size;
       var open = this.state.open;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "dropdown"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: // TODO finish handling other props
-          "dropdown-toggle btn" + ("btn-" + (variant || "primary")) + ("btn-" + (size || "md")),
-          role: "button",
-          "data-toggle": "dropdown",
-          "aria-haspopup": "true",
-          "aria-expanded": "false"
-        }, title),
-        /*#__PURE__*/
-        _react["default"].createElement(DropdownMenu, {
-          children: children,
-          open: open
-        }))
-      );
+      return _react["default"].createElement("div", {
+        className: "dropdown"
+      }, _react["default"].createElement("button", {
+        type: "button",
+        className: // TODO finish handling other props
+        "dropdown-toggle btn" + ("btn-" + (variant || "primary")) + ("btn-" + (size || "md")),
+        role: "button",
+        "data-toggle": "dropdown",
+        "aria-haspopup": "true",
+        "aria-expanded": "false"
+      }, title), _react["default"].createElement(DropdownMenu, {
+        children: children,
+        open: open
+      }));
     }
   }]);
 
@@ -143,21 +104,15 @@ function (_React$PureComponent) {
 exports.DropdownButton = DropdownButton;
 
 _defineProperty(DropdownButton, "defaultProps", {
-  'children': [
-  /*#__PURE__*/
-  _react["default"].createElement("a", {
+  'children': [_react["default"].createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 1
-  }, "Action"),
-  /*#__PURE__*/
-  _react["default"].createElement("a", {
+  }, "Action"), _react["default"].createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 2
-  }, "Another action"),
-  /*#__PURE__*/
-  _react["default"].createElement("a", {
+  }, "Another action"), _react["default"].createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 3
@@ -169,12 +124,9 @@ var DropdownMenu = _react["default"].memo(function (props) {
   var children = props.children,
       open = props.open;
   if (!open) return null;
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "dropdown-menu show"
-    }, children)
-  );
+  return _react["default"].createElement("div", {
+    className: "dropdown-menu show"
+  }, children);
 }); // TODO create plain Dropdown. Or not. Idk. Can easily create (more) custom Dropdown togglers and whatnot by emulating the above DropdownButton so not sure is worth adding more complexity...
 
 

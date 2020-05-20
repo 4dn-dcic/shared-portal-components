@@ -50,45 +50,15 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 /**
  * Used in FacetList
@@ -202,14 +172,12 @@ var Term =
 function (_React$PureComponent) {
   _inherits(Term, _React$PureComponent);
 
-  var _super = _createSuper(Term);
-
   function Term(props) {
     var _this;
 
     _classCallCheck(this, Term);
 
-    _this = _super.call(this, props);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Term).call(this, props));
     _this.handleClick = _underscore["default"].debounce(_this.handleClick.bind(_assertThisInitialized(_this)), 500, true);
     _this.state = {
       'filtering': false
@@ -279,21 +247,15 @@ function (_React$PureComponent) {
       var icon = null;
 
       if (filtering) {
-        icon =
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        icon = _react["default"].createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
       } else if (status === 'selected' || status === 'omitted') {
-        icon =
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        icon = _react["default"].createElement("i", {
           className: "icon icon-minus-circle icon-fw fas"
         });
       } else {
-        icon =
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        icon = _react["default"].createElement("i", {
           className: "icon icon-circle icon-fw unselected far"
         });
       }
@@ -303,35 +265,24 @@ function (_React$PureComponent) {
       }
 
       var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("li", {
-          className: "facet-list-element " + statusClassName,
-          key: term.key,
-          "data-key": term.key
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("a", {
-          className: "term",
-          "data-selected": status !== 'none',
-          href: "#",
-          onClick: this.handleClick,
-          "data-term": term.key
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "facet-selector"
-        }, icon),
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "facet-item",
-          "data-tip": title.length > 30 ? title : null
-        }, title),
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "facet-count"
-        }, count)))
-      );
+      return _react["default"].createElement("li", {
+        className: "facet-list-element " + statusClassName,
+        key: term.key,
+        "data-key": term.key
+      }, _react["default"].createElement("a", {
+        className: "term",
+        "data-selected": status !== 'none',
+        href: "#",
+        onClick: this.handleClick,
+        "data-term": term.key
+      }, _react["default"].createElement("span", {
+        className: "facet-selector"
+      }, icon), _react["default"].createElement("span", {
+        className: "facet-item",
+        "data-tip": title.length > 30 ? title : null
+      }, title), _react["default"].createElement("span", {
+        className: "facet-count"
+      }, count)));
     }
   }]);
 
@@ -356,14 +307,12 @@ var FacetTermsList =
 function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
 
-  var _super2 = _createSuper(FacetTermsList);
-
   function FacetTermsList(props) {
     var _this3;
 
     _classCallCheck(this, FacetTermsList);
 
-    _this3 = _super2.call(this, props);
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(FacetTermsList).call(this, props));
     _this3.handleOpenToggleClick = _this3.handleOpenToggleClick.bind(_assertThisInitialized(_this3));
     _this3.handleExpandListToggleClick = _this3.handleExpandListToggleClick.bind(_assertThisInitialized(_this3));
     _this3.state = {
@@ -417,89 +366,62 @@ function (_React$PureComponent2) {
       var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
 
       if (isStatic || termsLen === 1) {
-        indicator =
-        /*#__PURE__*/
-        // Small indicator to help represent how many terms there are available for this Facet.
+        indicator = // Small indicator to help represent how many terms there are available for this Facet.
         _react["default"].createElement(_Fade.Fade, {
           "in": !facetOpen
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        }, _react["default"].createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "No useful options (1 total)" + (anySelected ? "; is selected" : ""),
           "data-place": "right",
           "data-any-selected": anySelected
-        },
-        /*#__PURE__*/
-        _react["default"].createElement(CountIndicator, {
+        }, _react["default"].createElement(CountIndicator, {
           count: termsLen,
           countActive: termsSelectedCount
         })));
       } else {
-        indicator =
-        /*#__PURE__*/
-        // Small indicator to help represent how many terms there are available for this Facet.
+        indicator = // Small indicator to help represent how many terms there are available for this Facet.
         _react["default"].createElement(_Fade.Fade, {
           "in": !facetOpen
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        }, _react["default"].createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "".concat(termsLen, " options with ").concat(termsSelectedCount, " selected"),
           "data-place": "right",
           "data-any-selected": anySelected
-        },
-        /*#__PURE__*/
-        _react["default"].createElement(CountIndicator, {
+        }, _react["default"].createElement(CountIndicator, {
           count: termsLen,
           countActive: termsSelectedCount
         })));
       } // List of terms
 
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "facet" + (facetOpen || allTermsSelected ? ' open' : ' closed'),
-          "data-field": facet.field
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "facet-title",
-          onClick: this.handleOpenToggleClick
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "expand-toggle col-auto px-0"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "col px-0 line-height-1"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          "data-tip": description,
-          "data-html": true,
-          "data-place": "right"
-        }, title)), indicator),
-        /*#__PURE__*/
-        _react["default"].createElement(ListOfTerms, _extends({
-          facet: facet,
-          facetOpen: facetOpen,
-          terms: terms,
-          persistentCount: persistentCount,
-          onTermClick: onTermClick,
-          expanded: expanded,
-          getTermStatus: getTermStatus,
-          termTransformFxn: termTransformFxn
-        }, {
-          onToggleExpanded: this.handleExpandListToggleClick
-        })))
-      );
+      return _react["default"].createElement("div", {
+        className: "facet" + (facetOpen || allTermsSelected ? ' open' : ' closed'),
+        "data-field": facet.field
+      }, _react["default"].createElement("h5", {
+        className: "facet-title",
+        onClick: this.handleOpenToggleClick
+      }, _react["default"].createElement("span", {
+        className: "expand-toggle col-auto px-0"
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
+      })), _react["default"].createElement("div", {
+        className: "col px-0 line-height-1"
+      }, _react["default"].createElement("span", {
+        "data-tip": description,
+        "data-html": true,
+        "data-place": "right"
+      }, title)), indicator), _react["default"].createElement(ListOfTerms, _extends({
+        facet: facet,
+        facetOpen: facetOpen,
+        terms: terms,
+        persistentCount: persistentCount,
+        onTermClick: onTermClick,
+        expanded: expanded,
+        getTermStatus: getTermStatus,
+        termTransformFxn: termTransformFxn
+      }, {
+        onToggleExpanded: this.handleExpandListToggleClick
+      })));
     }
   }]);
 
@@ -526,18 +448,15 @@ var ListOfTerms = _react["default"].memo(function (props) {
 
   var _useMemo = (0, _react.useMemo)(function () {
     var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(Term, _extends({
-          facet: facet,
-          term: term,
-          termTransformFxn: termTransformFxn
-        }, {
-          onClick: onTermClick,
-          key: term.key,
-          status: getTermStatus(term, facet)
-        }))
-      );
+      return _react["default"].createElement(Term, _extends({
+        facet: facet,
+        term: term,
+        termTransformFxn: termTransformFxn
+      }, {
+        onClick: onTermClick,
+        key: term.key,
+        status: getTermStatus(term, facet)
+      }));
     })),
         _segmentTermComponent2 = _segmentTermComponent.selected,
         selectedTermComponents = _segmentTermComponent2 === void 0 ? [] : _segmentTermComponent2,
@@ -609,68 +528,40 @@ var ListOfTerms = _react["default"].memo(function (props) {
     var expandButtonTitle;
 
     if (expanded) {
-      expandButtonTitle =
-      /*#__PURE__*/
-      _react["default"].createElement("span", null,
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      expandButtonTitle = _react["default"].createElement("span", null, _react["default"].createElement("i", {
         className: "icon icon-fw icon-minus fas"
       }), " Collapse");
     } else {
-      expandButtonTitle =
-      /*#__PURE__*/
-      _react["default"].createElement("span", null,
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      expandButtonTitle = _react["default"].createElement("span", null, _react["default"].createElement("i", {
         className: "icon icon-fw icon-plus fas"
-      }), " View ", collapsibleTermsCount, " More",
-      /*#__PURE__*/
-      _react["default"].createElement("span", {
+      }), " View ", collapsibleTermsCount, " More", _react["default"].createElement("span", {
         className: "pull-right"
       }, collapsibleTermsItemCount));
     }
 
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", commonProps,
-      /*#__PURE__*/
-      _react["default"].createElement(_PartialList.PartialList, {
-        className: "mb-0 active-terms-pl",
-        open: facetOpen,
-        persistent: activeTermComponents,
-        collapsible:
-        /*#__PURE__*/
-        _react["default"].createElement(_react["default"].Fragment, null,
-        /*#__PURE__*/
-        _react["default"].createElement(_PartialList.PartialList, {
-          className: "mb-0",
-          open: expanded,
-          persistent: persistentTerms,
-          collapsible: collapsibleTerms
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "pt-08 pb-0"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "view-more-button",
-          onClick: onToggleExpanded
-        }, expandButtonTitle)))
-      }))
-    );
+    return _react["default"].createElement("div", commonProps, _react["default"].createElement(_PartialList.PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(_PartialList.PartialList, {
+        className: "mb-0",
+        open: expanded,
+        persistent: persistentTerms,
+        collapsible: collapsibleTerms
+      }), _react["default"].createElement("div", {
+        className: "pt-08 pb-0"
+      }, _react["default"].createElement("div", {
+        className: "view-more-button",
+        onClick: onToggleExpanded
+      }, expandButtonTitle)))
+    }));
   } else {
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", commonProps,
-      /*#__PURE__*/
-      _react["default"].createElement(_PartialList.PartialList, {
-        className: "mb-0 active-terms-pl",
-        open: facetOpen,
-        persistent: activeTermComponents,
-        collapsible: unselectedTermComponents
-      }))
-    );
+    return _react["default"].createElement("div", commonProps, _react["default"].createElement(_PartialList.PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: unselectedTermComponents
+    }));
   }
 });
 
@@ -692,30 +583,24 @@ var CountIndicator = _react["default"].memo(function (_ref4) {
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("circle", {
-        cx: width - x + 1,
-        cy: height - y + 1,
-        r: 2,
-        key: idx,
-        "data-original-index": idx,
-        style: {
-          opacity: 1 - colIdx * .125
-        },
-        className: dotCountToShow - idx <= countActive ? "active" : null
-      })
-    );
+    return _react["default"].createElement("circle", {
+      cx: width - x + 1,
+      cy: height - y + 1,
+      r: 2,
+      key: idx,
+      "data-original-index": idx,
+      style: {
+        opacity: 1 - colIdx * .125
+      },
+      className: dotCountToShow - idx <= countActive ? "active" : null
+    });
   });
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("svg", {
-      className: "svg-count-indicator",
-      viewBox: "0 0 ".concat(width + 2, " ").concat(height + 2),
-      width: width + 2,
-      height: height + 2
-    }, dots)
-  );
+  return _react["default"].createElement("svg", {
+    className: "svg-count-indicator",
+    viewBox: "0 0 ".concat(width + 2, " ").concat(height + 2),
+    width: width + 2,
+    height: height + 2
+  }, dots);
 });
 
 exports.CountIndicator = CountIndicator;
