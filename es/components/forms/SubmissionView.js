@@ -73,12 +73,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -86,6 +80,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 /**
  * Key container component for Submission components.
@@ -117,6 +147,8 @@ var SubmissionView =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(SubmissionView, _React$PureComponent);
+
+  var _super = _createSuper(SubmissionView);
 
   _createClass(SubmissionView, null, [{
     key: "findValidationState",
@@ -171,7 +203,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, SubmissionView);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SubmissionView).call(this, props));
+    _this = _super.call(this, props);
 
     _underscore["default"].bindAll(_assertThisInitialized(_this), 'modifyKeyContext', 'initializePrincipal', 'initCreateObj', 'initCreateAlias', 'submitAmbiguousType', 'buildAmbiguousEnumEntry', 'handleTypeSelection', 'handleAliasChange', 'handleAliasLabChange', 'submitAlias', 'modifyAlias', 'createObj', 'removeObj', 'initExistingObj', 'addExistingObj', 'setSubmissionState', 'updateUpload', 'testPostNewContext', 'realPostNewContext', 'removeNullsFromContext', 'checkRoundTwo', 'buildDeleteFields', 'modifyMD5Progess', 'submitObject', 'finishRoundTwo', 'cancelCreateNewObject', 'cancelCreatePrimaryObject');
     /**
@@ -334,7 +366,7 @@ function (_React$PureComponent) {
           return {
             'keyContext': contextCopy,
             'keyValid': validCopy,
-            'keyDisplay': _objectSpread({}, keyDisplay, _defineProperty({}, objKey, keyTitle))
+            'keyDisplay': _objectSpread(_objectSpread({}, keyDisplay), {}, _defineProperty({}, objKey, keyTitle))
           };
         } else {
           return {
@@ -392,7 +424,7 @@ function (_React$PureComponent) {
         "0": 1
       };
 
-      var keyDisplay = _objectSpread({}, (0, _submissionView.gatherLinkToTitlesFromContextEmbedded)(context), {
+      var keyDisplay = _objectSpread(_objectSpread({}, (0, _submissionView.gatherLinkToTitlesFromContextEmbedded)(context)), {}, {
         "0": SubmissionView.principalTitle(context, edit, create, principalType)
       });
 
@@ -606,12 +638,15 @@ function (_React$PureComponent) {
   }, {
     key: "buildAmbiguousEnumEntry",
     value: function buildAmbiguousEnumEntry(val) {
-      return _react["default"].createElement(_DropdownButton.DropdownItem, {
-        key: val,
-        title: val || '',
-        eventKey: val,
-        onSelect: this.handleTypeSelection
-      }, val || '');
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_DropdownButton.DropdownItem, {
+          key: val,
+          title: val || '',
+          eventKey: val,
+          onSelect: this.handleTypeSelection
+        }, val || '')
+      );
     }
     /**
      * Enum callback to change state in ambiguous type selection
@@ -1938,58 +1973,85 @@ function (_React$PureComponent) {
           propsToPass = _objectWithoutProperties(_this$props5, ["context", "navigate"]);
 
       keyDisplay[currKey] || currType;
-      return _react["default"].createElement("div", {
-        className: "submission-view-page-container container",
-        id: "content"
-      }, _react["default"].createElement(TypeSelectModal, _extends({
-        show: showAmbiguousModal
-      }, _underscore["default"].pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _underscore["default"].pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
-        schemas: schemas
-      })), _react["default"].createElement(AliasSelectModal, _extends({
-        show: !showAmbiguousModal && creatingIdx !== null && creatingType !== null
-      }, _underscore["default"].pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser'), {
-        handleAliasChange: this.handleAliasChange,
-        submitAlias: this.submitAlias,
-        cancelCreateNewObject: this.cancelCreateNewObject,
-        cancelCreatePrimaryObject: this.cancelCreatePrimaryObject
-      })), _react["default"].createElement(WarningBanner, {
-        cancelCreatePrimaryObject: this.cancelCreatePrimaryObject
-      }, _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-danger",
-        onClick: this.cancelCreatePrimaryObject
-      }, "Cancel / Exit"), _react["default"].createElement(ValidationButton, _extends({}, _underscore["default"].pick(this.state, 'currKey', 'keyValid', 'md5Progress', 'upload', 'roundTwo', 'processingFetch'), {
-        testPostNewContext: this.testPostNewContext,
-        finishRoundTwo: this.finishRoundTwo
-      })), _react["default"].createElement(SubmitButton, _extends({}, _underscore["default"].pick(this.state, 'keyValid', 'currKey', 'roundTwo', 'upload', 'processingFetch', 'md5Progress'), {
-        realPostNewContext: this.realPostNewContext
-      }))), _react["default"].createElement(DetailTitleBanner, _extends({
-        hierarchy: keyHierarchy,
-        setSubmissionState: this.setSubmissionState,
-        schemas: schemas
-      }, _underscore["default"].pick(this.state, 'keyContext', 'keyTypes', 'keyDisplay', 'currKey', 'fullScreen'))), _react["default"].createElement("div", {
-        className: "clearfix row"
-      }, _react["default"].createElement("div", {
-        className: navCol
-      }, _react["default"].createElement(_SubmissionTree.SubmissionTree, _extends({
-        setSubmissionState: this.setSubmissionState,
-        hierarchy: keyHierarchy,
-        schemas: schemas
-      }, _underscore["default"].pick(this.state, 'keyValid', 'keyTypes', 'keyDisplay', 'keyComplete', 'currKey', 'keyLinkBookmarks', 'keyLinks', 'keyHierarchy')))), _react["default"].createElement("div", {
-        className: bodyCol
-      }, _react["default"].createElement(IndividualObjectView, _extends({}, propsToPass, {
-        schemas: schemas,
-        currType: currType,
-        currContext: currContext,
-        modifyKeyContext: this.modifyKeyContext,
-        initCreateObj: this.initCreateObj,
-        removeObj: this.removeObj,
-        addExistingObj: this.addExistingObj,
-        setSubmissionState: this.setSubmissionState,
-        modifyAlias: this.modifyAlias,
-        updateUpload: this.updateUpload,
-        hierarchy: keyHierarchy
-      }, _underscore["default"].pick(this.state, 'keyDisplay', 'keyComplete', 'keyIter', 'currKey', 'keyContext', 'upload', 'uploadStatus', 'md5Progress', 'roundTwo', 'currentSubmittingUser'))))));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "submission-view-page-container container",
+          id: "content"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(TypeSelectModal, _extends({
+          show: showAmbiguousModal
+        }, _underscore["default"].pick(this.state, 'ambiguousIdx', 'ambiguousType', 'ambiguousSelected', 'currKey', 'creatingIdx'), _underscore["default"].pick(this, 'buildAmbiguousEnumEntry', 'submitAmbiguousType', 'cancelCreateNewObject', 'cancelCreatePrimaryObject'), {
+          schemas: schemas
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement(AliasSelectModal, _extends({
+          show: !showAmbiguousModal && creatingIdx !== null && creatingType !== null
+        }, _underscore["default"].pick(this.state, 'creatingAlias', 'creatingType', 'creatingAliasMessage', 'currKey', 'creatingIdx', 'currentSubmittingUser'), {
+          handleAliasChange: this.handleAliasChange,
+          submitAlias: this.submitAlias,
+          cancelCreateNewObject: this.cancelCreateNewObject,
+          cancelCreatePrimaryObject: this.cancelCreatePrimaryObject
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement(WarningBanner, {
+          cancelCreatePrimaryObject: this.cancelCreatePrimaryObject
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-danger",
+          onClick: this.cancelCreatePrimaryObject
+        }, "Cancel / Exit"),
+        /*#__PURE__*/
+        _react["default"].createElement(ValidationButton, _extends({}, _underscore["default"].pick(this.state, 'currKey', 'keyValid', 'md5Progress', 'upload', 'roundTwo', 'processingFetch'), {
+          testPostNewContext: this.testPostNewContext,
+          finishRoundTwo: this.finishRoundTwo
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement(SubmitButton, _extends({}, _underscore["default"].pick(this.state, 'keyValid', 'currKey', 'roundTwo', 'upload', 'processingFetch', 'md5Progress'), {
+          realPostNewContext: this.realPostNewContext
+        }))),
+        /*#__PURE__*/
+        _react["default"].createElement(DetailTitleBanner, _extends({
+          hierarchy: keyHierarchy,
+          setSubmissionState: this.setSubmissionState,
+          schemas: schemas
+        }, _underscore["default"].pick(this.state, 'keyContext', 'keyTypes', 'keyDisplay', 'currKey', 'fullScreen'))),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "clearfix row"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: navCol
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_SubmissionTree.SubmissionTree, _extends({
+          setSubmissionState: this.setSubmissionState,
+          hierarchy: keyHierarchy,
+          schemas: schemas
+        }, _underscore["default"].pick(this.state, 'keyValid', 'keyTypes', 'keyDisplay', 'keyComplete', 'currKey', 'keyLinkBookmarks', 'keyLinks', 'keyHierarchy')))),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: bodyCol
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(IndividualObjectView, _extends({}, propsToPass, {
+          schemas: schemas,
+          currType: currType,
+          currContext: currContext,
+          modifyKeyContext: this.modifyKeyContext,
+          initCreateObj: this.initCreateObj,
+          removeObj: this.removeObj,
+          addExistingObj: this.addExistingObj,
+          setSubmissionState: this.setSubmissionState,
+          modifyAlias: this.modifyAlias,
+          updateUpload: this.updateUpload,
+          hierarchy: keyHierarchy
+        }, _underscore["default"].pick(this.state, 'keyDisplay', 'keyComplete', 'keyIter', 'currKey', 'keyContext', 'upload', 'uploadStatus', 'md5Progress', 'roundTwo', 'currentSubmittingUser'))))))
+      );
     }
   }]);
 
@@ -2022,62 +2084,90 @@ var ValidationButton = _react["default"].memo(function (props) {
 
   if (roundTwo) {
     if (upload === null && md5Progress === null) {
-      return _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-warning",
-        onClick: finishRoundTwo
-      }, "Skip");
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-warning",
+          onClick: finishRoundTwo
+        }, "Skip")
+      );
     } else {
-      return _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-warning",
-        disabled: true
-      }, "Skip");
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-warning",
+          disabled: true
+        }, "Skip")
+      );
     }
   } else if (validity === 3 || validity === 4) {
-    return _react["default"].createElement("button", {
-      type: "button",
-      className: "btn btn-info",
-      disabled: true
-    }, "Validated");
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-info",
+        disabled: true
+      }, "Validated")
+    );
   } else if (validity === 2) {
     if (processingFetch) {
-      return _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-danger",
-        disabled: true
-      }, _react["default"].createElement("i", {
-        className: "icon icon-spin icon-circle-notch fas"
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-danger",
+          disabled: true
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-spin icon-circle-notch fas"
+        }))
+      );
     } else {
-      return _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-danger",
-        onClick: testPostNewContext
-      }, "Validate");
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-danger",
+          onClick: testPostNewContext
+        }, "Validate")
+      );
     }
   } else if (validity === 1) {
     if (processingFetch) {
-      return _react["default"].createElement("button", {
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-info",
+          disabled: true
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-spin icon-circle-notch fas"
+        }))
+      );
+    } else {
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-info",
+          onClick: testPostNewContext
+        }, "Validate")
+      );
+    }
+  } else {
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("button", {
         type: "button",
         className: "btn btn-info",
         disabled: true
-      }, _react["default"].createElement("i", {
-        className: "icon icon-spin icon-circle-notch fas"
-      }));
-    } else {
-      return _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-info",
-        onClick: testPostNewContext
-      }, "Validate");
-    }
-  } else {
-    return _react["default"].createElement("button", {
-      type: "button",
-      className: "btn btn-info",
-      disabled: true
-    }, "Validate");
+      }, "Validate")
+    );
   }
 });
 /**
@@ -2101,70 +2191,105 @@ var SubmitButton = _react["default"].memo(function (props) {
 
   if (roundTwo) {
     if (upload !== null || processingFetch || md5Progress !== null) {
-      return _react["default"].createElement("button", {
-        type: "button",
-        disabled: true,
-        className: "btn btn-success"
-      }, _react["default"].createElement("i", {
-        className: "icon icon-spin icon-circle-notch fas"
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          disabled: true,
+          className: "btn btn-success"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-spin icon-circle-notch fas"
+        }))
+      );
     } else {
-      return _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-success",
-        onClick: realPostNewContext
-      }, "Submit");
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-success",
+          onClick: realPostNewContext
+        }, "Submit")
+      );
     }
   } else if (validity == 3) {
     if (processingFetch) {
-      return _react["default"].createElement("button", {
-        type: "button",
-        disabled: true,
-        className: "btn btn-success"
-      }, _react["default"].createElement("i", {
-        className: "icon icon-spin icon-circle-notch fas"
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          disabled: true,
+          className: "btn btn-success"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-spin icon-circle-notch fas"
+        }))
+      );
     } else {
-      return _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-success",
-        onClick: realPostNewContext
-      }, "Submit");
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-success",
+          onClick: realPostNewContext
+        }, "Submit")
+      );
     }
   } else if (validity == 4) {
-    return _react["default"].createElement("button", {
-      type: "button",
-      className: "btn btn-success",
-      disabled: true
-    }, "Submitted");
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-success",
+        disabled: true
+      }, "Submitted")
+    );
   } else {
-    return _react["default"].createElement("button", {
-      type: "button",
-      className: "btn btn-success",
-      disabled: true
-    }, "Submit");
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-success",
+        disabled: true
+      }, "Submit")
+    );
   }
 });
 
 var WarningBanner = _react["default"].memo(function (props) {
   var children = props.children;
-  return _react["default"].createElement("div", {
-    className: "mb-2 mt-1 text-400 warning-banner"
-  }, _react["default"].createElement("div", {
-    className: "row"
-  }, _react["default"].createElement("div", {
-    className: "col"
-  }, "Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change."), _react["default"].createElement("div", {
-    className: "col-md-auto"
-  }, _react["default"].createElement("div", {
-    className: "action-buttons-container text-right"
-  }, children))));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "mb-2 mt-1 text-400 warning-banner"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "row"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "col"
+    }, "Please note: your work will be lost if you navigate away from, refresh or close this page while submitting. The submission process is under active development and features may change."),
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "col-md-auto"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "action-buttons-container text-right"
+    }, children))))
+  );
 });
 
 var DetailTitleBanner =
 /*#__PURE__*/
 function (_React$PureComponent2) {
   _inherits(DetailTitleBanner, _React$PureComponent2);
+
+  var _super2 = _createSuper(DetailTitleBanner);
 
   _createClass(DetailTitleBanner, null, [{
     key: "getListOfKeysInPath",
@@ -2235,7 +2360,7 @@ function (_React$PureComponent2) {
 
     _classCallCheck(this, DetailTitleBanner);
 
-    _this8 = _possibleConstructorReturn(this, _getPrototypeOf(DetailTitleBanner).call(this, props));
+    _this8 = _super2.call(this, props);
     _this8.generateCrumbTitle = _this8.generateCrumbTitle.bind(_assertThisInitialized(_this8));
     _this8.toggleOpen = _underscore["default"].throttle(_this8.toggleOpen.bind(_assertThisInitialized(_this8)), 500);
     _this8.generateHierarchicalTitles = _this8.generateHierarchicalTitles.bind(_assertThisInitialized(_this8));
@@ -2280,7 +2405,9 @@ function (_React$PureComponent2) {
         hierarchyKeyList = [numKey];
       }
 
-      var icon = i === 0 ? null : _react["default"].createElement("i", {
+      var icon = i === 0 ? null :
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
         className: "icon icon-fw"
       }, "\u21B5");
       var isLast = i + 1 === hierarchyKeyList.length;
@@ -2303,21 +2430,36 @@ function (_React$PureComponent2) {
         }
       }
 
-      return _react["default"].createElement(_Collapse.Collapse, {
-        "in": true,
-        appear: hierarchyKeyList.length !== 1,
-        key: i
-      }, _react["default"].createElement("div", {
-        className: "title-crumb depth-level-" + i + (isLast ? ' last-title' : ' mid-title')
-      }, _react["default"].createElement("div", {
-        className: "submission-working-title"
-      }, _react["default"].createElement("span", {
-        onClick: this.handleClick.bind(this, numKey)
-      }, icon, parentPropertyName ? _react["default"].createElement("span", {
-        className: "next-property-name"
-      }, parentPropertyName, ": ") : null, _react["default"].createElement("span", {
-        className: "working-subtitle"
-      }, _util.schemaTransforms.getTitleForType(keyTypes[numKey], schemas)), " ", _react["default"].createElement("span", null, keyDisplay[numKey])))));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_Collapse.Collapse, {
+          "in": true,
+          appear: hierarchyKeyList.length !== 1,
+          key: i
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "title-crumb depth-level-" + i + (isLast ? ' last-title' : ' mid-title')
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "submission-working-title"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          onClick: this.handleClick.bind(this, numKey)
+        }, icon, parentPropertyName ?
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "next-property-name"
+        }, parentPropertyName, ": ") : null,
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "working-subtitle"
+        }, _util.schemaTransforms.getTitleForType(keyTypes[numKey], schemas)), " ",
+        /*#__PURE__*/
+        _react["default"].createElement("span", null, keyDisplay[numKey])))))
+      );
     }
   }, {
     key: "generateHierarchicalTitles",
@@ -2335,16 +2477,25 @@ function (_React$PureComponent2) {
           currKey = _this$props8.currKey;
       var open = this.state.open;
       if (fullScreen) return null;
-      return _react["default"].createElement("h3", {
-        className: "crumbs-title mb-2"
-      }, _react["default"].createElement("div", {
-        className: "subtitle-heading form-section-heading mb-08"
-      }, _react["default"].createElement("span", {
-        className: "inline-block clickable",
-        onClick: this.toggleOpen
-      }, "Currently Editing ", currKey > 0 ? _react["default"].createElement("i", {
-        className: "icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')
-      }) : null)), open ? this.generateHierarchicalTitles() : this.generateCrumbTitle(currKey));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("h3", {
+          className: "crumbs-title mb-2"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "subtitle-heading form-section-heading mb-08"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "inline-block clickable",
+          onClick: this.toggleOpen
+        }, "Currently Editing ", currKey > 0 ?
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')
+        }) : null)), open ? this.generateHierarchicalTitles() : this.generateCrumbTitle(currKey))
+      );
     }
   }]);
 
@@ -2358,12 +2509,14 @@ var TypeSelectModal =
 function (_React$Component) {
   _inherits(TypeSelectModal, _React$Component);
 
+  var _super3 = _createSuper(TypeSelectModal);
+
   function TypeSelectModal(props) {
     var _this9;
 
     _classCallCheck(this, TypeSelectModal);
 
-    _this9 = _possibleConstructorReturn(this, _getPrototypeOf(TypeSelectModal).call(this, props));
+    _this9 = _super3.call(this, props);
     _this9.onHide = _this9.onHide.bind(_assertThisInitialized(_this9));
     _this9.onContainerKeyDown = _this9.onContainerKeyDown.bind(_assertThisInitialized(_this9));
     return _this9;
@@ -2425,29 +2578,54 @@ function (_React$Component) {
         ambiguousDescrip = schemas[ambiguousSelected].description;
       }
 
-      return _react["default"].createElement(_reactBootstrap.Modal, {
-        show: true,
-        onHide: this.onHide,
-        className: "submission-view-modal"
-      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, {
-        className: "text-500"
-      }, "Multiple instantiable types found for your new ", _react["default"].createElement("strong", null, ambiguousType))), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
-        onKeyDown: this.onContainerKeyDown.bind(this, submitAmbiguousType)
-      }, _react["default"].createElement("p", null, "Please select a specific Item type from the menu below."), _react["default"].createElement("div", {
-        className: "input-wrapper mb-15"
-      }, _react["default"].createElement(_DropdownButton.DropdownButton, {
-        id: "dropdown-type-select",
-        title: ambiguousSelected || "No value"
-      }, specificItemTypeOptions.map(buildAmbiguousEnumEntry))), ambiguousDescrip ? _react["default"].createElement("div", {
-        className: "mb-15 mt-15"
-      }, _react["default"].createElement("h5", {
-        className: "text-500 mb-02"
-      }, "Description"), ambiguousDescrip) : null, _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-primary",
-        disabled: ambiguousSelected === null,
-        onClick: submitAmbiguousType
-      }, "Submit"))));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.Modal, {
+          show: true,
+          onHide: this.onHide,
+          className: "submission-view-modal"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.Modal.Header, null,
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.Modal.Title, {
+          className: "text-500"
+        }, "Multiple instantiable types found for your new ",
+        /*#__PURE__*/
+        _react["default"].createElement("strong", null, ambiguousType))),
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.Modal.Body, null,
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          onKeyDown: this.onContainerKeyDown.bind(this, submitAmbiguousType)
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("p", null, "Please select a specific Item type from the menu below."),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "input-wrapper mb-15"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_DropdownButton.DropdownButton, {
+          id: "dropdown-type-select",
+          title: ambiguousSelected || "No value"
+        }, specificItemTypeOptions.map(buildAmbiguousEnumEntry))), ambiguousDescrip ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "mb-15 mt-15"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("h5", {
+          className: "text-500 mb-02"
+        }, "Description"), ambiguousDescrip) : null,
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-primary",
+          disabled: ambiguousSelected === null,
+          onClick: submitAmbiguousType
+        }, "Submit"))))
+      );
     }
   }]);
 
@@ -2461,10 +2639,12 @@ var AliasSelectModal =
 function (_TypeSelectModal) {
   _inherits(AliasSelectModal, _TypeSelectModal);
 
+  var _super4 = _createSuper(AliasSelectModal);
+
   function AliasSelectModal() {
     _classCallCheck(this, AliasSelectModal);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(AliasSelectModal).apply(this, arguments));
+    return _super4.apply(this, arguments);
   }
 
   _createClass(AliasSelectModal, [{
@@ -2480,38 +2660,67 @@ function (_TypeSelectModal) {
           currentSubmittingUser = _this$props11.currentSubmittingUser;
       if (!show) return null;
       var disabledBtn = creatingAlias.indexOf(':') < 0 || creatingAlias.indexOf(':') + 1 === creatingAlias.length;
-      return _react["default"].createElement(_reactBootstrap.Modal, {
-        show: true,
-        onHide: this.onHide,
-        className: "submission-view-modal"
-      }, _react["default"].createElement(_reactBootstrap.Modal.Header, null, _react["default"].createElement(_reactBootstrap.Modal.Title, null, "Give your new ", creatingType, " an alias")), _react["default"].createElement(_reactBootstrap.Modal.Body, null, _react["default"].createElement("div", {
-        onKeyDown: this.onContainerKeyDown.bind(this, submitAlias)
-      }, _react["default"].createElement("p", {
-        className: "mt-0 mb-1"
-      }, "Aliases are lab specific identifiers to reference an object. The format is ", _react["default"].createElement("code", null, '<lab-name>:<identifier>'), " - a lab name and an identifier separated by a colon, e.g. ", _react["default"].createElement("code", null, "dcic-lab:42"), "."), _react["default"].createElement("p", {
-        className: "mt-0 mb-1"
-      }, "Please create your own alias to help you to refer to this Item later."), _react["default"].createElement("div", {
-        className: "input-wrapper mt-2 mb-2"
-      }, _react["default"].createElement(_submissionFields.AliasInputField, {
-        value: creatingAlias,
-        errorMessage: creatingAliasMessage,
-        onAliasChange: handleAliasChange,
-        currentSubmittingUser: currentSubmittingUser,
-        withinModal: true
-      })), creatingAliasMessage ? _react["default"].createElement("div", {
-        style: {
-          'marginBottom': '15px',
-          'color': '#7e4544',
-          'fontSize': '1.2em'
-        }
-      }, creatingAliasMessage) : null, _react["default"].createElement("div", {
-        className: "text-right"
-      }, _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-primary",
-        disabled: disabledBtn,
-        onClick: submitAlias
-      }, "Submit")))));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.Modal, {
+          show: true,
+          onHide: this.onHide,
+          className: "submission-view-modal"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.Modal.Header, null,
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.Modal.Title, null, "Give your new ", creatingType, " an alias")),
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.Modal.Body, null,
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          onKeyDown: this.onContainerKeyDown.bind(this, submitAlias)
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("p", {
+          className: "mt-0 mb-1"
+        }, "Aliases are lab specific identifiers to reference an object. The format is ",
+        /*#__PURE__*/
+        _react["default"].createElement("code", null, '<lab-name>:<identifier>'), " - a lab name and an identifier separated by a colon, e.g. ",
+        /*#__PURE__*/
+        _react["default"].createElement("code", null, "dcic-lab:42"), "."),
+        /*#__PURE__*/
+        _react["default"].createElement("p", {
+          className: "mt-0 mb-1"
+        }, "Please create your own alias to help you to refer to this Item later."),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "input-wrapper mt-2 mb-2"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_submissionFields.AliasInputField, {
+          value: creatingAlias,
+          errorMessage: creatingAliasMessage,
+          onAliasChange: handleAliasChange,
+          currentSubmittingUser: currentSubmittingUser,
+          withinModal: true
+        })), creatingAliasMessage ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          style: {
+            'marginBottom': '15px',
+            'color': '#7e4544',
+            'fontSize': '1.2em'
+          }
+        }, creatingAliasMessage) : null,
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "text-right"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-primary",
+          disabled: disabledBtn,
+          onClick: submitAlias
+        }, "Submit")))))
+      );
     }
   }]);
 
@@ -2538,12 +2747,14 @@ var IndividualObjectView =
 function (_React$Component2) {
   _inherits(IndividualObjectView, _React$Component2);
 
+  var _super5 = _createSuper(IndividualObjectView);
+
   function IndividualObjectView(props) {
     var _this10;
 
     _classCallCheck(this, IndividualObjectView);
 
-    _this10 = _possibleConstructorReturn(this, _getPrototypeOf(IndividualObjectView).call(this, props));
+    _this10 = _super5.call(this, props);
 
     _underscore["default"].bindAll(_assertThisInitialized(_this10), 'modifyNewContext', 'fetchAndValidateItem', 'selectObj', 'selectComplete', 'selectCancel', 'initiateField');
     /**
@@ -2956,25 +3167,38 @@ function (_React$Component2) {
         return null;
       } else if (!roundTwo && secondRoundField) {
         // return a placeholder informing user that this field is for roundTwo
-        return _react["default"].createElement("div", {
-          key: fieldTitle,
-          className: "row field-row",
-          required: false,
-          title: fieldTitle,
-          style: {
-            'overflow': 'visible'
-          }
-        }, _react["default"].createElement("div", {
-          className: "col-12 col-md-4"
-        }, _react["default"].createElement("h5", {
-          className: "facet-title submission-field-title"
-        }, fieldTitle)), _react["default"].createElement("div", {
-          className: "col-12 col-md-8"
-        }, _react["default"].createElement("div", {
-          className: "field-container"
-        }, _react["default"].createElement("div", {
-          className: "notice-message"
-        }, "This field is available after finishing initial submission."))));
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
+            key: fieldTitle,
+            className: "row field-row",
+            required: false,
+            title: fieldTitle,
+            style: {
+              'overflow': 'visible'
+            }
+          },
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
+            className: "col-12 col-md-4"
+          },
+          /*#__PURE__*/
+          _react["default"].createElement("h5", {
+            className: "facet-title submission-field-title"
+          }, fieldTitle)),
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
+            className: "col-12 col-md-8"
+          },
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
+            className: "field-container"
+          },
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
+            className: "notice-message"
+          }, "This field is available after finishing initial submission."))))
+        );
       }
 
       var fieldTip = fieldSchema.description ? fieldSchema.description : null;
@@ -3023,32 +3247,35 @@ function (_React$Component2) {
         }
       }
 
-      return _react["default"].createElement(_submissionFields.BuildField, _extends({
-        field: field,
-        fieldType: fieldType,
-        fieldTip: fieldTip,
-        enumValues: enumValues,
-        isLinked: isLinked,
-        currType: currType,
-        currContext: currContext
-      }, _underscore["default"].pick(this.props, 'md5Progress', 'edit', 'create', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'upload', 'uploadStatus', 'updateUpload', 'currentSubmittingUser', 'roundTwo'), {
-        value: fieldValue,
-        key: field,
-        schema: fieldSchema,
-        nestedField: field,
-        title: fieldTitle,
-        modifyFile: null,
-        linkType: linked,
-        disabled: false,
-        arrayIdx: null,
-        required: _underscore["default"].contains(currSchema.required, field),
-        modifyNewContext: this.modifyNewContext,
-        selectObj: this.selectObj,
-        selectComplete: this.selectComplete,
-        selectCancel: this.selectCancel,
-        fieldBeingSelected: this.state.selectField,
-        fieldBeingSelectedArrayIdx: this.state.selectArrayIdx
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_submissionFields.BuildField, _extends({
+          field: field,
+          fieldType: fieldType,
+          fieldTip: fieldTip,
+          enumValues: enumValues,
+          isLinked: isLinked,
+          currType: currType,
+          currContext: currContext
+        }, _underscore["default"].pick(this.props, 'md5Progress', 'edit', 'create', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'upload', 'uploadStatus', 'updateUpload', 'currentSubmittingUser', 'roundTwo'), {
+          value: fieldValue,
+          key: field,
+          schema: fieldSchema,
+          nestedField: field,
+          title: fieldTitle,
+          modifyFile: null,
+          linkType: linked,
+          disabled: false,
+          arrayIdx: null,
+          required: _underscore["default"].contains(currSchema.required, field),
+          modifyNewContext: this.modifyNewContext,
+          selectObj: this.selectObj,
+          selectComplete: this.selectComplete,
+          selectCancel: this.selectCancel,
+          fieldBeingSelected: this.state.selectField,
+          fieldBeingSelectedArrayIdx: this.state.selectArrayIdx
+        }))
+      );
     }
     /**
      * Render the fieldPanels which contain the BuildFields for regular field and
@@ -3076,13 +3303,20 @@ function (_React$Component2) {
       } // Removes falsy (e.g. null) items.
       ));
       var roundTwoDetailContext = roundTwo && keyComplete[currKey] && keyContext[keyComplete[currKey]];
-      return _react["default"].createElement("div", null, _react["default"].createElement(FormFieldsContainer, {
-        currKey: currKey
-      }, fieldJSXComponents), roundTwo ? _react["default"].createElement(RoundTwoDetailPanel, {
-        schemas: schemas,
-        context: roundTwoDetailContext,
-        open: true
-      }) : null);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", null,
+        /*#__PURE__*/
+        _react["default"].createElement(FormFieldsContainer, {
+          currKey: currKey
+        }, fieldJSXComponents), roundTwo ?
+        /*#__PURE__*/
+        _react["default"].createElement(RoundTwoDetailPanel, {
+          schemas: schemas,
+          context: roundTwoDetailContext,
+          open: true
+        }) : null)
+      );
     }
   }]);
 
@@ -3093,13 +3327,20 @@ var FormFieldsContainer = _react["default"].memo(function (props) {
   var children = props.children,
       title = props.title;
   if (_react["default"].Children.count(children) === 0) return null;
-  return _react["default"].createElement("div", {
-    className: "form-fields-container"
-  }, _react["default"].createElement("h4", {
-    className: "clearfix page-subtitle form-section-heading submission-field-header"
-  }, title), _react["default"].createElement("div", {
-    className: "form-section-body"
-  }, children));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "form-fields-container"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("h4", {
+      className: "clearfix page-subtitle form-section-heading submission-field-header"
+    }, title),
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "form-section-body"
+    }, children))
+  );
 });
 
 FormFieldsContainer.defaultProps = {
@@ -3116,12 +3357,14 @@ var RoundTwoDetailPanel =
 function (_React$PureComponent3) {
   _inherits(RoundTwoDetailPanel, _React$PureComponent3);
 
+  var _super6 = _createSuper(RoundTwoDetailPanel);
+
   function RoundTwoDetailPanel(props) {
     var _this13;
 
     _classCallCheck(this, RoundTwoDetailPanel);
 
-    _this13 = _possibleConstructorReturn(this, _getPrototypeOf(RoundTwoDetailPanel).call(this, props));
+    _this13 = _super6.call(this, props);
     _this13.handleToggle = _this13.handleToggle.bind(_assertThisInitialized(_this13));
     _this13.state = {
       'open': props.open || false
@@ -3147,27 +3390,44 @@ function (_React$PureComponent3) {
           context = _this$props16.context,
           schemas = _this$props16.schemas;
       var open = this.state.open;
-      return _react["default"].createElement("div", {
-        className: "current-item-properties round-two-panel"
-      }, _react["default"].createElement("h4", {
-        className: "clearfix page-subtitle submission-field-header"
-      }, _react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-xs icon-container pull-left",
-        onClick: this.handleToggle
-      }, _react["default"].createElement("i", {
-        className: "icon fas " + (open ? "icon-minus" : "icon-plus")
-      })), _react["default"].createElement("span", null, "Object Attributes")), _react["default"].createElement(_Collapse.Collapse, {
-        "in": open
-      }, _react["default"].createElement("div", {
-        className: "item-page-detail"
-      }, _react["default"].createElement(_ItemDetailList.Detail, {
-        excludedKeys: _ItemDetailList.Detail.defaultProps.excludedKeys.concat('upload_credentials'),
-        context: context,
-        schemas: schemas,
-        open: false,
-        popLink: true
-      }))));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "current-item-properties round-two-panel"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("h4", {
+          className: "clearfix page-subtitle submission-field-header"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "btn btn-xs icon-container pull-left",
+          onClick: this.handleToggle
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon fas " + (open ? "icon-minus" : "icon-plus")
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement("span", null, "Object Attributes")),
+        /*#__PURE__*/
+        _react["default"].createElement(_Collapse.Collapse, {
+          "in": open
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "item-page-detail"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_ItemDetailList.Detail, {
+          excludedKeys: _ItemDetailList.Detail.defaultProps.excludedKeys.concat('upload_credentials'),
+          context: context,
+          schemas: schemas,
+          open: false,
+          popLink: true
+        }))))
+      );
     }
   }]);
 

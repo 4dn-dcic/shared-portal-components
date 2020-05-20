@@ -31,15 +31,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -48,12 +78,14 @@ var LinkToDropdown =
 function (_React$PureComponent) {
   _inherits(LinkToDropdown, _React$PureComponent);
 
+  var _super = _createSuper(LinkToDropdown);
+
   function LinkToDropdown(props) {
     var _this;
 
     _classCallCheck(this, LinkToDropdown);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LinkToDropdown).call(this, props));
+    _this = _super.call(this, props);
     _this.loadViableOptions = _this.loadViableOptions.bind(_assertThisInitialized(_this));
     _this.handleSelect = _this.handleSelect.bind(_assertThisInitialized(_this));
     _this.handleSearchTextChange = _this.handleSearchTextChange.bind(_assertThisInitialized(_this));
@@ -171,12 +203,16 @@ function (_React$PureComponent) {
       var renderedOptions = null;
 
       if (loading) {
-        title = _react["default"].createElement("i", {
+        title =
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon icon-fw icon-spin icon-circle-notch fas"
         });
         disabled = true;
       } else if (error || !Array.isArray(optionResults)) {
-        title = _react["default"].createElement("span", {
+        title =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "error"
         }, error);
         disabled = true;
@@ -234,24 +270,39 @@ function (_React$PureComponent) {
           renderedOptions = filteredOptions.map(function (selectableItem) {
             var display_title = selectableItem.display_title,
                 itemID = selectableItem['@id'];
-            return _react["default"].createElement(_reactBootstrap.DropdownItem, {
-              className: "selectable-item-option",
-              key: itemID,
-              eventKey: itemID,
-              active: selectedID === itemID
-            }, _react["default"].createElement("div", {
-              className: "row"
-            }, _react["default"].createElement("div", {
-              className: "col"
-            }, _react["default"].createElement("span", {
-              className: "text-600 d-block"
-            }, display_title)), _react["default"].createElement("div", {
-              className: "col-auto d-none d-md-inline-block"
-            }, _react["default"].createElement("i", {
-              className: "icon icon-fw icon-link fas small mr-05"
-            }), _react["default"].createElement("span", {
-              className: "text-monospace small"
-            }, itemID))));
+            return (
+              /*#__PURE__*/
+              _react["default"].createElement(_reactBootstrap.DropdownItem, {
+                className: "selectable-item-option",
+                key: itemID,
+                eventKey: itemID,
+                active: selectedID === itemID
+              },
+              /*#__PURE__*/
+              _react["default"].createElement("div", {
+                className: "row"
+              },
+              /*#__PURE__*/
+              _react["default"].createElement("div", {
+                className: "col"
+              },
+              /*#__PURE__*/
+              _react["default"].createElement("span", {
+                className: "text-600 d-block"
+              }, display_title)),
+              /*#__PURE__*/
+              _react["default"].createElement("div", {
+                className: "col-auto d-none d-md-inline-block"
+              },
+              /*#__PURE__*/
+              _react["default"].createElement("i", {
+                className: "icon icon-fw icon-link fas small mr-05"
+              }),
+              /*#__PURE__*/
+              _react["default"].createElement("span", {
+                className: "text-monospace small"
+              }, itemID))))
+            );
           });
         }
 
@@ -259,22 +310,29 @@ function (_React$PureComponent) {
       }
 
       var className = "linkto-dropdown" + (propClsName ? " " + propClsName : "");
-      return _react["default"].createElement(_reactBootstrap.DropdownButton, _extends({
-        variant: variant,
-        title: title,
-        disabled: disabled,
-        className: className
-      }, {
-        onSelect: this.handleSelect
-      }), searchAsYouType ? _react["default"].createElement("div", {
-        className: "search-as-you-type-container"
-      }, _react["default"].createElement("input", {
-        type: "text",
-        className: "form-control",
-        value: typedSearchQuery,
-        onChange: this.handleSearchTextChange,
-        placeholder: "Search..."
-      })) : null, renderedOptions);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_reactBootstrap.DropdownButton, _extends({
+          variant: variant,
+          title: title,
+          disabled: disabled,
+          className: className
+        }, {
+          onSelect: this.handleSelect
+        }), searchAsYouType ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "search-as-you-type-container"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("input", {
+          type: "text",
+          className: "form-control",
+          value: typedSearchQuery,
+          onChange: this.handleSearchTextChange,
+          placeholder: "Search..."
+        })) : null, renderedOptions)
+      );
     }
   }]);
 

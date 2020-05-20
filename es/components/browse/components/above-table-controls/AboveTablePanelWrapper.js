@@ -17,21 +17,32 @@ var AboveTablePanelWrapper = _react["default"].memo(function (props) {
   var closeButton = null;
 
   if (typeof onClose === 'function') {
-    closeButton = _react["default"].createElement("a", {
+    closeButton =
+    /*#__PURE__*/
+    _react["default"].createElement("a", {
       className: "close-button",
       onClick: onClose
-    }, _react["default"].createElement("i", {
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
       className: "icon icon-fw icon-angle-up fas"
     }));
   }
 
-  return _react["default"].createElement("div", {
-    className: "search-result-config-panel" + (className ? ' ' + className : '')
-  }, _react["default"].createElement("div", {
-    className: "inner"
-  }, _react["default"].createElement("h5", {
-    className: "panel-title"
-  }, title, closeButton), children));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "search-result-config-panel" + (className ? ' ' + className : '')
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "inner"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("h5", {
+      className: "panel-title"
+    }, title, closeButton), children))
+  );
 });
 
 exports.AboveTablePanelWrapper = AboveTablePanelWrapper;

@@ -27,12 +27,6 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -40,6 +34,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -57,6 +87,8 @@ var Alerts =
 /*#__PURE__*/
 function (_React$Component) {
   _inherits(Alerts, _React$Component);
+
+  var _super = _createSuper(Alerts);
 
   _createClass(Alerts, null, [{
     key: "setStore",
@@ -181,7 +213,7 @@ function (_React$Component) {
 
     _classCallCheck(this, Alerts);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Alerts).call(this, props));
+    _this = _super.call(this, props);
     _this.setDismissing = _this.setDismissing.bind(_assertThisInitialized(_this));
     /**
      * State object for component.
@@ -228,17 +260,23 @@ function (_React$Component) {
 
       var dismissing = this.state.dismissing;
       if (alerts.length === 0) return null;
-      return _react["default"].createElement("div", passProps, _underscore["default"].map(alerts, function (alert, index, alerts) {
-        return _react["default"].createElement(AlertItem, _extends({
-          alert: alert,
-          index: index,
-          alerts: alerts
-        }, {
-          setDismissing: _this2.setDismissing,
-          dismissing: dismissing,
-          key: index
-        }));
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", passProps, _underscore["default"].map(alerts, function (alert, index, alerts) {
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement(AlertItem, _extends({
+              alert: alert,
+              index: index,
+              alerts: alerts
+            }, {
+              setDismissing: _this2.setDismissing,
+              dismissing: dismissing,
+              key: index
+            }))
+          );
+        }))
+      );
     }
   }]);
 
@@ -310,12 +348,14 @@ var AlertItem =
 function (_React$PureComponent) {
   _inherits(AlertItem, _React$PureComponent);
 
+  var _super2 = _createSuper(AlertItem);
+
   function AlertItem(props) {
     var _this3;
 
     _classCallCheck(this, AlertItem);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(AlertItem).call(this, props));
+    _this3 = _super2.call(this, props);
     _this3.dismiss = _this3.dismiss.bind(_assertThisInitialized(_this3));
     _this3.finishDismiss = _this3.finishDismiss.bind(_assertThisInitialized(_this3));
     return _this3;
@@ -364,26 +404,41 @@ function (_React$PureComponent) {
           title = alert.title,
           message = alert.message;
       var hasMessage = !!message;
-      return _react["default"].createElement(_Fade.Fade, {
-        timeout: 500,
-        "in": _underscore["default"].findIndex(dismissing, alert) === -1,
-        onExited: this.finishDismiss,
-        unmountOnExit: true
-      }, _react["default"].createElement("div", {
-        className: "alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')
-      }, noCloseButton !== true ? _react["default"].createElement("button", {
-        type: "button",
-        className: "close",
-        onClick: this.dismiss
-      }, _react["default"].createElement("span", {
-        "aria-hidden": "true"
-      }, "\xD7"), _react["default"].createElement("span", {
-        className: "sr-only"
-      }, "Close alert")) : null, _react["default"].createElement("h4", {
-        className: "alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")
-      }, title), hasMessage ? _react["default"].createElement("div", {
-        className: "mb-0"
-      }, message) : null));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_Fade.Fade, {
+          timeout: 500,
+          "in": _underscore["default"].findIndex(dismissing, alert) === -1,
+          onExited: this.finishDismiss,
+          unmountOnExit: true
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')
+        }, noCloseButton !== true ?
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "close",
+          onClick: this.dismiss
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          "aria-hidden": "true"
+        }, "\xD7"),
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "sr-only"
+        }, "Close alert")) : null,
+        /*#__PURE__*/
+        _react["default"].createElement("h4", {
+          className: "alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")
+        }, title), hasMessage ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "mb-0"
+        }, message) : null))
+      );
     }
   }]);
 

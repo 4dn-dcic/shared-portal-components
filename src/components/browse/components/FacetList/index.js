@@ -299,19 +299,19 @@ export class FacetList extends React.PureComponent {
             if (facetsInGroup.length === 1) {
                 // Doesn't need to be in group, put back into `componentsToReturn`
                 componentsToReturn.splice(index, 0, facetsInGroup[0]);
-                // Increment remaining group indices to match new length of `componentsToReturn`.
-                // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
-                // so `fromIdx` / `groupIndex` should always stay stable.
-                // We increment facetGroup.index which is the index in `componentsToReturn`.
-                groupsArr.slice(groupIndex).forEach(function([ , subsequentFacetGroup]){
-                    subsequentFacetGroup.index++;
-                });
-                return;
+            } else {
+                componentsToReturn.splice(index, 0,
+                    // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
+                    <FacetOfFacets {...props} {...facetGroup} title={groupTitle} key={groupTitle} />
+                );
             }
-
-            // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
-            const renderedGroup = <FacetOfFacets {...props} {...facetGroup} title={groupTitle} key={groupTitle} />;
-            componentsToReturn.splice(index, 0, renderedGroup);
+            // Increment remaining group indices to match new length of `componentsToReturn`.
+            // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
+            // so `fromIdx` / `groupIndex` should always stay stable.
+            // We increment facetGroup.index which is the index in `componentsToReturn`.
+            groupsArr.slice(groupIndex).forEach(function([ , subsequentFacetGroup]){
+                subsequentFacetGroup.index++;
+            });
         });
 
         return componentsToReturn;

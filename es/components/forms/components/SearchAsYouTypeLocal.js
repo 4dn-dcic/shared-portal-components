@@ -27,12 +27,6 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -41,10 +35,48 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 var SearchAsYouTypeLocal =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(SearchAsYouTypeLocal, _React$PureComponent);
+
+  var _super = _createSuper(SearchAsYouTypeLocal);
 
   _createClass(SearchAsYouTypeLocal, null, [{
     key: "getRegexQuery",
@@ -76,7 +108,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, SearchAsYouTypeLocal);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SearchAsYouTypeLocal).call(this, props));
+    _this = _super.call(this, props);
     _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
     _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
     _this.state = {
@@ -131,30 +163,41 @@ function (_React$PureComponent) {
       if (!Array.isArray(searchList)) {
         // Likely, schemas are not yet loaded?
         filteredOptions = [];
-        optionsHeader = _react["default"].createElement("div", {
+        optionsHeader =
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
           className: "text-center py-3"
-        }, _react["default"].createElement("i", {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon icon-spin icon-circle-notch fas"
         }));
       } else {
         filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
 
         if (filteredOptions.length === 0) {
-          optionsHeader = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("em", {
+          optionsHeader =
+          /*#__PURE__*/
+          _react["default"].createElement(_react["default"].Fragment, null,
+          /*#__PURE__*/
+          _react["default"].createElement("em", {
             className: "d-block text-center px-4 py-3"
           }, allowCustomValue ? "Adding new entry" : "No results found"), optionsHeader);
         }
       }
 
-      return _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
-        optionsHeader: optionsHeader,
-        currentTextValue: currentTextValue,
-        allowCustomValue: allowCustomValue
-      }, {
-        options: filteredOptions,
-        onTextInputChange: this.onTextInputChange,
-        onDropdownSelect: this.onDropdownSelect
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
+          optionsHeader: optionsHeader,
+          currentTextValue: currentTextValue,
+          allowCustomValue: allowCustomValue
+        }, {
+          options: filteredOptions,
+          onTextInputChange: this.onTextInputChange,
+          onDropdownSelect: this.onDropdownSelect
+        }))
+      );
     }
   }]);
 

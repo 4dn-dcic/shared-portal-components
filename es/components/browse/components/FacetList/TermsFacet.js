@@ -27,15 +27,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
@@ -55,12 +85,14 @@ var TermsFacet =
 function (_React$PureComponent) {
   _inherits(TermsFacet, _React$PureComponent);
 
+  var _super = _createSuper(TermsFacet);
+
   function TermsFacet(props) {
     var _this;
 
     _classCallCheck(this, TermsFacet);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TermsFacet).call(this, props));
+    _this = _super.call(this, props);
     _this.handleStaticClick = _this.handleStaticClick.bind(_assertThisInitialized(_this));
     _this.handleTermClick = _this.handleTermClick.bind(_assertThisInitialized(_this));
     _this.state = {
@@ -126,30 +158,33 @@ function (_React$PureComponent) {
 
       var _ref = facet || {},
           field = _ref.field,
-          title = _ref.title,
-          _ref$description = _ref.description,
-          description = _ref$description === void 0 ? null : _ref$description;
+          title = _ref.title;
 
       var showTitle = title || field;
 
       if (separateSingleTermFacets && isStatic) {
         // Only one term exists.
-        return _react["default"].createElement(_StaticSingleTerm.StaticSingleTerm, {
-          facet: facet,
-          term: terms[0],
-          filtering: filtering,
-          showTitle: showTitle,
-          onClick: this.handleStaticClick,
-          getTermStatus: getTermStatus,
-          extraClassname: extraClassname,
-          termTransformFxn: termTransformFxn
-        });
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement(_StaticSingleTerm.StaticSingleTerm, {
+            facet: facet,
+            term: terms[0],
+            filtering: filtering,
+            showTitle: showTitle,
+            onClick: this.handleStaticClick,
+            getTermStatus: getTermStatus,
+            extraClassname: extraClassname,
+            termTransformFxn: termTransformFxn
+          })
+        );
       } else {
-        return _react["default"].createElement(_FacetTermsList.FacetTermsList, _extends({}, this.props, {
-          onTermClick: this.handleTermClick,
-          tooltip: description,
-          title: showTitle
-        }));
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement(_FacetTermsList.FacetTermsList, _extends({}, this.props, {
+            onTermClick: this.handleTermClick,
+            title: showTitle
+          }))
+        );
       }
     }
   }]);

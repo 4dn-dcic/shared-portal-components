@@ -36,22 +36,33 @@ var Toggle = _react["default"].memo(function (_ref) {
       remainingProps = _objectWithoutProperties(_ref, ["className", "id", "disabled"]);
 
   var useID = id || (0, _object.randomId)();
-  return _react["default"].createElement("div", {
-    className: "onoffswitch " + className + (disabled ? ' disabled' : '')
-  }, _react["default"].createElement("input", _extends({
-    type: "checkbox",
-    id: useID
-  }, remainingProps, {
-    className: "onoffswitch-checkbox",
-    disabled: disabled
-  })), _react["default"].createElement("label", {
-    className: "onoffswitch-label",
-    htmlFor: id
-  }, _react["default"].createElement("span", {
-    className: "onoffswitch-inner"
-  }), _react["default"].createElement("span", {
-    className: "onoffswitch-switch"
-  })));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "onoffswitch " + className + (disabled ? ' disabled' : '')
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("input", _extends({
+      type: "checkbox",
+      id: useID
+    }, remainingProps, {
+      className: "onoffswitch-checkbox",
+      disabled: disabled
+    })),
+    /*#__PURE__*/
+    _react["default"].createElement("label", {
+      className: "onoffswitch-label",
+      htmlFor: id
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
+      className: "onoffswitch-inner"
+    }),
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
+      className: "onoffswitch-switch"
+    })))
+  );
 });
 
 exports.Toggle = Toggle;

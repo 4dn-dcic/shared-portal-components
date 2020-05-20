@@ -17,12 +17,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -30,6 +24,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 /**
  * Bootstrap 'Row' component which may be used in PartialList's props.collapsible or props.persistent.
@@ -61,18 +91,29 @@ var Row = _react["default"].memo(function (props) {
   if (valSm < 3) valSm = 12;
   if (valMd < 3) valMd = 12;
   if (valLg < 3) valLg = 12;
-  return _react["default"].createElement("div", {
-    className: "row list-item " + className,
-    "data-for-field": field
-  }, _react["default"].createElement("div", {
-    className: "item-label col-sm-" + colSm + " col-md-" + colMd + " col-lg-" + colLg
-  }, _react["default"].createElement("div", {
-    className: "inner"
-  }, label || title || "Label")), _react["default"].createElement("div", {
-    className: "item-value col-sm-" + valSm + " col-md-" + valMd + " col-lg-" + valLg
-  }, _react["default"].createElement("div", {
-    className: "inner"
-  }, value || val || children || "Value")));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "row list-item " + className,
+      "data-for-field": field
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "item-label col-sm-" + colSm + " col-md-" + colMd + " col-lg-" + colLg
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "inner"
+    }, label || title || "Label")),
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "item-value col-sm-" + valSm + " col-md-" + valMd + " col-lg-" + valLg
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "inner"
+    }, value || val || children || "Value")))
+  );
 });
 
 Row.defaultProps = {
@@ -98,6 +139,8 @@ var PartialList =
 /*#__PURE__*/
 function (_React$PureComponent) {
   _inherits(PartialList, _React$PureComponent);
+
+  var _super = _createSuper(PartialList);
 
   _createClass(PartialList, null, [{
     key: "getDerivedStateFromProps",
@@ -129,7 +172,7 @@ function (_React$PureComponent) {
 
     _classCallCheck(this, PartialList);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(PartialList).call(this, props));
+    _this = _super.call(this, props);
     _this.state = {
       closing: false,
       lastOpen: props.open
@@ -180,16 +223,21 @@ function (_React$PureComponent) {
           open = _this$props2$open === void 0 ? false : _this$props2$open;
       var _this$state$closing = this.state.closing,
           closing = _this$state$closing === void 0 ? false : _this$state$closing;
-      return _react["default"].createElement("div", {
-        className: "expandable-list " + (open ? "open" : "closed") + (className ? " " + className : "")
-      }, persistent || children ? _react["default"].createElement(containerType, {
-        'className': "persistent " + (containerPersistentClassName || containerClassName)
-      }, persistent || children) : null, collapsible ? _react["default"].createElement(_Collapse.Collapse, {
-        "in": open
-      }, _react["default"].createElement(containerType, {
-        'className': containerCollapseClassName || containerClassName,
-        'key': "c"
-      }, open || closing ? collapsible : null)) : null);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "expandable-list " + (open ? "open" : "closed") + (className ? " " + className : "")
+        }, persistent || children ? _react["default"].createElement(containerType, {
+          'className': "persistent " + (containerPersistentClassName || containerClassName)
+        }, persistent || children) : null, collapsible ?
+        /*#__PURE__*/
+        _react["default"].createElement(_Collapse.Collapse, {
+          "in": open
+        }, _react["default"].createElement(containerType, {
+          'className': containerCollapseClassName || containerClassName,
+          'key': "c"
+        }, open || closing ? collapsible : null)) : null)
+      );
     }
   }]);
 

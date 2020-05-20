@@ -21,6 +21,24 @@ Object.defineProperty(exports, "TableRowToggleOpenButton", {
     return _basicColumnExtensionMap.TableRowToggleOpenButton;
   }
 });
+Object.defineProperty(exports, "DisplayTitleColumnWrapper", {
+  enumerable: true,
+  get: function get() {
+    return _basicColumnExtensionMap.DisplayTitleColumnWrapper;
+  }
+});
+Object.defineProperty(exports, "DisplayTitleColumnDefault", {
+  enumerable: true,
+  get: function get() {
+    return _basicColumnExtensionMap.DisplayTitleColumnDefault;
+  }
+});
+Object.defineProperty(exports, "DisplayTitleColumnUser", {
+  enumerable: true,
+  get: function get() {
+    return _basicColumnExtensionMap.DisplayTitleColumnUser;
+  }
+});
 Object.defineProperty(exports, "ColumnCombiner", {
   enumerable: true,
   get: function get() {
@@ -37,12 +55,6 @@ Object.defineProperty(exports, "haveContextColumnsChanged", {
   enumerable: true,
   get: function get() {
     return _ColumnCombiner.haveContextColumnsChanged;
-  }
-});
-Object.defineProperty(exports, "columnDefinitionsToScaledColumnDefinitions", {
-  enumerable: true,
-  get: function get() {
-    return _ColumnCombiner.columnDefinitionsToScaledColumnDefinitions;
   }
 });
 Object.defineProperty(exports, "HeadersRow", {

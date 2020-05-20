@@ -27,15 +27,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -67,12 +97,14 @@ var LinkToSelector =
 function (_React$PureComponent) {
   _inherits(LinkToSelector, _React$PureComponent);
 
+  var _super = _createSuper(LinkToSelector);
+
   function LinkToSelector(props) {
     var _this2;
 
     _classCallCheck(this, LinkToSelector);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(LinkToSelector).call(this, props));
+    _this2 = _super.call(this, props);
     _this2.showAlertInChildWindow = _this2.showAlertInChildWindow.bind(_assertThisInitialized(_this2));
     _this2.setChildWindowMessageHandler = _this2.setChildWindowMessageHandler.bind(_assertThisInitialized(_this2));
     _this2.handleChildWindowMessage = _this2.handleChildWindowMessage.bind(_assertThisInitialized(_this2));
@@ -317,7 +349,10 @@ function (_React$PureComponent) {
     key: "render",
     value: function render() {
       if (this.props.enableWindowDrop) {
-        return _react["default"].createElement(WindowDropReceiver, this.props);
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement(WindowDropReceiver, this.props)
+        );
       }
 
       return null;
@@ -368,9 +403,17 @@ _defineProperty(LinkToSelector, "defaultProps", {
   'searchURL': '/search/?currentAction=selection&type=Item',
   'childWindowAlert': {
     'title': "Selecting Item...",
-    'message': _react["default"].createElement("div", null, _react["default"].createElement("p", {
+    'message':
+    /*#__PURE__*/
+    _react["default"].createElement("div", null,
+    /*#__PURE__*/
+    _react["default"].createElement("p", {
       className: "mb-0"
-    }, "Please either ", _react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the parent window or click its corresponding select (checkbox) button."), _react["default"].createElement("p", {
+    }, "Please either ",
+    /*#__PURE__*/
+    _react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the parent window or click its corresponding select (checkbox) button."),
+    /*#__PURE__*/
+    _react["default"].createElement("p", {
       className: "mb-0"
     }, "You may also browse around and drag & drop a link into the parent window as well.")),
     'style': "info"
@@ -384,12 +427,14 @@ var WindowDropReceiver =
 function (_React$PureComponent2) {
   _inherits(WindowDropReceiver, _React$PureComponent2);
 
+  var _super2 = _createSuper(WindowDropReceiver);
+
   function WindowDropReceiver(props) {
     var _this5;
 
     _classCallCheck(this, WindowDropReceiver);
 
-    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(WindowDropReceiver).call(this, props));
+    _this5 = _super2.call(this, props);
     _this5.handleWindowDragOver = _this5.handleWindowDragOver.bind(_assertThisInitialized(_this5));
     _this5.refreshWindowDropReceiver = _underscore["default"].throttle(_this5.refreshWindowDropReceiver.bind(_assertThisInitialized(_this5)), 300);
     _this5.closeWindowDropReceiver = _this5.closeWindowDropReceiver.bind(_assertThisInitialized(_this5));

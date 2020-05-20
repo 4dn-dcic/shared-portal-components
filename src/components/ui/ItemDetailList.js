@@ -736,17 +736,16 @@ export class Detail extends React.PureComponent {
             } else if (item.charAt(0) === '/') {
                 if (popLink) return <a key={item} href={item} target="_blank" rel="noreferrer noopener">{ item }</a>;
                 else return <a key={item} href={item}>{ item }</a>;
-            } else if (item.slice(0,4) === 'http') {
+            } else {
                 // TODO: more comprehensive regexp url validator needed, look at: https://stackoverflow.com/a/5717133
                 // Is a URL. Check if we should render it as a link/uri.
                 const schemaProperty = getSchemaProperty(keyPrefix, schemas || {}, atType);
-                if (
-                    schemaProperty &&
-                    typeof schemaProperty.format === 'string' &&
-                    ['uri','url'].indexOf(schemaProperty.format.toLowerCase()) > -1
-                ) return <a key={item} href={item} target="_blank" rel="noreferrer noopener">{ item }</a>;
-            } else {
-                return <span>{ termTransformFxn(keyPrefix, item) }</span>;
+                const schemaPropertyFormat = (schemaProperty && typeof schemaProperty.format === 'string' && schemaProperty.format.toLowerCase()) || null;
+                if (schemaPropertyFormat && ['uri','url'].indexOf(schemaPropertyFormat) > -1 && item.slice(0,4) === 'http') {
+                    return <a key={item} href={item} target="_blank" rel="noreferrer noopener">{ item }</a>;
+                } else {
+                    return <span>{ termTransformFxn(keyPrefix, item) }</span>;
+                }
             }
         } else if (typeof item === 'number'){
             return <span>{ termTransformFxn(keyPrefix, item) }</span>;
@@ -805,7 +804,6 @@ export class Detail extends React.PureComponent {
             'schema_version',
             'uuid',
             'replicate_exps',
-            'dbxrefs',
             'status',
             'external_references',
             'date_created',

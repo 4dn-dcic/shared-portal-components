@@ -10,7 +10,7 @@ var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-var _underscore = require("underscore");
+var _underscore = _interopRequireDefault(require("underscore"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
@@ -88,7 +88,7 @@ function (_React$PureComponent) {
     };
     _this.currentRequest = null;
     _this.hasBeenOpened = false;
-    _this.onLoadData = _underscore._.debounce(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
+    _this.onLoadData = _underscore["default"].debounce(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
     _this.constructFetchURL = _this.constructFetchURL.bind(_assertThisInitialized(_this));
     _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
     _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
@@ -581,7 +581,7 @@ function (_React$PureComponent2) {
       }
 
       if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
-        return _underscore._.every(arrayIdx, function (arrIdx, arrIdxIdx) {
+        return _underscore["default"].every(arrayIdx, function (arrIdx, arrIdxIdx) {
           return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
         });
       }
@@ -653,7 +653,7 @@ function (_React$PureComponent2) {
           selectComplete = _this$props6.selectComplete,
           isMultiSelect = _this$props6.isMultiSelect;
 
-      if (!items || !Array.isArray(items) || items.length === 0 || !_underscore._.every(items, function (item) {
+      if (!items || !Array.isArray(items) || items.length === 0 || !_underscore["default"].every(items, function (item) {
         return item.id && typeof item.id === 'string' && item.json;
       })) {
         return;
@@ -673,13 +673,13 @@ function (_React$PureComponent2) {
 
         atIds = [atId];
       } else {
-        atIds = _underscore._.pluck(items, "id");
+        atIds = _underscore["default"].pluck(items, "id");
       } // Check validity of item IDs, and handle items with invalid IDs/URLs
 
 
       var invalidTitle = "Invalid Item Selected";
 
-      if (_underscore._.every(atIds, function (atId) {
+      if (_underscore["default"].every(atIds, function (atId) {
         var isValidAtId = _util.object.isValidAtIDFormat(atId);
 
         return atId && isValidAtId;

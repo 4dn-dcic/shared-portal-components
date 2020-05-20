@@ -412,7 +412,7 @@ $facetlist-term-block-height: default !default;
                 float: right;
                 text-align: left;
                 @include font-size($facetlist-facet-font-size);
-                @include no-user-select();
+                @include no-user-select;
 
                 span {
                     cursor: pointer;
@@ -492,7 +492,6 @@ $facetlist-term-block-height: default !default;
                     line-height: $facetlist-term-line-height;
                     height: $facetlist-term-block-height;
 
-                    i.icon.icon-circle-o-notch,
                     i.icon.icon-circle-notch {
                         opacity: 0.33;
                     }

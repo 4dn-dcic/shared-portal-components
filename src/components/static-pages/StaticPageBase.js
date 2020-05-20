@@ -250,36 +250,6 @@ export class StaticPageBase extends React.PureComponent {
         'href' : PropTypes.string
     };
 
-    constructor(props){
-        super(props);
-        this.maybeSetRedirectedAlert = this.maybeSetRedirectedAlert.bind(this);
-    }
-
-    componentDidMount(){
-        this.maybeSetRedirectedAlert();
-    }
-
-    /**
-     * A simpler form (minus AJAX request) of DefaultItemView's similar method.
-     */
-    maybeSetRedirectedAlert(){
-        const { href } = this.props;
-        if (!href) return;
-
-        const hrefParts = url.parse(href, true);
-        const redirected_from = hrefParts.query && hrefParts.query.redirected_from;
-
-        if (redirected_from){
-            setTimeout(function(){
-                Alerts.queue({
-                    'title' : "Redirected",
-                    'message': <span>You have been redirected from old page <span className="text-500">{ redirected_from }</span> to <span className="text-500">{ hrefParts.pathname }</span>. Please update your bookmarks.</span>,
-                    'style': 'warning'
-                });
-            }, 0);
-        }
-    }
-
     render(){
         const { context, entryRenderFxn, contentParseFxn } = this.props;
         let parsedContent = null;

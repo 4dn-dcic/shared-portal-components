@@ -79,3 +79,5 @@ export const commonFileUtil = fileUtilities;
 // Helpers for managing SubmissionView state (Context, Hierarchy, etc.)
 import * as submissionViewUtilities from './submission-view';
 export const submissionStateUtil = submissionViewUtilities;
+
+export { WindowClickEventDelegator } from './WindowClickEventDelegator';

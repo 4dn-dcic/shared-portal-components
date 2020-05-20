@@ -47,15 +47,45 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -77,12 +107,14 @@ var LoginController =
 function (_React$PureComponent) {
   _inherits(LoginController, _React$PureComponent);
 
+  var _super = _createSuper(LoginController);
+
   function LoginController(props) {
     var _this;
 
     _classCallCheck(this, LoginController);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LoginController).call(this, props));
+    _this = _super.call(this, props);
     _this.showLock = _underscore["default"].throttle(_this.showLock.bind(_assertThisInitialized(_this)), 1000, {
       trailing: false
     });
@@ -275,11 +307,23 @@ function (_React$PureComponent) {
 
         var userFullName = userDetails.first_name && userDetails.last_name && userDetails.first_name + ' ' + userDetails.last_name || null;
 
-        var msg = _react["default"].createElement("ul", {
+        var msg =
+        /*#__PURE__*/
+        _react["default"].createElement("ul", {
           className: "mb-0"
-        }, _react["default"].createElement("li", null, "You are now logged in as ", _react["default"].createElement("span", {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("li", null, "You are now logged in as ",
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "text-500"
-        }, userFullName, userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email), "."), _react["default"].createElement("li", null, "Please visit ", _react["default"].createElement("b", null, _react["default"].createElement("a", {
+        }, userFullName, userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email), "."),
+        /*#__PURE__*/
+        _react["default"].createElement("li", null, "Please visit ",
+        /*#__PURE__*/
+        _react["default"].createElement("b", null,
+        /*#__PURE__*/
+        _react["default"].createElement("a", {
           href: userProfileURL
         }, "your profile")), " to edit your account settings or information."));
 
@@ -390,12 +434,14 @@ var LogoutController =
 function (_React$PureComponent2) {
   _inherits(LogoutController, _React$PureComponent2);
 
+  var _super2 = _createSuper(LogoutController);
+
   function LogoutController(props) {
     var _this5;
 
     _classCallCheck(this, LogoutController);
 
-    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(LogoutController).call(this, props));
+    _this5 = _super2.call(this, props);
     _this5.performLogout = _this5.performLogout.bind(_assertThisInitialized(_this5));
     return _this5;
   }

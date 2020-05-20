@@ -1,19 +1,13 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SearchResultDetailPane = void 0;
+exports.DropdownMenu = exports.DropdownButton = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _ItemDetailList = require("./../../ui/ItemDetailList");
-
-var _FlexibleDescriptionBox = require("./../../ui/FlexibleDescriptionBox");
+var _WindowClickEventDelegator = require("./../util/WindowClickEventDelegator");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -67,97 +61,121 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SearchResultDetailPane =
+// THIS IS A WORK IN PROGRESS
+// TODO: create a "DropdownWindowClickManager" or similarly-named global singleton class
+// Will keep track of all DropdownButtons mounted in view to ensure only one open ever at once.
+// Will be similar to WindowClickEventDelegator BUT should be more performant
+// (else can just use WindowClickEventDelegator directly, as is in code below now)
+// by only iterating over clicked element's ancestors (to see if clicked elem is child of _the only_ open dropdown menu) once re: all dropdowns.
+var DropdownButton =
 /*#__PURE__*/
 function (_React$PureComponent) {
-  _inherits(SearchResultDetailPane, _React$PureComponent);
+  _inherits(DropdownButton, _React$PureComponent);
 
-  var _super = _createSuper(SearchResultDetailPane);
+  var _super = _createSuper(DropdownButton);
 
-  function SearchResultDetailPane() {
-    _classCallCheck(this, SearchResultDetailPane);
+  function DropdownButton(props) {
+    var _this;
 
-    return _super.apply(this, arguments);
+    _classCallCheck(this, DropdownButton);
+
+    _this = _super.call(this, props);
+    _this.onWindowClick = _this.onWindowClick.bind(_assertThisInitialized(_this));
+    _this.state = {
+      'open': false
+    };
+    return _this;
   }
 
-  _createClass(SearchResultDetailPane, [{
+  _createClass(DropdownButton, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip["default"].rebuild();
+      _WindowClickEventDelegator.WindowClickEventDelegator.addHandler(this.onWindowClick);
     }
   }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps) {
-      if (this.props.open && !pastProps.open) _reactTooltip["default"].rebuild();
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      _WindowClickEventDelegator.WindowClickEventDelegator.removeHandler(this.onWindowClick);
+    }
+    /** Close dropdown on window click unless click within menu. */
+
+  }, {
+    key: "onWindowClick",
+    value: function onWindowClick() {// TODO check event target, see if parent of it is our dropdown-menu, if so cancel, else close.
+      // Funcs already exist for this in utils/layout
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          result = _this$props.result,
-          popLink = _this$props.popLink,
-          schemas = _this$props.schemas;
+          children = _this$props.children,
+          title = _this$props.title,
+          variant = _this$props.variant,
+          size = _this$props.size;
+      var open = this.state.open;
       return (
         /*#__PURE__*/
-        _react["default"].createElement("div", null, !result.description ? null :
-        /*#__PURE__*/
         _react["default"].createElement("div", {
-          className: "flex-description-container"
+          className: "dropdown"
         },
         /*#__PURE__*/
-        _react["default"].createElement("h5", null,
+        _react["default"].createElement("button", {
+          type: "button",
+          className: // TODO finish handling other props
+          "dropdown-toggle btn" + ("btn-" + (variant || "primary")) + ("btn-" + (size || "md")),
+          role: "button",
+          "data-toggle": "dropdown",
+          "aria-haspopup": "true",
+          "aria-expanded": "false"
+        }, title),
         /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-align-left fas"
-        }), "\xA0 Description"),
-        /*#__PURE__*/
-        _react["default"].createElement(_FlexibleDescriptionBox.FlexibleDescriptionBox //windowWidth={this.props.windowWidth}
-        , {
-          description: result.description,
-          fitTo: "self",
-          textClassName: "text-normal",
-          collapsedHeight: "auto",
-          linesOfText: 2
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("hr", {
-          className: "desc-separator"
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "item-page-detail"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "text-500"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-list fas"
-        }), "\xA0 Details"),
-        /*#__PURE__*/
-        _react["default"].createElement(_ItemDetailList.Detail, {
-          context: result,
-          open: false,
-          popLink: popLink,
-          schemas: schemas
-        })))
+        _react["default"].createElement(DropdownMenu, {
+          children: children,
+          open: open
+        }))
       );
     }
   }]);
 
-  return SearchResultDetailPane;
+  return DropdownButton;
 }(_react["default"].PureComponent);
 
-exports.SearchResultDetailPane = SearchResultDetailPane;
+exports.DropdownButton = DropdownButton;
 
-_defineProperty(SearchResultDetailPane, "propTypes", {
-  'result': _propTypes["default"].shape({
-    '@id': _propTypes["default"].string,
-    'display_title': _propTypes["default"].string,
-    'description': _propTypes["default"].string
-  }),
-  'popLink': _propTypes["default"].bool,
-  'schemas': _propTypes["default"].object //'windowWidth' : PropTypes.number.isRequired
-
+_defineProperty(DropdownButton, "defaultProps", {
+  'children': [
+  /*#__PURE__*/
+  _react["default"].createElement("a", {
+    className: "dropdown-item",
+    href: "#",
+    key: 1
+  }, "Action"),
+  /*#__PURE__*/
+  _react["default"].createElement("a", {
+    className: "dropdown-item",
+    href: "#",
+    key: 2
+  }, "Another action"),
+  /*#__PURE__*/
+  _react["default"].createElement("a", {
+    className: "dropdown-item",
+    href: "#",
+    key: 3
+  }, "Something else here")],
+  'title': "Hello World"
 });
+
+var DropdownMenu = _react["default"].memo(function (props) {
+  var children = props.children,
+      open = props.open;
+  if (!open) return null;
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "dropdown-menu show"
+    }, children)
+  );
+}); // TODO create plain Dropdown. Or not. Idk. Can easily create (more) custom Dropdown togglers and whatnot by emulating the above DropdownButton so not sure is worth adding more complexity...
+
+
+exports.DropdownMenu = DropdownMenu;

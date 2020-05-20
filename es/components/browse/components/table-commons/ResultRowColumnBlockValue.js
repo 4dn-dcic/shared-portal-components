@@ -18,13 +18,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
@@ -33,6 +35,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -46,6 +84,8 @@ var ResultRowColumnBlockValue =
 function (_React$Component) {
   _inherits(ResultRowColumnBlockValue, _React$Component);
 
+  var _super = _createSuper(ResultRowColumnBlockValue);
+
   _createClass(ResultRowColumnBlockValue, null, [{
     key: "transformIfNeeded",
 
@@ -53,49 +93,50 @@ function (_React$Component) {
      * Default value rendering function. Fallback when no `render` func defined in columnDefinition.
      * Uses columnDefinition field (column key) to get nested property value from result and display it.
      *
+     * @todo Maybe use Sets if more performant.
      * @param {Item} result - JSON object representing row data.
-     * @param {ColumnDefinition} columnDefinition - Object with column definition data - field, title, widthMap, render function (self)
-     * @param {Object} props - Props passed down from SearchResultTable/ResultRowColumnBlock instance.
-     * @param {number} width - Unused. Todo - remove?
+     * @param {string} field - Field for which this value is for.
+     * @param {function} termTransformFxn - Transform value(s)
      * @returns {string|null} String value or null. Your function may return a React element, as well.
      */
-    value: function transformIfNeeded(result, columnDefinition, props, termTransformFxn) {
-      function filterAndUniq(vals) {
-        return _underscore["default"].uniq(_underscore["default"].filter(vals, function (v) {
-          return v !== null && typeof v !== 'undefined';
-        }));
+    value: function transformIfNeeded(result, field, termTransformFxn) {
+      function flattenSet(valArr) {
+        var uniqSet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        uniqSet = uniqSet || new Set();
+
+        if (Array.isArray(valArr)) {
+          for (var i = 0; i < valArr.length; i++) {
+            flattenSet(valArr[i], uniqSet);
+          }
+
+          return uniqSet;
+        } // Else is single value (not array) -
+
+
+        if (valArr !== null && typeof valArr !== 'undefined') {
+          uniqSet.add(valArr);
+        }
+
+        return uniqSet;
       }
 
-      var value = (0, _object.getNestedProperty)(result, columnDefinition.field, true);
-      if (typeof value === "undefined") value = null;
+      var uniquedValues = _toConsumableArray(flattenSet((0, _object.getNestedProperty)(result, field, true)));
 
-      if (Array.isArray(value)) {
-        // getNestedProperty may return a multidimensional array, # of dimennsions depending on how many child arrays were encountered in original result obj.
-        value = filterAndUniq(value.map(function (v) {
-          if (Array.isArray(v)) {
-            v = filterAndUniq(v);
-            if (v.length === 1) v = v[0];
-            if (v.length === 0) v = null;
-          }
+      var uniquedValuesLen = uniquedValues.length; // No value found - let it default to 'null' and be handled as such
 
-          if (typeof termTransformFxn === 'function') {
-            return termTransformFxn(columnDefinition.field, v, false);
-          }
-
-          console.warn("No termTransformFxn supplied.");
-          return v;
-        })).map(function (v) {
-          if (typeof termTransformFxn === 'function') {
-            return termTransformFxn(columnDefinition.field, v, false);
-          }
-
-          return v;
-        }).join(', ');
-      } else if (typeof termTransformFxn === 'function') {
-        value = termTransformFxn(columnDefinition.field, value, true);
+      if (uniquedValuesLen === 0) {
+        // All null or undefined.
+        return null;
       }
 
-      return value;
+      if (typeof termTransformFxn === "function") {
+        return uniquedValues.map(function (v) {
+          return termTransformFxn(field, v, false);
+        }).join(', '); // Most often will be just 1 value in set/array.
+      } else {
+        console.warn("No termTransformFxn supplied.");
+        return uniquedValues.join(', ');
+      }
     }
   }]);
 
@@ -104,7 +145,7 @@ function (_React$Component) {
 
     _classCallCheck(this, ResultRowColumnBlockValue);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ResultRowColumnBlockValue).call(this, props));
+    _this = _super.call(this, props);
     _this.memoized = {
       transformIfNeeded: (0, _memoizeOne["default"])(ResultRowColumnBlockValue.transformIfNeeded)
     };
@@ -136,30 +177,56 @@ function (_React$Component) {
           propTooltip = _this$props2.tooltip,
           className = _this$props2.className,
           termTransformFxn = _this$props2.termTransformFxn;
-      var renderFxn = columnDefinition.render || this.memoized.transformIfNeeded;
-      var value = sanitizeOutputValue(renderFxn(result, columnDefinition, _underscore["default"].omit(this.props, 'columnDefinition', 'result'), termTransformFxn));
+      var field = columnDefinition.field,
+          _columnDefinition$ren = columnDefinition.render,
+          renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren;
+      var value = renderFxn ? renderFxn(result, _underscore["default"].omit(this.props, 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
+      // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
+      // Could prly make this less verbose later.. we _do_ want to wrap primitive values output from custom render fxn.
+
       var tooltip;
 
       if (typeof value === 'number') {
-        value = _react["default"].createElement("span", {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "value"
         }, value);
       } else if (typeof value === 'string') {
         if (propTooltip === true && value.length > 25) tooltip = value;
-        value = _react["default"].createElement("span", {
-          className: "value"
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "value text-center"
         }, value);
       } else if (value === null) {
-        value = _react["default"].createElement("small", {
-          className: "value"
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("small", {
+          className: "value text-center"
         }, "-");
       } else if (_react["default"].isValidElement(value) && value.type === "a") {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
-        value = _react["default"].createElement("span", {
-          className: "value"
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "value text-center"
         }, value);
-      }
+      } else if (typeof value === "boolean") {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "value text-center"
+        }, value);
+      } else if (!renderFxn) {
+        value =
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "value"
+        }, value); // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
+      } // else is likely JSX from custom render function -- leave as-is
+
 
       var cls = "inner";
 
@@ -167,10 +234,13 @@ function (_React$Component) {
         cls += ' ' + className;
       }
 
-      return _react["default"].createElement("div", {
-        className: cls,
-        "data-tip": tooltip
-      }, value);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: cls,
+          "data-tip": tooltip
+        }, value)
+      );
     }
   }]);
 
@@ -205,9 +275,12 @@ function sanitizeOutputValue(value) {
         var atId = _object.itemUtil.atId(value);
 
         if (atId) {
-          return _react["default"].createElement("a", {
-            href: atId
-          }, value.display_title);
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement("a", {
+              href: atId
+            }, value.display_title)
+          );
         } else {
           return value.display_title;
         }
