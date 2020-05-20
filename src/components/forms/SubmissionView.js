@@ -1974,20 +1974,29 @@ class IndividualObjectView extends React.Component {
             }
         }
         if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
+            console.log("found an array, ", pointer[splitFieldLeaf]);
             // move pointer into array
             pointer = pointer[splitFieldLeaf];
+            console.log("pointer is now: ", pointer);
             prevValue = pointer[arrayIdx[arrayIdxPointer]];
+            console.log("prevValue is now:", prevValue);
             if (value === null){ // delete this array itemfieldType
+                console.log("what is value?", value);
+                console.log("pointer presplice", pointer);
                 pointer.splice(arrayIdx[arrayIdxPointer], 1);
+                console.log("pointer postsplice", pointer);
             } else {
+                console.log("arrayIdx for pointer", arrayIdx[arrayIdxPointer]);
                 pointer[arrayIdx[arrayIdxPointer]] = value;
             }
         } else { // value we're trying to set is not inside an array at this point
             prevValue = pointer[splitFieldLeaf];
+            console.log("prevValue is now:", prevValue);
             pointer[splitFieldLeaf] = value;
         }
         /* modifyContextInPlace can replace everything up until this point... need to update var names, though */
 
+        console.log("value and previousValue, ", value, prevValue);
         console.log("modifyNewContext II", value, currContext);
         if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object" || fieldType === 'new linked object')){
             console.log("removing obj ", prevValue);
@@ -2164,9 +2173,17 @@ class IndividualObjectView extends React.Component {
     }
 
     /** Exit out of the selection process and clean up state */
-    selectCancel(e){
+    selectCancel(previousValue){
         var { selectField, selectArrayIdx } = this.state;
-        this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+        var { keyContext, currKey } = this.props;
+
+        console.log("previous value", previousValue);
+
+        console.log("curr value", keyContext[currKey][selectField]);
+
+        console.log("this.state", this.state);
+        console.log("this.props", this.props);
+        this.modifyNewContext(selectField, previousValue || null, 'existing linked object', null, selectArrayIdx);
         this.setState({ 'selectType': null, 'selectField': null, 'selectArrayIdx': null });
     }
 

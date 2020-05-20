@@ -77,6 +77,9 @@ function (_React$PureComponent) {
     _this2.setChildWindowMessageHandler = _this2.setChildWindowMessageHandler.bind(_assertThisInitialized(_this2));
     _this2.handleChildWindowMessage = _this2.handleChildWindowMessage.bind(_assertThisInitialized(_this2));
     _this2.receiveData = _this2.receiveData.bind(_assertThisInitialized(_this2));
+
+    _patchedConsole.patchedConsoleInstance.log("LinkToSelector value", props.value);
+
     return _this2;
   }
 
@@ -116,6 +119,7 @@ function (_React$PureComponent) {
 
       var _this$props = this.props,
           searchURL = _this$props.searchURL,
+          value = _this$props.value,
           onCloseChildWindow = _this$props.onCloseChildWindow;
       var pastInSelection = pastProps.isSelecting;
       var nowInSelection = nextProps.isSelecting;
@@ -164,7 +168,7 @@ function (_React$PureComponent) {
 
             if (_this3 && _this3.windowObjectReference && _this3.windowObjectReference.closed) {
               if (typeof onCloseChildWindow === 'function') {
-                onCloseChildWindow();
+                onCloseChildWindow(value);
               }
             }
 
@@ -196,6 +200,9 @@ function (_React$PureComponent) {
   }, {
     key: "handleChildWindowMessage",
     value: function handleChildWindowMessage(evt) {
+      var _this$props2 = this.props,
+          value = _this$props2.value,
+          onCloseChildWindow = _this$props2.onCloseChildWindow;
       var eventType = evt && evt.data && evt.data.eventType;
 
       if (!eventType) {
@@ -235,7 +242,10 @@ function (_React$PureComponent) {
 
       if (eventType === 'fourfrontcancelclick') {
         this.cleanChildWindow();
-        this.props.onCloseChildWindow();
+
+        _patchedConsole.patchedConsoleInstance.log("cancel click occurred... value:", value);
+
+        onCloseChildWindow(value);
       } // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
 
 
@@ -338,6 +348,7 @@ _defineProperty(LinkToSelector, "propTypes", {
 
   /** Optional callback called with no params when child window is closed. Could/should unset `props.isSelecting`. */
   'onCloseChildWindow': _propTypes["default"].func,
+  // When used with SV, will generally be the IndvObject.selectCancel method
 
   /** If true, then allows to drag & drop Item to window */
   'enableWindowDrop': _propTypes["default"].bool.isRequired,

@@ -2652,23 +2652,43 @@ function (_React$Component2) {
       }
 
       if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array') {
-        // move pointer into array
+        _util.console.log("found an array, ", pointer[splitFieldLeaf]); // move pointer into array
+
+
         pointer = pointer[splitFieldLeaf];
+
+        _util.console.log("pointer is now: ", pointer);
+
         prevValue = pointer[arrayIdx[arrayIdxPointer]];
+
+        _util.console.log("prevValue is now:", prevValue);
 
         if (value === null) {
           // delete this array itemfieldType
+          _util.console.log("what is value?", value);
+
+          _util.console.log("pointer presplice", pointer);
+
           pointer.splice(arrayIdx[arrayIdxPointer], 1);
+
+          _util.console.log("pointer postsplice", pointer);
         } else {
+          _util.console.log("arrayIdx for pointer", arrayIdx[arrayIdxPointer]);
+
           pointer[arrayIdx[arrayIdxPointer]] = value;
         }
       } else {
         // value we're trying to set is not inside an array at this point
         prevValue = pointer[splitFieldLeaf];
+
+        _util.console.log("prevValue is now:", prevValue);
+
         pointer[splitFieldLeaf] = value;
       }
       /* modifyContextInPlace can replace everything up until this point... need to update var names, though */
 
+
+      _util.console.log("value and previousValue, ", value, prevValue);
 
       _util.console.log("modifyNewContext II", value, currContext);
 
@@ -2883,11 +2903,23 @@ function (_React$Component2) {
 
   }, {
     key: "selectCancel",
-    value: function selectCancel() {
+    value: function selectCancel(previousValue) {
       var _this$state8 = this.state,
           selectField = _this$state8.selectField,
           selectArrayIdx = _this$state8.selectArrayIdx;
-      this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+      var _this$props13 = this.props,
+          keyContext = _this$props13.keyContext,
+          currKey = _this$props13.currKey;
+
+      _util.console.log("previous value", previousValue);
+
+      _util.console.log("curr value", keyContext[currKey][selectField]);
+
+      _util.console.log("this.state", this.state);
+
+      _util.console.log("this.props", this.props);
+
+      this.modifyNewContext(selectField, previousValue || null, 'existing linked object', null, selectArrayIdx);
       this.setState({
         'selectType': null,
         'selectField': null,
@@ -2903,15 +2935,15 @@ function (_React$Component2) {
   }, {
     key: "initiateField",
     value: function initiateField(field) {
-      var _this$props13 = this.props,
-          schemas = _this$props13.schemas,
-          currType = _this$props13.currType,
-          currKey = _this$props13.currKey,
-          roundTwo = _this$props13.roundTwo,
-          currContext = _this$props13.currContext,
-          keyComplete = _this$props13.keyComplete,
-          keyContext = _this$props13.keyContext,
-          edit = _this$props13.edit;
+      var _this$props14 = this.props,
+          schemas = _this$props14.schemas,
+          currType = _this$props14.currType,
+          currKey = _this$props14.currKey,
+          roundTwo = _this$props14.roundTwo,
+          currContext = _this$props14.currContext,
+          keyComplete = _this$props14.keyComplete,
+          keyContext = _this$props14.keyContext,
+          edit = _this$props14.edit;
       var currSchema = schemas[currType]; // console.log("RENDER INDV OBJ VIEW", currSchema, field);
 
       var fieldSchema = _util.object.getNestedProperty(currSchema, ['properties', field], true);
@@ -3030,13 +3062,13 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props14 = this.props,
-          currContext = _this$props14.currContext,
-          keyComplete = _this$props14.keyComplete,
-          keyContext = _this$props14.keyContext,
-          currKey = _this$props14.currKey,
-          schemas = _this$props14.schemas,
-          roundTwo = _this$props14.roundTwo;
+      var _this$props15 = this.props,
+          currContext = _this$props15.currContext,
+          keyComplete = _this$props15.keyComplete,
+          keyContext = _this$props15.keyContext,
+          currKey = _this$props15.currKey,
+          schemas = _this$props15.schemas,
+          roundTwo = _this$props15.roundTwo;
       var fields = currContext ? _underscore["default"].keys(currContext) : [];
       var fieldJSXComponents = (0, _submissionView.sortPropFields)(_underscore["default"].filter( // Sort fields first by requirement and secondly alphabetically. These are JSX BuildField components.
       _underscore["default"].map(fields, this.initiateField), function (f) {
@@ -3111,9 +3143,9 @@ function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-          context = _this$props15.context,
-          schemas = _this$props15.schemas;
+      var _this$props16 = this.props,
+          context = _this$props16.context,
+          schemas = _this$props16.schemas;
       var open = this.state.open;
       return _react["default"].createElement("div", {
         className: "current-item-properties round-two-panel"
