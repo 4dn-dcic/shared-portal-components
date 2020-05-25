@@ -134,10 +134,10 @@ function (_React$Component) {
         var uniquedLinkToItems = _underscore["default"].uniq(uniquedValues, false, "@id");
 
         return uniquedLinkToItems.map(function (v, i) {
-          var transformedValue = termTransformFxn(field, v, true); // Likely a link element.
+          var transformedValue = termTransformFxn(field, v, true); // `allowJSXOutput=true` == likely a link element.
 
           if (i === 0 && uniquedLinkToItems.length === 1) {
-            return transformedValue;
+            return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
           }
 
           return (
@@ -150,7 +150,7 @@ function (_React$Component) {
         });
       } else if (typeof termTransformFxn === "function") {
         return uniquedValues.map(function (v) {
-          return termTransformFxn(field, v, false); // Don't allow JSX element/component(s) because joining w. ", ".
+          return termTransformFxn(field, v, false); // `allowJSXOutput=false` == don't allow JSX element/component(s) because joining w. ", ".
         }).join(', '); // Most often will be just 1 value in set/array.
       } else {
         console.warn("No termTransformFxn supplied.");

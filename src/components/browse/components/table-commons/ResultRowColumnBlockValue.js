@@ -51,9 +51,9 @@ export class ResultRowColumnBlockValue extends React.Component {
             // If LinkTo Item(s), return array of JSX elements (spans) which wrap links (assuming is output from termTransformFxn).
             const uniquedLinkToItems = _.uniq(uniquedValues, false, "@id");
             return uniquedLinkToItems.map(function(v, i){
-                const transformedValue = termTransformFxn(field, v, true); // Likely a link element.
+                const transformedValue = termTransformFxn(field, v, true); // `allowJSXOutput=true` == likely a link element.
                 if (i === 0 && uniquedLinkToItems.length === 1) {
-                    return transformedValue;
+                    return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
                 }
                 return (
                     <span key={i} className="link-wrapper">{ i > 0 ? ", " : null }{ transformedValue }</span>
@@ -61,7 +61,7 @@ export class ResultRowColumnBlockValue extends React.Component {
             });
         } else if (typeof termTransformFxn === "function") {
             return uniquedValues.map(function(v){
-                return termTransformFxn(field, v, false); // Don't allow JSX element/component(s) because joining w. ", ".
+                return termTransformFxn(field, v, false); // `allowJSXOutput=false` == don't allow JSX element/component(s) because joining w. ", ".
             }).join(', '); // Most often will be just 1 value in set/array.
         } else {
             console.warn("No termTransformFxn supplied.");
