@@ -129,9 +129,28 @@ function (_React$Component) {
         return null;
       }
 
-      if (typeof termTransformFxn === "function") {
+      if (_typeof(uniquedValues[0]) === "object" && uniquedValues[0]["@id"] && typeof termTransformFxn === "function") {
+        // If LinkTo Item(s), return array of JSX elements (spans) which wrap links (assuming is output from termTransformFxn).
+        var uniquedLinkToItems = _underscore["default"].uniq(uniquedValues, false, "@id");
+
+        return uniquedLinkToItems.map(function (v, i) {
+          var transformedValue = termTransformFxn(field, v, true); // Likely a link element.
+
+          if (i === 0 && uniquedLinkToItems.length === 1) {
+            return transformedValue;
+          }
+
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement("span", {
+              key: i,
+              className: "link-wrapper"
+            }, i > 0 ? ", " : null, transformedValue)
+          );
+        });
+      } else if (typeof termTransformFxn === "function") {
         return uniquedValues.map(function (v) {
-          return termTransformFxn(field, v, false);
+          return termTransformFxn(field, v, false); // Don't allow JSX element/component(s) because joining w. ", ".
         }).join(', '); // Most often will be just 1 value in set/array.
       } else {
         console.warn("No termTransformFxn supplied.");
@@ -205,7 +224,7 @@ function (_React$Component) {
         _react["default"].createElement("small", {
           className: "value text-center"
         }, "-");
-      } else if (_react["default"].isValidElement(value) && value.type === "a") {
+      } else if (_react["default"].isValidElement(value) && value.type === "a" || Array.isArray(value) && _react["default"].isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
         value =
