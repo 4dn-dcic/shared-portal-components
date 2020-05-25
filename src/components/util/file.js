@@ -201,8 +201,8 @@ export const filterFilesWithQCSummary = memoize(function(files, checkAny=false){
  * @param {File[]} filesWithMetrics - List of files which all contain a `quality_metric_summary`.
  * @returns {File[][]} Groups of files as 2d array.
  */
-export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, sep="\t"){
-    return _.pluck(
+export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, schemas, sep="\t"){
+    let filesByTitles = _.pluck(
         Array.from(
             _.reduce(filesWithMetrics, function(m, file, i){
                 const titles = _.map(file.quality_metric.quality_metric_summary, function(qcMetric){
@@ -218,6 +218,26 @@ export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, se
         ),
         1
     );
+
+    //if schemas provided than return the result sorted by file's QC's qc_order
+    if (typeof schemas === 'object' && schemas !== null) {
+        filesByTitles = _.sortBy(filesByTitles, function (files) {
+            const file = files[0]; //assumption: 1st file's QC is adequate to define order
+            if (file.quality_metric['@type'] && Array.isArray(file.quality_metric['@type']) && file.quality_metric['@type'].length > 0) {
+                const itemType = file.quality_metric['@type'][0];
+                if (schemas[itemType]) {
+                    const qc_order = schemas[itemType].qc_order;
+                    if (typeof qc_order === 'number') {
+                        return qc_order;
+                    }
+                }
+            }
+            //fallback - if qc_order is not defined then send it to end
+            return Number.MAX_SAFE_INTEGER || 1000000;
+        });
+    }
+
+    return filesByTitles;
 });
 
 
