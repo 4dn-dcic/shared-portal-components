@@ -184,10 +184,10 @@ export const filterFilesWithQCSummary = memoize(function(files, checkAny=false){
     var func = checkAny ? _.any : _.filter;
     return func(files, function(f){
         return (
-            Array.isArray(f.quality_metric_summary) &&
-            f.quality_metric_summary.length > 0 &&
+            f.quality_metric && Array.isArray(f.quality_metric.quality_metric_summary) &&
+            f.quality_metric.quality_metric_summary.length > 0 &&
             // Ensure all unique titles
-            f.quality_metric_summary.length === Array.from(new Set(_.pluck(f.quality_metric_summary, 'title'))).length
+            f.quality_metric.quality_metric_summary.length === Array.from(new Set(_.pluck(f.quality_metric.quality_metric_summary, 'title'))).length
         );
     });
 });
@@ -205,7 +205,7 @@ export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, se
     return _.pluck(
         Array.from(
             _.reduce(filesWithMetrics, function(m, file, i){
-                const titles = _.map(file.quality_metric_summary, function(qcMetric){
+                const titles = _.map(file.quality_metric.quality_metric_summary, function(qcMetric){
                     return qcMetric.title || qcMetric.display_title; // In case becomes an embedded obj at some point.
                 });
                 const titlesAsString = titles.join(sep); // Using Tab as is unlikely character to be used in a title column.

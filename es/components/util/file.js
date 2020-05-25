@@ -228,8 +228,8 @@ var filterFilesWithQCSummary = (0, _memoizeOne["default"])(function (files) {
   var checkAny = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   var func = checkAny ? _underscore["default"].any : _underscore["default"].filter;
   return func(files, function (f) {
-    return Array.isArray(f.quality_metric_summary) && f.quality_metric_summary.length > 0 && // Ensure all unique titles
-    f.quality_metric_summary.length === Array.from(new Set(_underscore["default"].pluck(f.quality_metric_summary, 'title'))).length;
+    return f.quality_metric && Array.isArray(f.quality_metric.quality_metric_summary) && f.quality_metric.quality_metric_summary.length > 0 && // Ensure all unique titles
+    f.quality_metric.quality_metric_summary.length === Array.from(new Set(_underscore["default"].pluck(f.quality_metric.quality_metric_summary, 'title'))).length;
   });
 });
 /**
@@ -244,7 +244,7 @@ exports.filterFilesWithQCSummary = filterFilesWithQCSummary;
 var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWithMetrics) {
   var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "\t";
   return _underscore["default"].pluck(Array.from(_underscore["default"].reduce(filesWithMetrics, function (m, file) {
-    var titles = _underscore["default"].map(file.quality_metric_summary, function (qcMetric) {
+    var titles = _underscore["default"].map(file.quality_metric.quality_metric_summary, function (qcMetric) {
       return qcMetric.title || qcMetric.display_title; // In case becomes an embedded obj at some point.
     });
 
