@@ -7,6 +7,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import { DropdownButton, DropdownItem, Fade } from 'react-bootstrap';
 
+import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
 
 import { Collapse } from './../../../ui/Collapse';
@@ -90,18 +91,22 @@ export class RangeFacet extends React.PureComponent {
             if (min === numVal) {
                 return null;
             }
-            if (numVal < min){
-                return min;
-            }
+
+            // todo: maybe move to an onBlur + onSubmit
+            // if (numVal < min){
+            //     return min;
+            // }
         }
 
         if (typeof max === "number"){
             if (max === numVal) {
                 return null;
             }
-            if (numVal > max){
-                return max;
-            }
+
+            // todo: maybe move to an onBlur + onSubmit
+            // if (numVal > max){
+            //     return max;
+            // }
         }
         return numVal;
     }
@@ -143,6 +148,7 @@ export class RangeFacet extends React.PureComponent {
         this.resetTo = this.resetTo.bind(this);
         this.performUpdateFrom = this.performUpdateFrom.bind(this);
         this.performUpdateTo = this.performUpdateTo.bind(this);
+        this.termTitle = this.termTitle.bind(this);
 
         this.memoized = {
             validIncrements: memoize(RangeFacet.validIncrements)
@@ -159,20 +165,20 @@ export class RangeFacet extends React.PureComponent {
         const { facet } = this.props;
         const { min, max } = facet;
         try {
-            let fromVal = RangeFacet.parseAndValidate(facet, value);
+            const fromVal = RangeFacet.parseAndValidate(facet, value);
             this.setState(function({ toVal }){
                 if (fromVal === null || fromVal === min) {
                     return { fromVal: null };
                 }
-                if (typeof toVal === "number" && toVal < fromVal){
-                    fromVal = toVal;
-                }
-                if (typeof min === "number" && fromVal < min){
-                    fromVal = min;
-                }
-                if (typeof max === "number" && fromVal > max){
-                    fromVal = max;
-                }
+                // if (typeof toVal === "number" && toVal < fromVal){
+                //     fromVal = toVal;
+                // }
+                // if (typeof min === "number" && fromVal < min){
+                //     fromVal = min;
+                // }
+                // if (typeof max === "number" && fromVal > max){
+                //     fromVal = max;
+                // }
                 return { fromVal };
             }, callback);
         } catch (e){
@@ -184,20 +190,20 @@ export class RangeFacet extends React.PureComponent {
         const { facet } = this.props;
         const { min, max } = facet;
         try {
-            let toVal = RangeFacet.parseAndValidate(facet, value);
+            const toVal = RangeFacet.parseAndValidate(facet, value);
             this.setState(function({ fromVal }){
                 if (toVal === null || toVal === max) {
                     return { toVal: null };
                 }
-                if (typeof fromVal === "number" && fromVal > toVal){
-                    toVal = fromVal;
-                }
-                if (typeof min === "number" && toVal < min){
-                    toVal = min;
-                }
-                if (typeof max === "number" && toVal > max){
-                    toVal = max;
-                }
+                // if (typeof fromVal === "number" && fromVal > toVal){
+                //     toVal = fromVal;
+                // }
+                // if (typeof min === "number" && toVal < min){
+                //     toVal = min;
+                // }
+                // if (typeof max === "number" && toVal > max){
+                //     toVal = max;
+                // }
                 return { toVal };
             }, callback);
         } catch (e){
@@ -237,8 +243,24 @@ export class RangeFacet extends React.PureComponent {
         onToggleOpen(field, !facetOpen);
     }
 
+    /**
+     * If no other transformations specified, and have a large number, then
+     * condense it using `toExponential`.
+     */
+    termTitle(fieldName, value, allowJSX = true){
+        const { termTransformFxn } = this.props;
+        const transformedValue = termTransformFxn(fieldName, value, allowJSX);
+        if (typeof transformedValue !== "number") {
+            return transformedValue;
+        }
+        if (transformedValue.toString().length < 7){
+            return decorateNumberWithCommas(transformedValue);
+        }
+        return transformedValue.toExponential(1);
+    }
+
     render(){
-        const { facet, title: propTitle, termTransformFxn, isStatic, fromVal: savedFromVal, toVal: savedToVal, facetOpen } = this.props;
+        const { facet, title: propTitle, isStatic, fromVal: savedFromVal, toVal: savedToVal, facetOpen } = this.props;
         const { field, min, max, title: facetTitle = null, description: tooltip = null } = facet;
         const { fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
@@ -270,10 +292,13 @@ export class RangeFacet extends React.PureComponent {
                             <label className="col-auto mb-0">
                                 <i className="icon icon-fw icon-greater-than-equal fas small"/>
                             </label>
-                            <RangeDropdown title={termTransformFxn(facet.field, typeof fromVal === 'number' ? fromVal : min || 0, true)}
-                                value={fromVal} onSelect={this.setFrom} max={toVal || null} increments={fromIncrements}
-                                variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"} savedValue={savedFromVal}
-                                {...{ termTransformFxn, facet }} id={"from_" + field} update={this.performUpdateFrom} />
+                            <RangeDropdown
+                                title={this.termTitle(facet.field, typeof fromVal === 'number' ? fromVal : min || 0)}
+                                value={fromVal} savedValue={savedFromVal}
+                                max={toVal || null} increments={fromIncrements}
+                                variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"}
+                                onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
+                                facet={facet} id={"from_" + field} />
                             <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
                                 onClick={fromVal !== null ? this.resetFrom : null}>
                                 <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
@@ -283,10 +308,12 @@ export class RangeFacet extends React.PureComponent {
                             <label className="col-auto mb-0">
                                 <i className="icon icon-fw icon-less-than-equal fas small"/>
                             </label>
-                            <RangeDropdown title={termTransformFxn(facet.field, typeof toVal === 'number' ? toVal : max, true) || <em>Infinity</em> }
-                                value={toVal} onSelect={this.setTo} min={fromVal || null} increments={toIncrements}
-                                variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"} savedValue={savedToVal}
-                                {...{ termTransformFxn, facet }} id={"to_" + field} update={this.performUpdateTo} />
+                            <RangeDropdown title={this.termTitle(facet.field, typeof toVal === 'number' ? toVal : max) || <em>Infinity</em> }
+                                value={toVal} savedValue={savedToVal}
+                                min={fromVal || null} increments={toIncrements}
+                                variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"}
+                                onSelect={this.setTo} update={this.performUpdateTo} termTransformFxn={this.termTitle}
+                                facet={facet} id={"to_" + field} />
                             <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
                                 onClick={toVal !== null ? this.resetTo : null}>
                                 <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil" : "times-circle")}/>

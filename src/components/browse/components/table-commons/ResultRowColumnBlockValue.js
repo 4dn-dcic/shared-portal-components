@@ -47,9 +47,21 @@ export class ResultRowColumnBlockValue extends React.Component {
             return null;
         }
 
-        if (typeof termTransformFxn === "function") {
+        if (typeof uniquedValues[0] === "object" && uniquedValues[0]["@id"] && typeof termTransformFxn === "function") {
+            // If LinkTo Item(s), return array of JSX elements (spans) which wrap links (assuming is output from termTransformFxn).
+            const uniquedLinkToItems = _.uniq(uniquedValues, false, "@id");
+            return uniquedLinkToItems.map(function(v, i){
+                const transformedValue = termTransformFxn(field, v, true); // `allowJSXOutput=true` == likely a link element.
+                if (i === 0 && uniquedLinkToItems.length === 1) {
+                    return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
+                }
+                return (
+                    <span key={i} className="link-wrapper">{ i > 0 ? ", " : null }{ transformedValue }</span>
+                );
+            });
+        } else if (typeof termTransformFxn === "function") {
             return uniquedValues.map(function(v){
-                return termTransformFxn(field, v, false);
+                return termTransformFxn(field, v, false); // `allowJSXOutput=false` == don't allow JSX element/component(s) because joining w. ", ".
             }).join(', '); // Most often will be just 1 value in set/array.
         } else {
             console.warn("No termTransformFxn supplied.");
@@ -114,7 +126,10 @@ export class ResultRowColumnBlockValue extends React.Component {
             value = <span className="value text-center">{ value }</span>;
         } else if (value === null){
             value = <small className="value text-center">-</small>;
-        } else if (React.isValidElement(value) && value.type === "a") {
+        } else if (
+            (React.isValidElement(value) && value.type === "a") ||
+            (Array.isArray(value) && React.isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper"))
+        ) {
             // We let other columnRender funcs define their `value` container (if any)
             // But if is link, e.g. from termTransformFxn, then wrap it to center it.
             value = <span className="value text-center">{ value }</span>;
