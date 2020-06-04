@@ -46,7 +46,7 @@ export class LinkToSelector extends React.PureComponent {
             'style'             : PropTypes.string
         }),
         /** Optional callback called with no params when child window is closed. Could/should unset `props.isSelecting`. */
-        'onCloseChildWindow': PropTypes.func,
+        'onCloseChildWindow': PropTypes.func, // When used with SV, will generally be the IndvObject.selectCancel method
         /** If true, then allows to drag & drop Item to window */
         'enableWindowDrop'  : PropTypes.bool.isRequired,
         /** Text content of message filling window when being dragged over */
@@ -107,7 +107,7 @@ export class LinkToSelector extends React.PureComponent {
             return;
         }
 
-        const { searchURL, onCloseChildWindow } = this.props;
+        const { searchURL, value, onCloseChildWindow } = this.props;
         const { isSelecting: pastInSelection } = pastProps;
         const { isSelecting: nowInSelection } = nextProps;
         const hasUnsetInSelection = pastInSelection && !nowInSelection;
@@ -157,7 +157,7 @@ export class LinkToSelector extends React.PureComponent {
                     delete this.childWindowClosedInterval;
                     if (this && this.windowObjectReference && this.windowObjectReference.closed){
                         if (typeof onCloseChildWindow === 'function'){
-                            onCloseChildWindow();
+                            onCloseChildWindow(value);
                         }
                     }
                     this.cleanChildWindowEventHandlers();
@@ -188,6 +188,7 @@ export class LinkToSelector extends React.PureComponent {
      * @param {MessageEvent} evt - See https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent.
      */
     handleChildWindowMessage(evt){
+        const { value, onCloseChildWindow } = this.props;
         const eventType = evt && evt.data && evt.data.eventType;
 
         if (!eventType) {
@@ -217,7 +218,7 @@ export class LinkToSelector extends React.PureComponent {
         }
         if (eventType === 'fourfrontcancelclick') {
             this.cleanChildWindow();
-            this.props.onCloseChildWindow();
+            onCloseChildWindow(value);
         }
 
         // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
@@ -254,7 +255,6 @@ export class LinkToSelector extends React.PureComponent {
      * @param {Array} items - array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
      */
     receiveData(items) {
-        console.log("items, ", items);
         this.cleanChildWindow();
         this.props.onSelect(items, true);
     }
