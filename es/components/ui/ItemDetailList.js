@@ -37,12 +37,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
@@ -50,6 +44,42 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 /**
  * This file/component is kind of a mess.
@@ -79,24 +109,35 @@ var SubItemTitle = _react["default"].memo(function (_ref) {
   if (content && _underscore["default"].any([content.title, content.display_title, content.name], function (p) {
     return typeof p === 'string';
   })) {
-    subtitle = _react["default"].createElement("span", {
+    subtitle =
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
       className: "text-600"
     }, typeof content.title === 'string' ? content.title : typeof content.display_title === 'string' ? content.display_title : content.name);
   }
 
-  return _react["default"].createElement("span", {
-    className: "subitem-toggle"
-  }, _react["default"].createElement("span", {
-    className: "link",
-    onClick: onToggle
-  }, _react["default"].createElement("i", {
-    style: {
-      'color': 'black',
-      'paddingRight': 10,
-      'paddingLeft': 5
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
+      className: "subitem-toggle"
     },
-    className: "icon fas " + iconType
-  }), showTitle, " ", subtitle, " ", countProperties && !isOpen ? _react["default"].createElement("span", null, "(", countProperties, ")") : null));
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
+      className: "link",
+      onClick: onToggle
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      style: {
+        'color': 'black',
+        'paddingRight': 10,
+        'paddingLeft': 5
+      },
+      className: "icon fas " + iconType
+    }), showTitle, " ", subtitle, " ", countProperties && !isOpen ?
+    /*#__PURE__*/
+    _react["default"].createElement("span", null, "(", countProperties, ")") : null))
+  );
 });
 
 SubItemTitle.propTypes = {
@@ -128,11 +169,16 @@ var SubItemListView = _react["default"].memo(function (props) {
     'showJSONButton': false,
     'hideButtons': true
   };
-  return _react["default"].createElement("div", {
-    className: "sub-panel data-display panel-body-with-header"
-  }, _react["default"].createElement("div", {
-    className: "key-value sub-descriptions"
-  }, _react["default"].createElement(typeof item.display_title === 'string' ? ItemDetailList : Detail, passProps)));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "sub-panel data-display panel-body-with-header"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "key-value sub-descriptions"
+    }, _react["default"].createElement(typeof item.display_title === 'string' ? ItemDetailList : Detail, passProps)))
+  );
 });
 /**
  * Messiness.
@@ -146,6 +192,8 @@ var SubItemTable =
 /*#__PURE__*/
 function (_React$Component) {
   _inherits(SubItemTable, _React$Component);
+
+  var _super = _createSuper(SubItemTable);
 
   _createClass(SubItemTable, null, [{
     key: "shouldUseTable",
@@ -392,11 +440,15 @@ function (_React$Component) {
           _patchedConsole.patchedConsoleInstance.error("ERROR: Value for table cell is not a string, number, or JSX element.\nKey: " + key + '; Value: ' + newVal);
         }
 
-        newVal = _react["default"].createElement("code", null, newVal.length <= 25 ? newVal : newVal.slice(0, 25) + '...');
+        newVal =
+        /*#__PURE__*/
+        _react["default"].createElement("code", null, newVal.length <= 25 ? newVal : newVal.slice(0, 25) + '...');
       } catch (e) {
         _patchedConsole.patchedConsoleInstance.error(e, val);
 
-        newVal = _react["default"].createElement("em", null, '{obj}');
+        newVal =
+        /*#__PURE__*/
+        _react["default"].createElement("em", null, '{obj}');
       }
 
       return newVal;
@@ -408,7 +460,7 @@ function (_React$Component) {
 
     _classCallCheck(this, SubItemTable);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SubItemTable).call(this, props));
+    _this = _super.call(this, props);
     _this.state = {
       'mounted': false
     };
@@ -507,41 +559,53 @@ function (_React$Component) {
 
               return {
                 'value': _underscore["default"].map(value, function (embeddedRow, i) {
-                  return _react["default"].createElement("div", {
-                    style: {
-                      whiteSpace: "nowrap"
-                    },
-                    className: "text-left child-list-row",
-                    key: colKey + '--row-' + i
-                  }, _react["default"].createElement("div", {
-                    className: "inline-block child-list-row-number"
-                  }, i + 1, "."), allKeys.map(function (k) {
-                    var renderedSubVal; // = Schemas.Term.toName(k, embeddedRow[k]);
-
-                    if (typeof columnDefinitions[parentKey + '.' + colKey + '.' + k] !== 'undefined') {
-                      if (typeof columnDefinitions[parentKey + '.' + colKey + '.' + k].render === 'function') {
-                        renderedSubVal = columnDefinitions[parentKey + '.' + colKey + '.' + k].render(embeddedRow[k], embeddedRow, colKeyIndex, value);
-                      }
-                    }
-
-                    if (!renderedSubVal && embeddedRow[k] && _typeof(embeddedRow[k]) === 'object' && !(0, _object.isAnItem)(embeddedRow[k])) {
-                      renderedSubVal = _react["default"].createElement("code", null, JSON.stringify(embeddedRow[k]));
-                    }
-
-                    if (!renderedSubVal) {
-                      renderedSubVal = (0, _object.isAnItem)(embeddedRow[k]) ? _react["default"].createElement("a", {
-                        href: _object.itemUtil.atId(embeddedRow[k])
-                      }, _object.itemUtil.getTitleStringFromContext(embeddedRow[k])) : termTransformFxn(k, embeddedRow[k]);
-                    }
-
-                    return _react["default"].createElement("div", {
-                      key: colKey + '.' + k + '--row-' + i,
-                      className: "inline-block child-column-" + colKey + '.' + k,
+                  return (
+                    /*#__PURE__*/
+                    _react["default"].createElement("div", {
                       style: {
-                        width: !subListKeyWidths ? null : (subListKeyWidths[colKey] || {})[k] || null
+                        whiteSpace: "nowrap"
+                      },
+                      className: "text-left child-list-row",
+                      key: colKey + '--row-' + i
+                    },
+                    /*#__PURE__*/
+                    _react["default"].createElement("div", {
+                      className: "inline-block child-list-row-number"
+                    }, i + 1, "."), allKeys.map(function (k) {
+                      var renderedSubVal; // = Schemas.Term.toName(k, embeddedRow[k]);
+
+                      if (typeof columnDefinitions[parentKey + '.' + colKey + '.' + k] !== 'undefined') {
+                        if (typeof columnDefinitions[parentKey + '.' + colKey + '.' + k].render === 'function') {
+                          renderedSubVal = columnDefinitions[parentKey + '.' + colKey + '.' + k].render(embeddedRow[k], embeddedRow, colKeyIndex, value);
+                        }
                       }
-                    }, renderedSubVal);
-                  }));
+
+                      if (!renderedSubVal && embeddedRow[k] && _typeof(embeddedRow[k]) === 'object' && !(0, _object.isAnItem)(embeddedRow[k])) {
+                        renderedSubVal =
+                        /*#__PURE__*/
+                        _react["default"].createElement("code", null, JSON.stringify(embeddedRow[k]));
+                      }
+
+                      if (!renderedSubVal) {
+                        renderedSubVal = (0, _object.isAnItem)(embeddedRow[k]) ?
+                        /*#__PURE__*/
+                        _react["default"].createElement("a", {
+                          href: _object.itemUtil.atId(embeddedRow[k])
+                        }, _object.itemUtil.getTitleStringFromContext(embeddedRow[k])) : termTransformFxn(k, embeddedRow[k]);
+                      }
+
+                      return (
+                        /*#__PURE__*/
+                        _react["default"].createElement("div", {
+                          key: colKey + '.' + k + '--row-' + i,
+                          className: "inline-block child-column-" + colKey + '.' + k,
+                          style: {
+                            width: !subListKeyWidths ? null : (subListKeyWidths[colKey] || {})[k] || null
+                          }
+                        }, renderedSubVal)
+                      );
+                    }))
+                  );
                 }),
                 'className': 'child-list-row-container',
                 'key': colKey
@@ -551,7 +615,9 @@ function (_React$Component) {
 
           if ((0, _object.isAnItem)(value)) {
             return {
-              'value': _react["default"].createElement("a", {
+              'value':
+              /*#__PURE__*/
+              _react["default"].createElement("a", {
                 href: _object.itemUtil.atId(value)
               }, value.display_title),
               'key': colKey
@@ -580,97 +646,137 @@ function (_React$Component) {
       (0, _schemaTransforms.flattenSchemaPropertyToColumnDefinition)(_object.tipsFromSchema || parentKeySchemaProperty, 0, schemas), columnDefinitions);
 
       var subListKeyRefs = this.subListKeyRefs = {};
-      return _react["default"].createElement("div", {
-        className: "detail-embedded-table-container"
-      }, _react["default"].createElement("table", {
-        className: "detail-embedded-table"
-      }, _react["default"].createElement("thead", null, _react["default"].createElement("tr", null, [_react["default"].createElement("th", {
-        key: "rowNumber",
-        style: {
-          minWidth: 36,
-          maxWidth: 36,
-          width: 36
-        }
-      }, "#")].concat(columnKeys.map(function (colKeyContainer) {
-        //var tips = tipsFromSchema(Schemas.get(), context) || {};
-        var colKey = colKeyContainer.key;
-        var title = keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].title || keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].title || colKey;
-        var tooltip = keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].description || keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].description || null;
-        var hasChildren = Array.isArray(colKeyContainer.childKeys) && colKeyContainer.childKeys.length > 0;
-        return _react["default"].createElement("th", {
-          key: "header-for-" + colKey,
-          className: hasChildren ? 'has-children' : null
-        }, _react["default"].createElement(_object.TooltipInfoIconContainer, {
-          title: title,
-          tooltip: tooltip
-        }), hasChildren ? function () {
-          //var subKeyTitleDescriptionMap = (((this.props.keyTitleDescriptionMap || {})[this.props.parentKey] || {}).items || {}).properties || {};
-          //var subKeyTitleDescriptionMap = keyTitleDescriptionMap[this.props.parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {};
-          var subKeyTitleDescriptionMap = ((keyTitleDescriptionMap[parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {}).items || {}).properties || {};
-          subListKeyRefs[colKey] = {};
-          return _react["default"].createElement("div", {
-            style: {
-              whiteSpace: "nowrap"
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "detail-embedded-table-container"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("table", {
+          className: "detail-embedded-table"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("thead", null,
+        /*#__PURE__*/
+        _react["default"].createElement("tr", null, [
+        /*#__PURE__*/
+        _react["default"].createElement("th", {
+          key: "rowNumber",
+          style: {
+            minWidth: 36,
+            maxWidth: 36,
+            width: 36
+          }
+        }, "#")].concat(columnKeys.map(function (colKeyContainer) {
+          //var tips = tipsFromSchema(Schemas.get(), context) || {};
+          var colKey = colKeyContainer.key;
+          var title = keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].title || keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].title || colKey;
+          var tooltip = keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].description || keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].description || null;
+          var hasChildren = Array.isArray(colKeyContainer.childKeys) && colKeyContainer.childKeys.length > 0;
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement("th", {
+              key: "header-for-" + colKey,
+              className: hasChildren ? 'has-children' : null
             },
-            className: "sub-list-keys-header"
-          }, [_react["default"].createElement("div", {
-            key: "sub-header-rowNumber",
-            className: "inline-block child-list-row-number"
-          }, "\xA0")].concat(colKeyContainer.childKeys.map(function (ck) {
-            return _react["default"].createElement("div", {
-              key: "sub-header-for-" + colKey + '.' + ck,
-              className: "inline-block",
-              "data-key": colKey + '.' + ck,
-              ref: function ref(r) {
-                if (r) subListKeyRefs[colKey][ck] = r;
-              },
-              style: {
-                'width': !subListKeyWidths ? null : (subListKeyWidths[colKey] || {})[ck] || null
+            /*#__PURE__*/
+            _react["default"].createElement(_object.TooltipInfoIconContainer, {
+              title: title,
+              tooltip: tooltip
+            }), hasChildren ? function () {
+              //var subKeyTitleDescriptionMap = (((this.props.keyTitleDescriptionMap || {})[this.props.parentKey] || {}).items || {}).properties || {};
+              //var subKeyTitleDescriptionMap = keyTitleDescriptionMap[this.props.parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {};
+              var subKeyTitleDescriptionMap = ((keyTitleDescriptionMap[parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {}).items || {}).properties || {};
+              subListKeyRefs[colKey] = {};
+              return (
+                /*#__PURE__*/
+                _react["default"].createElement("div", {
+                  style: {
+                    whiteSpace: "nowrap"
+                  },
+                  className: "sub-list-keys-header"
+                }, [
+                /*#__PURE__*/
+                _react["default"].createElement("div", {
+                  key: "sub-header-rowNumber",
+                  className: "inline-block child-list-row-number"
+                }, "\xA0")].concat(colKeyContainer.childKeys.map(function (ck) {
+                  return (
+                    /*#__PURE__*/
+                    _react["default"].createElement("div", {
+                      key: "sub-header-for-" + colKey + '.' + ck,
+                      className: "inline-block",
+                      "data-key": colKey + '.' + ck,
+                      ref: function ref(r) {
+                        if (r) subListKeyRefs[colKey][ck] = r;
+                      },
+                      style: {
+                        'width': !subListKeyWidths ? null : (subListKeyWidths[colKey] || {})[ck] || null
+                      }
+                    },
+                    /*#__PURE__*/
+                    _react["default"].createElement(_object.TooltipInfoIconContainer, {
+                      title: (keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).title || ck,
+                      tooltip: (keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).description || null
+                    }))
+                  );
+                })))
+              );
+            }() : null)
+          );
+        })))),
+        /*#__PURE__*/
+        _react["default"].createElement("tbody", null, _underscore["default"].map(rowData, function (row, i) {
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement("tr", {
+              key: "row-" + i
+            }, [
+            /*#__PURE__*/
+            _react["default"].createElement("td", {
+              key: "rowNumber"
+            }, i + 1, ".")].concat(row.map(function (colVal, j) {
+              var val = colVal.value;
+
+              if (typeof val === 'boolean') {
+                val =
+                /*#__PURE__*/
+                _react["default"].createElement("code", null, val ? 'True' : 'False');
               }
-            }, _react["default"].createElement(_object.TooltipInfoIconContainer, {
-              title: (keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).title || ck,
-              tooltip: (keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).description || null
-            }));
-          })));
-        }() : null);
-      })))), _react["default"].createElement("tbody", null, _underscore["default"].map(rowData, function (row, i) {
-        return _react["default"].createElement("tr", {
-          key: "row-" + i
-        }, [_react["default"].createElement("td", {
-          key: "rowNumber"
-        }, i + 1, ".")].concat(row.map(function (colVal, j) {
-          var val = colVal.value;
 
-          if (typeof val === 'boolean') {
-            val = _react["default"].createElement("code", null, val ? 'True' : 'False');
-          }
+              if (colVal.key === '@id' && val.slice(0, 1) === '/') {
+                val =
+                /*#__PURE__*/
+                _react["default"].createElement("a", {
+                  href: val
+                }, val);
+              }
 
-          if (colVal.key === '@id' && val.slice(0, 1) === '/') {
-            val = _react["default"].createElement("a", {
-              href: val
-            }, val);
-          }
+              if (typeof val === 'string' && val.length > 50) {
+                val = val.slice(0, 50) + '...';
+              }
 
-          if (typeof val === 'string' && val.length > 50) {
-            val = val.slice(0, 50) + '...';
-          }
+              if (val && _typeof(val) === 'object' && !_react["default"].isValidElement(val) && !Array.isArray(val)) {
+                val = SubItemTable.jsonify(val, columnKeys[j].key);
+              }
 
-          if (val && _typeof(val) === 'object' && !_react["default"].isValidElement(val) && !Array.isArray(val)) {
-            val = SubItemTable.jsonify(val, columnKeys[j].key);
-          }
+              if (Array.isArray(val) && val.length > 0 && !_underscore["default"].all(val, _react["default"].isValidElement)) {
+                val = _underscore["default"].map(val, function (v, i) {
+                  return SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
+                });
+              }
 
-          if (Array.isArray(val) && val.length > 0 && !_underscore["default"].all(val, _react["default"].isValidElement)) {
-            val = _underscore["default"].map(val, function (v, i) {
-              return SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
-            });
-          }
-
-          return _react["default"].createElement("td", {
-            key: "column-for-" + columnKeys[j].key,
-            className: colVal.className || null
-          }, val);
-        })));
-      }))));
+              return (
+                /*#__PURE__*/
+                _react["default"].createElement("td", {
+                  key: "column-for-" + columnKeys[j].key,
+                  className: colVal.className || null
+                }, val)
+              );
+            })))
+          );
+        }))))
+      );
     }
   }]);
 
@@ -682,12 +788,14 @@ var DetailRow =
 function (_React$PureComponent) {
   _inherits(DetailRow, _React$PureComponent);
 
+  var _super2 = _createSuper(DetailRow);
+
   function DetailRow(props) {
     var _this2;
 
     _classCallCheck(this, DetailRow);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(DetailRow).call(this, props));
+    _this2 = _super2.call(this, props);
     _this2.handleToggle = _this2.handleToggle.bind(_assertThisInitialized(_this2));
     _this2.state = {
       'isOpen': false
@@ -734,9 +842,15 @@ function (_React$PureComponent) {
       var labelToShow = label;
 
       if (labelNumber) {
-        labelToShow = _react["default"].createElement("span", null, _react["default"].createElement("span", {
+        labelToShow =
+        /*#__PURE__*/
+        _react["default"].createElement("span", null,
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "label-number right inline-block" + (isOpen ? ' active' : '')
-        }, _react["default"].createElement("span", {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "number-icon text-200"
         }, "#"), " ", labelNumber), label);
       }
@@ -747,45 +861,63 @@ function (_React$PureComponent) {
           'onToggle': this.handleToggle,
           'isOpen': isOpen
         });
-        return _react["default"].createElement("div", null, _react["default"].createElement(_PartialList.PartialList.Row, {
-          field: key,
-          label: labelToShow,
-          className: (className || '') + (isOpen ? ' open' : '')
-        }, value), _react["default"].createElement(SubItemListView, _extends({
-          popLink: popLink,
-          schemas: schemas,
-          isOpen: isOpen,
-          termTransformFxn: termTransformFxn
-        }, {
-          content: item,
-          columnDefinitions: value.props.columnDefinitions || columnDefinitions // Recursively pass these down
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("div", null,
+          /*#__PURE__*/
+          _react["default"].createElement(_PartialList.PartialList.Row, {
+            field: key,
+            label: labelToShow,
+            className: (className || '') + (isOpen ? ' open' : '')
+          }, value),
+          /*#__PURE__*/
+          _react["default"].createElement(SubItemListView, _extends({
+            popLink: popLink,
+            schemas: schemas,
+            isOpen: isOpen,
+            termTransformFxn: termTransformFxn
+          }, {
+            content: item,
+            columnDefinitions: value.props.columnDefinitions || columnDefinitions // Recursively pass these down
 
-        })));
+          })))
+        );
       }
 
       if (value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" && value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
         // What we have here is a list of embedded objects. Render them out recursively and adjust some styles.
-        return _react["default"].createElement("div", {
-          className: "array-group",
-          "data-length": item.length
-        }, _react["default"].Children.map(value.props.children, function (c, i) {
-          return _react["default"].createElement(DetailRow, _extends({}, _this3.props, {
-            label: i === 0 ? labelToShow : _react["default"].createElement("span", {
-              className: "dim-duplicate"
-            }, labelToShow),
-            labelNumber: i + 1,
-            item: item[i],
-            className: "array-group-row item-index-" + i + (i === item.length - 1 ? ' last-item' : '') + (i === 0 ? ' first-item' : '')
-          }));
-        }));
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
+            className: "array-group",
+            "data-length": item.length
+          }, _react["default"].Children.map(value.props.children, function (c, i) {
+            return (
+              /*#__PURE__*/
+              _react["default"].createElement(DetailRow, _extends({}, _this3.props, {
+                label: i === 0 ? labelToShow :
+                /*#__PURE__*/
+                _react["default"].createElement("span", {
+                  className: "dim-duplicate"
+                }, labelToShow),
+                labelNumber: i + 1,
+                item: item[i],
+                className: "array-group-row item-index-" + i + (i === item.length - 1 ? ' last-item' : '') + (i === 0 ? ' first-item' : '')
+              }))
+            );
+          }))
+        );
       } // Default / Pass-Thru
 
 
-      return _react["default"].createElement(_PartialList.PartialList.Row, {
-        label: labelToShow,
-        field: key,
-        className: (className || '') + (isOpen ? ' open' : '')
-      }, value);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_PartialList.PartialList.Row, {
+          label: labelToShow,
+          field: key,
+          className: (className || '') + (isOpen ? ' open' : '')
+        }, value)
+      );
     }
   }]);
 
@@ -804,6 +936,8 @@ var Detail =
 /*#__PURE__*/
 function (_React$PureComponent2) {
   _inherits(Detail, _React$PureComponent2);
+
+  var _super3 = _createSuper(Detail);
 
   _createClass(Detail, null, [{
     key: "formKey",
@@ -828,10 +962,13 @@ function (_React$PureComponent2) {
         if (info.description) tooltip = info.description;
       }
 
-      return _react["default"].createElement(_object.TooltipInfoIconContainer, {
-        title: title || key,
-        tooltip: tooltip
-      });
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_object.TooltipInfoIconContainer, {
+          title: title || key,
+          tooltip: tooltip
+        })
+      );
     }
     /**
     * Recursively render keys/values included in a provided item.
@@ -862,26 +999,42 @@ function (_React$PureComponent2) {
       };
 
       if (item === null) {
-        return _react["default"].createElement("span", null, "No Value");
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("span", null, "No Value")
+        );
       } else if (Array.isArray(item)) {
         if (SubItemTable.shouldUseTable(item, schemas)) {
-          return _react["default"].createElement(SubItemTable, _extends({
-            popLink: popLink,
-            columnDefinitions: columnDefinitions,
-            schemas: schemas,
-            atType: atType,
-            termTransformFxn: termTransformFxn
-          }, {
-            items: item,
-            parentKey: keyPrefix
-          }));
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement(SubItemTable, _extends({
+              popLink: popLink,
+              columnDefinitions: columnDefinitions,
+              schemas: schemas,
+              atType: atType,
+              termTransformFxn: termTransformFxn
+            }, {
+              items: item,
+              parentKey: keyPrefix
+            }))
+          );
         }
 
-        return _react["default"].createElement("ol", null, item.length === 0 ? _react["default"].createElement("li", null, _react["default"].createElement("em", null, "None")) : item.map(function (it, i) {
-          return _react["default"].createElement("li", {
-            key: i
-          }, Detail.formValue(it, popLink, keyPrefix, atType, columnDefinitions, depth + 1, schemas));
-        }));
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("ol", null, item.length === 0 ?
+          /*#__PURE__*/
+          _react["default"].createElement("li", null,
+          /*#__PURE__*/
+          _react["default"].createElement("em", null, "None")) : item.map(function (it, i) {
+            return (
+              /*#__PURE__*/
+              _react["default"].createElement("li", {
+                key: i
+              }, Detail.formValue(it, popLink, keyPrefix, atType, columnDefinitions, depth + 1, schemas))
+            );
+          }))
+        );
       } else if (_typeof(item) === 'object' && item !== null) {
         var linkElement = _object.itemUtil.generateLink(item, true, 'display_title', {
           'target': popLink ? '_blank' : null
@@ -899,45 +1052,60 @@ function (_React$PureComponent2) {
             return c;
           }));
 
-          return _react["default"].createElement(SubItemTitle, {
-            schemas: schemas,
-            content: item,
-            key: keyPrefix,
-            countProperties: _underscore["default"].keys(item).length,
-            popLink: popLink,
-            columnDefinitions: releventProperties
-          });
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement(SubItemTitle, {
+              schemas: schemas,
+              content: item,
+              key: keyPrefix,
+              countProperties: _underscore["default"].keys(item).length,
+              popLink: popLink,
+              columnDefinitions: releventProperties
+            })
+          );
         }
       } else if (typeof item === 'string') {
         if (keyPrefix === '@id') {
-          return _react["default"].createElement("a", {
-            key: item,
-            href: item,
-            target: popLink ? "_blank" : null
-          }, item);
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement("a", {
+              key: item,
+              href: item,
+              target: popLink ? "_blank" : null
+            }, item)
+          );
         }
 
         if (item.charAt(0) === '/' && item.indexOf('@@download') > -1) {
           // This is a download link. Format appropriately
           var split_item = item.split('/');
           var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
-          return _react["default"].createElement("a", {
-            key: item,
-            href: item,
-            target: "_blank",
-            download: true,
-            rel: "noreferrer noopener"
-          }, attach_title || item);
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement("a", {
+              key: item,
+              href: item,
+              target: "_blank",
+              download: true,
+              rel: "noreferrer noopener"
+            }, attach_title || item)
+          );
         } else if (item.charAt(0) === '/') {
-          if (popLink) return _react["default"].createElement("a", {
-            key: item,
-            href: item,
-            target: "_blank",
-            rel: "noreferrer noopener"
-          }, item);else return _react["default"].createElement("a", {
-            key: item,
-            href: item
-          }, item);
+          if (popLink) return (
+            /*#__PURE__*/
+            _react["default"].createElement("a", {
+              key: item,
+              href: item,
+              target: "_blank",
+              rel: "noreferrer noopener"
+            }, item)
+          );else return (
+            /*#__PURE__*/
+            _react["default"].createElement("a", {
+              key: item,
+              href: item
+            }, item)
+          );
         } else {
           // TODO: more comprehensive regexp url validator needed, look at: https://stackoverflow.com/a/5717133
           // Is a URL. Check if we should render it as a link/uri.
@@ -945,27 +1113,42 @@ function (_React$PureComponent2) {
           var schemaPropertyFormat = schemaProperty && typeof schemaProperty.format === 'string' && schemaProperty.format.toLowerCase() || null;
 
           if (schemaPropertyFormat && ['uri', 'url'].indexOf(schemaPropertyFormat) > -1 && item.slice(0, 4) === 'http') {
-            return _react["default"].createElement("a", {
-              key: item,
-              href: item,
-              target: "_blank",
-              rel: "noreferrer noopener"
-            }, item);
+            return (
+              /*#__PURE__*/
+              _react["default"].createElement("a", {
+                key: item,
+                href: item,
+                target: "_blank",
+                rel: "noreferrer noopener"
+              }, item)
+            );
           } else {
-            return _react["default"].createElement("span", null, termTransformFxn(keyPrefix, item));
+            return (
+              /*#__PURE__*/
+              _react["default"].createElement("span", null, termTransformFxn(keyPrefix, item))
+            );
           }
         }
       } else if (typeof item === 'number') {
-        return _react["default"].createElement("span", null, termTransformFxn(keyPrefix, item));
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("span", null, termTransformFxn(keyPrefix, item))
+        );
       } else if (typeof item === 'boolean') {
-        return _react["default"].createElement("span", {
-          style: {
-            'textTransform': 'capitalize'
-          }
-        }, item + '');
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("span", {
+            style: {
+              'textTransform': 'capitalize'
+            }
+          }, item + '')
+        );
       }
 
-      return _react["default"].createElement("span", null, item); // Fallback
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("span", null, item)
+      ); // Fallback
     }
   }, {
     key: "columnDefinitions",
@@ -1005,7 +1188,7 @@ function (_React$PureComponent2) {
 
     _classCallCheck(this, Detail);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(Detail).call(this, props));
+    _this4 = _super3.call(this, props);
     _this4.renderDetailRow = _this4.renderDetailRow.bind(_assertThisInitialized(_this4));
     _this4.memoized = {
       columnDefinitions: (0, _memoizeOne["default"])(Detail.columnDefinitions),
@@ -1024,17 +1207,20 @@ function (_React$PureComponent2) {
           columnDefinitions = _this$props3.columnDefinitions,
           termTransformFxn = _this$props3.termTransformFxn;
       var colDefs = this.memoized.columnDefinitions(context, schemas, columnDefinitions);
-      return _react["default"].createElement(DetailRow, {
-        key: key,
-        label: Detail.formKey(colDefs, key),
-        item: context[key],
-        popLink: popLink,
-        "data-key": key,
-        itemType: context['@type'] && context['@type'][0],
-        columnDefinitions: colDefs,
-        termTransformFxn: termTransformFxn,
-        schemas: schemas
-      });
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(DetailRow, {
+          key: key,
+          label: Detail.formKey(colDefs, key),
+          item: context[key],
+          popLink: popLink,
+          "data-key": key,
+          itemType: context['@type'] && context['@type'][0],
+          columnDefinitions: colDefs,
+          termTransformFxn: termTransformFxn,
+          schemas: schemas
+        })
+      );
     }
   }, {
     key: "render",
@@ -1050,13 +1236,18 @@ function (_React$PureComponent2) {
           persistentKeys = _this$memoized$genera.persistentKeys,
           collapsibleKeys = _this$memoized$genera.collapsibleKeys;
 
-      return _react["default"].createElement("div", {
-        className: "overflow-hidden"
-      }, _react["default"].createElement(_PartialList.PartialList, {
-        persistent: _underscore["default"].map(persistentKeys, this.renderDetailRow),
-        collapsible: _underscore["default"].map(collapsibleKeys, this.renderDetailRow),
-        open: open
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "overflow-hidden"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_PartialList.PartialList, {
+          persistent: _underscore["default"].map(persistentKeys, this.renderDetailRow),
+          collapsible: _underscore["default"].map(collapsibleKeys, this.renderDetailRow),
+          open: open
+        }))
+      );
     }
   }]);
 
@@ -1094,9 +1285,12 @@ _defineProperty(Detail, "defaultProps", {
     },
     'subscriptions.url': {
       'render': function render(value) {
-        return _react["default"].createElement("a", {
-          href: '/search/' + value
-        }, "View Results");
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement("a", {
+            href: '/search/' + value
+          }, "View Results")
+        );
       },
       'title': "Link",
       'description': "Link to results matching subscription query."
@@ -1122,9 +1316,12 @@ _defineProperty(Detail, "defaultProps", {
       'title': "E-Mail",
       'render': function render(value) {
         if (typeof value === 'string' && value.indexOf('@') > -1) {
-          return _react["default"].createElement("a", {
-            href: 'mailto:' + value
-          }, value);
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement("a", {
+              href: 'mailto:' + value
+            }, value)
+          );
         }
 
         return value;
@@ -1140,26 +1337,40 @@ var ToggleJSONButton = _react["default"].memo(function (_ref3) {
   var onClick = _ref3.onClick,
       showingJSON = _ref3.showingJSON,
       className = _ref3.className;
-  return _react["default"].createElement("button", {
-    type: "button",
-    className: "btn btn-block btn-outline-secondary",
-    onClick: onClick
-  }, showingJSON ? _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("i", {
-    className: "icon fas icon-fw icon-list"
-  }), " View as List") : _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("i", {
-    className: "icon fas icon-fw icon-code"
-  }), " View as JSON"));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("button", {
+      type: "button",
+      className: "btn btn-block btn-outline-secondary",
+      onClick: onClick
+    }, showingJSON ?
+    /*#__PURE__*/
+    _react["default"].createElement(_react["default"].Fragment, null,
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon fas icon-fw icon-list"
+    }), " View as List") :
+    /*#__PURE__*/
+    _react["default"].createElement(_react["default"].Fragment, null,
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon fas icon-fw icon-code"
+    }), " View as JSON"))
+  );
 });
 
 var SeeMoreRowsButton = _react["default"].memo(function (_ref4) {
   var onClick = _ref4.onClick,
       collapsed = _ref4.collapsed,
       className = _ref4.className;
-  return _react["default"].createElement("button", {
-    type: "button",
-    className: "btn btn-block btn-outline-secondary",
-    onClick: onClick
-  }, collapsed ? "See advanced information" : "Hide");
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("button", {
+      type: "button",
+      className: "btn btn-block btn-outline-secondary",
+      onClick: onClick
+    }, collapsed ? "See advanced information" : "Hide")
+  );
 });
 /**
  * A list of properties which belong to Item shown by ItemView.
@@ -1176,19 +1387,35 @@ var ItemDetailList =
 function (_React$PureComponent3) {
   _inherits(ItemDetailList, _React$PureComponent3);
 
+  var _super4 = _createSuper(ItemDetailList);
+
   _createClass(ItemDetailList, null, [{
     key: "getTabObject",
     value: function getTabObject(props) {
       return {
-        tab: _react["default"].createElement("span", null, _react["default"].createElement("i", {
+        tab:
+        /*#__PURE__*/
+        _react["default"].createElement("span", null,
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon fas icon-list icon-fw"
         }), " Details"),
         key: 'details',
-        content: _react["default"].createElement("div", null, _react["default"].createElement("h3", {
+        content:
+        /*#__PURE__*/
+        _react["default"].createElement("div", null,
+        /*#__PURE__*/
+        _react["default"].createElement("h3", {
           className: "tab-section-title"
-        }, _react["default"].createElement("span", null, "Details")), _react["default"].createElement("hr", {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", null, "Details")),
+        /*#__PURE__*/
+        _react["default"].createElement("hr", {
           className: "tab-section-title-horiz-divider mb-05"
-        }), _react["default"].createElement(ItemDetailList, props))
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement(ItemDetailList, props))
       };
     }
   }]);
@@ -1198,7 +1425,7 @@ function (_React$PureComponent3) {
 
     _classCallCheck(this, ItemDetailList);
 
-    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(ItemDetailList).call(this, props));
+    _this5 = _super4.call(this, props);
     _this5.handleToggleJSON = _this5.handleToggleJSON.bind(_assertThisInitialized(_this5));
     _this5.handleToggleCollapsed = _this5.handleToggleCollapsed.bind(_assertThisInitialized(_this5));
     _this5.state = {
@@ -1257,15 +1484,29 @@ function (_React$PureComponent3) {
       var body;
 
       if (showingJSON) {
-        body = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
+        body =
+        /*#__PURE__*/
+        _react["default"].createElement(_react["default"].Fragment, null,
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
           className: "json-tree-wrapper"
-        }, _react["default"].createElement(_reactJsonTree["default"], {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_reactJsonTree["default"], {
           data: context
-        })), _react["default"].createElement("br", null), _react["default"].createElement("div", {
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement("br", null),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
           className: "row"
-        }, _react["default"].createElement("div", {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
           className: "col-12 col-sm-6"
-        }, _react["default"].createElement(ToggleJSONButton, {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(ToggleJSONButton, {
           onClick: this.handleToggleJSON,
           showingJSON: showingJSON
         }))));
@@ -1279,42 +1520,65 @@ function (_React$PureComponent3) {
         if (hideButtons) {
           buttonsRow = null;
         } else if (!showJSONButton) {
-          buttonsRow = _react["default"].createElement("div", {
+          buttonsRow =
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
             className: "row"
-          }, _react["default"].createElement("div", {
+          },
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
             className: "col-12"
-          }, _react["default"].createElement(SeeMoreRowsButton, {
+          },
+          /*#__PURE__*/
+          _react["default"].createElement(SeeMoreRowsButton, {
             onClick: this.handleToggleCollapsed,
             collapsed: collapsed
           })));
         } else {
-          buttonsRow = _react["default"].createElement("div", {
+          buttonsRow =
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
             className: "row"
-          }, _react["default"].createElement("div", {
+          },
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
             className: "col-6"
-          }, _react["default"].createElement(SeeMoreRowsButton, {
+          },
+          /*#__PURE__*/
+          _react["default"].createElement(SeeMoreRowsButton, {
             onClick: this.handleToggleCollapsed,
             collapsed: collapsed
-          })), _react["default"].createElement("div", {
+          })),
+          /*#__PURE__*/
+          _react["default"].createElement("div", {
             className: "col-6"
-          }, _react["default"].createElement(ToggleJSONButton, {
+          },
+          /*#__PURE__*/
+          _react["default"].createElement(ToggleJSONButton, {
             onClick: this.handleToggleJSON,
             showingJSON: showingJSON
           })));
         }
 
-        body = _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(Detail, _extends({}, this.props, {
+        body =
+        /*#__PURE__*/
+        _react["default"].createElement(_react["default"].Fragment, null,
+        /*#__PURE__*/
+        _react["default"].createElement(Detail, _extends({}, this.props, {
           open: !isCollapsed,
           columnDefinitions: colDefs
         })), buttonsRow);
       }
 
-      return _react["default"].createElement("div", {
-        className: "item-page-detail",
-        style: typeof minHeight === 'number' ? {
-          minHeight: minHeight
-        } : null
-      }, body);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "item-page-detail",
+          style: typeof minHeight === 'number' ? {
+            minHeight: minHeight
+          } : null
+        }, body)
+      );
     }
   }]);
 

@@ -25,12 +25,16 @@ var AboveSearchViewTableControls = _react["default"].memo(function (props) {
   var total = null;
 
   if (showTotalResults) {
-    total = _react["default"].createElement("div", {
+    total =
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
       style: {
         'verticalAlign': 'bottom'
       },
       className: "inline-block"
-    }, _react["default"].createElement("span", {
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
       className: "text-500",
       id: "results-count"
     }, typeof showTotalResults === 'number' ? showTotalResults : context && typeof context.total === 'number' ? context.total : null), " Results");
@@ -45,23 +49,32 @@ var AboveSearchViewTableControls = _react["default"].memo(function (props) {
     });
 
     if (addAction && typeof addAction.href === 'string') {
-      addButton = _react["default"].createElement("a", {
+      addButton =
+      /*#__PURE__*/
+      _react["default"].createElement("a", {
         className: "btn btn-primary btn-xs" + (total ? " ml-1" : ""),
         href: addAction.href,
         "data-skiprequest": "true"
-      }, _react["default"].createElement("i", {
+      },
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
         className: "icon icon-fw icon-plus fas mr-03 fas"
       }), "Create New \xA0");
     }
   }
 
-  return _react["default"].createElement(_AboveTableControlsBase.AboveTableControlsBase, _extends({
-    panelMap: _AboveTableControlsBase.AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)
-  }, _underscore["default"].pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')), _react["default"].createElement(LeftSectionControls, {
-    total: total,
-    addButton: addButton,
-    topLeftChildren: topLeftChildren
-  }));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement(_AboveTableControlsBase.AboveTableControlsBase, _extends({
+      panelMap: _AboveTableControlsBase.AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)
+    }, _underscore["default"].pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')),
+    /*#__PURE__*/
+    _react["default"].createElement(LeftSectionControls, {
+      total: total,
+      addButton: addButton,
+      topLeftChildren: topLeftChildren
+    }))
+  );
 });
 
 exports.AboveSearchViewTableControls = AboveSearchViewTableControls;
@@ -74,8 +87,11 @@ function LeftSectionControls(_ref) {
       onClosePanel = _ref.onClosePanel,
       currentOpenPanel = _ref.currentOpenPanel;
   if (!total && !addButton && !topLeftChildren) return null;
-  return _react["default"].createElement("div", {
-    key: "total-count",
-    className: "pull-left pt-11 box results-count"
-  }, total, topLeftChildren || addButton);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      key: "total-count",
+      className: "pull-left pt-11 box results-count"
+    }, total, topLeftChildren || addButton)
+  );
 }
