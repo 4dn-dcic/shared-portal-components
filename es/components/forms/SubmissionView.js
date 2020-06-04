@@ -161,7 +161,7 @@ function (_React$PureComponent) {
      *
      * @todo maybe memoize this and replace usage of state.keyValid w/ it.
      */
-    value: function findValidationState(keyIdx, prevKeyHierarchy, keyContext, keyComplete) {
+    value: function findValidationState(keyIdx, prevKeyHierarchy) {
       var hierarchy = _util.object.deepClone(prevKeyHierarchy);
 
       var keyHierarchy = (0, _submissionView.searchHierarchy)(hierarchy, keyIdx);
@@ -169,10 +169,10 @@ function (_React$PureComponent) {
       var validationReturn = 1;
 
       _underscore["default"].keys(keyHierarchy).forEach(function (key) {
+        // If key is a number, item has not been submitted yet... see note below
         if (!isNaN(key)) {
-          if (!keyComplete[key] && keyContext[key]) {
-            validationReturn = 0;
-          }
+          // NOTE: as of SAYTAJAX, ONLY unsubmitted items are stored with numeric keys
+          validationReturn = 0;
         }
       });
 
@@ -542,9 +542,7 @@ function (_React$PureComponent) {
     value: function initCreateObj(ambiguousType, ambiguousIdx, creatingLink) {
       var init = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var parentField = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-
-      _util.console.log.apply(_util.console, ["calling initCreateObj with:"].concat(Array.prototype.slice.call(arguments)));
-
+      // console.log("calling initCreateObj with:", ...arguments);
       var schemas = this.props.schemas;
 
       var itemTypeHierarchy = _util.schemaTransforms.schemasToItemTypeHierarchy(schemas); // check to see if we have an ambiguous linkTo type.
@@ -821,9 +819,7 @@ function (_React$PureComponent) {
     key: "createObj",
     value: function createObj(type, newIdx, newLink, alias) {
       var extraState = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-
-      _util.console.log.apply(_util.console, ["CREATEOBJ"].concat(Array.prototype.slice.call(arguments)));
-
+      // console.log("CREATEOBJ", ...arguments);
       var errorCount = this.state.errorCount; // get rid of any hanging errors
 
       for (var i = 0; i < errorCount; i++) {
@@ -926,8 +922,7 @@ function (_React$PureComponent) {
   }, {
     key: "removeObj",
     value: function removeObj(keyToRemove) {
-      _util.console.log("calling removeObj with keyToRemove=", keyToRemove);
-
+      // console.log("calling removeObj with keyToRemove=", keyToRemove);
       this.setState(function (_ref4) {
         var keyContext = _ref4.keyContext,
             keyValid = _ref4.keyValid,
@@ -1276,10 +1271,8 @@ function (_React$PureComponent) {
   }, {
     key: "realPostNewContext",
     value: function realPostNewContext(e) {
-      _util.console.log("real posting new context");
-
-      _util.console.log("submitting object with currkey: ", this.state.currKey);
-
+      // console.log("real posting new context");
+      // console.log("submitting object with currkey: ", this.state.currKey);
       e.preventDefault();
       this.submitObject(this.state.currKey);
     }
@@ -1698,9 +1691,8 @@ function (_React$PureComponent) {
               if (inKey !== 0) {
                 var _findFieldFromContext = (0, _submissionView.findFieldFromContext)(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']),
                     splitField = _findFieldFromContext.splitField,
-                    arrayIdx = _findFieldFromContext.arrayIdx;
+                    arrayIdx = _findFieldFromContext.arrayIdx; // console.log('Results from findFieldFromContext', splitField, arrayIdx);
 
-                _util.console.log('Results from findFieldFromContext', splitField, arrayIdx);
 
                 (0, _submissionView.modifyContextInPlace)(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
                 (0, _submissionView.replaceInHierarchy)(hierCopy, inKey, submitted_at_id); // Modifies hierCopy in place.
@@ -1748,11 +1740,15 @@ function (_React$PureComponent) {
                   _this6.setState(stateToSet);
                 }
               } else {
-                _util.console.log("updating state with stateToSet: ", stateToSet);
+                // Check if parent validation state will change based on current submission... update that alongside rest of state, if so
+                var newParentValidState = SubmissionView.findValidationState(parentKey, stateToSet.keyHierarchy, stateToSet.keyContext, stateToSet.keyComplete);
 
-                _util.console.log("keyDisplay, ", keyDisplay);
+                if (newParentValidState !== stateToSet.keyValid[parentKey]) {
+                  stateToSet.keyValid[parentKey] = newParentValidState;
+                } // console.log("updating state with stateToSet: ", stateToSet);
+                // console.log("keyDisplay, ", keyDisplay);
+                // console.log("inKey: ", inKey);
 
-                _util.console.log("inKey: , ", inKey);
 
                 alert(keyDisplay[inKey] + ' was successfully submitted.');
 
@@ -1773,8 +1769,7 @@ function (_React$PureComponent) {
           submitProcessContd(myLab, myAward);
         });
       } else {
-        _util.console.log("submitting process continued");
-
+        // console.log("submitting process continued");
         submitProcessContd();
       }
     }
@@ -2856,29 +2851,34 @@ function (_React$Component2) {
       }
 
       if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array') {
+        // console.log("found an array, ", pointer[splitFieldLeaf]);
         // move pointer into array
-        pointer = pointer[splitFieldLeaf];
-        prevValue = pointer[arrayIdx[arrayIdxPointer]];
+        pointer = pointer[splitFieldLeaf]; // console.log("pointer is now: ", pointer);
+
+        prevValue = pointer[arrayIdx[arrayIdxPointer]]; // console.log("prevValue is now:", prevValue);
 
         if (value === null) {
           // delete this array itemfieldType
-          pointer.splice(arrayIdx[arrayIdxPointer], 1);
+          // console.log("what is value?", value);
+          // console.log("pointer presplice", pointer);
+          pointer.splice(arrayIdx[arrayIdxPointer], 1); // console.log("pointer postsplice", pointer);
         } else {
+          // console.log("arrayIdx for pointer", arrayIdx[arrayIdxPointer]);
           pointer[arrayIdx[arrayIdxPointer]] = value;
         }
       } else {
         // value we're trying to set is not inside an array at this point
-        prevValue = pointer[splitFieldLeaf];
+        prevValue = pointer[splitFieldLeaf]; // console.log("prevValue is now:", prevValue);
+
         pointer[splitFieldLeaf] = value;
       }
       /* modifyContextInPlace can replace everything up until this point... need to update var names, though */
+      // console.log("value and previousValue, ", value, prevValue);
+      // console.log("modifyNewContext II", value, currContext);
 
-
-      _util.console.log("modifyNewContext II", value, currContext);
 
       if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object" || fieldType === 'new linked object')) {
-        _util.console.log("removing obj ", prevValue);
-
+        // console.log("removing obj ", prevValue);
         removeObj(prevValue);
       }
 
@@ -3021,8 +3021,7 @@ function (_React$Component2) {
       //     atIds=${atIds},
       //     customSelectField=${customSelectField},
       //     customSelectType=${customSelectType},
-      //     customArrayIdx=${customArrayIdx},
-      //     valueToReplace=${valueToReplace}`);
+      //     customArrayIdx=${customArrayIdx}`);
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
           stateSelectField = _this$state7.selectField,
@@ -3088,11 +3087,11 @@ function (_React$Component2) {
 
   }, {
     key: "selectCancel",
-    value: function selectCancel() {
+    value: function selectCancel(previousValue) {
       var _this$state8 = this.state,
           selectField = _this$state8.selectField,
           selectArrayIdx = _this$state8.selectArrayIdx;
-      this.modifyNewContext(selectField, null, 'existing linked object', null, selectArrayIdx);
+      this.modifyNewContext(selectField, previousValue || null, 'existing linked object', null, selectArrayIdx);
       this.setState({
         'selectType': null,
         'selectField': null,

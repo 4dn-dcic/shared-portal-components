@@ -447,6 +447,7 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
     _react["default"].createElement(LinkedObj, _extends({
       key: "linked-item"
     }, props, {
+      value: value,
       baseHref: baseHref
     })))
   );
@@ -902,7 +903,8 @@ function (_React$PureComponent2) {
           currType = _this$props9.currType,
           nestedField = _this$props9.nestedField,
           isMultiSelect = _this$props9.isMultiSelect,
-          baseHref = _this$props9.baseHref;
+          baseHref = _this$props9.baseHref,
+          value = _this$props9.value;
       var itemType = schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
       var searchURL = baseHref + "&currentAction=" + (isMultiSelect ? 'multiselect' : 'selection') + '&type=' + itemType; // check if we have any schema flags that will affect the searchUrl
@@ -916,14 +918,16 @@ function (_React$PureComponent2) {
 
       return (
         /*#__PURE__*/
-        _react["default"].createElement(_LinkToSelector.LinkToSelector, {
+        _react["default"].createElement(_LinkToSelector.LinkToSelector, _extends({
           isSelecting: true,
           onSelect: this.handleFinishSelectItem,
           onCloseChildWindow: selectCancel,
-          childWindowAlert: this.childWindowAlert,
+          childWindowAlert: this.childWindowAlert
+        }, {
+          value: value,
           dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
           searchURL: searchURL
-        })
+        }))
       );
     }
   }, {
