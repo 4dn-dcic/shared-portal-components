@@ -21,11 +21,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -100,9 +100,13 @@ var PromiseQueue =
 function () {
   function PromiseQueue() {
     _classCallCheck(this, PromiseQueue);
+
+    this.queue = [];
+    this.pendingPromise = false;
+    this.stop = false;
   }
 
-  _createClass(PromiseQueue, null, [{
+  _createClass(PromiseQueue, [{
     key: "enqueue",
     value: function enqueue(promise) {
       var _this = this;
@@ -174,12 +178,6 @@ function () {
  * Heavily reworked from this reference: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
  */
 
-
-_defineProperty(PromiseQueue, "queue", []);
-
-_defineProperty(PromiseQueue, "pendingPromise", false);
-
-_defineProperty(PromiseQueue, "stop", false);
 
 var DragAndDropFileUploadController =
 /*#__PURE__*/
@@ -465,10 +463,11 @@ function (_React$Component2) {
       this.setState({
         isLoading: true
       }, function () {
+        var promiseQueue = new PromiseQueue();
         var allPromises = []; // Add each file submission chain to the queue, so each file uploads sequentially
 
         files.forEach(function (file) {
-          allPromises.push(PromiseQueue.enqueue(function () {
+          allPromises.push(promiseQueue.enqueue(function () {
             return newFileSubmit(file);
           }));
         }); // Update loading state once everything is resolved
@@ -946,7 +945,7 @@ function (_React$Component5) {
           style: {
             alignSelf: "center"
           }
-        }, files.length === 0 ? "Drag a file here to upload" : null),
+        }, files.length === 0 ? "Click or drag a file here to upload" : null),
         /*#__PURE__*/
         _react["default"].createElement("ul", {
           className: "d-flex flex-wrap m-0 pt-1 pl-0 justify-content-center"
