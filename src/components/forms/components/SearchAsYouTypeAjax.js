@@ -265,7 +265,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props){
         <div className="d-flex flex-wrap">
             <SearchAsYouTypeAjax showTips={true} {...{ value, onChange, baseHref, optionRenderFunction,
                 fieldsToRequest, titleRenderFunction, selectComplete }} {...props} />
-            <LinkedObj key="linked-item" {...props} {...{ baseHref }} />
+            <LinkedObj key="linked-item" {...props} {...{ value, baseHref }} />
         </div>
     );
 }
@@ -542,7 +542,8 @@ export class LinkedObj extends React.PureComponent {
             currType,
             nestedField,
             isMultiSelect,
-            baseHref
+            baseHref,
+            value
         } = this.props;
 
         const itemType = schema.linkTo;
@@ -560,7 +561,7 @@ export class LinkedObj extends React.PureComponent {
         }
 
         return <LinkToSelector isSelecting onSelect={this.handleFinishSelectItem} onCloseChildWindow={selectCancel}
-            childWindowAlert={this.childWindowAlert} dropMessage={dropMessage} searchURL={searchURL} />;
+            childWindowAlert={this.childWindowAlert} {...{ value, dropMessage, searchURL }} />;
     }
 
 

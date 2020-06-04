@@ -148,6 +148,7 @@ function (_React$PureComponent) {
 
       var _this$props = this.props,
           searchURL = _this$props.searchURL,
+          value = _this$props.value,
           onCloseChildWindow = _this$props.onCloseChildWindow;
       var pastInSelection = pastProps.isSelecting;
       var nowInSelection = nextProps.isSelecting;
@@ -196,7 +197,7 @@ function (_React$PureComponent) {
 
             if (_this3 && _this3.windowObjectReference && _this3.windowObjectReference.closed) {
               if (typeof onCloseChildWindow === 'function') {
-                onCloseChildWindow();
+                onCloseChildWindow(value);
               }
             }
 
@@ -228,6 +229,9 @@ function (_React$PureComponent) {
   }, {
     key: "handleChildWindowMessage",
     value: function handleChildWindowMessage(evt) {
+      var _this$props2 = this.props,
+          value = _this$props2.value,
+          onCloseChildWindow = _this$props2.onCloseChildWindow;
       var eventType = evt && evt.data && evt.data.eventType;
 
       if (!eventType) {
@@ -267,7 +271,7 @@ function (_React$PureComponent) {
 
       if (eventType === 'fourfrontcancelclick') {
         this.cleanChildWindow();
-        this.props.onCloseChildWindow();
+        onCloseChildWindow(value);
       } // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
 
 
@@ -312,8 +316,6 @@ function (_React$PureComponent) {
   }, {
     key: "receiveData",
     value: function receiveData(items) {
-      _patchedConsole.patchedConsoleInstance.log("items, ", items);
-
       this.cleanChildWindow();
       this.props.onSelect(items, true);
     }
@@ -373,6 +375,7 @@ _defineProperty(LinkToSelector, "propTypes", {
 
   /** Optional callback called with no params when child window is closed. Could/should unset `props.isSelecting`. */
   'onCloseChildWindow': _propTypes["default"].func,
+  // When used with SV, will generally be the IndvObject.selectCancel method
 
   /** If true, then allows to drag & drop Item to window */
   'enableWindowDrop': _propTypes["default"].bool.isRequired,

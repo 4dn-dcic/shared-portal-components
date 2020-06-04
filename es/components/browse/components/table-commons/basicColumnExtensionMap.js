@@ -61,30 +61,23 @@ var basicColumnExtensionMap = {
       var renderElem;
 
       if (itemTypeList[0] === "User") {
-        renderElem =
-        /*#__PURE__*/
-        _react["default"].createElement(DisplayTitleColumnUser, {
+        renderElem = _react["default"].createElement(DisplayTitleColumnUser, {
           result: result
         });
       } else {
-        renderElem =
-        /*#__PURE__*/
-        _react["default"].createElement(DisplayTitleColumnDefault, {
+        renderElem = _react["default"].createElement(DisplayTitleColumnDefault, {
           result: result
         });
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(DisplayTitleColumnWrapper, {
-          result: result,
-          href: href,
-          context: context,
-          rowNumber: rowNumber,
-          detailOpen: detailOpen,
-          toggleDetailOpen: toggleDetailOpen
-        }, renderElem)
-      );
+      return _react["default"].createElement(DisplayTitleColumnWrapper, {
+        result: result,
+        href: href,
+        context: context,
+        rowNumber: rowNumber,
+        detailOpen: detailOpen,
+        toggleDetailOpen: toggleDetailOpen
+      }, renderElem);
     }
   },
   '@type': {
@@ -100,43 +93,34 @@ var basicColumnExtensionMap = {
           propNavigate = _props$navigate === void 0 ? null : _props$navigate;
       var leafItemType = (0, _schemaTransforms.getItemType)(result);
       var itemTypeTitle = (0, _schemaTransforms.getTitleForType)(leafItemType, schemas);
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_react["default"].Fragment, null,
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "icon-container"
+      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
+        className: "icon-container"
+      }, _react["default"].createElement("i", {
+        className: "icon icon-fw fas icon-filter clickable mr-08",
+        onClick: function onClick(e) {
+          // Preserve search query, if any, but remove filters (which are usually per-type).
+          if (!href || href.indexOf('/search/') === -1) return;
+          e.preventDefault();
+          e.stopPropagation();
+
+          var urlParts = _url["default"].parse(href, true);
+
+          var query = _objectSpread({}, urlParts.query, {
+            'type': leafItemType
+          });
+
+          if (urlParts.query.q) query.q = urlParts.query.q;
+
+          var nextHref = '/search/?' + _querystring["default"].stringify(query); // We use props.navigate here first which may refer to VirtualHrefController.virtualNavigate
+          // since we're navigating to a search href here.
+
+
+          (propNavigate || _navigate.navigate)(nextHref);
         },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw fas icon-filter clickable mr-08",
-          onClick: function onClick(e) {
-            // Preserve search query, if any, but remove filters (which are usually per-type).
-            if (!href || href.indexOf('/search/') === -1) return;
-            e.preventDefault();
-            e.stopPropagation();
-
-            var urlParts = _url["default"].parse(href, true);
-
-            var query = _objectSpread(_objectSpread({}, urlParts.query), {}, {
-              'type': leafItemType
-            });
-
-            if (urlParts.query.q) query.q = urlParts.query.q;
-
-            var nextHref = '/search/?' + _querystring["default"].stringify(query); // We use props.navigate here first which may refer to VirtualHrefController.virtualNavigate
-            // since we're navigating to a search href here.
-
-
-            (propNavigate || _navigate.navigate)(nextHref);
-          },
-          "data-tip": "Filter down to only " + itemTypeTitle
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "item-type-title value"
-        }, itemTypeTitle))
-      );
+        "data-tip": "Filter down to only " + itemTypeTitle
+      })), _react["default"].createElement("span", {
+        className: "item-type-title value"
+      }, itemTypeTitle));
     }
   },
   'date_created': {
@@ -149,17 +133,12 @@ var basicColumnExtensionMap = {
     },
     'render': function (result) {
       if (!result.date_created) return null;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "value"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement(_LocalizedTime.LocalizedTime, {
-          timestamp: result.date_created,
-          formatType: "date-sm"
-        }))
-      );
+      return _react["default"].createElement("span", {
+        className: "value"
+      }, _react["default"].createElement(_LocalizedTime.LocalizedTime, {
+        timestamp: result.date_created,
+        formatType: "date-sm"
+      }));
     },
     'order': 510
   },
@@ -176,17 +155,12 @@ var basicColumnExtensionMap = {
       var _result$last_modified2 = _result$last_modified.date_modified,
           date_modified = _result$last_modified2 === void 0 ? null : _result$last_modified2;
       if (!date_modified) return null;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "value"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement(_LocalizedTime.LocalizedTime, {
-          timestamp: date_modified,
-          formatType: "date-sm"
-        }))
-      );
+      return _react["default"].createElement("span", {
+        className: "value"
+      }, _react["default"].createElement(_LocalizedTime.LocalizedTime, {
+        timestamp: date_modified,
+        formatType: "date-sm"
+      }));
     },
     'order': 515
   }
@@ -208,9 +182,7 @@ var DisplayTitleColumnUser = _react["default"].memo(function (_ref) {
 
   if (link) {
     // This should be the case always
-    title =
-    /*#__PURE__*/
-    _react["default"].createElement("a", {
+    title = _react["default"].createElement("a", {
       key: "title",
       href: link || '#',
       onClick: onClick
@@ -219,9 +191,7 @@ var DisplayTitleColumnUser = _react["default"].memo(function (_ref) {
     if (typeof email === 'string' && email.indexOf('@') > -1) {
       // Specific case for User items. May be removed or more cases added, if needed.
       hasPhoto = true;
-      title =
-      /*#__PURE__*/
-      _react["default"].createElement(_react["default"].Fragment, null, _object.itemUtil.User.gravatar(email, 32, {
+      title = _react["default"].createElement(_react["default"].Fragment, null, _object.itemUtil.User.gravatar(email, 32, {
         'className': 'in-search-table-title-image',
         'data-tip': email
       }, 'mm'), title);
@@ -229,15 +199,12 @@ var DisplayTitleColumnUser = _react["default"].memo(function (_ref) {
   }
 
   var cls = "title-block" + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container");
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      key: "title-container",
-      className: cls,
-      "data-tip": tooltip,
-      "data-delay-show": 750
-    }, title)
-  );
+  return _react["default"].createElement("div", {
+    key: "title-container",
+    className: cls,
+    "data-tip": tooltip,
+    "data-delay-show": 750
+  }, title);
 });
 /**
  * @todo
@@ -266,9 +233,7 @@ var DisplayTitleColumnDefault = _react["default"].memo(function (props) {
 
   if (link) {
     // This should be the case always
-    title =
-    /*#__PURE__*/
-    _react["default"].createElement("a", {
+    title = _react["default"].createElement("a", {
       key: "title",
       href: link || '#',
       onClick: onClick
@@ -276,15 +241,12 @@ var DisplayTitleColumnDefault = _react["default"].memo(function (props) {
   }
 
   var cls = "title-block text-ellipsis-container" + (shouldMonospace ? " text-monospace text-small" : "") + (className ? " " + className : "");
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      key: "title-container",
-      className: cls,
-      "data-tip": tooltip,
-      "data-delay-show": 750
-    }, title)
-  );
+  return _react["default"].createElement("div", {
+    key: "title-container",
+    className: cls,
+    "data-tip": tooltip,
+    "data-delay-show": 750
+  }, title);
 });
 
 exports.DisplayTitleColumnDefault = DisplayTitleColumnDefault;
@@ -328,15 +290,10 @@ var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
     });
   });
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement(_react["default"].Fragment, null,
-    /*#__PURE__*/
-    _react["default"].createElement(TableRowToggleOpenButton, {
-      open: detailOpen,
-      onClick: toggleDetailOpen
-    }), renderChildren)
-  );
+  return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(TableRowToggleOpenButton, {
+    open: detailOpen,
+    onClick: toggleDetailOpen
+  }), renderChildren);
 });
 /** Button shown in first column (display_title) to open/close detail pane. */
 
@@ -347,26 +304,17 @@ var TableRowToggleOpenButton = _react["default"].memo(function (_ref2) {
   var onClick = _ref2.onClick,
       toggleDetailOpen = _ref2.toggleDetailOpen,
       open = _ref2.open;
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "toggle-detail-button-container"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("button", {
-      type: "button",
-      className: "toggle-detail-button",
-      onClick: onClick || toggleDetailOpen
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "icon-container"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
-    }))))
-  );
+  return _react["default"].createElement("div", {
+    className: "toggle-detail-button-container"
+  }, _react["default"].createElement("button", {
+    type: "button",
+    className: "toggle-detail-button",
+    onClick: onClick || toggleDetailOpen
+  }, _react["default"].createElement("div", {
+    className: "icon-container"
+  }, _react["default"].createElement("i", {
+    className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
+  }))));
 });
 
 exports.TableRowToggleOpenButton = TableRowToggleOpenButton;
