@@ -362,7 +362,7 @@ export default class SubmissionView extends React.PureComponent{
      * lookup even if applicable and move right to alias selection.
      */
     initCreateObj(ambiguousType, ambiguousIdx, creatingLink, init=false, parentField=null){
-        console.log("calling initCreateObj with:", ...arguments);
+        // console.log("calling initCreateObj with:", ...arguments);
         const { schemas } = this.props;
         const itemTypeHierarchy = schemaTransforms.schemasToItemTypeHierarchy(schemas);
         // check to see if we have an ambiguous linkTo type.
@@ -569,7 +569,7 @@ export default class SubmissionView extends React.PureComponent{
      * @param {Object} extraState - Additional state to set upon completion.
      */
     createObj(type, newIdx, newLink, alias, extraState={}){
-        console.log("CREATEOBJ", ...arguments);
+        // console.log("CREATEOBJ", ...arguments);
         const { errorCount } = this.state;
 
         // get rid of any hanging errors
@@ -649,7 +649,7 @@ export default class SubmissionView extends React.PureComponent{
      * existing object amounts to removing it from keyHierarchy.
      */
     removeObj(keyToRemove){
-        console.log("calling removeObj with keyToRemove=", keyToRemove);
+        // console.log("calling removeObj with keyToRemove=", keyToRemove);
         this.setState(function({ keyContext, keyValid, keyTypes, keyComplete, keyLinkBookmarks, keyLinks, roundTwoKeys, keyHierarchy }){
             const contextCopy = object.deepClone(keyContext);
             const validCopy = object.deepClone(keyValid);
@@ -912,8 +912,8 @@ export default class SubmissionView extends React.PureComponent{
     }
 
     realPostNewContext(e){
-        console.log("real posting new context");
-        console.log("submitting object with currkey: ", this.state.currKey);
+        // console.log("real posting new context");
+        // console.log("submitting object with currkey: ", this.state.currKey);
         e.preventDefault();
         this.submitObject(this.state.currKey);
     }
@@ -1250,7 +1250,7 @@ export default class SubmissionView extends React.PureComponent{
                         // if not submitting the principal object, update context and hierarchy
                         if (inKey !== 0) {
                             const { splitField, arrayIdx } = findFieldFromContext(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']);
-                            console.log('Results from findFieldFromContext', splitField, arrayIdx);
+                            // console.log('Results from findFieldFromContext', splitField, arrayIdx);
 
                             modifyContextInPlace(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
                             replaceInHierarchy(hierCopy, inKey, submitted_at_id); // Modifies hierCopy in place.
@@ -1303,9 +1303,9 @@ export default class SubmissionView extends React.PureComponent{
                                 stateToSet.keyValid[parentKey] = newParentValidState;
                             }
 
-                            console.log("updating state with stateToSet: ", stateToSet);
-                            console.log("keyDisplay, ", keyDisplay);
-                            console.log("inKey: ", inKey);
+                            // console.log("updating state with stateToSet: ", stateToSet);
+                            // console.log("keyDisplay, ", keyDisplay);
+                            // console.log("inKey: ", inKey);
 
                             alert(keyDisplay[inKey] + ' was successfully submitted.');
 
@@ -1325,7 +1325,7 @@ export default class SubmissionView extends React.PureComponent{
                 submitProcessContd(myLab, myAward);
             });
         } else {
-            console.log("submitting process continued");
+            // console.log("submitting process continued");
             submitProcessContd();
         }
     }
@@ -1974,32 +1974,32 @@ class IndividualObjectView extends React.Component {
             }
         }
         if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array'){
-            console.log("found an array, ", pointer[splitFieldLeaf]);
+            // console.log("found an array, ", pointer[splitFieldLeaf]);
             // move pointer into array
             pointer = pointer[splitFieldLeaf];
-            console.log("pointer is now: ", pointer);
+            // console.log("pointer is now: ", pointer);
             prevValue = pointer[arrayIdx[arrayIdxPointer]];
-            console.log("prevValue is now:", prevValue);
+            // console.log("prevValue is now:", prevValue);
             if (value === null){ // delete this array itemfieldType
-                console.log("what is value?", value);
-                console.log("pointer presplice", pointer);
+                // console.log("what is value?", value);
+                // console.log("pointer presplice", pointer);
                 pointer.splice(arrayIdx[arrayIdxPointer], 1);
-                console.log("pointer postsplice", pointer);
+                // console.log("pointer postsplice", pointer);
             } else {
-                console.log("arrayIdx for pointer", arrayIdx[arrayIdxPointer]);
+                // console.log("arrayIdx for pointer", arrayIdx[arrayIdxPointer]);
                 pointer[arrayIdx[arrayIdxPointer]] = value;
             }
         } else { // value we're trying to set is not inside an array at this point
             prevValue = pointer[splitFieldLeaf];
-            console.log("prevValue is now:", prevValue);
+            // console.log("prevValue is now:", prevValue);
             pointer[splitFieldLeaf] = value;
         }
         /* modifyContextInPlace can replace everything up until this point... need to update var names, though */
 
-        console.log("value and previousValue, ", value, prevValue);
-        console.log("modifyNewContext II", value, currContext);
+        // console.log("value and previousValue, ", value, prevValue);
+        // console.log("modifyNewContext II", value, currContext);
         if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object" || fieldType === 'new linked object')){
-            console.log("removing obj ", prevValue);
+            // console.log("removing obj ", prevValue);
             removeObj(prevValue);
         }
 
@@ -2175,14 +2175,7 @@ class IndividualObjectView extends React.Component {
     /** Exit out of the selection process and clean up state */
     selectCancel(previousValue){
         var { selectField, selectArrayIdx } = this.state;
-        var { keyContext, currKey } = this.props;
 
-        console.log("previous value", previousValue);
-
-        console.log("curr value", keyContext[currKey][selectField]);
-
-        console.log("this.state", this.state);
-        console.log("this.props", this.props);
         this.modifyNewContext(selectField, previousValue || null, 'existing linked object', null, selectArrayIdx);
         this.setState({ 'selectType': null, 'selectField': null, 'selectArrayIdx': null });
     }

@@ -109,9 +109,6 @@ function (_React$PureComponent) {
     _this2.setChildWindowMessageHandler = _this2.setChildWindowMessageHandler.bind(_assertThisInitialized(_this2));
     _this2.handleChildWindowMessage = _this2.handleChildWindowMessage.bind(_assertThisInitialized(_this2));
     _this2.receiveData = _this2.receiveData.bind(_assertThisInitialized(_this2));
-
-    _patchedConsole.patchedConsoleInstance.log("LinkToSelector value", props.value);
-
     return _this2;
   }
 
@@ -274,9 +271,6 @@ function (_React$PureComponent) {
 
       if (eventType === 'fourfrontcancelclick') {
         this.cleanChildWindow();
-
-        _patchedConsole.patchedConsoleInstance.log("cancel click occurred... value:", value);
-
         onCloseChildWindow(value);
       } // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
 
@@ -322,8 +316,6 @@ function (_React$PureComponent) {
   }, {
     key: "receiveData",
     value: function receiveData(items) {
-      _patchedConsole.patchedConsoleInstance.log("items, ", items);
-
       this.cleanChildWindow();
       this.props.onSelect(items, true);
     }

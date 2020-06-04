@@ -542,9 +542,7 @@ function (_React$PureComponent) {
     value: function initCreateObj(ambiguousType, ambiguousIdx, creatingLink) {
       var init = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var parentField = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-
-      _util.console.log.apply(_util.console, ["calling initCreateObj with:"].concat(Array.prototype.slice.call(arguments)));
-
+      // console.log("calling initCreateObj with:", ...arguments);
       var schemas = this.props.schemas;
 
       var itemTypeHierarchy = _util.schemaTransforms.schemasToItemTypeHierarchy(schemas); // check to see if we have an ambiguous linkTo type.
@@ -821,9 +819,7 @@ function (_React$PureComponent) {
     key: "createObj",
     value: function createObj(type, newIdx, newLink, alias) {
       var extraState = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-
-      _util.console.log.apply(_util.console, ["CREATEOBJ"].concat(Array.prototype.slice.call(arguments)));
-
+      // console.log("CREATEOBJ", ...arguments);
       var errorCount = this.state.errorCount; // get rid of any hanging errors
 
       for (var i = 0; i < errorCount; i++) {
@@ -926,8 +922,7 @@ function (_React$PureComponent) {
   }, {
     key: "removeObj",
     value: function removeObj(keyToRemove) {
-      _util.console.log("calling removeObj with keyToRemove=", keyToRemove);
-
+      // console.log("calling removeObj with keyToRemove=", keyToRemove);
       this.setState(function (_ref4) {
         var keyContext = _ref4.keyContext,
             keyValid = _ref4.keyValid,
@@ -1276,10 +1271,8 @@ function (_React$PureComponent) {
   }, {
     key: "realPostNewContext",
     value: function realPostNewContext(e) {
-      _util.console.log("real posting new context");
-
-      _util.console.log("submitting object with currkey: ", this.state.currKey);
-
+      // console.log("real posting new context");
+      // console.log("submitting object with currkey: ", this.state.currKey);
       e.preventDefault();
       this.submitObject(this.state.currKey);
     }
@@ -1698,9 +1691,8 @@ function (_React$PureComponent) {
               if (inKey !== 0) {
                 var _findFieldFromContext = (0, _submissionView.findFieldFromContext)(contextCopy[parentKey], typesCopy[parentKey], schemas, inKey, responseData['@type']),
                     splitField = _findFieldFromContext.splitField,
-                    arrayIdx = _findFieldFromContext.arrayIdx;
+                    arrayIdx = _findFieldFromContext.arrayIdx; // console.log('Results from findFieldFromContext', splitField, arrayIdx);
 
-                _util.console.log('Results from findFieldFromContext', splitField, arrayIdx);
 
                 (0, _submissionView.modifyContextInPlace)(splitField, contextCopy[parentKey], arrayIdx, "linked object", submitted_at_id);
                 (0, _submissionView.replaceInHierarchy)(hierCopy, inKey, submitted_at_id); // Modifies hierCopy in place.
@@ -1753,13 +1745,10 @@ function (_React$PureComponent) {
 
                 if (newParentValidState !== stateToSet.keyValid[parentKey]) {
                   stateToSet.keyValid[parentKey] = newParentValidState;
-                }
+                } // console.log("updating state with stateToSet: ", stateToSet);
+                // console.log("keyDisplay, ", keyDisplay);
+                // console.log("inKey: ", inKey);
 
-                _util.console.log("updating state with stateToSet: ", stateToSet);
-
-                _util.console.log("keyDisplay, ", keyDisplay);
-
-                _util.console.log("inKey: ", inKey);
 
                 alert(keyDisplay[inKey] + ' was successfully submitted.');
 
@@ -1780,8 +1769,7 @@ function (_React$PureComponent) {
           submitProcessContd(myLab, myAward);
         });
       } else {
-        _util.console.log("submitting process continued");
-
+        // console.log("submitting process continued");
         submitProcessContd();
       }
     }
@@ -2863,49 +2851,34 @@ function (_React$Component2) {
       }
 
       if (Array.isArray(pointer[splitFieldLeaf]) && fieldType !== 'array') {
-        _util.console.log("found an array, ", pointer[splitFieldLeaf]); // move pointer into array
+        // console.log("found an array, ", pointer[splitFieldLeaf]);
+        // move pointer into array
+        pointer = pointer[splitFieldLeaf]; // console.log("pointer is now: ", pointer);
 
-
-        pointer = pointer[splitFieldLeaf];
-
-        _util.console.log("pointer is now: ", pointer);
-
-        prevValue = pointer[arrayIdx[arrayIdxPointer]];
-
-        _util.console.log("prevValue is now:", prevValue);
+        prevValue = pointer[arrayIdx[arrayIdxPointer]]; // console.log("prevValue is now:", prevValue);
 
         if (value === null) {
           // delete this array itemfieldType
-          _util.console.log("what is value?", value);
-
-          _util.console.log("pointer presplice", pointer);
-
-          pointer.splice(arrayIdx[arrayIdxPointer], 1);
-
-          _util.console.log("pointer postsplice", pointer);
+          // console.log("what is value?", value);
+          // console.log("pointer presplice", pointer);
+          pointer.splice(arrayIdx[arrayIdxPointer], 1); // console.log("pointer postsplice", pointer);
         } else {
-          _util.console.log("arrayIdx for pointer", arrayIdx[arrayIdxPointer]);
-
+          // console.log("arrayIdx for pointer", arrayIdx[arrayIdxPointer]);
           pointer[arrayIdx[arrayIdxPointer]] = value;
         }
       } else {
         // value we're trying to set is not inside an array at this point
-        prevValue = pointer[splitFieldLeaf];
-
-        _util.console.log("prevValue is now:", prevValue);
+        prevValue = pointer[splitFieldLeaf]; // console.log("prevValue is now:", prevValue);
 
         pointer[splitFieldLeaf] = value;
       }
       /* modifyContextInPlace can replace everything up until this point... need to update var names, though */
+      // console.log("value and previousValue, ", value, prevValue);
+      // console.log("modifyNewContext II", value, currContext);
 
-
-      _util.console.log("value and previousValue, ", value, prevValue);
-
-      _util.console.log("modifyNewContext II", value, currContext);
 
       if ((value === null || prevValue !== null) && (fieldType === 'linked object' || fieldType === "existing linked object" || fieldType === 'new linked object')) {
-        _util.console.log("removing obj ", prevValue);
-
+        // console.log("removing obj ", prevValue);
         removeObj(prevValue);
       }
 
@@ -3118,18 +3091,6 @@ function (_React$Component2) {
       var _this$state8 = this.state,
           selectField = _this$state8.selectField,
           selectArrayIdx = _this$state8.selectArrayIdx;
-      var _this$props13 = this.props,
-          keyContext = _this$props13.keyContext,
-          currKey = _this$props13.currKey;
-
-      _util.console.log("previous value", previousValue);
-
-      _util.console.log("curr value", keyContext[currKey][selectField]);
-
-      _util.console.log("this.state", this.state);
-
-      _util.console.log("this.props", this.props);
-
       this.modifyNewContext(selectField, previousValue || null, 'existing linked object', null, selectArrayIdx);
       this.setState({
         'selectType': null,
@@ -3146,15 +3107,15 @@ function (_React$Component2) {
   }, {
     key: "initiateField",
     value: function initiateField(field) {
-      var _this$props14 = this.props,
-          schemas = _this$props14.schemas,
-          currType = _this$props14.currType,
-          currKey = _this$props14.currKey,
-          roundTwo = _this$props14.roundTwo,
-          currContext = _this$props14.currContext,
-          keyComplete = _this$props14.keyComplete,
-          keyContext = _this$props14.keyContext,
-          edit = _this$props14.edit;
+      var _this$props13 = this.props,
+          schemas = _this$props13.schemas,
+          currType = _this$props13.currType,
+          currKey = _this$props13.currKey,
+          roundTwo = _this$props13.roundTwo,
+          currContext = _this$props13.currContext,
+          keyComplete = _this$props13.keyComplete,
+          keyContext = _this$props13.keyContext,
+          edit = _this$props13.edit;
       var currSchema = schemas[currType]; // console.log("RENDER INDV OBJ VIEW", currSchema, field);
 
       var fieldSchema = _util.object.getNestedProperty(currSchema, ['properties', field], true);
@@ -3289,13 +3250,13 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props15 = this.props,
-          currContext = _this$props15.currContext,
-          keyComplete = _this$props15.keyComplete,
-          keyContext = _this$props15.keyContext,
-          currKey = _this$props15.currKey,
-          schemas = _this$props15.schemas,
-          roundTwo = _this$props15.roundTwo;
+      var _this$props14 = this.props,
+          currContext = _this$props14.currContext,
+          keyComplete = _this$props14.keyComplete,
+          keyContext = _this$props14.keyContext,
+          currKey = _this$props14.currKey,
+          schemas = _this$props14.schemas,
+          roundTwo = _this$props14.roundTwo;
       var fields = currContext ? _underscore["default"].keys(currContext) : [];
       var fieldJSXComponents = (0, _submissionView.sortPropFields)(_underscore["default"].filter( // Sort fields first by requirement and secondly alphabetically. These are JSX BuildField components.
       _underscore["default"].map(fields, this.initiateField), function (f) {
@@ -3386,9 +3347,9 @@ function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props16 = this.props,
-          context = _this$props16.context,
-          schemas = _this$props16.schemas;
+      var _this$props15 = this.props,
+          context = _this$props15.context,
+          schemas = _this$props15.schemas;
       var open = this.state.open;
       return (
         /*#__PURE__*/
