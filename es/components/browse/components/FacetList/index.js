@@ -395,29 +395,27 @@ function (_React$PureComponent) {
 
         if (facetsInGroup.length === 1) {
           // Doesn't need to be in group, put back into `componentsToReturn`
-          componentsToReturn.splice(index, 0, facetsInGroup[0]); // Increment remaining group indices to match new length of `componentsToReturn`.
-          // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
-          // so `fromIdx` / `groupIndex` should always stay stable.
-          // We increment facetGroup.index which is the index in `componentsToReturn`.
+          componentsToReturn.splice(index, 0, facetsInGroup[0]);
+        } else {
+          componentsToReturn.splice(index, 0,
+          /*#__PURE__*/
+          // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
+          _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, props, facetGroup, {
+            title: groupTitle,
+            key: groupTitle
+          })));
+        } // Increment remaining group indices to match new length of `componentsToReturn`.
+        // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
+        // so `fromIdx` / `groupIndex` should always stay stable.
+        // We increment facetGroup.index which is the index in `componentsToReturn`.
 
-          groupsArr.slice(groupIndex).forEach(function (_ref4) {
-            var _ref5 = _slicedToArray(_ref4, 2),
-                subsequentFacetGroup = _ref5[1];
 
-            subsequentFacetGroup.index++;
-          });
-          return;
-        } // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
+        groupsArr.slice(groupIndex).forEach(function (_ref4) {
+          var _ref5 = _slicedToArray(_ref4, 2),
+              subsequentFacetGroup = _ref5[1];
 
-
-        var renderedGroup =
-        /*#__PURE__*/
-        _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, props, facetGroup, {
-          title: groupTitle,
-          key: groupTitle
-        }));
-
-        componentsToReturn.splice(index, 0, renderedGroup);
+          subsequentFacetGroup.index++;
+        });
       });
       return componentsToReturn;
     }

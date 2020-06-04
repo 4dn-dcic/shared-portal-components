@@ -16,6 +16,8 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _reactBootstrap = require("react-bootstrap");
 
+var _valueTransforms = require("./../../../util/value-transforms");
+
 var _patchedConsole = require("./../../../util/patched-console");
 
 var _Collapse = require("./../../../ui/Collapse");
@@ -24,6 +26,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -31,8 +35,6 @@ function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread n
 function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -181,21 +183,21 @@ function (_React$PureComponent) {
       if (typeof min === "number") {
         if (min === numVal) {
           return null;
-        }
+        } // todo: maybe move to an onBlur + onSubmit
+        // if (numVal < min){
+        //     return min;
+        // }
 
-        if (numVal < min) {
-          return min;
-        }
       }
 
       if (typeof max === "number") {
         if (max === numVal) {
           return null;
-        }
+        } // todo: maybe move to an onBlur + onSubmit
+        // if (numVal > max){
+        //     return max;
+        // }
 
-        if (numVal > max) {
-          return max;
-        }
       }
 
       return numVal;
@@ -247,6 +249,7 @@ function (_React$PureComponent) {
     _this.resetTo = _this.resetTo.bind(_assertThisInitialized(_this));
     _this.performUpdateFrom = _this.performUpdateFrom.bind(_assertThisInitialized(_this));
     _this.performUpdateTo = _this.performUpdateTo.bind(_assertThisInitialized(_this));
+    _this.termTitle = _this.termTitle.bind(_assertThisInitialized(_this));
     _this.memoized = {
       validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements)
     };
@@ -268,25 +271,22 @@ function (_React$PureComponent) {
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
         this.setState(function (_ref2) {
-          var toVal = _ref2.toVal;
+          _ref2.toVal;
 
           if (fromVal === null || fromVal === min) {
             return {
               fromVal: null
             };
-          }
+          } // if (typeof toVal === "number" && toVal < fromVal){
+          //     fromVal = toVal;
+          // }
+          // if (typeof min === "number" && fromVal < min){
+          //     fromVal = min;
+          // }
+          // if (typeof max === "number" && fromVal > max){
+          //     fromVal = max;
+          // }
 
-          if (typeof toVal === "number" && toVal < fromVal) {
-            fromVal = toVal;
-          }
-
-          if (typeof min === "number" && fromVal < min) {
-            fromVal = min;
-          }
-
-          if (typeof max === "number" && fromVal > max) {
-            fromVal = max;
-          }
 
           return {
             fromVal: fromVal
@@ -306,25 +306,22 @@ function (_React$PureComponent) {
       try {
         var toVal = RangeFacet.parseAndValidate(facet, value);
         this.setState(function (_ref3) {
-          var fromVal = _ref3.fromVal;
+          _ref3.fromVal;
 
           if (toVal === null || toVal === max) {
             return {
               toVal: null
             };
-          }
+          } // if (typeof fromVal === "number" && fromVal > toVal){
+          //     toVal = fromVal;
+          // }
+          // if (typeof min === "number" && toVal < min){
+          //     toVal = min;
+          // }
+          // if (typeof max === "number" && toVal > max){
+          //     toVal = max;
+          // }
 
-          if (typeof fromVal === "number" && fromVal > toVal) {
-            toVal = fromVal;
-          }
-
-          if (typeof min === "number" && toVal < min) {
-            toVal = min;
-          }
-
-          if (typeof max === "number" && toVal > max) {
-            toVal = max;
-          }
 
           return {
             toVal: toVal
@@ -381,13 +378,34 @@ function (_React$PureComponent) {
           facetOpen = _this$props3$facetOpe === void 0 ? false : _this$props3$facetOpe;
       onToggleOpen(field, !facetOpen);
     }
+    /**
+     * If no other transformations specified, and have a large number, then
+     * condense it using `toExponential`.
+     */
+
+  }, {
+    key: "termTitle",
+    value: function termTitle(fieldName, value) {
+      var allowJSX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+      var termTransformFxn = this.props.termTransformFxn;
+      var transformedValue = termTransformFxn(fieldName, value, allowJSX);
+
+      if (typeof transformedValue !== "number") {
+        return transformedValue;
+      }
+
+      if (transformedValue.toString().length < 7) {
+        return (0, _valueTransforms.decorateNumberWithCommas)(transformedValue);
+      }
+
+      return transformedValue.toExponential(1);
+    }
   }, {
     key: "render",
     value: function render() {
       var _this$props4 = this.props,
           facet = _this$props4.facet,
           propTitle = _this$props4.title,
-          termTransformFxn = _this$props4.termTransformFxn,
           isStatic = _this$props4.isStatic,
           savedFromVal = _this$props4.fromVal,
           savedToVal = _this$props4.toVal,
@@ -476,21 +494,19 @@ function (_React$PureComponent) {
           className: "icon icon-fw icon-greater-than-equal fas small"
         })),
         /*#__PURE__*/
-        _react["default"].createElement(RangeDropdown, _extends({
-          title: termTransformFxn(facet.field, typeof fromVal === 'number' ? fromVal : min || 0, true),
+        _react["default"].createElement(RangeDropdown, {
+          title: this.termTitle(facet.field, typeof fromVal === 'number' ? fromVal : min || 0),
           value: fromVal,
-          onSelect: this.setFrom,
+          savedValue: savedFromVal,
           max: toVal || null,
           increments: fromIncrements,
           variant: typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark",
-          savedValue: savedFromVal
-        }, {
-          termTransformFxn: termTransformFxn,
-          facet: facet
-        }, {
-          id: "from_" + field,
-          update: this.performUpdateFrom
-        })),
+          onSelect: this.setFrom,
+          update: this.performUpdateFrom,
+          termTransformFxn: this.termTitle,
+          facet: facet,
+          id: "from_" + field
+        }),
         /*#__PURE__*/
         _react["default"].createElement("div", {
           className: "clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable"),
@@ -513,23 +529,21 @@ function (_React$PureComponent) {
           className: "icon icon-fw icon-less-than-equal fas small"
         })),
         /*#__PURE__*/
-        _react["default"].createElement(RangeDropdown, _extends({
-          title: termTransformFxn(facet.field, typeof toVal === 'number' ? toVal : max, true) ||
+        _react["default"].createElement(RangeDropdown, {
+          title: this.termTitle(facet.field, typeof toVal === 'number' ? toVal : max) ||
           /*#__PURE__*/
           _react["default"].createElement("em", null, "Infinity"),
           value: toVal,
-          onSelect: this.setTo,
+          savedValue: savedToVal,
           min: fromVal || null,
           increments: toIncrements,
           variant: typeof toVal === "number" || savedToVal ? "primary" : "outline-dark",
-          savedValue: savedToVal
-        }, {
-          termTransformFxn: termTransformFxn,
-          facet: facet
-        }, {
-          id: "to_" + field,
-          update: this.performUpdateTo
-        })),
+          onSelect: this.setTo,
+          update: this.performUpdateTo,
+          termTransformFxn: this.termTitle,
+          facet: facet,
+          id: "to_" + field
+        }),
         /*#__PURE__*/
         _react["default"].createElement("div", {
           className: "clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable"),

@@ -322,71 +322,13 @@ function (_React$PureComponent2) {
 
   var _super2 = _createSuper(StaticPageBase);
 
-  _createClass(StaticPageBase, null, [{
-    key: "renderSections",
-    value: function renderSections(renderMethod, parsedContent, props) {
-      if (!parsedContent || !parsedContent.content || !Array.isArray(parsedContent.content)) {
-        _util.console.error('No content defined for page', parsedContent);
-
-        return null;
-      }
-
-      return _underscore["default"].map(parsedContent.content, function (section) {
-        return renderMethod(section.id || section.name, section, props);
-      });
-    }
-  }]);
-
-  function StaticPageBase(props) {
-    var _this3;
-
+  function StaticPageBase() {
     _classCallCheck(this, StaticPageBase);
 
-    _this3 = _super2.call(this, props);
-    _this3.maybeSetRedirectedAlert = _this3.maybeSetRedirectedAlert.bind(_assertThisInitialized(_this3));
-    return _this3;
+    return _super2.apply(this, arguments);
   }
 
   _createClass(StaticPageBase, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.maybeSetRedirectedAlert();
-    }
-    /**
-     * A simpler form (minus AJAX request) of DefaultItemView's similar method.
-     */
-
-  }, {
-    key: "maybeSetRedirectedAlert",
-    value: function maybeSetRedirectedAlert() {
-      var href = this.props.href;
-      if (!href) return;
-
-      var hrefParts = _url["default"].parse(href, true);
-
-      var redirected_from = hrefParts.query && hrefParts.query.redirected_from;
-
-      if (redirected_from) {
-        setTimeout(function () {
-          _Alerts.Alerts.queue({
-            'title': "Redirected",
-            'message':
-            /*#__PURE__*/
-            _react["default"].createElement("span", null, "You have been redirected from old page ",
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "text-500"
-            }, redirected_from), " to ",
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "text-500"
-            }, hrefParts.pathname), ". Please update your bookmarks."),
-            'style': 'warning'
-          });
-        }, 0);
-      }
-    }
-  }, {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
@@ -418,6 +360,19 @@ function (_React$PureComponent2) {
           context: parsedContent
         }), StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props))
       );
+    }
+  }], [{
+    key: "renderSections",
+    value: function renderSections(renderMethod, parsedContent, props) {
+      if (!parsedContent || !parsedContent.content || !Array.isArray(parsedContent.content)) {
+        _util.console.error('No content defined for page', parsedContent);
+
+        return null;
+      }
+
+      return _underscore["default"].map(parsedContent.content, function (section) {
+        return renderMethod(section.id || section.name, section, props);
+      });
     }
   }]);
 
