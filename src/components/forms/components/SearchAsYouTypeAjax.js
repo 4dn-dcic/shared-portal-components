@@ -248,7 +248,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props){
 
     const onChange = useMemo(function(){
         return function(resultItem, valueToReplace){
-            console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
+            // console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
             return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
         };
     }, [ selectComplete, nestedField, itemType, arrayIdx ]);

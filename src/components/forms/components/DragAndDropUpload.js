@@ -18,11 +18,13 @@ export class DragAndDropUploadSubmissionViewController extends React.Component {
  * and patched to the parent together.
  */
 class PromiseQueue {
-    static queue = [];
-    static pendingPromise = false;
-    static stop = false;
+    constructor() {
+        this.queue = [];
+        this.pendingPromise = false;
+        this.stop = false;
+    }
 
-    static enqueue(promise) {
+    enqueue(promise) {
         return new Promise((resolve, reject) => {
             this.queue.push({
                 promise,
@@ -33,7 +35,7 @@ class PromiseQueue {
         });
     }
 
-    static dequeue() {
+    dequeue() {
         if (this.pendingPromise) {
             return false;
         }
@@ -337,10 +339,11 @@ export class DragAndDropFileUploadController extends React.Component {
         };
 
         this.setState({ isLoading: true }, () => {
+            const promiseQueue = new PromiseQueue();
             const allPromises = [];
             // Add each file submission chain to the queue, so each file uploads sequentially
             files.forEach((file) => {
-                allPromises.push(PromiseQueue.enqueue(() => newFileSubmit(file)));
+                allPromises.push(promiseQueue.enqueue(() => newFileSubmit(file)));
             });
 
             // Update loading state once everything is resolved
