@@ -4,7 +4,7 @@ import React from 'react';
 import * as d3 from 'd3';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import { Collapse } from './../ui/Collapse';
+import Collapse from 'react-bootstrap/esm/Collapse';
 import { getElementTop, animateScrollTo, getScrollingOuterElement, getPageVerticalScrollPosition } from './../util/layout';
 import { navigate } from './../util/navigate';
 import { isServerSide } from './../util/misc';

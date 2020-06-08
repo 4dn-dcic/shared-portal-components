@@ -16,7 +16,7 @@ var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _reactBootstrap = require("react-bootstrap");
 
-var _Fade = require("./../../ui/Fade");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 var _Checkbox = require("./Checkbox");
 
@@ -32,15 +32,19 @@ var _SearchAsYouTypeAjax = require("./SearchAsYouTypeAjax");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -56,39 +60,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -100,9 +78,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
  *
  * @todo Possibly rename both this class and the containing file to be `SubmissionViewField` or `SubmissionField`.
  */
-var BuildField =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var BuildField = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(BuildField, _React$PureComponent);
 
   var _super = _createSuper(BuildField);
@@ -165,7 +141,7 @@ function (_React$PureComponent) {
     _this.state = {
       'dropdownOpen': false
     };
-    _this.inputElementRef = _react["default"].createRef();
+    _this.inputElementRef = /*#__PURE__*/_react["default"].createRef();
     return _this;
   }
 
@@ -225,15 +201,12 @@ function (_React$PureComponent) {
         var filetype = currContext && currContext.options && currContext.options.filetype;
 
         if (filetype === 'md' || filetype === 'html') {
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(PreviewField, _extends({}, this.props, {
-              filetype: filetype,
-              fieldType: fieldType
-            }, {
-              onChange: this.handleChange
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement(PreviewField, _extends({}, this.props, {
+            filetype: filetype,
+            fieldType: fieldType
+          }, {
+            onChange: this.handleChange
+          }));
         }
       } // Common field types
 
@@ -241,191 +214,131 @@ function (_React$PureComponent) {
       switch (fieldType) {
         case 'text':
           if (field === 'aliases') {
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("div", {
-                className: "input-wrapper"
-              },
-              /*#__PURE__*/
-              _react["default"].createElement(AliasInputField, _extends({}, inputProps, {
-                onAliasChange: this.handleAliasChange,
-                currentSubmittingUser: currentSubmittingUser
-              })))
-            );
+            return /*#__PURE__*/_react["default"].createElement("div", {
+              className: "input-wrapper"
+            }, /*#__PURE__*/_react["default"].createElement(AliasInputField, _extends({}, inputProps, {
+              onAliasChange: this.handleAliasChange,
+              currentSubmittingUser: currentSubmittingUser
+            })));
           }
 
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({}, inputProps, {
-              type: "text",
-              className: "form-control",
-              inputMode: "latin"
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement("input", _extends({}, inputProps, {
+            type: "text",
+            className: "form-control",
+            inputMode: "latin"
+          }));
 
         case 'textarea':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("textarea", _extends({}, inputProps, {
-              type: "text",
-              inputMode: "latin",
-              rows: 4,
-              className: "form-control mb-08 mt-08"
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement("textarea", _extends({}, inputProps, {
+            type: "text",
+            inputMode: "latin",
+            rows: 4,
+            className: "form-control mb-08 mt-08"
+          }));
 
         case 'html':
         case 'code':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("textarea", _extends({}, inputProps, {
-              type: "text",
-              inputMode: "latin",
-              rows: 8,
-              wrap: "off",
-              className: "form-control text-small mb-08 mt-08",
-              style: {
-                'fontFamily': "Source Code Pro, monospace",
-                'fontSize': 'small'
-              }
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement("textarea", _extends({}, inputProps, {
+            type: "text",
+            inputMode: "latin",
+            rows: 8,
+            wrap: "off",
+            className: "form-control text-small mb-08 mt-08",
+            style: {
+              'fontFamily': "Source Code Pro, monospace",
+              'fontSize': 'small'
+            }
+          }));
 
         case 'integer':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(_reactBootstrap.FormControl, _extends({
-              type: "number"
-            }, inputProps, {
-              step: 1
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, _extends({
+            type: "number"
+          }, inputProps, {
+            step: 1
+          }));
 
         case 'number':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(_reactBootstrap.FormControl, _extends({
-              type: "number"
-            }, inputProps))
-          );
+          return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, _extends({
+            type: "number"
+          }, inputProps));
 
         case 'boolean':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(_Checkbox.Checkbox, _extends({}, _underscore["default"].omit(inputProps, 'value', 'placeholder'), {
-              checked: !!value
-            }),
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              style: {
-                'verticalAlign': 'middle',
-                'textTransform': 'capitalize'
-              }
-            }, typeof value === 'boolean' ? value + '' : null))
-          );
+          return /*#__PURE__*/_react["default"].createElement(_Checkbox.Checkbox, _extends({}, _underscore["default"].omit(inputProps, 'value', 'placeholder'), {
+            checked: !!value
+          }), /*#__PURE__*/_react["default"].createElement("span", {
+            style: {
+              'verticalAlign': 'middle',
+              'textTransform': 'capitalize'
+            }
+          }, typeof value === 'boolean' ? value + '' : null));
 
         case 'enum':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
-              searchList: enumValues,
-              value: value,
-              allowCustomValue: false,
-              filterMethod: "includes",
-              onChange: this.handleEnumChange,
-              maxResults: 3
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, /*#__PURE__*/_react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
+            searchList: enumValues,
+            value: value,
+            allowCustomValue: false,
+            filterMethod: "includes",
+            onChange: this.handleEnumChange,
+            maxResults: 3
+          }));
 
         case 'suggested_enum':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
-              searchList: enumValues,
-              value: value,
-              allowCustomValue: true,
-              filterMethod: "includes",
-              onChange: this.handleEnumChange,
-              maxResults: 3
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, /*#__PURE__*/_react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
+            searchList: enumValues,
+            value: value,
+            allowCustomValue: true,
+            filterMethod: "includes",
+            onChange: this.handleEnumChange,
+            maxResults: 3
+          }));
 
         case 'linked object':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, _extends({
-              value: value,
-              allowCustomValue: false
-            }, this.props, {
-              idToTitleMap: keyDisplay
-            })))
-          );
+          return /*#__PURE__*/_react["default"].createElement("div", {
+            className: "input-wrapper"
+          }, /*#__PURE__*/_react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, _extends({
+            value: value,
+            allowCustomValue: false
+          }, this.props, {
+            idToTitleMap: keyDisplay
+          })));
 
         case 'array':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(ArrayField, _extends({}, this.props, {
-              pushArrayValue: this.pushArrayValue,
-              value: value || null,
-              roundTwo: roundTwo
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement(ArrayField, _extends({}, this.props, {
+            pushArrayValue: this.pushArrayValue,
+            value: value || null,
+            roundTwo: roundTwo
+          }));
 
         case 'object':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(ObjectField, this.props)
-          );
+          return /*#__PURE__*/_react["default"].createElement(ObjectField, this.props);
 
         case 'attachment':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              style: {
-                'display': 'inline'
-              }
-            },
-            /*#__PURE__*/
-            _react["default"].createElement(AttachmentInput, this.props))
-          );
+          return /*#__PURE__*/_react["default"].createElement("div", {
+            style: {
+              'display': 'inline'
+            }
+          }, /*#__PURE__*/_react["default"].createElement(AttachmentInput, this.props));
 
         case 'file upload':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(S3FileInput, this.props)
-          );
+          return /*#__PURE__*/_react["default"].createElement(S3FileInput, this.props);
       } // Fallback
 
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", null, "No field for this case yet.")
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", null, "No field for this case yet.");
     }
   }, {
     key: "buildSuggestedEnumEntry",
     value: function buildSuggestedEnumEntry(val) {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.DropdownItem, {
-          key: val,
-          title: val || '',
-          eventKey: val,
-          onSelect: this.submitSuggestedEnumVal
-        }, val || '')
-      );
+      return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.DropdownItem, {
+        key: val,
+        title: val || '',
+        eventKey: val,
+        onSelect: this.submitSuggestedEnumVal
+      }, val || '');
     }
   }, {
     key: "submitSuggestedEnumVal",
@@ -602,18 +515,13 @@ function (_React$PureComponent) {
     key: "labelTypeDescriptor",
     value: function labelTypeDescriptor() {
       var required = this.props.required;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "field-descriptor"
-        }, required ?
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          style: {
-            'color': '#a94442'
-          }
-        }, " Required") : null)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "field-descriptor"
+      }, required ? /*#__PURE__*/_react["default"].createElement("span", {
+        style: {
+          'color': '#a94442'
+        }
+      }, " Required") : null);
     }
     /** @ignore */
 
@@ -625,49 +533,29 @@ function (_React$PureComponent) {
           title = _this$props9.title,
           fieldType = _this$props9.fieldType,
           schema = _this$props9.schema;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", this.commonRowProps(),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "row"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "col-12 col-md-4"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "submission-field-title text-ellipsis-container"
-        }, this.labelTypeDescriptor(), fieldTip ?
-        /*#__PURE__*/
-        _react["default"].createElement(InfoIcon, {
-          className: "mr-07",
-          title: title,
-          fieldType: fieldType,
-          schema: schema
-        }, fieldTip) : null,
-        /*#__PURE__*/
-        _react["default"].createElement("span", null, title))),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "col-12 col-md-8"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "row field-container"
-        }, Array.prototype.slice.call(arguments)))))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", this.commonRowProps(), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "row"
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "col-12 col-md-4"
+      }, /*#__PURE__*/_react["default"].createElement("h5", {
+        className: "submission-field-title text-ellipsis-container"
+      }, this.labelTypeDescriptor(), fieldTip ? /*#__PURE__*/_react["default"].createElement(InfoIcon, {
+        className: "mr-07",
+        title: title,
+        fieldType: fieldType,
+        schema: schema
+      }, fieldTip) : null, /*#__PURE__*/_react["default"].createElement("span", null, title))), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "col-12 col-md-8"
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "row field-container"
+      }, Array.prototype.slice.call(arguments)))));
     }
     /** @ignore */
 
   }, {
     key: "wrapWithNoLabel",
     value: function wrapWithNoLabel() {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", this.commonRowProps(), Array.prototype.slice.call(arguments))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", this.commonRowProps(), Array.prototype.slice.call(arguments));
     }
     /**
      * Renders out input for this field. Performs this recursively (through adding own component down in render tree)
@@ -741,15 +629,9 @@ function (_React$PureComponent) {
         extClass += ' in-selection-field';
       }
 
-      return wrapFunc(
-      /*#__PURE__*/
-      _react["default"].createElement(_react["default"].Fragment, null,
-      /*#__PURE__*/
-      _react["default"].createElement("div", {
+      return wrapFunc( /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
         className: 'field-column col' + extClass
-      }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null :
-      /*#__PURE__*/
-      _react["default"].createElement(_SearchAsYouTypeAjax.SquareButton, {
+      }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null : /*#__PURE__*/_react["default"].createElement(_SearchAsYouTypeAjax.SquareButton, {
         show: showDelete,
         disabled: disableDelete,
         tip: isArray ? 'Remove Item' : 'Clear Value',
@@ -764,51 +646,38 @@ function (_React$PureComponent) {
 
 exports.BuildField = BuildField;
 
-var PreviewField = _react["default"].memo(function (props) {
+var PreviewField = /*#__PURE__*/_react["default"].memo(function (props) {
   var value = props.value,
       filetype = props.filetype,
       field = props.field,
       onChange = props.onChange;
 
-  var preview = value &&
-  /*#__PURE__*/
-  _react["default"].createElement(_react["default"].Fragment, null,
-  /*#__PURE__*/
-  _react["default"].createElement("h6", {
+  var preview = value && /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("h6", {
     className: "mt-1 text-600"
-  }, "Preview:"),
-  /*#__PURE__*/
-  _react["default"].createElement("hr", {
+  }, "Preview:"), /*#__PURE__*/_react["default"].createElement("hr", {
     className: "mb-1 mt-05"
-  }),
-  /*#__PURE__*/
-  _react["default"].createElement(_BasicStaticSectionBody.BasicStaticSectionBody, {
+  }), /*#__PURE__*/_react["default"].createElement(_BasicStaticSectionBody.BasicStaticSectionBody, {
     content: value || '',
     filetype: filetype
   }));
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "preview-field-container mt-08 mb-08"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement(_reactBootstrap.FormControl, {
-      onChange: onChange,
-      id: "field_for_" + field,
-      name: field,
-      value: value,
-      type: "text",
-      inputMode: "latin",
-      as: "textarea",
-      rows: 8,
-      wrap: "off",
-      style: {
-        'fontFamily': "Source Code Pro, monospace",
-        'fontSize': 'small'
-      }
-    }), preview)
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "preview-field-container mt-08 mb-08"
+  }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
+    onChange: onChange,
+    id: "field_for_" + field,
+    name: field,
+    value: value,
+    type: "text",
+    inputMode: "latin",
+    as: "textarea",
+    rows: 8,
+    wrap: "off",
+    style: {
+      'fontFamily': "Source Code Pro, monospace",
+      'fontSize': 'small'
+    }
+  }), preview);
 });
 /**
  * Display fields that are arrays. To do this, make a BuildField for each
@@ -817,9 +686,7 @@ var PreviewField = _react["default"].memo(function (props) {
  */
 
 
-var ArrayField =
-/*#__PURE__*/
-function (_React$Component) {
+var ArrayField = /*#__PURE__*/function (_React$Component) {
   _inherits(ArrayField, _React$Component);
 
   var _super2 = _createSuper(ArrayField);
@@ -949,31 +816,26 @@ function (_React$Component) {
         'parentSchema': schema
       });
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          key: arrayIdx,
-          className: "array-field-container " + (arrayIdx % 2 === 0 ? 'even' : 'odd'),
-          "data-field-type": fieldType
-        },
-        /*#__PURE__*/
-        _react["default"].createElement(BuildField, _extends({
-          value: inArrValue || null,
-          fieldTip: fieldTip,
-          fieldType: fieldType,
-          title: title,
-          enumValues: enumValues
-        }, _underscore["default"].pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel', 'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType'), {
-          isArray: true,
-          isLastItemInArray: allItems.length - 1 === index,
-          arrayIdx: arrayIdxList,
-          schema: childFieldSchema,
-          disabled: false,
-          required: false,
-          key: arrayIdx,
-          isMultiSelect: true
-        })))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        key: arrayIdx,
+        className: "array-field-container " + (arrayIdx % 2 === 0 ? 'even' : 'odd'),
+        "data-field-type": fieldType
+      }, /*#__PURE__*/_react["default"].createElement(BuildField, _extends({
+        value: inArrValue || null,
+        fieldTip: fieldTip,
+        fieldType: fieldType,
+        title: title,
+        enumValues: enumValues
+      }, _underscore["default"].pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel', 'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType'), {
+        isArray: true,
+        isLastItemInArray: allItems.length - 1 === index,
+        arrayIdx: arrayIdxList,
+        schema: childFieldSchema,
+        disabled: false,
+        required: false,
+        key: arrayIdx,
+        isMultiSelect: true
+      })));
     }
   }, {
     key: "generateAddButton",
@@ -982,22 +844,15 @@ function (_React$Component) {
           _this$props14$value = _this$props14.value,
           values = _this$props14$value === void 0 ? [] : _this$props14$value,
           pushArrayValue = _this$props14.pushArrayValue;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "add-array-item-button-container"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: "btn btn-outline-dark btn-" + (values.length > 0 ? "sm" : "md"),
-          onClick: pushArrayValue
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw fas icon-plus"
-        }), " Add"))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "add-array-item-button-container"
+      }, /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-outline-dark btn-" + (values.length > 0 ? "sm" : "md"),
+        onClick: pushArrayValue
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw fas icon-plus"
+      }), " Add"));
     }
   }, {
     key: "render",
@@ -1013,12 +868,9 @@ function (_React$Component) {
       });
 
       var showAddButton = !isValueNull(values[valuesToRender.length - 1]);
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "list-of-array-items"
-        }, valuesToRender.map(this.initiateArrayField), showAddButton ? this.generateAddButton() : null)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "list-of-array-items"
+      }, valuesToRender.map(this.initiateArrayField), showAddButton ? this.generateAddButton() : null);
     }
   }]);
 
@@ -1030,9 +882,7 @@ function (_React$Component) {
  */
 
 
-var ObjectField =
-/*#__PURE__*/
-function (_React$PureComponent2) {
+var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(ObjectField, _React$PureComponent2);
 
   var _super3 = _createSuper(ObjectField);
@@ -1152,32 +1002,26 @@ function (_React$PureComponent2) {
         // happens correctly
 
 
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement(BuildField, _extends({}, passProps, {
-            field: field,
-            fieldType: fieldType,
-            fieldTip: fieldTip,
-            enumValues: enumValues,
-            nestedField: propNestedField + '.' + field,
-            title: title
-          }, {
-            value: fieldValue,
-            key: field,
-            schema: fieldSchema,
-            disabled: false,
-            required: false,
-            isArray: false,
-            isMultiSelect: isMultiSelect || false
-          }))
-        );
+        return /*#__PURE__*/_react["default"].createElement(BuildField, _extends({}, passProps, {
+          field: field,
+          fieldType: fieldType,
+          fieldTip: fieldTip,
+          enumValues: enumValues,
+          nestedField: propNestedField + '.' + field,
+          title: title
+        }, {
+          value: fieldValue,
+          key: field,
+          schema: fieldSchema,
+          disabled: false,
+          required: false,
+          isArray: false,
+          isMultiSelect: isMultiSelect || false
+        }));
       });
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "object-field-container"
-        }, builtFields)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "object-field-container"
+      }, builtFields);
     }
   }]);
 
@@ -1190,9 +1034,7 @@ function (_React$PureComponent2) {
  */
 
 
-var AttachmentInput =
-/*#__PURE__*/
-function (_React$Component2) {
+var AttachmentInput = /*#__PURE__*/function (_React$Component2) {
   _inherits(AttachmentInput, _React$Component2);
 
   var _super4 = _createSuper(AttachmentInput);
@@ -1270,38 +1112,29 @@ function (_React$Component2) {
       }
 
       // Is type=submit below correct?
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          style: {
-            'display': 'inherit'
-          }
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        style: {
+          'display': 'inherit'
+        }
+      }, /*#__PURE__*/_react["default"].createElement("input", {
+        id: "field_for_" + field,
+        type: "file",
+        onChange: this.handleChange,
+        style: {
+          'display': 'none'
         },
-        /*#__PURE__*/
-        _react["default"].createElement("input", {
-          id: "field_for_" + field,
-          type: "file",
-          onChange: this.handleChange,
-          style: {
-            'display': 'none'
-          },
-          accept: this.acceptedTypes()
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "submit",
-          className: "btn btn-outline-dark"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("label", {
-          className: "text-400 mb-0",
-          htmlFor: "field_for_" + field,
-          style: {
-            'paddingRight': '5px',
-            'paddingLeft': '5px'
-          }
-        }, attach_title)))
-      );
+        accept: this.acceptedTypes()
+      }), /*#__PURE__*/_react["default"].createElement("button", {
+        type: "submit",
+        className: "btn btn-outline-dark"
+      }, /*#__PURE__*/_react["default"].createElement("label", {
+        className: "text-400 mb-0",
+        htmlFor: "field_for_" + field,
+        style: {
+          'paddingRight': '5px',
+          'paddingLeft': '5px'
+        }
+      }, attach_title)));
     }
   }]);
 
@@ -1314,9 +1147,7 @@ function (_React$Component2) {
  */
 
 
-var S3FileInput =
-/*#__PURE__*/
-function (_React$Component3) {
+var S3FileInput = /*#__PURE__*/function (_React$Component3) {
   _inherits(S3FileInput, _React$Component3);
 
   var _super5 = _createSuper(S3FileInput);
@@ -1522,130 +1353,87 @@ function (_React$Component3) {
       }
 
       var disableFile = md5Progress !== null || upload !== null;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", null,
-        /*#__PURE__*/
-        _react["default"].createElement("div", null,
-        /*#__PURE__*/
-        _react["default"].createElement("input", {
-          id: "field_for_" + field,
-          type: "file",
-          onChange: this.handleChange,
-          disabled: disableFile,
-          style: {
-            'display': 'none'
-          }
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "submit",
-          disabled: disableFile,
-          style: {
-            'padding': '0px'
-          },
-          className: "btn btn-outline-dark"
+      return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("input", {
+        id: "field_for_" + field,
+        type: "file",
+        onChange: this.handleChange,
+        disabled: disableFile,
+        style: {
+          'display': 'none'
+        }
+      }), /*#__PURE__*/_react["default"].createElement("button", {
+        type: "submit",
+        disabled: disableFile,
+        style: {
+          'padding': '0px'
         },
-        /*#__PURE__*/
-        _react["default"].createElement("label", {
-          className: "text-400",
-          htmlFor: "field_for_" + field,
-          style: {
-            'paddingRight': '12px',
-            'paddingTop': '6px',
-            'paddingBottom': '6px',
-            'paddingLeft': '12px',
-            'marginBottom': '0px'
-          }
-        }, filename_text)),
-        /*#__PURE__*/
-        _react["default"].createElement(_Fade.Fade, {
-          "in": showDelete
+        className: "btn btn-outline-dark"
+      }, /*#__PURE__*/_react["default"].createElement("label", {
+        className: "text-400",
+        htmlFor: "field_for_" + field,
+        style: {
+          'paddingRight': '12px',
+          'paddingTop': '6px',
+          'paddingBottom': '6px',
+          'paddingLeft': '12px',
+          'marginBottom': '0px'
+        }
+      }, filename_text)), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+        "in": showDelete
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "pull-right"
+      }, /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-danger",
+        disabled: !showDelete,
+        onClick: this.deleteField,
+        tabIndex: 2
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-times fas"
+      }))))), statusTip ? /*#__PURE__*/_react["default"].createElement("div", {
+        style: {
+          'color': '#a94442',
+          'paddingTop': '10px'
+        }
+      }, statusTip) : null, md5Progress ? /*#__PURE__*/_react["default"].createElement("div", {
+        style: {
+          'paddingTop': '10px'
+        }
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-spin icon-circle-notch",
+        style: {
+          'opacity': '0.5'
+        }
+      }), /*#__PURE__*/_react["default"].createElement("span", {
+        style: {
+          'paddingLeft': '10px'
+        }
+      }, 'Calculating MD5... ' + md5Progress + '%')) : null, percentDone !== null ? /*#__PURE__*/_react["default"].createElement("div", {
+        className: "row",
+        style: {
+          'paddingTop': '10px'
+        }
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "col-3 col-sm-3 pull-left"
+      }, /*#__PURE__*/_react["default"].createElement("a", {
+        href: "",
+        style: {
+          'color': '#a94442',
+          'paddingLeft': '10px'
         },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "pull-right"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: "btn btn-danger",
-          disabled: !showDelete,
-          onClick: this.deleteField,
-          tabIndex: 2
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-times fas"
-        }))))), statusTip ?
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          style: {
-            'color': '#a94442',
-            'paddingTop': '10px'
-          }
-        }, statusTip) : null, md5Progress ?
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          style: {
-            'paddingTop': '10px'
-          }
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-spin icon-circle-notch",
-          style: {
-            'opacity': '0.5'
-          }
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          style: {
-            'paddingLeft': '10px'
-          }
-        }, 'Calculating MD5... ' + md5Progress + '%')) : null, percentDone !== null ?
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "row",
-          style: {
-            'paddingTop': '10px'
-          }
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "col-3 col-sm-3 pull-left"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("a", {
-          href: "",
-          style: {
-            'color': '#a94442',
-            'paddingLeft': '10px'
-          },
-          onClick: this.cancelUpload,
-          title: "Cancel"
-        }, 'Cancel upload')),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "col-9 col-sm-9 pull-right"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", null,
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "pull-left"
-        }, percentDone + "% complete"),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "pull-right"
-        }, "Total size: " + sizeUploaded)),
-        /*#__PURE__*/
-        _react["default"].createElement(_rcProgress.Line, {
-          percent: percentDone,
-          strokeWidth: "1",
-          strokeColor: "#388a92"
-        }))) : null)
-      );
+        onClick: this.cancelUpload,
+        title: "Cancel"
+      }, 'Cancel upload')), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "col-9 col-sm-9 pull-right"
+      }, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "pull-left"
+      }, percentDone + "% complete"), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "pull-right"
+      }, "Total size: " + sizeUploaded)), /*#__PURE__*/_react["default"].createElement(_rcProgress.Line, {
+        percent: percentDone,
+        strokeWidth: "1",
+        strokeColor: "#388a92"
+      }))) : null);
     }
   }]);
 
@@ -1660,9 +1448,7 @@ function (_React$Component3) {
  */
 
 
-var AliasInputField =
-/*#__PURE__*/
-function (_React$Component4) {
+var AliasInputField = /*#__PURE__*/function (_React$Component4) {
   _inherits(AliasInputField, _React$Component4);
 
   var _super6 = _createSuper(AliasInputField);
@@ -1781,9 +1567,7 @@ function (_React$Component4) {
 
       if (currentSubmittingUser && Array.isArray(currentSubmittingUser.groups) && currentSubmittingUser.groups.indexOf('admin') > -1) {
         // Render an ordinary input box for admins (can specify any lab).
-        firstPartSelect =
-        /*#__PURE__*/
-        _react["default"].createElement("input", {
+        firstPartSelect = /*#__PURE__*/_react["default"].createElement("input", {
           type: "text",
           inputMode: "latin",
           id: "firstPartSelect",
@@ -1797,88 +1581,58 @@ function (_React$Component4) {
           className: "form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")
         });
       } else if (submits_for_list && submits_for_list.length > 1) {
-        firstPartSelect =
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.DropdownButton, {
+        firstPartSelect = /*#__PURE__*/_react["default"].createElement(_reactBootstrap.DropdownButton, {
           className: "alias-lab-select form-control alias-first-part-input" + (errorMessage ? " is-invalid" : ""),
           id: "firstPartSelect",
           variant: "light",
           onSelect: this.onAliasFirstPartChange,
           as: _reactBootstrap.InputGroup.Prepend,
-          title: parts.length > 1 &&
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
+          title: parts.length > 1 && /*#__PURE__*/_react["default"].createElement("span", {
             className: "text-400 d-flex justify-content-between align-items-center"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("small", null, "Lab:\xA0"),
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
+          }, /*#__PURE__*/_react["default"].createElement("small", null, "Lab:\xA0"), /*#__PURE__*/_react["default"].createElement("span", {
             className: "text-ellipsis-container",
             style: {
               maxWidth: '80%'
             }
           }, parts[0] !== '' && parts[0] || this.getInitialSubmitsForPart())) || 'Select a Lab'
         }, _underscore["default"].map(submits_for_list, function (lab) {
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(_reactBootstrap.DropdownItem, {
-              key: lab.name,
-              eventKey: lab.name
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "text-500"
-            }, lab.name), " (", lab.display_title, ")")
-          );
+          return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.DropdownItem, {
+            key: lab.name,
+            eventKey: lab.name
+          }, /*#__PURE__*/_react["default"].createElement("span", {
+            className: "text-500"
+          }, lab.name), " (", lab.display_title, ")");
         }));
       } else {
         // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
-        firstPartSelect =
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.InputGroup.Prepend, {
+        firstPartSelect = /*#__PURE__*/_react["default"].createElement(_reactBootstrap.InputGroup.Prepend, {
           className: "alias-lab-single-option"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        }, /*#__PURE__*/_react["default"].createElement("span", {
           className: "input-group-text"
         }, currFirstPartValue));
       }
 
       var outerClassName = "mb-0 alias-input-field form-group has-feedback" + (errorMessage ? " is-invalid has-error" : isValid ? " is-valid" : "");
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: outerClassName
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "input-group"
-        }, firstPartSelect,
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "input-group-prepend input-group-append input-group-addon colon-separator"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "input-group-text"
-        }, ":")),
-        /*#__PURE__*/
-        _react["default"].createElement("input", {
-          type: "text",
-          id: "aliasInput",
-          inputMode: "latin",
-          value: parts[1] || '',
-          autoFocus: withinModal && !parts[1] ? true : false,
-          placeholder: "Type in a new identifier",
-          onChange: this.onAliasSecondPartChange,
-          className: "form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")
-        })), showErrorMsg && errorMessage ?
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "invalid-feedback d-block text-right"
-        }, errorMessage) : null)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: outerClassName
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "input-group"
+      }, firstPartSelect, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "input-group-prepend input-group-append input-group-addon colon-separator"
+      }, /*#__PURE__*/_react["default"].createElement("span", {
+        className: "input-group-text"
+      }, ":")), /*#__PURE__*/_react["default"].createElement("input", {
+        type: "text",
+        id: "aliasInput",
+        inputMode: "latin",
+        value: parts[1] || '',
+        autoFocus: withinModal && !parts[1] ? true : false,
+        placeholder: "Type in a new identifier",
+        onChange: this.onAliasSecondPartChange,
+        className: "form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")
+      })), showErrorMsg && errorMessage ? /*#__PURE__*/_react["default"].createElement("div", {
+        className: "invalid-feedback d-block text-right"
+      }, errorMessage) : null);
     }
   }]);
 
@@ -1905,9 +1659,7 @@ _defineProperty(AliasInputField, "defaultProps", {
   'value': ':'
 });
 
-var AliasInputFieldValidated =
-/*#__PURE__*/
-function (_React$PureComponent3) {
+var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(AliasInputFieldValidated, _React$PureComponent3);
 
   var _super7 = _createSuper(AliasInputFieldValidated);
@@ -2050,12 +1802,9 @@ function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(AliasInputField, _extends({}, this.props, this.state, {
-          onAliasChange: this.onAliasChange
-        }))
-      );
+      return /*#__PURE__*/_react["default"].createElement(AliasInputField, _extends({}, this.props, this.state, {
+        onAliasChange: this.onAliasChange
+      }));
     }
   }]);
 
@@ -2070,9 +1819,7 @@ _defineProperty(AliasInputFieldValidated, "defaultProps", {
   rejectAliases: []
 });
 
-var InfoIcon =
-/*#__PURE__*/
-function (_React$PureComponent4) {
+var InfoIcon = /*#__PURE__*/function (_React$PureComponent4) {
   _inherits(InfoIcon, _React$PureComponent4);
 
   var _super8 = _createSuper(InfoIcon);
@@ -2118,14 +1865,11 @@ function (_React$PureComponent4) {
         tip += '<h6 class="mt-07 text-300">Field Type: <span class="text-400">' + this.fieldTypeDescriptor() + '</span></h6>';
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-info-circle fas" + (className ? ' ' + className : ''),
-          "data-tip": tip,
-          "data-html": true
-        })
-      );
+      return /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-info-circle fas" + (className ? ' ' + className : ''),
+        "data-tip": tip,
+        "data-html": true
+      });
     }
   }]);
 

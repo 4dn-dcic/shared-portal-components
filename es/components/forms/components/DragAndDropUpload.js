@@ -17,7 +17,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -33,45 +33,17 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var DragAndDropUploadSubmissionViewController =
-/*#__PURE__*/
-function (_React$Component) {
+var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Component) {
   _inherits(DragAndDropUploadSubmissionViewController, _React$Component);
 
   var _super = _createSuper(DragAndDropUploadSubmissionViewController);
@@ -95,9 +67,7 @@ exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionV
  * before starting the upload of the next item, so that the new atIds can be collected
  * and patched to the parent together.
  */
-var PromiseQueue =
-/*#__PURE__*/
-function () {
+var PromiseQueue = /*#__PURE__*/function () {
   function PromiseQueue() {
     _classCallCheck(this, PromiseQueue);
 
@@ -179,9 +149,7 @@ function () {
  */
 
 
-var DragAndDropFileUploadController =
-/*#__PURE__*/
-function (_React$Component2) {
+var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) {
   _inherits(DragAndDropFileUploadController, _React$Component2);
 
   var _super2 = _createSuper(DragAndDropFileUploadController);
@@ -493,21 +461,18 @@ function (_React$Component2) {
       var _this$state = this.state,
           files = _this$state.files,
           isLoading = _this$state.isLoading;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(DragAndDropUploadButton, _extends({
-          cls: cls,
-          fieldDisplayTitle: fieldDisplayTitle,
-          fieldName: fieldName,
-          files: files,
-          isLoading: isLoading
-        }, {
-          onUploadStart: this.onUploadStart,
-          handleAddFile: this.handleAddFile,
-          handleClearAllFiles: this.handleClearAllFiles,
-          handleRemoveFile: this.handleRemoveFile
-        }))
-      );
+      return /*#__PURE__*/_react["default"].createElement(DragAndDropUploadButton, _extends({
+        cls: cls,
+        fieldDisplayTitle: fieldDisplayTitle,
+        fieldName: fieldName,
+        files: files,
+        isLoading: isLoading
+      }, {
+        onUploadStart: this.onUploadStart,
+        handleAddFile: this.handleAddFile,
+        handleClearAllFiles: this.handleClearAllFiles,
+        handleRemoveFile: this.handleRemoveFile
+      }));
     }
   }]);
 
@@ -544,9 +509,7 @@ _defineProperty(DragAndDropFileUploadController, "defaultProps", {
   multiselect: true
 });
 
-var DragAndDropUploadButton =
-/*#__PURE__*/
-function (_React$Component3) {
+var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
   _inherits(DragAndDropUploadButton, _React$Component3);
 
   var _super3 = _createSuper(DragAndDropUploadButton);
@@ -614,35 +577,26 @@ function (_React$Component3) {
           fieldDisplayTitle = _this$props5.fieldDisplayTitle,
           files = _this$props5.files,
           isLoading = _this$props5.isLoading;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", null,
-        /*#__PURE__*/
-        _react["default"].createElement(DragAndDropModal, _extends({
-          handleHideModal: this.handleHideModal
-        }, {
-          multiselect: multiselect,
-          show: show,
-          onUploadStart: onUploadStart,
-          fieldName: fieldName,
-          fieldDisplayTitle: fieldDisplayTitle,
-          handleAddFile: handleAddFile,
-          handleRemoveFile: handleRemoveFile,
-          handleClearAllFiles: handleClearAllFiles,
-          files: files,
-          isLoading: isLoading
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          onClick: this.onShow,
-          className: cls
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-upload fas"
-        }), " Quick Upload a new ", fieldName))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement(DragAndDropModal, _extends({
+        handleHideModal: this.handleHideModal
+      }, {
+        multiselect: multiselect,
+        show: show,
+        onUploadStart: onUploadStart,
+        fieldName: fieldName,
+        fieldDisplayTitle: fieldDisplayTitle,
+        handleAddFile: handleAddFile,
+        handleRemoveFile: handleRemoveFile,
+        handleClearAllFiles: handleClearAllFiles,
+        files: files,
+        isLoading: isLoading
+      })), /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        onClick: this.onShow,
+        className: cls
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-upload fas"
+      }), " Quick Upload a new ", fieldName));
     }
   }]);
 
@@ -678,9 +632,7 @@ _defineProperty(DragAndDropUploadButton, "defaultProps", {
   files: []
 });
 
-var DragAndDropModal =
-/*#__PURE__*/
-function (_React$Component4) {
+var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
   _inherits(DragAndDropModal, _React$Component4);
 
   var _super4 = _createSuper(DragAndDropModal);
@@ -710,69 +662,40 @@ function (_React$Component4) {
           handleHideModal = _this$props6.handleHideModal,
           isLoading = _this$props6.isLoading;
       console.log("isLoading:", isLoading);
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal, _extends({
-          centered: true
-        }, {
-          show: show
-        }, {
-          onHide: handleHideModal,
-          className: "submission-view-modal drag-and-drop-upload"
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Header, {
-          closeButton: true
-        },
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Title, {
-          className: "text-500"
-        }, "Upload a ", fieldName, " ", fieldDisplayTitle && fieldName !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)),
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Body, null, isLoading ?
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "is-loading-overlay-cont"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", null,
-        /*#__PURE__*/
-        _react["default"].createElement("div", null,
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-spin icon-circle-notch fas"
-        })))) : null,
-        /*#__PURE__*/
-        _react["default"].createElement(DragAndDropZone, _extends({
-          files: files
-        }, {
-          handleAddFile: handleAddFile,
-          handleRemoveFile: handleRemoveFile
-        }))),
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Footer, null,
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: "btn btn-danger",
-          onClick: handleHideModal
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon fas icon-close"
-        }), " Cancel"),
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: "btn btn-primary",
-          onClick: onUploadStart,
-          disabled: files.length === 0
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon fas icon-upload"
-        }), " Upload ", fieldDisplayTitle)))
-      );
+      return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal, _extends({
+        centered: true
+      }, {
+        show: show
+      }, {
+        onHide: handleHideModal,
+        className: "submission-view-modal drag-and-drop-upload"
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal.Header, {
+        closeButton: true
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal.Title, {
+        className: "text-500"
+      }, "Upload a ", fieldName, " ", fieldDisplayTitle && fieldName !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal.Body, null, isLoading ? /*#__PURE__*/_react["default"].createElement("div", {
+        className: "is-loading-overlay-cont"
+      }, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-spin icon-circle-notch fas"
+      })))) : null, /*#__PURE__*/_react["default"].createElement(DragAndDropZone, _extends({
+        files: files
+      }, {
+        handleAddFile: handleAddFile,
+        handleRemoveFile: handleRemoveFile
+      }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal.Footer, null, /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-danger",
+        onClick: handleHideModal
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon fas icon-close"
+      }), " Cancel"), /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-primary",
+        onClick: onUploadStart,
+        disabled: files.length === 0
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon fas icon-upload"
+      }), " Upload ", fieldDisplayTitle)));
     }
   }]);
 
@@ -807,9 +730,7 @@ _defineProperty(DragAndDropModal, "defaultProps", {
   isLoading: false
 });
 
-var DragAndDropZone =
-/*#__PURE__*/
-function (_React$Component5) {
+var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
 
   var _super5 = _createSuper(DragAndDropZone);
@@ -823,8 +744,8 @@ function (_React$Component5) {
     _this7.state = {
       dragging: false
     };
-    _this7.dropZoneRef = _react["default"].createRef();
-    _this7.fileUploadRef = _react["default"].createRef();
+    _this7.dropZoneRef = /*#__PURE__*/_react["default"].createRef();
+    _this7.fileUploadRef = /*#__PURE__*/_react["default"].createRef();
     _this7.cleanUpEventListeners = _this7.cleanUpEventListeners.bind(_assertThisInitialized(_this7));
     _this7.setUpEventListeners = _this7.setUpEventListeners.bind(_assertThisInitialized(_this7));
     _this7.handleDrop = _this7.handleDrop.bind(_assertThisInitialized(_this7));
@@ -922,51 +843,37 @@ function (_React$Component5) {
       var _this$props7 = this.props,
           files = _this$props7.files,
           handleRemoveFile = _this$props7.handleRemoveFile;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "dropzone panel text-center d-flex flex-row justify-content-center",
-          ref: this.dropZoneRef,
-          onClick: this.handleDropzoneClick
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "dropzone panel text-center d-flex flex-row justify-content-center",
+        ref: this.dropZoneRef,
+        onClick: this.handleDropzoneClick
+      }, /*#__PURE__*/_react["default"].createElement("input", {
+        type: "file",
+        ref: this.fileUploadRef,
+        multiple: true,
+        onChange: function onChange(e) {
+          return _this8.handleAddFromBrowse(e);
         },
-        /*#__PURE__*/
-        _react["default"].createElement("input", {
-          type: "file",
-          ref: this.fileUploadRef,
-          multiple: true,
-          onChange: function onChange(e) {
-            return _this8.handleAddFromBrowse(e);
-          },
-          name: "filesFromBrowse",
-          className: "d-none"
-        }),
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          style: {
-            alignSelf: "center"
-          }
-        }, files.length === 0 ? "Click or drag a file here to upload" : null),
-        /*#__PURE__*/
-        _react["default"].createElement("ul", {
-          className: "d-flex flex-wrap m-0 pt-1 pl-0 justify-content-center"
-        }, files.map(function (file) {
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("li", {
-              key: file.download,
-              className: "m-1"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement(FileIcon, _extends({
-              fileName: file.download,
-              fileSize: file.size,
-              fileType: file.type
-            }, {
-              handleRemoveFile: handleRemoveFile
-            })))
-          );
-        })))
-      );
+        name: "filesFromBrowse",
+        className: "d-none"
+      }), /*#__PURE__*/_react["default"].createElement("span", {
+        style: {
+          alignSelf: "center"
+        }
+      }, files.length === 0 ? "Click or drag a file here to upload" : null), /*#__PURE__*/_react["default"].createElement("ul", {
+        className: "d-flex flex-wrap m-0 pt-1 pl-0 justify-content-center"
+      }, files.map(function (file) {
+        return /*#__PURE__*/_react["default"].createElement("li", {
+          key: file.download,
+          className: "m-1"
+        }, /*#__PURE__*/_react["default"].createElement(FileIcon, _extends({
+          fileName: file.download,
+          fileSize: file.size,
+          fileType: file.type
+        }, {
+          handleRemoveFile: handleRemoveFile
+        })));
+      })));
     }
   }]);
 
@@ -994,65 +901,52 @@ function FileIcon(props) {
       handleRemoveFile = props.handleRemoveFile,
       _props$thisUploading = props.thisUploading,
       thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "d-flex flex-column",
-      style: {
-        width: "150px"
-      }
-    }, thisUploading ?
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon icon-spin icon-circle-notch fas"
-    }) :
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      onClick: function onClick(e) {
-        e.stopPropagation();
-        handleRemoveFile(fileName);
-      },
-      className: "icon fas icon-window-close text-danger"
-    }),
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon far icon-2x icon-".concat(function (mimetype) {
-        if (mimetype.match('^image/')) {
-          return 'file-image';
-        } else {
-          switch (mimetype) {
-            case 'text/html':
-              return 'file-code';
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "d-flex flex-column",
+    style: {
+      width: "150px"
+    }
+  }, thisUploading ? /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-spin icon-circle-notch fas"
+  }) : /*#__PURE__*/_react["default"].createElement("i", {
+    onClick: function onClick(e) {
+      e.stopPropagation();
+      handleRemoveFile(fileName);
+    },
+    className: "icon fas icon-window-close text-danger"
+  }), /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon far icon-2x icon-".concat(function (mimetype) {
+      if (mimetype.match('^image/')) {
+        return 'file-image';
+      } else {
+        switch (mimetype) {
+          case 'text/html':
+            return 'file-code';
 
-            case 'text/plain':
-              return 'file-alt';
+          case 'text/plain':
+            return 'file-alt';
 
-            case 'application/msword':
-              return 'file-word';
+          case 'application/msword':
+            return 'file-word';
 
-            case 'application/vnd.ms-excel':
-              return 'file-excel';
+          case 'application/vnd.ms-excel':
+            return 'file-excel';
 
-            case 'application/pdf':
-              return 'file-pdf';
+          case 'application/pdf':
+            return 'file-pdf';
 
-            default:
-              return 'file';
-          }
+          default:
+            return 'file';
         }
-      }(fileType)),
-      style: {
-        marginBottom: "5px",
-        color: "#444444"
       }
-    }),
-    /*#__PURE__*/
-    _react["default"].createElement("span", {
-      className: "filename"
-    }, fileName),
-    /*#__PURE__*/
-    _react["default"].createElement("span", {
-      className: "filesize"
-    }, fileSize, " bytes"))
-  );
+    }(fileType)),
+    style: {
+      marginBottom: "5px",
+      color: "#444444"
+    }
+  }), /*#__PURE__*/_react["default"].createElement("span", {
+    className: "filename"
+  }, fileName), /*#__PURE__*/_react["default"].createElement("span", {
+    className: "filesize"
+  }, fileSize, " bytes"));
 }

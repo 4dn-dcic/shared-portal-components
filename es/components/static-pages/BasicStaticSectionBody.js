@@ -21,7 +21,7 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-var BasicStaticSectionBody = _react["default"].memo(function (props) {
+var BasicStaticSectionBody = /*#__PURE__*/_react["default"].memo(function (props) {
   var content = props.content,
       children = props.children,
       filetype = props.filetype,
@@ -31,16 +31,16 @@ var BasicStaticSectionBody = _react["default"].memo(function (props) {
       passProps = _objectWithoutProperties(props, ["content", "children", "filetype", "element", "markdownCompilerOptions", "placeholderReplacementFxn"]);
 
   if (filetype === 'md' && typeof content === 'string') {
-    return _react["default"].createElement(element, passProps, (0, _markdownToJsx.compiler)(content, markdownCompilerOptions || undefined));
+    return /*#__PURE__*/_react["default"].createElement(element, passProps, (0, _markdownToJsx.compiler)(content, markdownCompilerOptions || undefined));
   } else if (filetype === 'html' && typeof content === 'string') {
-    return _react["default"].createElement(element, passProps, (0, _object.htmlToJSX)(content));
+    return /*#__PURE__*/_react["default"].createElement(element, passProps, (0, _object.htmlToJSX)(content));
   } else if (filetype === 'jsx' && typeof content === 'string') {
     return placeholderReplacementFxn(content.trim(), passProps);
   } else if (filetype === 'txt' && typeof content === 'string' && content.slice(0, 12) === 'placeholder:') {
     // Deprecated older method - to be removed once data.4dn uses filetype=jsx everywhere w/ placeholder
     return placeholderReplacementFxn(content.slice(12).trim());
   } else {
-    return _react["default"].createElement(element, passProps, content);
+    return /*#__PURE__*/_react["default"].createElement(element, passProps, content);
   }
 });
 

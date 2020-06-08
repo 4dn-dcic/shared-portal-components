@@ -11,13 +11,13 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-var _Fade = require("./Fade");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 var _typedefs = require("./../util/typedefs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -35,39 +35,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -83,9 +57,7 @@ var store = null;
  * title for alert that was queued.
  */
 
-var Alerts =
-/*#__PURE__*/
-function (_React$Component) {
+var Alerts = /*#__PURE__*/function (_React$Component) {
   _inherits(Alerts, _React$Component);
 
   var _super = _createSuper(Alerts);
@@ -260,23 +232,17 @@ function (_React$Component) {
 
       var dismissing = this.state.dismissing;
       if (alerts.length === 0) return null;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", passProps, _underscore["default"].map(alerts, function (alert, index, alerts) {
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(AlertItem, _extends({
-              alert: alert,
-              index: index,
-              alerts: alerts
-            }, {
-              setDismissing: _this2.setDismissing,
-              dismissing: dismissing,
-              key: index
-            }))
-          );
-        }))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", passProps, _underscore["default"].map(alerts, function (alert, index, alerts) {
+        return /*#__PURE__*/_react["default"].createElement(AlertItem, _extends({
+          alert: alert,
+          index: index,
+          alerts: alerts
+        }, {
+          setDismissing: _this2.setDismissing,
+          dismissing: dismissing,
+          key: index
+        }));
+      }));
     }
   }]);
 
@@ -343,9 +309,7 @@ var LoginFailed = Alerts.LoginFailed = {
 
 exports.LoginFailed = LoginFailed;
 
-var AlertItem =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(AlertItem, _React$PureComponent);
 
   var _super2 = _createSuper(AlertItem);
@@ -404,41 +368,26 @@ function (_React$PureComponent) {
           title = alert.title,
           message = alert.message;
       var hasMessage = !!message;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_Fade.Fade, {
-          timeout: 500,
-          "in": _underscore["default"].findIndex(dismissing, alert) === -1,
-          onExited: this.finishDismiss,
-          unmountOnExit: true
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')
-        }, noCloseButton !== true ?
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: "close",
-          onClick: this.dismiss
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          "aria-hidden": "true"
-        }, "\xD7"),
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "sr-only"
-        }, "Close alert")) : null,
-        /*#__PURE__*/
-        _react["default"].createElement("h4", {
-          className: "alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")
-        }, title), hasMessage ?
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "mb-0"
-        }, message) : null))
-      );
+      return /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+        timeout: 500,
+        "in": _underscore["default"].findIndex(dismissing, alert) === -1,
+        onExited: this.finishDismiss,
+        unmountOnExit: true
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')
+      }, noCloseButton !== true ? /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        className: "close",
+        onClick: this.dismiss
+      }, /*#__PURE__*/_react["default"].createElement("span", {
+        "aria-hidden": "true"
+      }, "\xD7"), /*#__PURE__*/_react["default"].createElement("span", {
+        className: "sr-only"
+      }, "Close alert")) : null, /*#__PURE__*/_react["default"].createElement("h4", {
+        className: "alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")
+      }, title), hasMessage ? /*#__PURE__*/_react["default"].createElement("div", {
+        className: "mb-0"
+      }, message) : null));
     }
   }]);
 

@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { debounce } from 'underscore';
+import Fade from 'react-bootstrap/esm/Fade';
 import { requestAnimationFrame as raf } from './../../viz/utilities';
-
-import { Fade } from './../../ui/Fade';
 
 /*
 Button scrolling code adapted from:

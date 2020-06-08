@@ -4,12 +4,12 @@ import React from 'react';
 import _ from 'underscore';
 import url from 'url';
 import queryString from 'query-string';
-import { Modal } from 'react-bootstrap';
 import ReactTooltip from 'react-tooltip';
+import Modal from 'react-bootstrap/esm/Modal';
+import Collapse from 'react-bootstrap/esm/Collapse';
 
 import { ajax, console, JWT, object, layout, schemaTransforms, memoizedUrlParse } from './../util';
 import { DropdownButton, DropdownItem } from './components/DropdownButton';
-import { Collapse } from './../ui/Collapse';
 import { Alerts } from './../ui/Alerts';
 
 // We will cull util/file to only have some/minor fxns, and leave rest in 4DN repo.

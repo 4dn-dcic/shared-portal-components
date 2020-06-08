@@ -2,8 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-
-import { Fade } from './../../ui/Fade';
+import Fade from 'react-bootstrap/esm/Fade';
 
 import { ajax, object } from './../../util/';
 

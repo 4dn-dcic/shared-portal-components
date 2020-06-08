@@ -3,11 +3,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import url from 'url';
 import memoize from 'memoize-one';
+import Collapse from 'react-bootstrap/esm/Collapse';
 
-import { Collapse } from './../ui/Collapse';
-import { Alerts } from './../ui/Alerts';
 import { TableOfContents, HeaderWithLink } from './TableOfContents';
 import { layout, console } from './../util';
 
