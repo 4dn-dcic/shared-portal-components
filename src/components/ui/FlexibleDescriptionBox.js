@@ -7,6 +7,7 @@ import { isServerSide } from './../util/misc';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 import { gridContainerWidth, textContentWidth } from './../util/layout';
 import { requestAnimationFrame as raf } from './../viz/utilities';
+import { EditableField, FieldSet } from '../forms/components/EditableField';
 
 
 export class FlexibleCharacterCountBox extends React.Component {
@@ -126,7 +127,8 @@ export class FlexibleDescriptionBox extends React.Component {
         'textElement'   : PropTypes.oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
         'textStyle'     : PropTypes.object,
         'expanded'      : PropTypes.bool,
-        'windowWidth'   : PropTypes.number.isRequired
+        'windowWidth'   : PropTypes.number.isRequired,
+        'context'       : PropTypes.object
     }
 
     static defaultProps = {
@@ -150,6 +152,7 @@ export class FlexibleDescriptionBox extends React.Component {
         this.checkWillDescriptionFitOneLineAndUpdateHeight = this.checkWillDescriptionFitOneLineAndUpdateHeight.bind(this);
         this.toggleDescriptionExpand = this.toggleDescriptionExpand.bind(this);
         this.makeShortContent = this.makeShortContent.bind(this);
+        this.havePermissionToEdit = this.havePermissionToEdit.bind(this);
         this.descriptionHeight = null;
         this.state = {
             'descriptionExpanded' : props.defaultExpanded,
@@ -287,11 +290,14 @@ export class FlexibleDescriptionBox extends React.Component {
             }
         });
     }
-
+    havePermissionToEdit() {
+        const {  context: { actions = [] } } = this.props;
+        return !!(_.findWhere(actions, { 'name': 'edit' }));
+    }
     render(){
         const {
             debug, expanded: propExpanded,
-            showOnMount, lineHeight, linesOfText, collapsedHeight, className, textElement, textClassName, textStyle, description, fitTo
+            showOnMount, lineHeight, linesOfText, collapsedHeight, className, textElement, textClassName, textStyle, description,  fitTo
         } = this.props;
         const { descriptionWillFitOneLine, descriptionExpanded, mounted, shortContent, descriptionWhiteSpace } = this.state;
         if (debug) console.log('render FlexibleDescriptionBox');
@@ -326,17 +332,50 @@ export class FlexibleDescriptionBox extends React.Component {
         if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')){
             this.boxRef = React.createRef();
         }
+        function ProfileContactFieldsIcon({ icon }){
+            return <i className={"visible-lg-inline icon icon-fw icon-" + icon }/>;
+        }
+        const { children, subtitle, windowWidth, title, schemas, href, subTitleClassName, context, showIsEditableField } = this.props;
 
+        if(showIsEditableField && this.havePermissionToEdit())
+        {
+            return (
+                <div ref={this.boxRef}
+                    className={"flexible-description-box " + (className ? className : '') + (expandButton ? (expanded ? ' expanded' : ' collapsed') : ' not-expandable')}
+                    style={{
+                        'height': containerHeightSet,
+                        'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
+                        'visibility': !mounted && showOnMount ? 'hidden' : null
+                    }}>
+                    {expandButton}
+                    {/* { React.createElement(textElement, { 'className' : textClassName, 'style' : textStyle }, expanded ? description : shortContent || description) } */}
+                    <FieldSet context={context}
+                        lineHeight={22}
+                        dimensions={{
+                            'paddingWidth': 0,
+                            'paddingHeight': 22, // Padding-top + border-top
+                            'buttonWidth': 30,
+                            'initialHeight': 42
+                        }}
+                        className="profile-contact-fields"
+                        windowWidth={windowWidth}
+                        schemas={schemas} href={href}>
+                        <EditableField labelID="description" style="row-without-label" placeholder="description" fallbackText="no description - click icon to add new" fieldType="text" >
+                        </EditableField>
+                    </FieldSet>
+                </div>
+            );
+        }
         return (
             <div ref={this.boxRef}
                 className={"flexible-description-box " + (className ? className : '') + (expandButton ? (expanded ? ' expanded' : ' collapsed') : ' not-expandable') }
                 style={{
-                    'height'        : containerHeightSet,
-                    'whiteSpace'    : expanded ? 'normal' : descriptionWhiteSpace,
-                    'visibility'    : !mounted && showOnMount ? 'hidden' : null
+                    'height': containerHeightSet,
+                    'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
+                    'visibility': !mounted && showOnMount ? 'hidden' : null
                 }}>
-                { expandButton }
-                { React.createElement(textElement, { 'className' : textClassName, 'style' : textStyle }, expanded ? description : shortContent || description) }
+                {expandButton}
+                {React.createElement(textElement, { 'className': textClassName, 'style': textStyle }, expanded ? description : shortContent || description)}
             </div>
         );
     }

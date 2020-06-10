@@ -19,6 +19,8 @@ var _layout = require("./../util/layout");
 
 var _utilities = require("./../viz/utilities");
 
+var _EditableField = require("../forms/components/EditableField");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -29,45 +31,15 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -76,14 +48,12 @@ var FlexibleCharacterCountBox =
 function (_React$Component) {
   _inherits(FlexibleCharacterCountBox, _React$Component);
 
-  var _super = _createSuper(FlexibleCharacterCountBox);
-
   function FlexibleCharacterCountBox(props) {
     var _this;
 
     _classCallCheck(this, FlexibleCharacterCountBox);
 
-    _this = _super.call(this, props);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(FlexibleCharacterCountBox).call(this, props));
     _this.render = _this.render.bind(_assertThisInitialized(_this));
     _this.onClick = _underscore["default"].debounce(_this.onClick.bind(_assertThisInitialized(_this)), 300, true);
     _this.state = {
@@ -114,33 +84,23 @@ function (_React$Component) {
       var expandable = string.length > (characters || expandCharacters);
 
       if (!expandable) {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("span", null, string)
-        );
+        return _react["default"].createElement("span", null, string);
       }
 
       var visibleIcon = icon && _react["default"].cloneElement(icon, {
         'onClick': this.onClick,
         'expanded': expanded,
         'data-expanded': expanded
-      }) ||
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      }) || _react["default"].createElement("i", {
         className: "icon fas icon-" + (expanded ? 'minus' : 'plus'),
         onClick: this.onClick
       });
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("span", null,
-        /*#__PURE__*/
-        _react["default"].createElement(FlexibleCharacterCountString, {
-          string: string,
-          expanded: expanded,
-          expandCharacters: characters || expandCharacters
-        }), " \xA0 ", visibleIcon)
-      );
+      return _react["default"].createElement("span", null, _react["default"].createElement(FlexibleCharacterCountString, {
+        string: string,
+        expanded: expanded,
+        expandCharacters: characters || expandCharacters
+      }), " \xA0 ", visibleIcon);
     }
   }]);
 
@@ -160,12 +120,10 @@ var FlexibleCharacterCountString =
 function (_React$Component2) {
   _inherits(FlexibleCharacterCountString, _React$Component2);
 
-  var _super2 = _createSuper(FlexibleCharacterCountString);
-
   function FlexibleCharacterCountString() {
     _classCallCheck(this, FlexibleCharacterCountString);
 
-    return _super2.apply(this, arguments);
+    return _possibleConstructorReturn(this, _getPrototypeOf(FlexibleCharacterCountString).apply(this, arguments));
   }
 
   _createClass(FlexibleCharacterCountString, [{
@@ -212,18 +170,17 @@ var FlexibleDescriptionBox =
 function (_React$Component3) {
   _inherits(FlexibleDescriptionBox, _React$Component3);
 
-  var _super3 = _createSuper(FlexibleDescriptionBox);
-
   function FlexibleDescriptionBox(props) {
     var _this2;
 
     _classCallCheck(this, FlexibleDescriptionBox);
 
-    _this2 = _super3.call(this, props);
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(FlexibleDescriptionBox).call(this, props));
     _this2.dimensions = _this2.dimensions.bind(_assertThisInitialized(_this2));
     _this2.checkWillDescriptionFitOneLineAndUpdateHeight = _this2.checkWillDescriptionFitOneLineAndUpdateHeight.bind(_assertThisInitialized(_this2));
     _this2.toggleDescriptionExpand = _this2.toggleDescriptionExpand.bind(_assertThisInitialized(_this2));
     _this2.makeShortContent = _this2.makeShortContent.bind(_assertThisInitialized(_this2));
+    _this2.havePermissionToEdit = _this2.havePermissionToEdit.bind(_assertThisInitialized(_this2));
     _this2.descriptionHeight = null;
     _this2.state = {
       'descriptionExpanded': props.defaultExpanded,
@@ -380,6 +337,15 @@ function (_React$Component3) {
       });
     }
   }, {
+    key: "havePermissionToEdit",
+    value: function havePermissionToEdit() {
+      var _this$props$context$a = this.props.context.actions,
+          actions = _this$props$context$a === void 0 ? [] : _this$props$context$a;
+      return !!_underscore["default"].findWhere(actions, {
+        'name': 'edit'
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props3 = this.props,
@@ -406,15 +372,11 @@ function (_React$Component3) {
       var expanded = descriptionExpanded || propExpanded;
 
       if (!descriptionWillFitOneLine && typeof propExpanded !== 'boolean') {
-        expandButton =
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
+        expandButton = _react["default"].createElement("button", {
           type: "button",
           className: "description-expand-button right",
           onClick: this.throttledToggleDescriptionExpand
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        }, _react["default"].createElement("i", {
           className: "icon fas icon-" + (expanded ? 'minus' : 'plus')
         }));
       }
@@ -426,9 +388,19 @@ function (_React$Component3) {
         this.boxRef = _react["default"].createRef();
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+      var _this$props4 = this.props,
+          children = _this$props4.children,
+          subtitle = _this$props4.subtitle,
+          windowWidth = _this$props4.windowWidth,
+          title = _this$props4.title,
+          schemas = _this$props4.schemas,
+          href = _this$props4.href,
+          subTitleClassName = _this$props4.subTitleClassName,
+          context = _this$props4.context,
+          showIsEditableField = _this$props4.showIsEditableField;
+
+      if (showIsEditableField && this.havePermissionToEdit()) {
+        return _react["default"].createElement("div", {
           ref: this.boxRef,
           className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
           style: {
@@ -436,11 +408,41 @@ function (_React$Component3) {
             'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
             'visibility': !mounted && showOnMount ? 'hidden' : null
           }
-        }, expandButton, _react["default"].createElement(textElement, {
-          'className': textClassName,
-          'style': textStyle
-        }, expanded ? description : shortContent || description))
-      );
+        }, expandButton, _react["default"].createElement(_EditableField.FieldSet, {
+          context: context,
+          lineHeight: 22,
+          dimensions: {
+            'paddingWidth': 0,
+            'paddingHeight': 22,
+            // Padding-top + border-top
+            'buttonWidth': 30,
+            'initialHeight': 42
+          },
+          className: "profile-contact-fields",
+          windowWidth: windowWidth,
+          schemas: schemas,
+          href: href
+        }, _react["default"].createElement(_EditableField.EditableField, {
+          labelID: "description",
+          style: "row-without-label",
+          placeholder: "description",
+          fallbackText: "no description - click icon to add new",
+          fieldType: "text"
+        })));
+      }
+
+      return _react["default"].createElement("div", {
+        ref: this.boxRef,
+        className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
+        style: {
+          'height': containerHeightSet,
+          'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
+          'visibility': !mounted && showOnMount ? 'hidden' : null
+        }
+      }, expandButton, _react["default"].createElement(textElement, {
+        'className': textClassName,
+        'style': textStyle
+      }, expanded ? description : shortContent || description));
     }
   }]);
 
@@ -472,7 +474,8 @@ _defineProperty(FlexibleDescriptionBox, "propTypes", {
   'textElement': _propTypes["default"].oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
   'textStyle': _propTypes["default"].object,
   'expanded': _propTypes["default"].bool,
-  'windowWidth': _propTypes["default"].number.isRequired
+  'windowWidth': _propTypes["default"].number.isRequired,
+  'context': _propTypes["default"].object
 });
 
 _defineProperty(FlexibleDescriptionBox, "defaultProps", {

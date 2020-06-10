@@ -27,45 +27,15 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -85,14 +55,12 @@ var EditableField =
 function (_React$Component) {
   _inherits(EditableField, _React$Component);
 
-  var _super = _createSuper(EditableField);
-
   function EditableField(props) {
     var _this;
 
     _classCallCheck(this, EditableField);
 
-    _this = _super.call(this, props);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(EditableField).call(this, props));
     _this.onResizeStateChange = _this.onResizeStateChange.bind(_assertThisInitialized(_this));
     _this.objectType = _this.objectType.bind(_assertThisInitialized(_this));
     _this.isSet = _this.isSet.bind(_assertThisInitialized(_this));
@@ -337,54 +305,31 @@ function (_React$Component) {
 
       if (required && valid === false && validationMessage) {
         // Some validationMessages provided by browser don't give much info, so use it selectively (if at all).
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "invalid-feedback"
-          }, validationMessage)
-        );
+        return _react["default"].createElement("div", {
+          className: "invalid-feedback"
+        }, validationMessage);
       }
 
       if (Array.isArray(serverErrors) && serverErrors.length > 0) {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "invalid-feedback"
-          }, serverErrorsMessage ?
-          /*#__PURE__*/
-          _react["default"].createElement("b", null, serverErrorsMessage) : null, _underscore["default"].map(serverErrors, function (err, i) {
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("div", {
-                key: 'error-' + i
-              }, (serverErrors.length === 1 ? '' : i + 1 + '. ') + err.description)
-            );
-          }))
-        );
+        return _react["default"].createElement("div", {
+          className: "invalid-feedback"
+        }, serverErrorsMessage ? _react["default"].createElement("b", null, serverErrorsMessage) : null, _underscore["default"].map(serverErrors, function (err, i) {
+          return _react["default"].createElement("div", {
+            key: 'error-' + i
+          }, (serverErrors.length === 1 ? '' : i + 1 + '. ') + err.description);
+        }));
       }
 
       switch (fieldType) {
         case 'phone':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              className: "invalid-feedback"
-            }, "Only use digits \u2014 no dashes, spaces, or parantheses. Optionally may include leading '+' or extension.",
-            /*#__PURE__*/
-            _react["default"].createElement("br", null),
-            /*#__PURE__*/
-            _react["default"].createElement("b", null, "e.g.:"), " ",
-            /*#__PURE__*/
-            _react["default"].createElement("code", null, "+######### x###"))
-          );
+          return _react["default"].createElement("div", {
+            className: "invalid-feedback"
+          }, "Only use digits \u2014 no dashes, spaces, or parantheses. Optionally may include leading '+' or extension.", _react["default"].createElement("br", null), _react["default"].createElement("b", null, "e.g.:"), " ", _react["default"].createElement("code", null, "+######### x###"));
 
         case 'email':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              className: "invalid-feedback"
-            }, "Please enter a valid email address.")
-          );
+          return _react["default"].createElement("div", {
+            className: "invalid-feedback"
+          }, "Please enter a valid email address.");
 
         case 'username':
         case 'text':
@@ -404,7 +349,9 @@ function (_React$Component) {
           endpoint = _this$props2.endpoint,
           context = _this$props2.context,
           parent = _this$props2.parent,
-          onSave = _this$props2.onSave;
+          onSave = _this$props2.onSave,
+          dataType = _this$props2.dataType,
+          instanceHeightSave = _this$props2.instanceHeightSave;
 
       var errorFallback = function (res) {
         // ToDo display (bigger?) errors
@@ -421,6 +368,11 @@ function (_React$Component) {
         'loading': true
       }, function () {
         var value = _this3.state.value;
+
+        if (dataType === 'int') {
+          value = parseInt(value);
+        }
+
         var timestamp = Math.floor(Date.now ? Date.now() / 1000 : new Date().getTime() / 1000);
         var ajaxEndpoint = (endpoint || _util.object.itemUtil.atId(context)) + '?ts=' + timestamp;
         var patchData = null;
@@ -463,8 +415,10 @@ function (_React$Component) {
                 });
               }, 0);
 
-              if (typeof onSave === 'function') {
+              if (typeof onSave === 'function' && typeof instanceHeightSave !== 'function') {
                 onSave(nextContext);
+              } else if (typeof instanceHeightSave === 'function') {
+                instanceHeightSave(patchData);
               }
             });
           } else {
@@ -515,6 +469,13 @@ function (_React$Component) {
       var _this4 = this;
 
       e.preventDefault();
+      var _this$props3 = this.props,
+          labelID = _this$props3.labelID,
+          saveViewConf = _this$props3.saveViewConf,
+          higlassViewConfigItem = _this$props3.higlassViewConfigItem,
+          parent = _this$props3.parent,
+          dataType = _this$props3.dataType,
+          labelIdChangeName = _this$props3.labelIdChangeName;
 
       if (!this.isValid()) {
         // ToDo : Bigger notification to end user that something is wrong.
@@ -525,10 +486,46 @@ function (_React$Component) {
         return this.cancelEditState(e);
       }
 
-      this.save(function () {
-        // Success callback
-        _util.console.info("Saved " + _this4.props.labelID + " : " + _this4.state.savedValue);
-      });
+      if (typeof saveViewConf === 'function') {
+        var patchData = null;
+        var value = this.state.value;
+
+        if (dataType === 'int') {
+          value = parseInt(value);
+        }
+
+        if (labelIdChangeName !== null) {
+          patchData = _util.object.generateSparseNestedProperty(labelIdChangeName, value);
+        } else {
+          patchData = _util.object.generateSparseNestedProperty(labelID, value);
+        }
+
+        var saveControl = saveViewConf(patchData, higlassViewConfigItem);
+
+        if (saveControl) {
+          this.setState({
+            'savedValue': value,
+            'value': value,
+            'dispatching': true
+          }, function () {
+            setTimeout(function () {
+              parent.setState({
+                'currentlyEditing': null
+              }, function () {
+                _this4.setState({
+                  'loading': false,
+                  'dispatching': false
+                });
+              });
+            }, 0);
+          });
+        }
+      } else {
+        this.save(function () {
+          // Success callback
+          _util.console.info("Saved " + _this4.props.labelID + " : " + _this4.state.savedValue);
+        });
+      }
     }
     /** Update state.value on each keystroke/input and check validity. */
 
@@ -564,11 +561,11 @@ function (_React$Component) {
     key: "renderActionIcon",
     value: function renderActionIcon() {
       var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'edit';
-      var _this$props3 = this.props,
-          style = _this$props3.style,
-          info = _this$props3.info,
-          disabled = _this$props3.disabled,
-          labelID = _this$props3.labelID;
+      var _this$props4 = this.props,
+          style = _this$props4.style,
+          info = _this$props4.info,
+          disabled = _this$props4.disabled,
+          labelID = _this$props4.labelID;
       var loading = this.state.loading;
       var extClass = "";
       if (style === 'inline') extClass = "show-absolute ";
@@ -579,16 +576,11 @@ function (_React$Component) {
             return null;
 
           case 'cancel':
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("span", {
-                className: extClass + "field-loading-icon"
-              },
-              /*#__PURE__*/
-              _react["default"].createElement("i", {
-                className: "icon icon-spin icon-circle-notch icon-fw fas"
-              }))
-            );
+            return _react["default"].createElement("span", {
+              className: extClass + "field-loading-icon"
+            }, _react["default"].createElement("i", {
+              className: "icon icon-spin icon-circle-notch icon-fw fas"
+            }));
         }
       }
 
@@ -597,117 +589,87 @@ function (_React$Component) {
           if (disabled) {
             if (!info) return null; // ToDo info popup or tooltip
 
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("span", {
-                className: extClass + "edit-button info disabled"
-              },
-              /*#__PURE__*/
-              _react["default"].createElement("i", {
-                className: "icon icon-info-circle icon-fw fas"
-              }))
-            );
+            return _react["default"].createElement("span", {
+              className: extClass + "edit-button info disabled"
+            }, _react["default"].createElement("i", {
+              className: "icon icon-info-circle icon-fw fas"
+            }));
           }
 
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("a", {
-              href: "#edit-" + labelID,
-              className: extClass + "edit-button",
-              onClick: this.enterEditState,
-              title: "Edit"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("i", {
-              className: "icon icon-pencil-alt icon-fw fas"
-            }))
-          );
+          return _react["default"].createElement("a", {
+            href: "#edit-" + labelID,
+            className: extClass + "edit-button",
+            onClick: this.enterEditState,
+            title: "Edit"
+          }, _react["default"].createElement("i", {
+            className: "icon icon-pencil-alt icon-fw fas"
+          }));
 
         case 'save':
           if (!this.isValid(false)) return null;
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("a", {
-              href: "#save-" + labelID,
-              className: extClass + "save-button",
-              onClick: this.saveEditState,
-              title: "Save"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("i", {
-              className: "icon icon-check fas icon-fw"
-            }))
-          );
+          return _react["default"].createElement("a", {
+            href: "#save-" + labelID,
+            className: extClass + "save-button",
+            onClick: this.saveEditState,
+            title: "Save"
+          }, _react["default"].createElement("i", {
+            className: "icon icon-check fas icon-fw"
+          }));
 
         case 'cancel':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("a", {
-              href: "#",
-              className: extClass + "cancel-button",
-              onClick: this.cancelEditState,
-              title: "Cancel"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("i", {
-              className: "icon icon-times-circle far icon-fw"
-            }))
-          );
+          return _react["default"].createElement("a", {
+            href: "#",
+            className: extClass + "cancel-button",
+            onClick: this.cancelEditState,
+            title: "Cancel"
+          }, _react["default"].createElement("i", {
+            className: "icon icon-times-circle far icon-fw"
+          }));
       }
     }
   }, {
     key: "renderSavedValue",
     value: function renderSavedValue() {
-      var _this$props4 = this.props,
-          style = _this$props4.style,
-          labelID = _this$props4.labelID,
-          children = _this$props4.children,
-          fallbackText = _this$props4.fallbackText;
+      var _this$props5 = this.props,
+          style = _this$props5.style,
+          labelID = _this$props5.labelID,
+          children = _this$props5.children,
+          fallbackText = _this$props5.fallbackText;
       var savedValue = this.state.savedValue;
       var renderedValue = children || savedValue;
       var classes = ['value', 'saved'];
 
       switch (style) {
         case 'row':
+        case 'row-without-label':
+        case 'minimal-row':
         case 'minimal':
           classes.push("d-flex");
 
-          if (style === 'row') {
+          if (style === 'row' || style === 'row-without-label') {
             classes.push('col-md-9');
+          } else if (style === 'minimal-row') {
+            classes.push('col-md-2');
           }
 
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              className: classes.join(' ')
-            }, this.isSet() ?
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              id: labelID,
-              className: "set"
-            }, renderedValue) :
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "not-set"
-            }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'))
-          );
+          return _react["default"].createElement("div", {
+            className: classes.join(' ')
+          }, this.isSet() ? _react["default"].createElement("span", {
+            id: labelID,
+            className: "set"
+          }, renderedValue) : _react["default"].createElement("span", {
+            className: "not-set"
+          }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'));
 
         case 'inline':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: classes.join(' ')
-            }, this.isSet() ?
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              id: labelID,
-              className: "set"
-            }, renderedValue) :
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "not-set"
-            }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'))
-          );
+          return _react["default"].createElement("span", {
+            className: classes.join(' ')
+          }, this.isSet() ? _react["default"].createElement("span", {
+            id: labelID,
+            className: "set"
+          }, renderedValue) : _react["default"].createElement("span", {
+            className: "not-set"
+          }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'));
       }
 
       return null;
@@ -715,47 +677,42 @@ function (_React$Component) {
   }, {
     key: "renderSaved",
     value: function renderSaved() {
-      var _this$props5 = this.props,
-          style = _this$props5.style,
-          info = _this$props5.info,
-          disabled = _this$props5.disabled,
-          labelID = _this$props5.labelID,
-          label = _this$props5.label;
+      var _this$props6 = this.props,
+          style = _this$props6.style,
+          info = _this$props6.info,
+          disabled = _this$props6.disabled,
+          labelID = _this$props6.labelID,
+          label = _this$props6.label;
       this.state.loading;
 
       if (style === 'row') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "row editable-field-entry " + labelID
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "col col-md-3 text-right text-left-xs"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("label", {
-            htmlFor: labelID
-          }, label)), this.renderSavedValue())
-        );
-      }
-
-      if (style === 'minimal') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "editable-field-entry " + labelID
-          }, this.renderSavedValue())
-        );
-      }
-
-      if (style === 'inline') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            className: "editable-field-entry inline " + labelID
-          }, this.renderSavedValue())
-        );
+        return _react["default"].createElement("div", {
+          className: "row editable-field-entry " + labelID
+        }, _react["default"].createElement("div", {
+          className: "col col-md-3 text-right text-left-xs"
+        }, _react["default"].createElement("label", {
+          htmlFor: labelID
+        }, label)), this.renderSavedValue());
+      } else if (style === 'row-without-label') {
+        return _react["default"].createElement("div", {
+          className: "row editable-field-entry " + labelID
+        }, this.renderSavedValue());
+      } else if (style === 'minimal') {
+        return _react["default"].createElement("div", {
+          className: "editable-field-entry " + labelID
+        }, this.renderSavedValue());
+      } else if (style === 'inline') {
+        return _react["default"].createElement("span", {
+          className: "editable-field-entry inline " + labelID
+        }, this.renderSavedValue());
+      } else if (style === 'minimal-row') {
+        return _react["default"].createElement("div", {
+          className: "row editable-field-entry " + labelID
+        }, _react["default"].createElement("div", {
+          className: "col col-md-2 text-right text-left-xs"
+        }, _react["default"].createElement("label", {
+          htmlFor: labelID
+        }, label)), this.renderSavedValue());
       }
     }
     /** Render an input field; for usage in this.renderEditing() */
@@ -763,12 +720,12 @@ function (_React$Component) {
   }, {
     key: "inputField",
     value: function inputField() {
-      var _this$props6 = this.props,
-          fieldType = _this$props6.fieldType,
-          labelID = _this$props6.labelID,
-          placeholder = _this$props6.placeholder,
-          inputSize = _this$props6.inputSize,
-          disabled = _this$props6.disabled;
+      var _this$props7 = this.props,
+          fieldType = _this$props7.fieldType,
+          labelID = _this$props7.labelID,
+          placeholder = _this$props7.placeholder,
+          inputSize = _this$props7.inputSize,
+          disabled = _this$props7.disabled;
       var _this$state2 = this.state,
           value = _this$state2.value,
           required = _this$state2.required,
@@ -793,114 +750,100 @@ function (_React$Component) {
 
       switch (fieldType) {
         case 'phone':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "text",
-              inputMode: "tel",
-              autoComplete: "tel"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return _react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, _react["default"].createElement("input", _extends({
+            type: "text",
+            inputMode: "tel",
+            autoComplete: "tel"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'email':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "email",
-              autoComplete: "email"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return _react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, _react["default"].createElement("input", _extends({
+            type: "email",
+            autoComplete: "email"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'username':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "text",
-              inputMode: "latin-name",
-              autoComplete: "username"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return _react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, _react["default"].createElement("input", _extends({
+            type: "text",
+            inputMode: "latin-name",
+            autoComplete: "username"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'text':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "text",
-              inputMode: "latin"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return _react["default"].createElement("span", {
+            className: "input-wrapper",
+            style: {
+              'width': '100%'
+            }
+          }, _react["default"].createElement("input", _extends({
+            type: "text",
+            inputMode: "latin"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
       } // Fallback (?)
 
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("span", null, "No edit field created yet.")
-      );
+      return _react["default"].createElement("span", null, "No edit field created yet.");
     }
     /** Render 'in edit state' view */
 
   }, {
     key: "renderEditing",
     value: function renderEditing() {
-      var _this$props7 = this.props,
-          inputSize = _this$props7.inputSize,
-          style = _this$props7.style,
-          labelID = _this$props7.labelID,
-          label = _this$props7.label,
-          absoluteBox = _this$props7.absoluteBox,
+      var _this$props8 = this.props,
+          inputSize = _this$props8.inputSize,
+          style = _this$props8.style,
+          labelID = _this$props8.labelID,
+          label = _this$props8.label,
+          absoluteBox = _this$props8.absoluteBox,
           _this$state3 = this.state,
           leanTo = _this$state3.leanTo,
           leanOffset = _this$state3.leanOffset,
           outerBaseClass = "editable-field-entry editing has-feedback was-validated" + (!this.isValid(true) ? ' has-error ' : ' has-success ') + ('input-size-' + inputSize + ' ');
 
       if (style == 'row') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: outerBaseClass + labelID + ' row'
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "col col-md-3 text-right text-left-xs"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("label", {
-            htmlFor: labelID
-          }, label)),
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "col col-md-9 value editing d-flex"
-          }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')))
-        );
+        return _react["default"].createElement("div", {
+          className: outerBaseClass + labelID + ' row'
+        }, _react["default"].createElement("div", {
+          className: "col col-md-3 text-right text-left-xs"
+        }, _react["default"].createElement("label", {
+          htmlFor: labelID
+        }, label)), _react["default"].createElement("div", {
+          className: "col col-md-9 value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
+      }
+
+      if (style == 'row-without-label') {
+        return _react["default"].createElement("div", {
+          className: outerBaseClass + labelID + ' row'
+        }, _react["default"].createElement("div", {
+          className: "col col-md-9 value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
+      }
+
+      if (style == 'minimal-row') {
+        return _react["default"].createElement("div", {
+          className: outerBaseClass + labelID + ' row'
+        }, _react["default"].createElement("div", {
+          className: "col col-md-2 text-right text-left-xs"
+        }, _react["default"].createElement("label", {
+          htmlFor: labelID
+        }, label)), _react["default"].createElement("div", {
+          className: "col col-md-3 value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
 
       if (style == 'minimal') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: outerBaseClass + labelID
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "value editing d-flex"
-          }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')))
-        );
+        return _react["default"].createElement("div", {
+          className: outerBaseClass + labelID
+        }, _react["default"].createElement("div", {
+          className: "value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
 
       if (style == 'inline') {
@@ -914,18 +857,13 @@ function (_React$Component) {
           }
         }
 
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            ref: absoluteBox ? this.fieldRef : null,
-            className: outerBaseClass + labelID + ' inline' + (absoluteBox ? ' block-style' : '')
-          }, absoluteBox ? this.renderSavedValue() : null,
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            className: "value editing clearfix",
-            style: valStyle
-          }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')))
-        );
+        return _react["default"].createElement("span", {
+          ref: absoluteBox ? this.fieldRef : null,
+          className: outerBaseClass + labelID + ' inline' + (absoluteBox ? ' block-style' : '')
+        }, absoluteBox ? this.renderSavedValue() : null, _react["default"].createElement("span", {
+          className: "value editing clearfix",
+          style: valStyle
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
     }
   }, {
@@ -991,8 +929,13 @@ _defineProperty(EditableField, "propTypes", {
   required: _propTypes["default"].bool,
   // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
   schemas: _propTypes["default"].object.isRequired,
-  debug: _propTypes["default"].bool // Verbose lifecycle log messages.
-
+  debug: _propTypes["default"].bool,
+  // Verbose lifecycle log messages.
+  saveViewConf: _propTypes["default"].func,
+  instanceHeightSave: _propTypes["default"].func,
+  higlassViewConfigItem: _propTypes["default"].object,
+  dataType: _propTypes["default"].string,
+  labelIdChangeName: _propTypes["default"].string
 });
 
 _defineProperty(EditableField, "defaultProps", {
@@ -1006,6 +949,7 @@ _defineProperty(EditableField, "defaultProps", {
   'required': false,
   'schemas': null,
   'debug': true,
+  'labelIdChangeName': null,
   'onSave': function onSave(nextContext) {
     _util.console.log('Saved successfully', nextContext);
   }
@@ -1016,14 +960,12 @@ var FieldSet =
 function (_React$PureComponent) {
   _inherits(FieldSet, _React$PureComponent);
 
-  var _super2 = _createSuper(FieldSet);
-
   function FieldSet(props) {
     var _this5;
 
     _classCallCheck(this, FieldSet);
 
-    _this5 = _super2.call(this, props);
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(FieldSet).call(this, props));
     _this5.adjustedChildren = _this5.adjustedChildren.bind(_assertThisInitialized(_this5));
     _this5.fullClassName = _this5.fullClassName.bind(_assertThisInitialized(_this5));
     return _this5;
@@ -1034,20 +976,20 @@ function (_React$PureComponent) {
     value: function adjustedChildren() {
       var _this6 = this;
 
-      var _this$props8 = this.props,
-          children = _this$props8.children,
-          endpoint = _this$props8.endpoint,
-          href = _this$props8.href,
-          objectType = _this$props8.objectType,
-          schemas = _this$props8.schemas,
-          disabled = _this$props8.disabled,
-          inputSize = _this$props8.inputSize,
-          style = _this$props8.style,
-          absoluteBox = _this$props8.absoluteBox,
-          context = _this$props8.context,
-          parent = _this$props8.parent,
-          windowWidth = _this$props8.windowWidth,
-          onSave = _this$props8.onSave; // Add shared props to children EditableField elements.
+      var _this$props9 = this.props,
+          children = _this$props9.children,
+          endpoint = _this$props9.endpoint,
+          href = _this$props9.href,
+          objectType = _this$props9.objectType,
+          schemas = _this$props9.schemas,
+          disabled = _this$props9.disabled,
+          inputSize = _this$props9.inputSize,
+          style = _this$props9.style,
+          absoluteBox = _this$props9.absoluteBox,
+          context = _this$props9.context,
+          parent = _this$props9.parent,
+          windowWidth = _this$props9.windowWidth,
+          onSave = _this$props9.onSave; // Add shared props to children EditableField elements.
 
       return _react["default"].Children.map(children, function (child) {
         if (child.type && child.type.displayName === 'EditableField') {
@@ -1074,12 +1016,12 @@ function (_React$PureComponent) {
   }, {
     key: "fullClassName",
     value: function fullClassName() {
-      var _this$props9 = this.props,
-          className = _this$props9.className,
-          style = _this$props9.style,
-          inputSize = _this$props9.inputSize,
-          parent = _this$props9.parent,
-          children = _this$props9.children,
+      var _this$props10 = this.props,
+          className = _this$props10.className,
+          style = _this$props10.style,
+          inputSize = _this$props10.inputSize,
+          parent = _this$props10.parent,
+          children = _this$props10.children,
           stateHolder = parent || this,
           childIDs = FieldSet.extractChildrenIds(children); // Fallback to using self as state holder.
 
@@ -1089,20 +1031,14 @@ function (_React$PureComponent) {
     key: "render",
     value: function render() {
       if (this.props.style === 'inline') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            className: this.fullClassName()
-          }, this.adjustedChildren())
-        );
+        return _react["default"].createElement("span", {
+          className: this.fullClassName()
+        }, this.adjustedChildren());
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: this.fullClassName()
-        }, this.adjustedChildren())
-      );
+      return _react["default"].createElement("div", {
+        className: this.fullClassName()
+      }, this.adjustedChildren());
     }
   }]);
 
@@ -1119,7 +1055,7 @@ _defineProperty(FieldSet, "propTypes", {
   endpoint: _propTypes["default"].string,
   // Override context['@id'] (if doesn't exist, dif endpoint, etc.)
   inputSize: _propTypes["default"].oneOf(['sm', 'md', 'lg']),
-  style: _propTypes["default"].oneOf(['row', 'minimal', 'inline']),
+  style: _propTypes["default"].oneOf(['row', 'row-without-label', 'minimal-row', 'minimal', 'inline']),
 
   /**
    * Pass a parent React component, i.e. supply 'this' from a parent's render method,
