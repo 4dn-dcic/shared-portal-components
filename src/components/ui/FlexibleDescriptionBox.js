@@ -335,9 +335,9 @@ export class FlexibleDescriptionBox extends React.Component {
         function ProfileContactFieldsIcon({ icon }){
             return <i className={"visible-lg-inline icon icon-fw icon-" + icon }/>;
         }
-        const { children, subtitle, windowWidth, title, schemas, href, subTitleClassName, context, showIsEditableField } = this.props;
+        const { children, subtitle, windowWidth, title, schemas, href, subTitleClassName, context, isInlineEditable } = this.props;
 
-        if(showIsEditableField && this.havePermissionToEdit())
+        if(isInlineEditable && this.havePermissionToEdit())
         {
             return (
                 <div ref={this.boxRef}
@@ -348,7 +348,6 @@ export class FlexibleDescriptionBox extends React.Component {
                         'visibility': !mounted && showOnMount ? 'hidden' : null
                     }}>
                     {expandButton}
-                    {/* { React.createElement(textElement, { 'className' : textClassName, 'style' : textStyle }, expanded ? description : shortContent || description) } */}
                     <FieldSet context={context}
                         className={textClassName}
                         style={textStyle}

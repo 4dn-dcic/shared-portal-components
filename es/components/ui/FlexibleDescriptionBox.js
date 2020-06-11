@@ -447,9 +447,9 @@ function (_React$Component3) {
           href = _this$props4.href,
           subTitleClassName = _this$props4.subTitleClassName,
           context = _this$props4.context,
-          showIsEditableField = _this$props4.showIsEditableField;
+          isInlineEditable = _this$props4.isInlineEditable;
 
-      if (showIsEditableField && this.havePermissionToEdit()) {
+      if (isInlineEditable && this.havePermissionToEdit()) {
         return (
           /*#__PURE__*/
           _react["default"].createElement("div", {

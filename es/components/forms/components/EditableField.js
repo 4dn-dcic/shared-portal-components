@@ -630,8 +630,7 @@ function (_React$Component) {
           disabled = _this$props4.disabled,
           labelID = _this$props4.labelID;
       var loading = this.state.loading;
-      var extClass = "";
-      if (style === 'inline') extClass = "show-absolute ";
+      var extClass = ""; // if (style === 'inline') extClass = "show-absolute ";
 
       if (loading) {
         switch (type) {
@@ -735,7 +734,7 @@ function (_React$Component) {
           classes.push("d-flex");
 
           if (style === 'row' || style === 'row-without-label') {
-            classes.push('col-md-9');
+            classes.push(style === 'row-without-label' ? 'col-md-12' : 'col-md-9');
           } else if (style === 'minimal-row') {
             classes.push('col-md-2');
           }
@@ -996,7 +995,7 @@ function (_React$Component) {
           },
           /*#__PURE__*/
           _react["default"].createElement("div", {
-            className: "col col-md-9 value editing d-flex"
+            className: "col col-md-12 value editing d-flex"
           }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')))
         );
       }
