@@ -46,7 +46,7 @@ export class EditableField extends React.Component {
         saveViewConf    : PropTypes.func,
         instanceHeightSave: PropTypes.func,
         higlassViewConfigItem:PropTypes.object,
-        dataType        : PropTypes.string,
+        dataType        : PropTypes.oneOf(['string', 'int']),
         labelIdChangeName:PropTypes.string,
     };
 
@@ -61,6 +61,7 @@ export class EditableField extends React.Component {
         'required': false,
         'schemas': null,
         'debug': true,
+        'dataType': 'string',
         'labelIdChangeName': null,
         'onSave' : function(nextContext){
             console.log('Saved successfully', nextContext);
@@ -279,6 +280,7 @@ export class EditableField extends React.Component {
         // Fallback to generic pattern, if applicable for props.fieldType.
         if      (fieldType === 'phone') return object.itemUtil.User.localRegexValidation.phone;
         else if (fieldType === 'email') return object.itemUtil.User.localRegexValidation.email;
+        else if (fieldType === 'numeric') return object.itemUtil.User.localRegexValidation.numeric;
         else return null;
     }
 
@@ -318,13 +320,15 @@ export class EditableField extends React.Component {
                 return <div className="invalid-feedback">Please enter a valid email address.</div>;
             case 'username':
             case 'text':
+            case 'numeric':
+                return <div className="invalid-feedback">Please enter a valid number.</div>;
             default:
                 return null;
         }
     }
 
     save(successCallback = null, errorCallback = null){
-        const { labelID, endpoint, context, parent, onSave, dataType,instanceHeightSave } = this.props;
+        const { labelID, endpoint, context, parent, onSave, dataType, instanceHeightSave } = this.props;
 
         const errorFallback = (res) => {
             // ToDo display (bigger?) errors
@@ -335,7 +339,9 @@ export class EditableField extends React.Component {
 
         this.setState({ 'loading' : true }, ()=>{
             let value = this.state.value;
-            if (dataType === 'int') { value = parseInt(value); }
+            if (dataType === 'int') {
+                value = parseInt(value);
+            }
             const timestamp   = Math.floor(Date.now ? Date.now() / 1000 : (new Date()).getTime() / 1000);
 
             let ajaxEndpoint = (endpoint || object.itemUtil.atId(context) ) + '?ts=' + timestamp;
@@ -651,6 +657,12 @@ export class EditableField extends React.Component {
                     { this.validationFeedbackMessage() }
                 </span>
             );
+            case 'numeric' : return (
+                <span className="input-wrapper">
+                    <input type="text" inputMode="latin" {...commonPropsTextInput} />
+                    { this.validationFeedbackMessage() }
+                </span>
+            );
         }
         // Fallback (?)
         return <span>No edit field created yet.</span>;
@@ -679,38 +691,24 @@ export class EditableField extends React.Component {
             );
         }
 
-        if (style == 'row-without-label' ) {
+        if (style == 'row-without-label') {
             return (
                 <div className={outerBaseClass + labelID + ' row'}>
                     <div className="col col-md-9 value editing d-flex">
-                        { this.inputField() }
-                        { this.renderActionIcon('save') }
-                        { this.renderActionIcon('cancel') }
-                    </div>
-                </div>
-            );
-        }
-        if (style == 'minimal-row' ) {
-            return (
-                <div className={outerBaseClass + labelID + ' row'}>
-                    <div className="col col-md-2 text-right text-left-xs">
-                        <label htmlFor={labelID }>{ label }</label>
-                    </div>
-                    <div className="col col-md-3 value editing d-flex">
-                        { this.inputField() }
-                        { this.renderActionIcon('save') }
-                        { this.renderActionIcon('cancel') }
+                        {this.inputField()}
+                        {this.renderActionIcon('save')}
+                        {this.renderActionIcon('cancel')}
                     </div>
                 </div>
             );
         }
         if (style == 'minimal') {
             return (
-                <div className={ outerBaseClass + labelID }>
+                <div className={outerBaseClass + labelID}>
                     <div className="value editing d-flex">
-                        { this.inputField() }
-                        { this.renderActionIcon('save') }
-                        { this.renderActionIcon('cancel') }
+                        {this.inputField()}
+                        {this.renderActionIcon('save')}
+                        {this.renderActionIcon('cancel')}
                     </div>
                 </div>
             );

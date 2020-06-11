@@ -350,17 +350,10 @@ export class FlexibleDescriptionBox extends React.Component {
                     {expandButton}
                     {/* { React.createElement(textElement, { 'className' : textClassName, 'style' : textStyle }, expanded ? description : shortContent || description) } */}
                     <FieldSet context={context}
-                        lineHeight={22}
-                        dimensions={{
-                            'paddingWidth': 0,
-                            'paddingHeight': 22, // Padding-top + border-top
-                            'buttonWidth': 30,
-                            'initialHeight': 42
-                        }}
-                        className="profile-contact-fields"
-                        windowWidth={windowWidth}
+                        className={textClassName}
+                        style={textStyle}
                         schemas={schemas} href={href}>
-                        <EditableField labelID="description" style="row-without-label" placeholder="description" fallbackText="no description - click icon to add new" fieldType="text" >
+                        <EditableField className={textClassName} labelID="description" style="row-without-label" placeholder="description" fallbackText="no description - click icon to add new" fieldType="text" >
                         </EditableField>
                     </FieldSet>
                 </div>
