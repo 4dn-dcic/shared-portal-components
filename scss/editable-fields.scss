@@ -107,7 +107,7 @@ div.fieldset.editable-fields {
 
 		.cancel-button,
 		.save-button {
-			padding-top: 9px;
+			padding-top: 0px;
 			font-size: 1.1em;
 			margin-bottom: -10px;
 			position: relative;
@@ -133,7 +133,7 @@ div.fieldset.editable-fields {
 		}
 
 		.edit-button {
-			color: transparent;
+			color: #dedede;
 			transform: translateY(2px);
 			&.show-absolute {
 				position: absolute;
@@ -177,12 +177,23 @@ div.fieldset.editable-fields {
 			input[type=number],
 			input[type=email],
 			input[type=tel] {
-				margin-top: 3px;
+				border: 0 !important;
+				outline: 0 !important;
+				background: transparent;
+				border-bottom: 1px solid #dedede !important;
+				border-radius: 0 !important;
+				padding: 0 !important;
 				display: block;
 				margin-bottom: 0px;
 				width: 100%;
 				position: relative;
 				z-index: 3;
+				height: initial !important;
+			}
+
+			input:focus{
+				outline-style: none !important;
+				box-shadow: none !important;
 			}
 
 			span.help-block {
