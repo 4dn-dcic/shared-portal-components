@@ -23,7 +23,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  * @prop {Object} context - JSON representation of current Item object. Should be available through Redux store's context.
  * @prop {Object} schemas - JSON representation of sitewide schemas.
  */
-var ItemFooterRow = _react["default"].memo(function (_ref) {
+var ItemFooterRow = /*#__PURE__*/_react["default"].memo(function (_ref) {
   var context = _ref.context,
       schemas = _ref.schemas;
 
@@ -41,28 +41,17 @@ var ItemFooterRow = _react["default"].memo(function (_ref) {
     return null;
   }
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement(_react["default"].Fragment, null,
-    /*#__PURE__*/
-    _react["default"].createElement("hr", {
-      className: "mb-08 mt-1"
-    }),
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "row"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement(ExternalReferencesSection, {
-      context: context,
-      externalReferences: external_references
-    }),
-    /*#__PURE__*/
-    _react["default"].createElement(AlternateAccessionSection, {
-      context: context,
-      alternateAccessions: alternate_accessions
-    })))
-  );
+  return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("hr", {
+    className: "mb-08 mt-1"
+  }), /*#__PURE__*/_react["default"].createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/_react["default"].createElement(ExternalReferencesSection, {
+    context: context,
+    externalReferences: external_references
+  }), /*#__PURE__*/_react["default"].createElement(AlternateAccessionSection, {
+    context: context,
+    alternateAccessions: alternate_accessions
+  })));
 });
 
 exports.ItemFooterRow = ItemFooterRow;
@@ -74,31 +63,17 @@ function ExternalReferencesSection(_ref3) {
     return null;
   }
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "col col-12 col-md-6"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("h4", {
-      className: "text-300"
-    }, "External References"),
-    /*#__PURE__*/
-    _react["default"].createElement("div", null,
-    /*#__PURE__*/
-    _react["default"].createElement("ul", null, _underscore["default"].map(externalReferences, function (extRef, i) {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("li", {
-          key: i
-        }, typeof extRef.ref === 'string' ?
-        /*#__PURE__*/
-        _react["default"].createElement(ExternalReferenceLink, {
-          uri: extRef.uri || null
-        }, extRef.ref) : extRef)
-      );
-    }))))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "col col-12 col-md-6"
+  }, /*#__PURE__*/_react["default"].createElement("h4", {
+    className: "text-300"
+  }, "External References"), /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("ul", null, _underscore["default"].map(externalReferences, function (extRef, i) {
+    return /*#__PURE__*/_react["default"].createElement("li", {
+      key: i
+    }, typeof extRef.ref === 'string' ? /*#__PURE__*/_react["default"].createElement(ExternalReferenceLink, {
+      uri: extRef.uri || null
+    }, extRef.ref) : extRef);
+  }))));
 }
 
 function AlternateAccessionSection(_ref4) {
@@ -108,27 +83,15 @@ function AlternateAccessionSection(_ref4) {
     return null;
   }
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "col col-12 col-md-6"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("h4", {
-      className: "text-300"
-    }, "Alternate Accessions"),
-    /*#__PURE__*/
-    _react["default"].createElement("div", null,
-    /*#__PURE__*/
-    _react["default"].createElement("ul", null, _underscore["default"].map(alternateAccessions, function (altAccession, i) {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("li", {
-          key: i
-        }, altAccession)
-      );
-    }))))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "col col-12 col-md-6"
+  }, /*#__PURE__*/_react["default"].createElement("h4", {
+    className: "text-300"
+  }, "Alternate Accessions"), /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("ul", null, _underscore["default"].map(alternateAccessions, function (altAccession, i) {
+    return /*#__PURE__*/_react["default"].createElement("li", {
+      key: i
+    }, altAccession);
+  }))));
 }
 
 function AliasesSection(_ref5) {
@@ -139,25 +102,13 @@ function AliasesSection(_ref5) {
     'name': 'edit'
   })) return null; // No 'Edit' action for this Item.
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", null,
-    /*#__PURE__*/
-    _react["default"].createElement("h4", {
-      className: "text-500"
-    }, "Aliases"),
-    /*#__PURE__*/
-    _react["default"].createElement("div", null,
-    /*#__PURE__*/
-    _react["default"].createElement("ul", null, _underscore["default"].map(aliases, function (alias, i) {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("li", {
-          key: i
-        }, alias)
-      );
-    }))))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("h4", {
+    className: "text-500"
+  }, "Aliases"), /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("ul", null, _underscore["default"].map(aliases, function (alias, i) {
+    return /*#__PURE__*/_react["default"].createElement("li", {
+      key: i
+    }, alias);
+  }))));
 }
 /**
  * Used to display an external reference link.
@@ -173,21 +124,15 @@ function ExternalReferenceLink(_ref6) {
 
   if (!uri || typeof uri === 'string' && uri.length < 8) {
     // < 8 because that's minimum we need for a URL (e.g. 'http://' is first 7 chars)
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("span", {
-        className: "external-reference"
-      }, children)
-    );
+    return /*#__PURE__*/_react["default"].createElement("span", {
+      className: "external-reference"
+    }, children);
   }
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("a", {
-      href: uri,
-      target: "_blank",
-      rel: "noopener noreferrer",
-      className: "external-reference"
-    }, children)
-  );
+  return /*#__PURE__*/_react["default"].createElement("a", {
+    href: uri,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "external-reference"
+  }, children);
 }

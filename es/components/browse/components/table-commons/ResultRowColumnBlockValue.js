@@ -16,15 +16,19 @@ var _object = require("./../../../util/object");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -36,39 +40,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -79,9 +57,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * Sometimes, columns other than first column may want to update -- in which case,
  * a `props.shouldComponentUpdateExt` is available but perhaps not fully implemented.
  */
-var ResultRowColumnBlockValue =
-/*#__PURE__*/
-function (_React$Component) {
+var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
   _inherits(ResultRowColumnBlockValue, _React$Component);
 
   var _super = _createSuper(ResultRowColumnBlockValue);
@@ -140,13 +116,10 @@ function (_React$Component) {
             return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
           }
 
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              key: i,
-              className: "link-wrapper"
-            }, i > 0 ? ", " : null, transformedValue)
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            key: i,
+            className: "link-wrapper"
+          }, i > 0 ? ", " : null, transformedValue);
         });
       } else if (typeof termTransformFxn === "function") {
         return uniquedValues.map(function (v) {
@@ -206,42 +179,30 @@ function (_React$Component) {
       var tooltip;
 
       if (typeof value === 'number') {
-        value =
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        value = /*#__PURE__*/_react["default"].createElement("span", {
           className: "value"
         }, value);
       } else if (typeof value === 'string') {
         if (propTooltip === true && value.length > 25) tooltip = value;
-        value =
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        value = /*#__PURE__*/_react["default"].createElement("span", {
           className: "value text-center"
         }, value);
       } else if (value === null) {
-        value =
-        /*#__PURE__*/
-        _react["default"].createElement("small", {
+        value = /*#__PURE__*/_react["default"].createElement("small", {
           className: "value text-center"
         }, "-");
-      } else if (_react["default"].isValidElement(value) && value.type === "a" || Array.isArray(value) && _react["default"].isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
+      } else if ( /*#__PURE__*/_react["default"].isValidElement(value) && value.type === "a" || Array.isArray(value) && /*#__PURE__*/_react["default"].isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
-        value =
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        value = /*#__PURE__*/_react["default"].createElement("span", {
           className: "value text-center"
         }, value);
       } else if (typeof value === "boolean") {
-        value =
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        value = /*#__PURE__*/_react["default"].createElement("span", {
           className: "value text-center"
         }, value);
       } else if (!renderFxn) {
-        value =
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        value = /*#__PURE__*/_react["default"].createElement("span", {
           className: "value"
         }, value); // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
       } // else is likely JSX from custom render function -- leave as-is
@@ -253,13 +214,10 @@ function (_React$Component) {
         cls += ' ' + className;
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: cls,
-          "data-tip": tooltip
-        }, value)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: cls,
+        "data-tip": tooltip
+      }, value);
     }
   }]);
 
@@ -288,18 +246,15 @@ _defineProperty(ResultRowColumnBlockValue, "defaultProps", {
 });
 
 function sanitizeOutputValue(value) {
-  if (typeof value !== 'string' && typeof value !== 'number' && !_react["default"].isValidElement(value)) {
+  if (typeof value !== 'string' && typeof value !== 'number' && ! /*#__PURE__*/_react["default"].isValidElement(value)) {
     if (value && _typeof(value) === 'object') {
       if (typeof value.display_title !== 'undefined') {
         var atId = _object.itemUtil.atId(value);
 
         if (atId) {
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("a", {
-              href: atId
-            }, value.display_title)
-          );
+          return /*#__PURE__*/_react["default"].createElement("a", {
+            href: atId
+          }, value.display_title);
         } else {
           return value.display_title;
         }

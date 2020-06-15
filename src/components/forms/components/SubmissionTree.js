@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-import { Collapse } from './../../ui/Collapse';
+import Collapse from 'react-bootstrap/esm/Collapse';
 
 
 // Create a custom tree to represent object hierarchy in front end submission.

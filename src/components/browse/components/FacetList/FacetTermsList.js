@@ -3,12 +3,9 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import memoize from 'memoize-one';
-import ReactTooltip from 'react-tooltip';
+import Fade from 'react-bootstrap/esm/Fade';
 
 import { stackDotsInContainer } from './../../../viz/utilities';
-import { Collapse } from './../../../ui/Collapse';
-import { Fade } from './../../../ui/Fade';
 import { PartialList } from './../../../ui/PartialList';
 
 

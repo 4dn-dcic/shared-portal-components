@@ -13,7 +13,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-var _Collapse = require("./../ui/Collapse");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 var _layout = require("./../util/layout");
 
@@ -25,11 +25,11 @@ var _object = require("./../util/object");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -43,47 +43,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var TableEntry =
-/*#__PURE__*/
-function (_React$Component) {
+var TableEntry = /*#__PURE__*/function (_React$Component) {
   _inherits(TableEntry, _React$Component);
 
   var _super = _createSuper(TableEntry);
@@ -240,22 +212,16 @@ function (_React$Component) {
       var collapsibleButton;
 
       if (collapsible && childHeaders.length > 0) {
-        collapsibleButton =
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        collapsibleButton = /*#__PURE__*/_react["default"].createElement("i", {
           className: "inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus'),
           onClick: this.toggleOpen
         });
       }
 
       if (typeof link === 'string' && link.length > 0) {
-        title =
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        title = /*#__PURE__*/_react["default"].createElement("div", {
           className: "title-link-wrapper"
-        }, collapsibleButton,
-        /*#__PURE__*/
-        _react["default"].createElement("a", {
+        }, collapsibleButton, /*#__PURE__*/_react["default"].createElement("a", {
           className: depth === 0 ? 'text-500' : 'text-400',
           href: (link.charAt(0) === '/' ? '' : '#') + link,
           onClick: function onClick(e) {
@@ -267,51 +233,38 @@ function (_React$Component) {
       }
 
       if (depth === 0) {
-        title =
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        title = /*#__PURE__*/_react["default"].createElement("span", {
           title: "Up to page listing",
           className: "top-of-page visible-lg-block visible-lg"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        }, /*#__PURE__*/_react["default"].createElement("i", {
           className: "icon fas icon-angle-up"
         }), title);
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("li", {
-          className: "table-content-entry" + (className ? ' ' + className : '') + (depth === 0 ? ' top' : '') + (active ? ' active' : ''),
-          "data-depth": depth,
-          "data-recursion-depth": recurDepth
-        }, title,
-        /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
-          "in": !this.state || open && mounted
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", null,
-        /*#__PURE__*/
-        _react["default"].createElement(TableEntryChildren, _extends({
-          navigate: propNavigate,
-          parentClosed: this.state && !open
-        }, {
-          active: active,
-          content: content,
-          childHeaders: childHeaders,
-          depth: depth,
-          mounted: mounted,
-          listStyleTypes: listStyleTypes,
-          pageScrollTop: pageScrollTop,
-          nextHeader: nextHeader,
-          children: children,
-          link: link,
-          maxHeaderDepth: maxHeaderDepth,
-          skipDepth: skipDepth,
-          recurDepth: recurDepth
-        })))))
-      );
+      return /*#__PURE__*/_react["default"].createElement("li", {
+        className: "table-content-entry" + (className ? ' ' + className : '') + (depth === 0 ? ' top' : '') + (active ? ' active' : ''),
+        "data-depth": depth,
+        "data-recursion-depth": recurDepth
+      }, title, /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+        "in": !this.state || open && mounted
+      }, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement(TableEntryChildren, _extends({
+        navigate: propNavigate,
+        parentClosed: this.state && !open
+      }, {
+        active: active,
+        content: content,
+        childHeaders: childHeaders,
+        depth: depth,
+        mounted: mounted,
+        listStyleTypes: listStyleTypes,
+        pageScrollTop: pageScrollTop,
+        nextHeader: nextHeader,
+        children: children,
+        link: link,
+        maxHeaderDepth: maxHeaderDepth,
+        skipDepth: skipDepth,
+        recurDepth: recurDepth
+      })))));
     }
   }]);
 
@@ -340,9 +293,7 @@ _defineProperty(TableEntry, "defaultProps", {
   'recurDepth': 1
 });
 
-var TableEntryChildren =
-/*#__PURE__*/
-function (_React$Component2) {
+var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
   _inherits(TableEntryChildren, _React$Component2);
 
   var _super2 = _createSuper(TableEntryChildren);
@@ -386,25 +337,22 @@ function (_React$Component2) {
 
           if (!link) link = TableOfContents.slugify(linkTitle); // Fallback -- attempt to not use -- may fail.
 
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(TableEntry, {
-              link: link,
-              title: linkTitle,
-              key: link,
-              depth: (currentDepth || 0) + 1,
-              listStyleTypes: listStyleTypes,
-              pageScrollTop: pageScrollTop,
-              mounted: mounted,
-              content: childContent.content,
-              nextHeader: childContent.nextMajorHeader || nextHeader || null,
-              navigate: _navigate.navigate,
-              maxHeaderDepth: maxHeaderDepth,
-              collapsible: currentDepth >= 1 + skipDepth,
-              skipDepth: skipDepth,
-              recurDepth: (recurDepth || 0) + 1
-            })
-          );
+          return /*#__PURE__*/_react["default"].createElement(TableEntry, {
+            link: link,
+            title: linkTitle,
+            key: link,
+            depth: (currentDepth || 0) + 1,
+            listStyleTypes: listStyleTypes,
+            pageScrollTop: pageScrollTop,
+            mounted: mounted,
+            content: childContent.content,
+            nextHeader: childContent.nextMajorHeader || nextHeader || null,
+            navigate: _navigate.navigate,
+            maxHeaderDepth: maxHeaderDepth,
+            collapsible: currentDepth >= 1 + skipDepth,
+            skipDepth: skipDepth,
+            recurDepth: (recurDepth || 0) + 1
+          });
         });
       }
 
@@ -465,16 +413,13 @@ function (_React$Component2) {
       //if (this.props.depth >= 3 && !this.props.active) return null;
       var children = this.children();
       if (!children) return null;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("ol", {
-          className: "inner",
-          style: {
-            'listStyleType': this.props.listStyleTypes[(this.props.depth || 0) + 1]
-          },
-          children: children
-        })
-      );
+      return /*#__PURE__*/_react["default"].createElement("ol", {
+        className: "inner",
+        style: {
+          'listStyleType': this.props.listStyleTypes[(this.props.depth || 0) + 1]
+        },
+        children: children
+      });
     }
   }]);
 
@@ -528,14 +473,12 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne
   []);
 
   return {
-    'content': _react["default"].cloneElement(jsxContent, {}, nextHeaderComponents),
+    'content': /*#__PURE__*/_react["default"].cloneElement(jsxContent, {}, nextHeaderComponents),
     'nextMajorHeader': nextMajorHeader
   };
 }));
 
-var TableOfContents =
-/*#__PURE__*/
-function (_React$Component3) {
+var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   _inherits(TableOfContents, _React$Component3);
 
   var _super3 = _createSuper(TableOfContents);
@@ -734,62 +677,39 @@ function (_React$Component3) {
       var context = this.props.context;
       var widthBound = this.state.widthBound;
       var cols = [];
-      cols.push(
-      /*#__PURE__*/
-      _react["default"].createElement("div", {
+      cols.push( /*#__PURE__*/_react["default"].createElement("div", {
         key: "parent-link",
         className: "col col-xs-" + (windowInnerWidth && windowInnerWidth >= 1600 ? '9' : '12')
-      },
-      /*#__PURE__*/
-      _react["default"].createElement("a", {
+      }, /*#__PURE__*/_react["default"].createElement("a", {
         className: "text-500",
         href: context.parent['@id']
       }, context.parent['display_title'])));
 
       if (windowInnerWidth && windowInnerWidth >= 1600) {
-        cols.push(
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        cols.push( /*#__PURE__*/_react["default"].createElement("div", {
           key: "expand-btn",
           className: "col col-xs-3 text-right expand-button-container"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
+        }, /*#__PURE__*/_react["default"].createElement("button", {
           type: "button",
           className: "btn btn-xs btn-outline-dark",
           onClick: this.onToggleWidthBound
-        }, widthBound ?
-        /*#__PURE__*/
-        _react["default"].createElement("span", null,
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        }, widthBound ? /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
           className: "icon icon-fw fas icon-angle-left"
-        })) :
-        /*#__PURE__*/
-        _react["default"].createElement("span", null,
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        })) : /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
           className: "icon icon-fw fas icon-angle-right"
         })))));
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("li", {
-          className: "table-content-entry parent-entry",
-          "data-depth": "0",
-          key: "parent-link"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          title: "Up to page listing",
-          className: "top-of-page with-border-bottom visible-lg-block visible-lg"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "row"
-        }, cols)))
-      );
+      return /*#__PURE__*/_react["default"].createElement("li", {
+        className: "table-content-entry parent-entry",
+        "data-depth": "0",
+        key: "parent-link"
+      }, /*#__PURE__*/_react["default"].createElement("span", {
+        title: "Up to page listing",
+        className: "top-of-page with-border-bottom visible-lg-block visible-lg"
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "row"
+      }, cols)));
     }
   }, {
     key: "render",
@@ -848,25 +768,22 @@ function (_React$Component3) {
             return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, s.content, opts);
           }
 
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(TableEntry, {
-              link: s.link,
-              title: s['toc-title'] || s.title || _underscore["default"].map(s.link.split('-'), function (w) {
-                return w.charAt(0).toUpperCase() + w.slice(1);
-              }).join(' '),
-              key: s.link,
-              depth: 1,
-              content: s.content,
-              listStyleTypes: listStyleTypes,
-              pageScrollTop: scrollTop,
-              mounted: mounted,
-              nextHeader: s.nextHeader,
-              navigate: _this6.props.navigate,
-              maxHeaderDepth: maxHeaderDepth,
-              skipDepth: skipDepth
-            })
-          );
+          return /*#__PURE__*/_react["default"].createElement(TableEntry, {
+            link: s.link,
+            title: s['toc-title'] || s.title || _underscore["default"].map(s.link.split('-'), function (w) {
+              return w.charAt(0).toUpperCase() + w.slice(1);
+            }).join(' '),
+            key: s.link,
+            depth: 1,
+            content: s.content,
+            listStyleTypes: listStyleTypes,
+            pageScrollTop: scrollTop,
+            mounted: mounted,
+            nextHeader: s.nextHeader,
+            navigate: _this6.props.navigate,
+            maxHeaderDepth: maxHeaderDepth,
+            skipDepth: skipDepth
+          });
         }).flatten(false).value();
       };
 
@@ -875,9 +792,7 @@ function (_React$Component3) {
       }
 
       var renderedSections = sectionEntries();
-      contents.push(
-      /*#__PURE__*/
-      _react["default"].createElement(TableEntry, {
+      contents.push( /*#__PURE__*/_react["default"].createElement(TableEntry, {
         link: "top",
         title: context['display_title'] || 'Top of Page' || null,
         key: "top",
@@ -902,33 +817,26 @@ function (_React$Component3) {
       }
 
       var isEmpty = Array.isArray(contents) && !_underscore["default"].filter(contents).length || !contents;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          key: "toc",
-          className: "table-of-contents" + (widthBound ? ' width-bounded' : ''),
-          style: {
-            'width': windowWidth ? windowWidth >= 1200 ? function () {
-              return 1140 * (fixedGridWidth / 12) + (windowWidth - 1140) / 2 - 10;
-            }() || 'inherit' : 'inherit' : 285,
-            'height': windowWidth && windowHeight ? windowWidth >= 1200 ? maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 : null : 1000,
-            marginTop: marginTop
-          }
-        }, !isEmpty ?
-        /*#__PURE__*/
-        _react["default"].createElement("ol", {
-          className: "inner",
-          style: {
-            'listStyleType': listStyleTypes[0],
-            'paddingLeft': 0
-          }
-        }, contents) : null, includeNextPreviousPages ?
-        /*#__PURE__*/
-        _react["default"].createElement(NextPreviousPageSection, {
-          context: context,
-          windowInnerWidth: windowWidth
-        }) : null)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        key: "toc",
+        className: "table-of-contents" + (widthBound ? ' width-bounded' : ''),
+        style: {
+          'width': windowWidth ? windowWidth >= 1200 ? function () {
+            return 1140 * (fixedGridWidth / 12) + (windowWidth - 1140) / 2 - 10;
+          }() || 'inherit' : 'inherit' : 285,
+          'height': windowWidth && windowHeight ? windowWidth >= 1200 ? maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 : null : 1000,
+          marginTop: marginTop
+        }
+      }, !isEmpty ? /*#__PURE__*/_react["default"].createElement("ol", {
+        className: "inner",
+        style: {
+          'listStyleType': listStyleTypes[0],
+          'paddingLeft': 0
+        }
+      }, contents) : null, includeNextPreviousPages ? /*#__PURE__*/_react["default"].createElement(NextPreviousPageSection, {
+        context: context,
+        windowInnerWidth: windowWidth
+      }) : null);
     }
   }]);
 
@@ -964,7 +872,7 @@ _defineProperty(TableOfContents, "defaultProps", {
   'maxHeaderDepth': 3
 });
 
-var NextPreviousPageSection = _react["default"].memo(function (props) {
+var NextPreviousPageSection = /*#__PURE__*/_react["default"].memo(function (props) {
   var context = props.context,
       className = props.className,
       previousTitle = props.previousTitle,
@@ -973,56 +881,31 @@ var NextPreviousPageSection = _react["default"].memo(function (props) {
       previous = context.previous;
   if (!next && !previous) return null;
   var colSize = previous && next ? 6 : 12;
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "next-previous-pages-section" + (className && ' ' + className || '')
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "row"
-    }, previous ?
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "previous-section text-right col-" + colSize
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("h6", {
-      className: "text-400 mb-02 mt-12"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon icon-fw fas icon-angle-left"
-    }), " ", previousTitle),
-    /*#__PURE__*/
-    _react["default"].createElement("h6", {
-      className: "text-500 mt-0"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("a", {
-      href: previous['@id'] || '/' + previous.name
-    }, previous.display_title))) : null, next ?
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "next-section col-" + colSize
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("h6", {
-      className: "text-400 mb-02 mt-12"
-    }, nextTitle, " ",
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon fas icon-fw icon-angle-right"
-    })),
-    /*#__PURE__*/
-    _react["default"].createElement("h6", {
-      className: "text-500 mt-0"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("a", {
-      href: next['@id'] || '/' + next.name
-    }, next.display_title))) : null))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "next-previous-pages-section" + (className && ' ' + className || '')
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "row"
+  }, previous ? /*#__PURE__*/_react["default"].createElement("div", {
+    className: "previous-section text-right col-" + colSize
+  }, /*#__PURE__*/_react["default"].createElement("h6", {
+    className: "text-400 mb-02 mt-12"
+  }, /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-fw fas icon-angle-left"
+  }), " ", previousTitle), /*#__PURE__*/_react["default"].createElement("h6", {
+    className: "text-500 mt-0"
+  }, /*#__PURE__*/_react["default"].createElement("a", {
+    href: previous['@id'] || '/' + previous.name
+  }, previous.display_title))) : null, next ? /*#__PURE__*/_react["default"].createElement("div", {
+    className: "next-section col-" + colSize
+  }, /*#__PURE__*/_react["default"].createElement("h6", {
+    className: "text-400 mb-02 mt-12"
+  }, nextTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon fas icon-fw icon-angle-right"
+  })), /*#__PURE__*/_react["default"].createElement("h6", {
+    className: "text-500 mt-0"
+  }, /*#__PURE__*/_react["default"].createElement("a", {
+    href: next['@id'] || '/' + next.name
+  }, next.display_title))) : null));
 });
 
 exports.NextPreviousPageSection = NextPreviousPageSection;
@@ -1031,9 +914,7 @@ NextPreviousPageSection.defaultProps = {
   'nextTitle': 'Next'
 };
 
-var MarkdownHeading =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(MarkdownHeading, _React$PureComponent);
 
   var _super4 = _createSuper(MarkdownHeading);
@@ -1133,10 +1014,7 @@ function (_React$PureComponent) {
       }
 
       if (!propsToPass.id) propsToPass.id = this.getID(true);
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(HeaderWithLink, propsToPass)
-      ); //return React.createElement(type, propsToPass);
+      return /*#__PURE__*/_react["default"].createElement(HeaderWithLink, propsToPass); //return React.createElement(type, propsToPass);
     }
   }]);
 
@@ -1150,9 +1028,7 @@ _defineProperty(MarkdownHeading, "defaultProps", {
   'id': null
 });
 
-var HeaderWithLink =
-/*#__PURE__*/
-function (_React$PureComponent2) {
+var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(HeaderWithLink, _React$PureComponent2);
 
   var _super5 = _createSuper(HeaderWithLink);
@@ -1188,9 +1064,7 @@ function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       if (!this.props.id && !this.props.link) throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
-      return _react["default"].createElement(this.props.type || 'h2', _underscore["default"].omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children,
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      return /*#__PURE__*/_react["default"].createElement(this.props.type || 'h2', _underscore["default"].omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children, /*#__PURE__*/_react["default"].createElement("i", {
         key: "icon-link",
         className: "icon icon-fw icon-link fas",
         onClick: this.handleLinkClick,

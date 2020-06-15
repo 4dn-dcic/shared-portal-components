@@ -8,6 +8,45 @@
     }
 }
 
+// Used by DragAndDropUpload.js
+.drag-and-drop-upload {
+    .is-loading-overlay-cont {
+        background-Color: rgba(255,255,255,.8);
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+    
+        > div {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            left: 0;
+            text-align: center;
+            color: grey;
+            font-size: 36;
+        }
+    }
+    
+    .dropzone {
+        background-color: #eeeeee;
+        border: 1px solid #efefef;
+        height: 30vh;
+        overflow-x: hidden;
+        > ul {
+            list-style-type: none;
+        }
+        .filename {
+            font-size: 12px;
+        }
+        .filesize {
+            font-size: 10px;
+        }
+    }
+}
+
 // Used by forms/components/SearchAsYouType.js in LinkedObj class
 .linked-object-buttons-container {
     // .adv-search {}
