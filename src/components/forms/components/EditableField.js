@@ -43,11 +43,8 @@ export class EditableField extends React.Component {
         required        : PropTypes.bool,   // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
         schemas         : PropTypes.object.isRequired,
         debug           : PropTypes.bool,    // Verbose lifecycle log messages.
-        saveViewConf    : PropTypes.func,
-        instanceHeightSave: PropTypes.func,
-        higlassViewConfigItem:PropTypes.object,
+        customSave      : PropTypes.func,
         dataType        : PropTypes.oneOf(['string', 'int']),
-        labelIdChangeName:PropTypes.string,
     };
 
     static defaultProps = {
@@ -62,7 +59,6 @@ export class EditableField extends React.Component {
         'schemas': null,
         'debug': true,
         'dataType': 'string',
-        'labelIdChangeName': null,
         'onSave' : function(nextContext){
             console.log('Saved successfully', nextContext);
         }
@@ -328,7 +324,7 @@ export class EditableField extends React.Component {
     }
 
     save(successCallback = null, errorCallback = null){
-        const { labelID, endpoint, context, parent, onSave, dataType, instanceHeightSave } = this.props;
+        const { labelID, endpoint, context, parent, onSave, dataType } = this.props;
 
         const errorFallback = (res) => {
             // ToDo display (bigger?) errors
@@ -372,12 +368,10 @@ export class EditableField extends React.Component {
                                 if (typeof successCallback === 'function') successCallback(r);
                             });
                         },0);
-                        if (typeof onSave === 'function' && typeof instanceHeightSave!=='function'){
+                        if (typeof onSave === 'function'){
                             onSave(nextContext);
                         }
-                        else if (typeof instanceHeightSave === 'function') {
-                            instanceHeightSave(patchData);
-                        }
+
                     });
 
                 } else {
@@ -410,7 +404,7 @@ export class EditableField extends React.Component {
 
     saveEditState(e){
         e.preventDefault();
-        const { labelID, saveViewConf, higlassViewConfigItem,parent,dataType,labelIdChangeName } = this.props;
+        const { labelID, customSave, context, parent, dataType } = this.props;
         if (!this.isValid()){
             // ToDo : Bigger notification to end user that something is wrong.
             console.error("Cannot save " + this.props.labelID + "; value is not valid:", this.state.value);
@@ -418,20 +412,14 @@ export class EditableField extends React.Component {
         } else if (this.state.value === this.state.savedValue){
             return this.cancelEditState(e);
         }
-        if (typeof saveViewConf === 'function') {
+        if (typeof customSave === 'function') {
             let patchData = null;
             let value = this.state.value;
             if (dataType === 'int') { value = parseInt(value); }
-            if (labelIdChangeName !== null) {
-                patchData = object.generateSparseNestedProperty(labelIdChangeName, value);
-            }
-            else {
-                patchData = object.generateSparseNestedProperty(labelID, value);
-            }
-            const saveControl=saveViewConf(patchData, higlassViewConfigItem);
-            if(saveControl)
-            {
-                this.setState({ 'savedValue': value, 'value': value, 'dispatching': true }, () => {
+            patchData = object.generateSparseNestedProperty(labelID, value);
+            const custom = customSave(patchData, context);
+            if (custom) {
+                this.setState({ 'savedValue': value, 'value': value, 'dispatching': true }, () =>{
                     setTimeout(() => {
                         parent.setState({ 'currentlyEditing': null }, () => {
                             this.setState({ 'loading': false, 'dispatching': false });

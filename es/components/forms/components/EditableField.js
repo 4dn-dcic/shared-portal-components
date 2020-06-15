@@ -413,8 +413,7 @@ function (_React$Component) {
           context = _this$props2.context,
           parent = _this$props2.parent,
           onSave = _this$props2.onSave,
-          dataType = _this$props2.dataType,
-          instanceHeightSave = _this$props2.instanceHeightSave;
+          dataType = _this$props2.dataType;
 
       var errorFallback = function (res) {
         // ToDo display (bigger?) errors
@@ -478,10 +477,8 @@ function (_React$Component) {
                 });
               }, 0);
 
-              if (typeof onSave === 'function' && typeof instanceHeightSave !== 'function') {
+              if (typeof onSave === 'function') {
                 onSave(nextContext);
-              } else if (typeof instanceHeightSave === 'function') {
-                instanceHeightSave(patchData);
               }
             });
           } else {
@@ -534,11 +531,10 @@ function (_React$Component) {
       e.preventDefault();
       var _this$props3 = this.props,
           labelID = _this$props3.labelID,
-          saveViewConf = _this$props3.saveViewConf,
-          higlassViewConfigItem = _this$props3.higlassViewConfigItem,
+          customSave = _this$props3.customSave,
+          context = _this$props3.context,
           parent = _this$props3.parent,
-          dataType = _this$props3.dataType,
-          labelIdChangeName = _this$props3.labelIdChangeName;
+          dataType = _this$props3.dataType;
 
       if (!this.isValid()) {
         // ToDo : Bigger notification to end user that something is wrong.
@@ -549,7 +545,7 @@ function (_React$Component) {
         return this.cancelEditState(e);
       }
 
-      if (typeof saveViewConf === 'function') {
+      if (typeof customSave === 'function') {
         var patchData = null;
         var value = this.state.value;
 
@@ -557,15 +553,10 @@ function (_React$Component) {
           value = parseInt(value);
         }
 
-        if (labelIdChangeName !== null) {
-          patchData = _util.object.generateSparseNestedProperty(labelIdChangeName, value);
-        } else {
-          patchData = _util.object.generateSparseNestedProperty(labelID, value);
-        }
+        patchData = _util.object.generateSparseNestedProperty(labelID, value);
+        var custom = customSave(patchData, context);
 
-        var saveControl = saveViewConf(patchData, higlassViewConfigItem);
-
-        if (saveControl) {
+        if (custom) {
           this.setState({
             'savedValue': value,
             'value': value,
@@ -1103,11 +1094,8 @@ _defineProperty(EditableField, "propTypes", {
   schemas: _propTypes["default"].object.isRequired,
   debug: _propTypes["default"].bool,
   // Verbose lifecycle log messages.
-  saveViewConf: _propTypes["default"].func,
-  instanceHeightSave: _propTypes["default"].func,
-  higlassViewConfigItem: _propTypes["default"].object,
-  dataType: _propTypes["default"].oneOf(['string', 'int']),
-  labelIdChangeName: _propTypes["default"].string
+  customSave: _propTypes["default"].func,
+  dataType: _propTypes["default"].oneOf(['string', 'int'])
 });
 
 _defineProperty(EditableField, "defaultProps", {
@@ -1122,7 +1110,6 @@ _defineProperty(EditableField, "defaultProps", {
   'schemas': null,
   'debug': true,
   'dataType': 'string',
-  'labelIdChangeName': null,
   'onSave': function onSave(nextContext) {
     _util.console.log('Saved successfully', nextContext);
   }
