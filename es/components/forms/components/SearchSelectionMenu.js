@@ -13,7 +13,7 @@ var _VerticalScrollContainer = require("./VerticalScrollContainer");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -27,47 +27,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SearchSelectionMenu =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchSelectionMenu, _React$PureComponent);
 
   var _super = _createSuper(SearchSelectionMenu);
@@ -83,7 +55,7 @@ function (_React$PureComponent) {
       refreshKey: 0 // incremented to force a refresh of dropdown
 
     };
-    _this.dropdown = _react["default"].createRef();
+    _this.dropdown = /*#__PURE__*/_react["default"].createRef();
     _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
     _this.onKeyDown = _this.onKeyDown.bind(_assertThisInitialized(_this));
     return _this;
@@ -182,61 +154,49 @@ function (_React$PureComponent) {
           refreshKey = _this$state.refreshKey;
       var cls = "search-selection-menu" + (className ? " " + className : "");
 
-      var showValue = value && titleRenderFunction(value) ||
-      /*#__PURE__*/
-      _react["default"].createElement("span", {
+      var showValue = value && titleRenderFunction(value) || /*#__PURE__*/_react["default"].createElement("span", {
         className: "text-300"
       }, "No value");
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Dropdown, {
-          flip: true,
-          onToggle: this.onToggleOpen,
-          show: dropOpen,
-          className: cls
-        },
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Dropdown.Toggle, _extends({
-          variant: variant
-        }, {
-          "data-tip": showTips ? value : null
-        }), showValue),
-        /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
-          key: refreshKey,
-          as: SearchSelectionMenuBody
-        }, {
-          onTextInputChange: onTextInputChange,
-          optionsHeader: optionsHeader,
-          optionsFooter: optionsFooter,
-          currentTextValue: currentTextValue
-        }, {
-          flip: true,
-          show: dropOpen,
-          onTextInputChange: onTextInputChange,
-          toggleOpen: this.onToggleOpen,
-          ref: this.dropdown,
-          onKeyDown: this.onKeyDown
-        }), options.map(function (option, idx) {
-          var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement(_reactBootstrap.Dropdown.Item, {
-              "data-index": idx,
-              onClick: function (evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
-                onDropdownSelect(option);
-              },
-              key: idx,
-              eventKey: idx,
-              className: "text-ellipsis-container",
-              tabIndex: "3"
-            }, renderedOption)
-          );
-        })))
-      );
+      return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Dropdown, {
+        flip: true,
+        onToggle: this.onToggleOpen,
+        show: dropOpen,
+        className: cls
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Dropdown.Toggle, _extends({
+        variant: variant
+      }, {
+        "data-tip": showTips ? value : null
+      }), showValue), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Dropdown.Menu, _extends({
+        key: refreshKey,
+        as: SearchSelectionMenuBody
+      }, {
+        onTextInputChange: onTextInputChange,
+        optionsHeader: optionsHeader,
+        optionsFooter: optionsFooter,
+        currentTextValue: currentTextValue
+      }, {
+        flip: true,
+        show: dropOpen,
+        onTextInputChange: onTextInputChange,
+        toggleOpen: this.onToggleOpen,
+        ref: this.dropdown,
+        onKeyDown: this.onKeyDown
+      }), options.map(function (option, idx) {
+        var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
+        return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Dropdown.Item, {
+          "data-index": idx,
+          onClick: function (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            onDropdownSelect(option);
+          },
+          key: idx,
+          eventKey: idx,
+          className: "text-ellipsis-container",
+          tabIndex: "3"
+        }, renderedOption);
+      })));
     }
   }]);
 
@@ -251,7 +211,7 @@ _defineProperty(SearchSelectionMenu, "defaultProps", {
   }
 });
 
-var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
+var SearchSelectionMenuBody = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   var currentTextValue = props.currentTextValue,
       _props$show = props.show,
       show = _props$show === void 0 ? false : _props$show,
@@ -268,38 +228,27 @@ var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref)
       optionsFooter = _props$optionsFooter === void 0 ? null : _props$optionsFooter,
       style = props.style;
   var cls = "search-selection-menu-body" + (className ? " " + className : "");
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      ref: ref,
-      className: cls,
-      "aria-labelledby": labeledBy,
-      style: style
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "inner-container"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "px-3 py-3 text-input-container"
-    }, show ?
-    /*#__PURE__*/
-    _react["default"].createElement("input", {
-      type: "text",
-      autoFocus: true,
-      value: currentTextValue,
-      onChange: onTextInputChange,
-      onKeyDown: onKeyDown,
-      placeholder: inputPlaceholder,
-      tabIndex: "3",
-      className: "form-control"
-    }) : null),
-    /*#__PURE__*/
-    _react["default"].createElement(_VerticalScrollContainer.VerticalScrollContainer, {
-      header: optionsHeader,
-      footer: optionsFooter,
-      items: children
-    })))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    ref: ref,
+    className: cls,
+    "aria-labelledby": labeledBy,
+    style: style
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "inner-container"
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "px-3 py-3 text-input-container"
+  }, show ? /*#__PURE__*/_react["default"].createElement("input", {
+    type: "text",
+    autoFocus: true,
+    value: currentTextValue,
+    onChange: onTextInputChange,
+    onKeyDown: onKeyDown,
+    placeholder: inputPlaceholder,
+    tabIndex: "3",
+    className: "form-control"
+  }) : null), /*#__PURE__*/_react["default"].createElement(_VerticalScrollContainer.VerticalScrollContainer, {
+    header: optionsHeader,
+    footer: optionsFooter,
+    items: children
+  })));
 });

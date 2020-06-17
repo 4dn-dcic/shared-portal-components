@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import { Fade } from './Fade';
+import Fade from 'react-bootstrap/esm/Fade';
 import { AlertObj } from './../util/typedefs';
 
 

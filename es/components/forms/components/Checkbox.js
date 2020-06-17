@@ -16,7 +16,7 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
 /** Emulates React-Bootstrap 0.32.4 Checkbox for backwards compatibility */
-var Checkbox = _react["default"].memo(function (props) {
+var Checkbox = /*#__PURE__*/_react["default"].memo(function (props) {
   var className = props.className,
       children = props.children,
       _props$labelClassName = props.labelClassName,
@@ -28,22 +28,15 @@ var Checkbox = _react["default"].memo(function (props) {
 
   var disabled = passProps.disabled;
   var cls = "checkbox checkbox-with-label" + (disabled ? " disabled" : "") + (className ? " " + className : "");
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: cls
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("label", {
-      title: title,
-      className: labelClassName
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("input", _extends({
-      type: "checkbox",
-      className: inputClassName
-    }, passProps)), children))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: cls
+  }, /*#__PURE__*/_react["default"].createElement("label", {
+    title: title,
+    className: labelClassName
+  }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+    type: "checkbox",
+    className: inputClassName
+  }, passProps)), children));
 });
 
 exports.Checkbox = Checkbox;

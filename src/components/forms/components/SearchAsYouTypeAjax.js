@@ -2,8 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-
-import { Fade } from './../../ui/Fade';
+import Fade from 'react-bootstrap/esm/Fade';
 
 import { ajax, object } from './../../util/';
 
@@ -248,7 +247,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props){
 
     const onChange = useMemo(function(){
         return function(resultItem, valueToReplace){
-            console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
+            // console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
             return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
         };
     }, [ selectComplete, nestedField, itemType, arrayIdx ]);
@@ -265,7 +264,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props){
         <div className="d-flex flex-wrap">
             <SearchAsYouTypeAjax showTips={true} {...{ value, onChange, baseHref, optionRenderFunction,
                 fieldsToRequest, titleRenderFunction, selectComplete }} {...props} />
-            <LinkedObj key="linked-item" {...props} {...{ baseHref }} />
+            <LinkedObj key="linked-item" {...props} {...{ value, baseHref }} />
         </div>
     );
 }
@@ -542,7 +541,8 @@ export class LinkedObj extends React.PureComponent {
             currType,
             nestedField,
             isMultiSelect,
-            baseHref
+            baseHref,
+            value
         } = this.props;
 
         const itemType = schema.linkTo;
@@ -560,7 +560,7 @@ export class LinkedObj extends React.PureComponent {
         }
 
         return <LinkToSelector isSelecting onSelect={this.handleFinishSelectItem} onCloseChildWindow={selectCancel}
-            childWindowAlert={this.childWindowAlert} dropMessage={dropMessage} searchURL={searchURL} />;
+            childWindowAlert={this.childWindowAlert} {...{ value, dropMessage, searchURL }} />;
     }
 
 

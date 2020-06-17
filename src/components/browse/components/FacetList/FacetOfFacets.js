@@ -3,8 +3,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
-import { Collapse } from './../../../ui/Collapse';
-import { Fade } from './../../../ui/Fade';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import Fade from 'react-bootstrap/esm/Fade';
 
 /**
  * Used to render individual facet fields and their available terms in FacetList.

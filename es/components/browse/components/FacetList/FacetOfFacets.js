@@ -11,13 +11,13 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-var _Collapse = require("./../../../ui/Collapse");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
-var _Fade = require("./../../../ui/Fade");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -29,48 +29,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 /**
  * Used to render individual facet fields and their available terms in FacetList.
  */
-var FacetOfFacets =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(FacetOfFacets, _React$PureComponent);
 
   var _super = _createSuper(FacetOfFacets);
@@ -132,63 +104,40 @@ function (_React$PureComponent) {
 
       var extendedFacets = _react["default"].Children.map(renderedFacets, function (renderedFacet) {
         var field = renderedFacet.props.facet.field;
-        return _react["default"].cloneElement(renderedFacet, {
+        return /*#__PURE__*/_react["default"].cloneElement(renderedFacet, {
           isStatic: false,
           facetOpen: openFacets[field]
         });
       });
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "facet" + (facetOpen || anySelections ? ' open' : ' closed'),
-          "data-group": title
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "facet-title",
-          onClick: this.handleOpenToggleClick
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "expand-toggle col-auto px-0"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-" + (anySelections ? "dot-circle far" : facetOpen ? "minus fas" : "plus fas")
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "col px-0 line-height-1"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          "data-tip": tooltip,
-          "data-place": "right"
-        }, title)),
-        /*#__PURE__*/
-        _react["default"].createElement(_Fade.Fade, {
-          "in": !facetOpen && !anySelections
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
-          "data-place": "right",
-          "data-tip": "Group of ".concat(extendedFacets.length, " facets ").concat(anySelections ? " with at least 1 having a selection." : "")
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon fas icon-layer-group"
-        })))),
-        /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
-          "in": facetOpen || anySelections
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "facet-group-list-container"
-        }, extendedFacets)))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "facet" + (facetOpen || anySelections ? ' open' : ' closed'),
+        "data-group": title
+      }, /*#__PURE__*/_react["default"].createElement("h5", {
+        className: "facet-title",
+        onClick: this.handleOpenToggleClick
+      }, /*#__PURE__*/_react["default"].createElement("span", {
+        className: "expand-toggle col-auto px-0"
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-" + (anySelections ? "dot-circle far" : facetOpen ? "minus fas" : "plus fas")
+      })), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "col px-0 line-height-1"
+      }, /*#__PURE__*/_react["default"].createElement("span", {
+        "data-tip": tooltip,
+        "data-place": "right"
+      }, title)), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+        "in": !facetOpen && !anySelections
+      }, /*#__PURE__*/_react["default"].createElement("span", {
+        className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
+        "data-place": "right",
+        "data-tip": "Group of ".concat(extendedFacets.length, " facets ").concat(anySelections ? " with at least 1 having a selection." : "")
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon fas icon-layer-group"
+      })))), /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+        "in": facetOpen || anySelections
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "facet-group-list-container"
+      }, extendedFacets)));
     }
   }]);
 

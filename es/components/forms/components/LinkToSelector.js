@@ -19,7 +19,7 @@ var _object = require("./../../util/object");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -31,39 +31,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -92,9 +66,7 @@ var linkedObjChildWindow = null;
  * This component does not render any of its own JSX/HTML, but will render children if any are passed in.
  */
 
-var LinkToSelector =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(LinkToSelector, _React$PureComponent);
 
   var _super = _createSuper(LinkToSelector);
@@ -148,6 +120,7 @@ function (_React$PureComponent) {
 
       var _this$props = this.props,
           searchURL = _this$props.searchURL,
+          value = _this$props.value,
           onCloseChildWindow = _this$props.onCloseChildWindow;
       var pastInSelection = pastProps.isSelecting;
       var nowInSelection = nextProps.isSelecting;
@@ -196,7 +169,7 @@ function (_React$PureComponent) {
 
             if (_this3 && _this3.windowObjectReference && _this3.windowObjectReference.closed) {
               if (typeof onCloseChildWindow === 'function') {
-                onCloseChildWindow();
+                onCloseChildWindow(value);
               }
             }
 
@@ -228,6 +201,9 @@ function (_React$PureComponent) {
   }, {
     key: "handleChildWindowMessage",
     value: function handleChildWindowMessage(evt) {
+      var _this$props2 = this.props,
+          value = _this$props2.value,
+          onCloseChildWindow = _this$props2.onCloseChildWindow;
       var eventType = evt && evt.data && evt.data.eventType;
 
       if (!eventType) {
@@ -267,7 +243,7 @@ function (_React$PureComponent) {
 
       if (eventType === 'fourfrontcancelclick') {
         this.cleanChildWindow();
-        this.props.onCloseChildWindow();
+        onCloseChildWindow(value);
       } // If we have a `props.childWindowAlert`, show it once child window lets us know it has initialized it JS environment.
 
 
@@ -312,8 +288,6 @@ function (_React$PureComponent) {
   }, {
     key: "receiveData",
     value: function receiveData(items) {
-      _patchedConsole.patchedConsoleInstance.log("items, ", items);
-
       this.cleanChildWindow();
       this.props.onSelect(items, true);
     }
@@ -339,10 +313,7 @@ function (_React$PureComponent) {
     key: "render",
     value: function render() {
       if (this.props.enableWindowDrop) {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement(WindowDropReceiver, this.props)
-        );
+        return /*#__PURE__*/_react["default"].createElement(WindowDropReceiver, this.props);
       }
 
       return null;
@@ -373,6 +344,7 @@ _defineProperty(LinkToSelector, "propTypes", {
 
   /** Optional callback called with no params when child window is closed. Could/should unset `props.isSelecting`. */
   'onCloseChildWindow': _propTypes["default"].func,
+  // When used with SV, will generally be the IndvObject.selectCancel method
 
   /** If true, then allows to drag & drop Item to window */
   'enableWindowDrop': _propTypes["default"].bool.isRequired,
@@ -392,17 +364,9 @@ _defineProperty(LinkToSelector, "defaultProps", {
   'searchURL': '/search/?currentAction=selection&type=Item',
   'childWindowAlert': {
     'title': "Selecting Item...",
-    'message':
-    /*#__PURE__*/
-    _react["default"].createElement("div", null,
-    /*#__PURE__*/
-    _react["default"].createElement("p", {
+    'message': /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("p", {
       className: "mb-0"
-    }, "Please either ",
-    /*#__PURE__*/
-    _react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the parent window or click its corresponding select (checkbox) button."),
-    /*#__PURE__*/
-    _react["default"].createElement("p", {
+    }, "Please either ", /*#__PURE__*/_react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the parent window or click its corresponding select (checkbox) button."), /*#__PURE__*/_react["default"].createElement("p", {
       className: "mb-0"
     }, "You may also browse around and drag & drop a link into the parent window as well.")),
     'style': "info"
@@ -411,9 +375,7 @@ _defineProperty(LinkToSelector, "defaultProps", {
   'enableWindowDrop': true
 });
 
-var WindowDropReceiver =
-/*#__PURE__*/
-function (_React$PureComponent2) {
+var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(WindowDropReceiver, _React$PureComponent2);
 
   var _super2 = _createSuper(WindowDropReceiver);
