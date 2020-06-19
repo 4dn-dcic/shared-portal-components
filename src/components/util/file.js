@@ -2,10 +2,9 @@ var CryptoJS = require('crypto-js');
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import { itemUtil } from './object';
+import { getItemType } from './schema-transforms';
 import { isServerSide } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
-
-import { File } from './typedefs';
 
 
 
@@ -96,7 +95,7 @@ export function groupFilesByRelations(files, isBidirectional=true){
         // Bidirectional cases are implicitly handled as part of this.
         _.forEach(currFile.related_files || [], function(relatedFileEmbeddedObject){
             const relatedFileID = itemUtil.atId(relatedFileEmbeddedObject.file);
-            const relationshipType = relatedFileEmbeddedObject.relationship_type; // Unused
+            //const relationshipType = relatedFileEmbeddedObject.relationship_type; // Unused
             if (!relatedFileID){
                 // Most likely no view permissions
                 // Cancel out -- remaining file (if any) will be picked up as part of while loop.
@@ -180,15 +179,12 @@ export const filterFilesWithEmbeddedMetricItem = memoize(function(files, checkAn
 });
 
 
-export const filterFilesWithQCSummary = memoize(function(files, checkAny=false){
+export const filterFilesWithQCSummary = memoize(function (files, checkAny = false) {
     var func = checkAny ? _.any : _.filter;
-    return func(files, function(f){
-        return (
-            f.quality_metric && Array.isArray(f.quality_metric.quality_metric_summary) &&
-            f.quality_metric.quality_metric_summary.length > 0 &&
-            // Ensure all unique titles
-            f.quality_metric.quality_metric_summary.length === Array.from(new Set(_.pluck(f.quality_metric.quality_metric_summary, 'title'))).length
-        );
+    return func(files, function (f) {
+        const { quality_metric: { quality_metric_summary: qcs = [] } = {} } = f;
+        // Ensure all unique titles
+        return qcs.length > 0 && qcs.length === Array.from(new Set(_.pluck(qcs, 'title'))).length;
     });
 });
 
@@ -222,11 +218,11 @@ export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, sc
     //if schemas provided than return the result sorted by file's QC's qc_order
     if (typeof schemas === 'object' && schemas !== null) {
         filesByTitles = _.sortBy(filesByTitles, function (files) {
-            const file = files[0]; //assumption: 1st file's QC is adequate to define order
-            if (file.quality_metric['@type'] && Array.isArray(file.quality_metric['@type']) && file.quality_metric['@type'].length > 0) {
-                const itemType = file.quality_metric['@type'][0];
-                if (schemas[itemType]) {
-                    const qc_order = schemas[itemType].qc_order;
+            const [file] = files; //assumption: 1st file's QC is adequate to define order
+            if (file && file.quality_metric) {
+                const itemType = getItemType(file.quality_metric);
+                if (itemType && schemas[itemType]) {
+                    const { qc_order } = schemas[itemType];
                     if (typeof qc_order === 'number') {
                         return qc_order;
                     }
