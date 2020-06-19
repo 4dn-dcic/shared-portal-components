@@ -15,7 +15,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  * Renders out a single "facet - term" box for when only 1 term
  * is available (not filterable) at bottom of FacetList.
  */
-var StaticSingleTerm = _react["default"].memo(function (_ref) {
+var StaticSingleTerm = /*#__PURE__*/_react["default"].memo(function (_ref) {
   var term = _ref.term,
       facet = _ref.facet,
       showTitle = _ref.showTitle,
@@ -36,40 +36,25 @@ var StaticSingleTerm = _react["default"].memo(function (_ref) {
     termName = 'None';
   }
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "facet static " + statusClassName + (filtering ? ' filtering' : '') + (extraClassname ? ' ' + extraClassname : ''),
-      "data-field": field
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "facet-static-row clearfix"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("h5", {
-      className: "facet-title"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("span", {
-      className: "inline-block",
-      "data-tip": description,
-      "data-place": "right"
-    }, "\xA0", showTitle)),
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "facet-item term " + statusClassName + (filtering ? ' filtering' : '')
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("span", {
-      onClick: onClick,
-      title: 'All results ' + (status !== 'omitted' ? 'have ' : 'omitted ') + term.key + (status !== 'omitted' ? ' as their ' : ' from their ') + showTitle.toLowerCase() + '; ' + (selectedOrOmitted ? 'currently active as portal-wide filter.' : 'not currently active as portal-wide filter.')
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon icon-fw " + (filtering ? 'icon-spin icon-circle-notch' : selectedOrOmitted ? status === 'selected' ? 'icon-times-circle fas' : 'icon-minus-circle fas' : 'icon-circle fas')
-    }), termName))))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "facet static " + statusClassName + (filtering ? ' filtering' : '') + (extraClassname ? ' ' + extraClassname : ''),
+    "data-field": field
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "facet-static-row clearfix"
+  }, /*#__PURE__*/_react["default"].createElement("h5", {
+    className: "facet-title"
+  }, /*#__PURE__*/_react["default"].createElement("span", {
+    className: "inline-block",
+    "data-tip": description,
+    "data-place": "right"
+  }, "\xA0", showTitle)), /*#__PURE__*/_react["default"].createElement("div", {
+    className: "facet-item term " + statusClassName + (filtering ? ' filtering' : '')
+  }, /*#__PURE__*/_react["default"].createElement("span", {
+    onClick: onClick,
+    title: 'All results ' + (status !== 'omitted' ? 'have ' : 'omitted ') + term.key + (status !== 'omitted' ? ' as their ' : ' from their ') + showTitle.toLowerCase() + '; ' + (selectedOrOmitted ? 'currently active as portal-wide filter.' : 'not currently active as portal-wide filter.')
+  }, /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-fw " + (filtering ? 'icon-spin icon-circle-notch' : selectedOrOmitted ? status === 'selected' ? 'icon-times-circle fas' : 'icon-minus-circle fas' : 'icon-circle fas')
+  }), termName))));
 });
 
 exports.StaticSingleTerm = StaticSingleTerm;

@@ -6,7 +6,7 @@ import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
 import { InputGroup, FormControl, DropdownItem, DropdownButton } from 'react-bootstrap';
 
-import { Fade } from './../../ui/Fade';
+import Fade from 'react-bootstrap/esm/Fade';
 import { Checkbox } from './Checkbox';
 import { ajax, console, object, valueTransforms } from './../../util';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';

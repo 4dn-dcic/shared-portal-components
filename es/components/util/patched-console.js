@@ -27,8 +27,8 @@ var patchedConsoleInstance = function () {
   if (!(0, _misc.isServerSide)() && window.patchedConsole) return window.patchedConsole; // Re-use instance if available.
 
   var patchedConsole = new function PatchedConsole() {
-    var _this = this,
-        _arguments = arguments;
+    var _arguments = arguments,
+        _this = this;
 
     /**
      * Check if `BUILDTYPE` constant is not on 'production'.

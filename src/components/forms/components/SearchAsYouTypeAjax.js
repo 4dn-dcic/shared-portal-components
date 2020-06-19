@@ -2,8 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-
-import { Fade } from './../../ui/Fade';
+import Fade from 'react-bootstrap/esm/Fade';
 
 import { ajax, object } from './../../util/';
 
@@ -248,7 +247,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props){
 
     const onChange = useMemo(function(){
         return function(resultItem, valueToReplace){
-            console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
+            // console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
             return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
         };
     }, [ selectComplete, nestedField, itemType, arrayIdx ]);

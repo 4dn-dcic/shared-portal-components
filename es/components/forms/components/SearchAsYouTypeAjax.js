@@ -14,7 +14,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
-var _Fade = require("./../../ui/Fade");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 var _util = require("./../../util/");
 
@@ -28,15 +28,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -44,7 +48,7 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -62,45 +66,17 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var SearchAsYouTypeAjax =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchAsYouTypeAjax, _React$PureComponent);
 
   var _super = _createSuper(SearchAsYouTypeAjax);
@@ -294,35 +270,21 @@ function (_React$PureComponent) {
       });
 
       if (loading && !error) {
-        optionsHeader =
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        optionsHeader = /*#__PURE__*/_react["default"].createElement("div", {
           className: "text-center py-3"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        }, /*#__PURE__*/_react["default"].createElement("i", {
           className: "icon icon-spin icon-circle-notch fas"
         }));
       } else {
         if (results.length === 0 && !error) {
           var queryLen = currentTextValue.length;
-          optionsHeader =
-          /*#__PURE__*/
-          _react["default"].createElement(_react["default"].Fragment, null,
-          /*#__PURE__*/
-          _react["default"].createElement("em", {
+          optionsHeader = /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("em", {
             className: "d-block text-center px-4 py-3"
           }, queryLen == 1 ? "Minimum search length is 2 characters" : "No results found"), optionsHeader);
         } else if (error) {
-          optionsHeader =
-          /*#__PURE__*/
-          _react["default"].createElement(_react["default"].Fragment, null,
-          /*#__PURE__*/
-          _react["default"].createElement("em", {
+          optionsHeader = /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("em", {
             className: "d-block text-center px-4 py-3"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("i", {
+          }, /*#__PURE__*/_react["default"].createElement("i", {
             className: "fas icon-warning icon"
           }), " ", error), optionsHeader);
         }
@@ -331,9 +293,7 @@ function (_React$PureComponent) {
       var intKey = parseInt(value); // if in the middle of editing a custom linked object for this field
 
       var hideButton = value && !isNaN(value) && !keyComplete[intKey];
-      return hideButton ? null :
-      /*#__PURE__*/
-      _react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
+      return hideButton ? null : /*#__PURE__*/_react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue
       }, {
@@ -366,21 +326,14 @@ SearchAsYouTypeAjax.defaultProps = {
     var title = result.display_title,
         atID = result["@id"],
         description = result.description;
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", {
-        "data-tip": description,
-        key: atID
-      },
-      /*#__PURE__*/
-      _react["default"].createElement("h5", {
-        className: "text-300 text-ellipsis-container"
-      }, title),
-      /*#__PURE__*/
-      _react["default"].createElement("h6", {
-        className: "text-mono text-400 text-ellipsis-container"
-      }, atID))
-    );
+    return /*#__PURE__*/_react["default"].createElement("div", {
+      "data-tip": description,
+      key: atID
+    }, /*#__PURE__*/_react["default"].createElement("h5", {
+      className: "text-300 text-ellipsis-container"
+    }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+      className: "text-mono text-400 text-ellipsis-container"
+    }, atID));
   },
   "titleRenderFunction": function titleRenderFunction(result) {
     return result.display_title;
@@ -415,7 +368,7 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   var onChange = (0, _react.useMemo)(function () {
     return function (resultItem, valueToReplace) {
-      console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
+      // console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
       return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
     };
   }, [selectComplete, nestedField, itemType, arrayIdx]); // Uses idToTitleMap (similar to SubmissionView.keyDisplay) to keep track of & render display_titles
@@ -426,31 +379,24 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
       return idToTitleMap[resultAtID] || resultAtID;
     };
   }, [idToTitleMap]);
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "d-flex flex-wrap"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement(SearchAsYouTypeAjax, _extends({
-      showTips: true
-    }, {
-      value: value,
-      onChange: onChange,
-      baseHref: baseHref,
-      optionRenderFunction: optionRenderFunction,
-      fieldsToRequest: fieldsToRequest,
-      titleRenderFunction: titleRenderFunction,
-      selectComplete: selectComplete
-    }, props)),
-    /*#__PURE__*/
-    _react["default"].createElement(LinkedObj, _extends({
-      key: "linked-item"
-    }, props, {
-      value: value,
-      baseHref: baseHref
-    })))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "d-flex flex-wrap"
+  }, /*#__PURE__*/_react["default"].createElement(SearchAsYouTypeAjax, _extends({
+    showTips: true
+  }, {
+    value: value,
+    onChange: onChange,
+    baseHref: baseHref,
+    optionRenderFunction: optionRenderFunction,
+    fieldsToRequest: fieldsToRequest,
+    titleRenderFunction: titleRenderFunction,
+    selectComplete: selectComplete
+  }, props)), /*#__PURE__*/_react["default"].createElement(LinkedObj, _extends({
+    key: "linked-item"
+  }, props, {
+    value: value,
+    baseHref: baseHref
+  })));
 }
 
 function sexToIcon(sex, showTip) {
@@ -458,30 +404,22 @@ function sexToIcon(sex, showTip) {
 
   if (sex && typeof sex === "string") {
     if (sex === "f") {
-      sex =
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      sex = /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw icon-venus fas",
         "data-tip": showTip ? "Sex: Female" : ""
       });
     } else if (sex === "m") {
-      sex =
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      sex = /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw icon-mars fas",
         "data-tip": showTip ? "Sex: Male" : ""
       });
     } else if (sex === "u") {
-      sex =
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      sex = /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw icon-genderless fas",
         "data-tip": showTip ? "Sex: Unknown" : ""
       });
     } else {
-      sex =
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      sex = /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw icon-question fas",
         "data-tip": showTip ? "Sex: N/A" : ""
       });
@@ -514,29 +452,17 @@ var optionCustomizationsByType = {
           "data-tip": description,
           key: atID,
           className: "d-flex"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        }, /*#__PURE__*/_react["default"].createElement("div", {
           className: "col"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
+        }, /*#__PURE__*/_react["default"].createElement("h5", {
           className: "text-300"
-        }, title),
-        /*#__PURE__*/
-        _react["default"].createElement("h6", {
+        }, title), /*#__PURE__*/_react["default"].createElement("h6", {
           className: "text-mono text-400"
-        }, aliases)),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        }, aliases)), /*#__PURE__*/_react["default"].createElement("div", {
           className: "col"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
+        }, /*#__PURE__*/_react["default"].createElement("h5", {
           className: "text-300"
-        }, "Age: ", age || "N/A"),
-        /*#__PURE__*/
-        _react["default"].createElement("h6", {
+        }, "Age: ", age || "N/A"), /*#__PURE__*/_react["default"].createElement("h6", {
           className: "text-mono text-400"
         }, " Sex: ", sexToIcon(sex, false), " ")))
       );
@@ -549,21 +475,14 @@ var optionCustomizationsByType = {
           atID = result["@id"],
           description = result.description,
           accession = result.accession;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          "data-tip": description,
-          key: atID
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "text-300 text-ellipsis-container"
-        }, title),
-        /*#__PURE__*/
-        _react["default"].createElement("h6", {
-          className: "text-mono text-400 text-ellipsis-container"
-        }, accession))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, /*#__PURE__*/_react["default"].createElement("h5", {
+        className: "text-300 text-ellipsis-container"
+      }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+        className: "text-mono text-400 text-ellipsis-container"
+      }, accession));
     },
     "fieldsToRequest": ['accession', 'status', 'date_created']
   },
@@ -576,21 +495,14 @@ var optionCustomizationsByType = {
           role = result.role,
           first_name = result.first_name,
           last_name = result.last_name;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          "data-tip": description,
-          key: atID
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "text-300 w-100"
-        }, title, " (", first_name, " ", last_name, ")"),
-        /*#__PURE__*/
-        _react["default"].createElement("h6", {
-          className: "text-mono text-400"
-        }, email))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, /*#__PURE__*/_react["default"].createElement("h5", {
+        className: "text-300 w-100"
+      }, title, " (", first_name, " ", last_name, ")"), /*#__PURE__*/_react["default"].createElement("h6", {
+        className: "text-mono text-400"
+      }, email));
     },
     "fieldsToRequest": ['email', 'role', 'first_name', 'last_name', 'submits_for']
   },
@@ -602,21 +514,14 @@ var optionCustomizationsByType = {
           status = result.status,
           date_created = result.date_created,
           submitted_by = result.submitted_by;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          "data-tip": description,
-          key: atID
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "text-300 text-ellipsis-container"
-        }, title),
-        /*#__PURE__*/
-        _react["default"].createElement("h6", {
-          className: "text-mono text-400 text-ellipsis-container"
-        }, atID))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, /*#__PURE__*/_react["default"].createElement("h5", {
+        className: "text-300 text-ellipsis-container"
+      }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+        className: "text-mono text-400 text-ellipsis-container"
+      }, atID));
     },
     "fieldsToRequest": ['status', 'description', 'date_created', 'submitted_by']
   },
@@ -628,21 +533,14 @@ var optionCustomizationsByType = {
           status = result.status,
           date_created = result.date_created,
           submitted_by = result.submitted_by;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          "data-tip": description,
-          key: atID
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "text-300 text-ellipsis-container"
-        }, title),
-        /*#__PURE__*/
-        _react["default"].createElement("h6", {
-          className: "text-mono text-400 text-ellipsis-container"
-        }, atID))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, /*#__PURE__*/_react["default"].createElement("h5", {
+        className: "text-300 text-ellipsis-container"
+      }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+        className: "text-mono text-400 text-ellipsis-container"
+      }, atID));
     },
     "fieldsToRequest": ['status', 'description', 'date_created', 'submitted_by']
   },
@@ -652,21 +550,14 @@ var optionCustomizationsByType = {
           atID = result["@id"],
           description = result.description,
           hpo_id = result.hpo_id;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          "data-tip": description,
-          key: atID
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("h5", {
-          className: "text-300 text-ellipsis-container"
-        }, title),
-        /*#__PURE__*/
-        _react["default"].createElement("h6", {
-          className: "text-mono text-400"
-        }, hpo_id))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        "data-tip": description,
+        key: atID
+      }, /*#__PURE__*/_react["default"].createElement("h5", {
+        className: "text-300 text-ellipsis-container"
+      }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+        className: "text-mono text-400"
+      }, hpo_id));
     },
     "fieldsToRequest": ["hpo_id"]
   }
@@ -675,9 +566,7 @@ var optionCustomizationsByType = {
 
 exports.optionCustomizationsByType = optionCustomizationsByType;
 
-var LinkedObj =
-/*#__PURE__*/
-function (_React$PureComponent2) {
+var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(LinkedObj, _React$PureComponent2);
 
   var _super2 = _createSuper(LinkedObj);
@@ -866,25 +755,11 @@ function (_React$PureComponent2) {
       var itemType = schema && schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
 
-      var message =
-      /*#__PURE__*/
-      _react["default"].createElement("div", null, !isMultiSelect ?
-      /*#__PURE__*/
-      _react["default"].createElement("p", {
+      var message = /*#__PURE__*/_react["default"].createElement("div", null, !isMultiSelect ? /*#__PURE__*/_react["default"].createElement("p", {
         className: "mb-0"
-      }, "Please either select an Item below and click ",
-      /*#__PURE__*/
-      _react["default"].createElement("em", null, "Apply"), " or ",
-      /*#__PURE__*/
-      _react["default"].createElement("em", null, "drag and drop"), " an Item (row) from this window into the submissions window.") :
-      /*#__PURE__*/
-      _react["default"].createElement("p", {
+      }, "Please either select an Item below and click ", /*#__PURE__*/_react["default"].createElement("em", null, "Apply"), " or ", /*#__PURE__*/_react["default"].createElement("em", null, "drag and drop"), " an Item (row) from this window into the submissions window.") : /*#__PURE__*/_react["default"].createElement("p", {
         className: "mb-0"
-      }, "Please select the Item(s) you would like and then press ",
-      /*#__PURE__*/
-      _react["default"].createElement("em", null, "Apply"), " below."),
-      /*#__PURE__*/
-      _react["default"].createElement("p", {
+      }, "Please select the Item(s) you would like and then press ", /*#__PURE__*/_react["default"].createElement("em", null, "Apply"), " below."), /*#__PURE__*/_react["default"].createElement("p", {
         className: "mb-0"
       }, "You may use facets on the left-hand side to narrow down results."));
 
@@ -916,51 +791,37 @@ function (_React$PureComponent2) {
         }
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_LinkToSelector.LinkToSelector, _extends({
-          isSelecting: true,
-          onSelect: this.handleFinishSelectItem,
-          onCloseChildWindow: selectCancel,
-          childWindowAlert: this.childWindowAlert
-        }, {
-          value: value,
-          dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
-          searchURL: searchURL
-        }))
-      );
+      return /*#__PURE__*/_react["default"].createElement(_LinkToSelector.LinkToSelector, _extends({
+        isSelecting: true,
+        onSelect: this.handleFinishSelectItem,
+        onCloseChildWindow: selectCancel,
+        childWindowAlert: this.childWindowAlert
+      }, {
+        value: value,
+        dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
+        searchURL: searchURL
+      }));
     }
   }, {
     key: "renderButtons",
     value: function renderButtons() {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "linked-object-buttons-container"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: "btn btn-outline-secondary adv-search",
-          "data-tip": "Advanced Search",
-          onClick: this.handleStartSelectItem
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-search fas"
-        })),
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: "btn btn-outline-secondary create-new-obj",
-          "data-tip": "Create New",
-          onClick: this.handleCreateNewItemClick
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "icon icon-fw icon-file-medical fas"
-        })))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "linked-object-buttons-container"
+      }, /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-outline-secondary adv-search",
+        "data-tip": "Advanced Search",
+        onClick: this.handleStartSelectItem
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-search fas"
+      })), /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        className: "btn btn-outline-secondary create-new-obj",
+        "data-tip": "Create New",
+        onClick: this.handleCreateNewItemClick
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-file-medical fas"
+      })));
     }
   }, {
     key: "render",
@@ -982,13 +843,7 @@ function (_React$PureComponent2) {
 
 
       if (value) {
-        var thisDisplay = keyDisplay[value] ?
-        /*#__PURE__*/
-        _react["default"].createElement(_react["default"].Fragment, null, keyDisplay[value],
-        /*#__PURE__*/
-        _react["default"].createElement("code", null, value)) :
-        /*#__PURE__*/
-        _react["default"].createElement("code", null, value);
+        var thisDisplay = keyDisplay[value] ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, keyDisplay[value], /*#__PURE__*/_react["default"].createElement("code", null, value)) : /*#__PURE__*/_react["default"].createElement("code", null, value);
 
         if (isNaN(value)) {
           return this.renderButtons();
@@ -999,37 +854,23 @@ function (_React$PureComponent2) {
           // string once the obj is successfully submitted
 
           if (keyComplete[intKey]) {
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("div", null,
-              /*#__PURE__*/
-              _react["default"].createElement("a", {
-                href: keyComplete[intKey],
-                target: "_blank",
-                rel: "noopener noreferrer"
-              }, thisDisplay),
-              /*#__PURE__*/
-              _react["default"].createElement("i", {
-                className: "icon icon-fw icon-external-link-alt ml-05 fas"
-              }))
-            );
+            return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("a", {
+              href: keyComplete[intKey],
+              target: "_blank",
+              rel: "noopener noreferrer"
+            }, thisDisplay), /*#__PURE__*/_react["default"].createElement("i", {
+              className: "icon icon-fw icon-external-link-alt ml-05 fas"
+            }));
           } else {
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("div", {
-                className: "incomplete-linked-object-display-container text-ellipsis-container"
-              },
-              /*#__PURE__*/
-              _react["default"].createElement("i", {
-                className: "icon icon-fw icon-edit far"
-              }), "\xA0\xA0",
-              /*#__PURE__*/
-              _react["default"].createElement("a", {
-                href: "#",
-                onClick: this.setSubmissionStateToLinkedToItem,
-                "data-tip": "Continue editing/submitting"
-              }, thisDisplay), "\xA0")
-            );
+            return /*#__PURE__*/_react["default"].createElement("div", {
+              className: "incomplete-linked-object-display-container text-ellipsis-container"
+            }, /*#__PURE__*/_react["default"].createElement("i", {
+              className: "icon icon-fw icon-edit far"
+            }), "\xA0\xA0", /*#__PURE__*/_react["default"].createElement("a", {
+              href: "#",
+              onClick: this.setSubmissionStateToLinkedToItem,
+              "data-tip": "Continue editing/submitting"
+            }, thisDisplay), "\xA0");
           }
         }
       } else {
@@ -1044,7 +885,7 @@ function (_React$PureComponent2) {
 
 exports.LinkedObj = LinkedObj;
 
-var SquareButton = _react["default"].memo(function (props) {
+var SquareButton = /*#__PURE__*/_react["default"].memo(function (props) {
   var show = props.show,
       disabled = props.disabled,
       onClick = props.onClick,
@@ -1061,34 +902,23 @@ var SquareButton = _react["default"].memo(function (props) {
     btnCls += " btn-" + bsStyle;
   }
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "remove-button-column" + (!show ? ' hidden' : ''),
-      style: style
-    },
-    /*#__PURE__*/
-    _react["default"].createElement(_Fade.Fade, {
-      "in": show
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: outerCls
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("button", {
-      type: "button",
-      disabled: disabled || !show,
-      onClick: onClick,
-      "data-tip": tip,
-      tabIndex: 2,
-      className: btnCls
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon icon-fw icon-" + icon
-    })))))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "remove-button-column" + (!show ? ' hidden' : ''),
+    style: style
+  }, /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+    "in": show
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: outerCls
+  }, /*#__PURE__*/_react["default"].createElement("button", {
+    type: "button",
+    disabled: disabled || !show,
+    onClick: onClick,
+    "data-tip": tip,
+    tabIndex: 2,
+    className: btnCls
+  }, /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-fw icon-" + icon
+  })))));
 });
 
 exports.SquareButton = SquareButton;
