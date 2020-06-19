@@ -21,7 +21,7 @@ var _ColumnCombiner = require("./table-commons/ColumnCombiner");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -31,7 +31,7 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -43,13 +43,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -64,7 +90,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  *
  * @prop {Object.<boolean>} [defaultHiddenColumns] - Initial hidden columns state object, if any.
  */
-var CustomColumnController = /*#__PURE__*/function (_React$Component) {
+var CustomColumnController =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(CustomColumnController, _React$Component);
 
   var _super = _createSuper(CustomColumnController);
@@ -180,7 +208,9 @@ var CustomColumnController = /*#__PURE__*/function (_React$Component) {
           hiddenColumns = _this$state.hiddenColumns,
           columnWidths = _this$state.columnWidths;
 
-      if (! /*#__PURE__*/_react["default"].isValidElement(children)) {
+      if (!
+      /*#__PURE__*/
+      _react["default"].isValidElement(children)) {
         throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
       }
 
@@ -199,7 +229,10 @@ var CustomColumnController = /*#__PURE__*/function (_React$Component) {
       });
 
       return _react["default"].Children.map(children, function (child) {
-        return /*#__PURE__*/_react["default"].cloneElement(child, propsToPass);
+        return (
+          /*#__PURE__*/
+          _react["default"].cloneElement(child, propsToPass)
+        );
       });
     }
   }]);
@@ -217,7 +250,9 @@ _defineProperty(CustomColumnController, "propTypes", {
   'hiddenColumns': _propTypes["default"].array
 });
 
-var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
+var CustomColumnSelector =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(CustomColumnSelector, _React$PureComponent);
 
   var _super2 = _createSuper(CustomColumnSelector);
@@ -276,16 +311,22 @@ var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
     value: function render() {
       var _this3 = this;
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row clearfix"
-      }, _underscore["default"].map(this.columnDefinitionsWithHiddenState(), function (colDef, idx, all) {
-        return /*#__PURE__*/_react["default"].createElement(ColumnOption, _extends({}, colDef, {
-          key: colDef.field || idx,
-          allColumns: all,
-          index: idx,
-          handleOptionVisibilityChange: _this3.handleOptionVisibilityChange
-        }));
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "row clearfix"
+        }, _underscore["default"].map(this.columnDefinitionsWithHiddenState(), function (colDef, idx, all) {
+          return (
+            /*#__PURE__*/
+            _react["default"].createElement(ColumnOption, _extends({}, colDef, {
+              key: colDef.field || idx,
+              allColumns: all,
+              index: idx,
+              handleOptionVisibilityChange: _this3.handleOptionVisibilityChange
+            }))
+          );
+        }))
+      );
     }
   }]);
 
@@ -299,7 +340,9 @@ CustomColumnSelector.propTypes = {
   'removeHiddenColumn': _propTypes["default"].func.isRequired
 };
 
-var ColumnOption = /*#__PURE__*/_react["default"].memo(function (props) {
+var ColumnOption =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var hiddenState = props.hiddenState,
       allColumns = props.allColumns,
       field = props.field,
@@ -324,17 +367,22 @@ var ColumnOption = /*#__PURE__*/_react["default"].memo(function (props) {
     }
   }
 
-  return /*#__PURE__*/_react["default"].createElement("div", {
-    className: "col-12 col-sm-6 col-lg-3 column-option",
-    key: field,
-    "data-tip": showDescription,
-    "data-html": true
-  }, /*#__PURE__*/_react["default"].createElement(_Checkbox.Checkbox, {
-    checked: isChecked,
-    onChange: function onChange(e) {
-      return handleOptionVisibilityChange(field, e);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "col-12 col-sm-6 col-lg-3 column-option",
+      key: field,
+      "data-tip": showDescription,
+      "data-html": true
     },
-    value: field,
-    className: cls
-  }, title));
+    /*#__PURE__*/
+    _react["default"].createElement(_Checkbox.Checkbox, {
+      checked: isChecked,
+      onChange: function onChange(e) {
+        return handleOptionVisibilityChange(field, e);
+      },
+      value: field,
+      className: cls
+    }, title))
+  );
 });
