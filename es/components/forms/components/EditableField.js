@@ -142,9 +142,13 @@ function (_React$Component) {
       'leanOffset': 0 // Re: inline style
 
     };
-    _this.fieldRef = _react["default"].createRef(); // Field container element
+    _this.fieldRef =
+    /*#__PURE__*/
+    _react["default"].createRef(); // Field container element
 
-    _this.inputElementRef = _react["default"].createRef(); // Input element
+    _this.inputElementRef =
+    /*#__PURE__*/
+    _react["default"].createRef(); // Input element
 
     return _this;
   }
@@ -1182,7 +1186,10 @@ function (_React$PureComponent) {
           if (style) newProps.style = style;
           if (absoluteBox) newProps.absoluteBox = absoluteBox;
           if (windowWidth) newProps.windowWidth = windowWidth;
-          return _react["default"].cloneElement(child, newProps);
+          return (
+            /*#__PURE__*/
+            _react["default"].cloneElement(child, newProps)
+          );
         }
 
         return child;

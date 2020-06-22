@@ -710,7 +710,9 @@ _defineProperty(ColumnSorterIcon, "defaultProps", {
   'descend': false
 });
 
-var SortOptionsMenuContainer = _react["default"].memo(function (props) {
+var SortOptionsMenuContainer =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var showingSortFieldsForColumn = props.showingSortFieldsForColumn,
       columnDefinitions = props.columnDefinitions,
       currentSortColumn = props.sortColumn,
@@ -767,7 +769,9 @@ var SortOptionsMenuContainer = _react["default"].memo(function (props) {
   );
 });
 
-var SortOptionsMenu = _react["default"].memo(function (_ref7) {
+var SortOptionsMenu =
+/*#__PURE__*/
+_react["default"].memo(function (_ref7) {
   var _ref7$header = _ref7.header,
       header = _ref7$header === void 0 ?
   /*#__PURE__*/
@@ -811,7 +815,9 @@ var SortOptionsMenu = _react["default"].memo(function (_ref7) {
   );
 });
 
-var ColumnSorterIconElement = _react["default"].memo(function (_ref9) {
+var ColumnSorterIconElement =
+/*#__PURE__*/
+_react["default"].memo(function (_ref9) {
   var descend = _ref9.descend,
       showingSortOptionsMenu = _ref9.showingSortOptionsMenu,
       _ref9$isLoading = _ref9.isLoading,

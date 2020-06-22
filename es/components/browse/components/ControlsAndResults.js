@@ -110,7 +110,9 @@ function (_React$PureComponent) {
       getSchemaTypeFromSearchContext: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaTypeFromSearchContext),
       getAbstractTypeForType: (0, _memoizeOne["default"])(_schemaTransforms.getAbstractTypeForType)
     };
-    _this.searchResultTableRef = _react["default"].createRef();
+    _this.searchResultTableRef =
+    /*#__PURE__*/
+    _react["default"].createRef();
     return _this;
   }
 

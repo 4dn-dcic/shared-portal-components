@@ -9,7 +9,9 @@ var _react = _interopRequireDefault(require("react"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var AboveTablePanelWrapper = _react["default"].memo(function (props) {
+var AboveTablePanelWrapper =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var children = props.children,
       title = props.title,
       className = props.className,

@@ -91,7 +91,9 @@ var canDownloadFile = (0, _memoizeOne["default"])(function (file, validStatuses)
   return false;
 });
 
-var FileDownloadButtonAuto = _react["default"].memo(function (props) {
+var FileDownloadButtonAuto =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var file = props.result,
       canDownloadStatuses = props.canDownloadStatuses,
       _props$onClick = props.onClick,
@@ -125,7 +127,9 @@ FileDownloadButtonAuto.defaultProps = {
   'canDownloadStatuses': ['uploaded', 'released', 'replaced', 'submission in progress', 'released to project', 'archived']
 };
 
-var ViewFileButton = _react["default"].memo(function (props) {
+var ViewFileButton =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var filename = props.filename,
       href = props.href,
       target = props.target,

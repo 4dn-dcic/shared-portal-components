@@ -12,13 +12,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-var _url = _interopRequireDefault(require("url"));
-
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-var _Collapse = require("./../ui/Collapse");
-
-var _Alerts = require("./../ui/Alerts");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 var _TableOfContents = require("./TableOfContents");
 
@@ -115,23 +111,31 @@ function correctRelativeLinks(elem, context) {
     }
 
     if (href !== elem.props.href || href.charAt(0) === '#') {
-      return _react["default"].cloneElement(elem, _underscore["default"].extend(_underscore["default"].omit(elem.props, 'children'), {
-        'href': href,
-        'onClick': href.charAt(0) !== '#' ? null : function (e) {
-          e.preventDefault();
+      return (
+        /*#__PURE__*/
+        _react["default"].cloneElement(elem, _underscore["default"].extend(_underscore["default"].omit(elem.props, 'children'), {
+          'href': href,
+          'onClick': href.charAt(0) !== '#' ? null : function (e) {
+            e.preventDefault();
 
-          _util.layout.animateScrollTo(href.slice(1));
-        }
-      }), elem.props.children || null);
+            _util.layout.animateScrollTo(href.slice(1));
+          }
+        }), elem.props.children || null)
+      );
     } else return elem;
   } else if (elem.props.children && typeof elem.type === 'string') {
-    return _react["default"].cloneElement(elem, _underscore["default"].omit(elem.props, 'children'), _react["default"].Children.map(elem.props.children, function (child) {
-      return correctRelativeLinks(child, context, depth + 1);
-    }));
+    return (
+      /*#__PURE__*/
+      _react["default"].cloneElement(elem, _underscore["default"].omit(elem.props, 'children'), _react["default"].Children.map(elem.props.children, function (child) {
+        return correctRelativeLinks(child, context, depth + 1);
+      }))
+    );
   } else return elem;
 }
 
-var Wrapper = _react["default"].memo(function (props) {
+var Wrapper =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var children = props.children,
       tableOfContents = props.tableOfContents,
       title = props.title,
@@ -245,7 +249,9 @@ function (_React$PureComponent) {
       var options = section && section.options || {};
       var outerClassName = entryType + "-entry static-section-entry";
 
-      var renderedChildComponent = _react["default"].createElement(childComponent, this.props);
+      var renderedChildComponent =
+      /*#__PURE__*/
+      _react["default"].createElement(childComponent, this.props);
 
       if (options.collapsible) {
         outerClassName += ' can-collapse ' + (open ? 'open' : 'closed');
@@ -267,7 +273,7 @@ function (_React$PureComponent) {
             className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
           }), "\xA0\xA0", section.title) : null,
           /*#__PURE__*/
-          _react["default"].createElement(_Collapse.Collapse, {
+          _react["default"].createElement(_Collapse["default"], {
             "in": open
           },
           /*#__PURE__*/

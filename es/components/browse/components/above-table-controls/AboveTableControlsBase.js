@@ -13,7 +13,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
-var _Collapse = require("./../../../ui/Collapse");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 var _AboveTablePanelWrapper = require("./AboveTablePanelWrapper");
 
@@ -217,11 +217,14 @@ function (_React$PureComponent) {
           reallyOpen = _this$state.reallyOpen;
 
       var extendedChildren = _react["default"].Children.map(children, function (child) {
-        return _react["default"].cloneElement(child, {
-          "panelToggleFxns": _this3.panelToggleFxns,
-          "onClosePanel": _this3.handleClose,
-          "currentOpenPanel": open || reallyOpen
-        });
+        return (
+          /*#__PURE__*/
+          _react["default"].cloneElement(child, {
+            "panelToggleFxns": _this3.panelToggleFxns,
+            "onClosePanel": _this3.handleClose,
+            "currentOpenPanel": open || reallyOpen
+          })
+        );
       });
 
       var panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
@@ -246,7 +249,7 @@ function (_React$PureComponent) {
           onColumnsBtnClick: this.panelToggleFxns.customColumns
         }))), panelDefinition ?
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": !!open,
           appear: true
         },

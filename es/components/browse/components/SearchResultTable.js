@@ -116,7 +116,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-var ResultRowColumnBlock = _react["default"].memo(function (props) {
+var ResultRowColumnBlock =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var columnDefinition = props.columnDefinition,
       columnNumber = props.columnNumber,
       mounted = props.mounted,
@@ -153,7 +155,9 @@ var ResultRowColumnBlock = _react["default"].memo(function (props) {
 /** Not used anywhere (?) */
 
 
-var DefaultDetailPane = _react["default"].memo(function (_ref) {
+var DefaultDetailPane =
+/*#__PURE__*/
+_react["default"].memo(function (_ref) {
   var result = _ref.result;
   return (
     /*#__PURE__*/
@@ -195,7 +199,9 @@ function (_React$PureComponent) {
     _this.state = {
       'closing': false
     };
-    _this.detailRef = _react["default"].createRef(); // Unsure if worth keeping/using still?
+    _this.detailRef =
+    /*#__PURE__*/
+    _react["default"].createRef(); // Unsure if worth keeping/using still?
     // Is potentially relevant but not ideally-implemented for BrowseView
     // which has DetailPane which itself has collapsible areas and the height
     // can thus vary outside of the open/closed toggle state in this table.
@@ -612,7 +618,9 @@ function (_React$PureComponent3) {
       getStyles: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getStyles)
     };
     _this4.lastIsScrolling = false;
-    _this4.infiniteComponentRef = _react["default"].createRef();
+    _this4.infiniteComponentRef =
+    /*#__PURE__*/
+    _react["default"].createRef();
     _this4.currRequest = null;
     return _this4;
   }
@@ -819,7 +827,9 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   'isOwnPage': true
 });
 
-var LoadingSpinner = _react["default"].memo(function (_ref3) {
+var LoadingSpinner =
+/*#__PURE__*/
+_react["default"].memo(function (_ref3) {
   var maxWidth = _ref3.width,
       _ref3$scrollLeft = _ref3.scrollLeft,
       scrollLeft = _ref3$scrollLeft === void 0 ? 0 : _ref3$scrollLeft;
@@ -1138,7 +1148,9 @@ function (_React$PureComponent4) {
       _this8.state.openDetailPanes[_object.itemUtil.atId(_this8.state.results[0])] = true;
     }
 
-    _this8.outerRef = _react["default"].createRef();
+    _this8.outerRef =
+    /*#__PURE__*/
+    _react["default"].createRef();
     _this8.outerContainerSizeInterval = null;
     _this8.scrollHandlerUnsubscribeFxn = null;
     _this8.memoized = {

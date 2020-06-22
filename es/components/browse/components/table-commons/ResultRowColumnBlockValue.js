@@ -224,7 +224,11 @@ function (_React$Component) {
         _react["default"].createElement("small", {
           className: "value text-center"
         }, "-");
-      } else if (_react["default"].isValidElement(value) && value.type === "a" || Array.isArray(value) && _react["default"].isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
+      } else if (
+      /*#__PURE__*/
+      _react["default"].isValidElement(value) && value.type === "a" || Array.isArray(value) &&
+      /*#__PURE__*/
+      _react["default"].isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
         value =
@@ -288,7 +292,9 @@ _defineProperty(ResultRowColumnBlockValue, "defaultProps", {
 });
 
 function sanitizeOutputValue(value) {
-  if (typeof value !== 'string' && typeof value !== 'number' && !_react["default"].isValidElement(value)) {
+  if (typeof value !== 'string' && typeof value !== 'number' && !
+  /*#__PURE__*/
+  _react["default"].isValidElement(value)) {
     if (value && _typeof(value) === 'object') {
       if (typeof value.display_title !== 'undefined') {
         var atId = _object.itemUtil.atId(value);

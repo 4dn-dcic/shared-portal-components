@@ -11,9 +11,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = require("underscore");
 
-var _utilities = require("./../../viz/utilities");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
-var _Fade = require("./../../ui/Fade");
+var _utilities = require("./../../viz/utilities");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -93,7 +93,9 @@ function (_React$PureComponent) {
       canScrollDown: false,
       scrollingDirection: null
     };
-    _this.scrollContainer = _react["default"].createRef();
+    _this.scrollContainer =
+    /*#__PURE__*/
+    _react["default"].createRef();
     _this.onMouseDownJumpToTop = _this.onMouseDownJumpToTop.bind(_assertThisInitialized(_this));
     _this.onMouseDownJumpToBottom = _this.onMouseDownJumpToBottom.bind(_assertThisInitialized(_this));
     _this.onMouseOverScrollDown = _this.onMouseOverScrollDown.bind(_assertThisInitialized(_this));
@@ -282,7 +284,7 @@ function (_React$PureComponent) {
           className: "vertical-scroll-container"
         },
         /*#__PURE__*/
-        _react["default"].createElement(_Fade.Fade, {
+        _react["default"].createElement(_Fade["default"], {
           "in": hasOverflow && canScrollUp,
           timeout: "500",
           mountOnEnter: true,
@@ -311,7 +313,7 @@ function (_React$PureComponent) {
           className: "scroll-items list-unstyled my-0"
         }, header, items, footer)),
         /*#__PURE__*/
-        _react["default"].createElement(_Fade.Fade, {
+        _react["default"].createElement(_Fade["default"], {
           "in": hasOverflow && canScrollDown,
           timeout: "500",
           mountOnEnter: true,

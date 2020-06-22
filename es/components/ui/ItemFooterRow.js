@@ -23,7 +23,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  * @prop {Object} context - JSON representation of current Item object. Should be available through Redux store's context.
  * @prop {Object} schemas - JSON representation of sitewide schemas.
  */
-var ItemFooterRow = _react["default"].memo(function (_ref) {
+var ItemFooterRow =
+/*#__PURE__*/
+_react["default"].memo(function (_ref) {
   var context = _ref.context,
       schemas = _ref.schemas;
 

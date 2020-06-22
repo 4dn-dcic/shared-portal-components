@@ -13,15 +13,15 @@ var _url = _interopRequireDefault(require("url"));
 
 var _queryString = _interopRequireDefault(require("query-string"));
 
-var _reactBootstrap = require("react-bootstrap");
-
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
+
+var _Modal = _interopRequireDefault(require("react-bootstrap/esm/Modal"));
+
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 var _util = require("./../util");
 
 var _DropdownButton = require("./components/DropdownButton");
-
-var _Collapse = require("./../ui/Collapse");
 
 var _Alerts = require("./../ui/Alerts");
 
@@ -1562,7 +1562,11 @@ function (_React$PureComponent) {
           destination = destination + (test ? '&' : '?') + 'delete_fields=' + deleteString;
 
           _util.console.log('DESTINATION:', destination);
-        } // Perform request
+        }
+
+        _util.console.log('DESTINATION:', destination);
+
+        _util.console.log('PAYLOAD: ', payload); // Perform request
 
 
         _util.ajax.promise(destination, actionMethod, {}, payload).then(function (response) {
@@ -1619,8 +1623,10 @@ function (_React$PureComponent) {
             if (roundTwo) {
               // there is a file
               if (file && responseData.upload_credentials) {
-                // add important info to result from finalizedContext
+                _util.console.log("RESPONSE DATA", responseData); // add important info to result from finalizedContext
                 // that is not added from /types/file.py get_upload
+
+
                 var creds = responseData.upload_credentials;
                 Promise.resolve().then(function () {
                   return _interopRequireWildcard(require('../util/aws'));
@@ -2058,7 +2064,9 @@ function (_React$PureComponent) {
 
 exports["default"] = SubmissionView;
 
-var ValidationButton = _react["default"].memo(function (props) {
+var ValidationButton =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var currKey = props.currKey,
       keyValid = props.keyValid,
       md5Progress = props.md5Progress,
@@ -2167,7 +2175,9 @@ var ValidationButton = _react["default"].memo(function (props) {
  */
 
 
-var SubmitButton = _react["default"].memo(function (props) {
+var SubmitButton =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var keyValid = props.keyValid,
       currKey = props.currKey,
       roundTwo = props.roundTwo,
@@ -2246,7 +2256,9 @@ var SubmitButton = _react["default"].memo(function (props) {
   }
 });
 
-var WarningBanner = _react["default"].memo(function (props) {
+var WarningBanner =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var children = props.children;
   return (
     /*#__PURE__*/
@@ -2420,7 +2432,7 @@ function (_React$PureComponent2) {
 
       return (
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": true,
           appear: hierarchyKeyList.length !== 1,
           key: i
@@ -2568,21 +2580,21 @@ function (_React$Component) {
 
       return (
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal, {
+        _react["default"].createElement(_Modal["default"], {
           show: true,
           onHide: this.onHide,
           className: "submission-view-modal"
         },
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Header, null,
+        _react["default"].createElement(_Modal["default"].Header, null,
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Title, {
+        _react["default"].createElement(_Modal["default"].Title, {
           className: "text-500"
         }, "Multiple instantiable types found for your new ",
         /*#__PURE__*/
         _react["default"].createElement("strong", null, ambiguousType))),
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Body, null,
+        _react["default"].createElement(_Modal["default"].Body, null,
         /*#__PURE__*/
         _react["default"].createElement("div", {
           onKeyDown: this.onContainerKeyDown.bind(this, submitAmbiguousType)
@@ -2650,17 +2662,17 @@ function (_TypeSelectModal) {
       var disabledBtn = creatingAlias.indexOf(':') < 0 || creatingAlias.indexOf(':') + 1 === creatingAlias.length;
       return (
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal, {
+        _react["default"].createElement(_Modal["default"], {
           show: true,
           onHide: this.onHide,
           className: "submission-view-modal"
         },
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Header, null,
+        _react["default"].createElement(_Modal["default"].Header, null,
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Title, null, "Give your new ", creatingType, " an alias")),
+        _react["default"].createElement(_Modal["default"].Title, null, "Give your new ", creatingType, " an alias")),
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Modal.Body, null,
+        _react["default"].createElement(_Modal["default"].Body, null,
         /*#__PURE__*/
         _react["default"].createElement("div", {
           onKeyDown: this.onContainerKeyDown.bind(this, submitAlias)
@@ -3284,7 +3296,9 @@ function (_React$Component2) {
   return IndividualObjectView;
 }(_react["default"].Component);
 
-var FormFieldsContainer = _react["default"].memo(function (props) {
+var FormFieldsContainer =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var children = props.children,
       title = props.title;
   if (_react["default"].Children.count(children) === 0) return null;
@@ -3373,7 +3387,7 @@ function (_React$PureComponent3) {
         /*#__PURE__*/
         _react["default"].createElement("span", null, "Object Attributes")),
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": open
         },
         /*#__PURE__*/

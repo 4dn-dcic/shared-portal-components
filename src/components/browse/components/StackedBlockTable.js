@@ -4,8 +4,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import _ from 'underscore';
+import Collapse from 'react-bootstrap/esm/Collapse';
 
-import { Collapse } from './../../ui/Collapse';
 import { object, typedefs } from './../../util';
 
 

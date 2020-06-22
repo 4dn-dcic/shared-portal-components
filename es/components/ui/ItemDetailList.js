@@ -92,7 +92,9 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
  */
 
 /** Contains and toggles visibility/mounting of a Subview. Renders title for the Subview. */
-var SubItemTitle = _react["default"].memo(function (_ref) {
+var SubItemTitle =
+/*#__PURE__*/
+_react["default"].memo(function (_ref) {
   var isOpen = _ref.isOpen,
       title = _ref.title,
       onToggle = _ref.onToggle,
@@ -147,7 +149,9 @@ SubItemTitle.propTypes = {
   'content': _propTypes["default"].object
 };
 
-var SubItemListView = _react["default"].memo(function (props) {
+var SubItemListView =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var isOpen = props.isOpen,
       item = props.content,
       schemas = props.schemas,
@@ -177,7 +181,9 @@ var SubItemListView = _react["default"].memo(function (props) {
     /*#__PURE__*/
     _react["default"].createElement("div", {
       className: "key-value sub-descriptions"
-    }, _react["default"].createElement(typeof item.display_title === 'string' ? ItemDetailList : Detail, passProps)))
+    },
+    /*#__PURE__*/
+    _react["default"].createElement(typeof item.display_title === 'string' ? ItemDetailList : Detail, passProps)))
   );
 });
 /**
@@ -756,7 +762,9 @@ function (_React$Component) {
                 val = val.slice(0, 50) + '...';
               }
 
-              if (val && _typeof(val) === 'object' && !_react["default"].isValidElement(val) && !Array.isArray(val)) {
+              if (val && _typeof(val) === 'object' && !
+              /*#__PURE__*/
+              _react["default"].isValidElement(val) && !Array.isArray(val)) {
                 val = SubItemTable.jsonify(val, columnKeys[j].key);
               }
 
@@ -857,7 +865,9 @@ function (_React$PureComponent) {
 
       if (value.type === SubItemTitle) {
         // What we have here is an embedded object of some sort. Lets override its 'isOpen' & 'onToggle' functions.
-        value = _react["default"].cloneElement(value, {
+        value =
+        /*#__PURE__*/
+        _react["default"].cloneElement(value, {
           'onToggle': this.handleToggle,
           'isOpen': isOpen
         });
@@ -1333,7 +1343,9 @@ _defineProperty(Detail, "defaultProps", {
   }
 });
 
-var ToggleJSONButton = _react["default"].memo(function (_ref3) {
+var ToggleJSONButton =
+/*#__PURE__*/
+_react["default"].memo(function (_ref3) {
   var onClick = _ref3.onClick,
       showingJSON = _ref3.showingJSON,
       className = _ref3.className;
@@ -1359,7 +1371,9 @@ var ToggleJSONButton = _react["default"].memo(function (_ref3) {
   );
 });
 
-var SeeMoreRowsButton = _react["default"].memo(function (_ref4) {
+var SeeMoreRowsButton =
+/*#__PURE__*/
+_react["default"].memo(function (_ref4) {
   var onClick = _ref4.onClick,
       collapsed = _ref4.collapsed,
       className = _ref4.className;

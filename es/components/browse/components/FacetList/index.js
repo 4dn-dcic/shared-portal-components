@@ -463,19 +463,25 @@ function (_React$PureComponent) {
 
           if (facetOpen) {
             // Don't clone if don't need to; don't pass openFacets to avoid extraneous re-renders.
-            return _react["default"].cloneElement(facetElem, {
-              facetOpen: facetOpen
-            });
+            return (
+              /*#__PURE__*/
+              _react["default"].cloneElement(facetElem, {
+                facetOpen: facetOpen
+              })
+            );
           }
 
           return facetElem;
         } else if (typeof groupTitle === "string") {
           // Group Elem; pass in openFacets always as well to add facetOpen to group children
           facetOpen = openFacets["group:" + groupTitle];
-          return _react["default"].cloneElement(facetElem, {
-            facetOpen: facetOpen,
-            openFacets: openFacets
-          });
+          return (
+            /*#__PURE__*/
+            _react["default"].cloneElement(facetElem, {
+              facetOpen: facetOpen,
+              openFacets: openFacets
+            })
+          );
         } else {
           throw new Error("Unexpected Facet Component");
         }

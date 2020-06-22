@@ -338,11 +338,16 @@ function (_React$PureComponent) {
       });
 
       return _react["default"].Children.map(children, function (child) {
-        if (!_react["default"].isValidElement(child)) {
+        if (!
+        /*#__PURE__*/
+        _react["default"].isValidElement(child)) {
           throw new Error('SelectedItemsSearchController expects props.children to be a valid React component instance(s).');
         }
 
-        return _react["default"].cloneElement(child, propsToPass);
+        return (
+          /*#__PURE__*/
+          _react["default"].cloneElement(child, propsToPass)
+        );
       });
     }
   }]);
@@ -352,7 +357,9 @@ function (_React$PureComponent) {
 
 exports.SelectedItemsController = SelectedItemsController;
 
-var SelectionItemCheckbox = _react["default"].memo(function (props) {
+var SelectionItemCheckbox =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var selectedItems = props.selectedItems,
       result = props.result,
       isMultiSelect = props.isMultiSelect,
@@ -374,7 +381,9 @@ var SelectionItemCheckbox = _react["default"].memo(function (props) {
 /** Move to own file later maybe. Especially if functionality expands. */
 
 
-var SelectStickyFooter = _react["default"].memo(function (props) {
+var SelectStickyFooter =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var context = props.context,
       schemas = props.schemas,
       selectedItems = props.selectedItems,

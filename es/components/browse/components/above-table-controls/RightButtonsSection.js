@@ -63,7 +63,9 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var RightButtonsSection = _react["default"].memo(function (props) {
+var RightButtonsSection =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var currentOpenPanel = props.currentOpenPanel,
       onColumnsBtnClick = props.onColumnsBtnClick,
       windowWidth = props.windowWidth,
@@ -90,7 +92,9 @@ var RightButtonsSection = _react["default"].memo(function (props) {
 
 exports.RightButtonsSection = RightButtonsSection;
 
-var ConfigureVisibleColumnsButton = _react["default"].memo(function (_ref) {
+var ConfigureVisibleColumnsButton =
+/*#__PURE__*/
+_react["default"].memo(function (_ref) {
   var open = _ref.open,
       onClick = _ref.onClick,
       className = _ref.className;

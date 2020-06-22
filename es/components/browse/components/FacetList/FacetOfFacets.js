@@ -11,9 +11,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-var _Collapse = require("./../../../ui/Collapse");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
-var _Fade = require("./../../../ui/Fade");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -132,10 +132,13 @@ function (_React$PureComponent) {
 
       var extendedFacets = _react["default"].Children.map(renderedFacets, function (renderedFacet) {
         var field = renderedFacet.props.facet.field;
-        return _react["default"].cloneElement(renderedFacet, {
-          isStatic: false,
-          facetOpen: openFacets[field]
-        });
+        return (
+          /*#__PURE__*/
+          _react["default"].cloneElement(renderedFacet, {
+            isStatic: false,
+            facetOpen: openFacets[field]
+          })
+        );
       });
 
       return (
@@ -167,7 +170,7 @@ function (_React$PureComponent) {
           "data-place": "right"
         }, title)),
         /*#__PURE__*/
-        _react["default"].createElement(_Fade.Fade, {
+        _react["default"].createElement(_Fade["default"], {
           "in": !facetOpen && !anySelections
         },
         /*#__PURE__*/
@@ -181,7 +184,7 @@ function (_React$PureComponent) {
           className: "icon fas icon-layer-group"
         })))),
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": facetOpen || anySelections
         },
         /*#__PURE__*/

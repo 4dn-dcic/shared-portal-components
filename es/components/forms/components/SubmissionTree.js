@@ -15,7 +15,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
-var _Collapse = require("./../../ui/Collapse");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -510,7 +510,7 @@ function (_React$Component) {
         /*#__PURE__*/
         _react["default"].createElement("span", null, children.length, " ", bookmark || field)), !noChildren ?
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": open
         },
         /*#__PURE__*/

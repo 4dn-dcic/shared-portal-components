@@ -372,13 +372,16 @@ function (_React$PureComponent) {
       var showLock = this.showLock,
           onRegistrationCancel = this.onRegistrationCancel,
           onRegistrationComplete = this.onRegistrationComplete;
-      return _react["default"].cloneElement(children, _objectSpread({
-        isLoading: isLoading,
-        isRegistrationModalVisible: isRegistrationModalVisible,
-        showLock: showLock,
-        onRegistrationCancel: onRegistrationCancel,
-        onRegistrationComplete: onRegistrationComplete
-      }, passProps));
+      return (
+        /*#__PURE__*/
+        _react["default"].cloneElement(children, _objectSpread({
+          isLoading: isLoading,
+          isRegistrationModalVisible: isRegistrationModalVisible,
+          showLock: showLock,
+          onRegistrationCancel: onRegistrationCancel,
+          onRegistrationComplete: onRegistrationComplete
+        }, passProps))
+      );
     }
   }]);
 
@@ -494,9 +497,12 @@ function (_React$PureComponent2) {
           children = _this$props4.children,
           passProps = _objectWithoutProperties(_this$props4, ["children"]);
 
-      return _react["default"].cloneElement(children, _objectSpread({
-        performLogout: this.performLogout
-      }, passProps));
+      return (
+        /*#__PURE__*/
+        _react["default"].cloneElement(children, _objectSpread({
+          performLogout: this.performLogout
+        }, passProps))
+      );
     }
   }]);
 

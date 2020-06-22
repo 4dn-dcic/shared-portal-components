@@ -278,7 +278,9 @@ function Container(_ref2) {
   );
 }
 
-var RegularCrumb = _react["default"].memo(function (props) {
+var RegularCrumb =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var field = props.field,
       term = props.term,
       _props$color = props.color,

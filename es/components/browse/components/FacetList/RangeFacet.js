@@ -14,13 +14,17 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-var _reactBootstrap = require("react-bootstrap");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
+
+var _DropdownButton = _interopRequireDefault(require("react-bootstrap/esm/DropdownButton"));
+
+var _DropdownItem = _interopRequireDefault(require("react-bootstrap/esm/DropdownItem"));
+
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 var _valueTransforms = require("./../../../util/value-transforms");
 
 var _patchedConsole = require("./../../../util/patched-console");
-
-var _Collapse = require("./../../../ui/Collapse");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -455,7 +459,7 @@ function (_React$PureComponent) {
           "data-place": "right"
         }, propTitle || facetTitle || field)),
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.Fade, {
+        _react["default"].createElement(_Fade["default"], {
           "in": !isOpen
         },
         /*#__PURE__*/
@@ -474,7 +478,7 @@ function (_React$PureComponent) {
           className: "icon icon-fw icon-greater-than-equal fas"
         })))),
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": isOpen
         },
         /*#__PURE__*/
@@ -662,7 +666,7 @@ function (_React$PureComponent2) {
       }, new Set())).map(function (increment) {
         return (
           /*#__PURE__*/
-          _react["default"].createElement(_reactBootstrap.DropdownItem, {
+          _react["default"].createElement(_DropdownItem["default"], {
             disabled: typeof min === "number" && increment <= min || typeof max === "number" && increment >= max,
             key: increment,
             eventKey: increment,
@@ -677,7 +681,7 @@ function (_React$PureComponent2) {
 
       return (
         /*#__PURE__*/
-        _react["default"].createElement(_reactBootstrap.DropdownButton, _extends({
+        _react["default"].createElement(_DropdownButton["default"], _extends({
           variant: variant,
           disabled: disabled,
           className: className,

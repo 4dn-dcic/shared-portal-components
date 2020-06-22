@@ -122,7 +122,9 @@ function (_React$Component) {
         );
       }
 
-      var visibleIcon = icon && _react["default"].cloneElement(icon, {
+      var visibleIcon = icon &&
+      /*#__PURE__*/
+      _react["default"].cloneElement(icon, {
         'onClick': this.onClick,
         'expanded': expanded,
         'data-expanded': expanded
@@ -435,7 +437,9 @@ function (_React$Component3) {
       // Moved from componentWillReceiveProps as this lifecycle method is being deprecated.
 
       if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')) {
-        this.boxRef = _react["default"].createRef();
+        this.boxRef =
+        /*#__PURE__*/
+        _react["default"].createRef();
       }
 
       var _this$props4 = this.props,
@@ -491,7 +495,9 @@ function (_React$Component3) {
             'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
             'visibility': !mounted && showOnMount ? 'hidden' : null
           }
-        }, expandButton, _react["default"].createElement(textElement, {
+        }, expandButton,
+        /*#__PURE__*/
+        _react["default"].createElement(textElement, {
           'className': textClassName,
           'style': textStyle
         }, expanded ? description : shortContent || description))

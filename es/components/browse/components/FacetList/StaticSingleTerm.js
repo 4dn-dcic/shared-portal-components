@@ -15,7 +15,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  * Renders out a single "facet - term" box for when only 1 term
  * is available (not filterable) at bottom of FacetList.
  */
-var StaticSingleTerm = _react["default"].memo(function (_ref) {
+var StaticSingleTerm =
+/*#__PURE__*/
+_react["default"].memo(function (_ref) {
   var term = _ref.term,
       facet = _ref.facet,
       showTitle = _ref.showTitle,

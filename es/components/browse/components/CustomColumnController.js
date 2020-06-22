@@ -208,7 +208,9 @@ function (_React$Component) {
           hiddenColumns = _this$state.hiddenColumns,
           columnWidths = _this$state.columnWidths;
 
-      if (!_react["default"].isValidElement(children)) {
+      if (!
+      /*#__PURE__*/
+      _react["default"].isValidElement(children)) {
         throw new Error('CustomColumnController expects props.children to be a valid React component instance.');
       }
 
@@ -227,7 +229,10 @@ function (_React$Component) {
       });
 
       return _react["default"].Children.map(children, function (child) {
-        return _react["default"].cloneElement(child, propsToPass);
+        return (
+          /*#__PURE__*/
+          _react["default"].cloneElement(child, propsToPass)
+        );
       });
     }
   }]);
@@ -335,7 +340,9 @@ CustomColumnSelector.propTypes = {
   'removeHiddenColumn': _propTypes["default"].func.isRequired
 };
 
-var ColumnOption = _react["default"].memo(function (props) {
+var ColumnOption =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var hiddenState = props.hiddenState,
       allColumns = props.allColumns,
       field = props.field,

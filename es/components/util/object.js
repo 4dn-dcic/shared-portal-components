@@ -643,16 +643,19 @@ function TooltipInfoIconContainer(props) {
       tooltip = props.tooltip,
       className = props.className,
       children = props.children;
-  return _react["default"].createElement(elementType || 'div', {
-    'className': "tooltip-info-container" + (typeof className === 'string' ? ' ' + className : '')
-  },
-  /*#__PURE__*/
-  _react["default"].createElement("span", null, title || children, "\xA0", typeof tooltip === 'string' ?
-  /*#__PURE__*/
-  _react["default"].createElement("i", {
-    "data-tip": tooltip,
-    className: "icon fas icon-info-circle"
-  }) : null));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement(elementType || 'div', {
+      'className': "tooltip-info-container" + (typeof className === 'string' ? ' ' + className : '')
+    },
+    /*#__PURE__*/
+    _react["default"].createElement("span", null, title || children, "\xA0", typeof tooltip === 'string' ?
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      "data-tip": tooltip,
+      className: "icon fas icon-info-circle"
+    }) : null))
+  );
 }
 
 function TooltipInfoIconContainerAuto(props) {
@@ -783,7 +786,9 @@ function (_React$PureComponent) {
       };
     }
 
-    _this.wrapperRef = _react["default"].createRef();
+    _this.wrapperRef =
+    /*#__PURE__*/
+    _react["default"].createRef();
     return _this;
   }
 
@@ -884,7 +889,10 @@ function (_React$PureComponent) {
         }
       }, _underscore["default"].omit.apply(_underscore["default"], [this.props, 'children', 'style', 'value', 'onCopy', 'mounted'].concat(_toConsumableArray(_underscore["default"].keys(CopyWrapper.defaultProps)))));
 
-      return _react["default"].createElement(wrapperElement, wrapperProps, elemsToWrap);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(wrapperElement, wrapperProps, elemsToWrap)
+      );
     }
   }]);
 

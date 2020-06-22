@@ -7,7 +7,7 @@ exports.PartialList = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _Collapse = require("./Collapse");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 var _util = require("./../util");
 
@@ -74,7 +74,9 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
  * @prop {Component|Element|string} title - Alias for props.label.
  * @prop {Component|Element|string} children - Alias for props.value.
  */
-var Row = _react["default"].memo(function (props) {
+var Row =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var colSm = props.colSm,
       colMd = props.colMd,
       colLg = props.colLg,
@@ -227,13 +229,17 @@ function (_React$PureComponent) {
         /*#__PURE__*/
         _react["default"].createElement("div", {
           className: "expandable-list " + (open ? "open" : "closed") + (className ? " " + className : "")
-        }, persistent || children ? _react["default"].createElement(containerType, {
+        }, persistent || children ?
+        /*#__PURE__*/
+        _react["default"].createElement(containerType, {
           'className': "persistent " + (containerPersistentClassName || containerClassName)
         }, persistent || children) : null, collapsible ?
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": open
-        }, _react["default"].createElement(containerType, {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(containerType, {
           'className': containerCollapseClassName || containerClassName,
           'key': "c"
         }, open || closing ? collapsible : null)) : null)

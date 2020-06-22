@@ -83,7 +83,9 @@ function (_React$PureComponent) {
       refreshKey: 0 // incremented to force a refresh of dropdown
 
     };
-    _this.dropdown = _react["default"].createRef();
+    _this.dropdown =
+    /*#__PURE__*/
+    _react["default"].createRef();
     _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
     _this.onKeyDown = _this.onKeyDown.bind(_assertThisInitialized(_this));
     return _this;
@@ -251,7 +253,9 @@ _defineProperty(SearchSelectionMenu, "defaultProps", {
   }
 });
 
-var SearchSelectionMenuBody = _react["default"].forwardRef(function (props, ref) {
+var SearchSelectionMenuBody =
+/*#__PURE__*/
+_react["default"].forwardRef(function (props, ref) {
   var currentTextValue = props.currentTextValue,
       _props$show = props.show,
       show = _props$show === void 0 ? false : _props$show,

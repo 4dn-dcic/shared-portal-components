@@ -4,7 +4,7 @@ import React from 'react';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-import { Collapse } from './../../../ui/Collapse';
+import Collapse from 'react-bootstrap/esm/Collapse';
 import { AboveTablePanelWrapper } from './AboveTablePanelWrapper';
 import { RightButtonsSection } from './RightButtonsSection';
 import { CustomColumnSelector } from './../CustomColumnController';

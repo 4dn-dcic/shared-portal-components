@@ -14,7 +14,7 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-var _Collapse = require("./../../ui/Collapse");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 var _util = require("./../../util");
 
@@ -308,7 +308,10 @@ function (_React$PureComponent3) {
           }
         });
 
-        return _react["default"].cloneElement(c, childProps, c.props.children);
+        return (
+          /*#__PURE__*/
+          _react["default"].cloneElement(c, childProps, c.props.children)
+        );
       });
     }
   }, {
@@ -363,7 +366,7 @@ function (_React$PureComponent3) {
       } else {
         collapsibleChildrenElemsList =
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": !collapsed
         },
         /*#__PURE__*/
@@ -465,7 +468,10 @@ function (_React$PureComponent4) {
         });
 
         if (_underscore["default"].keys(childProps).length > 0) {
-          return _react["default"].cloneElement(c, childProps, c.props.children);
+          return (
+            /*#__PURE__*/
+            _react["default"].cloneElement(c, childProps, c.props.children)
+          );
         } else return c;
       });
     }
@@ -626,7 +632,10 @@ function (_React$PureComponent5) {
         addedProps.colWidthStyles = colWidthStyles;
         addedProps.stackDepth = 0;
         addedProps.columnHeaders = columnHeaders;
-        return _react["default"].cloneElement(c, addedProps, c.props.children);
+        return (
+          /*#__PURE__*/
+          _react["default"].cloneElement(c, addedProps, c.props.children)
+        );
       });
     }
   }, {

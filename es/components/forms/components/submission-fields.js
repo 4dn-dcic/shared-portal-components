@@ -16,7 +16,7 @@ var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _reactBootstrap = require("react-bootstrap");
 
-var _Fade = require("./../../ui/Fade");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 var _Checkbox = require("./Checkbox");
 
@@ -165,7 +165,9 @@ function (_React$PureComponent) {
     _this.state = {
       'dropdownOpen': false
     };
-    _this.inputElementRef = _react["default"].createRef();
+    _this.inputElementRef =
+    /*#__PURE__*/
+    _react["default"].createRef();
     return _this;
   }
 
@@ -764,7 +766,9 @@ function (_React$PureComponent) {
 
 exports.BuildField = BuildField;
 
-var PreviewField = _react["default"].memo(function (props) {
+var PreviewField =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var value = props.value,
       filetype = props.filetype,
       field = props.field,
@@ -1559,7 +1563,7 @@ function (_React$Component3) {
           }
         }, filename_text)),
         /*#__PURE__*/
-        _react["default"].createElement(_Fade.Fade, {
+        _react["default"].createElement(_Fade["default"], {
           "in": showDelete
         },
         /*#__PURE__*/

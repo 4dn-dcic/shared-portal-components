@@ -11,7 +11,7 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-var _Fade = require("./Fade");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 var _typedefs = require("./../util/typedefs");
 
@@ -406,7 +406,7 @@ function (_React$PureComponent) {
       var hasMessage = !!message;
       return (
         /*#__PURE__*/
-        _react["default"].createElement(_Fade.Fade, {
+        _react["default"].createElement(_Fade["default"], {
           timeout: 500,
           "in": _underscore["default"].findIndex(dismissing, alert) === -1,
           onExited: this.finishDismiss,

@@ -193,7 +193,9 @@ var basicColumnExtensionMap = {
 };
 exports.basicColumnExtensionMap = basicColumnExtensionMap;
 
-var DisplayTitleColumnUser = _react["default"].memo(function (_ref) {
+var DisplayTitleColumnUser =
+/*#__PURE__*/
+_react["default"].memo(function (_ref) {
   var result = _ref.result,
       link = _ref.link,
       onClick = _ref.onClick;
@@ -250,7 +252,9 @@ var DisplayTitleColumnUser = _react["default"].memo(function (_ref) {
 
 exports.DisplayTitleColumnUser = DisplayTitleColumnUser;
 
-var DisplayTitleColumnDefault = _react["default"].memo(function (props) {
+var DisplayTitleColumnDefault =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var result = props.result,
       link = props.link,
       onClick = props.onClick,
@@ -289,7 +293,9 @@ var DisplayTitleColumnDefault = _react["default"].memo(function (props) {
 
 exports.DisplayTitleColumnDefault = DisplayTitleColumnDefault;
 
-var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
+var DisplayTitleColumnWrapper =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var result = props.result,
       children = props.children,
       _props$href2 = props.href,
@@ -321,11 +327,14 @@ var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
   }, [link, rowNumber]);
 
   var renderChildren = _react["default"].Children.map(children, function (child) {
-    return _react["default"].cloneElement(child, {
-      link: link,
-      onClick: onClick,
-      result: result
-    });
+    return (
+      /*#__PURE__*/
+      _react["default"].cloneElement(child, {
+        link: link,
+        onClick: onClick,
+        result: result
+      })
+    );
   });
 
   return (
@@ -343,7 +352,9 @@ var DisplayTitleColumnWrapper = _react["default"].memo(function (props) {
 
 exports.DisplayTitleColumnWrapper = DisplayTitleColumnWrapper;
 
-var TableRowToggleOpenButton = _react["default"].memo(function (_ref2) {
+var TableRowToggleOpenButton =
+/*#__PURE__*/
+_react["default"].memo(function (_ref2) {
   var onClick = _ref2.onClick,
       toggleDetailOpen = _ref2.toggleDetailOpen,
       open = _ref2.open;

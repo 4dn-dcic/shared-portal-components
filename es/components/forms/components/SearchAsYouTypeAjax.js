@@ -14,7 +14,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
-var _Fade = require("./../../ui/Fade");
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 var _util = require("./../../util/");
 
@@ -415,7 +415,7 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
   var onChange = (0, _react.useMemo)(function () {
     return function (resultItem, valueToReplace) {
-      console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
+      // console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
       return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
     };
   }, [selectComplete, nestedField, itemType, arrayIdx]); // Uses idToTitleMap (similar to SubmissionView.keyDisplay) to keep track of & render display_titles
@@ -1044,7 +1044,9 @@ function (_React$PureComponent2) {
 
 exports.LinkedObj = LinkedObj;
 
-var SquareButton = _react["default"].memo(function (props) {
+var SquareButton =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var show = props.show,
       disabled = props.disabled,
       onClick = props.onClick,
@@ -1068,7 +1070,7 @@ var SquareButton = _react["default"].memo(function (props) {
       style: style
     },
     /*#__PURE__*/
-    _react["default"].createElement(_Fade.Fade, {
+    _react["default"].createElement(_Fade["default"], {
       "in": show
     },
     /*#__PURE__*/

@@ -13,7 +13,7 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
-var _Collapse = require("./../ui/Collapse");
+var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 var _layout = require("./../util/layout");
 
@@ -287,7 +287,7 @@ function (_React$Component) {
           "data-recursion-depth": recurDepth
         }, title,
         /*#__PURE__*/
-        _react["default"].createElement(_Collapse.Collapse, {
+        _react["default"].createElement(_Collapse["default"], {
           "in": !this.state || open && mounted
         },
         /*#__PURE__*/
@@ -528,7 +528,9 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne
   []);
 
   return {
-    'content': _react["default"].cloneElement(jsxContent, {}, nextHeaderComponents),
+    'content':
+    /*#__PURE__*/
+    _react["default"].cloneElement(jsxContent, {}, nextHeaderComponents),
     'nextMajorHeader': nextMajorHeader
   };
 }));
@@ -964,7 +966,9 @@ _defineProperty(TableOfContents, "defaultProps", {
   'maxHeaderDepth': 3
 });
 
-var NextPreviousPageSection = _react["default"].memo(function (props) {
+var NextPreviousPageSection =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var context = props.context,
       className = props.className,
       previousTitle = props.previousTitle,
@@ -1188,14 +1192,17 @@ function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       if (!this.props.id && !this.props.link) throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
-      return _react["default"].createElement(this.props.type || 'h2', _underscore["default"].omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children,
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
-        key: "icon-link",
-        className: "icon icon-fw icon-link fas",
-        onClick: this.handleLinkClick,
-        title: "Copy link to clipboard"
-      })]);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(this.props.type || 'h2', _underscore["default"].omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children,
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          key: "icon-link",
+          className: "icon icon-fw icon-link fas",
+          onClick: this.handleLinkClick,
+          title: "Copy link to clipboard"
+        })])
+      );
     }
   }]);
 

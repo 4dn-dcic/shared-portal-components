@@ -14,15 +14,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
+var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
 var _utilities = require("./../../../viz/utilities");
-
-var _Collapse = require("./../../../ui/Collapse");
-
-var _Fade = require("./../../../ui/Fade");
 
 var _PartialList = require("./../../../ui/PartialList");
 
@@ -420,7 +414,7 @@ function (_React$PureComponent2) {
         indicator =
         /*#__PURE__*/
         // Small indicator to help represent how many terms there are available for this Facet.
-        _react["default"].createElement(_Fade.Fade, {
+        _react["default"].createElement(_Fade["default"], {
           "in": !facetOpen
         },
         /*#__PURE__*/
@@ -439,7 +433,7 @@ function (_React$PureComponent2) {
         indicator =
         /*#__PURE__*/
         // Small indicator to help represent how many terms there are available for this Facet.
-        _react["default"].createElement(_Fade.Fade, {
+        _react["default"].createElement(_Fade["default"], {
           "in": !facetOpen
         },
         /*#__PURE__*/
@@ -511,7 +505,9 @@ FacetTermsList.defaultProps = {
   'persistentCount': 10
 };
 
-var ListOfTerms = _react["default"].memo(function (props) {
+var ListOfTerms =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
       facetClosing = props.facetClosing,
@@ -674,7 +670,9 @@ var ListOfTerms = _react["default"].memo(function (props) {
   }
 });
 
-var CountIndicator = _react["default"].memo(function (_ref4) {
+var CountIndicator =
+/*#__PURE__*/
+_react["default"].memo(function (_ref4) {
   var _ref4$count = _ref4.count,
       count = _ref4$count === void 0 ? 1 : _ref4$count,
       _ref4$countActive = _ref4.countActive,

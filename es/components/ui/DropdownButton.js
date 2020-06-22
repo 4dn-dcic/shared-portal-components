@@ -165,7 +165,9 @@ _defineProperty(DropdownButton, "defaultProps", {
   'title': "Hello World"
 });
 
-var DropdownMenu = _react["default"].memo(function (props) {
+var DropdownMenu =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var children = props.children,
       open = props.open;
   if (!open) return null;

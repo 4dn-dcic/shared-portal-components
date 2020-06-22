@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import { Collapse } from './Collapse';
+import Collapse from 'react-bootstrap/esm/Collapse';
 import { console } from './../util';
 
 

@@ -216,7 +216,10 @@ function (_React$PureComponent) {
       });
 
       return _react["default"].Children.map(children, function (c) {
-        return _react["default"].cloneElement(c, propsToPass);
+        return (
+          /*#__PURE__*/
+          _react["default"].cloneElement(c, propsToPass)
+        );
       });
     }
   }]);

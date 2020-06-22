@@ -5,12 +5,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import { DropdownButton, DropdownItem, Fade } from 'react-bootstrap';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import Fade from 'react-bootstrap/esm/Fade';
 
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
 
-import { Collapse } from './../../../ui/Collapse';
 
 
 export function getRangeValuesFromFiltersByField(facets = [], filters = []){

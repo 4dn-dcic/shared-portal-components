@@ -75,7 +75,9 @@ function (_React$PureComponent) {
 
     _this = _super.call(this, props);
     _this.setIndeterminateOnRef = _this.setIndeterminateOnRef.bind(_assertThisInitialized(_this));
-    _this.checkboxRef = _react["default"].createRef();
+    _this.checkboxRef =
+    /*#__PURE__*/
+    _react["default"].createRef();
     return _this;
   }
 

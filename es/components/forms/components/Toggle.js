@@ -29,7 +29,9 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
  * @prop {function} onChange - Change event handler.
  * @prop {boolean} checked - Whether is checked or not.
  */
-var Toggle = _react["default"].memo(function (_ref) {
+var Toggle =
+/*#__PURE__*/
+_react["default"].memo(function (_ref) {
   var className = _ref.className,
       id = _ref.id,
       disabled = _ref.disabled,
