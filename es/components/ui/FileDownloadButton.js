@@ -22,7 +22,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -30,7 +30,7 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -48,16 +48,23 @@ function FileDownloadButton(props) {
       size = props.size,
       onClick = props.onClick;
   var cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
-  return /*#__PURE__*/_react["default"].createElement("a", _extends({
-    href: href,
-    onClick: onClick
-  }, {
-    className: cls,
-    download: true,
-    "data-tip": filename || null
-  }), /*#__PURE__*/_react["default"].createElement("i", {
-    className: "icon icon-fw icon-cloud-download-alt fas"
-  }), title ? /*#__PURE__*/_react["default"].createElement("span", null, "\xA0 ", title) : null);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("a", _extends({
+      href: href,
+      onClick: onClick
+    }, {
+      className: cls,
+      download: true,
+      "data-tip": filename || null
+    }),
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      className: "icon icon-fw icon-cloud-download-alt fas"
+    }), title ?
+    /*#__PURE__*/
+    _react["default"].createElement("span", null, "\xA0 ", title) : null)
+  );
 }
 
 FileDownloadButton.defaultProps = {
@@ -84,7 +91,9 @@ var canDownloadFile = (0, _memoizeOne["default"])(function (file, validStatuses)
   return false;
 });
 
-var FileDownloadButtonAuto = /*#__PURE__*/_react["default"].memo(function (props) {
+var FileDownloadButtonAuto =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var file = props.result,
       canDownloadStatuses = props.canDownloadStatuses,
       _props$onClick = props.onClick,
@@ -99,7 +108,10 @@ var FileDownloadButtonAuto = /*#__PURE__*/_react["default"].memo(function (props
     'disabled': isDisabled,
     'title': isDisabled ? 'Not ready to download' : FileDownloadButton.defaultProps.title
   };
-  return /*#__PURE__*/_react["default"].createElement(FileDownloadButton, _extends({}, props, passProps));
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement(FileDownloadButton, _extends({}, props, passProps))
+  );
 });
 
 exports.FileDownloadButtonAuto = FileDownloadButtonAuto;
@@ -115,7 +127,9 @@ FileDownloadButtonAuto.defaultProps = {
   'canDownloadStatuses': ['uploaded', 'released', 'replaced', 'submission in progress', 'released to project', 'archived']
 };
 
-var ViewFileButton = /*#__PURE__*/_react["default"].memo(function (props) {
+var ViewFileButton =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var filename = props.filename,
       href = props.href,
       target = props.target,
@@ -132,7 +146,9 @@ var ViewFileButton = /*#__PURE__*/_react["default"].memo(function (props) {
   var extLink = null; // Unsure if really used. Maybe should test href for presence of http[s]:// instd of target="_blank"?
 
   var preLink = null;
-  preLink = /*#__PURE__*/_react["default"].createElement("i", {
+  preLink =
+  /*#__PURE__*/
+  _react["default"].createElement("i", {
     className: "icon icon-fw icon-cloud-download-alt fas"
   });
   var fileNameLower = filename && filename.length > 0 && filename.toLowerCase() || '';
@@ -144,19 +160,25 @@ var ViewFileButton = /*#__PURE__*/_react["default"].memo(function (props) {
 
   if ((0, _file.isFilenameAnImage)(fileNameLowerEnds)) {
     action = 'View';
-    preLink = /*#__PURE__*/_react["default"].createElement("i", {
+    preLink =
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
       className: "icon icon-fw icon-image far"
     });
   } else if (fileNameLowerEnds['4'] === '.pdf') {
     action = 'View';
 
     if (target === '_blank') {
-      extLink = /*#__PURE__*/_react["default"].createElement("i", {
+      extLink =
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
         className: "icon icon-fw icon-external-link fas"
       });
     }
 
-    preLink = /*#__PURE__*/_react["default"].createElement("i", {
+    preLink =
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
       className: "icon icon-fw icon-file-pdf far"
     });
   } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx') {
@@ -180,14 +202,19 @@ var ViewFileButton = /*#__PURE__*/_react["default"].memo(function (props) {
     target: target
   });
 
-  return /*#__PURE__*/_react["default"].createElement("a", _extends({}, btnProps, {
-    className: cls,
-    download: action === 'Download' ? filename || true : null,
-    title: filename,
-    "data-tip": mimeType
-  }), preLink, " ", action, " ", title || filename && /*#__PURE__*/_react["default"].createElement("span", {
-    className: "text-600"
-  }, filename) || 'File', " ", extLink);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("a", _extends({}, btnProps, {
+      className: cls,
+      download: action === 'Download' ? filename || true : null,
+      title: filename,
+      "data-tip": mimeType
+    }), preLink, " ", action, " ", title || filename &&
+    /*#__PURE__*/
+    _react["default"].createElement("span", {
+      className: "text-600"
+    }, filename) || 'File', " ", extLink)
+  );
 });
 
 exports.ViewFileButton = ViewFileButton;

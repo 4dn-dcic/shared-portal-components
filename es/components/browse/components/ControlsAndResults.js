@@ -35,13 +35,13 @@ var _SelectedItemsController = require("./SelectedItemsController");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -55,17 +55,45 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
+var ControlsAndResults =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(ControlsAndResults, _React$PureComponent);
 
   var _super = _createSuper(ControlsAndResults);
@@ -82,7 +110,9 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       getSchemaTypeFromSearchContext: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaTypeFromSearchContext),
       getAbstractTypeForType: (0, _memoizeOne["default"])(_schemaTransforms.getAbstractTypeForType)
     };
-    _this.searchResultTableRef = /*#__PURE__*/_react["default"].createRef();
+    _this.searchResultTableRef =
+    /*#__PURE__*/
+    _react["default"].createRef();
     return _this;
   }
 
@@ -110,13 +140,16 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         }));
       }
 
-      return /*#__PURE__*/_react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {
-        result: result,
-        rowNumber: rowNumber,
-        containerWidth: containerWidth,
-        schemas: schemas,
-        windowWidth: windowWidth
-      });
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {
+          result: result,
+          rowNumber: rowNumber,
+          containerWidth: containerWidth,
+          schemas: schemas,
+          windowWidth: windowWidth
+        })
+      );
     }
     /**
      * Expands `this.props` and feeds them into appropriate places in view.
@@ -200,69 +233,84 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         maxBodyHeight: !isOwnPage && maxHeight || null,
         onClearFilters: this.onClearFiltersClick
       };
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row search-view-controls-and-results",
-        "data-search-item-type": searchItemType,
-        "data-search-abstract-type": searchAbstractItemType
-      }, Array.isArray(facets) && facets.length ? /*#__PURE__*/_react["default"].createElement("div", {
-        className: facetColumnClassName
-      }, showAboveTableControls ?
-      /*#__PURE__*/
-      // temporary-ish
-      _react["default"].createElement("div", {
-        className: "above-results-table-row"
-      }) : null, /*#__PURE__*/_react["default"].createElement(_FacetList.FacetList, facetListProps)) : null, /*#__PURE__*/_react["default"].createElement("div", {
-        className: tableColumnClassName
-      }, showAboveTableControls ? /*#__PURE__*/_react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, {
-        // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
-        // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
-        context: context,
-        showTotalResults: showTotalResults,
-        hiddenColumns: hiddenColumns,
-        columnDefinitions: columnDefinitions,
-        addHiddenColumn: addHiddenColumn,
-        removeHiddenColumn: removeHiddenColumn,
-        isFullscreen: isFullscreen,
-        toggleFullScreen: toggleFullScreen,
-        currentAction: currentAction,
-        windowWidth: windowWidth,
-        windowHeight: windowHeight,
-        topLeftChildren: topLeftChildren
-      }) : null, /*#__PURE__*/_react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
-        context: context,
-        href: href,
-        navigate: navigate,
-        currentAction: currentAction,
-        schemas: schemas,
-        results: results,
-        columnDefinitions: columnDefinitions,
-        visibleColumnDefinitions: visibleColumnDefinitions,
-        setColumnWidths: setColumnWidths,
-        columnWidths: columnWidths,
-        isOwnPage: isOwnPage,
-        sortBy: sortBy,
-        sortColumn: sortColumn,
-        sortReverse: sortReverse,
-        termTransformFxn: termTransformFxn,
-        windowWidth: windowWidth,
-        registerWindowOnScrollHandler: registerWindowOnScrollHandler,
-        rowHeight: rowHeight,
-        defaultOpenIndices: defaultOpenIndices,
-        maxHeight: maxHeight,
-        isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "row search-view-controls-and-results",
+          "data-search-item-type": searchItemType,
+          "data-search-abstract-type": searchAbstractItemType
+        }, Array.isArray(facets) && facets.length ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: facetColumnClassName
+        }, showAboveTableControls ?
+        /*#__PURE__*/
+        // temporary-ish
+        _react["default"].createElement("div", {
+          className: "above-results-table-row"
+        }) : null,
+        /*#__PURE__*/
+        _react["default"].createElement(_FacetList.FacetList, facetListProps)) : null,
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: tableColumnClassName
+        }, showAboveTableControls ?
+        /*#__PURE__*/
+        _react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, {
+          // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
+          // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
+          context: context,
+          showTotalResults: showTotalResults,
+          hiddenColumns: hiddenColumns,
+          columnDefinitions: columnDefinitions,
+          addHiddenColumn: addHiddenColumn,
+          removeHiddenColumn: removeHiddenColumn,
+          isFullscreen: isFullscreen,
+          toggleFullScreen: toggleFullScreen,
+          currentAction: currentAction,
+          windowWidth: windowWidth,
+          windowHeight: windowHeight,
+          topLeftChildren: topLeftChildren
+        }) : null,
+        /*#__PURE__*/
+        _react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
+          context: context,
+          href: href,
+          navigate: navigate,
+          currentAction: currentAction,
+          schemas: schemas,
+          results: results,
+          columnDefinitions: columnDefinitions,
+          visibleColumnDefinitions: visibleColumnDefinitions,
+          setColumnWidths: setColumnWidths,
+          columnWidths: columnWidths,
+          isOwnPage: isOwnPage,
+          sortBy: sortBy,
+          sortColumn: sortColumn,
+          sortReverse: sortReverse,
+          termTransformFxn: termTransformFxn,
+          windowWidth: windowWidth,
+          registerWindowOnScrollHandler: registerWindowOnScrollHandler,
+          rowHeight: rowHeight,
+          defaultOpenIndices: defaultOpenIndices,
+          maxHeight: maxHeight,
+          isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
 
-      }, {
-        ref: this.searchResultTableRef,
-        renderDetailPane: this.renderSearchDetailPane
-      })), (0, _misc.isSelectAction)(currentAction) && selectedItems !== null ? /*#__PURE__*/_react["default"].createElement(_SelectedItemsController.SelectStickyFooter, _extends({
-        context: context,
-        schemas: schemas,
-        selectedItems: selectedItems,
-        currentAction: currentAction
-      }, {
-        onComplete: onCompleteSelection,
-        onCancel: onCancelSelection
-      })) : null));
+        }, {
+          ref: this.searchResultTableRef,
+          renderDetailPane: this.renderSearchDetailPane
+        })), (0, _misc.isSelectAction)(currentAction) && selectedItems !== null ?
+        /*#__PURE__*/
+        _react["default"].createElement(_SelectedItemsController.SelectStickyFooter, _extends({
+          context: context,
+          schemas: schemas,
+          selectedItems: selectedItems,
+          currentAction: currentAction
+        }, {
+          onComplete: onCompleteSelection,
+          onCancel: onCancelSelection
+        })) : null))
+      );
     }
   }]);
 

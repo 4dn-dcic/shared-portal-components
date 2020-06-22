@@ -17,7 +17,7 @@ var _utilities = require("./../../viz/utilities");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -29,13 +29,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -48,7 +74,9 @@ https://tj.ie/scrollable-container-controls-with-react/
 This component is used by:
     - SearchSelectionMenu.js
 */
-var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
+var VerticalScrollContainer =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(VerticalScrollContainer, _React$PureComponent);
 
   var _super = _createSuper(VerticalScrollContainer);
@@ -65,7 +93,9 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
       canScrollDown: false,
       scrollingDirection: null
     };
-    _this.scrollContainer = /*#__PURE__*/_react["default"].createRef();
+    _this.scrollContainer =
+    /*#__PURE__*/
+    _react["default"].createRef();
     _this.onMouseDownJumpToTop = _this.onMouseDownJumpToTop.bind(_assertThisInitialized(_this));
     _this.onMouseDownJumpToBottom = _this.onMouseDownJumpToBottom.bind(_assertThisInitialized(_this));
     _this.onMouseOverScrollDown = _this.onMouseOverScrollDown.bind(_assertThisInitialized(_this));
@@ -248,42 +278,61 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
           hasOverflow = _this$state2.hasOverflow,
           canScrollUp = _this$state2.canScrollUp,
           canScrollDown = _this$state2.canScrollDown;
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "vertical-scroll-container"
-      }, /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
-        "in": hasOverflow && canScrollUp,
-        timeout: "500",
-        mountOnEnter: true,
-        unmountOnExit: true
-      }, /*#__PURE__*/_react["default"].createElement("button", {
-        type: "button",
-        className: "button-scroll arrow-up d-block text-center w-100",
-        onClick: this.onMouseDownJumpToTop,
-        disabled: !canScrollUp,
-        onMouseOver: this.onMouseOverScrollUp,
-        onMouseOut: this.onMouseUp
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon fas icon-angle-up"
-      }))), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "scrollable-list-container",
-        ref: this.scrollContainer
-      }, /*#__PURE__*/_react["default"].createElement("ul", {
-        className: "scroll-items list-unstyled my-0"
-      }, header, items, footer)), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
-        "in": hasOverflow && canScrollDown,
-        timeout: "500",
-        mountOnEnter: true,
-        unmountOnExit: true
-      }, /*#__PURE__*/_react["default"].createElement("button", {
-        type: "button",
-        className: "button-scroll arrow-down d-block text-center w-100",
-        onClick: this.onMouseDownJumpToBottom,
-        disabled: !canScrollDown,
-        onMouseOver: this.onMouseOverScrollDown,
-        onMouseOut: this.onMouseUp
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon fas icon-angle-down"
-      }))));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "vertical-scroll-container"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(_Fade["default"], {
+          "in": hasOverflow && canScrollUp,
+          timeout: "500",
+          mountOnEnter: true,
+          unmountOnExit: true
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "button-scroll arrow-up d-block text-center w-100",
+          onClick: this.onMouseDownJumpToTop,
+          disabled: !canScrollUp,
+          onMouseOver: this.onMouseOverScrollUp,
+          onMouseOut: this.onMouseUp
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon fas icon-angle-up"
+        }))),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "scrollable-list-container",
+          ref: this.scrollContainer
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("ul", {
+          className: "scroll-items list-unstyled my-0"
+        }, header, items, footer)),
+        /*#__PURE__*/
+        _react["default"].createElement(_Fade["default"], {
+          "in": hasOverflow && canScrollDown,
+          timeout: "500",
+          mountOnEnter: true,
+          unmountOnExit: true
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "button",
+          className: "button-scroll arrow-down d-block text-center w-100",
+          onClick: this.onMouseDownJumpToBottom,
+          disabled: !canScrollDown,
+          onMouseOver: this.onMouseOverScrollDown,
+          onMouseOut: this.onMouseUp
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon fas icon-angle-down"
+        }))))
+      );
     }
   }]);
 

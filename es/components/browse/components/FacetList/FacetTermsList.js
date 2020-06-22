@@ -24,19 +24,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -52,13 +48,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -169,7 +191,9 @@ function segmentTermComponentsByStatus(termComponents) {
  */
 
 
-var Term = /*#__PURE__*/function (_React$PureComponent) {
+var Term =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(Term, _React$PureComponent);
 
   var _super = _createSuper(Term);
@@ -249,15 +273,21 @@ var Term = /*#__PURE__*/function (_React$PureComponent) {
       var icon = null;
 
       if (filtering) {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon =
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
       } else if (status === 'selected' || status === 'omitted') {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon =
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon icon-minus-circle icon-fw fas"
         });
       } else {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon =
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon icon-circle icon-fw unselected far"
         });
       }
@@ -267,24 +297,35 @@ var Term = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
-      return /*#__PURE__*/_react["default"].createElement("li", {
-        className: "facet-list-element " + statusClassName,
-        key: term.key,
-        "data-key": term.key
-      }, /*#__PURE__*/_react["default"].createElement("a", {
-        className: "term",
-        "data-selected": status !== 'none',
-        href: "#",
-        onClick: this.handleClick,
-        "data-term": term.key
-      }, /*#__PURE__*/_react["default"].createElement("span", {
-        className: "facet-selector"
-      }, icon), /*#__PURE__*/_react["default"].createElement("span", {
-        className: "facet-item",
-        "data-tip": title.length > 30 ? title : null
-      }, title), /*#__PURE__*/_react["default"].createElement("span", {
-        className: "facet-count"
-      }, count)));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("li", {
+          className: "facet-list-element " + statusClassName,
+          key: term.key,
+          "data-key": term.key
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("a", {
+          className: "term",
+          "data-selected": status !== 'none',
+          href: "#",
+          onClick: this.handleClick,
+          "data-term": term.key
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "facet-selector"
+        }, icon),
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "facet-item",
+          "data-tip": title.length > 30 ? title : null
+        }, title),
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "facet-count"
+        }, count)))
+      );
     }
   }]);
 
@@ -304,7 +345,9 @@ Term.propTypes = {
   'onClick': _propTypes["default"].func.isRequired
 };
 
-var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
+var FacetTermsList =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
 
   var _super2 = _createSuper(FacetTermsList);
@@ -373,12 +416,16 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         // Small indicator to help represent how many terms there are available for this Facet.
         _react["default"].createElement(_Fade["default"], {
           "in": !facetOpen
-        }, /*#__PURE__*/_react["default"].createElement("span", {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "No useful options (1 total)" + (anySelected ? "; is selected" : ""),
           "data-place": "right",
           "data-any-selected": anySelected
-        }, /*#__PURE__*/_react["default"].createElement(CountIndicator, {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(CountIndicator, {
           count: termsLen,
           countActive: termsSelectedCount
         })));
@@ -388,46 +435,65 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         // Small indicator to help represent how many terms there are available for this Facet.
         _react["default"].createElement(_Fade["default"], {
           "in": !facetOpen
-        }, /*#__PURE__*/_react["default"].createElement("span", {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "".concat(termsLen, " options with ").concat(termsSelectedCount, " selected"),
           "data-place": "right",
           "data-any-selected": anySelected
-        }, /*#__PURE__*/_react["default"].createElement(CountIndicator, {
+        },
+        /*#__PURE__*/
+        _react["default"].createElement(CountIndicator, {
           count: termsLen,
           countActive: termsSelectedCount
         })));
       } // List of terms
 
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "facet" + (facetOpen || allTermsSelected ? ' open' : ' closed'),
-        "data-field": facet.field
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
-        className: "facet-title",
-        onClick: this.handleOpenToggleClick
-      }, /*#__PURE__*/_react["default"].createElement("span", {
-        className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
-      })), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "col px-0 line-height-1"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
-        "data-tip": description,
-        "data-html": true,
-        "data-place": "right"
-      }, title)), indicator), /*#__PURE__*/_react["default"].createElement(ListOfTerms, _extends({
-        facet: facet,
-        facetOpen: facetOpen,
-        terms: terms,
-        persistentCount: persistentCount,
-        onTermClick: onTermClick,
-        expanded: expanded,
-        getTermStatus: getTermStatus,
-        termTransformFxn: termTransformFxn
-      }, {
-        onToggleExpanded: this.handleExpandListToggleClick
-      })));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "facet" + (facetOpen || allTermsSelected ? ' open' : ' closed'),
+          "data-field": facet.field
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("h5", {
+          className: "facet-title",
+          onClick: this.handleOpenToggleClick
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "expand-toggle col-auto px-0"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "col px-0 line-height-1"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          "data-tip": description,
+          "data-html": true,
+          "data-place": "right"
+        }, title)), indicator),
+        /*#__PURE__*/
+        _react["default"].createElement(ListOfTerms, _extends({
+          facet: facet,
+          facetOpen: facetOpen,
+          terms: terms,
+          persistentCount: persistentCount,
+          onTermClick: onTermClick,
+          expanded: expanded,
+          getTermStatus: getTermStatus,
+          termTransformFxn: termTransformFxn
+        }, {
+          onToggleExpanded: this.handleExpandListToggleClick
+        })))
+      );
     }
   }]);
 
@@ -439,7 +505,9 @@ FacetTermsList.defaultProps = {
   'persistentCount': 10
 };
 
-var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
+var ListOfTerms =
+/*#__PURE__*/
+_react["default"].memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
       facetClosing = props.facetClosing,
@@ -454,15 +522,18 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
 
   var _useMemo = (0, _react.useMemo)(function () {
     var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
-      return /*#__PURE__*/_react["default"].createElement(Term, _extends({
-        facet: facet,
-        term: term,
-        termTransformFxn: termTransformFxn
-      }, {
-        onClick: onTermClick,
-        key: term.key,
-        status: getTermStatus(term, facet)
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(Term, _extends({
+          facet: facet,
+          term: term,
+          termTransformFxn: termTransformFxn
+        }, {
+          onClick: onTermClick,
+          key: term.key,
+          status: getTermStatus(term, facet)
+        }))
+      );
     })),
         _segmentTermComponent2 = _segmentTermComponent.selected,
         selectedTermComponents = _segmentTermComponent2 === void 0 ? [] : _segmentTermComponent2,
@@ -534,44 +605,74 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
     var expandButtonTitle;
 
     if (expanded) {
-      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+      expandButtonTitle =
+      /*#__PURE__*/
+      _react["default"].createElement("span", null,
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
         className: "icon icon-fw icon-minus fas"
       }), " Collapse");
     } else {
-      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+      expandButtonTitle =
+      /*#__PURE__*/
+      _react["default"].createElement("span", null,
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
         className: "icon icon-fw icon-plus fas"
-      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/_react["default"].createElement("span", {
+      }), " View ", collapsibleTermsCount, " More",
+      /*#__PURE__*/
+      _react["default"].createElement("span", {
         className: "pull-right"
       }, collapsibleTermsItemCount));
     }
 
-    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
-      className: "mb-0 active-terms-pl",
-      open: facetOpen,
-      persistent: activeTermComponents,
-      collapsible: /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
-        className: "mb-0",
-        open: expanded,
-        persistent: persistentTerms,
-        collapsible: collapsibleTerms
-      }), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "pt-08 pb-0"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "view-more-button",
-        onClick: onToggleExpanded
-      }, expandButtonTitle)))
-    }));
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("div", commonProps,
+      /*#__PURE__*/
+      _react["default"].createElement(_PartialList.PartialList, {
+        className: "mb-0 active-terms-pl",
+        open: facetOpen,
+        persistent: activeTermComponents,
+        collapsible:
+        /*#__PURE__*/
+        _react["default"].createElement(_react["default"].Fragment, null,
+        /*#__PURE__*/
+        _react["default"].createElement(_PartialList.PartialList, {
+          className: "mb-0",
+          open: expanded,
+          persistent: persistentTerms,
+          collapsible: collapsibleTerms
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "pt-08 pb-0"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "view-more-button",
+          onClick: onToggleExpanded
+        }, expandButtonTitle)))
+      }))
+    );
   } else {
-    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
-      className: "mb-0 active-terms-pl",
-      open: facetOpen,
-      persistent: activeTermComponents,
-      collapsible: unselectedTermComponents
-    }));
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("div", commonProps,
+      /*#__PURE__*/
+      _react["default"].createElement(_PartialList.PartialList, {
+        className: "mb-0 active-terms-pl",
+        open: facetOpen,
+        persistent: activeTermComponents,
+        collapsible: unselectedTermComponents
+      }))
+    );
   }
 });
 
-var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref4) {
+var CountIndicator =
+/*#__PURE__*/
+_react["default"].memo(function (_ref4) {
   var _ref4$count = _ref4.count,
       count = _ref4$count === void 0 ? 1 : _ref4$count,
       _ref4$countActive = _ref4.countActive,
@@ -589,24 +690,30 @@ var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref4) {
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 
-    return /*#__PURE__*/_react["default"].createElement("circle", {
-      cx: width - x + 1,
-      cy: height - y + 1,
-      r: 2,
-      key: idx,
-      "data-original-index": idx,
-      style: {
-        opacity: 1 - colIdx * .125
-      },
-      className: dotCountToShow - idx <= countActive ? "active" : null
-    });
+    return (
+      /*#__PURE__*/
+      _react["default"].createElement("circle", {
+        cx: width - x + 1,
+        cy: height - y + 1,
+        r: 2,
+        key: idx,
+        "data-original-index": idx,
+        style: {
+          opacity: 1 - colIdx * .125
+        },
+        className: dotCountToShow - idx <= countActive ? "active" : null
+      })
+    );
   });
-  return /*#__PURE__*/_react["default"].createElement("svg", {
-    className: "svg-count-indicator",
-    viewBox: "0 0 ".concat(width + 2, " ").concat(height + 2),
-    width: width + 2,
-    height: height + 2
-  }, dots);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("svg", {
+      className: "svg-count-indicator",
+      viewBox: "0 0 ".concat(width + 2, " ").concat(height + 2),
+      width: width + 2,
+      height: height + 2
+    }, dots)
+  );
 });
 
 exports.CountIndicator = CountIndicator;
