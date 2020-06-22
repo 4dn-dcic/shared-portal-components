@@ -479,7 +479,7 @@ function (_React$Component3) {
             labelID: "description",
             style: "row-without-label",
             placeholder: "description",
-            fallbackText: "no description - click icon to add new",
+            fallbackText: "click to add new description",
             fieldType: "text"
           })))
         );
