@@ -2,38 +2,51 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import memoize from 'memoize-one';
 import moment from 'moment';
 import { isServerSide } from './../util/misc';
 
 
-export class LocalizedTime extends React.PureComponent {
+export class LocalizedTime extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {
-            moment : props.momentDate ? props.momentDate :
-                props.timestamp ? moment.utc(props.timestamp) : moment.utc(),
-            mounted : false
+        this.memoized = {
+            getMoment: memoize(function(momentDate, timestamp) {
+                if (momentDate) return momentDate;
+                if (timestamp) return moment.utc(timestamp);
+                return moment.utc();
+            })
         };
+        this.state = { 'mounted' : false };
     }
 
     componentDidMount(){
-        this.setState({ mounted : true });
+        this.setState({ 'mounted' : true });
     }
 
     render(){
-        const { formatType, dateTimeSeparator, localize, customOutputFormat, className } = this.props;
-        const { moment: stateMoment, mounted } = this.state;
+        const {
+            formatType,
+            dateTimeSeparator,
+            localize,
+            customOutputFormat,
+            className,
+            momentDate,
+            timestamp
+        } = this.props;
+        const { mounted } = this.state;
+        const selfMoment = this.memoized.getMoment(momentDate, timestamp);
         if (!mounted || isServerSide()) {
             return (
                 <span className={className + ' utc'}>
-                    { display(stateMoment, formatType, dateTimeSeparator, false, customOutputFormat) }
+                    { display(selfMoment, formatType, dateTimeSeparator, false, customOutputFormat) }
                 </span>
             );
         } else {
             return (
                 <span className={className + (localize ? ' local' : ' utc')}>
-                    { display(stateMoment, formatType, dateTimeSeparator, localize, customOutputFormat) }
+                    { display(selfMoment, formatType, dateTimeSeparator, localize, customOutputFormat) }
                 </span>
             );
         }
@@ -46,6 +59,7 @@ LocalizedTime.propTypes = {
         }
     },
     timestamp : PropTypes.string,
+    localize: PropTypes.bool,
     formatType : PropTypes.string,
     dateTimeSeparator : PropTypes.string,
     customOutputFormat : PropTypes.string,

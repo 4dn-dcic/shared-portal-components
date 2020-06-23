@@ -29,7 +29,7 @@ const defaultOptions = {
             track_and_facet_info: { experiment_type: tfi_expType } = {},
             // For exps or expsets, try to grab experiment_type
             experiment_type: { display_title: exp_expType } = {},
-            experiments_in_set: [ { experiment_type: { display_title: set_expType } = {} } ] = [{}],
+            experiments_in_set: [ { experiment_type: { display_title: set_expType } = {} } = {} ] = [{}],
             from_experiment = null,
             from_experiment_set = null
         } = item;
