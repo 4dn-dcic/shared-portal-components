@@ -480,7 +480,8 @@ function (_React$Component3) {
             style: "row-without-label",
             placeholder: "description",
             fallbackText: "click to add new description",
-            fieldType: "text"
+            fieldType: "text",
+            buttonAlwaysVisible: true
           })))
         );
       }

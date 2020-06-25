@@ -352,7 +352,7 @@ export class FlexibleDescriptionBox extends React.Component {
                         className={textClassName}
                         style={textStyle}
                         schemas={schemas} href={href}>
-                        <EditableField className={textClassName} labelID="description" style="row-without-label" placeholder="description" fallbackText="click to add new description" fieldType="text" >
+                        <EditableField className={textClassName} labelID="description" style="row-without-label" placeholder="description" fallbackText="click to add new description" fieldType="text" buttonAlwaysVisible={true}>
                         </EditableField>
                     </FieldSet>
                 </div>
