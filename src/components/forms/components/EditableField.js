@@ -42,9 +42,10 @@ export class EditableField extends React.Component {
         pattern         : PropTypes.any,    // Optional pattern to use in lieu of one derived from schema or default field pattern. If set to false, will skip (default or schema-based) validation.
         required        : PropTypes.bool,   // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
         schemas         : PropTypes.object.isRequired,
-        debug           : PropTypes.bool,    // Verbose lifecycle log messages.
-        customSave      : PropTypes.func,
-        dataType        : PropTypes.oneOf(['string', 'int']),
+        debug           : PropTypes.bool,   // Verbose lifecycle log messages.
+        customSave      : PropTypes.func,   // instead of built-in save function, pass custom save
+        dataType        : PropTypes.oneOf(['string', 'int']), //return value is converted one of these types
+        buttonAlwaysVisible : PropTypes.bool, //edit button always visible or not
     };
 
     static defaultProps = {
@@ -61,7 +62,8 @@ export class EditableField extends React.Component {
         'dataType': 'string',
         'onSave' : function(nextContext){
             console.log('Saved successfully', nextContext);
-        }
+        },
+        'buttonAlwaysVisible': false
     };
 
     constructor(props){
@@ -464,11 +466,12 @@ export class EditableField extends React.Component {
     }
 
     renderActionIcon(type = 'edit'){
-        const { style, info, disabled, labelID } = this.props;
+        const { style, info, disabled, labelID, buttonAlwaysVisible } = this.props;
         const { loading } = this.state;
 
         let extClass = "";
-        // if (style === 'inline') extClass = "show-absolute ";
+        if (style === 'inline') extClass = "show-absolute ";
+        if (buttonAlwaysVisible) extClass += "always-visible ";
 
         if (loading){
             switch (type){
@@ -647,7 +650,7 @@ export class EditableField extends React.Component {
             );
             case 'numeric' : return (
                 <span className="input-wrapper">
-                    <input type="text" inputMode="latin" {...commonPropsTextInput} />
+                    <input type="number" inputMode="latin" {...commonPropsTextInput} />
                     { this.validationFeedbackMessage() }
                 </span>
             );

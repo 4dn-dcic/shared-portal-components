@@ -21,12 +21,12 @@
 
 div.fieldset.editable-fields {
 
-	padding-bottom: 15px;
+	// padding-bottom: 15px;
 
-    @include media-breakpoint-up(md) {
-		// Transition is too laggy on (some) mobile
-		transition: padding-bottom .5s linear;
-	}
+    // @include media-breakpoint-up(md) {
+	// 	// Transition is too laggy on (some) mobile
+	// 	transition: padding-bottom .5s linear;
+	// }
 
 	&.editing {
 		padding-bottom: 0px;
@@ -133,16 +133,19 @@ div.fieldset.editable-fields {
 		}
 
 		.edit-button {
-			color: #dedede;
+			color: transparent;
 			transform: translateY(2px);
 			&.show-absolute {
 				position: absolute;
-				margin-top: -5px;
+				//margin-top: -5px;
 				padding: 0;
 				height: 20px;
 				width: 20px;
 				text-align: center;
 				border-radius: 50%;
+			}
+			&.always-visible {
+				color: #dedede;
 			}
 		}
 
@@ -185,10 +188,14 @@ div.fieldset.editable-fields {
 				padding: 0 !important;
 				display: block;
 				margin-bottom: 0px;
-				width: 100%;
+				//width: 100%;
 				position: relative;
 				z-index: 3;
-				height: initial !important;
+				height: initial !important;	
+			}
+
+			input[type=number] {
+				width: 50px !important;
 			}
 
 			input:focus{

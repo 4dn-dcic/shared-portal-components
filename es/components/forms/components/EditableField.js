@@ -623,9 +623,12 @@ function (_React$Component) {
           style = _this$props4.style,
           info = _this$props4.info,
           disabled = _this$props4.disabled,
-          labelID = _this$props4.labelID;
+          labelID = _this$props4.labelID,
+          buttonAlwaysVisible = _this$props4.buttonAlwaysVisible;
       var loading = this.state.loading;
-      var extClass = ""; // if (style === 'inline') extClass = "show-absolute ";
+      var extClass = "";
+      if (style === 'inline') extClass = "show-absolute ";
+      if (buttonAlwaysVisible) extClass += "always-visible ";
 
       if (loading) {
         switch (type) {
@@ -933,7 +936,7 @@ function (_React$Component) {
             },
             /*#__PURE__*/
             _react["default"].createElement("input", _extends({
-              type: "text",
+              type: "number",
               inputMode: "latin"
             }, commonPropsTextInput)), this.validationFeedbackMessage())
           );
@@ -1099,7 +1102,11 @@ _defineProperty(EditableField, "propTypes", {
   debug: _propTypes["default"].bool,
   // Verbose lifecycle log messages.
   customSave: _propTypes["default"].func,
-  dataType: _propTypes["default"].oneOf(['string', 'int'])
+  // instead of built-in save function, pass custom save
+  dataType: _propTypes["default"].oneOf(['string', 'int']),
+  //return value is converted one of these types
+  buttonAlwaysVisible: _propTypes["default"].bool //edit button always visible or not
+
 });
 
 _defineProperty(EditableField, "defaultProps", {
@@ -1116,7 +1123,8 @@ _defineProperty(EditableField, "defaultProps", {
   'dataType': 'string',
   'onSave': function onSave(nextContext) {
     _util.console.log('Saved successfully', nextContext);
-  }
+  },
+  'buttonAlwaysVisible': false
 });
 
 var FieldSet =
