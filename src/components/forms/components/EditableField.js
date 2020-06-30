@@ -43,7 +43,7 @@ export class EditableField extends React.Component {
         required        : PropTypes.bool,   // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
         schemas         : PropTypes.object.isRequired,
         debug           : PropTypes.bool,   // Verbose lifecycle log messages.
-        customSave      : PropTypes.func,   // instead of built-in save function, pass custom save
+        handleCustomSave: PropTypes.func,   // instead of built-in save function, pass custom save
         dataType        : PropTypes.oneOf(['string', 'int']), //return value is converted one of these types
         buttonAlwaysVisible : PropTypes.bool, //edit button always visible or not
     };
@@ -304,22 +304,21 @@ export class EditableField extends React.Component {
             );
         }
 
-        switch(fieldType){
-
+        switch (fieldType) {
             case 'phone':
                 return (
                     <div className="invalid-feedback">
                         Only use digits &mdash; no dashes, spaces, or parantheses.
-                        Optionally may include leading &apos;+&apos; or extension.<br/>
+                        Optionally may include leading &apos;+&apos; or extension.<br />
                         <b>e.g.:</b> <code>+######### x###</code>
                     </div>
                 );
             case 'email':
                 return <div className="invalid-feedback">Please enter a valid email address.</div>;
-            case 'username':
-            case 'text':
             case 'numeric':
                 return <div className="invalid-feedback">Please enter a valid number.</div>;
+            case 'username':
+            case 'text':
             default:
                 return null;
         }
@@ -406,22 +405,24 @@ export class EditableField extends React.Component {
 
     saveEditState(e){
         e.preventDefault();
-        const { labelID, customSave, context, parent, dataType } = this.props;
-        if (!this.isValid()){
+        const { labelID, handleCustomSave, context, parent, dataType } = this.props;
+        if (!this.isValid()) {
             // ToDo : Bigger notification to end user that something is wrong.
             console.error("Cannot save " + this.props.labelID + "; value is not valid:", this.state.value);
             return;
-        } else if (this.state.value === this.state.savedValue){
+        } else if (this.state.value === this.state.savedValue) {
             return this.cancelEditState(e);
         }
-        if (typeof customSave === 'function') {
-            let patchData = null;
+        /* custom save instead of default context patch */
+        if (typeof handleCustomSave === 'function') {
             let value = this.state.value;
-            if (dataType === 'int') { value = parseInt(value); }
-            patchData = object.generateSparseNestedProperty(labelID, value);
-            const custom = customSave(patchData, context);
-            if (custom) {
-                this.setState({ 'savedValue': value, 'value': value, 'dispatching': true }, () =>{
+            if (dataType === 'int') {
+                value = parseInt(value);
+            }
+            const patchData = object.generateSparseNestedProperty(labelID, value);
+            const success = handleCustomSave(patchData, context);
+            if (success) {
+                this.setState({ 'savedValue': value, 'value': value, 'dispatching': true }, () => {
                     setTimeout(() => {
                         parent.setState({ 'currentlyEditing': null }, () => {
                             this.setState({ 'loading': false, 'dispatching': false });
@@ -430,7 +431,6 @@ export class EditableField extends React.Component {
 
                 });
             }
-
         }
         else {
             this.save(() => {

@@ -390,8 +390,6 @@ function (_React$Component) {
             }, "Please enter a valid email address.")
           );
 
-        case 'username':
-        case 'text':
         case 'numeric':
           return (
             /*#__PURE__*/
@@ -400,6 +398,8 @@ function (_React$Component) {
             }, "Please enter a valid number.")
           );
 
+        case 'username':
+        case 'text':
         default:
           return null;
       }
@@ -535,7 +535,7 @@ function (_React$Component) {
       e.preventDefault();
       var _this$props3 = this.props,
           labelID = _this$props3.labelID,
-          customSave = _this$props3.customSave,
+          handleCustomSave = _this$props3.handleCustomSave,
           context = _this$props3.context,
           parent = _this$props3.parent,
           dataType = _this$props3.dataType;
@@ -548,19 +548,21 @@ function (_React$Component) {
       } else if (this.state.value === this.state.savedValue) {
         return this.cancelEditState(e);
       }
+      /* custom save instead of default context patch */
 
-      if (typeof customSave === 'function') {
-        var patchData = null;
+
+      if (typeof handleCustomSave === 'function') {
         var value = this.state.value;
 
         if (dataType === 'int') {
           value = parseInt(value);
         }
 
-        patchData = _util.object.generateSparseNestedProperty(labelID, value);
-        var custom = customSave(patchData, context);
+        var patchData = _util.object.generateSparseNestedProperty(labelID, value);
 
-        if (custom) {
+        var success = handleCustomSave(patchData, context);
+
+        if (success) {
           this.setState({
             'savedValue': value,
             'value': value,
@@ -1101,7 +1103,7 @@ _defineProperty(EditableField, "propTypes", {
   schemas: _propTypes["default"].object.isRequired,
   debug: _propTypes["default"].bool,
   // Verbose lifecycle log messages.
-  customSave: _propTypes["default"].func,
+  handleCustomSave: _propTypes["default"].func,
   // instead of built-in save function, pass custom save
   dataType: _propTypes["default"].oneOf(['string', 'int']),
   //return value is converted one of these types
