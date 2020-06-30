@@ -28,25 +28,21 @@ var _patchedConsole = require("./../../../util/patched-console");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
 
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -60,13 +56,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -105,7 +127,9 @@ function getRangeValuesFromFiltersByField() {
   return valuesByField;
 }
 
-var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
+var RangeFacet =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(RangeFacet, _React$PureComponent);
 
   var _super = _createSuper(RangeFacet);
@@ -406,83 +430,134 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           toIncrements = _this$memoized$validI.toIncrements;
 
       var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
-        "data-field": facet.field
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
-        className: "facet-title",
-        onClick: this.handleOpenToggleClick
-      }, /*#__PURE__*/_react["default"].createElement("span", {
-        className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
-      })), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "col px-0 line-height-1"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
-        "data-tip": tooltip,
-        "data-place": "right"
-      }, propTitle || facetTitle || field)), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
-        "in": !isOpen
-      }, /*#__PURE__*/_react["default"].createElement("span", {
-        className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
-      }, isStatic ? /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle"),
-        style: {
-          opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25
-        }
-      }) : /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-greater-than-equal fas"
-      })))), /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
-        "in": isOpen
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "inner-panel"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row"
-      }, /*#__PURE__*/_react["default"].createElement("label", {
-        className: "col-auto mb-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-greater-than-equal fas small"
-      })), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
-        title: this.termTitle(facet.field, typeof fromVal === 'number' ? fromVal : min || 0),
-        value: fromVal,
-        savedValue: savedFromVal,
-        max: toVal || null,
-        increments: fromIncrements,
-        variant: typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark",
-        onSelect: this.setFrom,
-        update: this.performUpdateFrom,
-        termTransformFxn: this.termTitle,
-        facet: facet,
-        id: "from_" + field
-      }), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable"),
-        onClick: fromVal !== null ? this.resetFrom : null
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")
-      }))), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row"
-      }, /*#__PURE__*/_react["default"].createElement("label", {
-        className: "col-auto mb-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-less-than-equal fas small"
-      })), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
-        title: this.termTitle(facet.field, typeof toVal === 'number' ? toVal : max) || /*#__PURE__*/_react["default"].createElement("em", null, "Infinity"),
-        value: toVal,
-        savedValue: savedToVal,
-        min: fromVal || null,
-        increments: toIncrements,
-        variant: typeof toVal === "number" || savedToVal ? "primary" : "outline-dark",
-        onSelect: this.setTo,
-        update: this.performUpdateTo,
-        termTransformFxn: this.termTitle,
-        facet: facet,
-        id: "to_" + field
-      }), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable"),
-        onClick: toVal !== null ? this.resetTo : null
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw fas icon-" + (toVal === null ? "pencil" : "times-circle")
-      }))))));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
+          "data-field": facet.field
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("h5", {
+          className: "facet-title",
+          onClick: this.handleOpenToggleClick
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "expand-toggle col-auto px-0"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "col px-0 line-height-1"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          "data-tip": tooltip,
+          "data-place": "right"
+        }, propTitle || facetTitle || field)),
+        /*#__PURE__*/
+        _react["default"].createElement(_Fade["default"], {
+          "in": !isOpen
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
+        }, isStatic ?
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle"),
+          style: {
+            opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25
+          }
+        }) :
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-greater-than-equal fas"
+        })))),
+        /*#__PURE__*/
+        _react["default"].createElement(_Collapse["default"], {
+          "in": isOpen
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "inner-panel"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "row"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("label", {
+          className: "col-auto mb-0"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-greater-than-equal fas small"
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement(RangeDropdown, {
+          title: this.termTitle(facet.field, typeof fromVal === 'number' ? fromVal : min || 0),
+          value: fromVal,
+          savedValue: savedFromVal,
+          max: toVal || null,
+          increments: fromIncrements,
+          variant: typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark",
+          onSelect: this.setFrom,
+          update: this.performUpdateFrom,
+          termTransformFxn: this.termTitle,
+          facet: facet,
+          id: "from_" + field
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable"),
+          onClick: fromVal !== null ? this.resetFrom : null
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")
+        }))),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "row"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("label", {
+          className: "col-auto mb-0"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-less-than-equal fas small"
+        })),
+        /*#__PURE__*/
+        _react["default"].createElement(RangeDropdown, {
+          title: this.termTitle(facet.field, typeof toVal === 'number' ? toVal : max) ||
+          /*#__PURE__*/
+          _react["default"].createElement("em", null, "Infinity"),
+          value: toVal,
+          savedValue: savedToVal,
+          min: fromVal || null,
+          increments: toIncrements,
+          variant: typeof toVal === "number" || savedToVal ? "primary" : "outline-dark",
+          onSelect: this.setTo,
+          update: this.performUpdateTo,
+          termTransformFxn: this.termTitle,
+          facet: facet,
+          id: "to_" + field
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable"),
+          onClick: toVal !== null ? this.resetTo : null
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw fas icon-" + (toVal === null ? "pencil" : "times-circle")
+        }))))))
+      );
     }
   }]);
 
@@ -491,7 +566,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
 exports.RangeFacet = RangeFacet;
 
-var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
+var RangeDropdown =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(RangeDropdown, _React$PureComponent2);
 
   var _super2 = _createSuper(RangeDropdown);
@@ -587,47 +664,67 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
 
         return m;
       }, new Set())).map(function (increment) {
-        return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
-          disabled: typeof min === "number" && increment <= min || typeof max === "number" && increment >= max,
-          key: increment,
-          eventKey: increment,
-          active: increment === savedValue
-        }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/_react["default"].createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/_react["default"].createElement("small", null, " (max)") : null);
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement(_DropdownItem["default"], {
+            disabled: typeof min === "number" && increment <= min || typeof max === "number" && increment >= max,
+            key: increment,
+            eventKey: increment,
+            active: increment === savedValue
+          }, termTransformFxn(facet.field, increment, true), increment === min ?
+          /*#__PURE__*/
+          _react["default"].createElement("small", null, " (min)") : null, increment === max ?
+          /*#__PURE__*/
+          _react["default"].createElement("small", null, " (max)") : null)
+        );
       });
 
-      return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
-        variant: variant,
-        disabled: disabled,
-        className: className,
-        title: title,
-        size: size,
-        id: id
-      }, {
-        alignRight: true,
-        onSelect: this.onDropdownSelect
-      }), /*#__PURE__*/_react["default"].createElement("form", {
-        className: "inline-input-container",
-        onSubmit: this.onTextInputFormSubmit
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "input-element-container"
-      }, /*#__PURE__*/_react["default"].createElement("input", _extends({
-        type: "number",
-        className: "form-control"
-      }, {
-        min: min,
-        max: max,
-        value: value,
-        placeholder: placeholder,
-        step: step
-      }, {
-        onChange: this.onTextInputChange
-      }))), /*#__PURE__*/_react["default"].createElement("button", {
-        type: "submit",
-        disabled: !(savedValue !== value),
-        className: "btn"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-check fas"
-      }))), menuOptions);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(_DropdownButton["default"], _extends({
+          variant: variant,
+          disabled: disabled,
+          className: className,
+          title: title,
+          size: size,
+          id: id
+        }, {
+          alignRight: true,
+          onSelect: this.onDropdownSelect
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement("form", {
+          className: "inline-input-container",
+          onSubmit: this.onTextInputFormSubmit
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "input-element-container"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("input", _extends({
+          type: "number",
+          className: "form-control"
+        }, {
+          min: min,
+          max: max,
+          value: value,
+          placeholder: placeholder,
+          step: step
+        }, {
+          onChange: this.onTextInputChange
+        }))),
+        /*#__PURE__*/
+        _react["default"].createElement("button", {
+          type: "submit",
+          disabled: !(savedValue !== value),
+          className: "btn"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon icon-fw icon-check fas"
+        }))), menuOptions)
+      );
     }
   }]);
 

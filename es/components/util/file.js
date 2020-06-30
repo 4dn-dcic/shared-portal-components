@@ -17,27 +17,23 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _object = require("./object");
 
+var _schemaTransforms = require("./schema-transforms");
+
 var _misc = require("./misc");
 
 var _patchedConsole = require("./patched-console");
 
-var _typedefs = require("./typedefs");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 var CryptoJS = require('crypto-js');
 
@@ -133,9 +129,8 @@ function groupFilesByRelations(files) {
 
 
     _underscore["default"].forEach(currFile.related_files || [], function (relatedFileEmbeddedObject) {
-      var relatedFileID = _object.itemUtil.atId(relatedFileEmbeddedObject.file);
+      var relatedFileID = _object.itemUtil.atId(relatedFileEmbeddedObject.file); //const relationshipType = relatedFileEmbeddedObject.relationship_type; // Unused
 
-      relatedFileEmbeddedObject.relationship_type; // Unused
 
       if (!relatedFileID) {
         // Most likely no view permissions
@@ -232,8 +227,12 @@ var filterFilesWithQCSummary = (0, _memoizeOne["default"])(function (files) {
   var checkAny = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   var func = checkAny ? _underscore["default"].any : _underscore["default"].filter;
   return func(files, function (f) {
-    return Array.isArray(f.quality_metric_summary) && f.quality_metric_summary.length > 0 && // Ensure all unique titles
-    f.quality_metric_summary.length === Array.from(new Set(_underscore["default"].pluck(f.quality_metric_summary, 'title'))).length;
+    var _f$quality_metric = f.quality_metric;
+    _f$quality_metric = _f$quality_metric === void 0 ? {} : _f$quality_metric;
+    var _f$quality_metric$qua = _f$quality_metric.quality_metric_summary,
+        qcs = _f$quality_metric$qua === void 0 ? [] : _f$quality_metric$qua; // Ensure all unique titles
+
+    return qcs.length > 0 && qcs.length === Array.from(new Set(_underscore["default"].pluck(qcs, 'title'))).length;
   });
 });
 /**
@@ -245,10 +244,11 @@ var filterFilesWithQCSummary = (0, _memoizeOne["default"])(function (files) {
  */
 
 exports.filterFilesWithQCSummary = filterFilesWithQCSummary;
-var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWithMetrics) {
-  var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "\t";
-  return _underscore["default"].pluck(Array.from(_underscore["default"].reduce(filesWithMetrics, function (m, file) {
-    var titles = _underscore["default"].map(file.quality_metric_summary, function (qcMetric) {
+var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWithMetrics, schemas) {
+  var sep = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "\t";
+
+  var filesByTitles = _underscore["default"].pluck(Array.from(_underscore["default"].reduce(filesWithMetrics, function (m, file) {
+    var titles = _underscore["default"].map(file.quality_metric.quality_metric_summary, function (qcMetric) {
       return qcMetric.title || qcMetric.display_title; // In case becomes an embedded obj at some point.
     });
 
@@ -260,7 +260,33 @@ var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWit
 
     m.get(titlesAsString).push(file);
     return m;
-  }, new Map())), 1);
+  }, new Map())), 1); //if schemas provided than return the result sorted by file's QC's qc_order
+
+
+  if (_typeof(schemas) === 'object' && schemas !== null) {
+    filesByTitles = _underscore["default"].sortBy(filesByTitles, function (files) {
+      var _files = _slicedToArray(files, 1),
+          file = _files[0]; //assumption: 1st file's QC is adequate to define order
+
+
+      if (file && file.quality_metric) {
+        var itemType = (0, _schemaTransforms.getItemType)(file.quality_metric);
+
+        if (itemType && schemas[itemType]) {
+          var qc_order = schemas[itemType].qc_order;
+
+          if (typeof qc_order === 'number') {
+            return qc_order;
+          }
+        }
+      } //fallback - if qc_order is not defined then send it to end
+
+
+      return Number.MAX_SAFE_INTEGER || 1000000;
+    });
+  }
+
+  return filesByTitles;
 });
 exports.groupFilesByQCSummaryTitles = groupFilesByQCSummaryTitles;
 

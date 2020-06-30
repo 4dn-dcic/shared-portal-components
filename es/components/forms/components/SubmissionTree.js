@@ -19,17 +19,13 @@ var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -49,13 +45,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -63,7 +85,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 // Create a custom tree to represent object hierarchy in front end submission.
 // Each leaf is clickable and will bring you to a view of the new object
-var SubmissionTree = /*#__PURE__*/function (_React$PureComponent) {
+var SubmissionTree =
+/*#__PURE__*/
+function (_React$PureComponent) {
   _inherits(SubmissionTree, _React$PureComponent);
 
   var _super = _createSuper(SubmissionTree);
@@ -86,14 +110,23 @@ var SubmissionTree = /*#__PURE__*/function (_React$PureComponent) {
           keyIdx = _this$props.keyIdx,
           others = _objectWithoutProperties(_this$props, ["keyIdx"]);
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "submission-view-navigation-tree"
-      }, /*#__PURE__*/_react["default"].createElement("h4", {
-        className: "form-section-heading mb-08"
-      }, "Navigation ", /*#__PURE__*/_react["default"].createElement(InfoIcon, null, '<h5>This panel is for navigating between objects in the creation process</h5> Click on Item/dependency titles to navigate around and edit each individually. Dependencies must be submitted before their parent can be.')), /*#__PURE__*/_react["default"].createElement(SubmissionLeaf, _extends({}, others, {
-        keyIdx: 0,
-        open: true
-      })));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "submission-view-navigation-tree"
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("h4", {
+          className: "form-section-heading mb-08"
+        }, "Navigation ",
+        /*#__PURE__*/
+        _react["default"].createElement(InfoIcon, null, '<h5>This panel is for navigating between objects in the creation process</h5> Click on Item/dependency titles to navigate around and edit each individually. Dependencies must be submitted before their parent can be.')),
+        /*#__PURE__*/
+        _react["default"].createElement(SubmissionLeaf, _extends({}, others, {
+          keyIdx: 0,
+          open: true
+        })))
+      );
     }
   }]);
 
@@ -121,7 +154,9 @@ _defineProperty(SubmissionTree, "propTypes", {
   'schemas': _propTypes["default"].object
 });
 
-var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
+var SubmissionLeaf =
+/*#__PURE__*/
+function (_React$PureComponent2) {
   _inherits(SubmissionLeaf, _React$PureComponent2);
 
   var _super2 = _createSuper(SubmissionLeaf);
@@ -153,13 +188,16 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
           keyIdx = _this$props2.keyIdx,
           depth = _this$props2.depth; // replace key and hierarchy in props
 
-      return /*#__PURE__*/_react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
-        key: childKey,
-        keyIdx: childKey,
-        hierarchy: hierarchy[keyIdx],
-        open: true,
-        depth: depth + 1
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
+          key: childKey,
+          keyIdx: childKey,
+          hierarchy: hierarchy[keyIdx],
+          open: true,
+          depth: depth + 1
+        }))
+      );
     }
   }, {
     key: "placeholderSortFxn",
@@ -210,10 +248,13 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
           keyLinkBookmarks = _this$props4.keyLinkBookmarks;
       var fieldsWithLinkTosToShow = keyLinkBookmarks[keyIdx].sort(this.placeholderSortFxn);
       return _underscore["default"].map(fieldsWithLinkTosToShow, function (field) {
-        return /*#__PURE__*/_react["default"].createElement(SubmissionProperty, _extends({}, _this2.props, {
-          field: field,
-          key: field
-        }));
+        return (
+          /*#__PURE__*/
+          _react["default"].createElement(SubmissionProperty, _extends({}, _this2.props, {
+            field: field,
+            key: field
+          }))
+        );
       });
     }
     /** Open a new tab on click or change the currKey of submissionView to that of props.keyIdx */
@@ -281,7 +322,9 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
         statusClass = 'existing-item';
         iconClass = "icon-hdd far";
         tip = "Successfully submitted or pre-existing item; already exists in the database.<br>Click to view this item/dependency in new tab/window.";
-        extIcon = /*#__PURE__*/_react["default"].createElement("i", {
+        extIcon =
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon icon-external-link-alt fas"
         });
       } else {
@@ -316,31 +359,44 @@ var SubmissionLeaf = /*#__PURE__*/function (_React$PureComponent2) {
         }
       }
 
-      var icon = /*#__PURE__*/_react["default"].createElement("i", {
+      var icon =
+      /*#__PURE__*/
+      _react["default"].createElement("i", {
         className: "icon indicator-icon " + iconClass
       });
 
       if (keyIdx === currKey) {
         // We're currently on this Item
         isCurrentlySelected = true;
-        extIcon = /*#__PURE__*/_react["default"].createElement("i", {
+        extIcon =
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
           className: "icon icon-pencil pull-right fas",
           "data-tip": "Item which you are currently editing."
         });
       }
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "submission-nav-leaf linked-item-title leaf-depth-" + depth + (isCurrentlySelected ? ' active' : '')
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "clearfix inner-title " + statusClass,
-        onClick: this.handleClick,
-        "data-tip": tip,
-        "data-html": true
-      }, icon, /*#__PURE__*/_react["default"].createElement("span", {
-        className: "title-text"
-      }, titleText), extIcon), placeholders && placeholders.length > 0 ? /*#__PURE__*/_react["default"].createElement("div", {
-        className: "list-of-properties"
-      }, placeholders) : null);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "submission-nav-leaf linked-item-title leaf-depth-" + depth + (isCurrentlySelected ? ' active' : '')
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "clearfix inner-title " + statusClass,
+          onClick: this.handleClick,
+          "data-tip": tip,
+          "data-html": true
+        }, icon,
+        /*#__PURE__*/
+        _react["default"].createElement("span", {
+          className: "title-text"
+        }, titleText), extIcon), placeholders && placeholders.length > 0 ?
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "list-of-properties"
+        }, placeholders) : null)
+      );
     }
   }]);
 
@@ -351,7 +407,9 @@ _defineProperty(SubmissionLeaf, "defaultProps", {
   'depth': 0
 });
 
-var SubmissionProperty = /*#__PURE__*/function (_React$Component) {
+var SubmissionProperty =
+/*#__PURE__*/
+function (_React$Component) {
   _inherits(SubmissionProperty, _React$Component);
 
   var _super3 = _createSuper(SubmissionProperty);
@@ -393,13 +451,16 @@ var SubmissionProperty = /*#__PURE__*/function (_React$Component) {
           hierarchy = _this$props7.hierarchy;
       if (!isNaN(childKey)) childKey = parseInt(childKey); // replace key and hierarchy in props
 
-      return /*#__PURE__*/_react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
-        key: childKey,
-        keyIdx: childKey,
-        hierarchy: hierarchy[keyIdx],
-        open: true,
-        depth: depth + 1
-      }));
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement(SubmissionLeaf, _extends({}, this.props, {
+          key: childKey,
+          keyIdx: childKey,
+          hierarchy: hierarchy[keyIdx],
+          open: true,
+          depth: depth + 1
+        }))
+      );
     }
   }, {
     key: "render",
@@ -431,19 +492,32 @@ var SubmissionProperty = /*#__PURE__*/function (_React$Component) {
       }), this.generateChild);
 
       var noChildren = children.length === 0;
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        key: bookmark,
-        className: "submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '')
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "clearfix inner-title" + (!noChildren ? ' clickable' : ''),
-        onClick: !noChildren ? this.handleToggle : undefined
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')
-      }), /*#__PURE__*/_react["default"].createElement("span", null, children.length, " ", bookmark || field)), !noChildren ? /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
-        "in": open
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "children-container"
-      }, children)) : null);
+      return (
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          key: bookmark,
+          className: "submission-nav-leaf linked-item-type-name leaf-depth-" + depth + (isRequired ? ' is-required' : '') + (!noChildren ? ' has-children' : '')
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "clearfix inner-title" + (!noChildren ? ' clickable' : ''),
+          onClick: !noChildren ? this.handleToggle : undefined
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("i", {
+          className: "icon property-expand-icon fas icon-" + (open ? 'minus' : 'plus')
+        }),
+        /*#__PURE__*/
+        _react["default"].createElement("span", null, children.length, " ", bookmark || field)), !noChildren ?
+        /*#__PURE__*/
+        _react["default"].createElement(_Collapse["default"], {
+          "in": open
+        },
+        /*#__PURE__*/
+        _react["default"].createElement("div", {
+          className: "children-container"
+        }, children)) : null)
+      );
     }
   }]);
 
@@ -454,16 +528,19 @@ function InfoIcon(_ref2) {
   var children = _ref2.children,
       className = _ref2.className;
   if (!children) return null;
-  return /*#__PURE__*/_react["default"].createElement("i", {
-    style: {
-      "marginLeft": "6px",
-      'fontSize': '0.8em'
-    },
-    className: "icon fas icon-info-circle" + (className ? ' ' + className : ''),
-    "data-place": "right",
-    "data-html": true,
-    "data-tip": children
-  });
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("i", {
+      style: {
+        "marginLeft": "6px",
+        'fontSize': '0.8em'
+      },
+      className: "icon fas icon-info-circle" + (className ? ' ' + className : ''),
+      "data-place": "right",
+      "data-html": true,
+      "data-tip": children
+    })
+  );
 }
 /**
  * Function to recursively find whether a schema for a field contains a linkTo to

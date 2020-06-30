@@ -21,7 +21,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  *
  * Copied over from ENCODE.
  */
-var Registry = /*#__PURE__*/function () {
+var Registry =
+/*#__PURE__*/
+function () {
   function Registry(options) {
     _classCallCheck(this, Registry);
 
