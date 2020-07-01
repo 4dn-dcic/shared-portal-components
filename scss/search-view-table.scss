@@ -44,9 +44,8 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 		}
 	}
 
-    /** Some Common Styles **/
-	&[data-field="display_title"],
-	&[data-field="individual"],
+	/** Some Common Styles **/
+	&[data-first-visible-column],
     &[data-field="@type"],
     &[data-field="status"] {
         > .inner {
@@ -273,8 +272,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 							//background-color: #f9f9f9;
 						}
 					}
-					&[data-field="display_title"],
-					&[data-field="individual"]{
+					&[data-first-visible-column] {
 						@include search-result-toggle-open-button-container;
 						.select-button-container {
 							margin-left: -7px;
@@ -302,23 +300,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 							}
 						}
 					}
-					&[data-field="individual"] {
-						.title-block {
-							flex-grow: 1;
-							flex-shrink: 1;
-							flex-basis: auto;
-							min-width: 0;
-							// This can be overriden on a per-Item basis.
-							// If rowHeight is high and title for type is
-							// expected be short.
-							white-space: nowrap;
-							a {
-								overflow: hidden;
-    							text-overflow: ellipsis;
-							}
-						}
-					}
-					&[data-field="display_title"] {
+					&[data-first-visible-column] {
 						.title-block {
 							flex-grow: 1;
 							flex-shrink: 1;
@@ -381,8 +363,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 							height : 56px;
 						}
 
-						&[data-field="display_title"],
-						&[data-field="individual"]{
+						&[data-first-visible-column] {
 							@include search-result-toggle-open-button-container-open;
 							img.in-search-table-title-image {
 								filter: none;
@@ -400,8 +381,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				> .columns {
 					> .search-result-column-block {
 
-						&[data-field="display_title"],
-						&[data-field="individual"]{
+						&[data-first-visible-column] {
 							.toggle-detail-button-container {
 								//top: -3px;
 								> button {
@@ -624,8 +604,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				&:hover{
 					z-index: 10;
 				}
-				&[data-field="display_title"],
-				&[data-field="individual"]{
+				&[data-first-visible-column] {
 					padding-left: 40px;
 				}
 				> .width-adjuster {
@@ -691,8 +670,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 	&.no-detail-pane {
 		> .headers-columns-overflow-container > .columns {
 			> .search-headers-column-block {
-				&[data-field="display_title"],
-				&[data-field="individual"]{
+				&[data-first-visible-column] {
 					padding-left: 10px;
 				}
 			}
@@ -861,8 +839,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				float: none;
 				display: inline-block;
 				vertical-align: middle;
-				&[data-field="display_title"],
-				&[data-field="individual"]{
+				&[data-first-visible-column] {
 
 					> .inner {
 						height: auto;
@@ -893,8 +870,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 
 			&.no-detail-pane {
 				.column {
-					&[data-field="display_title"],
-					&[data-field="individual"]{
+					&[data-first-visible-column] {
 						> .inner {
 							padding-left: 17px;
 							padding-right: 0;
