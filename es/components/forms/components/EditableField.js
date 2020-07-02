@@ -918,10 +918,7 @@ function (_React$Component) {
           return (
             /*#__PURE__*/
             _react["default"].createElement("span", {
-              className: "input-wrapper",
-              style: {
-                'width': '100%'
-              }
+              className: "input-wrapper w-100"
             },
             /*#__PURE__*/
             _react["default"].createElement("input", _extends({
@@ -939,7 +936,7 @@ function (_React$Component) {
             /*#__PURE__*/
             _react["default"].createElement("input", _extends({
               type: "number",
-              inputMode: "latin"
+              inputMode: "numeric"
             }, commonPropsTextInput)), this.validationFeedbackMessage())
           );
       } // Fallback (?)
@@ -958,13 +955,15 @@ function (_React$Component) {
       var _this$props8 = this.props,
           inputSize = _this$props8.inputSize,
           style = _this$props8.style,
+          fieldType = _this$props8.fieldType,
           labelID = _this$props8.labelID,
           label = _this$props8.label,
-          absoluteBox = _this$props8.absoluteBox,
-          _this$state3 = this.state,
+          outerClassName = _this$props8.outerClassName,
+          absoluteBox = _this$props8.absoluteBox;
+      var _this$state3 = this.state,
           leanTo = _this$state3.leanTo,
-          leanOffset = _this$state3.leanOffset,
-          outerBaseClass = "editable-field-entry editing has-feedback was-validated" + (!this.isValid(true) ? ' has-error ' : ' has-success ') + ('input-size-' + inputSize + ' ');
+          leanOffset = _this$state3.leanOffset;
+      var outerBaseClass = "editable-field-entry editing has-feedback was-validated" + (!this.isValid(true) ? ' has-error ' : ' has-success ') + ('input-size-' + inputSize + ' ') + (outerClassName ? outerClassName + ' ' : '');
 
       if (style == 'row') {
         return (
@@ -1087,7 +1086,7 @@ _defineProperty(EditableField, "propTypes", {
   // Endpoint to PATCH update to. Defaults to props.context['@id'] if not set.
   fieldType: _propTypes["default"].string,
   // Type of field, used for rendering of input element & validation.
-  style: _propTypes["default"].string,
+  style: _propTypes["default"].oneOf(['row', 'minimal-row', 'minimal', 'inline', 'row-without-label']),
   // Markup style, e.g. render row with label (default), minimal (just input field w/ buttons).
   inputSize: _propTypes["default"].oneOf(['sm', 'md', 'lg']),
   // Size of Bootstrap input field to use. Defaults to sm.
@@ -1107,8 +1106,9 @@ _defineProperty(EditableField, "propTypes", {
   // instead of built-in save function, pass custom save
   dataType: _propTypes["default"].oneOf(['string', 'int']),
   //return value is converted one of these types
-  buttonAlwaysVisible: _propTypes["default"].bool //edit button always visible or not
-
+  buttonAlwaysVisible: _propTypes["default"].bool,
+  //edit button always visible or not
+  outerClassName: _propTypes["default"].string
 });
 
 _defineProperty(EditableField, "defaultProps", {

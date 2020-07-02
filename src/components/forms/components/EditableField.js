@@ -34,7 +34,7 @@ export class EditableField extends React.Component {
         context         : PropTypes.object, // ToDo : validate context obj has property labelID.
         endpoint        : PropTypes.string, // Endpoint to PATCH update to. Defaults to props.context['@id'] if not set.
         fieldType       : PropTypes.string, // Type of field, used for rendering of input element & validation.
-        style           : PropTypes.string, // Markup style, e.g. render row with label (default), minimal (just input field w/ buttons).
+        style           : PropTypes.oneOf(['row', 'minimal-row', 'minimal', 'inline', 'row-without-label']), // Markup style, e.g. render row with label (default), minimal (just input field w/ buttons).
         inputSize       : PropTypes.oneOf(['sm', 'md', 'lg']), // Size of Bootstrap input field to use. Defaults to sm.
         children        : PropTypes.any,    // Rendered value of field, use custom formatting on a per-field basis. ToDo : create fallback.
         placeholder     : PropTypes.string,
@@ -46,6 +46,7 @@ export class EditableField extends React.Component {
         handleCustomSave: PropTypes.func,   // instead of built-in save function, pass custom save
         dataType        : PropTypes.oneOf(['string', 'int']), //return value is converted one of these types
         buttonAlwaysVisible : PropTypes.bool, //edit button always visible or not
+        outerClassName  : PropTypes.string
     };
 
     static defaultProps = {
@@ -528,20 +529,19 @@ export class EditableField extends React.Component {
             case 'minimal-row':
             case 'minimal':
                 classes.push("d-flex");
-                if (style === 'row' || style === 'row-without-label'){
+                if (style === 'row' || style === 'row-without-label') {
                     classes.push(style === 'row-without-label' ? 'col-md-12' : 'col-md-9');
-                }else if(style==='minimal-row'){classes.push('col-md-2');}
+                } else if (style === 'minimal-row') { classes.push('col-md-2'); }
                 return (
                     <div className={classes.join(' ')}>
-                        { this.isSet() ?
-                            <span id={labelID} className="set">{ renderedValue }</span>
+                        {this.isSet() ?
+                            <span id={labelID} className="set">{renderedValue}</span>
                             :
-                            <span className="not-set">{ fallbackText || ('No ' + labelID) }</span>
+                            <span className="not-set">{fallbackText || ('No ' + labelID)}</span>
                         }
-                        { this.renderActionIcon('edit') }
+                        {this.renderActionIcon('edit')}
                     </div>
                 );
-
             case 'inline':
                 return (
                     <span className={classes.join(' ')}>
@@ -643,14 +643,14 @@ export class EditableField extends React.Component {
                 </span>
             );
             case 'text' : return (
-                <span className="input-wrapper" style={{ 'width': '100%' }}>
+                <span className="input-wrapper w-100">
                     <input type="text" inputMode="latin" {...commonPropsTextInput} />
                     { this.validationFeedbackMessage() }
                 </span>
             );
             case 'numeric' : return (
                 <span className="input-wrapper">
-                    <input type="number" inputMode="latin" {...commonPropsTextInput} />
+                    <input type="number" inputMode="numeric" {...commonPropsTextInput} />
                     { this.validationFeedbackMessage() }
                 </span>
             );
@@ -661,11 +661,12 @@ export class EditableField extends React.Component {
 
     /** Render 'in edit state' view */
     renderEditing(){
-        var { inputSize, style, labelID, label, absoluteBox } = this.props,
-            { leanTo, leanOffset } = this.state,
-            outerBaseClass = "editable-field-entry editing has-feedback was-validated" +
-                (!this.isValid(true) ? ' has-error ' : ' has-success ') +
-                ('input-size-' + inputSize + ' ');
+        const { inputSize, style, fieldType, labelID, label, outerClassName, absoluteBox } = this.props;
+        const { leanTo, leanOffset } = this.state;
+
+        const outerBaseClass = "editable-field-entry editing has-feedback was-validated" +
+            (!this.isValid(true) ? ' has-error ' : ' has-success ') +
+            ('input-size-' + inputSize + ' ') + (outerClassName ? outerClassName + ' ' : '');
 
         if (style == 'row' ) {
             return (

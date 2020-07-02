@@ -3,19 +3,19 @@
 ***********************************************************/
 
 
-.fieldset.editable-fields,
-.editable-fields-container {
+// .fieldset.editable-fields,
+// .editable-fields-container {
 
-	&.editing {
+// 	&.editing {
 
-		.editable-field-entry:not(.editing) {
-			filter: blur(0.75px) grayscale(75%);
-			opacity: 0.75;
-			pointer-events: none;
-		}
+// 		.editable-field-entry:not(.editing) {
+// 			filter: blur(0.75px) grayscale(75%);
+// 			opacity: 0.75;
+// 			pointer-events: none;
+// 		}
 
-	}
-}
+// 	}
+// }
 
 
 
@@ -44,6 +44,15 @@ div.fieldset.editable-fields {
 		height: 36px !important;
 		line-height: 30px !important;
 		padding: 4px 6px !important;
+	}
+
+	// medium text inputBorder
+	.input-md {
+		@include font-size(1.21rem, true);
+		font-weight: normal;
+		height: 28px !important;
+		line-height: 22px !important;
+		padding: 2px 3px !important;
 	}
 
 	label {
