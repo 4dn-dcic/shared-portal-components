@@ -297,7 +297,7 @@ export class FlexibleDescriptionBox extends React.Component {
     render(){
         const {
             debug, expanded: propExpanded,
-            showOnMount, lineHeight, linesOfText, collapsedHeight, className, textElement, textClassName, textStyle, description,  fitTo
+            showOnMount, lineHeight, linesOfText, collapsedHeight, className, textElement, textClassName, textStyle, description, fitTo
         } = this.props;
         const { descriptionWillFitOneLine, descriptionExpanded, mounted, shortContent, descriptionWhiteSpace } = this.state;
         if (debug) console.log('render FlexibleDescriptionBox');
@@ -332,9 +332,7 @@ export class FlexibleDescriptionBox extends React.Component {
         if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')){
             this.boxRef = React.createRef();
         }
-        function ProfileContactFieldsIcon({ icon }){
-            return <i className={"visible-lg-inline icon icon-fw icon-" + icon }/>;
-        }
+
         const { children, subtitle, windowWidth, title, schemas, href, subTitleClassName, context, isInlineEditable } = this.props;
 
         if(isInlineEditable && this.havePermissionToEdit())
