@@ -32,39 +32,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -72,7 +46,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 /**
  * Converts links to other files into links to sections from a React element and its children (recursively).
@@ -111,31 +85,23 @@ function correctRelativeLinks(elem, context) {
     }
 
     if (href !== elem.props.href || href.charAt(0) === '#') {
-      return (
-        /*#__PURE__*/
-        _react["default"].cloneElement(elem, _underscore["default"].extend(_underscore["default"].omit(elem.props, 'children'), {
-          'href': href,
-          'onClick': href.charAt(0) !== '#' ? null : function (e) {
-            e.preventDefault();
+      return /*#__PURE__*/_react["default"].cloneElement(elem, _underscore["default"].extend(_underscore["default"].omit(elem.props, 'children'), {
+        'href': href,
+        'onClick': href.charAt(0) !== '#' ? null : function (e) {
+          e.preventDefault();
 
-            _util.layout.animateScrollTo(href.slice(1));
-          }
-        }), elem.props.children || null)
-      );
+          _util.layout.animateScrollTo(href.slice(1));
+        }
+      }), elem.props.children || null);
     } else return elem;
   } else if (elem.props.children && typeof elem.type === 'string') {
-    return (
-      /*#__PURE__*/
-      _react["default"].cloneElement(elem, _underscore["default"].omit(elem.props, 'children'), _react["default"].Children.map(elem.props.children, function (child) {
-        return correctRelativeLinks(child, context, depth + 1);
-      }))
-    );
+    return /*#__PURE__*/_react["default"].cloneElement(elem, _underscore["default"].omit(elem.props, 'children'), _react["default"].Children.map(elem.props.children, function (child) {
+      return correctRelativeLinks(child, context, depth + 1);
+    }));
   } else return elem;
 }
 
-var Wrapper =
-/*#__PURE__*/
-_react["default"].memo(function (props) {
+var Wrapper = /*#__PURE__*/_react["default"].memo(function (props) {
   var children = props.children,
       tableOfContents = props.tableOfContents,
       title = props.title,
@@ -143,34 +109,23 @@ _react["default"].memo(function (props) {
   var toc = context && context['table-of-contents'] || (tableOfContents && _typeof(tableOfContents) === 'object' ? tableOfContents : null);
   var pageTitle = title || context && context.title || null;
   var tocExists = toc && toc.enabled !== false;
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "container",
-      id: "content"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "static-page row",
-      key: "wrapper"
-    }, tocExists ?
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      key: "toc-wrapper",
-      className: "col-12 col-xl-3 order-1 order-xl-3"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement(_TableOfContents.TableOfContents, _extends({
-      pageTitle: pageTitle,
-      fixedGridWidth: 3,
-      maxHeaderDepth: toc['header-depth'] || 6
-    }, _underscore["default"].pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')))) : null,
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      key: "main-column",
-      className: "order-2 col-12 col-xl-" + (tocExists ? '9' : '12')
-    }, children)))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "container",
+    id: "content"
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "static-page row",
+    key: "wrapper"
+  }, tocExists ? /*#__PURE__*/_react["default"].createElement("div", {
+    key: "toc-wrapper",
+    className: "col-12 col-xl-3 order-1 order-xl-3"
+  }, /*#__PURE__*/_react["default"].createElement(_TableOfContents.TableOfContents, _extends({
+    pageTitle: pageTitle,
+    fixedGridWidth: 3,
+    maxHeaderDepth: toc['header-depth'] || 6
+  }, _underscore["default"].pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')))) : null, /*#__PURE__*/_react["default"].createElement("div", {
+    key: "main-column",
+    className: "order-2 col-12 col-xl-" + (tocExists ? '9' : '12')
+  }, children)));
 });
 
 Wrapper.defaultProps = {
@@ -179,9 +134,7 @@ Wrapper.defaultProps = {
   'tocListStyles': ['decimal', 'lower-alpha', 'lower-roman']
 };
 
-var StaticEntry =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(StaticEntry, _React$PureComponent);
 
   var _super = _createSuper(StaticEntry);
@@ -249,53 +202,35 @@ function (_React$PureComponent) {
       var options = section && section.options || {};
       var outerClassName = entryType + "-entry static-section-entry";
 
-      var renderedChildComponent =
-      /*#__PURE__*/
-      _react["default"].createElement(childComponent, this.props);
+      var renderedChildComponent = /*#__PURE__*/_react["default"].createElement(childComponent, this.props);
 
       if (options.collapsible) {
         outerClassName += ' can-collapse ' + (open ? 'open' : 'closed');
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: outerClassName,
-            id: id
-          }, section && section.title ?
-          /*#__PURE__*/
-          _react["default"].createElement(_TableOfContents.HeaderWithLink, {
-            className: "section-title can-collapse " + (open ? 'open' : 'closed'),
-            link: id,
-            context: context,
-            onClick: this.toggleOpen
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("i", {
-            className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
-          }), "\xA0\xA0", section.title) : null,
-          /*#__PURE__*/
-          _react["default"].createElement(_Collapse["default"], {
-            "in": open
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "inner"
-          }, open || closing ? renderedChildComponent : null)))
-        );
-      }
-
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        return /*#__PURE__*/_react["default"].createElement("div", {
           className: outerClassName,
           id: id
-        }, section && section.title ?
-        /*#__PURE__*/
-        _react["default"].createElement(_TableOfContents.HeaderWithLink, {
-          className: "section-title",
+        }, section && section.title ? /*#__PURE__*/_react["default"].createElement(_TableOfContents.HeaderWithLink, {
+          className: "section-title can-collapse " + (open ? 'open' : 'closed'),
           link: id,
-          context: context
-        }, section.title) : null, renderedChildComponent)
-      );
+          context: context,
+          onClick: this.toggleOpen
+        }, /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
+        }), "\xA0\xA0", section.title) : null, /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+          "in": open
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "inner"
+        }, open || closing ? renderedChildComponent : null)));
+      }
+
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: outerClassName,
+        id: id
+      }, section && section.title ? /*#__PURE__*/_react["default"].createElement(_TableOfContents.HeaderWithLink, {
+        className: "section-title",
+        link: id,
+        context: context
+      }, section.title) : null, renderedChildComponent);
     }
   }]);
 
@@ -321,9 +256,7 @@ _defineProperty(StaticEntry, "propTypes", {
   'childComponent': _propTypes["default"].elementType
 });
 
-var StaticPageBase =
-/*#__PURE__*/
-function (_React$PureComponent2) {
+var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(StaticPageBase, _React$PureComponent2);
 
   var _super2 = _createSuper(StaticPageBase);
@@ -357,15 +290,12 @@ function (_React$PureComponent2) {
       }
 
       var tableOfContents = parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled ? parsedContent['table-of-contents'] : false;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(Wrapper, _extends({}, _underscore["default"].pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href'), {
-          key: "page-wrapper",
-          title: parsedContent.title,
-          tableOfContents: tableOfContents,
-          context: parsedContent
-        }), StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props))
-      );
+      return /*#__PURE__*/_react["default"].createElement(Wrapper, _extends({}, _underscore["default"].pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href'), {
+        key: "page-wrapper",
+        title: parsedContent.title,
+        tableOfContents: tableOfContents,
+        context: parsedContent
+      }), StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props));
     }
   }], [{
     key: "renderSections",
@@ -416,14 +346,11 @@ _defineProperty(StaticPageBase, "defaultProps", {
    * @param {Object} props - Collection of props passed down from BodyElement.
    */
   'entryRenderFxn': (0, _memoizeOne["default"])(function (sectionName, section, props) {
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement(StaticEntry, _extends({}, props, {
-        key: sectionName,
-        sectionName: sectionName,
-        section: section
-      }))
-    );
+    return /*#__PURE__*/_react["default"].createElement(StaticEntry, _extends({}, props, {
+      key: sectionName,
+      sectionName: sectionName,
+      section: section
+    }));
   })
 });
 

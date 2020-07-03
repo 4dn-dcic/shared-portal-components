@@ -11,7 +11,7 @@ var _WindowClickEventDelegator = require("./../util/WindowClickEventDelegator");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -23,39 +23,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -67,9 +41,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // Will be similar to WindowClickEventDelegator BUT should be more performant
 // (else can just use WindowClickEventDelegator directly, as is in code below now)
 // by only iterating over clicked element's ancestors (to see if clicked elem is child of _the only_ open dropdown menu) once re: all dropdowns.
-var DropdownButton =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var DropdownButton = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(DropdownButton, _React$PureComponent);
 
   var _super = _createSuper(DropdownButton);
@@ -113,27 +85,20 @@ function (_React$PureComponent) {
           variant = _this$props.variant,
           size = _this$props.size;
       var open = this.state.open;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "dropdown"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
-          type: "button",
-          className: // TODO finish handling other props
-          "dropdown-toggle btn" + ("btn-" + (variant || "primary")) + ("btn-" + (size || "md")),
-          role: "button",
-          "data-toggle": "dropdown",
-          "aria-haspopup": "true",
-          "aria-expanded": "false"
-        }, title),
-        /*#__PURE__*/
-        _react["default"].createElement(DropdownMenu, {
-          children: children,
-          open: open
-        }))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "dropdown"
+      }, /*#__PURE__*/_react["default"].createElement("button", {
+        type: "button",
+        className: // TODO finish handling other props
+        "dropdown-toggle btn" + ("btn-" + (variant || "primary")) + ("btn-" + (size || "md")),
+        role: "button",
+        "data-toggle": "dropdown",
+        "aria-haspopup": "true",
+        "aria-expanded": "false"
+      }, title), /*#__PURE__*/_react["default"].createElement(DropdownMenu, {
+        children: children,
+        open: open
+      }));
     }
   }]);
 
@@ -143,21 +108,15 @@ function (_React$PureComponent) {
 exports.DropdownButton = DropdownButton;
 
 _defineProperty(DropdownButton, "defaultProps", {
-  'children': [
-  /*#__PURE__*/
-  _react["default"].createElement("a", {
+  'children': [/*#__PURE__*/_react["default"].createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 1
-  }, "Action"),
-  /*#__PURE__*/
-  _react["default"].createElement("a", {
+  }, "Action"), /*#__PURE__*/_react["default"].createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 2
-  }, "Another action"),
-  /*#__PURE__*/
-  _react["default"].createElement("a", {
+  }, "Another action"), /*#__PURE__*/_react["default"].createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 3
@@ -165,18 +124,13 @@ _defineProperty(DropdownButton, "defaultProps", {
   'title': "Hello World"
 });
 
-var DropdownMenu =
-/*#__PURE__*/
-_react["default"].memo(function (props) {
+var DropdownMenu = /*#__PURE__*/_react["default"].memo(function (props) {
   var children = props.children,
       open = props.open;
   if (!open) return null;
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "dropdown-menu show"
-    }, children)
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "dropdown-menu show"
+  }, children);
 }); // TODO create plain Dropdown. Or not. Idk. Can easily create (more) custom Dropdown togglers and whatnot by emulating the above DropdownButton so not sure is worth adding more complexity...
 
 

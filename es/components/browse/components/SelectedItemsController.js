@@ -27,9 +27,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
@@ -39,17 +39,23 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function () {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -61,39 +67,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -132,9 +112,7 @@ function sendDataToParentWindow(itemsListWrappedWithID) {
   }));
 }
 
-var SelectedItemsController =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SelectedItemsController, _React$PureComponent);
 
   var _super = _createSuper(SelectedItemsController);
@@ -192,12 +170,12 @@ function (_React$PureComponent) {
     value: function handleSelectItemCompleteClick() {
       var selectedItems = this.state.selectedItems;
       var itemsWrappedWithID = [];
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
+
+      var _iterator = _createForOfIteratorHelper(selectedItems),
+          _step;
 
       try {
-        for (var _iterator = selectedItems[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
           var _step$value = _slicedToArray(_step.value, 2),
               key = _step$value[0],
               value = _step$value[1];
@@ -208,18 +186,9 @@ function (_React$PureComponent) {
           });
         }
       } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
+        _iterator.e(err);
       } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
+        _iterator.f();
       }
 
       sendDataToParentWindow(itemsWrappedWithID);
@@ -293,26 +262,19 @@ function (_React$PureComponent) {
                 toggleDetailOpen = parentProps.toggleDetailOpen,
                 href = parentProps.href,
                 context = parentProps.context;
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnWrapper, {
-                result: result,
-                href: href,
-                context: context,
-                rowNumber: rowNumber,
-                detailOpen: detailOpen,
-                toggleDetailOpen: toggleDetailOpen
-              },
-              /*#__PURE__*/
-              _react["default"].createElement(SelectionItemCheckbox, _extends({
-                selectedItems: selectedItems,
-                isMultiSelect: currentAction === 'multiselect'
-              }, {
-                handleSelectItem: _this2.handleSelectItem
-              })),
-              /*#__PURE__*/
-              _react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnDefault, null))
-            );
+            return /*#__PURE__*/_react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnWrapper, {
+              result: result,
+              href: href,
+              context: context,
+              rowNumber: rowNumber,
+              detailOpen: detailOpen,
+              toggleDetailOpen: toggleDetailOpen
+            }, /*#__PURE__*/_react["default"].createElement(SelectionItemCheckbox, _extends({
+              selectedItems: selectedItems,
+              isMultiSelect: currentAction === 'multiselect'
+            }, {
+              handleSelectItem: _this2.handleSelectItem
+            })), /*#__PURE__*/_react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnDefault, null));
           }
         });
         return newColumnExtensionMap;
@@ -338,16 +300,11 @@ function (_React$PureComponent) {
       });
 
       return _react["default"].Children.map(children, function (child) {
-        if (!
-        /*#__PURE__*/
-        _react["default"].isValidElement(child)) {
+        if (! /*#__PURE__*/_react["default"].isValidElement(child)) {
           throw new Error('SelectedItemsSearchController expects props.children to be a valid React component instance(s).');
         }
 
-        return (
-          /*#__PURE__*/
-          _react["default"].cloneElement(child, propsToPass)
-        );
+        return /*#__PURE__*/_react["default"].cloneElement(child, propsToPass);
       });
     }
   }]);
@@ -357,9 +314,7 @@ function (_React$PureComponent) {
 
 exports.SelectedItemsController = SelectedItemsController;
 
-var SelectionItemCheckbox =
-/*#__PURE__*/
-_react["default"].memo(function (props) {
+var SelectionItemCheckbox = /*#__PURE__*/_react["default"].memo(function (props) {
   var selectedItems = props.selectedItems,
       result = props.result,
       isMultiSelect = props.isMultiSelect,
@@ -368,22 +323,17 @@ _react["default"].memo(function (props) {
   var onChange = (0, _react.useMemo)(function () {
     return handleSelectItem.bind(handleSelectItem, result, isMultiSelect);
   }, [handleSelectItem, result, isMultiSelect]);
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("input", {
-      type: "checkbox",
-      checked: isChecked,
-      onChange: onChange,
-      className: "mr-2"
-    })
-  );
+  return /*#__PURE__*/_react["default"].createElement("input", {
+    type: "checkbox",
+    checked: isChecked,
+    onChange: onChange,
+    className: "mr-2"
+  });
 });
 /** Move to own file later maybe. Especially if functionality expands. */
 
 
-var SelectStickyFooter =
-/*#__PURE__*/
-_react["default"].memo(function (props) {
+var SelectStickyFooter = /*#__PURE__*/_react["default"].memo(function (props) {
   var context = props.context,
       schemas = props.schemas,
       selectedItems = props.selectedItems,
@@ -392,69 +342,40 @@ _react["default"].memo(function (props) {
       currentAction = props.currentAction;
   var itemTypeFriendlyName = (0, _schemaTransforms.getTitleForType)((0, _schemaTransforms.getSchemaTypeFromSearchContext)(context), schemas);
   var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement(StickyFooter, null,
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "row selection-controls-footer"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "col mb-05 mt-05"
-    }, currentAction === 'multiselect' ?
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "row"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("h3", {
-      className: "mt-0 mb-0 col-auto text-600"
-    }, selectedItems.size),
-    /*#__PURE__*/
-    _react["default"].createElement("h4", {
-      className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
-    }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) :
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "row"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("h4", {
-      className: "mt-0 mb-0 col-auto text-400"
-    }, selectedItemDisplayTitle),
-    /*#__PURE__*/
-    _react["default"].createElement("h4", {
-      className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
-    }, "selected"))),
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "col-12 col-md-auto"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("button", {
-      type: "button",
-      className: "btn btn-success",
-      onClick: onComplete,
-      disabled: selectedItems.size === 0,
-      "data-tip": "Select checked items and close window"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon icon-fw fas icon-check"
-    }), "\xA0 Apply"),
-    /*#__PURE__*/
-    _react["default"].createElement("button", {
-      type: "button",
-      className: "btn btn-outline-warning ml-1",
-      onClick: onCancel,
-      "data-tip": "Cancel selection and close window"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
-      className: "icon icon-fw fas icon-times"
-    }), "\xA0 Cancel"))))
-  );
+  return /*#__PURE__*/_react["default"].createElement(StickyFooter, null, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "row selection-controls-footer"
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "col mb-05 mt-05"
+  }, currentAction === 'multiselect' ? /*#__PURE__*/_react["default"].createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/_react["default"].createElement("h3", {
+    className: "mt-0 mb-0 col-auto text-600"
+  }, selectedItems.size), /*#__PURE__*/_react["default"].createElement("h4", {
+    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : /*#__PURE__*/_react["default"].createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/_react["default"].createElement("h4", {
+    className: "mt-0 mb-0 col-auto text-400"
+  }, selectedItemDisplayTitle), /*#__PURE__*/_react["default"].createElement("h4", {
+    className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
+  }, "selected"))), /*#__PURE__*/_react["default"].createElement("div", {
+    className: "col-12 col-md-auto"
+  }, /*#__PURE__*/_react["default"].createElement("button", {
+    type: "button",
+    className: "btn btn-success",
+    onClick: onComplete,
+    disabled: selectedItems.size === 0,
+    "data-tip": "Select checked items and close window"
+  }, /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-fw fas icon-check"
+  }), "\xA0 Apply"), /*#__PURE__*/_react["default"].createElement("button", {
+    type: "button",
+    className: "btn btn-outline-warning ml-1",
+    onClick: onCancel,
+    "data-tip": "Cancel selection and close window"
+  }, /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-fw fas icon-times"
+  }), "\xA0 Cancel"))));
 });
 /**
  * General purpose sticky footer component
@@ -468,14 +389,9 @@ function StickyFooter(_ref2) {
   var children = _ref2.children,
       passProps = _objectWithoutProperties(_ref2, ["children"]);
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", _extends({
-      className: "sticky-page-footer"
-    }, passProps),
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "container"
-    }, children))
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", _extends({
+    className: "sticky-page-footer"
+  }, passProps), /*#__PURE__*/_react["default"].createElement("div", {
+    className: "container"
+  }, children));
 }
