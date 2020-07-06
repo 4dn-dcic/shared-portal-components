@@ -20,7 +20,7 @@ var _util = require("./../../util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -34,39 +34,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -89,26 +63,17 @@ function StackedBlockNameLabel(props) {
       className = props.className,
       subtitleVisible = props.subtitleVisible;
   var cls = "label-ext-info" + (className ? ' ' + className : '') + (subtitle || accession ? ' has-subtitle' : '') + (subtitleVisible ? ' subtitle-visible' : '');
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: cls,
-      key: "label"
-    },
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "label-title"
-    }, title), subtitle || accession ?
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "ext" + (accession ? ' is-accession' : '')
-    }, accession ?
-    /*#__PURE__*/
-    _react["default"].createElement(_util.object.CopyWrapper, {
-      value: accession,
-      key: "copy-accession"
-    }, accession || subtitle) : subtitle) : null)
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: cls,
+    key: "label"
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "label-title"
+  }, title), subtitle || accession ? /*#__PURE__*/_react["default"].createElement("div", {
+    className: "ext" + (accession ? ' is-accession' : '')
+  }, accession ? /*#__PURE__*/_react["default"].createElement(_util.object.CopyWrapper, {
+    value: accession,
+    key: "copy-accession"
+  }, accession || subtitle) : subtitle) : null);
 }
 
 StackedBlockNameLabel.propTypes = {
@@ -122,9 +87,7 @@ StackedBlockNameLabel.propTypes = {
 };
 /** Name element to be put inside of StackedBlocks as the first child. */
 
-var StackedBlockName =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(StackedBlockName, _React$PureComponent);
 
   var _super = _createSuper(StackedBlockName);
@@ -151,13 +114,10 @@ function (_React$PureComponent) {
       if (style) _underscore["default"].extend(useStyle, style);
       if (colWidthStyle) _underscore["default"].extend(useStyle, colWidthStyle);
       if (relativePosition) useStyle.position = 'relative';
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "name col-" + columnClass + (className ? " " + className : ""),
-          style: useStyle
-        }, label, children)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "name col-" + columnClass + (className ? " " + className : ""),
+        style: useStyle
+      }, label, children);
     }
   }]);
 
@@ -172,9 +132,7 @@ exports.StackedBlockName = StackedBlockName;
 
 _defineProperty(StackedBlockName, "Label", StackedBlockNameLabel);
 
-var StackedBlockListViewMoreButton =
-/*#__PURE__*/
-function (_React$PureComponent2) {
+var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(StackedBlockListViewMoreButton, _React$PureComponent2);
 
   var _super2 = _createSuper(StackedBlockListViewMoreButton);
@@ -201,39 +159,25 @@ function (_React$PureComponent2) {
 
       if (preventExpand) {
         // Show information label instead of button.
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "view-more-button"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("i", {
-            className: "icon fas icon-plus mr-1 ml-02 small"
-          }), collapsibleChildrenLen + " More" + (title ? ' ' + title : ''), showMoreExtTitle ?
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            className: "ext text-400"
-          }, " ", showMoreExtTitle) : null)
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "view-more-button"
+        }, /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon fas icon-plus mr-1 ml-02 small"
+        }), collapsibleChildrenLen + " More" + (title ? ' ' + title : ''), showMoreExtTitle ? /*#__PURE__*/_react["default"].createElement("span", {
+          className: "ext text-400"
+        }, " ", showMoreExtTitle) : null);
       }
 
       var titleStr = (collapsed ? preventExpand ? collapsibleChildrenLen + " More" : "Show ".concat(collapsibleChildrenLen, " More") : "Show Fewer") + (title ? ' ' + title : '');
       var cls = "view-more-button" + (preventExpand ? "" : " clickable");
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: cls,
-          onClick: preventExpand ? null : handleCollapseToggle
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
-          className: "mr-1 icon fas icon-" + (collapsed ? 'plus' : 'minus')
-        }), titleStr, showMoreExtTitle ?
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
-          className: "ext text-400"
-        }, " ", showMoreExtTitle) : null)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: cls,
+        onClick: preventExpand ? null : handleCollapseToggle
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "mr-1 icon fas icon-" + (collapsed ? 'plus' : 'minus')
+      }), titleStr, showMoreExtTitle ? /*#__PURE__*/_react["default"].createElement("span", {
+        className: "ext text-400"
+      }, " ", showMoreExtTitle) : null);
     }
   }]);
 
@@ -255,9 +199,7 @@ _defineProperty(StackedBlockListViewMoreButton, "propTypes", {
 
 });
 
-var StackedBlockList =
-/*#__PURE__*/
-function (_React$PureComponent3) {
+var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(StackedBlockList, _React$PureComponent3);
 
   var _super3 = _createSuper(StackedBlockList);
@@ -308,10 +250,7 @@ function (_React$PureComponent3) {
           }
         });
 
-        return (
-          /*#__PURE__*/
-          _react["default"].cloneElement(c, childProps, c.props.children)
-        );
+        return /*#__PURE__*/_react["default"].cloneElement(c, childProps, c.props.children);
       });
     }
   }, {
@@ -343,13 +282,10 @@ function (_React$PureComponent3) {
 
       if (collapseLongLists === false || !Array.isArray(children) || children.length <= collapseLimit) {
         // Don't have enough items for collapsible element, return plain list.
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: cls,
-            style: useStyle
-          }, children)
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: cls,
+          style: useStyle
+        }, children);
       }
 
       var collapsibleChildren = children.slice(collapseShow);
@@ -358,37 +294,26 @@ function (_React$PureComponent3) {
 
       if (collapsibleChildrenLen > Math.min(collapseShow, 10)) {
         // Don't transition
-        collapsibleChildrenElemsList = collapsed ? null :
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        collapsibleChildrenElemsList = collapsed ? null : /*#__PURE__*/_react["default"].createElement("div", {
           className: "collapsible-s-block-ext"
         }, collapsibleChildren);
       } else {
-        collapsibleChildrenElemsList =
-        /*#__PURE__*/
-        _react["default"].createElement(_Collapse["default"], {
+        collapsibleChildrenElemsList = /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
           "in": !collapsed
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        }, /*#__PURE__*/_react["default"].createElement("div", {
           className: "collapsible-s-block-ext"
         }, collapsibleChildren));
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: cls,
-          "data-count-collapsed": collapsibleChildren.length,
-          style: useStyle
-        }, children.slice(0, collapseShow), collapsibleChildrenElemsList,
-        /*#__PURE__*/
-        _react["default"].createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
-          collapsibleChildren: collapsibleChildren,
-          collapsed: collapsed,
-          handleCollapseToggle: this.handleCollapseToggle
-        })))
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: cls,
+        "data-count-collapsed": collapsibleChildren.length,
+        style: useStyle
+      }, children.slice(0, collapseShow), collapsibleChildrenElemsList, /*#__PURE__*/_react["default"].createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
+        collapsibleChildren: collapsibleChildren,
+        collapsed: collapsed,
+        handleCollapseToggle: this.handleCollapseToggle
+      })));
     }
   }]);
 
@@ -409,9 +334,7 @@ _defineProperty(StackedBlockList, "propTypes", {
   'stackDepth': _propTypes["default"].number
 });
 
-var StackedBlock =
-/*#__PURE__*/
-function (_React$PureComponent4) {
+var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
   _inherits(StackedBlock, _React$PureComponent4);
 
   var _super4 = _createSuper(StackedBlock);
@@ -468,10 +391,7 @@ function (_React$PureComponent4) {
         });
 
         if (_underscore["default"].keys(childProps).length > 0) {
-          return (
-            /*#__PURE__*/
-            _react["default"].cloneElement(c, childProps, c.props.children)
-          );
+          return /*#__PURE__*/_react["default"].cloneElement(c, childProps, c.props.children);
         } else return c;
       });
     }
@@ -486,12 +406,9 @@ function (_React$PureComponent4) {
           hideNameOnHover = _this$props6.hideNameOnHover,
           keepLabelOnHover = _this$props6.keepLabelOnHover;
       var classNames = ["s-block", "stack-depth-" + stackDepth, columnClass || null, hideNameOnHover ? ' hide-name-on-block-hover' : null, keepLabelOnHover ? ' keep-label-on-name-hover' : null, className || null, typeof stripe !== 'undefined' && stripe !== null ? stripe === true || stripe === "even" ? "even" : "odd" : null];
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: _underscore["default"].filter(classNames).join(' ')
-        }, this.adjustedChildren())
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: _underscore["default"].filter(classNames).join(' ')
+      }, this.adjustedChildren());
     }
   }]);
 
@@ -517,9 +434,7 @@ _defineProperty(StackedBlock, "List", StackedBlockList);
 
 _defineProperty(StackedBlock, "excludedPassedProps", new Set(['stripe', 'hideNameOnHover', 'keepLabelOnHover', 'className', 'children', 'showMoreExtTitle']));
 
-var StackedBlockTable =
-/*#__PURE__*/
-function (_React$PureComponent5) {
+var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
   _inherits(StackedBlockTable, _React$PureComponent5);
 
   var _super5 = _createSuper(StackedBlockTable);
@@ -632,10 +547,7 @@ function (_React$PureComponent5) {
         addedProps.colWidthStyles = colWidthStyles;
         addedProps.stackDepth = 0;
         addedProps.columnHeaders = columnHeaders;
-        return (
-          /*#__PURE__*/
-          _react["default"].cloneElement(c, addedProps, c.props.children)
-        );
+        return /*#__PURE__*/_react["default"].cloneElement(c, addedProps, c.props.children);
       });
     }
   }, {
@@ -652,14 +564,9 @@ function (_React$PureComponent5) {
       var mounted = this.state.mounted;
 
       if (!children) {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("h6", {
-            className: "text-center text-400"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("em", null, "No Results"))
-        );
+        return /*#__PURE__*/_react["default"].createElement("h6", {
+          className: "text-center text-400"
+        }, /*#__PURE__*/_react["default"].createElement("em", null, "No Results"));
       }
 
       var totalColsWidth = this.memoized.totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth);
@@ -667,21 +574,14 @@ function (_React$PureComponent5) {
 
       var tableHeaderProps = _underscore["default"].omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles', 'width');
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          style: {
-            'width': minTotalWidth
-          },
-          className: "stacked-block-table" + (mounted ? ' mounted' : '') + (fadeIn ? ' fade-in' : '') + (typeof className === 'string' ? ' ' + className : '')
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        style: {
+          'width': minTotalWidth
         },
-        /*#__PURE__*/
-        _react["default"].createElement(TableHeaders, tableHeaderProps),
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "body clearfix"
-        }, this.adjustedChildren()))
-      );
+        className: "stacked-block-table" + (mounted ? ' mounted' : '') + (fadeIn ? ' fade-in' : '') + (typeof className === 'string' ? ' ' + className : '')
+      }, /*#__PURE__*/_react["default"].createElement(TableHeaders, tableHeaderProps), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "body clearfix"
+      }, this.adjustedChildren()));
     }
   }]);
 
@@ -718,9 +618,7 @@ _defineProperty(StackedBlockTable, "defaultProps", {
     columnClass: 'file-group',
     title: 'File Group',
     initialWidth: 40,
-    visibleTitle:
-    /*#__PURE__*/
-    _react["default"].createElement("i", {
+    visibleTitle: /*#__PURE__*/_react["default"].createElement("i", {
       className: "icon fas icon-download"
     })
   }, {
@@ -764,27 +662,21 @@ function TableHeaders(props) {
       tooltip = null;
     }
 
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", {
-        className: cls,
-        key: field || index,
-        style: {
-          flex: "1 0 " + colWidth + "px",
-          minWidth: colWidth
-        },
-        "data-column-class": columnClass,
-        "data-tip": tooltip
-      }, visibleTitle)
-    );
+    return /*#__PURE__*/_react["default"].createElement("div", {
+      className: cls,
+      key: field || index,
+      style: {
+        flex: "1 0 " + colWidth + "px",
+        minWidth: colWidth
+      },
+      "data-column-class": columnClass,
+      "data-tip": tooltip
+    }, visibleTitle);
   });
 
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement("div", {
-      className: "headers stacked-block-table-headers"
-    }, headers)
-  );
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "headers stacked-block-table-headers"
+  }, headers);
 }
 
 TableHeaders.propTypes = {

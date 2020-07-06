@@ -23,7 +23,7 @@ var _CustomColumnController = require("./../CustomColumnController");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -37,39 +37,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -77,9 +51,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
  * This component must be fed props from CustomColumnController (for columns UI), SelectedFilesController (for selected files read-out).
  * Some may need to be transformed to exclude certain non-user-controlled columns (e.g. @type) and such.
  */
-var AboveTableControlsBase =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(AboveTableControlsBase, _React$PureComponent);
 
   var _super = _createSuper(AboveTableControlsBase);
@@ -89,20 +61,12 @@ function (_React$PureComponent) {
     value: function getCustomColumnSelectorPanelMapDefinition(props) {
       return {
         "customColumns": {
-          "title":
-          /*#__PURE__*/
-          _react["default"].createElement(_react["default"].Fragment, null,
-          /*#__PURE__*/
-          _react["default"].createElement("i", {
+          "title": /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("i", {
             className: "icon icon-fw icon-gear fas"
-          }),
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
+          }), /*#__PURE__*/_react["default"].createElement("span", {
             className: "title-contents"
           }, "Configure Visible Columns")),
-          "body":
-          /*#__PURE__*/
-          _react["default"].createElement(_CustomColumnController.CustomColumnSelector, _underscore["default"].pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')),
+          "body": /*#__PURE__*/_react["default"].createElement(_CustomColumnController.CustomColumnSelector, _underscore["default"].pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')),
           "className": "visible-columns-selector-panel"
         }
       };
@@ -217,14 +181,11 @@ function (_React$PureComponent) {
           reallyOpen = _this$state.reallyOpen;
 
       var extendedChildren = _react["default"].Children.map(children, function (child) {
-        return (
-          /*#__PURE__*/
-          _react["default"].cloneElement(child, {
-            "panelToggleFxns": _this3.panelToggleFxns,
-            "onClosePanel": _this3.handleClose,
-            "currentOpenPanel": open || reallyOpen
-          })
-        );
+        return /*#__PURE__*/_react["default"].cloneElement(child, {
+          "panelToggleFxns": _this3.panelToggleFxns,
+          "onClosePanel": _this3.handleClose,
+          "currentOpenPanel": open || reallyOpen
+        });
       });
 
       var panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
@@ -234,32 +195,21 @@ function (_React$PureComponent) {
           panelBody = _ref2.body,
           panelCls = _ref2.className;
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "above-results-table-row"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: "row"
-        }, extendedChildren,
-        /*#__PURE__*/
-        _react["default"].createElement(_RightButtonsSection.RightButtonsSection, _extends({}, _underscore["default"].pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
-          currentOpenPanel: open || reallyOpen,
-          onColumnsBtnClick: this.panelToggleFxns.customColumns
-        }))), panelDefinition ?
-        /*#__PURE__*/
-        _react["default"].createElement(_Collapse["default"], {
-          "in": !!open,
-          appear: true
-        },
-        /*#__PURE__*/
-        _react["default"].createElement(_AboveTablePanelWrapper.AboveTablePanelWrapper, {
-          className: panelCls,
-          onClose: this.handleClose,
-          title: panelTitle
-        }, panelBody)) : null)
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: "above-results-table-row"
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "row"
+      }, extendedChildren, /*#__PURE__*/_react["default"].createElement(_RightButtonsSection.RightButtonsSection, _extends({}, _underscore["default"].pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
+        currentOpenPanel: open || reallyOpen,
+        onColumnsBtnClick: this.panelToggleFxns.customColumns
+      }))), panelDefinition ? /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+        "in": !!open,
+        appear: true
+      }, /*#__PURE__*/_react["default"].createElement(_AboveTablePanelWrapper.AboveTablePanelWrapper, {
+        className: panelCls,
+        onClose: this.handleClose,
+        title: panelTitle
+      }, panelBody)) : null);
     }
   }]);
 
@@ -271,11 +221,7 @@ AboveTableControlsBase.defaultProps = {
   "panelMap": {
     // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
     "customColumns": {
-      "title":
-      /*#__PURE__*/
-      _react["default"].createElement("span", null,
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      "title": /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw icon-gear fas"
       }), " hello world"),
       "body": "Hello World",
