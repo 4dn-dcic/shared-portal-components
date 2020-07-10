@@ -36,6 +36,10 @@ function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableTo
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
@@ -43,8 +47,6 @@ function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.it
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -426,7 +428,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas small"
       })), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
-        title: fromTitle,
+        title: this.termTitle(facet.field, typeof fromVal === 'number' ? fromVal : min || 0),
         value: fromVal,
         savedValue: savedFromVal,
         max: toVal || null,
@@ -449,7 +451,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw icon-less-than-equal fas small"
       })), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
-        title: toTitle,
+        title: this.termTitle(facet.field, typeof toVal === 'number' ? toVal : max) || /*#__PURE__*/_react["default"].createElement("em", null, "Infinity"),
         value: toVal,
         savedValue: savedToVal,
         min: fromVal || null,
@@ -601,52 +603,49 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
 
           m.add(incr); // Handles duplicates.
 
-          return m;
-        }, new Set());
+        return m;
+      }, new Set())).map(function (increment) {
+        return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
+          disabled: typeof min === "number" && increment <= min || typeof max === "number" && increment >= max,
+          key: increment,
+          eventKey: increment,
+          active: increment === savedValue
+        }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/_react["default"].createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/_react["default"].createElement("small", null, " (max)") : null);
+      });
 
-        var menuOptions = _toConsumableArray(menuOptsSet).map(function (increment) {
-          return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
-            disabled: disabled,
-            key: increment,
-            eventKey: increment,
-            active: increment === savedValue
-          }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/_react["default"].createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/_react["default"].createElement("small", null, " (max)") : null);
-        });
-
-        return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
-          variant: variant,
-          disabled: disabled,
-          className: className,
-          title: title,
-          size: size,
-          id: id
-        }, {
-          alignRight: true,
-          onSelect: this.onDropdownSelect
-        }), /*#__PURE__*/_react["default"].createElement("form", {
-          className: "inline-input-container",
-          onSubmit: this.onTextInputFormSubmit
-        }, /*#__PURE__*/_react["default"].createElement("div", {
-          className: "input-element-container"
-        }, /*#__PURE__*/_react["default"].createElement("input", _extends({
-          type: "number",
-          className: "form-control"
-        }, {
-          value: value,
-          placeholder: placeholder,
-          step: step
-        }, {
-          onChange: this.onTextInputChange
-        }))), /*#__PURE__*/_react["default"].createElement("button", {
-          type: "submit",
-          disabled: !updateAble,
-          className: "btn"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
-          className: "icon icon-fw icon-check fas"
-        }))), menuOptions);
-      } else {
-        throw new Error("Expected number, integer, or date field type.");
-      }
+      return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
+        variant: variant,
+        disabled: disabled,
+        className: className,
+        title: title,
+        size: size,
+        id: id
+      }, {
+        alignRight: true,
+        onSelect: this.onDropdownSelect
+      }), /*#__PURE__*/_react["default"].createElement("form", {
+        className: "inline-input-container",
+        onSubmit: this.onTextInputFormSubmit
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "input-element-container"
+      }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+        type: "number",
+        className: "form-control"
+      }, {
+        min: min,
+        max: max,
+        value: value,
+        placeholder: placeholder,
+        step: step
+      }, {
+        onChange: this.onTextInputChange
+      }))), /*#__PURE__*/_react["default"].createElement("button", {
+        type: "submit",
+        disabled: !(savedValue !== value),
+        className: "btn"
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-check fas"
+      }))), menuOptions);
     }
   }]);
 

@@ -115,6 +115,7 @@ var ResultRowColumnBlock = /*#__PURE__*/_react["default"].memo(function (props) 
         "width": blockWidth
       },
       "data-field": field,
+      "data-first-visible-column": columnNumber === 0 ? true : undefined,
       "data-column-even": columnNumber % 2 === 0
     }, /*#__PURE__*/_react["default"].createElement(_ResultRowColumnBlockValue.ResultRowColumnBlockValue, _extends({}, props, {
       width: blockWidth,
