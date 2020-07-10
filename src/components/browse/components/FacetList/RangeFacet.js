@@ -10,6 +10,7 @@ import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Fade from 'react-bootstrap/esm/Fade';
 
+import { LocalizedTime } from './../../../ui/LocalizedTime';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
 
@@ -26,18 +27,29 @@ export function getRangeValuesFromFiltersByField(facets = [], filters = []){
         facetsByFilterField[f.field + ".from"] = f;
     });
     filters.forEach(function(f){
-        const { field: filterField, term: strValue } = f; // filterField would have .to and .from appended.
+        const {
+            field: filterField,
+            term: strValue
+        } = f; // filterField would have .to and .from appended.
         const facet = facetsByFilterField[filterField];
         if (!facet) return; // Skip, not range facet.
-        const { field: facetField } = facet;
+        const {
+            field: facetField,
+            field_type
+        } = facet;
         valuesByField[facetField] = valuesByField[facetField] || {};
-        const value = RangeFacet.parseNumber(facet, strValue);
+        const value = (
+            // Convert to float if numerical field type or leave as string if datetime, etc.
+            field_type === "integer" ? parseInt(strValue)
+                : field_type === "number" ? parseFloat(strValue)
+                    : strValue
+        );
         if (facetField + ".to" === filterField) {
             valuesByField[facetField].toVal = value;
         } else if (facetField + ".from" === filterField) {
             valuesByField[facetField].fromVal = value;
         } else {
-            throw new Error("Unexpected facet/filter");
+            throw new Error("Unexpected range facet filter value or type");
         }
     });
     return valuesByField;
@@ -46,11 +58,20 @@ export function getRangeValuesFromFiltersByField(facets = [], filters = []){
 
 export class RangeFacet extends React.PureComponent {
 
-    static parseNumber(facet, value){
-        const { field_type = "integer", number_step = "any" } = facet;
+    static parseAndValidate(facet, value){
+        const {
+            field_type = "integer",
+            number_step = "any"
+        } = facet;
 
         if (value === "" || value === null){
             return null;
+        }
+
+        if (field_type === "date") {
+            // Todo check if valid date string and set state.valid === false, upon which
+            // to deny ability to apply.
+            return value.toString();
         }
 
         let numVal = (field_type === "integer") ? parseInt(value) : parseFloat(value);
@@ -77,39 +98,6 @@ export class RangeFacet extends React.PureComponent {
             numVal = Math.floor(numVal * diviser) / diviser;
         }
 
-        return numVal;
-    }
-
-    static parseAndValidate(facet, value){
-        const { min, max } = facet;
-
-        const numVal = RangeFacet.parseNumber(facet, value);
-
-        if (numVal === null) {
-            return null;
-        }
-
-        if (typeof min === "number"){
-            if (min === numVal) {
-                return null;
-            }
-
-            // todo: maybe move to an onBlur + onSubmit
-            // if (numVal < min){
-            //     return min;
-            // }
-        }
-
-        if (typeof max === "number"){
-            if (max === numVal) {
-                return null;
-            }
-
-            // todo: maybe move to an onBlur + onSubmit
-            // if (numVal > max){
-            //     return max;
-            // }
-        }
         return numVal;
     }
 
@@ -156,33 +144,27 @@ export class RangeFacet extends React.PureComponent {
             validIncrements: memoize(RangeFacet.validIncrements)
         };
 
-        this.state = {
-            facetClosing: false,
-            fromVal: props.fromVal,
-            toVal: props.toVal
-        };
+        const {
+            fromVal,
+            toVal,
+            facet: { field_type = "number" }
+        } = props;
+
+        this.state = { fromVal, toVal, facetClosing: false };
+
+        if (field_type === "date") {
+            // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
+            this.state.fromVal = (fromVal && fromVal.toString()) || null;
+            this.state.toVal = (toVal && toVal.toString()) || null;
+        }
+
     }
 
     setFrom(value, callback){
         const { facet } = this.props;
-        const { min, max } = facet;
         try {
             const fromVal = RangeFacet.parseAndValidate(facet, value);
-            this.setState(function({ toVal }){
-                if (fromVal === null || fromVal === min) {
-                    return { fromVal: null };
-                }
-                // if (typeof toVal === "number" && toVal < fromVal){
-                //     fromVal = toVal;
-                // }
-                // if (typeof min === "number" && fromVal < min){
-                //     fromVal = min;
-                // }
-                // if (typeof max === "number" && fromVal > max){
-                //     fromVal = max;
-                // }
-                return { fromVal };
-            }, callback);
+            this.setState({ fromVal }, callback);
         } catch (e){
             console.error("Couldn't set value", e);
         }
@@ -190,24 +172,9 @@ export class RangeFacet extends React.PureComponent {
 
     setTo(value, callback){
         const { facet } = this.props;
-        const { min, max } = facet;
         try {
             const toVal = RangeFacet.parseAndValidate(facet, value);
-            this.setState(function({ fromVal }){
-                if (toVal === null || toVal === max) {
-                    return { toVal: null };
-                }
-                // if (typeof fromVal === "number" && fromVal > toVal){
-                //     toVal = fromVal;
-                // }
-                // if (typeof min === "number" && toVal < min){
-                //     toVal = min;
-                // }
-                // if (typeof max === "number" && toVal > max){
-                //     toVal = max;
-                // }
-                return { toVal };
-            }, callback);
+            this.setState({ toVal }, callback);
         } catch (e){
             console.error("Couldn't set value", e);
         }
@@ -250,7 +217,19 @@ export class RangeFacet extends React.PureComponent {
      * condense it using `toExponential`.
      */
     termTitle(fieldName, value, allowJSX = true){
-        const { termTransformFxn } = this.props;
+        const {
+            facet: { field_type = "number" },
+            termTransformFxn
+        } = this.props;
+
+        if (field_type === "date"){
+            return <LocalizedTime timestamp={value} localize={false} />;
+        }
+
+        if (field_type !== "number" && field_type !== "integer") {
+            throw new Error("Expect field_type to be 'number' or 'date'.");
+        }
+
         const transformedValue = termTransformFxn(fieldName, value, allowJSX);
         if (typeof transformedValue !== "number") {
             return transformedValue;
@@ -263,10 +242,38 @@ export class RangeFacet extends React.PureComponent {
 
     render(){
         const { facet, title: propTitle, isStatic, fromVal: savedFromVal, toVal: savedToVal, facetOpen } = this.props;
-        const { field, min, max, title: facetTitle = null, description: tooltip = null } = facet;
+        const {
+            field_type = "number",
+            field,
+            min: minValue = null,
+            min_as_string: minDateTime = null,
+            max: maxValue = null,
+            max_as_string: maxDateTime = null,
+            title: facetTitle = null,
+            description: tooltip = null
+        } = facet;
         const { fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
         const title = propTitle || facetTitle || field;
+
+        let fromTitle, toTitle;
+
+        if (field_type === "number" || field_type === "integer") {
+            fromTitle = (typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal)
+                : typeof minValue === "number" ? this.termTitle(facet.field, minValue)
+                    : <em>-Infinite</em>
+            );
+            toTitle = (typeof toVal === 'number' ? this.termTitle(facet.field, toVal)
+                : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue)
+                    : <em>Infinite</em>
+            );
+        } else if (field_type === "date") {
+            fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
+            toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || <em>None</em>;
+            console.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
+        } else {
+            throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
+        }
 
         const isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
 
@@ -295,8 +302,7 @@ export class RangeFacet extends React.PureComponent {
                                 <i className="icon icon-fw icon-greater-than-equal fas small"/>
                             </label>
                             <RangeDropdown
-                                title={this.termTitle(facet.field, typeof fromVal === 'number' ? fromVal : min || 0)}
-                                value={fromVal} savedValue={savedFromVal}
+                                title={fromTitle} value={fromVal} savedValue={savedFromVal}
                                 max={toVal || null} increments={fromIncrements}
                                 variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"}
                                 onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
@@ -310,8 +316,8 @@ export class RangeFacet extends React.PureComponent {
                             <label className="col-auto mb-0">
                                 <i className="icon icon-fw icon-less-than-equal fas small"/>
                             </label>
-                            <RangeDropdown title={this.termTitle(facet.field, typeof toVal === 'number' ? toVal : max) || <em>Infinity</em> }
-                                value={toVal} savedValue={savedToVal}
+                            <RangeDropdown
+                                title={toTitle} value={toVal} savedValue={savedToVal}
                                 min={fromVal || null} increments={toIncrements}
                                 variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"}
                                 onSelect={this.setTo} update={this.performUpdateTo} termTransformFxn={this.termTitle}
@@ -374,15 +380,39 @@ class RangeDropdown extends React.PureComponent {
             facet,
             increments = []
         } = this.props;
+        const updateAble = (savedValue !== value);
+        const {
+            field_type = "number",
+            min: fMin,
+            max: fMax,
+            number_step: step = "any"
+        } = facet;
 
-        const { min: fMin, max: fMax, number_step: step = "any" } = facet;
-        const min = typeof propMin === "number" ? propMin
-            : typeof fMin === "number" ? fMin
-                : 0;
-        const max = propMax || fMax || null;
+        if (field_type === "date") {
+            return (
+                <DropdownButton {...{ variant, disabled, className, title, size, id }} alignRight>
+                    <form className="inline-input-container pb-0 mb-0 border-0" onSubmit={this.onTextInputFormSubmit}>
+                        <div className="input-element-container">
+                            <input type="date" className="form-control"
+                                value={value} data-value={value} onChange={this.onTextInputChange} />
+                        </div>
+                        <button type="submit" disabled={!updateAble} className="btn">
+                            <i className="icon icon-fw icon-check fas"/>
+                        </button>
+                    </form>
+                </DropdownButton>
+            );
 
-        const menuOptions = [...(
-            [].concat([min]).concat(increments).concat([max])
+        } else if (field_type === "number" || field_type === "integer") {
+
+            const min = (
+                typeof propMin === "number" ? propMin
+                    : typeof fMin === "number" ? fMin
+                        : 0
+            );
+            const max = propMax || fMax || null;
+
+            const menuOptsSet = [...increments].concat([min]).concat([max])
                 .sort(function(a, b){
                     return a - b;
                 })
@@ -392,34 +422,37 @@ class RangeDropdown extends React.PureComponent {
                     }
                     m.add(incr); // Handles duplicates.
                     return m;
-                }, new Set())
-        )].map(function(increment, indx){
-            const active = increment === savedValue;
-            const disabled = (typeof min === "number" && increment <= min) || (typeof max === "number" && increment >= max);
+                }, new Set());
+
+            const menuOptions = [...menuOptsSet].map(function(increment, indx){
+                const active = increment === savedValue;
+                return (
+                    <DropdownItem disabled={disabled} key={increment} eventKey={increment} active={active}>
+                        { termTransformFxn(facet.field, increment, true) }
+                        { increment === min ? <small> (min)</small> : null }
+                        { increment === max ? <small> (max)</small> : null }
+                    </DropdownItem>
+                );
+            });
+
             return (
-                <DropdownItem disabled={disabled} key={increment} eventKey={increment} active={active}>
-                    { termTransformFxn(facet.field, increment, true) }
-                    { increment === min ? <small> (min)</small> : null }
-                    { increment === max ? <small> (max)</small> : null }
-                </DropdownItem>
+                <DropdownButton {...{ variant, disabled, className, title, size, id }} alignRight onSelect={this.onDropdownSelect}>
+                    <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
+                        <div className="input-element-container">
+                            <input type="number" className="form-control" {...{ value, placeholder, step }} onChange={this.onTextInputChange} />
+                        </div>
+                        <button type="submit" disabled={!updateAble} className="btn">
+                            <i className="icon icon-fw icon-check fas"/>
+                        </button>
+                    </form>
+                    { menuOptions }
+                </DropdownButton>
             );
-        });
 
-        const updateAble = (savedValue !== value);
+        } else {
+            throw new Error("Expected number, integer, or date field type.");
+        }
 
-        return (
-            <DropdownButton {...{ variant, disabled, className, title, size, id }} alignRight onSelect={this.onDropdownSelect}>
-                <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
-                    <div className="input-element-container">
-                        <input type="number" className="form-control" {...{ min, max, value, placeholder, step }} onChange={this.onTextInputChange} />
-                    </div>
-                    <button type="submit" disabled={!updateAble} className="btn">
-                        <i className="icon icon-fw icon-check fas"/>
-                    </button>
-                </form>
-                { menuOptions }
-            </DropdownButton>
-        );
     }
 }
 

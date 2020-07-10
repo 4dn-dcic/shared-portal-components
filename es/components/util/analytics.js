@@ -93,10 +93,12 @@ var defaultOptions = {
     _item$experiments_in_ = _item$experiments_in_ === void 0 ? [{}] : _item$experiments_in_;
 
     var _item$experiments_in_2 = _slicedToArray(_item$experiments_in_, 1),
-        _item$experiments_in_3 = _item$experiments_in_2[0].experiment_type;
+        _item$experiments_in_3 = _item$experiments_in_2[0];
 
     _item$experiments_in_3 = _item$experiments_in_3 === void 0 ? {} : _item$experiments_in_3;
-    var set_expType = _item$experiments_in_3.display_title,
+    var _item$experiments_in_4 = _item$experiments_in_3.experiment_type;
+    _item$experiments_in_4 = _item$experiments_in_4 === void 0 ? {} : _item$experiments_in_4;
+    var set_expType = _item$experiments_in_4.display_title,
         _item$from_experiment = item.from_experiment,
         from_experiment = _item$from_experiment === void 0 ? null : _item$from_experiment,
         _item$from_experiment2 = item.from_experiment_set,

@@ -13,6 +13,8 @@ var _react = _interopRequireDefault(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
+
 var _moment = _interopRequireDefault(require("moment"));
 
 var _misc = require("./../util/misc");
@@ -41,8 +43,8 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var LocalizedTime = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(LocalizedTime, _React$PureComponent);
+var LocalizedTime = /*#__PURE__*/function (_React$Component) {
+  _inherits(LocalizedTime, _React$Component);
 
   var _super = _createSuper(LocalizedTime);
 
@@ -52,9 +54,15 @@ var LocalizedTime = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, LocalizedTime);
 
     _this = _super.call(this, props);
+    _this.memoized = {
+      getMoment: (0, _memoizeOne["default"])(function (momentDate, timestamp) {
+        if (momentDate) return momentDate;
+        if (timestamp) return _moment["default"].utc(timestamp);
+        return _moment["default"].utc();
+      })
+    };
     _this.state = {
-      moment: props.momentDate ? props.momentDate : props.timestamp ? _moment["default"].utc(props.timestamp) : _moment["default"].utc(),
-      mounted: false
+      'mounted': false
     };
     return _this;
   }
@@ -63,7 +71,7 @@ var LocalizedTime = /*#__PURE__*/function (_React$PureComponent) {
     key: "componentDidMount",
     value: function componentDidMount() {
       this.setState({
-        mounted: true
+        'mounted': true
       });
     }
   }, {
@@ -74,25 +82,26 @@ var LocalizedTime = /*#__PURE__*/function (_React$PureComponent) {
           dateTimeSeparator = _this$props.dateTimeSeparator,
           localize = _this$props.localize,
           customOutputFormat = _this$props.customOutputFormat,
-          className = _this$props.className;
-      var _this$state = this.state,
-          stateMoment = _this$state.moment,
-          mounted = _this$state.mounted;
+          className = _this$props.className,
+          momentDate = _this$props.momentDate,
+          timestamp = _this$props.timestamp;
+      var mounted = this.state.mounted;
+      var selfMoment = this.memoized.getMoment(momentDate, timestamp);
 
       if (!mounted || (0, _misc.isServerSide)()) {
         return /*#__PURE__*/_react["default"].createElement("span", {
           className: className + ' utc'
-        }, display(stateMoment, formatType, dateTimeSeparator, false, customOutputFormat));
+        }, display(selfMoment, formatType, dateTimeSeparator, false, customOutputFormat));
       } else {
         return /*#__PURE__*/_react["default"].createElement("span", {
           className: className + (localize ? ' local' : ' utc')
-        }, display(stateMoment, formatType, dateTimeSeparator, localize, customOutputFormat));
+        }, display(selfMoment, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
     }
   }]);
 
   return LocalizedTime;
-}(_react["default"].PureComponent);
+}(_react["default"].Component);
 
 exports.LocalizedTime = LocalizedTime;
 LocalizedTime.propTypes = {
@@ -102,6 +111,7 @@ LocalizedTime.propTypes = {
     }
   },
   timestamp: _propTypes["default"].string,
+  localize: _propTypes["default"].bool,
   formatType: _propTypes["default"].string,
   dateTimeSeparator: _propTypes["default"].string,
   customOutputFormat: _propTypes["default"].string,
