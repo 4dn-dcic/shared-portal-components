@@ -43,8 +43,8 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var LocalizedTime = /*#__PURE__*/function (_React$PureComponent) {
-  _inherits(LocalizedTime, _React$PureComponent);
+var LocalizedTime = /*#__PURE__*/function (_React$Component) {
+  _inherits(LocalizedTime, _React$Component);
 
   var _super = _createSuper(LocalizedTime);
 
@@ -91,11 +91,11 @@ var LocalizedTime = /*#__PURE__*/function (_React$PureComponent) {
       if (!mounted || (0, _misc.isServerSide)()) {
         return /*#__PURE__*/_react["default"].createElement("span", {
           className: className + ' utc'
-        }, display(stateMoment, formatType, dateTimeSeparator, false, customOutputFormat));
+        }, display(selfMoment, formatType, dateTimeSeparator, false, customOutputFormat));
       } else {
         return /*#__PURE__*/_react["default"].createElement("span", {
           className: className + (localize ? ' local' : ' utc')
-        }, display(stateMoment, formatType, dateTimeSeparator, localize, customOutputFormat));
+        }, display(selfMoment, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
     }
   }]);
