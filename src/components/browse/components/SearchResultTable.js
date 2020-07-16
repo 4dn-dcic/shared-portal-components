@@ -417,7 +417,8 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         } = this.props;
         const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
         const { query } = parts;
-        query.from = existingResults.length;
+        const nextFromValue = existingResults.length;
+        query.from = nextFromValue;
         parts.search = '?' + queryString.stringify(query);
         const nextHref = url.format(parts);
 
@@ -454,7 +455,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                             nextHref,
                             isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View"
                         );
-                        analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextResultsLen });
+                        analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextFromValue });
                         setResults(existingResults.slice(0).concat(nextResults));
                     });
                 }

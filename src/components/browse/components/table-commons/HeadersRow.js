@@ -432,7 +432,7 @@ class ColumnSorterIcon extends React.PureComponent {
     }
 }
 
-const SortOptionsMenuContainer = React.memo(function SortOptionsMenuContainer(props){
+function SortOptionsMenuContainer(props){
     const {
         showingSortFieldsForColumn,
         columnDefinitions,
@@ -476,7 +476,7 @@ const SortOptionsMenuContainer = React.memo(function SortOptionsMenuContainer(pr
             <SortOptionsMenu {...{ currentSortColumn, descend, sort_fields, sortByField, style }} />
         </div>
     );
-});
+}
 
 const SortOptionsMenu = React.memo(function SortOptionsMenu({
     header = <h5 className="dropdown-header mt-0 px-3 pt-03 text-600">Sort by</h5>,

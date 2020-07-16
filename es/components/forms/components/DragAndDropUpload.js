@@ -56,9 +56,6 @@ var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Co
 
   return DragAndDropUploadSubmissionViewController;
 }(_react["default"].Component);
-
-exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
-
 /**
  * A class utility for executing promise-chains in a sequential manner. Includes some
  * scaffolding for aborting promises; needs more work in future.
@@ -67,6 +64,10 @@ exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionV
  * before starting the upload of the next item, so that the new atIds can be collected
  * and patched to the parent together.
  */
+
+
+exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
+
 var PromiseQueue = /*#__PURE__*/function () {
   function PromiseQueue() {
     _classCallCheck(this, PromiseQueue);

@@ -649,7 +649,7 @@ _defineProperty(ColumnSorterIcon, "defaultProps", {
   'descend': false
 });
 
-var SortOptionsMenuContainer = /*#__PURE__*/_react["default"].memo(function (props) {
+function SortOptionsMenuContainer(props) {
   var showingSortFieldsForColumn = props.showingSortFieldsForColumn,
       columnDefinitions = props.columnDefinitions,
       currentSortColumn = props.sortColumn,
@@ -699,7 +699,7 @@ var SortOptionsMenuContainer = /*#__PURE__*/_react["default"].memo(function (pro
     sortByField: sortByField,
     style: style
   }));
-});
+}
 
 var SortOptionsMenu = /*#__PURE__*/_react["default"].memo(function (_ref7) {
   var _ref7$header = _ref7.header,
