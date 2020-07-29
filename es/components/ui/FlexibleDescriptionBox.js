@@ -23,7 +23,7 @@ var _EditableField = require("../forms/components/EditableField");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -35,47 +35,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var FlexibleCharacterCountBox =
-/*#__PURE__*/
-function (_React$Component) {
+var FlexibleCharacterCountBox = /*#__PURE__*/function (_React$Component) {
   _inherits(FlexibleCharacterCountBox, _React$Component);
 
   var _super = _createSuper(FlexibleCharacterCountBox);
@@ -116,35 +88,23 @@ function (_React$Component) {
       var expandable = string.length > (characters || expandCharacters);
 
       if (!expandable) {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("span", null, string)
-        );
+        return /*#__PURE__*/_react["default"].createElement("span", null, string);
       }
 
-      var visibleIcon = icon &&
-      /*#__PURE__*/
-      _react["default"].cloneElement(icon, {
+      var visibleIcon = icon && /*#__PURE__*/_react["default"].cloneElement(icon, {
         'onClick': this.onClick,
         'expanded': expanded,
         'data-expanded': expanded
-      }) ||
-      /*#__PURE__*/
-      _react["default"].createElement("i", {
+      }) || /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon fas icon-" + (expanded ? 'minus' : 'plus'),
         onClick: this.onClick
       });
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("span", null,
-        /*#__PURE__*/
-        _react["default"].createElement(FlexibleCharacterCountString, {
-          string: string,
-          expanded: expanded,
-          expandCharacters: characters || expandCharacters
-        }), " \xA0 ", visibleIcon)
-      );
+      return /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement(FlexibleCharacterCountString, {
+        string: string,
+        expanded: expanded,
+        expandCharacters: characters || expandCharacters
+      }), " \xA0 ", visibleIcon);
     }
   }]);
 
@@ -159,9 +119,7 @@ _defineProperty(FlexibleCharacterCountBox, "propTypes", {
   'icon': _propTypes["default"].element
 });
 
-var FlexibleCharacterCountString =
-/*#__PURE__*/
-function (_React$Component2) {
+var FlexibleCharacterCountString = /*#__PURE__*/function (_React$Component2) {
   _inherits(FlexibleCharacterCountString, _React$Component2);
 
   var _super2 = _createSuper(FlexibleCharacterCountString);
@@ -211,9 +169,7 @@ _defineProperty(FlexibleCharacterCountString, "defaultProps", {
   'expanded': false
 });
 
-var FlexibleDescriptionBox =
-/*#__PURE__*/
-function (_React$Component3) {
+var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
   _inherits(FlexibleDescriptionBox, _React$Component3);
 
   var _super3 = _createSuper(FlexibleDescriptionBox);
@@ -420,15 +376,11 @@ function (_React$Component3) {
       var expanded = descriptionExpanded || propExpanded;
 
       if (!descriptionWillFitOneLine && typeof propExpanded !== 'boolean') {
-        expandButton =
-        /*#__PURE__*/
-        _react["default"].createElement("button", {
+        expandButton = /*#__PURE__*/_react["default"].createElement("button", {
           type: "button",
           className: "description-expand-button right",
           onClick: this.throttledToggleDescriptionExpand
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("i", {
+        }, /*#__PURE__*/_react["default"].createElement("i", {
           className: "icon fas icon-" + (expanded ? 'minus' : 'plus')
         }));
       }
@@ -437,9 +389,7 @@ function (_React$Component3) {
       // Moved from componentWillReceiveProps as this lifecycle method is being deprecated.
 
       if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')) {
-        this.boxRef =
-        /*#__PURE__*/
-        _react["default"].createRef();
+        this.boxRef = /*#__PURE__*/_react["default"].createRef();
       }
 
       var _this$props4 = this.props,
@@ -454,41 +404,7 @@ function (_React$Component3) {
           isInlineEditable = _this$props4.isInlineEditable;
 
       if (isInlineEditable && this.havePermissionToEdit()) {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            ref: this.boxRef,
-            className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
-            style: {
-              'height': containerHeightSet,
-              'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
-              'visibility': !mounted && showOnMount ? 'hidden' : null
-            }
-          }, expandButton,
-          /*#__PURE__*/
-          _react["default"].createElement(_EditableField.FieldSet, {
-            context: context,
-            className: textClassName,
-            style: textStyle,
-            schemas: schemas,
-            href: href
-          },
-          /*#__PURE__*/
-          _react["default"].createElement(_EditableField.EditableField, {
-            className: textClassName,
-            labelID: "description",
-            style: "row-without-label",
-            placeholder: "description",
-            fallbackText: "click to add new description",
-            fieldType: "text",
-            buttonAlwaysVisible: true
-          })))
-        );
-      }
-
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
+        return /*#__PURE__*/_react["default"].createElement("div", {
           ref: this.boxRef,
           className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
           style: {
@@ -496,13 +412,35 @@ function (_React$Component3) {
             'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
             'visibility': !mounted && showOnMount ? 'hidden' : null
           }
-        }, expandButton,
-        /*#__PURE__*/
-        _react["default"].createElement(textElement, {
-          'className': textClassName,
-          'style': textStyle
-        }, expanded ? description : shortContent || description))
-      );
+        }, expandButton, /*#__PURE__*/_react["default"].createElement(_EditableField.FieldSet, {
+          context: context,
+          className: textClassName,
+          style: textStyle,
+          schemas: schemas,
+          href: href
+        }, /*#__PURE__*/_react["default"].createElement(_EditableField.EditableField, {
+          className: textClassName,
+          labelID: "description",
+          style: "row-without-label",
+          placeholder: "description",
+          fallbackText: "click to add new description",
+          fieldType: "text",
+          buttonAlwaysVisible: true
+        })));
+      }
+
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        ref: this.boxRef,
+        className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
+        style: {
+          'height': containerHeightSet,
+          'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
+          'visibility': !mounted && showOnMount ? 'hidden' : null
+        }
+      }, expandButton, /*#__PURE__*/_react["default"].createElement(textElement, {
+        'className': textClassName,
+        'style': textStyle
+      }, expanded ? description : shortContent || description));
     }
   }]);
 

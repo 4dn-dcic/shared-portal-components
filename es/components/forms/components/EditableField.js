@@ -19,7 +19,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -31,39 +31,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -80,9 +54,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  *
  * @see EditableField.propTypes for more info of props to provide.
  */
-var EditableField =
-/*#__PURE__*/
-function (_React$Component) {
+var EditableField = /*#__PURE__*/function (_React$Component) {
   _inherits(EditableField, _React$Component);
 
   var _super = _createSuper(EditableField);
@@ -142,13 +114,9 @@ function (_React$Component) {
       'leanOffset': 0 // Re: inline style
 
     };
-    _this.fieldRef =
-    /*#__PURE__*/
-    _react["default"].createRef(); // Field container element
+    _this.fieldRef = /*#__PURE__*/_react["default"].createRef(); // Field container element
 
-    _this.inputElementRef =
-    /*#__PURE__*/
-    _react["default"].createRef(); // Input element
+    _this.inputElementRef = /*#__PURE__*/_react["default"].createRef(); // Input element
 
     return _this;
   }
@@ -341,62 +309,36 @@ function (_React$Component) {
 
       if (required && valid === false && validationMessage) {
         // Some validationMessages provided by browser don't give much info, so use it selectively (if at all).
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "invalid-feedback"
-          }, validationMessage)
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "invalid-feedback"
+        }, validationMessage);
       }
 
       if (Array.isArray(serverErrors) && serverErrors.length > 0) {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "invalid-feedback"
-          }, serverErrorsMessage ?
-          /*#__PURE__*/
-          _react["default"].createElement("b", null, serverErrorsMessage) : null, _underscore["default"].map(serverErrors, function (err, i) {
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("div", {
-                key: 'error-' + i
-              }, (serverErrors.length === 1 ? '' : i + 1 + '. ') + err.description)
-            );
-          }))
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "invalid-feedback"
+        }, serverErrorsMessage ? /*#__PURE__*/_react["default"].createElement("b", null, serverErrorsMessage) : null, _underscore["default"].map(serverErrors, function (err, i) {
+          return /*#__PURE__*/_react["default"].createElement("div", {
+            key: 'error-' + i
+          }, (serverErrors.length === 1 ? '' : i + 1 + '. ') + err.description);
+        }));
       }
 
       switch (fieldType) {
         case 'phone':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              className: "invalid-feedback"
-            }, "Only use digits \u2014 no dashes, spaces, or parantheses. Optionally may include leading '+' or extension.",
-            /*#__PURE__*/
-            _react["default"].createElement("br", null),
-            /*#__PURE__*/
-            _react["default"].createElement("b", null, "e.g.:"), " ",
-            /*#__PURE__*/
-            _react["default"].createElement("code", null, "+######### x###"))
-          );
+          return /*#__PURE__*/_react["default"].createElement("div", {
+            className: "invalid-feedback"
+          }, "Only use digits \u2014 no dashes, spaces, or parantheses. Optionally may include leading '+' or extension.", /*#__PURE__*/_react["default"].createElement("br", null), /*#__PURE__*/_react["default"].createElement("b", null, "e.g.:"), " ", /*#__PURE__*/_react["default"].createElement("code", null, "+######### x###"));
 
         case 'email':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              className: "invalid-feedback"
-            }, "Please enter a valid email address.")
-          );
+          return /*#__PURE__*/_react["default"].createElement("div", {
+            className: "invalid-feedback"
+          }, "Please enter a valid email address.");
 
         case 'numeric':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              className: "invalid-feedback"
-            }, "Please enter a valid number.")
-          );
+          return /*#__PURE__*/_react["default"].createElement("div", {
+            className: "invalid-feedback"
+          }, "Please enter a valid number.");
 
         case 'username':
         case 'text':
@@ -638,16 +580,11 @@ function (_React$Component) {
             return null;
 
           case 'cancel':
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("span", {
-                className: extClass + "field-loading-icon"
-              },
-              /*#__PURE__*/
-              _react["default"].createElement("i", {
-                className: "icon icon-spin icon-circle-notch icon-fw fas"
-              }))
-            );
+            return /*#__PURE__*/_react["default"].createElement("span", {
+              className: extClass + "field-loading-icon"
+            }, /*#__PURE__*/_react["default"].createElement("i", {
+              className: "icon icon-spin icon-circle-notch icon-fw fas"
+            }));
         }
       }
 
@@ -656,62 +593,42 @@ function (_React$Component) {
           if (disabled) {
             if (!info) return null; // ToDo info popup or tooltip
 
-            return (
-              /*#__PURE__*/
-              _react["default"].createElement("span", {
-                className: extClass + "edit-button info disabled"
-              },
-              /*#__PURE__*/
-              _react["default"].createElement("i", {
-                className: "icon icon-info-circle icon-fw fas"
-              }))
-            );
+            return /*#__PURE__*/_react["default"].createElement("span", {
+              className: extClass + "edit-button info disabled"
+            }, /*#__PURE__*/_react["default"].createElement("i", {
+              className: "icon icon-info-circle icon-fw fas"
+            }));
           }
 
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("a", {
-              href: "#edit-" + labelID,
-              className: extClass + "edit-button",
-              onClick: this.enterEditState,
-              title: "Edit"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("i", {
-              className: "icon icon-pencil-alt icon-fw fas"
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement("a", {
+            href: "#edit-" + labelID,
+            className: extClass + "edit-button",
+            onClick: this.enterEditState,
+            title: "Edit"
+          }, /*#__PURE__*/_react["default"].createElement("i", {
+            className: "icon icon-pencil-alt icon-fw fas"
+          }));
 
         case 'save':
           if (!this.isValid(false)) return null;
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("a", {
-              href: "#save-" + labelID,
-              className: extClass + "save-button",
-              onClick: this.saveEditState,
-              title: "Save"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("i", {
-              className: "icon icon-check fas icon-fw"
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement("a", {
+            href: "#save-" + labelID,
+            className: extClass + "save-button",
+            onClick: this.saveEditState,
+            title: "Save"
+          }, /*#__PURE__*/_react["default"].createElement("i", {
+            className: "icon icon-check fas icon-fw"
+          }));
 
         case 'cancel':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("a", {
-              href: "#",
-              className: extClass + "cancel-button",
-              onClick: this.cancelEditState,
-              title: "Cancel"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("i", {
-              className: "icon icon-times-circle far icon-fw"
-            }))
-          );
+          return /*#__PURE__*/_react["default"].createElement("a", {
+            href: "#",
+            className: extClass + "cancel-button",
+            onClick: this.cancelEditState,
+            title: "Cancel"
+          }, /*#__PURE__*/_react["default"].createElement("i", {
+            className: "icon icon-times-circle far icon-fw"
+          }));
       }
     }
   }, {
@@ -739,38 +656,24 @@ function (_React$Component) {
             classes.push('col-md-2');
           }
 
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("div", {
-              className: classes.join(' ')
-            }, this.isSet() ?
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              id: labelID,
-              className: "set"
-            }, renderedValue) :
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "not-set"
-            }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'))
-          );
+          return /*#__PURE__*/_react["default"].createElement("div", {
+            className: classes.join(' ')
+          }, this.isSet() ? /*#__PURE__*/_react["default"].createElement("span", {
+            id: labelID,
+            className: "set"
+          }, renderedValue) : /*#__PURE__*/_react["default"].createElement("span", {
+            className: "not-set"
+          }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'));
 
         case 'inline':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: classes.join(' ')
-            }, this.isSet() ?
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              id: labelID,
-              className: "set"
-            }, renderedValue) :
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "not-set"
-            }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'))
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            className: classes.join(' ')
+          }, this.isSet() ? /*#__PURE__*/_react["default"].createElement("span", {
+            id: labelID,
+            className: "set"
+          }, renderedValue) : /*#__PURE__*/_react["default"].createElement("span", {
+            className: "not-set"
+          }, fallbackText || 'No ' + labelID), this.renderActionIcon('edit'));
       }
 
       return null;
@@ -787,56 +690,33 @@ function (_React$Component) {
       this.state.loading;
 
       if (style === 'row') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "row editable-field-entry " + labelID
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "col col-md-3 text-right text-left-xs"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("label", {
-            htmlFor: labelID
-          }, label)), this.renderSavedValue())
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "row editable-field-entry " + labelID
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "col col-md-3 text-right text-left-xs"
+        }, /*#__PURE__*/_react["default"].createElement("label", {
+          htmlFor: labelID
+        }, label)), this.renderSavedValue());
       } else if (style === 'row-without-label') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "row editable-field-entry " + labelID
-          }, this.renderSavedValue())
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "row editable-field-entry " + labelID
+        }, this.renderSavedValue());
       } else if (style === 'minimal') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "editable-field-entry " + labelID
-          }, this.renderSavedValue())
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "editable-field-entry " + labelID
+        }, this.renderSavedValue());
       } else if (style === 'inline') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            className: "editable-field-entry inline " + labelID
-          }, this.renderSavedValue())
-        );
+        return /*#__PURE__*/_react["default"].createElement("span", {
+          className: "editable-field-entry inline " + labelID
+        }, this.renderSavedValue());
       } else if (style === 'minimal-row') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "row editable-field-entry " + labelID
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "col col-md-2 text-right text-left-xs"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("label", {
-            htmlFor: labelID
-          }, label)), this.renderSavedValue())
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "row editable-field-entry " + labelID
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "col col-md-2 text-right text-left-xs"
+        }, /*#__PURE__*/_react["default"].createElement("label", {
+          htmlFor: labelID
+        }, label)), this.renderSavedValue());
       }
     }
     /** Render an input field; for usage in this.renderEditing() */
@@ -874,78 +754,50 @@ function (_React$Component) {
 
       switch (fieldType) {
         case 'phone':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "text",
-              inputMode: "tel",
-              autoComplete: "tel"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+            type: "text",
+            inputMode: "tel",
+            autoComplete: "tel"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'email':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "email",
-              autoComplete: "email"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+            type: "email",
+            autoComplete: "email"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'username':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "text",
-              inputMode: "latin-name",
-              autoComplete: "username"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+            type: "text",
+            inputMode: "latin-name",
+            autoComplete: "username"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'text':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper w-100"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "text",
-              inputMode: "latin"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            className: "input-wrapper w-100"
+          }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+            type: "text",
+            inputMode: "latin"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
 
         case 'numeric':
-          return (
-            /*#__PURE__*/
-            _react["default"].createElement("span", {
-              className: "input-wrapper"
-            },
-            /*#__PURE__*/
-            _react["default"].createElement("input", _extends({
-              type: "number",
-              inputMode: "numeric"
-            }, commonPropsTextInput)), this.validationFeedbackMessage())
-          );
+          return /*#__PURE__*/_react["default"].createElement("span", {
+            className: "input-wrapper"
+          }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+            type: "number",
+            inputMode: "numeric"
+          }, commonPropsTextInput)), this.validationFeedbackMessage());
       } // Fallback (?)
 
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("span", null, "No edit field created yet.")
-      );
+      return /*#__PURE__*/_react["default"].createElement("span", null, "No edit field created yet.");
     }
     /** Render 'in edit state' view */
 
@@ -966,50 +818,31 @@ function (_React$Component) {
       var outerBaseClass = "editable-field-entry editing has-feedback was-validated" + (!this.isValid(true) ? ' has-error ' : ' has-success ') + ('input-size-' + inputSize + ' ') + (outerClassName ? outerClassName + ' ' : '');
 
       if (style == 'row') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: outerBaseClass + labelID + ' row'
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "col col-md-3 text-right text-left-xs"
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("label", {
-            htmlFor: labelID
-          }, label)),
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "col col-md-9 value editing d-flex"
-          }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')))
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: outerBaseClass + labelID + ' row'
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "col col-md-3 text-right text-left-xs"
+        }, /*#__PURE__*/_react["default"].createElement("label", {
+          htmlFor: labelID
+        }, label)), /*#__PURE__*/_react["default"].createElement("div", {
+          className: "col col-md-9 value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
 
       if (style == 'row-without-label') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: outerBaseClass + labelID + ' row'
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "col col-md-12 value editing d-flex"
-          }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')))
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: outerBaseClass + labelID + ' row'
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "col col-md-12 value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
 
       if (style == 'minimal') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: outerBaseClass + labelID
-          },
-          /*#__PURE__*/
-          _react["default"].createElement("div", {
-            className: "value editing d-flex"
-          }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')))
-        );
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: outerBaseClass + labelID
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "value editing d-flex"
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
 
       if (style == 'inline') {
@@ -1023,18 +856,13 @@ function (_React$Component) {
           }
         }
 
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            ref: absoluteBox ? this.fieldRef : null,
-            className: outerBaseClass + labelID + ' inline' + (absoluteBox ? ' block-style' : '')
-          }, absoluteBox ? this.renderSavedValue() : null,
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            className: "value editing clearfix",
-            style: valStyle
-          }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')))
-        );
+        return /*#__PURE__*/_react["default"].createElement("span", {
+          ref: absoluteBox ? this.fieldRef : null,
+          className: outerBaseClass + labelID + ' inline' + (absoluteBox ? ' block-style' : '')
+        }, absoluteBox ? this.renderSavedValue() : null, /*#__PURE__*/_react["default"].createElement("span", {
+          className: "value editing clearfix",
+          style: valStyle
+        }, this.inputField(), this.renderActionIcon('save'), this.renderActionIcon('cancel')));
       }
     }
   }, {
@@ -1129,9 +957,7 @@ _defineProperty(EditableField, "defaultProps", {
   'buttonAlwaysVisible': false
 });
 
-var FieldSet =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var FieldSet = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(FieldSet, _React$PureComponent);
 
   var _super2 = _createSuper(FieldSet);
@@ -1183,10 +1009,7 @@ function (_React$PureComponent) {
           if (style) newProps.style = style;
           if (absoluteBox) newProps.absoluteBox = absoluteBox;
           if (windowWidth) newProps.windowWidth = windowWidth;
-          return (
-            /*#__PURE__*/
-            _react["default"].cloneElement(child, newProps)
-          );
+          return /*#__PURE__*/_react["default"].cloneElement(child, newProps);
         }
 
         return child;
@@ -1210,20 +1033,14 @@ function (_React$PureComponent) {
     key: "render",
     value: function render() {
       if (this.props.style === 'inline') {
-        return (
-          /*#__PURE__*/
-          _react["default"].createElement("span", {
-            className: this.fullClassName()
-          }, this.adjustedChildren())
-        );
+        return /*#__PURE__*/_react["default"].createElement("span", {
+          className: this.fullClassName()
+        }, this.adjustedChildren());
       }
 
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", {
-          className: this.fullClassName()
-        }, this.adjustedChildren())
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", {
+        className: this.fullClassName()
+      }, this.adjustedChildren());
     }
   }]);
 
