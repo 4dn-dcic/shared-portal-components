@@ -25,19 +25,21 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  */
 var ItemFooterRow = /*#__PURE__*/_react["default"].memo(function (_ref) {
   var context = _ref.context,
-      schemas = _ref.schemas;
+      schemas = _ref.schemas,
+      _ref$external_referen = _ref.external_references,
+      external_references = _ref$external_referen === void 0 ? [] : _ref$external_referen;
 
   var _ref2 = context || {},
       _ref2$aliases = _ref2.aliases,
       aliases = _ref2$aliases === void 0 ? [] : _ref2$aliases,
       _ref2$actions = _ref2.actions,
       actions = _ref2$actions === void 0 ? [] : _ref2$actions,
-      _ref2$external_refere = _ref2.external_references,
-      external_references = _ref2$external_refere === void 0 ? [] : _ref2$external_refere,
       _ref2$alternate_acces = _ref2.alternate_accessions,
       alternate_accessions = _ref2$alternate_acces === void 0 ? [] : _ref2$alternate_acces;
 
-  if (external_references.length === 0 && alternate_accessions.length === 0) {
+  var externalReferences = external_references || context.external_references || [];
+
+  if (externalReferences.length === 0 && alternate_accessions.length === 0) {
     return null;
   }
 
@@ -47,7 +49,7 @@ var ItemFooterRow = /*#__PURE__*/_react["default"].memo(function (_ref) {
     className: "row"
   }, /*#__PURE__*/_react["default"].createElement(ExternalReferencesSection, {
     context: context,
-    externalReferences: external_references
+    externalReferences: externalReferences
   }), /*#__PURE__*/_react["default"].createElement(AlternateAccessionSection, {
     context: context,
     alternateAccessions: alternate_accessions
@@ -63,17 +65,61 @@ function ExternalReferencesSection(_ref3) {
     return null;
   }
 
+  var content = null;
+
+  var anyTitleFound = _underscore["default"].any(externalReferences, function (ef) {
+    return ef.title;
+  });
+
+  if (!anyTitleFound) {
+    content = /*#__PURE__*/_react["default"].createElement("ul", null, _underscore["default"].map(externalReferences, function (extRef, i) {
+      return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("li", {
+        key: i
+      }, typeof extRef.ref === 'string' ? /*#__PURE__*/_react["default"].createElement(ExternalReferenceLink, {
+        uri: extRef.uri || null
+      }, extRef.ref) : extRef));
+    }));
+  } else {
+    var externalReferencesGroupedByTitle = _underscore["default"].groupBy(externalReferences, function (ef) {
+      return ef.title || null;
+    });
+
+    var titles = _underscore["default"].keys(externalReferencesGroupedByTitle);
+
+    content = _underscore["default"].map(titles, function (title) {
+      var subContent = /*#__PURE__*/_react["default"].createElement("ul", null, _underscore["default"].map(externalReferencesGroupedByTitle[title], function (extRef, i) {
+        return /*#__PURE__*/_react["default"].createElement("li", {
+          key: i
+        }, typeof extRef.ref === 'string' ? /*#__PURE__*/_react["default"].createElement(ExternalReferenceLink, {
+          uri: extRef.uri || null
+        }, extRef.ref) : extRef);
+      }));
+
+      return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("h6", {
+        className: "info-panel-label"
+      }, title), subContent);
+    }); // <ul>
+    //     {_.map(externalReferences, function (extRef, i) {
+    //         return (
+    //             <React.Fragment>
+    //                 <li key={i}>
+    //                     {typeof extRef.ref === 'string' ?
+    //                         <ExternalReferenceLink uri={extRef.uri || null}>{extRef.ref}</ExternalReferenceLink> : extRef
+    //                     }
+    //                 </li>
+    //             </React.Fragment>
+    //         );
+    //     })}
+    // </ul>);
+  }
+
   return /*#__PURE__*/_react["default"].createElement("div", {
     className: "col col-12 col-md-6"
   }, /*#__PURE__*/_react["default"].createElement("h4", {
     className: "text-300"
-  }, "External References"), /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("ul", null, _underscore["default"].map(externalReferences, function (extRef, i) {
-    return /*#__PURE__*/_react["default"].createElement("li", {
-      key: i
-    }, typeof extRef.ref === 'string' ? /*#__PURE__*/_react["default"].createElement(ExternalReferenceLink, {
-      uri: extRef.uri || null
-    }, extRef.ref) : extRef);
-  }))));
+  }, "External References"), /*#__PURE__*/_react["default"].createElement("div", {
+    className: anyTitleFound ? 'formatted-info-panel' : null
+  }, content));
 }
 
 function AlternateAccessionSection(_ref4) {

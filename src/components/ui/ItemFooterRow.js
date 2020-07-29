@@ -14,10 +14,11 @@ import { console } from './../util';
  * @prop {Object} context - JSON representation of current Item object. Should be available through Redux store's context.
  * @prop {Object} schemas - JSON representation of sitewide schemas.
  */
-export const ItemFooterRow = React.memo(function ItemFooterRow({ context, schemas }){
-    const { aliases = [], actions = [], external_references = [], alternate_accessions = [] } = context || {};
+export const ItemFooterRow = React.memo(function ItemFooterRow({ context, schemas, external_references = [] }) {
+    const { aliases = [], actions = [], alternate_accessions = [] } = context || {};
+    const externalReferences = external_references || context.external_references || [];
 
-    if (external_references.length === 0 && alternate_accessions.length === 0){
+    if (externalReferences.length === 0 && alternate_accessions.length === 0) {
         return null;
     }
 
@@ -25,7 +26,7 @@ export const ItemFooterRow = React.memo(function ItemFooterRow({ context, schema
         <React.Fragment>
             <hr className="mb-08 mt-1"/>
             <div className="row">
-                <ExternalReferencesSection context={context} externalReferences={external_references} />
+                <ExternalReferencesSection context={context} externalReferences={externalReferences} />
                 {/* <AliasesSection context={context} aliases={aliases} actions={actions} /> */}
                 <AlternateAccessionSection context={context} alternateAccessions={alternate_accessions} />
             </div>
@@ -34,26 +35,75 @@ export const ItemFooterRow = React.memo(function ItemFooterRow({ context, schema
 });
 
 
-function ExternalReferencesSection({ externalReferences }){
-    if (externalReferences.length === 0){
+function ExternalReferencesSection({ externalReferences }) {
+    if (externalReferences.length === 0) {
         return null;
+    }
+
+    let content = null;
+
+    const anyTitleFound = _.any(externalReferences, (ef) => ef.title);
+    if (!anyTitleFound) {
+        content = (
+            <ul>
+                {_.map(externalReferences, function (extRef, i) {
+                    return (
+                        <React.Fragment>
+                            <li key={i}>
+                                {typeof extRef.ref === 'string' ?
+                                    <ExternalReferenceLink uri={extRef.uri || null}>{extRef.ref}</ExternalReferenceLink> : extRef
+                                }
+                            </li>
+                        </React.Fragment>
+                    );
+                })}
+            </ul>);
+    }
+    else {
+        const externalReferencesGroupedByTitle = _.groupBy(externalReferences, (ef) => ef.title || null);
+        const titles = _.keys(externalReferencesGroupedByTitle);
+
+        content = _.map(titles, (title) => {
+            const subContent = (
+                <ul>
+                    {_.map(externalReferencesGroupedByTitle[title], function (extRef, i) {
+                        return (
+
+                            <li key={i}>
+                                {typeof extRef.ref === 'string' ?
+                                    <ExternalReferenceLink uri={extRef.uri || null}>{extRef.ref}</ExternalReferenceLink> : extRef
+                                }
+                            </li>
+
+                        );
+                    })}
+                </ul>
+            );
+            return (
+                <React.Fragment>
+                    <h6 className="info-panel-label">{title}</h6>
+                    {subContent}
+                </React.Fragment>
+            );
+        });
+        // <ul>
+        //     {_.map(externalReferences, function (extRef, i) {
+        //         return (
+        //             <React.Fragment>
+        //                 <li key={i}>
+        //                     {typeof extRef.ref === 'string' ?
+        //                         <ExternalReferenceLink uri={extRef.uri || null}>{extRef.ref}</ExternalReferenceLink> : extRef
+        //                     }
+        //                 </li>
+        //             </React.Fragment>
+        //         );
+        //     })}
+        // </ul>);
     }
     return (
         <div className="col col-12 col-md-6">
             <h4 className="text-300">External References</h4>
-            <div>
-                <ul>
-                    { _.map(externalReferences, function(extRef, i){
-                        return (
-                            <li key={i}>
-                                { typeof extRef.ref === 'string' ?
-                                    <ExternalReferenceLink uri={extRef.uri || null}>{ extRef.ref }</ExternalReferenceLink> : extRef
-                                }
-                            </li>
-                        );
-                    }) }
-                </ul>
-            </div>
+            <div className={anyTitleFound ? 'formatted-info-panel' : null}>{content}</div>
         </div>
     );
 }
