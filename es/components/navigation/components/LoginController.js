@@ -27,11 +27,11 @@ var _analytics = require("./../../util/analytics");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
@@ -39,7 +39,7 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; if (obj != null) { var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -51,39 +51,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -102,9 +76,7 @@ if (!require.ensure) {
 /** Controls Login process, also shows Registration Modal */
 
 
-var LoginController =
-/*#__PURE__*/
-function (_React$PureComponent) {
+var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(LoginController, _React$PureComponent);
 
   var _super = _createSuper(LoginController);
@@ -307,23 +279,11 @@ function (_React$PureComponent) {
 
         var userFullName = userDetails.first_name && userDetails.last_name && userDetails.first_name + ' ' + userDetails.last_name || null;
 
-        var msg =
-        /*#__PURE__*/
-        _react["default"].createElement("ul", {
+        var msg = /*#__PURE__*/_react["default"].createElement("ul", {
           className: "mb-0"
-        },
-        /*#__PURE__*/
-        _react["default"].createElement("li", null, "You are now logged in as ",
-        /*#__PURE__*/
-        _react["default"].createElement("span", {
+        }, /*#__PURE__*/_react["default"].createElement("li", null, "You are now logged in as ", /*#__PURE__*/_react["default"].createElement("span", {
           className: "text-500"
-        }, userFullName, userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email), "."),
-        /*#__PURE__*/
-        _react["default"].createElement("li", null, "Please visit ",
-        /*#__PURE__*/
-        _react["default"].createElement("b", null,
-        /*#__PURE__*/
-        _react["default"].createElement("a", {
+        }, userFullName, userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email), "."), /*#__PURE__*/_react["default"].createElement("li", null, "Please visit ", /*#__PURE__*/_react["default"].createElement("b", null, /*#__PURE__*/_react["default"].createElement("a", {
           href: userProfileURL
         }, "your profile")), " to edit your account settings or information."));
 
@@ -372,16 +332,13 @@ function (_React$PureComponent) {
       var showLock = this.showLock,
           onRegistrationCancel = this.onRegistrationCancel,
           onRegistrationComplete = this.onRegistrationComplete;
-      return (
-        /*#__PURE__*/
-        _react["default"].cloneElement(children, _objectSpread({
-          isLoading: isLoading,
-          isRegistrationModalVisible: isRegistrationModalVisible,
-          showLock: showLock,
-          onRegistrationCancel: onRegistrationCancel,
-          onRegistrationComplete: onRegistrationComplete
-        }, passProps))
-      );
+      return /*#__PURE__*/_react["default"].cloneElement(children, _objectSpread({
+        isLoading: isLoading,
+        isRegistrationModalVisible: isRegistrationModalVisible,
+        showLock: showLock,
+        onRegistrationCancel: onRegistrationCancel,
+        onRegistrationComplete: onRegistrationComplete
+      }, passProps));
     }
   }]);
 
@@ -432,9 +389,7 @@ _defineProperty(LoginController, "defaultProps", {
   }
 });
 
-var LogoutController =
-/*#__PURE__*/
-function (_React$PureComponent2) {
+var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(LogoutController, _React$PureComponent2);
 
   var _super2 = _createSuper(LogoutController);
@@ -497,12 +452,9 @@ function (_React$PureComponent2) {
           children = _this$props4.children,
           passProps = _objectWithoutProperties(_this$props4, ["children"]);
 
-      return (
-        /*#__PURE__*/
-        _react["default"].cloneElement(children, _objectSpread({
-          performLogout: this.performLogout
-        }, passProps))
-      );
+      return /*#__PURE__*/_react["default"].cloneElement(children, _objectSpread({
+        performLogout: this.performLogout
+      }, passProps));
     }
   }]);
 
