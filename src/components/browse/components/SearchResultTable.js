@@ -30,6 +30,8 @@ import { HeadersRow } from './table-commons/HeadersRow';
 import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap';
 
 
+
+
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
     const { columnDefinition, columnNumber, mounted, columnWidths, schemas, windowWidth } = props;
     const { field } = columnDefinition;
@@ -43,11 +45,13 @@ const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
 
     return ( // props includes result
         <div className="search-result-column-block" style={{ "width" : blockWidth }}
-            data-field={field} data-column-even={columnNumber % 2 === 0}>
+            data-field={field} data-first-visible-column={columnNumber === 0 ? true : undefined}
+            data-column-even={columnNumber % 2 === 0}>
             <ResultRowColumnBlockValue {...props} width={blockWidth} schemas={schemas} />
         </div>
     );
 });
+
 
 /** Not used anywhere (?) */
 const DefaultDetailPane = React.memo(function DefaultDetailPane({ result }){
@@ -413,7 +417,8 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         } = this.props;
         const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
         const { query } = parts;
-        query.from = existingResults.length;
+        const nextFromValue = existingResults.length;
+        query.from = nextFromValue;
         parts.search = '?' + queryString.stringify(query);
         const nextHref = url.format(parts);
 
@@ -450,7 +455,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                             nextHref,
                             isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View"
                         );
-                        analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextResultsLen });
+                        analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextFromValue });
                         setResults(existingResults.slice(0).concat(nextResults));
                     });
                 }

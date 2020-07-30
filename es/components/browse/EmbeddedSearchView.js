@@ -184,7 +184,7 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
-      var tableColumnClassName = facets === null ? "col-12" : undefined;
+      var tableColumnClassName = facets === null ? "col-12" : undefined; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
 
       var viewProps = _objectSpread(_objectSpread({}, passProps), {}, {
         showAboveTableControls: showAboveTableControls,

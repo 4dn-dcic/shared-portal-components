@@ -115,6 +115,7 @@ var ResultRowColumnBlock = /*#__PURE__*/_react["default"].memo(function (props) 
         "width": blockWidth
       },
       "data-field": field,
+      "data-first-visible-column": columnNumber === 0 ? true : undefined,
       "data-column-even": columnNumber % 2 === 0
     }, /*#__PURE__*/_react["default"].createElement(_ResultRowColumnBlockValue.ResultRowColumnBlockValue, _extends({}, props, {
       width: blockWidth,
@@ -580,7 +581,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
 
 
       var query = parts.query;
-      query.from = existingResults.length;
+      var nextFromValue = existingResults.length;
+      query.from = nextFromValue;
       parts.search = '?' + _querystring["default"].stringify(query);
 
       var nextHref = _url["default"].format(parts);
@@ -627,7 +629,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
             }, function () {
               analytics.impressionListOfItems(nextResults, nextHref, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View");
               analytics.event('SearchResultTable', "Loaded More Results", {
-                eventValue: nextResultsLen
+                eventValue: nextFromValue
               });
               setResults(existingResults.slice(0).concat(nextResults));
             });
