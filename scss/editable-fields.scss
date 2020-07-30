@@ -61,7 +61,7 @@ div.fieldset.editable-fields {
 	}
 
 	.value {
-		word-break : break-all;
+		word-break : break-word;
 		padding-bottom: 10px;
 
 		.not-set {
@@ -329,4 +329,11 @@ div.fieldset.editable-fields {
 		}
 	}
 
+}
+
+.flexible-description-box .editable-field-entry{
+	overflow: hidden;
+	.value {
+		padding-left: 0px;
+	}
 }
