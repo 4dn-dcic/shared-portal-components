@@ -19,6 +19,8 @@ var _layout = require("./../util/layout");
 
 var _utilities = require("./../viz/utilities");
 
+var _EditableField = require("../forms/components/EditableField");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -182,6 +184,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
     _this2.checkWillDescriptionFitOneLineAndUpdateHeight = _this2.checkWillDescriptionFitOneLineAndUpdateHeight.bind(_assertThisInitialized(_this2));
     _this2.toggleDescriptionExpand = _this2.toggleDescriptionExpand.bind(_assertThisInitialized(_this2));
     _this2.makeShortContent = _this2.makeShortContent.bind(_assertThisInitialized(_this2));
+    _this2.havePermissionToEdit = _this2.havePermissionToEdit.bind(_assertThisInitialized(_this2));
     _this2.descriptionHeight = null;
     _this2.state = {
       'descriptionExpanded': props.defaultExpanded,
@@ -338,6 +341,15 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
       });
     }
   }, {
+    key: "havePermissionToEdit",
+    value: function havePermissionToEdit() {
+      var _this$props$context$a = this.props.context.actions,
+          actions = _this$props$context$a === void 0 ? [] : _this$props$context$a;
+      return !!_underscore["default"].findWhere(actions, {
+        'name': 'edit'
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props3 = this.props,
@@ -378,6 +390,43 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
 
       if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')) {
         this.boxRef = /*#__PURE__*/_react["default"].createRef();
+      }
+
+      var _this$props4 = this.props,
+          children = _this$props4.children,
+          subtitle = _this$props4.subtitle,
+          windowWidth = _this$props4.windowWidth,
+          title = _this$props4.title,
+          schemas = _this$props4.schemas,
+          href = _this$props4.href,
+          subTitleClassName = _this$props4.subTitleClassName,
+          context = _this$props4.context,
+          isInlineEditable = _this$props4.isInlineEditable;
+
+      if (isInlineEditable && this.havePermissionToEdit()) {
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          ref: this.boxRef,
+          className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
+          style: {
+            'height': containerHeightSet,
+            'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
+            'visibility': !mounted && showOnMount ? 'hidden' : null
+          }
+        }, expandButton, /*#__PURE__*/_react["default"].createElement(_EditableField.FieldSet, {
+          context: context,
+          className: textClassName,
+          style: textStyle,
+          schemas: schemas,
+          href: href
+        }, /*#__PURE__*/_react["default"].createElement(_EditableField.EditableField, {
+          className: textClassName,
+          labelID: "description",
+          style: "row-without-label",
+          placeholder: "description",
+          fallbackText: "click to add new description",
+          fieldType: "text",
+          buttonAlwaysVisible: true
+        })));
       }
 
       return /*#__PURE__*/_react["default"].createElement("div", {
@@ -423,7 +472,8 @@ _defineProperty(FlexibleDescriptionBox, "propTypes", {
   'textElement': _propTypes["default"].oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
   'textStyle': _propTypes["default"].object,
   'expanded': _propTypes["default"].bool,
-  'windowWidth': _propTypes["default"].number.isRequired
+  'windowWidth': _propTypes["default"].number.isRequired,
+  'context': _propTypes["default"].object
 });
 
 _defineProperty(FlexibleDescriptionBox, "defaultProps", {

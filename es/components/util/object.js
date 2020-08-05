@@ -1012,7 +1012,12 @@ var itemUtil = {
        * @public
        * @constant
        */
-      phone: '[+]?[\\d]{10,36}((\\sx|\\sext|\\sextension)(\\s)?[\\d]{1,7})?$'
+      phone: '[+]?[\\d]{10,36}((\\sx|\\sext|\\sextension)(\\s)?[\\d]{1,7})?$',
+
+      /**
+       * Numeric (both positive and negative integers)
+       */
+      numeric: '^\\s*-?[0-9]*\\s*$'
     }
   }
 };

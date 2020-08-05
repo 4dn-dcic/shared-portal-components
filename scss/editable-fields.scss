@@ -3,30 +3,30 @@
 ***********************************************************/
 
 
-.fieldset.editable-fields,
-.editable-fields-container {
+// .fieldset.editable-fields,
+// .editable-fields-container {
 
-	&.editing {
+// 	&.editing {
 
-		.editable-field-entry:not(.editing) {
-			filter: blur(0.75px) grayscale(75%);
-			opacity: 0.75;
-			pointer-events: none;
-		}
+// 		.editable-field-entry:not(.editing) {
+// 			filter: blur(0.75px) grayscale(75%);
+// 			opacity: 0.75;
+// 			pointer-events: none;
+// 		}
 
-	}
-}
+// 	}
+// }
 
 
 
 div.fieldset.editable-fields {
 
-	padding-bottom: 15px;
+	// padding-bottom: 15px;
 
-    @include media-breakpoint-up(md) {
-		// Transition is too laggy on (some) mobile
-		transition: padding-bottom .5s linear;
-	}
+    // @include media-breakpoint-up(md) {
+	// 	// Transition is too laggy on (some) mobile
+	// 	transition: padding-bottom .5s linear;
+	// }
 
 	&.editing {
 		padding-bottom: 0px;
@@ -46,13 +46,22 @@ div.fieldset.editable-fields {
 		padding: 4px 6px !important;
 	}
 
+	// medium text inputBorder
+	.input-md {
+		@include font-size(1.21rem, true);
+		font-weight: normal;
+		height: 28px !important;
+		line-height: 22px !important;
+		padding: 2px 3px !important;
+	}
+
 	label {
 		margin-bottom: 0;
 		font-weight: 500;
 	}
 
 	.value {
-		word-break : break-all;
+		word-break : break-word;
 		padding-bottom: 10px;
 
 		.not-set {
@@ -107,7 +116,7 @@ div.fieldset.editable-fields {
 
 		.cancel-button,
 		.save-button {
-			padding-top: 9px;
+			padding-top: 0px;
 			font-size: 1.1em;
 			margin-bottom: -10px;
 			position: relative;
@@ -137,12 +146,15 @@ div.fieldset.editable-fields {
 			transform: translateY(2px);
 			&.show-absolute {
 				position: absolute;
-				margin-top: -5px;
+				//margin-top: -5px;
 				padding: 0;
 				height: 20px;
 				width: 20px;
 				text-align: center;
 				border-radius: 50%;
+			}
+			&.always-visible {
+				color: #dedede;
 			}
 		}
 
@@ -177,12 +189,27 @@ div.fieldset.editable-fields {
 			input[type=number],
 			input[type=email],
 			input[type=tel] {
-				margin-top: 3px;
+				border: 0 !important;
+				outline: 0 !important;
+				background: transparent;
+				border-bottom: 1px solid #dedede !important;
+				border-radius: 0 !important;
+				padding: 0 !important;
 				display: block;
 				margin-bottom: 0px;
-				width: 100%;
+				//width: 100%;
 				position: relative;
 				z-index: 3;
+				height: initial !important;	
+			}
+
+			input[type=number] {
+				width: 50px !important;
+			}
+
+			input:focus{
+				outline-style: none !important;
+				box-shadow: none !important;
 			}
 
 			span.help-block {
@@ -302,4 +329,16 @@ div.fieldset.editable-fields {
 		}
 	}
 
+}
+
+.flexible-description-box .editable-field-entry{
+	overflow: hidden;
+	.value {
+		padding-left: 0px;
+	}
+}
+.flexible-description-box.not-expandable .editable-field-entry{
+	.value {
+		padding-left: 10px;
+	}
 }
