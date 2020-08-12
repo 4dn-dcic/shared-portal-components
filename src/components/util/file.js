@@ -2,7 +2,6 @@ var CryptoJS = require('crypto-js');
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import { itemUtil } from './object';
-import { getItemType } from './schema-transforms';
 import { isServerSide } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
 
@@ -197,8 +196,8 @@ export const filterFilesWithQCSummary = memoize(function (files, checkAny = fals
  * @param {File[]} filesWithMetrics - List of files which all contain a `quality_metric_summary`.
  * @returns {File[][]} Groups of files as 2d array.
  */
-export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, schemas, sep="\t"){
-    let filesByTitles = _.pluck(
+export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, sep="\t"){
+    const filesByTitles = _.pluck(
         Array.from(
             _.reduce(filesWithMetrics, function(m, file, i){
                 const titles = _.map(file.quality_metric.quality_metric_summary, function(qcMetric){
@@ -214,24 +213,6 @@ export const groupFilesByQCSummaryTitles = memoize(function(filesWithMetrics, sc
         ),
         1
     );
-
-    //if schemas provided than return the result sorted by file's QC's qc_order
-    if (typeof schemas === 'object' && schemas !== null) {
-        filesByTitles = _.sortBy(filesByTitles, function (files) {
-            const [file] = files; //assumption: 1st file's QC is adequate to define order
-            if (file && file.quality_metric) {
-                const itemType = getItemType(file.quality_metric);
-                if (itemType && schemas[itemType]) {
-                    const { qc_order } = schemas[itemType];
-                    if (typeof qc_order === 'number') {
-                        return qc_order;
-                    }
-                }
-            }
-            //fallback - if qc_order is not defined then send it to end
-            return Number.MAX_SAFE_INTEGER || 1000000;
-        });
-    }
 
     return filesByTitles;
 });
