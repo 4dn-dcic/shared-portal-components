@@ -34,7 +34,7 @@ export class EditableField extends React.Component {
         context         : PropTypes.object, // ToDo : validate context obj has property labelID.
         endpoint        : PropTypes.string, // Endpoint to PATCH update to. Defaults to props.context['@id'] if not set.
         fieldType       : PropTypes.string, // Type of field, used for rendering of input element & validation.
-        style           : PropTypes.string, // Markup style, e.g. render row with label (default), minimal (just input field w/ buttons).
+        style           : PropTypes.oneOf(['row', 'minimal-row', 'minimal', 'inline', 'row-without-label']), // Markup style, e.g. render row with label (default), minimal (just input field w/ buttons).
         inputSize       : PropTypes.oneOf(['sm', 'md', 'lg']), // Size of Bootstrap input field to use. Defaults to sm.
         children        : PropTypes.any,    // Rendered value of field, use custom formatting on a per-field basis. ToDo : create fallback.
         placeholder     : PropTypes.string,
@@ -42,7 +42,11 @@ export class EditableField extends React.Component {
         pattern         : PropTypes.any,    // Optional pattern to use in lieu of one derived from schema or default field pattern. If set to false, will skip (default or schema-based) validation.
         required        : PropTypes.bool,   // Optionally set if field is required, overriding setting derived from schema (if any). Defaults to false.
         schemas         : PropTypes.object.isRequired,
-        debug           : PropTypes.bool    // Verbose lifecycle log messages.
+        debug           : PropTypes.bool,   // Verbose lifecycle log messages.
+        handleCustomSave: PropTypes.func,   // instead of built-in save function, pass custom save
+        dataType        : PropTypes.oneOf(['string', 'int']), //return value is converted one of these types
+        buttonAlwaysVisible : PropTypes.bool, //edit button always visible or not
+        outerClassName  : PropTypes.string
     };
 
     static defaultProps = {
@@ -56,9 +60,11 @@ export class EditableField extends React.Component {
         'required': false,
         'schemas': null,
         'debug': true,
+        'dataType': 'string',
         'onSave' : function(nextContext){
             console.log('Saved successfully', nextContext);
-        }
+        },
+        'buttonAlwaysVisible': false
     };
 
     constructor(props){
@@ -273,6 +279,7 @@ export class EditableField extends React.Component {
         // Fallback to generic pattern, if applicable for props.fieldType.
         if      (fieldType === 'phone') return object.itemUtil.User.localRegexValidation.phone;
         else if (fieldType === 'email') return object.itemUtil.User.localRegexValidation.email;
+        else if (fieldType === 'numeric') return object.itemUtil.User.localRegexValidation.numeric;
         else return null;
     }
 
@@ -298,18 +305,19 @@ export class EditableField extends React.Component {
             );
         }
 
-        switch(fieldType){
-
+        switch (fieldType) {
             case 'phone':
                 return (
                     <div className="invalid-feedback">
                         Only use digits &mdash; no dashes, spaces, or parantheses.
-                        Optionally may include leading &apos;+&apos; or extension.<br/>
+                        Optionally may include leading &apos;+&apos; or extension.<br />
                         <b>e.g.:</b> <code>+######### x###</code>
                     </div>
                 );
             case 'email':
                 return <div className="invalid-feedback">Please enter a valid email address.</div>;
+            case 'numeric':
+                return <div className="invalid-feedback">Please enter a valid number.</div>;
             case 'username':
             case 'text':
             default:
@@ -318,7 +326,7 @@ export class EditableField extends React.Component {
     }
 
     save(successCallback = null, errorCallback = null){
-        const { labelID, endpoint, context, parent, onSave } = this.props;
+        const { labelID, endpoint, context, parent, onSave, dataType } = this.props;
 
         const errorFallback = (res) => {
             // ToDo display (bigger?) errors
@@ -328,7 +336,10 @@ export class EditableField extends React.Component {
         };
 
         this.setState({ 'loading' : true }, ()=>{
-            const value = this.state.value;
+            let value = this.state.value;
+            if (dataType === 'int') {
+                value = parseInt(value);
+            }
             const timestamp   = Math.floor(Date.now ? Date.now() / 1000 : (new Date()).getTime() / 1000);
 
             let ajaxEndpoint = (endpoint || object.itemUtil.atId(context) ) + '?ts=' + timestamp;
@@ -362,6 +373,7 @@ export class EditableField extends React.Component {
                         if (typeof onSave === 'function'){
                             onSave(nextContext);
                         }
+
                     });
 
                 } else {
@@ -394,18 +406,39 @@ export class EditableField extends React.Component {
 
     saveEditState(e){
         e.preventDefault();
-        if (!this.isValid()){
+        const { labelID, handleCustomSave, context, parent, dataType } = this.props;
+        if (!this.isValid()) {
             // ToDo : Bigger notification to end user that something is wrong.
             console.error("Cannot save " + this.props.labelID + "; value is not valid:", this.state.value);
             return;
-        } else if (this.state.value === this.state.savedValue){
+        } else if (this.state.value === this.state.savedValue) {
             return this.cancelEditState(e);
         }
+        /* custom save instead of default context patch */
+        if (typeof handleCustomSave === 'function') {
+            let value = this.state.value;
+            if (dataType === 'int') {
+                value = parseInt(value);
+            }
+            const patchData = object.generateSparseNestedProperty(labelID, value);
+            const success = handleCustomSave(patchData, context);
+            if (success) {
+                this.setState({ 'savedValue': value, 'value': value, 'dispatching': true }, () => {
+                    setTimeout(() => {
+                        parent.setState({ 'currentlyEditing': null }, () => {
+                            this.setState({ 'loading': false, 'dispatching': false });
+                        });
+                    }, 0);
 
-        this.save(()=>{
-            // Success callback
-            console.info("Saved " + this.props.labelID + " : " + this.state.savedValue);
-        });
+                });
+            }
+        }
+        else {
+            this.save(() => {
+                // Success callback
+                console.info("Saved " + this.props.labelID + " : " + this.state.savedValue);
+            });
+        }
     }
 
     /** Update state.value on each keystroke/input and check validity. */
@@ -434,11 +467,12 @@ export class EditableField extends React.Component {
     }
 
     renderActionIcon(type = 'edit'){
-        const { style, info, disabled, labelID } = this.props;
+        const { style, info, disabled, labelID, buttonAlwaysVisible } = this.props;
         const { loading } = this.state;
 
         let extClass = "";
         if (style === 'inline') extClass = "show-absolute ";
+        if (buttonAlwaysVisible) extClass += "always-visible ";
 
         if (loading){
             switch (type){
@@ -491,22 +525,23 @@ export class EditableField extends React.Component {
         switch (style){
 
             case 'row':
+            case 'row-without-label':
+            case 'minimal-row':
             case 'minimal':
                 classes.push("d-flex");
-                if (style === 'row'){
-                    classes.push('col-md-9');
-                }
+                if (style === 'row' || style === 'row-without-label') {
+                    classes.push(style === 'row-without-label' ? 'col-md-12' : 'col-md-9');
+                } else if (style === 'minimal-row') { classes.push('col-md-2'); }
                 return (
                     <div className={classes.join(' ')}>
-                        { this.isSet() ?
-                            <span id={labelID} className="set">{ renderedValue }</span>
+                        {this.isSet() ?
+                            <span id={labelID} className="set">{renderedValue}</span>
                             :
-                            <span className="not-set">{ fallbackText || ('No ' + labelID) }</span>
+                            <span className="not-set">{fallbackText || ('No ' + labelID)}</span>
                         }
-                        { this.renderActionIcon('edit') }
+                        {this.renderActionIcon('edit')}
                     </div>
                 );
-
             case 'inline':
                 return (
                     <span className={classes.join(' ')}>
@@ -525,28 +560,42 @@ export class EditableField extends React.Component {
     renderSaved(){
         const { style, info, disabled, labelID, label } = this.props;
         const { loading } = this.state;
-        if (style === 'row'){
+
+        if (style === 'row') {
             return (
                 <div className={"row editable-field-entry " + labelID}>
                     <div className="col col-md-3 text-right text-left-xs">
-                        <label htmlFor={ labelID }>{ label }</label>
+                        <label htmlFor={labelID}>{label}</label>
                     </div>
-                    { this.renderSavedValue() }
+                    {this.renderSavedValue()}
                 </div>
             );
-        }
-        if (style === 'minimal'){
+        } else if (style === 'row-without-label') {
+            return (
+                <div className={"row editable-field-entry " + labelID}>
+                    {this.renderSavedValue()}
+                </div>
+            );
+        } else if (style === 'minimal') {
             return (
                 <div className={"editable-field-entry " + labelID}>
-                    { this.renderSavedValue() }
+                    {this.renderSavedValue()}
                 </div>
             );
-        }
-        if (style === 'inline'){
+        } else if (style === 'inline'){
             return (
                 <span className={"editable-field-entry inline " + labelID}>
-                    { this.renderSavedValue() }
+                    {this.renderSavedValue()}
                 </span>
+            );
+        } else if (style === 'minimal-row') {
+            return (
+                <div className={"row editable-field-entry " + labelID}>
+                    <div className="col col-md-2 text-right text-left-xs">
+                        <label htmlFor={labelID}>{label}</label>
+                    </div>
+                    {this.renderSavedValue()}
+                </div>
             );
         }
 
@@ -594,8 +643,14 @@ export class EditableField extends React.Component {
                 </span>
             );
             case 'text' : return (
-                <span className="input-wrapper">
+                <span className="input-wrapper w-100">
                     <input type="text" inputMode="latin" {...commonPropsTextInput} />
+                    { this.validationFeedbackMessage() }
+                </span>
+            );
+            case 'numeric' : return (
+                <span className="input-wrapper">
+                    <input type="number" inputMode="numeric" {...commonPropsTextInput} />
                     { this.validationFeedbackMessage() }
                 </span>
             );
@@ -606,13 +661,14 @@ export class EditableField extends React.Component {
 
     /** Render 'in edit state' view */
     renderEditing(){
-        var { inputSize, style, labelID, label, absoluteBox } = this.props,
-            { leanTo, leanOffset } = this.state,
-            outerBaseClass = "editable-field-entry editing has-feedback was-validated" +
-                (!this.isValid(true) ? ' has-error ' : ' has-success ') +
-                ('input-size-' + inputSize + ' ');
+        const { inputSize, style, fieldType, labelID, label, outerClassName, absoluteBox } = this.props;
+        const { leanTo, leanOffset } = this.state;
 
-        if (style == 'row') {
+        const outerBaseClass = "editable-field-entry editing has-feedback was-validated" +
+            (!this.isValid(true) ? ' has-error ' : ' has-success ') +
+            ('input-size-' + inputSize + ' ') + (outerClassName ? outerClassName + ' ' : '');
+
+        if (style == 'row' ) {
             return (
                 <div className={outerBaseClass + labelID + ' row'}>
                     <div className="col col-md-3 text-right text-left-xs">
@@ -627,13 +683,24 @@ export class EditableField extends React.Component {
             );
         }
 
+        if (style == 'row-without-label') {
+            return (
+                <div className={outerBaseClass + labelID + ' row'}>
+                    <div className="col col-md-12 value editing d-flex">
+                        {this.inputField()}
+                        {this.renderActionIcon('save')}
+                        {this.renderActionIcon('cancel')}
+                    </div>
+                </div>
+            );
+        }
         if (style == 'minimal') {
             return (
-                <div className={ outerBaseClass + labelID }>
+                <div className={outerBaseClass + labelID}>
                     <div className="value editing d-flex">
-                        { this.inputField() }
-                        { this.renderActionIcon('save') }
-                        { this.renderActionIcon('cancel') }
+                        {this.inputField()}
+                        {this.renderActionIcon('save')}
+                        {this.renderActionIcon('cancel')}
                     </div>
                 </div>
             );
@@ -695,7 +762,7 @@ export class FieldSet extends React.PureComponent {
         context     : PropTypes.object,     // JSON graph/output from server representing page data. Passed to child EditableFields.
         endpoint    : PropTypes.string,     // Override context['@id'] (if doesn't exist, dif endpoint, etc.)
         inputSize   : PropTypes.oneOf(['sm', 'md', 'lg']),
-        style       : PropTypes.oneOf(['row', 'minimal', 'inline']),
+        style       : PropTypes.oneOf(['row', 'row-without-label','minimal-row', 'minimal', 'inline']),
         /**
          * Pass a parent React component, i.e. supply 'this' from a parent's render method,
          * to have it act as host of state.currentlyEditing. Use when there are other EditableFields
