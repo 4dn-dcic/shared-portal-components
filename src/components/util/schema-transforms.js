@@ -29,7 +29,12 @@ export function getSchemaProperty(field, schemas, startAt = 'ExperimentSet'){
 
     function getProperty(propertiesObj, fieldPartIndex){
         const property = propertiesObj[fieldParts[fieldPartIndex]];
-        if (fieldPartIndex >= fieldParts.length - 1) return property;
+        if (fieldPartIndex >= fieldParts.length - 1) {
+            if (property.type === "array") {
+                return property.items;
+            }
+            return property;
+        }
         let nextSchemaProperties = null;
         if (property.type === 'array' && property.items && property.items.linkTo){
             nextSchemaProperties = getNextSchemaProperties(property.items.linkTo);
@@ -39,8 +44,10 @@ export function getSchemaProperty(field, schemas, startAt = 'ExperimentSet'){
             nextSchemaProperties = getNextSchemaProperties(property.linkTo);
         } else if (property.linkFrom) {
             nextSchemaProperties = getNextSchemaProperties(property.linkFrom);
-        } else if (property.type === 'object'){ // Embedded
+        } else if (property.type === 'object'){ // Embedded Object
             nextSchemaProperties = property.properties;
+        } else if (property.type === 'array'){ // Embedded Array
+            nextSchemaProperties = property.items.properties;
         }
 
         if (nextSchemaProperties) return getProperty(nextSchemaProperties, fieldPartIndex + 1);
