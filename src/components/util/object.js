@@ -91,7 +91,10 @@ export function listToObj(listOfStrings){
 
 /** TODO: Move these 3 functions to Schemas.js */
 
-/** Return the properties dictionary from a schema for use as tooltips */
+/**
+ * Return the properties dictionary from a schema for use as tooltips.
+ * @deprecated Use object destructuring from schemas instead, e.g. const { [content['@type'][0]] : { properties: expSetSchemaProperties } } = schemas;
+ */
 export function tipsFromSchema(schemas, content){
     if (content['@type'] && Array.isArray(content['@type']) && content['@type'].length > 0){
         var type = content['@type'][0];
@@ -100,7 +103,10 @@ export function tipsFromSchema(schemas, content){
     return {};
 }
 
-/** Return the properties dictionary from a schema for use as tooltips */
+/**
+ * Return the properties dictionary from a schema for use as tooltips.
+ * @deprecated Use object destructuring from schemas instead, e.g. const { ExperimentSet: { properties: expSetSchemaProperties } } = schemas;
+ */
 export function tipsFromSchemaByType(schemas, itemType='ExperimentSet'){
     var tips = {};
     if(itemType && typeof schemas === 'object' && schemas !== null){

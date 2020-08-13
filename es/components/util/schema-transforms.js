@@ -60,7 +60,15 @@ function getSchemaProperty(field, schemas) {
 
   function getProperty(propertiesObj, fieldPartIndex) {
     var property = propertiesObj[fieldParts[fieldPartIndex]];
-    if (fieldPartIndex >= fieldParts.length - 1) return property;
+
+    if (fieldPartIndex >= fieldParts.length - 1) {
+      if (property.type === "array") {
+        return property.items;
+      }
+
+      return property;
+    }
+
     var nextSchemaProperties = null;
 
     if (property.type === 'array' && property.items && property.items.linkTo) {
@@ -72,8 +80,11 @@ function getSchemaProperty(field, schemas) {
     } else if (property.linkFrom) {
       nextSchemaProperties = getNextSchemaProperties(property.linkFrom);
     } else if (property.type === 'object') {
-      // Embedded
+      // Embedded Object
       nextSchemaProperties = property.properties;
+    } else if (property.type === 'array') {
+      // Embedded Array
+      nextSchemaProperties = property.items.properties;
     }
 
     if (nextSchemaProperties) return getProperty(nextSchemaProperties, fieldPartIndex + 1);

@@ -512,7 +512,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 
 
 .search-headers-row {
-	background-color: $brand-primary-dark;
+	background-color: $primary-dark;
 	z-index: 50;
 	position: relative;
 	transform: translate3d(0,0,0) !important;
@@ -744,7 +744,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					}
 					&.is-active {
 						background-color: #eef4f5;
-						border-color: $brand-primary-dark;
+						border-color: $primary-dark;
 					}
 				}
 

@@ -206,7 +206,10 @@ function listToObj(listOfStrings) {
 }
 /** TODO: Move these 3 functions to Schemas.js */
 
-/** Return the properties dictionary from a schema for use as tooltips */
+/**
+ * Return the properties dictionary from a schema for use as tooltips.
+ * @deprecated Use object destructuring from schemas instead, e.g. const { [content['@type'][0]] : { properties: expSetSchemaProperties } } = schemas;
+ */
 
 
 function tipsFromSchema(schemas, content) {
@@ -217,7 +220,10 @@ function tipsFromSchema(schemas, content) {
 
   return {};
 }
-/** Return the properties dictionary from a schema for use as tooltips */
+/**
+ * Return the properties dictionary from a schema for use as tooltips.
+ * @deprecated Use object destructuring from schemas instead, e.g. const { ExperimentSet: { properties: expSetSchemaProperties } } = schemas;
+ */
 
 
 function tipsFromSchemaByType(schemas) {
