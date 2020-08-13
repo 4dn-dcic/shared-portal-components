@@ -17,8 +17,6 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _object = require("./object");
 
-var _schemaTransforms = require("./schema-transforms");
-
 var _misc = require("./misc");
 
 var _patchedConsole = require("./patched-console");
@@ -248,8 +246,8 @@ var filterFilesWithQCSummary = (0, _memoizeOne["default"])(function (files) {
  */
 
 exports.filterFilesWithQCSummary = filterFilesWithQCSummary;
-var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWithMetrics, schemas) {
-  var sep = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "\t";
+var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWithMetrics) {
+  var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "\t";
 
   var filesByTitles = _underscore["default"].pluck(Array.from(_underscore["default"].reduce(filesWithMetrics, function (m, file) {
     var titles = _underscore["default"].map(file.quality_metric.quality_metric_summary, function (qcMetric) {
@@ -264,31 +262,7 @@ var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWit
 
     m.get(titlesAsString).push(file);
     return m;
-  }, new Map())), 1); //if schemas provided than return the result sorted by file's QC's qc_order
-
-
-  if (_typeof(schemas) === 'object' && schemas !== null) {
-    filesByTitles = _underscore["default"].sortBy(filesByTitles, function (files) {
-      var _files = _slicedToArray(files, 1),
-          file = _files[0]; //assumption: 1st file's QC is adequate to define order
-
-
-      if (file && file.quality_metric) {
-        var itemType = (0, _schemaTransforms.getItemType)(file.quality_metric);
-
-        if (itemType && schemas[itemType]) {
-          var qc_order = schemas[itemType].qc_order;
-
-          if (typeof qc_order === 'number') {
-            return qc_order;
-          }
-        }
-      } //fallback - if qc_order is not defined then send it to end
-
-
-      return Number.MAX_SAFE_INTEGER || 1000000;
-    });
-  }
+  }, new Map())), 1);
 
   return filesByTitles;
 });
