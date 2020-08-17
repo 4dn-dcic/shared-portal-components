@@ -21,6 +21,8 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
+var _patchedConsole = require("./patched-console");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -61,8 +63,15 @@ function getSchemaProperty(field, schemas) {
   function getProperty(propertiesObj, fieldPartIndex) {
     var property = propertiesObj[fieldParts[fieldPartIndex]];
 
+    if (!property) {
+      // If property(-chain) doesn't exist in schemas, cancel out.
+      _patchedConsole.patchedConsoleInstance.warn("Field \"".concat(field, "\" does not exist in \"").concat(startAt));
+
+      return null;
+    }
+
     if (fieldPartIndex >= fieldParts.length - 1) {
-      if (property.type === "array") {
+      if (property && property.type === "array" && property.items) {
         return property.items;
       }
 

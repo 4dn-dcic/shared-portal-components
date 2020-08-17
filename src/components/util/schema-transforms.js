@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import memoize from 'memoize-one';
+import { patchedConsoleInstance as console } from './patched-console';
 
 
 export function getSchemaProperty(field, schemas, startAt = 'ExperimentSet'){
@@ -29,8 +30,12 @@ export function getSchemaProperty(field, schemas, startAt = 'ExperimentSet'){
 
     function getProperty(propertiesObj, fieldPartIndex){
         const property = propertiesObj[fieldParts[fieldPartIndex]];
+        if (!property) { // If property(-chain) doesn't exist in schemas, cancel out.
+            console.warn(`Field "${field}" does not exist in "${startAt}`);
+            return null;
+        }
         if (fieldPartIndex >= fieldParts.length - 1) {
-            if (property.type === "array") {
+            if (property && property.type === "array" && property.items) {
                 return property.items;
             }
             return property;
