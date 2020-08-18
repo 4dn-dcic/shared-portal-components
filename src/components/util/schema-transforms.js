@@ -31,7 +31,7 @@ export function getSchemaProperty(field, schemas, startAt = 'ExperimentSet'){
     function getProperty(propertiesObj, fieldPartIndex){
         const property = propertiesObj[fieldParts[fieldPartIndex]];
         if (!property) { // If property(-chain) doesn't exist in schemas, cancel out.
-            console.warn(`Field "${field}" does not exist in "${startAt}`);
+            console.warn(`Field "${field}" does not exist in "${startAt}".`);
             return null;
         }
         if (fieldPartIndex >= fieldParts.length - 1) {

@@ -181,7 +181,9 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           propFacetFilterFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
           filterColumnFxn = _this$props.filterColumnFxn,
           windowWidth = _this$props.windowWidth,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          _this$props$embeddedT = _this$props.embeddedTableHeader,
+          embeddedTableHeader = _this$props$embeddedT === void 0 ? null : _this$props$embeddedT,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
@@ -201,7 +203,7 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         filterFacetFxn: filterFacetFxn
       }, {
         key: searchHref
-      }), /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
+      }), embeddedTableHeader, /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
       }, /*#__PURE__*/_react["default"].createElement(_CustomColumnController.CustomColumnController, _extends({

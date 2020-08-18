@@ -65,7 +65,7 @@ function getSchemaProperty(field, schemas) {
 
     if (!property) {
       // If property(-chain) doesn't exist in schemas, cancel out.
-      _patchedConsole.patchedConsoleInstance.warn("Field \"".concat(field, "\" does not exist in \"").concat(startAt));
+      _patchedConsole.patchedConsoleInstance.warn("Field \"".concat(field, "\" does not exist in \"").concat(startAt, "\"."));
 
       return null;
     }

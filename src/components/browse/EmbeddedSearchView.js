@@ -112,6 +112,8 @@ export class EmbeddedSearchView extends React.PureComponent {
             filterFacetFxn: propFacetFilterFxn = null,
             filterColumnFxn,
             windowWidth,
+            // Will inherit props from VirtualHrefController
+            embeddedTableHeader = null,
             ...passProps
         } = this.props;
 
@@ -124,6 +126,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         return (
             <div className="embedded-search-container">
                 <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn }} key={searchHref}>
+                    { embeddedTableHeader }
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
