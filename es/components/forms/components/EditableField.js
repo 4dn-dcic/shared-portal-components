@@ -78,6 +78,7 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
     _this.cancelEditState = _this.cancelEditState.bind(_assertThisInitialized(_this));
     _this.saveEditState = _this.saveEditState.bind(_assertThisInitialized(_this));
     _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
+    _this.handleKeyDown = _this.handleKeyDown.bind(_assertThisInitialized(_this));
     _this.renderActionIcon = _this.renderActionIcon.bind(_assertThisInitialized(_this));
     _this.renderSavedValue = _this.renderSavedValue.bind(_assertThisInitialized(_this));
     _this.renderSaved = _this.renderSaved.bind(_assertThisInitialized(_this));
@@ -571,6 +572,15 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
       this.setState(state);
     }
   }, {
+    key: "handleKeyDown",
+    value: function handleKeyDown(e) {
+      if (e.keyCode === 13) {
+        this.saveEditState(e);
+      } else if (e.keyCode === 27) {
+        this.cancelEditState(e);
+      }
+    }
+  }, {
     key: "renderActionIcon",
     value: function renderActionIcon() {
       var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'edit';
@@ -757,6 +767,7 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
         'className': 'form-control input-' + inputSize,
         'value': value || '',
         'onChange': this.handleChange,
+        'onKeyDown': this.handleKeyDown,
         'name': labelID,
         'autoFocus': true,
         placeholder: placeholder,

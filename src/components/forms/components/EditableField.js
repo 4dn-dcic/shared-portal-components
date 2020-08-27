@@ -82,6 +82,7 @@ export class EditableField extends React.Component {
         this.cancelEditState = this.cancelEditState.bind(this);
         this.saveEditState = this.saveEditState.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
         this.renderActionIcon = this.renderActionIcon.bind(this);
         this.renderSavedValue = this.renderSavedValue.bind(this);
         this.renderSaved = this.renderSaved.bind(this);
@@ -472,6 +473,14 @@ export class EditableField extends React.Component {
         this.setState(state);
     }
 
+    handleKeyDown(e) {
+        if (e.keyCode === 13) {
+            this.saveEditState(e);
+        } else if (e.keyCode === 27) {
+            this.cancelEditState(e);
+        }
+    }
+
     renderActionIcon(type = 'edit'){
         const { style, info, disabled, labelID, buttonAlwaysVisible } = this.props;
         const { loading } = this.state;
@@ -622,6 +631,7 @@ export class EditableField extends React.Component {
             'className'     : 'form-control input-' + inputSize,
             'value'         : value || '',
             'onChange'      : this.handleChange,
+            'onKeyDown'     : this.handleKeyDown,
             'name'          : labelID,
             'autoFocus'     : true,
             placeholder,
