@@ -106,7 +106,8 @@ export class EditableField extends React.Component {
             'loading'           : false,                // True if in middle of save or fetch request.
             'dispatching'       : false,                // True if dispatching to Redux store.
             'leanTo'            : null,                 // Re: inline style
-            'leanOffset'        : 0                     // Re: inline style
+            'leanOffset'        : 0,                    // Re: inline style
+            'selectAllDone'     : false
         };
 
         this.fieldRef = React.createRef();          // Field container element
@@ -183,6 +184,10 @@ export class EditableField extends React.Component {
             }
             if (this.props.parent.state && this.props.parent.state.currentlyEditing === this.props.labelID){
                 this.onResizeStateChange();
+                if (!this.state.selectAllDone && this.inputElementRef && this.inputElementRef.current) {
+                    this.inputElementRef.current.select();
+                    this.setState({ 'selectAllDone' : true });
+                }
             } else {
                 this.setState({ 'leanTo' : null });
             }
@@ -389,7 +394,8 @@ export class EditableField extends React.Component {
     enterEditState(e){
         e.preventDefault();
         if (this.props.parent.state && this.props.parent.state.currentlyEditing) return null;
-        this.props.parent.setState({ currentlyEditing : this.props.labelID });
+        this.props.parent.setState({ 'currentlyEditing' : this.props.labelID });
+        this.setState({ 'selectAllDone': false });
     }
 
     cancelEditState(e){

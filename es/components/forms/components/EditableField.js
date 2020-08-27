@@ -111,8 +111,9 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
       // True if dispatching to Redux store.
       'leanTo': null,
       // Re: inline style
-      'leanOffset': 0 // Re: inline style
-
+      'leanOffset': 0,
+      // Re: inline style
+      'selectAllDone': false
     };
     _this.fieldRef = /*#__PURE__*/_react["default"].createRef(); // Field container element
 
@@ -189,6 +190,13 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
 
         if (this.props.parent.state && this.props.parent.state.currentlyEditing === this.props.labelID) {
           this.onResizeStateChange();
+
+          if (!this.state.selectAllDone && this.inputElementRef && this.inputElementRef.current) {
+            this.inputElementRef.current.select();
+            this.setState({
+              'selectAllDone': true
+            });
+          }
         } else {
           this.setState({
             'leanTo': null
@@ -444,7 +452,10 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
       e.preventDefault();
       if (this.props.parent.state && this.props.parent.state.currentlyEditing) return null;
       this.props.parent.setState({
-        currentlyEditing: this.props.labelID
+        'currentlyEditing': this.props.labelID
+      });
+      this.setState({
+        'selectAllDone': false
       });
     }
   }, {
