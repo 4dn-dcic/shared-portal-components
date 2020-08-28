@@ -171,9 +171,9 @@ div.fieldset.editable-fields {
 
 	&.editing {
 
-		&:not(.inline){
-			min-height: 45px;
-		}
+		// &:not(.inline){
+		// 	min-height: 45px;
+		// }
 
 		.edit-button { visibility: hidden; }
 
