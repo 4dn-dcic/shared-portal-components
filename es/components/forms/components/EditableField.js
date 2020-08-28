@@ -803,7 +803,7 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
 
         case 'text':
           return /*#__PURE__*/_react["default"].createElement("span", {
-            className: "input-wrapper w-100"
+            className: "input-wrapper input-text"
           }, /*#__PURE__*/_react["default"].createElement("input", _extends({
             type: "text",
             inputMode: "latin"

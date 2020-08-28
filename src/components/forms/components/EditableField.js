@@ -659,7 +659,7 @@ export class EditableField extends React.Component {
                 </span>
             );
             case 'text' : return (
-                <span className="input-wrapper w-100">
+                <span className="input-wrapper input-text">
                     <input type="text" inputMode="latin" {...commonPropsTextInput} />
                     { this.validationFeedbackMessage() }
                 </span>
