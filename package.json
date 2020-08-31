@@ -54,7 +54,7 @@
         "aws-sdk": "^2.741.0",
         "crypto-js": "^3.3.0",
         "dom-helpers": "^3.4.0",
-        "higlass": "1.11.2",
+        "higlass": "1.10.0",
         "higlass-multivec": "0.2.4",
         "higlass-register": "^0.1.0",
         "html-react-parser": "^0.4.7",
@@ -76,7 +76,7 @@
         "query-string": ">=4.3.0",
         "react": ">=16.8.0",
         "react-dom": ">=16.8.0",
-        "react-bootstrap": "*",
+        "react-bootstrap": "^1.0.0",
         "react-tooltip": ">=3.11.6",
         "react-transition-group": ">=4.4.1",
         "underscore": ">=1.9.1"

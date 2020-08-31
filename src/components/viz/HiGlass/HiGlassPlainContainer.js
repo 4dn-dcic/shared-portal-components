@@ -98,7 +98,7 @@ export class HiGlassPlainContainer extends React.PureComponent {
                     HiGlassComponent = require('higlass/dist/hglib').HiGlassComponent;
                     higlassRegister = require('higlass-register').default;
                     StackedBarTrack = require('higlass-multivec/es/StackedBarTrack').default;
-                    console.log("LOADED", HiGlassComponent);
+                    console.log("LOADED\na:\n", HiGlassComponent, "\n:b\n", higlassRegister, "\nc:\n", StackedBarTrack);
                     // Possible todo: use pluginTracks prop to pass `"horizontal-stacked-bar" : StackedBarTrack`
                     // in render method instead.
                     higlassRegister({

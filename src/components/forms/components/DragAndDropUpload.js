@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import Modal from 'react-bootstrap/esm/Modal';
 import PropTypes from 'prop-types';
 import { ajax } from './../../util';
 import _ from 'underscore';
