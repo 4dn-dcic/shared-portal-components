@@ -142,8 +142,7 @@ export class LoginController extends React.PureComponent {
                     console.info('Received info from server about user via /login endpoint', r);
 
                     JWT.saveUserInfoLocalStorage(r);
-                    updateUserInfo();
-                    Alerts.deQueue(Alerts.LoggedOut);
+                    updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
                     console.info('Login completed');
 
                     // Fetch user profile and use their primary lab as the eventLabel.
@@ -172,7 +171,10 @@ export class LoginController extends React.PureComponent {
 
                             // Refresh the content/context of our page now that we have a JWT stored as a cookie!
                             // It will return same page but with any auth'd page actions.
-                            navigate('', { "inPlace" : true });
+
+                            // Attempt to preserve hash, if any, but don't scroll to it.
+                            const windowHash = (window && window.location && window.location.hash) || '';
+                            navigate(windowHash, { "inPlace" : true, "dontScrollToTop" : !!(windowHash) });
                         }, 'GET', ()=>{
                             throw new Error('Request to profile URL failed.');
                         });
@@ -185,7 +187,7 @@ export class LoginController extends React.PureComponent {
                     console.log(error);
 
                     this.setState({ "isLoading" : false });
-                    Alerts.deQueue(Alerts.LoggedOut);
+                    // Alerts.deQueue(Alerts.LoggedOut);
                     setUserID(null);
 
                     // If is programatically called with error CB, let error CB handle everything.
@@ -297,7 +299,10 @@ export class LogoutController extends React.PureComponent {
 
         // Refetch page context without our old JWT to hide any forbidden content.
         updateUserInfo();
-        navigate('', { 'inPlace':true });
+
+        // Attempt to preserve hash, if any, but don't scroll to it.
+        const windowHash = (window && window.location && window.location.hash) || '';
+        navigate(windowHash, { "inPlace" : true, "dontScrollToTop" : !!(windowHash) });
 
         if (typeof document !== 'undefined'){
             // Dummy click event to close dropdown menu, bypasses document.body.onClick handler (app.js -> App.prototype.handeClick)
