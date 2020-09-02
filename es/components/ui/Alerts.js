@@ -116,8 +116,10 @@ var Alerts = /*#__PURE__*/function (_React$Component) {
     /**
      * Close an alert box.
      *
+     * @todo Allow `alert` param to be an array to deque multiple alerts at once.
+     *
      * @public
-     * @param {AlertObj} alert - Object with at least 'title'.
+     * @param {AlertObj|AlertObj[]} alert - Object or list of objects with at least 'title'.
      * @param {AlertObj[]} [currentAlerts] - Current alerts, if any. Pass in for performance, else will retrieve them from Redux.
      * @returns {void} Nothing
      */
@@ -133,14 +135,25 @@ var Alerts = /*#__PURE__*/function (_React$Component) {
       }
 
       if (!Array.isArray(currentAlerts)) currentAlerts = store.getState().alerts;
-      currentAlerts = currentAlerts.filter(function (a) {
-        return a.title != alert.title;
-      });
-      store.dispatch({
-        type: {
-          'alerts': currentAlerts
+      var alertsToRemove = Array.isArray(alert) ? alert : [alert];
+      var nextAlerts = currentAlerts.slice(0);
+      alertsToRemove.forEach(function (alertToRemove) {
+        var idxToDelete = nextAlerts.findIndex(function (a) {
+          return a === alertToRemove || a.title === alertToRemove.title;
+        });
+
+        if (idxToDelete > -1) {
+          nextAlerts.splice(idxToDelete, 1);
         }
       });
+
+      if (nextAlerts.length < currentAlerts.length) {
+        store.dispatch({
+          type: {
+            'alerts': nextAlerts
+          }
+        });
+      }
     }
     /**
      * This is called after each navigation within the portal.

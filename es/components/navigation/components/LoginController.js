@@ -180,9 +180,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         }).then(function (r) {
           console.info('Received info from server about user via /login endpoint', r);
           JWT.saveUserInfoLocalStorage(r);
-          updateUserInfo();
-
-          _Alerts.Alerts.deQueue(_Alerts.Alerts.LoggedOut);
+          updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
 
           console.info('Login completed'); // Fetch user profile and use their primary lab as the eventLabel.
 
@@ -218,9 +216,12 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
                 userGroups: groups && JSON.stringify(groups.sort())
               }); // Refresh the content/context of our page now that we have a JWT stored as a cookie!
               // It will return same page but with any auth'd page actions.
+              // Attempt to preserve hash, if any, but don't scroll to it.
 
-              (0, _navigate.navigate)('', {
-                "inPlace": true
+              var windowHash = window && window.location && window.location.hash || '';
+              (0, _navigate.navigate)(windowHash, {
+                "inPlace": true,
+                "dontScrollToTop": !!windowHash
               });
             }, 'GET', function () {
               throw new Error('Request to profile URL failed.');
@@ -235,9 +236,8 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 
           _this3.setState({
             "isLoading": false
-          });
+          }); // Alerts.deQueue(Alerts.LoggedOut);
 
-          _Alerts.Alerts.deQueue(_Alerts.Alerts.LoggedOut);
 
           (0, _analytics.setUserID)(null); // If is programatically called with error CB, let error CB handle everything.
 
@@ -430,9 +430,12 @@ var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
 
       (0, _analytics.setUserID)(null); // Refetch page context without our old JWT to hide any forbidden content.
 
-      updateUserInfo();
-      (0, _navigate.navigate)('', {
-        'inPlace': true
+      updateUserInfo(); // Attempt to preserve hash, if any, but don't scroll to it.
+
+      var windowHash = window && window.location && window.location.hash || '';
+      (0, _navigate.navigate)(windowHash, {
+        "inPlace": true,
+        "dontScrollToTop": !!windowHash
       });
 
       if (typeof document !== 'undefined') {
