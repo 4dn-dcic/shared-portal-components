@@ -51,7 +51,7 @@
     },
     "dependencies": {
         "auth0-lock": "^11.26.3",
-        "aws-sdk": "^2.741.0",
+        "aws-sdk": "^2.742.0",
         "crypto-js": "^3.3.0",
         "dom-helpers": "^3.4.0",
         "higlass": "1.10.0",
