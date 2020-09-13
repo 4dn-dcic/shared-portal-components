@@ -117,7 +117,7 @@ class SubItemTable extends React.Component {
         if (!_.all(list, function(x){ return typeof x === 'object' && x; })) return false;
         if (_.any(list, function(x){
             if (!Array.isArray(x['@type'])){
-                return true; // No @type so we can't get 'columns' from schemas.
+                {/* return true; // No @type so we can't get 'columns' from schemas. */}
             } else {
                 schemaForType = getSchemaForItemType(x['@type'][0], schemas);
                 if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
@@ -127,6 +127,7 @@ class SubItemTable extends React.Component {
         var objectWithAllItemKeys = _.reduce(list, function(m, v){
             var v2 = _.clone(v);
             var valKeys = _.keys(v2);
+            console.log('xxx valKeys', valKeys);
             // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
             for (var i = 0; i < valKeys.length; i++){
                 if (Array.isArray(v2[valKeys[i]])){
@@ -139,6 +140,7 @@ class SubItemTable extends React.Component {
             }
             return _.extend(m, v2);
         }, {});
+        console.log('xxx objectWithAllItemKeys: ', objectWithAllItemKeys);
 
         var rootKeys = _.keys(objectWithAllItemKeys);
         var embeddedKeys, i, j, k, embeddedListItem, embeddedListItemKeys;
@@ -179,6 +181,7 @@ class SubItemTable extends React.Component {
                         ){
                             continue;
                         }
+                        console.log('xxx buradayım 7');
                         return false;
                     }
                 }
@@ -192,6 +195,7 @@ class SubItemTable extends React.Component {
                     continue;
                 }
                 embeddedKeys = _.keys(objectWithAllItemKeys[rootKeys[i]]);
+                console.log('xxx embeddedKeys: ', embeddedKeys);
 
                 if (embeddedKeys.length > 5) return false; // 5 properties to flatten up feels like a good limit. Lets render objects with more than that as lists or own table (not flattened up to another 1).
                 // Run some checks against the embedded object's properties. Ensure all nested lists contain plain strings or numbers, as will flatten to simple comma-delimited list.
@@ -200,6 +204,7 @@ class SubItemTable extends React.Component {
                     if (typeof objectWithAllItemKeys[ rootKeys[i] ][ embeddedKeys[j] ] === 'string' || typeof objectWithAllItemKeys[ rootKeys[i] ][ embeddedKeys[j] ] === 'number') continue;
                     // Ensure if property on embedded object's is an array, that is a simple array of strings or numbers - no objects. Will be converted to comma-delimited list.
                     if ( Array.isArray(  objectWithAllItemKeys[ rootKeys[i] ][ embeddedKeys[j] ]  ) ){
+                        console.log('xxx buradayım 8.0', objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length);
                         if (
                             objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length < 4 &&
                             _.filter(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]], function(v){
@@ -211,6 +216,7 @@ class SubItemTable extends React.Component {
                         ) {
                             continue;
                         } else {
+                            console.log('xxx buradayım 8');
                             return false;
                         }
                     }
@@ -221,13 +227,22 @@ class SubItemTable extends React.Component {
                         objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] &&
                         typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'object'
                     ) { // Embedded object 2 levels deep. No thx we don't want any 'meta.argument_mapping.argument_type' -length column names. Unless it's an Item for which we can just render link for.
+                        console.log('xxx buradayım 9.0');
                         if (isAnItem(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) continue;
+                        console.log('xxx buradayım 9');
                         return false;
                     }
                 }
             }
         }
 
+        const excludedKeys = ['principals_allowed', '@type', 'uuid'];
+        var reminderKeys = _.difference(_.keys(objectWithAllItemKeys), excludedKeys);
+        if (reminderKeys.length <= 2) {
+            return false;
+        }
+
+        console.log('xxx buradayım 10');
         return true;
     }
 
