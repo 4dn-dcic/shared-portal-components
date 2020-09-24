@@ -7,6 +7,7 @@ import url from 'url';
 import queryString from 'query-string';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
+import Overlay from 'react-bootstrap/esm/Overlay';
 
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
 import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus } from './../../../util/search-filters';
@@ -237,6 +238,7 @@ export class FacetList extends React.PureComponent {
 
     /**
      * We use a function instead of functional/memoized components because we want literal list of JSX components.
+     * First param (props) is memoized by its keys' values.
      * These JSX components might later be segmented or something.
      *
      * @param {{ href: string, schemas: Object<string, Object>, itemTypeForSchemas: string, termTransformFxn: function, onFilter: function, getTermStatus: function }} props - Passed to all facet components.
@@ -369,6 +371,7 @@ export class FacetList extends React.PureComponent {
         this.getTermStatus = this.getTermStatus.bind(this);
         this.handleToggleFacetOpen = this.handleToggleFacetOpen.bind(this);
         this.handleCollapseAllFacets = this.handleCollapseAllFacets.bind(this);
+        this.setOpenPopover = this.setOpenPopover.bind(this);
         this.renderFacetComponents = this.renderFacetComponents.bind(this);
         this.memoized = {
             countActiveTermsByField: memoize(countActiveTermsByField),
@@ -400,7 +403,8 @@ export class FacetList extends React.PureComponent {
         };
 
         this.state = {
-            openFacets : {} // will be keyed by facet.field, value will be bool
+            openFacets : {}, // will be keyed by facet.field, value will be bool
+            openPopover: null // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
         };
     }
 
@@ -426,12 +430,22 @@ export class FacetList extends React.PureComponent {
         });
     }
 
-    componentDidUpdate({ filters: prevFilters }, { openFacets: prevOpenFacets }){
-        const { openFacets } = this.state;
-        const { filters } = this.props;
+    componentDidUpdate(prevProps, prevState){
+        const { filters: prevFilters } = prevProps;
+        const { openFacets: prevOpenFacets, openPopover: prevOpenPopover } = prevState;
+        const { openFacets, openPopover } = this.state;
+        const { filters, addToBodyClassList, removeFromBodyClassList } = this.props;
 
         if (openFacets !== prevOpenFacets) {
             ReactTooltip.rebuild();
+        }
+
+        if (openPopover !== prevOpenPopover && typeof addToBodyClassList === "function" && typeof removeFromBodyClassList === "function") {
+            if (!openPopover) {
+                removeFromBodyClassList("overflow-hidden");
+            } else if (openPopover && !prevOpenPopover) {
+                addToBodyClassList("overflow-hidden");
+            }
         }
 
         if (filters !== prevFilters) {
@@ -499,6 +513,25 @@ export class FacetList extends React.PureComponent {
         });
     }
 
+    setOpenPopover(nextPopover=null, cb=null){
+        this.setState(function({ openPopover = null }){
+            if (!openPopover) {
+                if (!nextPopover) return null;
+                return { openPopover: nextPopover };
+            } else {
+                if (!nextPopover) {
+                    return { openPopover: null };
+                }
+                const { ref: prevRef, popover: prevPopover } = openPopover;
+                const { ref, popover } = nextPopover;
+                if (ref === prevRef && popover === prevPopover) {
+                    return null;
+                }
+                return { openPopover: nextPopover };
+            }
+        }, cb);
+    }
+
     handleCollapseAllFacets(e){
         this.setState({ openFacets : {} });
     }
@@ -510,12 +543,14 @@ export class FacetList extends React.PureComponent {
             separateSingleTermFacets = false,
             href, schemas, filters, itemTypeForSchemas, termTransformFxn, persistentCount
         } = this.props;
-        const { openFacets } = this.state;
+        const { openFacets, openPopover } = this.state;
         const facetComponentProps = {
             href, schemas, filters, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
-            onFilter: this.onFilterExtended,
-            getTermStatus: this.getTermStatus,
-            onToggleOpen: this.handleToggleFacetOpen
+            openPopover,
+            onFilter:       this.onFilterExtended,
+            getTermStatus:  this.getTermStatus,
+            onToggleOpen:   this.handleToggleFacetOpen,
+            setOpenPopover: this.setOpenPopover,
         };
 
         const { staticFacetElements, selectableFacetElements: rawerSelectableFacetElems } = this.memoized.segmentOutCommonProperties(
@@ -543,7 +578,8 @@ export class FacetList extends React.PureComponent {
             showClearFiltersButton = false,
             maxBodyHeight: maxHeight = null
         } = this.props;
-        const { openFacets } = this.state;
+        const { openFacets, openPopover } = this.state;
+        const { popover: popoverJSX, ref: popoverTargetRef } = openPopover || {};
 
         if (!facets || !Array.isArray(facets) || facets.length === 0) {
             return (
@@ -562,54 +598,67 @@ export class FacetList extends React.PureComponent {
         const anyFacetsOpen = _.keys(openFacets).length !== 0;
 
         return (
-            <div className={"facets-container facets" + (className ? ' ' + className : '')}>
-                <div className="row facets-header">
-                    <div className="col facets-title-column text-ellipsis-container">
-                        <i className="icon icon-fw icon-filter fas"></i>
-                        &nbsp;
-                        <h4 className="facets-title">{ title }</h4>
-                    </div>
-                    <div className="col-auto">
-                        <div className="btn-group btn-group-sm properties-controls" role="group" aria-label="Properties Controls">
-                            { anyFacetsOpen ?
-                                <button type="button" className="btn btn-outline-light" onClick={this.handleCollapseAllFacets} data-tip="Collapse all facets below">
-                                    <i className="icon icon-fw icon-minus fas"/>
-                                </button>
-                                : null }
-                            { showClearFiltersButton && typeof onClearFilters === "function" ?
-                                <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
-                                    <i className="icon icon-fw icon-times fas"/>
-                                </button>
-                                : null }
+            <React.Fragment>
+                <div className={"facets-container facets" + (className ? ' ' + className : '')}>
+                    <div className="row facets-header">
+                        <div className="col facets-title-column text-truncate">
+                            <i className="icon icon-fw icon-filter fas"></i>
+                            &nbsp;
+                            <h4 className="facets-title">{ title }</h4>
                         </div>
-                    </div>
-                    {/*
-                    <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
-                        <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
-                            <i className="icon icon-fw icon-times fas mr-03"/>
-                            <span>Clear All</span>
-                        </a>
-                    </div>
-                    <div className={"col-auto clear-filters-control" + (anyFacetsOpen ? '' : ' placeholder')}>
-                        <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
-                            <i className="icon icon-fw icon-minus fas mr-03"/>
-                            <span>Clear All</span>
-                        </a>
-                    </div>
-                    */}
-                </div>
-                <div {...bodyProps}>
-                    { selectableFacetElements }
-                    { staticFacetElements.length > 0 ?
-                        <div className="row facet-list-separator">
-                            <div className="col-12">
-                                { staticFacetElements.length } Common Properties
+                        <div className="col-auto">
+                            <div className="btn-group btn-group-sm properties-controls" role="group" aria-label="Properties Controls">
+                                { anyFacetsOpen ?
+                                    <button type="button" className="btn btn-outline-light" onClick={this.handleCollapseAllFacets} data-tip="Collapse all facets below">
+                                        <i className="icon icon-fw icon-minus fas"/>
+                                    </button>
+                                    : null }
+                                { showClearFiltersButton && typeof onClearFilters === "function" ?
+                                    <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
+                                        <i className="icon icon-fw icon-times fas"/>
+                                    </button>
+                                    : null }
                             </div>
                         </div>
-                        : null }
-                    { staticFacetElements }
+                        {/*
+                        <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
+                            <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
+                                <i className="icon icon-fw icon-times fas mr-03"/>
+                                <span>Clear All</span>
+                            </a>
+                        </div>
+                        <div className={"col-auto clear-filters-control" + (anyFacetsOpen ? '' : ' placeholder')}>
+                            <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
+                                <i className="icon icon-fw icon-minus fas mr-03"/>
+                                <span>Clear All</span>
+                            </a>
+                        </div>
+                        */}
+                    </div>
+                    <div {...bodyProps}>
+                        { selectableFacetElements }
+                        { staticFacetElements.length > 0 ?
+                            <div className="row facet-list-separator">
+                                <div className="col-12">
+                                    { staticFacetElements.length } Common Properties
+                                </div>
+                            </div>
+                            : null }
+                        { staticFacetElements }
+                    </div>
                 </div>
-            </div>
+                { popoverJSX && popoverTargetRef ? ( /* `rootClose rootCloseEvent="click"` didn't work as props here */
+                    <Overlay show target={popoverTargetRef} flip placement="auto" rootClose rootCloseDisabled={false}>
+                        { popoverJSX }
+                    </Overlay>
+                ) : null }
+            </React.Fragment>
         );
     }
 }
+
+// TODO: Pull out the split terms into own component
+// 2: get ourselves the fieldSchema and pass it down in here.
+
+// function
+

@@ -550,7 +550,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					> .column-title {
 						flex-grow: 1;
 						text-align: center;
-						@include text-ellipsis-container;
+						@include text-truncate();
 					}
 
 					> .column-sort-icon {

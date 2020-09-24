@@ -1,12 +1,15 @@
 'use strict';
 
 import React, { useMemo } from 'react';
+import memoize from 'memoize-one';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import Fade from 'react-bootstrap/esm/Fade';
 
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
+import { getSchemaProperty } from './../../../util/schema-transforms';
+import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 
 
 /**
@@ -206,6 +209,9 @@ export class FacetTermsList extends React.PureComponent {
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
         this.state = { 'expanded' : false };
+        this.memoized = {
+            fieldSchema: memoize(getSchemaProperty)
+        };
     }
 
     handleOpenToggleClick(e) {
@@ -224,8 +230,9 @@ export class FacetTermsList extends React.PureComponent {
     render(){
         const {
             facet,
+            schemas,
+            itemTypeForSchemas,
             terms,
-            title,
             isStatic,
             anyTermsSelected: anySelected,
             termsSelectedCount,
@@ -233,12 +240,18 @@ export class FacetTermsList extends React.PureComponent {
             onTermClick,
             getTermStatus,
             termTransformFxn,
-            facetOpen
+            facetOpen,
+            openPopover,
+            setOpenPopover
         } = this.props;
-        const { description = null } = facet;
+        const { description: facetSchemaDescription = null, field, title: facetTitle } = facet;
         const { expanded } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
+        const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
+        const { title: fieldTitle, description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
+        const title = facetTitle || fieldTitle || field;
+
         let indicator;
 
         // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
@@ -272,7 +285,8 @@ export class FacetTermsList extends React.PureComponent {
                         <i className={"icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")}/>
                     </span>
                     <div className="col px-0 line-height-1">
-                        <span data-tip={description} data-html data-place="right">{ title }</span>
+                        <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-html data-place="right">{ title }</span>
+                        <ExtendedDescriptionPopoverIcon {...{ fieldSchema, facet, openPopover, setOpenPopover }} />
                     </div>
                     { indicator }
                 </h5>

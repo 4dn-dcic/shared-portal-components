@@ -44,7 +44,7 @@ var StaticSingleTerm = /*#__PURE__*/_react["default"].memo(function (_ref) {
   }, /*#__PURE__*/_react["default"].createElement("h5", {
     className: "facet-title"
   }, /*#__PURE__*/_react["default"].createElement("span", {
-    className: "inline-block",
+    className: "d-inline-block",
     "data-tip": description,
     "data-place": "right"
   }, "\xA0", showTitle)), /*#__PURE__*/_react["default"].createElement("div", {

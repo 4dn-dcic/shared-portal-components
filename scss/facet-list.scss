@@ -176,17 +176,26 @@ $facetlist-term-block-height: default !default;
                         > button {
                             width: 100%;
                             text-align: right;
-                        }
-                    }
+                            padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
 
-                    .clear-icon-container {
-                        padding-left: 0;
-                        opacity: 0.5;
-                        &.disabled {
-                            opacity: 0.25;
-                        }
-                        &:hover:not(.disabled) {
-                            opacity: 1;
+                            .clear-icon-container { // Not always present in DOM.
+                                margin-left: -.5rem; // Cancel out parent's padding for larger click area
+                                padding: 0 .5rem;
+                                opacity: 1;
+                                &.disabled {
+                                    opacity: 0.25;
+                                }
+                                &:hover:not(.disabled) {
+                                    opacity: 1;
+                                    > i {
+                                        text-shadow: 0 0px 4px #0009;
+                                    }
+                                }
+                                > i { // Same as for .facet-list term icon (below here)
+                                    transform: scale(0.9);
+                                    transform-origin: 50% 50%;
+                                }
+                            }
                         }
                     }
 
@@ -481,7 +490,9 @@ $facetlist-term-block-height: default !default;
                 line-height: 1rem;
 
                 > a {
-                    border-radius: 3px;
+                    // Have started experimentally converging styling of RangeFacet and these terms a little more.
+                    // Perhaps some aspects could be re-used.
+                    border-radius: $border-radius-sm;
                     padding: 3px;
                     text-decoration: none;
                     display: block;

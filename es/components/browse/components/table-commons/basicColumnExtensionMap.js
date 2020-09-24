@@ -200,7 +200,7 @@ var DisplayTitleColumnUser = /*#__PURE__*/_react["default"].memo(function (_ref)
     }
   }
 
-  var cls = "title-block" + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container");
+  var cls = "title-block" + (hasPhoto ? " has-photo d-flex align-items-center" : " text-truncate");
   return /*#__PURE__*/_react["default"].createElement("div", {
     key: "title-container",
     className: cls,
@@ -242,7 +242,7 @@ var DisplayTitleColumnDefault = /*#__PURE__*/_react["default"].memo(function (pr
     }, title);
   }
 
-  var cls = "title-block text-ellipsis-container" + (shouldMonospace ? " text-monospace text-small" : "") + (className ? " " + className : "");
+  var cls = "title-block text-truncate" + (shouldMonospace ? " text-monospace text-small" : "") + (className ? " " + className : "");
   return /*#__PURE__*/_react["default"].createElement("div", {
     key: "title-container",
     className: cls,

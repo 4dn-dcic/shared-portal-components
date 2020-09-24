@@ -56,6 +56,7 @@ export class ControlsAndResults extends React.PureComponent {
         const {
             // From Redux store or App.js:
             context, schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session, isFullscreen, toggleFullScreen,
+            addToBodyClassList, removeFromBodyClassList,
 
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
             facets, termTransformFxn, rowHeight,
@@ -104,7 +105,8 @@ export class ControlsAndResults extends React.PureComponent {
             itemTypeForSchemas: searchItemType,
             className: "with-header-bg",
             maxBodyHeight: (!isOwnPage && maxHeight) || null,
-            onClearFilters: this.onClearFiltersClick
+            onClearFilters: this.onClearFiltersClick,
+            addToBodyClassList, removeFromBodyClassList
         };
 
         const aboveTableControlsProps = {

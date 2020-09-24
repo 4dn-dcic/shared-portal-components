@@ -20,6 +20,8 @@ var _underscore = _interopRequireDefault(require("underscore"));
 
 var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
+var _Overlay = _interopRequireDefault(require("react-bootstrap/esm/Overlay"));
+
 var _patchedConsole = require("./../../../util/patched-console");
 
 var _searchFilters = require("./../../../util/search-filters");
@@ -269,6 +271,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     }
     /**
      * We use a function instead of functional/memoized components because we want literal list of JSX components.
+     * First param (props) is memoized by its keys' values.
      * These JSX components might later be segmented or something.
      *
      * @param {{ href: string, schemas: Object<string, Object>, itemTypeForSchemas: string, termTransformFxn: function, onFilter: function, getTermStatus: function }} props - Passed to all facet components.
@@ -463,6 +466,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.handleToggleFacetOpen = _this.handleToggleFacetOpen.bind(_assertThisInitialized(_this));
     _this.handleCollapseAllFacets = _this.handleCollapseAllFacets.bind(_assertThisInitialized(_this));
+    _this.setOpenPopover = _this.setOpenPopover.bind(_assertThisInitialized(_this));
     _this.renderFacetComponents = _this.renderFacetComponents.bind(_assertThisInitialized(_this));
     _this.memoized = {
       countActiveTermsByField: (0, _memoizeOne["default"])(_FacetTermsList.countActiveTermsByField),
@@ -501,7 +505,9 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       getInitialOpenFacetsAfterMount: (0, _memoizeOne["default"])(FacetList.getInitialOpenFacetsAfterMount)
     };
     _this.state = {
-      openFacets: {} // will be keyed by facet.field, value will be bool
+      openFacets: {},
+      // will be keyed by facet.field, value will be bool
+      openPopover: null // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
 
     };
     return _this;
@@ -543,14 +549,28 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     }
   }, {
     key: "componentDidUpdate",
-    value: function componentDidUpdate(_ref6, _ref7) {
-      var prevFilters = _ref6.filters;
-      var prevOpenFacets = _ref7.openFacets;
-      var openFacets = this.state.openFacets;
-      var filters = this.props.filters;
+    value: function componentDidUpdate(prevProps, prevState) {
+      var prevFilters = prevProps.filters;
+      var prevOpenFacets = prevState.openFacets,
+          prevOpenPopover = prevState.openPopover;
+      var _this$state = this.state,
+          openFacets = _this$state.openFacets,
+          openPopover = _this$state.openPopover;
+      var _this$props2 = this.props,
+          filters = _this$props2.filters,
+          addToBodyClassList = _this$props2.addToBodyClassList,
+          removeFromBodyClassList = _this$props2.removeFromBodyClassList;
 
       if (openFacets !== prevOpenFacets) {
         _reactTooltip["default"].rebuild();
+      }
+
+      if (openPopover !== prevOpenPopover && typeof addToBodyClassList === "function" && typeof removeFromBodyClassList === "function") {
+        if (!openPopover) {
+          removeFromBodyClassList("overflow-hidden");
+        } else if (openPopover && !prevOpenPopover) {
+          addToBodyClassList("overflow-hidden");
+        }
       }
 
       if (filters !== prevFilters) {
@@ -585,9 +605,9 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "onFilterExtended",
     value: function onFilterExtended(facet, term) {
-      var _this$props2 = this.props,
-          onFilter = _this$props2.onFilter,
-          contextFilters = _this$props2.filters;
+      var _this$props3 = this.props,
+          onFilter = _this$props3.onFilter,
+          contextFilters = _this$props3.filters;
       var field = facet.field;
       var termKey = term.key;
       var statusAndHref = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, contextFilters);
@@ -614,8 +634,8 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleToggleFacetOpen",
     value: function handleToggleFacetOpen(facetField) {
       var nextOpen = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref8) {
-        var prevOpenFacets = _ref8.openFacets;
+      this.setState(function (_ref6) {
+        var prevOpenFacets = _ref6.openFacets;
 
         var openFacets = _underscore["default"].clone(prevOpenFacets);
 
@@ -635,6 +655,42 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       });
     }
   }, {
+    key: "setOpenPopover",
+    value: function setOpenPopover() {
+      var nextPopover = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      this.setState(function (_ref7) {
+        var _ref7$openPopover = _ref7.openPopover,
+            openPopover = _ref7$openPopover === void 0 ? null : _ref7$openPopover;
+
+        if (!openPopover) {
+          if (!nextPopover) return null;
+          return {
+            openPopover: nextPopover
+          };
+        } else {
+          if (!nextPopover) {
+            return {
+              openPopover: null
+            };
+          }
+
+          var prevRef = openPopover.ref,
+              prevPopover = openPopover.popover;
+          var ref = nextPopover.ref,
+              popover = nextPopover.popover;
+
+          if (ref === prevRef && popover === prevPopover) {
+            return null;
+          }
+
+          return {
+            openPopover: nextPopover
+          };
+        }
+      }, cb);
+    }
+  }, {
     key: "handleCollapseAllFacets",
     value: function handleCollapseAllFacets() {
       this.setState({
@@ -646,18 +702,20 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "renderFacetComponents",
     value: function renderFacetComponents() {
-      var _this$props3 = this.props,
-          _this$props3$facets = _this$props3.facets,
-          facets = _this$props3$facets === void 0 ? null : _this$props3$facets,
-          _this$props3$separate = _this$props3.separateSingleTermFacets,
-          separateSingleTermFacets = _this$props3$separate === void 0 ? false : _this$props3$separate,
-          href = _this$props3.href,
-          schemas = _this$props3.schemas,
-          filters = _this$props3.filters,
-          itemTypeForSchemas = _this$props3.itemTypeForSchemas,
-          termTransformFxn = _this$props3.termTransformFxn,
-          persistentCount = _this$props3.persistentCount;
-      var openFacets = this.state.openFacets;
+      var _this$props4 = this.props,
+          _this$props4$facets = _this$props4.facets,
+          facets = _this$props4$facets === void 0 ? null : _this$props4$facets,
+          _this$props4$separate = _this$props4.separateSingleTermFacets,
+          separateSingleTermFacets = _this$props4$separate === void 0 ? false : _this$props4$separate,
+          href = _this$props4.href,
+          schemas = _this$props4.schemas,
+          filters = _this$props4.filters,
+          itemTypeForSchemas = _this$props4.itemTypeForSchemas,
+          termTransformFxn = _this$props4.termTransformFxn,
+          persistentCount = _this$props4.persistentCount;
+      var _this$state2 = this.state,
+          openFacets = _this$state2.openFacets,
+          openPopover = _this$state2.openPopover;
       var facetComponentProps = {
         href: href,
         schemas: schemas,
@@ -666,9 +724,11 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         termTransformFxn: termTransformFxn,
         persistentCount: persistentCount,
         separateSingleTermFacets: separateSingleTermFacets,
+        openPopover: openPopover,
         onFilter: this.onFilterExtended,
         getTermStatus: this.getTermStatus,
-        onToggleOpen: this.handleToggleFacetOpen
+        onToggleOpen: this.handleToggleFacetOpen,
+        setOpenPopover: this.setOpenPopover
       };
 
       var _this$memoized$segmen = this.memoized.segmentOutCommonProperties(this.memoized.createFacetComponents(facetComponentProps, this.memoized.sortedFinalFacetObjects(facets, filters), this.memoized.countActiveTermsByField(filters), this.memoized.getRangeValuesFromFiltersByField(facets, filters)), separateSingleTermFacets),
@@ -685,19 +745,25 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-          _this$props4$facets = _this$props4.facets,
-          facets = _this$props4$facets === void 0 ? null : _this$props4$facets,
-          className = _this$props4.className,
-          _this$props4$title = _this$props4.title,
-          title = _this$props4$title === void 0 ? "Properties" : _this$props4$title,
-          _this$props4$onClearF = _this$props4.onClearFilters,
-          onClearFilters = _this$props4$onClearF === void 0 ? null : _this$props4$onClearF,
-          _this$props4$showClea = _this$props4.showClearFiltersButton,
-          showClearFiltersButton = _this$props4$showClea === void 0 ? false : _this$props4$showClea,
-          _this$props4$maxBodyH = _this$props4.maxBodyHeight,
-          maxHeight = _this$props4$maxBodyH === void 0 ? null : _this$props4$maxBodyH;
-      var openFacets = this.state.openFacets;
+      var _this$props5 = this.props,
+          _this$props5$facets = _this$props5.facets,
+          facets = _this$props5$facets === void 0 ? null : _this$props5$facets,
+          className = _this$props5.className,
+          _this$props5$title = _this$props5.title,
+          title = _this$props5$title === void 0 ? "Properties" : _this$props5$title,
+          _this$props5$onClearF = _this$props5.onClearFilters,
+          onClearFilters = _this$props5$onClearF === void 0 ? null : _this$props5$onClearF,
+          _this$props5$showClea = _this$props5.showClearFiltersButton,
+          showClearFiltersButton = _this$props5$showClea === void 0 ? false : _this$props5$showClea,
+          _this$props5$maxBodyH = _this$props5.maxBodyHeight,
+          maxHeight = _this$props5$maxBodyH === void 0 ? null : _this$props5$maxBodyH;
+      var _this$state3 = this.state,
+          openFacets = _this$state3.openFacets,
+          openPopover = _this$state3.openPopover;
+
+      var _ref8 = openPopover || {},
+          popoverJSX = _ref8.popover,
+          popoverTargetRef = _ref8.ref;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
         return /*#__PURE__*/_react["default"].createElement("div", {
@@ -720,12 +786,12 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
 
       var anyFacetsOpen = _underscore["default"].keys(openFacets).length !== 0;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
         className: "facets-container facets" + (className ? ' ' + className : '')
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "row facets-header"
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "col facets-title-column text-ellipsis-container"
+        className: "col facets-title-column text-truncate"
       }, /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw icon-filter fas"
       }), "\xA0", /*#__PURE__*/_react["default"].createElement("h4", {
@@ -754,12 +820,26 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         className: "row facet-list-separator"
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "col-12"
-      }, staticFacetElements.length, " Common Properties")) : null, staticFacetElements));
+      }, staticFacetElements.length, " Common Properties")) : null, staticFacetElements)), popoverJSX && popoverTargetRef ?
+      /*#__PURE__*/
+
+      /* `rootClose rootCloseEvent="click"` didn't work as props here */
+      _react["default"].createElement(_Overlay["default"], {
+        show: true,
+        target: popoverTargetRef,
+        flip: true,
+        placement: "auto",
+        rootClose: true,
+        rootCloseDisabled: false
+      }, popoverJSX) : null);
     }
   }]);
 
   return FacetList;
-}(_react["default"].PureComponent);
+}(_react["default"].PureComponent); // TODO: Pull out the split terms into own component
+// 2: get ourselves the fieldSchema and pass it down in here.
+// function
+
 
 exports.FacetList = FacetList;
 

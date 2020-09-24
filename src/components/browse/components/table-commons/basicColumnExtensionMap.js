@@ -121,7 +121,7 @@ export const DisplayTitleColumnUser = React.memo(function DisplayTitleColumnUser
 
     const cls = (
         "title-block"
-        + (hasPhoto ? " has-photo d-flex align-items-center" : " text-ellipsis-container")
+        + (hasPhoto ? " has-photo d-flex align-items-center" : " text-truncate")
     );
 
     return (
@@ -153,7 +153,7 @@ export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnD
     }
 
     const cls = (
-        "title-block text-ellipsis-container"
+        "title-block text-truncate"
         + (shouldMonospace ? " text-monospace text-small" : "")
         + (className ? " " + className : "")
     );

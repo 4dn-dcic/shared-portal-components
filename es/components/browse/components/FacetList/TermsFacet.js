@@ -126,13 +126,8 @@ var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
           termTransformFxn = _this$props2.termTransformFxn,
           separateSingleTermFacets = _this$props2.separateSingleTermFacets,
           isStatic = _this$props2.isStatic;
-      var filtering = this.state.filtering;
-
-      var _ref = facet || {},
-          field = _ref.field,
-          title = _ref.title;
-
-      var showTitle = title || field;
+      var filtering = this.state.filtering; //const { field, title } = facet || {};
+      //const showTitle = title || field;
 
       if (separateSingleTermFacets && isStatic) {
         // Only one term exists.
@@ -148,8 +143,7 @@ var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
         });
       } else {
         return /*#__PURE__*/_react["default"].createElement(_FacetTermsList.FacetTermsList, _extends({}, this.props, {
-          onTermClick: this.handleTermClick,
-          title: showTitle
+          onTermClick: this.handleTermClick
         }));
       }
     }

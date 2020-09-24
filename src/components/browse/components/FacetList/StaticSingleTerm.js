@@ -24,7 +24,7 @@ export const StaticSingleTerm = React.memo(function StaticSingleTerm({ term, fac
             data-field={field}>
             <div className="facet-static-row clearfix">
                 <h5 className="facet-title">
-                    <span className="inline-block" data-tip={description} data-place="right">&nbsp;{ showTitle }</span>
+                    <span className="d-inline-block" data-tip={description} data-place="right">&nbsp;{ showTitle }</span>
                 </h5>
                 <div className={ "facet-item term " + statusClassName + (filtering ? ' filtering' : '')}>
                     <span onClick={onClick} title={

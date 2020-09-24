@@ -10,6 +10,8 @@ exports.CountIndicator = exports.FacetTermsList = exports.Term = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
+
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
@@ -19,6 +21,10 @@ var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 var _utilities = require("./../../../viz/utilities");
 
 var _PartialList = require("./../../../ui/PartialList");
+
+var _schemaTransforms = require("./../../../util/schema-transforms");
+
+var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -320,6 +326,9 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     _this3.state = {
       'expanded': false
     };
+    _this3.memoized = {
+      fieldSchema: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaProperty)
+    };
     return _this3;
   }
 
@@ -350,8 +359,9 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     value: function render() {
       var _this$props4 = this.props,
           facet = _this$props4.facet,
+          schemas = _this$props4.schemas,
+          itemTypeForSchemas = _this$props4.itemTypeForSchemas,
           terms = _this$props4.terms,
-          title = _this$props4.title,
           isStatic = _this$props4.isStatic,
           anySelected = _this$props4.anyTermsSelected,
           termsSelectedCount = _this$props4.termsSelectedCount,
@@ -359,12 +369,23 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           onTermClick = _this$props4.onTermClick,
           getTermStatus = _this$props4.getTermStatus,
           termTransformFxn = _this$props4.termTransformFxn,
-          facetOpen = _this$props4.facetOpen;
+          facetOpen = _this$props4.facetOpen,
+          openPopover = _this$props4.openPopover,
+          setOpenPopover = _this$props4.setOpenPopover;
       var _facet$description = facet.description,
-          description = _facet$description === void 0 ? null : _facet$description;
+          facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
+          field = facet.field,
+          facetTitle = facet.title;
       var expanded = this.state.expanded;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
+      var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
+
+      var _ref4 = fieldSchema || {},
+          fieldTitle = _ref4.title,
+          fieldSchemaDescription = _ref4.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
+
+
       var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
 
       if (isStatic || termsLen === 1) {
@@ -413,10 +434,15 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       })), /*#__PURE__*/_react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/_react["default"].createElement("span", {
-        "data-tip": description,
+        "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-html": true,
         "data-place": "right"
-      }, title)), indicator), /*#__PURE__*/_react["default"].createElement(ListOfTerms, _extends({
+      }, facetTitle || fieldTitle || field), /*#__PURE__*/_react["default"].createElement(_ExtendedDescriptionPopoverIcon.ExtendedDescriptionPopoverIcon, {
+        fieldSchema: fieldSchema,
+        facet: facet,
+        openPopover: openPopover,
+        setOpenPopover: setOpenPopover
+      })), indicator), /*#__PURE__*/_react["default"].createElement(ListOfTerms, _extends({
         facet: facet,
         facetOpen: facetOpen,
         terms: terms,
@@ -571,21 +597,21 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
   }
 });
 
-var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref4) {
-  var _ref4$count = _ref4.count,
-      count = _ref4$count === void 0 ? 1 : _ref4$count,
-      _ref4$countActive = _ref4.countActive,
-      countActive = _ref4$countActive === void 0 ? 0 : _ref4$countActive,
-      _ref4$height = _ref4.height,
-      height = _ref4$height === void 0 ? 16 : _ref4$height,
-      _ref4$width = _ref4.width,
-      width = _ref4$width === void 0 ? 40 : _ref4$width;
+var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref5) {
+  var _ref5$count = _ref5.count,
+      count = _ref5$count === void 0 ? 1 : _ref5$count,
+      _ref5$countActive = _ref5.countActive,
+      countActive = _ref5$countActive === void 0 ? 0 : _ref5$countActive,
+      _ref5$height = _ref5.height,
+      height = _ref5$height === void 0 ? 16 : _ref5$height,
+      _ref5$width = _ref5.width,
+      width = _ref5$width === void 0 ? 40 : _ref5$width;
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = (0, _utilities.stackDotsInContainer)(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref5, idx) {
-    var _ref6 = _slicedToArray(_ref5, 2),
-        x = _ref6[0],
-        y = _ref6[1];
+  var dots = dotCoords.map(function (_ref6, idx) {
+    var _ref7 = _slicedToArray(_ref6, 2),
+        x = _ref7[0],
+        y = _ref7[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 

@@ -538,7 +538,7 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "col-12 col-md-4"
       }, /*#__PURE__*/_react["default"].createElement("h5", {
-        className: "submission-field-title text-ellipsis-container"
+        className: "submission-field-title text-truncate"
       }, this.labelTypeDescriptor(), fieldTip ? /*#__PURE__*/_react["default"].createElement(InfoIcon, {
         className: "mr-07",
         title: title,
@@ -1590,7 +1590,7 @@ var AliasInputField = /*#__PURE__*/function (_React$Component4) {
           title: parts.length > 1 && /*#__PURE__*/_react["default"].createElement("span", {
             className: "text-400 d-flex justify-content-between align-items-center"
           }, /*#__PURE__*/_react["default"].createElement("small", null, "Lab:\xA0"), /*#__PURE__*/_react["default"].createElement("span", {
-            className: "text-ellipsis-container",
+            className: "text-truncate",
             style: {
               maxWidth: '80%'
             }
