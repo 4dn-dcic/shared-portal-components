@@ -78,6 +78,7 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
     _this.cancelEditState = _this.cancelEditState.bind(_assertThisInitialized(_this));
     _this.saveEditState = _this.saveEditState.bind(_assertThisInitialized(_this));
     _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
+    _this.handleKeyDown = _this.handleKeyDown.bind(_assertThisInitialized(_this));
     _this.renderActionIcon = _this.renderActionIcon.bind(_assertThisInitialized(_this));
     _this.renderSavedValue = _this.renderSavedValue.bind(_assertThisInitialized(_this));
     _this.renderSaved = _this.renderSaved.bind(_assertThisInitialized(_this));
@@ -111,8 +112,9 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
       // True if dispatching to Redux store.
       'leanTo': null,
       // Re: inline style
-      'leanOffset': 0 // Re: inline style
-
+      'leanOffset': 0,
+      // Re: inline style
+      'selectAllDone': false
     };
     _this.fieldRef = /*#__PURE__*/_react["default"].createRef(); // Field container element
 
@@ -189,6 +191,13 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
 
         if (this.props.parent.state && this.props.parent.state.currentlyEditing === this.props.labelID) {
           this.onResizeStateChange();
+
+          if (!this.state.selectAllDone && this.inputElementRef && this.inputElementRef.current) {
+            this.inputElementRef.current.select();
+            this.setState({
+              'selectAllDone': true
+            });
+          }
         } else {
           this.setState({
             'leanTo': null
@@ -444,7 +453,10 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
       e.preventDefault();
       if (this.props.parent.state && this.props.parent.state.currentlyEditing) return null;
       this.props.parent.setState({
-        currentlyEditing: this.props.labelID
+        'currentlyEditing': this.props.labelID
+      });
+      this.setState({
+        'selectAllDone': false
       });
     }
   }, {
@@ -558,6 +570,15 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
 
 
       this.setState(state);
+    }
+  }, {
+    key: "handleKeyDown",
+    value: function handleKeyDown(e) {
+      if (e.keyCode === 13) {
+        this.saveEditState(e);
+      } else if (e.keyCode === 27) {
+        this.cancelEditState(e);
+      }
     }
   }, {
     key: "renderActionIcon",
@@ -746,6 +767,7 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
         'className': 'form-control input-' + inputSize,
         'value': value || '',
         'onChange': this.handleChange,
+        'onKeyDown': this.handleKeyDown,
         'name': labelID,
         'autoFocus': true,
         placeholder: placeholder,
@@ -781,7 +803,7 @@ var EditableField = /*#__PURE__*/function (_React$Component) {
 
         case 'text':
           return /*#__PURE__*/_react["default"].createElement("span", {
-            className: "input-wrapper w-100"
+            className: "input-wrapper input-text"
           }, /*#__PURE__*/_react["default"].createElement("input", _extends({
             type: "text",
             inputMode: "latin"

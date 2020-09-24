@@ -82,6 +82,7 @@ export class EditableField extends React.Component {
         this.cancelEditState = this.cancelEditState.bind(this);
         this.saveEditState = this.saveEditState.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
         this.renderActionIcon = this.renderActionIcon.bind(this);
         this.renderSavedValue = this.renderSavedValue.bind(this);
         this.renderSaved = this.renderSaved.bind(this);
@@ -106,7 +107,8 @@ export class EditableField extends React.Component {
             'loading'           : false,                // True if in middle of save or fetch request.
             'dispatching'       : false,                // True if dispatching to Redux store.
             'leanTo'            : null,                 // Re: inline style
-            'leanOffset'        : 0                     // Re: inline style
+            'leanOffset'        : 0,                    // Re: inline style
+            'selectAllDone'     : false
         };
 
         this.fieldRef = React.createRef();          // Field container element
@@ -183,6 +185,10 @@ export class EditableField extends React.Component {
             }
             if (this.props.parent.state && this.props.parent.state.currentlyEditing === this.props.labelID){
                 this.onResizeStateChange();
+                if (!this.state.selectAllDone && this.inputElementRef && this.inputElementRef.current) {
+                    this.inputElementRef.current.select();
+                    this.setState({ 'selectAllDone' : true });
+                }
             } else {
                 this.setState({ 'leanTo' : null });
             }
@@ -389,7 +395,8 @@ export class EditableField extends React.Component {
     enterEditState(e){
         e.preventDefault();
         if (this.props.parent.state && this.props.parent.state.currentlyEditing) return null;
-        this.props.parent.setState({ currentlyEditing : this.props.labelID });
+        this.props.parent.setState({ 'currentlyEditing' : this.props.labelID });
+        this.setState({ 'selectAllDone': false });
     }
 
     cancelEditState(e){
@@ -464,6 +471,14 @@ export class EditableField extends React.Component {
 
         // ToDo : cross-browser validation check + set error state then use for styling, etc.
         this.setState(state);
+    }
+
+    handleKeyDown(e) {
+        if (e.keyCode === 13) {
+            this.saveEditState(e);
+        } else if (e.keyCode === 27) {
+            this.cancelEditState(e);
+        }
     }
 
     renderActionIcon(type = 'edit'){
@@ -616,6 +631,7 @@ export class EditableField extends React.Component {
             'className'     : 'form-control input-' + inputSize,
             'value'         : value || '',
             'onChange'      : this.handleChange,
+            'onKeyDown'     : this.handleKeyDown,
             'name'          : labelID,
             'autoFocus'     : true,
             placeholder,
@@ -643,7 +659,7 @@ export class EditableField extends React.Component {
                 </span>
             );
             case 'text' : return (
-                <span className="input-wrapper w-100">
+                <span className="input-wrapper input-text">
                     <input type="text" inputMode="latin" {...commonPropsTextInput} />
                     { this.validationFeedbackMessage() }
                 </span>
