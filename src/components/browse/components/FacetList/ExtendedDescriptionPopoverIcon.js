@@ -43,7 +43,6 @@ export const ExtendedDescriptionPopoverIcon = React.memo(function ExtendedDescri
         extended_description: fieldExtendedDescription = null
     } = fieldSchema || {}; // May be null for 'calculated' or 'fake' fields.
 
-    //const [ isOpen, setOpen ] = useState(false);
     const target = useRef(null);
 
     const title = facetTitle || fieldTitle || field;

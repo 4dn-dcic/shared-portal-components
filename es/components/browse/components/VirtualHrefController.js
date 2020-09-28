@@ -219,9 +219,17 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     key: "onClearFilters",
     value: function onClearFilters() {
       var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var searchHref = this.props.searchHref; // Reset to original searchHref from current virtual href.
+      var _this$props = this.props,
+          searchHref = _this$props.searchHref,
+          onClearFiltersVirtual = _this$props.onClearFiltersVirtual;
 
-      this.virtualNavigate(searchHref, {}, typeof callback === 'function' ? callback : null);
+      if (typeof onClearFiltersVirtual === "function") {
+        // If custom function is passed, let it reset filters.
+        onClearFiltersVirtual(this.virtualNavigate, callback);
+      } else {
+        // Reset to original searchHref from current virtual href.
+        this.virtualNavigate(searchHref, {}, typeof callback === 'function' ? callback : null);
+      }
     }
   }, {
     key: "getTermStatus",
@@ -232,15 +240,15 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          children = _this$props.children,
-          propFacets = _this$props.facets,
-          _this$props$filterFac = _this$props.filterFacetFxn,
-          filterFacetFxn = _this$props$filterFac === void 0 ? null : _this$props$filterFac,
-          _this$props$columns = _this$props.columns,
-          propColumns = _this$props$columns === void 0 ? null : _this$props$columns,
-          originalSearchHref = _this$props.searchHref,
-          passProps = _objectWithoutProperties(_this$props, ["children", "facets", "filterFacetFxn", "columns", "searchHref"]);
+      var _this$props2 = this.props,
+          children = _this$props2.children,
+          propFacets = _this$props2.facets,
+          _this$props2$filterFa = _this$props2.filterFacetFxn,
+          filterFacetFxn = _this$props2$filterFa === void 0 ? null : _this$props2$filterFa,
+          _this$props2$columns = _this$props2.columns,
+          propColumns = _this$props2$columns === void 0 ? null : _this$props2$columns,
+          originalSearchHref = _this$props2.searchHref,
+          passProps = _objectWithoutProperties(_this$props2, ["children", "facets", "filterFacetFxn", "columns", "searchHref"]);
 
       var _this$state4 = this.state,
           href = _this$state4.virtualHref,

@@ -78,7 +78,6 @@ var ExtendedDescriptionPopoverIcon = /*#__PURE__*/_react["default"].memo(functio
       fieldTitle = _ref.title,
       _ref$extended_descrip = _ref.extended_description,
       fieldExtendedDescription = _ref$extended_descrip === void 0 ? null : _ref$extended_descrip; // May be null for 'calculated' or 'fake' fields.
-  //const [ isOpen, setOpen ] = useState(false);
 
 
   var target = (0, _react.useRef)(null);

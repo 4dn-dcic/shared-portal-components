@@ -416,8 +416,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				border-top: 1px solid rgba(0,0,0,0.075);
 				position: relative;
 				background: #f5f5f5;
-				border-bottom: 1px solid;
-				border-bottom-color: #808080;
+				// border-bottom: 1px solid #808080; -- (to be) moved to 4DN repo
 
 				&.detail-closed {
 					display: none;
@@ -425,12 +424,9 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				.result-table-detail {
 					padding-left: 47px;
 					padding-right: 0px;
-					// position: fixed;
 
 					background-color: #fff;
-					//border-bottom: 1px solid;
 					transition: transform .3s ease-out;
-					//border-bottom-color: #808080;
 
 					//transition: height .35s ease, transform .1s ease;
 					@include font-size(0.85rem);

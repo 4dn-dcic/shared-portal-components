@@ -183,7 +183,8 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           windowWidth = _this$props.windowWidth,
           _this$props$embeddedT = _this$props.embeddedTableHeader,
           embeddedTableHeader = _this$props$embeddedT === void 0 ? null : _this$props$embeddedT,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          onClearFiltersVirtual = _this$props.onClearFiltersVirtual,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "onClearFiltersVirtual"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
@@ -200,7 +201,8 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         searchHref: searchHref,
         facets: facets,
         onLoad: onLoad,
-        filterFacetFxn: filterFacetFxn
+        filterFacetFxn: filterFacetFxn,
+        onClearFiltersVirtual: onClearFiltersVirtual
       }, {
         key: searchHref
       }), embeddedTableHeader, /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
@@ -239,7 +241,9 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'hideFacets': _propTypes["default"].arrayOf(_propTypes["default"].string),
   'hideColumns': _propTypes["default"].arrayOf(_propTypes["default"].string),
   'filterFacetFxn': _propTypes["default"].func,
-  'filterColumnFxn': _propTypes["default"].func
+  'filterColumnFxn': _propTypes["default"].func,
+  'onClearFiltersVirtual': _propTypes["default"].func,
+  'embeddedTableHeader': _propTypes["default"].element
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {
