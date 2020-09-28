@@ -147,7 +147,6 @@ export class VirtualHrefController extends React.PureComponent {
     /** Unlike in case of SearchView, which defaults to response's clear filters URL, this defaults to original searchHref */
     onClearFilters(callback = null){
         const { searchHref, onClearFiltersVirtual } = this.props;
-        console.log("TTT", this.props);
         if (typeof onClearFiltersVirtual === "function") {
             // If custom function is passed, let it reset filters.
             onClearFiltersVirtual(

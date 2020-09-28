@@ -226,8 +226,6 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           searchHref = _this$props.searchHref,
           onClearFiltersVirtual = _this$props.onClearFiltersVirtual;
 
-      _patchedConsole.patchedConsoleInstance.log("TTT", this.props);
-
       if (typeof onClearFiltersVirtual === "function") {
         // If custom function is passed, let it reset filters.
         onClearFiltersVirtual(this.virtualNavigate, callback);
