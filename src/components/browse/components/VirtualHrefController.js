@@ -56,7 +56,13 @@ export class VirtualHrefController extends React.PureComponent {
         this.virtualNavigate = this.virtualNavigate.bind(this);
         this.memoized = {
             transformedFacets: memoize(VirtualHrefController.transformedFacets),
-            isClearFiltersBtnVisible: memoize(VirtualHrefController.isClearFiltersBtnVisible)
+            isClearFiltersBtnVisible: memoize(
+                props.isClearFiltersBtnVisible ||
+                function(currentVirtualSearcHref){
+                    // We assume props.searchHref doesn't ever change (we don't handle a change of this in any case)
+                    VirtualHrefController.isClearFiltersBtnVisible(currentVirtualSearcHref, props.searchHref);
+                }
+            )
         };
 
         this.state = {
@@ -141,6 +147,7 @@ export class VirtualHrefController extends React.PureComponent {
     /** Unlike in case of SearchView, which defaults to response's clear filters URL, this defaults to original searchHref */
     onClearFilters(callback = null){
         const { searchHref, onClearFiltersVirtual } = this.props;
+        console.log("TTT", this.props);
         if (typeof onClearFiltersVirtual === "function") {
             // If custom function is passed, let it reset filters.
             onClearFiltersVirtual(
@@ -177,7 +184,7 @@ export class VirtualHrefController extends React.PureComponent {
         const facets = (propFacets === null) ? null :
             this.memoized.transformedFacets(propFacets || (context && context.facets) || null, filterFacetFxn);
 
-        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, originalSearchHref);
+        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href);
 
         const propsToPass = {
             ...passProps,

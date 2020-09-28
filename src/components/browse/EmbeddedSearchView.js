@@ -49,6 +49,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         'filterFacetFxn' : PropTypes.func,
         'filterColumnFxn': PropTypes.func,
         'onClearFiltersVirtual' : PropTypes.func,
+        'isClearFiltersBtnVisible' : PropTypes.func,
         'embeddedTableHeader' : PropTypes.element,
     };
 
@@ -119,6 +120,9 @@ export class EmbeddedSearchView extends React.PureComponent {
             // Optional prop to which virtualNavigate is passed that may override default
             // of navigating back to `searchHref`.
             onClearFiltersVirtual,
+            // Optional prop to override VirtualHrefController's own calculation of this.
+            // Must be static function that accepts currentSearchHref as first parameter and original searchHref as second one.
+            isClearFiltersBtnVisible,
             ...passProps
         } = this.props;
 
@@ -130,7 +134,7 @@ export class EmbeddedSearchView extends React.PureComponent {
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual }} key={searchHref}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref}>
                     { embeddedTableHeader }
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>

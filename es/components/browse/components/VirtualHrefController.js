@@ -115,7 +115,10 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     _this.virtualNavigate = _this.virtualNavigate.bind(_assertThisInitialized(_this));
     _this.memoized = {
       transformedFacets: (0, _memoizeOne["default"])(VirtualHrefController.transformedFacets),
-      isClearFiltersBtnVisible: (0, _memoizeOne["default"])(VirtualHrefController.isClearFiltersBtnVisible)
+      isClearFiltersBtnVisible: (0, _memoizeOne["default"])(props.isClearFiltersBtnVisible || function (currentVirtualSearcHref) {
+        // We assume props.searchHref doesn't ever change (we don't handle a change of this in any case)
+        VirtualHrefController.isClearFiltersBtnVisible(currentVirtualSearcHref, props.searchHref);
+      })
     };
     _this.state = {
       "virtualHref": props.searchHref,
@@ -223,6 +226,8 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           searchHref = _this$props.searchHref,
           onClearFiltersVirtual = _this$props.onClearFiltersVirtual;
 
+      _patchedConsole.patchedConsoleInstance.log("TTT", this.props);
+
       if (typeof onClearFiltersVirtual === "function") {
         // If custom function is passed, let it reset filters.
         onClearFiltersVirtual(this.virtualNavigate, callback);
@@ -256,7 +261,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           isContextLoading = _this$state4.isContextLoading; // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
 
       var facets = propFacets === null ? null : this.memoized.transformedFacets(propFacets || context && context.facets || null, filterFacetFxn);
-      var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, originalSearchHref);
+      var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href);
 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         href: href,
