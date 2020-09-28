@@ -137,7 +137,7 @@ var ExtendedDescriptionPopoverIcon = /*#__PURE__*/_react["default"].memo(functio
       }
     }
   }, /*#__PURE__*/_react["default"].createElement("i", {
-    className: "icon icon-info-circle fas" + (isOpen ? " text-primary" : "")
+    className: "icon icon-info-circle fas" + (isOpen ? " text-primary" : " text-secondary")
   }));
 });
 

@@ -93,7 +93,7 @@ export const ExtendedDescriptionPopoverIcon = React.memo(function ExtendedDescri
     // WARNING: extended_description is not sanitized, we control it, but todo: maybe run it through BasicStaticSectionBody or something.
     return (
         <div className="d-inline-block px-1" data-tip={isOpen ? "Click to close" : "Click for more information"} ref={target} onClick={onIconClick}>
-            <i className={"icon icon-info-circle fas" + (isOpen ? " text-primary" : "")} />
+            <i className={"icon icon-info-circle fas" + (isOpen ? " text-primary" : " text-secondary")} />
         </div>
     );
 
