@@ -195,7 +195,6 @@ export class VirtualHrefController extends React.PureComponent {
         };
 
         return React.Children.map(children, function(child){
-            console.log('TTTT CHILD', child, React.isValidElement(child));
             if (!React.isValidElement(child)) return child;
             return React.cloneElement(child, propsToPass);
         });
