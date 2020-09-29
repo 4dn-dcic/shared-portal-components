@@ -10,8 +10,6 @@ exports.CountIndicator = exports.FacetTermsList = exports.Term = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
@@ -21,8 +19,6 @@ var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 var _utilities = require("./../../../viz/utilities");
 
 var _PartialList = require("./../../../ui/PartialList");
-
-var _schemaTransforms = require("./../../../util/schema-transforms");
 
 var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
 
@@ -326,9 +322,6 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     _this3.state = {
       'expanded': false
     };
-    _this3.memoized = {
-      fieldSchema: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaProperty)
-    };
     return _this3;
   }
 
@@ -359,8 +352,7 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     value: function render() {
       var _this$props4 = this.props,
           facet = _this$props4.facet,
-          schemas = _this$props4.schemas,
-          itemTypeForSchemas = _this$props4.itemTypeForSchemas,
+          fieldSchema = _this$props4.fieldSchema,
           terms = _this$props4.terms,
           isStatic = _this$props4.isStatic,
           anySelected = _this$props4.anyTermsSelected,
@@ -379,7 +371,6 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       var expanded = this.state.expanded;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
-      var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
 
       var _ref4 = fieldSchema || {},
           fieldTitle = _ref4.title,

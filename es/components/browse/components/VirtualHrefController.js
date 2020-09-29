@@ -274,6 +274,8 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
       });
 
       return _react["default"].Children.map(children, function (child) {
+        _patchedConsole.patchedConsoleInstance.log('TTTT CHILD', child, /*#__PURE__*/_react["default"].isValidElement(child));
+
         if (! /*#__PURE__*/_react["default"].isValidElement(child)) return child;
         return /*#__PURE__*/_react["default"].cloneElement(child, propsToPass);
       });

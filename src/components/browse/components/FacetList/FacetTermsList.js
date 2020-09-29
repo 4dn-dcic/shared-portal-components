@@ -1,14 +1,12 @@
 'use strict';
 
 import React, { useMemo } from 'react';
-import memoize from 'memoize-one';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import Fade from 'react-bootstrap/esm/Fade';
 
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
-import { getSchemaProperty } from './../../../util/schema-transforms';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 
 
@@ -209,9 +207,6 @@ export class FacetTermsList extends React.PureComponent {
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
         this.state = { 'expanded' : false };
-        this.memoized = {
-            fieldSchema: memoize(getSchemaProperty)
-        };
     }
 
     handleOpenToggleClick(e) {
@@ -230,8 +225,7 @@ export class FacetTermsList extends React.PureComponent {
     render(){
         const {
             facet,
-            schemas,
-            itemTypeForSchemas,
+            fieldSchema,
             terms,
             isStatic,
             anyTermsSelected: anySelected,
@@ -248,7 +242,6 @@ export class FacetTermsList extends React.PureComponent {
         const { expanded } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
-        const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
         const { title: fieldTitle, description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
         const title = facetTitle || fieldTitle || field;
 
