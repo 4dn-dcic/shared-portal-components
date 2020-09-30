@@ -312,7 +312,7 @@ export class BuildField extends React.PureComponent {
             <div {...this.commonRowProps()}>
                 <div className="row">
                     <div className="col-12 col-md-4">
-                        <h5 className="submission-field-title text-ellipsis-container">
+                        <h5 className="submission-field-title text-truncate">
                             { this.labelTypeDescriptor() }
                             { fieldTip ?
                                 <InfoIcon className="mr-07" title={title} fieldType={fieldType} schema={schema}>{ fieldTip }</InfoIcon>
@@ -1083,7 +1083,7 @@ export class AliasInputField extends React.Component {
                     title={(parts.length > 1 && (
                         <span className="text-400 d-flex justify-content-between align-items-center">
                             <small>Lab:&nbsp;</small>
-                            <span className="text-ellipsis-container" style={{ maxWidth : '80%' }}>
+                            <span className="text-truncate" style={{ maxWidth : '80%' }}>
                                 { ((parts[0] !== '' && parts[0]) || this.getInitialSubmitsForPart()) }
                             </span>
                         </span>

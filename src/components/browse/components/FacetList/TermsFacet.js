@@ -3,7 +3,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import memoize from 'memoize-one';
 
+import { getSchemaProperty } from './../../../util/schema-transforms';
 import { FacetTermsList } from './FacetTermsList';
 import { StaticSingleTerm } from './StaticSingleTerm';
 
@@ -30,6 +32,9 @@ export class TermsFacet extends React.PureComponent {
         this.handleTermClick = this.handleTermClick.bind(this);
 
         this.state = { 'filtering' : false };
+        this.memoized = {
+            fieldSchema: memoize(getSchemaProperty)
+        };
     }
 
     /**
@@ -67,18 +72,21 @@ export class TermsFacet extends React.PureComponent {
     render() {
         const {
             facet, terms, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets,
-            isStatic
+            isStatic, schemas, itemTypeForSchemas
         } = this.props;
+        const { field } = facet;
         const { filtering } = this.state;
-        const { field, title } = facet || {};
-
-        const showTitle = title || field;
+        // `fieldSchema` may be null esp. if field is 'fake'.
+        const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
 
         if (separateSingleTermFacets && isStatic){
             // Only one term exists.
-            return <StaticSingleTerm {...{ facet, term : terms[0], filtering, showTitle, onClick : this.handleStaticClick, getTermStatus, extraClassname, termTransformFxn }} />;
+            return (
+                <StaticSingleTerm {...{ fieldSchema, facet, filtering, getTermStatus, extraClassname, termTransformFxn }}
+                    term={terms[0]} onClick={this.handleStaticClick} />
+            );
         } else {
-            return <FacetTermsList {...this.props} onTermClick={this.handleTermClick} title={showTitle} />;
+            return <FacetTermsList {...this.props} fieldSchema={fieldSchema} onTermClick={this.handleTermClick} />;
         }
 
     }

@@ -17,8 +17,6 @@ export class FacetOfFacets extends React.PureComponent {
             const renderedFacet = renderedFacets[facetIdx]; // We have rendered facets as `props.facets`
             const { anyTermsSelected: anySelected } = renderedFacet.props;
             if (anySelected) {
-
-                console.log(renderedFacet);
                 return true;
             }
         }
@@ -40,13 +38,18 @@ export class FacetOfFacets extends React.PureComponent {
     }
 
     render() {
-        const { title, children: renderedFacets, tooltip, facetOpen, openFacets = {} } = this.props;
+        const { title, children: renderedFacets, tooltip: propTip, facetOpen, openFacets = {} } = this.props;
         const anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets);
+
+        let tooltip = propTip || "Group of facets containing "; // We'll append to this in .map loop below if !propTip.
 
         // Ensure all facets within group are not "static single terms".
         // Pass in facetOpen prop.
-        const extendedFacets = React.Children.map(renderedFacets, function(renderedFacet){
-            const { facet : { field } } = renderedFacet.props;
+        const extendedFacets = React.Children.map(renderedFacets, function(renderedFacet, i){
+            const { facet : { field, title: childTitle } } = renderedFacet.props;
+            if (!propTip) {
+                tooltip += (i === 0 ? "" : ", ") + childTitle;
+            }
             return React.cloneElement(renderedFacet, { isStatic: false, facetOpen: openFacets[field] });
         });
 

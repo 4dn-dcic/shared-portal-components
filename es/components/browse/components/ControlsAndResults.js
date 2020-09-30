@@ -136,6 +136,8 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           session = _this$props2.session,
           isFullscreen = _this$props2.isFullscreen,
           toggleFullScreen = _this$props2.toggleFullScreen,
+          addToBodyClassList = _this$props2.addToBodyClassList,
+          removeFromBodyClassList = _this$props2.removeFromBodyClassList,
           facets = _this$props2.facets,
           termTransformFxn = _this$props2.termTransformFxn,
           rowHeight = _this$props2.rowHeight,
@@ -198,7 +200,9 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         itemTypeForSchemas: searchItemType,
         className: "with-header-bg",
         maxBodyHeight: !isOwnPage && maxHeight || null,
-        onClearFilters: this.onClearFiltersClick
+        onClearFilters: this.onClearFiltersClick,
+        addToBodyClassList: addToBodyClassList,
+        removeFromBodyClassList: removeFromBodyClassList
       };
       return /*#__PURE__*/_react["default"].createElement("div", {
         className: "row search-view-controls-and-results",

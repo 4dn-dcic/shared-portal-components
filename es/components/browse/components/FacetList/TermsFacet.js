@@ -11,6 +11,10 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
+var _memoizeOne = _interopRequireDefault(require("memoize-one"));
+
+var _schemaTransforms = require("./../../../util/schema-transforms");
+
 var _FacetTermsList = require("./FacetTermsList");
 
 var _StaticSingleTerm = require("./StaticSingleTerm");
@@ -70,6 +74,9 @@ var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this.state = {
       'filtering': false
     };
+    _this.memoized = {
+      fieldSchema: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaProperty)
+    };
     return _this;
   }
   /**
@@ -125,31 +132,31 @@ var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
           extraClassname = _this$props2.extraClassname,
           termTransformFxn = _this$props2.termTransformFxn,
           separateSingleTermFacets = _this$props2.separateSingleTermFacets,
-          isStatic = _this$props2.isStatic;
-      var filtering = this.state.filtering;
+          isStatic = _this$props2.isStatic,
+          schemas = _this$props2.schemas,
+          itemTypeForSchemas = _this$props2.itemTypeForSchemas;
+      var field = facet.field;
+      var filtering = this.state.filtering; // `fieldSchema` may be null esp. if field is 'fake'.
 
-      var _ref = facet || {},
-          field = _ref.field,
-          title = _ref.title;
-
-      var showTitle = title || field;
+      var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
 
       if (separateSingleTermFacets && isStatic) {
         // Only one term exists.
-        return /*#__PURE__*/_react["default"].createElement(_StaticSingleTerm.StaticSingleTerm, {
+        return /*#__PURE__*/_react["default"].createElement(_StaticSingleTerm.StaticSingleTerm, _extends({
+          fieldSchema: fieldSchema,
           facet: facet,
-          term: terms[0],
           filtering: filtering,
-          showTitle: showTitle,
-          onClick: this.handleStaticClick,
           getTermStatus: getTermStatus,
           extraClassname: extraClassname,
           termTransformFxn: termTransformFxn
-        });
+        }, {
+          term: terms[0],
+          onClick: this.handleStaticClick
+        }));
       } else {
         return /*#__PURE__*/_react["default"].createElement(_FacetTermsList.FacetTermsList, _extends({}, this.props, {
-          onTermClick: this.handleTermClick,
-          title: showTitle
+          fieldSchema: fieldSchema,
+          onTermClick: this.handleTermClick
         }));
       }
     }

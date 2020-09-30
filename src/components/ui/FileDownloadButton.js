@@ -119,7 +119,7 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
     );
 });
 ViewFileButton.defaultProps = {
-    'className' : "text-ellipsis-container mb-1",
+    'className' : "text-truncate mb-1",
     'target' : "_blank",
     'href' : null,
     'disabled' : false,

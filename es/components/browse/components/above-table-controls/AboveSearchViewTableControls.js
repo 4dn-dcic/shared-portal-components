@@ -26,10 +26,7 @@ var AboveSearchViewTableControls = /*#__PURE__*/_react["default"].memo(function 
 
   if (showTotalResults) {
     total = /*#__PURE__*/_react["default"].createElement("div", {
-      style: {
-        'verticalAlign': 'bottom'
-      },
-      className: "inline-block"
+      className: "d-inline-block align-bottom"
     }, /*#__PURE__*/_react["default"].createElement("span", {
       className: "text-500",
       id: "results-count"

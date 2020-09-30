@@ -213,7 +213,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
 
       if (collapsible && childHeaders.length > 0) {
         collapsibleButton = /*#__PURE__*/_react["default"].createElement("i", {
-          className: "inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus'),
+          className: "d-inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus'),
           onClick: this.toggleOpen
         });
       }

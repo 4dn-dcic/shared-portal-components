@@ -22,11 +22,19 @@ var _DropdownItem = _interopRequireDefault(require("react-bootstrap/esm/Dropdown
 
 var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
 
+var _Popover = _interopRequireDefault(require("react-bootstrap/esm/Popover"));
+
+var _OverlayTrigger = _interopRequireDefault(require("react-bootstrap/esm/OverlayTrigger"));
+
 var _LocalizedTime = require("./../../../ui/LocalizedTime");
 
 var _valueTransforms = require("./../../../util/value-transforms");
 
+var _schemaTransforms = require("./../../../util/schema-transforms");
+
 var _patchedConsole = require("./../../../util/patched-console");
+
+var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -208,6 +216,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this.performUpdateTo = _this.performUpdateTo.bind(_assertThisInitialized(_this));
     _this.termTitle = _this.termTitle.bind(_assertThisInitialized(_this));
     _this.memoized = {
+      fieldSchema: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaProperty),
       validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements)
     };
     var fromVal = props.fromVal,
@@ -285,12 +294,14 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     }
   }, {
     key: "resetFrom",
-    value: function resetFrom() {
+    value: function resetFrom(e) {
+      e.stopPropagation();
       this.setFrom(null, this.performUpdateFrom);
     }
   }, {
     key: "resetTo",
-    value: function resetTo() {
+    value: function resetTo(e) {
+      e.stopPropagation();
       this.setTo(null, this.performUpdateTo);
     }
   }, {
@@ -335,22 +346,33 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         return transformedValue;
       }
 
-      if (transformedValue.toString().length < 7) {
-        return (0, _valueTransforms.decorateNumberWithCommas)(transformedValue);
+      var absVal = Math.abs(transformedValue);
+
+      if (absVal.toString().length <= 7) {
+        // Else is too long and will go thru toPrecision or toExponential.
+        if (absVal >= 1000) {
+          return (0, _valueTransforms.decorateNumberWithCommas)(transformedValue);
+        } else {
+          return transformedValue;
+        }
       }
 
-      return transformedValue.toExponential(1);
+      return transformedValue.toExponential(3);
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props5 = this.props,
+          schemas = _this$props5.schemas,
+          itemTypeForSchemas = _this$props5.itemTypeForSchemas,
           facet = _this$props5.facet,
           propTitle = _this$props5.title,
           isStatic = _this$props5.isStatic,
           savedFromVal = _this$props5.fromVal,
           savedToVal = _this$props5.toVal,
-          facetOpen = _this$props5.facetOpen;
+          facetOpen = _this$props5.facetOpen,
+          openPopover = _this$props5.openPopover,
+          setOpenPopover = _this$props5.setOpenPopover;
       var _facet$field_type2 = facet.field_type,
           field_type = _facet$field_type2 === void 0 ? "number" : _facet$field_type2,
           field = facet.field,
@@ -365,7 +387,10 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           _facet$title = facet.title,
           facetTitle = _facet$title === void 0 ? null : _facet$title,
           _facet$description = facet.description,
-          tooltip = _facet$description === void 0 ? null : _facet$description;
+          facetSchemaDescription = _facet$description === void 0 ? null : _facet$description;
+      var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
+      var fieldSchemaDescription = (fieldSchema || {}).description; // fieldSchema not present if no schemas loaded yet.
+
       var _this$state = this.state,
           fromVal = _this$state.fromVal,
           toVal = _this$state.toVal;
@@ -402,9 +427,14 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       })), /*#__PURE__*/_react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/_react["default"].createElement("span", {
-        "data-tip": tooltip,
+        "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-place": "right"
-      }, propTitle || facetTitle || field)), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+      }, propTitle || facetTitle || field), /*#__PURE__*/_react["default"].createElement(_ExtendedDescriptionPopoverIcon.ExtendedDescriptionPopoverIcon, {
+        fieldSchema: fieldSchema,
+        facet: facet,
+        openPopover: openPopover,
+        setOpenPopover: setOpenPopover
+      })), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
         "in": !isOpen
       }, /*#__PURE__*/_react["default"].createElement("span", {
         className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
@@ -436,13 +466,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         update: this.performUpdateFrom,
         termTransformFxn: this.termTitle,
         facet: facet,
-        id: "from_" + field
-      }), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable"),
-        onClick: fromVal !== null ? this.resetFrom : null
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")
-      }))), /*#__PURE__*/_react["default"].createElement("div", {
+        id: "from_" + field,
+        reset: fromVal !== null ? this.resetFrom : null
+      })), /*#__PURE__*/_react["default"].createElement("div", {
         className: "row"
       }, /*#__PURE__*/_react["default"].createElement("label", {
         className: "col-auto mb-0"
@@ -459,13 +485,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         update: this.performUpdateTo,
         termTransformFxn: this.termTitle,
         facet: facet,
-        id: "to_" + field
-      }), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable"),
-        onClick: toVal !== null ? this.resetTo : null
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw fas icon-" + (toVal === null ? "pencil" : "times-circle")
-      }))))));
+        id: "to_" + field,
+        reset: toVal !== null ? this.resetTo : null
+      })))));
     }
   }]);
 
@@ -498,6 +520,8 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
       var nextValue = evt.target.value;
       onSelect(nextValue);
     }
+    /** Handles _numbers_ only. */
+
   }, {
     key: "onDropdownSelect",
     value: function onDropdownSelect(evtKey) {
@@ -551,7 +575,9 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           id = _this$props8.id,
           facet = _this$props8.facet,
           _this$props8$incremen = _this$props8.increments,
-          increments = _this$props8$incremen === void 0 ? [] : _this$props8$incremen;
+          increments = _this$props8$incremen === void 0 ? [] : _this$props8$incremen,
+          _this$props8$reset = _this$props8.reset,
+          reset = _this$props8$reset === void 0 ? null : _this$props8$reset;
       var updateAble = savedValue !== value;
       var _facet$field_type3 = facet.field_type,
           field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
@@ -559,17 +585,32 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           fMax = facet.max,
           _facet$number_step2 = facet.number_step,
           step = _facet$number_step2 === void 0 ? "any" : _facet$number_step2;
+      var showTitle = title;
+
+      if (typeof reset === "function") {
+        showTitle = /*#__PURE__*/_react["default"].createElement("div", {
+          className: "d-flex"
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "clear-icon-container col-auto clickable d-flex align-items-center",
+          onClick: reset,
+          "data-tip": "Click to unset"
+        }, /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-fw fas icon-minus-circle"
+        })), /*#__PURE__*/_react["default"].createElement("div", {
+          className: "col px-0"
+        }, title));
+      }
 
       if (field_type === "date") {
         return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
           variant: variant,
           disabled: disabled,
           className: className,
-          title: title,
           size: size,
           id: id
         }, {
-          alignRight: true
+          alignRight: true,
+          title: showTitle
         }), /*#__PURE__*/_react["default"].createElement("form", {
           className: "inline-input-container pb-0 mb-0 border-0",
           onSubmit: this.onTextInputFormSubmit
@@ -617,12 +658,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           variant: variant,
           disabled: disabled,
           className: className,
-          title: title,
           size: size,
           id: id
         }, {
           alignRight: true,
-          onSelect: this.onDropdownSelect
+          onSelect: this.onDropdownSelect,
+          title: showTitle
         }), /*#__PURE__*/_react["default"].createElement("form", {
           className: "inline-input-container",
           onSubmit: this.onTextInputFormSubmit

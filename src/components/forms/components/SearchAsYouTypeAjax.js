@@ -200,8 +200,8 @@ SearchAsYouTypeAjax.defaultProps = {
         const { display_title: title, "@id" : atID, description } = result;
         return (
             <div data-tip={description} key={atID}>
-                <h5 className="text-300 text-ellipsis-container">{ title }</h5>
-                <h6 className="text-mono text-400 text-ellipsis-container">{ atID }</h6>
+                <h5 className="text-300 text-truncate">{ title }</h5>
+                <h6 className="text-mono text-400 text-truncate">{ atID }</h6>
             </div>
         );
     },
@@ -315,8 +315,8 @@ export const optionCustomizationsByType = {
             const { display_title: title, "@id" : atID, description, accession } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 text-ellipsis-container">{ title }</h5>
-                    <h6 className="text-mono text-400 text-ellipsis-container">{ accession }</h6>
+                    <h5 className="text-300 text-truncate">{ title }</h5>
+                    <h6 className="text-mono text-400 text-truncate">{ accession }</h6>
                 </div>
             );
         },
@@ -341,8 +341,8 @@ export const optionCustomizationsByType = {
                 status, date_created, submitted_by } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 text-ellipsis-container">{ title }</h5>
-                    <h6 className="text-mono text-400 text-ellipsis-container">{ atID }</h6>
+                    <h5 className="text-300 text-truncate">{ title }</h5>
+                    <h6 className="text-mono text-400 text-truncate">{ atID }</h6>
                 </div>
             );
         },
@@ -354,8 +354,8 @@ export const optionCustomizationsByType = {
                 status, date_created, submitted_by } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 text-ellipsis-container">{ title }</h5>
-                    <h6 className="text-mono text-400 text-ellipsis-container">{ atID }</h6>
+                    <h5 className="text-300 text-truncate">{ title }</h5>
+                    <h6 className="text-mono text-400 text-truncate">{ atID }</h6>
                 </div>
             );
         },
@@ -366,7 +366,7 @@ export const optionCustomizationsByType = {
             const { display_title: title, "@id" : atID, description, hpo_id } = result;
             return (
                 <div data-tip={description} key={atID}>
-                    <h5 className="text-300 text-ellipsis-container">{ title }</h5>
+                    <h5 className="text-300 text-truncate">{ title }</h5>
                     <h6 className="text-mono text-400">{ hpo_id }</h6>
                 </div>
             );
@@ -608,7 +608,7 @@ export class LinkedObj extends React.PureComponent {
                     );
                 } else {
                     return(
-                        <div className="incomplete-linked-object-display-container text-ellipsis-container">
+                        <div className="incomplete-linked-object-display-container text-truncate">
                             <i className="icon icon-fw icon-edit far" />&nbsp;&nbsp;
                             <a href="#" onClick={this.setSubmissionStateToLinkedToItem} data-tip="Continue editing/submitting">{ thisDisplay }</a>
                             &nbsp;

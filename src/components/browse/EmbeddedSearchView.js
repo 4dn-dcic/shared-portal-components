@@ -48,6 +48,9 @@ export class EmbeddedSearchView extends React.PureComponent {
         'hideColumns'    : PropTypes.arrayOf(PropTypes.string),
         'filterFacetFxn' : PropTypes.func,
         'filterColumnFxn': PropTypes.func,
+        'onClearFiltersVirtual' : PropTypes.func,
+        'isClearFiltersBtnVisible' : PropTypes.func,
+        'embeddedTableHeader' : PropTypes.element,
     };
 
     static listToObj(hideFacetStrs){
@@ -106,7 +109,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             columns = null,
             hideColumns,
             facets,
-            showAboveTableControls = false,
+            showAboveTableControls = false, // Deprecated? Unused here? Will become deprecated for EmbeddedSearchView purposes at least probably.
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
@@ -114,6 +117,12 @@ export class EmbeddedSearchView extends React.PureComponent {
             windowWidth,
             // Will inherit props from VirtualHrefController
             embeddedTableHeader = null,
+            // Optional prop to which virtualNavigate is passed that may override default
+            // of navigating back to `searchHref`.
+            onClearFiltersVirtual,
+            // Optional prop to override VirtualHrefController's own calculation of this.
+            // Must be static function that accepts currentSearchHref as first parameter and original searchHref as second one.
+            isClearFiltersBtnVisible,
             ...passProps
         } = this.props;
 
@@ -125,7 +134,7 @@ export class EmbeddedSearchView extends React.PureComponent {
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn }} key={searchHref}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref}>
                     { embeddedTableHeader }
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>

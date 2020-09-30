@@ -518,7 +518,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                     className: "text-left child-list-row",
                     key: colKey + '--row-' + i
                   }, /*#__PURE__*/_react["default"].createElement("div", {
-                    className: "inline-block child-list-row-number"
+                    className: "d-inline-block child-list-row-number"
                   }, i + 1, "."), allKeys.map(function (k) {
                     var renderedSubVal; // = Schemas.Term.toName(k, embeddedRow[k]);
 
@@ -540,7 +540,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
                     return /*#__PURE__*/_react["default"].createElement("div", {
                       key: colKey + '.' + k + '--row-' + i,
-                      className: "inline-block child-column-" + colKey + '.' + k,
+                      className: "d-inline-block child-column-" + colKey + '.' + k,
                       style: {
                         width: !subListKeyWidths ? null : (subListKeyWidths[colKey] || {})[k] || null
                       }
@@ -619,11 +619,11 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             className: "sub-list-keys-header"
           }, [/*#__PURE__*/_react["default"].createElement("div", {
             key: "sub-header-rowNumber",
-            className: "inline-block child-list-row-number"
+            className: "d-inline-block child-list-row-number"
           }, "\xA0")].concat(colKeyContainer.childKeys.map(function (ck) {
             return /*#__PURE__*/_react["default"].createElement("div", {
               key: "sub-header-for-" + colKey + '.' + ck,
-              className: "inline-block",
+              className: "d-inline-block",
               "data-key": colKey + '.' + ck,
               ref: function ref(r) {
                 if (r) subListKeyRefs[colKey][ck] = r;
@@ -739,7 +739,7 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
 
       if (labelNumber) {
         labelToShow = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("span", {
-          className: "label-number right inline-block" + (isOpen ? ' active' : '')
+          className: "label-number right d-inline-block" + (isOpen ? ' active' : '')
         }, /*#__PURE__*/_react["default"].createElement("span", {
           className: "number-icon text-200"
         }, "#"), " ", labelNumber), label);

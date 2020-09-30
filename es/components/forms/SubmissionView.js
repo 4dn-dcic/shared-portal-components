@@ -2342,7 +2342,7 @@ var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "subtitle-heading form-section-heading mb-08"
       }, /*#__PURE__*/_react["default"].createElement("span", {
-        className: "inline-block clickable",
+        className: "d-inline-block clickable",
         onClick: this.toggleOpen
       }, "Currently Editing ", currKey > 0 ? /*#__PURE__*/_react["default"].createElement("i", {
         className: "icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')

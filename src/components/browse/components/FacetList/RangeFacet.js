@@ -10,9 +10,15 @@ import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Fade from 'react-bootstrap/esm/Fade';
 
+import Popover from 'react-bootstrap/esm/Popover';
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
+
 import { LocalizedTime } from './../../../ui/LocalizedTime';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
+import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
+
+import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 
 
 
@@ -141,6 +147,7 @@ export class RangeFacet extends React.PureComponent {
         this.termTitle = this.termTitle.bind(this);
 
         this.memoized = {
+            fieldSchema: memoize(getSchemaProperty),
             validIncrements: memoize(RangeFacet.validIncrements)
         };
 
@@ -198,11 +205,13 @@ export class RangeFacet extends React.PureComponent {
         );
     }
 
-    resetFrom(){
+    resetFrom(e){
+        e.stopPropagation();
         this.setFrom(null, this.performUpdateFrom);
     }
 
-    resetTo(){
+    resetTo(e){
+        e.stopPropagation();
         this.setTo(null, this.performUpdateTo);
     }
 
@@ -234,14 +243,31 @@ export class RangeFacet extends React.PureComponent {
         if (typeof transformedValue !== "number") {
             return transformedValue;
         }
-        if (transformedValue.toString().length < 7){
-            return decorateNumberWithCommas(transformedValue);
+        const absVal = Math.abs(transformedValue);
+        if (absVal.toString().length <= 7){
+            // Else is too long and will go thru toPrecision or toExponential.
+            if (absVal >= 1000) {
+                return decorateNumberWithCommas(transformedValue);
+            } else {
+                return transformedValue;
+            }
         }
-        return transformedValue.toExponential(1);
+        return transformedValue.toExponential(3);
     }
 
     render(){
-        const { facet, title: propTitle, isStatic, fromVal: savedFromVal, toVal: savedToVal, facetOpen } = this.props;
+        const {
+            schemas,
+            itemTypeForSchemas,
+            facet,
+            title: propTitle,
+            isStatic,
+            fromVal: savedFromVal,
+            toVal: savedToVal,
+            facetOpen,
+            openPopover,
+            setOpenPopover
+        } = this.props;
         const {
             field_type = "number",
             field,
@@ -250,8 +276,10 @@ export class RangeFacet extends React.PureComponent {
             max: maxValue = null,
             max_as_string: maxDateTime = null,
             title: facetTitle = null,
-            description: tooltip = null
+            description: facetSchemaDescription = null
         } = facet;
+        const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
+        const { description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet.
         const { fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
         const title = propTitle || facetTitle || field;
@@ -284,7 +312,8 @@ export class RangeFacet extends React.PureComponent {
                         <i className={"icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : (isOpen ? "minus fas" : "plus fas"))}/>
                     </span>
                     <div className="col px-0 line-height-1">
-                        <span data-tip={tooltip} data-place="right">{ title }</span>
+                        <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-place="right">{ title }</span>
+                        <ExtendedDescriptionPopoverIcon {...{ fieldSchema, facet, openPopover, setOpenPopover }} />
                     </div>
                     <Fade in={!isOpen}>
                         <span className={"closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")}>
@@ -306,11 +335,13 @@ export class RangeFacet extends React.PureComponent {
                                 max={toVal || null} increments={fromIncrements}
                                 variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"}
                                 onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
-                                facet={facet} id={"from_" + field} />
+                                facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
+                            {/*
                             <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
                                 onClick={fromVal !== null ? this.resetFrom : null}>
                                 <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
                             </div>
+                            */}
                         </div>
                         <div className="row">
                             <label className="col-auto mb-0">
@@ -321,11 +352,13 @@ export class RangeFacet extends React.PureComponent {
                                 min={fromVal || null} increments={toIncrements}
                                 variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"}
                                 onSelect={this.setTo} update={this.performUpdateTo} termTransformFxn={this.termTitle}
-                                facet={facet} id={"to_" + field} />
+                                facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
+                            {/*
                             <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
                                 onClick={toVal !== null ? this.resetTo : null}>
-                                <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil" : "times-circle")}/>
+                                <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
                             </div>
+                            */}
                         </div>
                     </div>
                 </Collapse>
@@ -350,6 +383,7 @@ class RangeDropdown extends React.PureComponent {
         onSelect(nextValue);
     }
 
+    /** Handles _numbers_ only. */
     onDropdownSelect(evtKey){
         const { onSelect, update, savedValue } = this.props;
         if (parseFloat(evtKey) === savedValue){
@@ -375,10 +409,12 @@ class RangeDropdown extends React.PureComponent {
             className = "range-dropdown-container col",
             min: propMin, max: propMax,
             value, savedValue,
-            placeholder = "Type...", title,
+            placeholder = "Type...",
+            title,
             termTransformFxn, id,
             facet,
-            increments = []
+            increments = [],
+            reset = null
         } = this.props;
         const updateAble = (savedValue !== value);
         const {
@@ -388,9 +424,23 @@ class RangeDropdown extends React.PureComponent {
             number_step: step = "any"
         } = facet;
 
+        let showTitle = title;
+
+        if (typeof reset === "function") {
+            showTitle = (
+                <div className="d-flex">
+                    <div className="clear-icon-container col-auto clickable d-flex align-items-center" onClick={reset}
+                        data-tip="Click to unset">
+                        <i className="icon icon-fw fas icon-minus-circle"/>
+                    </div>
+                    <div className="col px-0">{ title }</div>
+                </div>
+            );
+        }
+
         if (field_type === "date") {
             return (
-                <DropdownButton {...{ variant, disabled, className, title, size, id }} alignRight>
+                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight title={showTitle}>
                     <form className="inline-input-container pb-0 mb-0 border-0" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
                             <input type="date" className="form-control"
@@ -436,7 +486,7 @@ class RangeDropdown extends React.PureComponent {
             });
 
             return (
-                <DropdownButton {...{ variant, disabled, className, title, size, id }} alignRight onSelect={this.onDropdownSelect}>
+                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect} title={showTitle}>
                     <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
                             <input type="number" className="form-control" {...{ value, placeholder, step }} onChange={this.onTextInputChange} />
