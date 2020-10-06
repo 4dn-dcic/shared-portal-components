@@ -118,7 +118,7 @@ div.fieldset.editable-fields {
 		.save-button {
 			padding-top: 0px;
 			font-size: 1.1em;
-			margin-bottom: -10px;
+			margin-bottom: -2px;
 			position: relative;
 			z-index: 4;
 
@@ -193,7 +193,7 @@ div.fieldset.editable-fields {
 				border: 0 !important;
 				outline: 0 !important;
 				background: transparent;
-				border-bottom: 1px solid #dedede !important;
+				border-bottom: 1px solid $border-color !important;
 				border-radius: 0 !important;
 				padding: 0 !important;
 				display: block;
@@ -201,7 +201,7 @@ div.fieldset.editable-fields {
 				//width: 100%;
 				position: relative;
 				z-index: 3;
-				height: initial !important;	
+				height: initial !important;
 			}
 
 			input[type=number] {
@@ -235,9 +235,9 @@ div.fieldset.editable-fields {
 				transition: opacity .35s .15s;
 			}
 
-			&.input-text {
-				width: 100%;
-			}
+			// &.input-text {
+			// 	width: 100%;
+			// }
 		}
 
 		&.inline {
@@ -263,6 +263,8 @@ div.fieldset.editable-fields {
 					opacity: 0.5;
 				}
 				.value.editing {
+					display: flex;
+					align-items: center;
 					position: absolute;
 					z-index: 10;
 					width: 280px;
@@ -270,11 +272,16 @@ div.fieldset.editable-fields {
 					/* left: 0; */
 					background: rgba(250,250,250,0.9);
 					/* box-shadow: 0 1px 10px -3px rgba(0,0,0,0.25); */
-					padding-bottom: 3px;
-					padding: 0 2px 2px 2px;
+					padding: 1px 2px;
 					border-radius: 5px;
-					border: 1px solid #eee;
+					border: 1px solid $border-color;
 					/* border-bottom-color: #ddd; */
+					> .input-wrapper.input-text {
+						width: auto;
+						> input {
+							border: none !important;
+						}
+					}
 				}
 				span.input-wrapper span.help-block span.tip-block{
 					position: absolute;
@@ -302,13 +309,13 @@ div.fieldset.editable-fields {
 				.save-button,
 				.cancel-button,
 				.field-loading-icon {
-					padding-top: 12px;
 					font-size: 1.25rem;
+					height: auto;
 				}
 				.field-loading-icon {
 					height: auto;
-					padding-top: 11px;
 				}
+				
 			}
 
 		}
