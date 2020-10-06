@@ -109,7 +109,9 @@ export class EmbeddedSearchView extends React.PureComponent {
             columns = null,
             hideColumns,
             facets,
-            showAboveTableControls = false, // Deprecated? Unused here? Will become deprecated for EmbeddedSearchView purposes at least probably.
+            // showAboveTableControls = false, // Deprecated? Unused here? Will become deprecated for EmbeddedSearchView purposes at least probably.
+            aboveTableComponent = null,         // Override default default to be null.
+            aboveFacetListComponent = null,     // Override default default to be null.
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
@@ -129,7 +131,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         // If facets are null (hidden/excluded), set table col to be full width of container.
         const tableColumnClassName = facets === null ? "col-12" : undefined;
         // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
-        const viewProps = { ...passProps, showAboveTableControls, tableColumnClassName };
+        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, tableColumnClassName };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
         return (

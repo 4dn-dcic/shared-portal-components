@@ -171,8 +171,10 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
           hideColumns = _this$props.hideColumns,
           facets = _this$props.facets,
-          _this$props$showAbove = _this$props.showAboveTableControls,
-          showAboveTableControls = _this$props$showAbove === void 0 ? false : _this$props$showAbove,
+          _this$props$aboveTabl = _this$props.aboveTableComponent,
+          aboveTableComponent = _this$props$aboveTabl === void 0 ? null : _this$props$aboveTabl,
+          _this$props$aboveFace = _this$props.aboveFacetListComponent,
+          aboveFacetListComponent = _this$props$aboveFace === void 0 ? null : _this$props$aboveFace,
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
           _this$props$onLoad = _this$props.onLoad,
@@ -185,13 +187,14 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           embeddedTableHeader = _this$props$embeddedT === void 0 ? null : _this$props$embeddedT,
           onClearFiltersVirtual = _this$props.onClearFiltersVirtual,
           isClearFiltersBtnVisible = _this$props.isClearFiltersBtnVisible,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "onClearFiltersVirtual", "isClearFiltersBtnVisible"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "onClearFiltersVirtual", "isClearFiltersBtnVisible"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
 
       var viewProps = _objectSpread(_objectSpread({}, passProps), {}, {
-        showAboveTableControls: showAboveTableControls,
+        aboveTableComponent: aboveTableComponent,
+        aboveFacetListComponent: aboveFacetListComponent,
         tableColumnClassName: tableColumnClassName
       });
 
