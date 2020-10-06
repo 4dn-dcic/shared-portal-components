@@ -63,7 +63,10 @@ export class ControlsAndResults extends React.PureComponent {
             separateSingleTermFacets, topLeftChildren, navigate,
             facetColumnClassName = "col-12 col-sm-5 col-lg-4 col-xl-3",
             tableColumnClassName = "col-12 col-sm-7 col-lg-8 col-xl-9",
-            showAboveTableControls = true,
+            // Default is component that renders out predefined buttons if receives props/data for them such as "Create New", "Full Screen", and "Column Selector".
+            aboveTableComponent = <AboveSearchViewTableControls />, // Gets cloned further down in code to receive props from this ControlsAndResults component.
+            // Default is blank element with same height as AboveSearchViewTableControls that allows to align tops of FacetList+Table headings.
+            aboveFacetListComponent = <div className="above-results-table-row"/>,
             defaultOpenIndices = null,
 
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
@@ -116,20 +119,33 @@ export class ControlsAndResults extends React.PureComponent {
             isFullscreen, toggleFullScreen, currentAction, windowWidth, windowHeight, topLeftChildren
         };
 
+        let extendedAboveTableComponent, extendedAboveFacetListComponent;
+
+        const extendChild = function(child){
+            if (typeof child.type === "string") { // Element, not component
+                return child;
+            }
+            return React.cloneElement(child, aboveTableControlsProps);
+        };
+
+        if (aboveTableComponent) {
+            extendedAboveTableComponent = React.Children.map(aboveTableComponent, extendChild);
+        }
+
+        if (aboveFacetListComponent) {
+            extendedAboveFacetListComponent = React.Children.map(aboveFacetListComponent, extendChild);
+        }
+
         return (
             <div className="row search-view-controls-and-results" data-search-item-type={searchItemType} data-search-abstract-type={searchAbstractItemType}>
                 { Array.isArray(facets) && facets.length ?
                     <div className={facetColumnClassName}>
-                        { showAboveTableControls? // temporary-ish
-                            <div className="above-results-table-row"/>
-                            : null }
+                        { extendedAboveFacetListComponent }
                         <FacetList {...facetListProps} />
                     </div>
                     : null }
                 <div className={tableColumnClassName}>
-                    { showAboveTableControls?
-                        <AboveSearchViewTableControls {...aboveTableControlsProps} />
-                        : null }
+                    { extendedAboveTableComponent }
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
                     { isSelectAction(currentAction) && selectedItems !== null ?
                         <SelectStickyFooter {...{ context, schemas, selectedItems, currentAction }}
