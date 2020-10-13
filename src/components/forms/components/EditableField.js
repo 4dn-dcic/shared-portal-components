@@ -18,7 +18,13 @@ import { ajax, console, object, navigate } from './../../util';
  * Currently can only be used on pages/views which have a context, i.e. JSON graph/output
  * from server, and only edit fields in that context.
  *
- * @todo: Refactor, a lot. Pass in editing boolean prop instead of reading from parent state.
+ * NOTES:
+ * USE WITH CAUTION. ONLY ON SIMPLE DIRECT FIELDS (NOT-EMBEDDED, NOT ARRAYS, NOT WITHIN TYPE:OBJECT).
+ * OLD/PROBABLY-DEPRECATED CODE, LIKELY DOESN'T FOLLOW BEST PRACTICES/PATTERNS.
+ *
+ * @todo: Refactor, a lot. Pass in editing boolean 'editing' prop instead of reading it from unsafe parent state -- which is a bad anti-pattern as parent state
+ * can change at any time without us knowing about it (normally React re-renders components when props change). These EditableFields are not really performant as
+ * we cannot introduce memoization into them through making it React.PureComponent (though could make memoized functions potentially).
  *
  * @see EditableField.propTypes for more info of props to provide.
  */
@@ -366,7 +372,7 @@ export class EditableField extends React.Component {
                 const nextContext = _.clone(context);
                 const extendSuccess = object.deepExtend(nextContext, patchData);
 
-                console.log('TTT2', extendSuccess, nextContext);
+                console.info('EditableField Extended Context', extendSuccess, nextContext);
 
                 if (extendSuccess){
                     this.setState({ 'savedValue' : value, 'value' : value, 'dispatching' : true }, ()=> {
@@ -384,6 +390,7 @@ export class EditableField extends React.Component {
 
                 } else {
                     // Couldn't insert into current context, refetch from server :s.
+                    // NOT GUARANTEED TO WORK AT ALL DUE TO INDEXING DELAYS
                     console.warn("Couldn't update current context, fetching from server.");
                     navigate('', { 'inPlace': true });
                 }
@@ -579,7 +586,7 @@ export class EditableField extends React.Component {
         if (style === 'row') {
             return (
                 <div className={"row editable-field-entry " + labelID}>
-                    <div className="col col-md-3 text-right text-left-xs">
+                    <div className="col col-md-3 text-left text-md-right">
                         <label htmlFor={labelID}>{label}</label>
                     </div>
                     {this.renderSavedValue()}
@@ -606,7 +613,7 @@ export class EditableField extends React.Component {
         } else if (style === 'minimal-row') {
             return (
                 <div className={"row editable-field-entry " + labelID}>
-                    <div className="col col-md-2 text-right text-left-xs">
+                    <div className="col col-md-2 text-left text-md-right">
                         <label htmlFor={labelID}>{label}</label>
                     </div>
                     {this.renderSavedValue()}
@@ -687,7 +694,7 @@ export class EditableField extends React.Component {
         if (style == 'row' ) {
             return (
                 <div className={outerBaseClass + labelID + ' row'}>
-                    <div className="col col-md-3 text-right text-left-xs">
+                    <div className="col col-md-3 text-left text-md-right">
                         <label htmlFor={labelID }>{ label }</label>
                     </div>
                     <div className="col col-md-9 value editing d-flex">
