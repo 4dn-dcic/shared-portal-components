@@ -43,6 +43,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         'facets'        : PropTypes.array,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
+        'detailPane'    : PropTypes.element,
         'onLoad'        : PropTypes.func,
         'hideFacets'    : PropTypes.arrayOf(PropTypes.string),
         'hideColumns'    : PropTypes.arrayOf(PropTypes.string),
@@ -124,6 +125,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             onClearFiltersVirtual,
             // Optional prop to override VirtualHrefController's own calculation of this.
             // Must be static function that accepts currentSearchHref as first parameter and original searchHref as second one.
+            // (On other hand, `SearchView` component accepts boolean `showClearFiltersButton`, as we have `context` etc available there.)
             isClearFiltersBtnVisible,
             ...passProps
         } = this.props;

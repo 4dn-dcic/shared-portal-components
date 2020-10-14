@@ -7,15 +7,7 @@ exports.ControlsAndResults = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
 var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
 
 var _misc = require("./../../util/misc");
 
@@ -142,7 +134,6 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           termTransformFxn = _this$props2.termTransformFxn,
           rowHeight = _this$props2.rowHeight,
           separateSingleTermFacets = _this$props2.separateSingleTermFacets,
-          topLeftChildren = _this$props2.topLeftChildren,
           navigate = _this$props2.navigate,
           _this$props2$facetCol = _this$props2.facetColumnClassName,
           facetColumnClassName = _this$props2$facetCol === void 0 ? "col-12 col-sm-5 col-lg-4 col-xl-3" : _this$props2$facetCol,
@@ -156,6 +147,8 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       }) : _this$props2$aboveFac,
           _this$props2$defaultO = _this$props2.defaultOpenIndices,
           defaultOpenIndices = _this$props2$defaultO === void 0 ? null : _this$props2$defaultO,
+          _this$props2$detailPa = _this$props2.detailPane,
+          detailPane = _this$props2$detailPa === void 0 ? null : _this$props2$detailPa,
           href = _this$props2.href,
           onFilter = _this$props2.onFilter,
           _this$props2$showClea = _this$props2.showClearFiltersButton,
@@ -209,20 +202,15 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         removeFromBodyClassList: removeFromBodyClassList
       };
       var aboveTableControlsProps = {
-        // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
-        // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
         context: context,
         showTotalResults: showTotalResults,
         hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions,
         addHiddenColumn: addHiddenColumn,
         removeHiddenColumn: removeHiddenColumn,
-        isFullscreen: isFullscreen,
-        toggleFullScreen: toggleFullScreen,
         currentAction: currentAction,
         windowWidth: windowWidth,
-        windowHeight: windowHeight,
-        topLeftChildren: topLeftChildren
+        windowHeight: windowHeight
       };
       var extendedAboveTableComponent, extendedAboveFacetListComponent;
 
@@ -262,6 +250,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         visibleColumnDefinitions: visibleColumnDefinitions,
         setColumnWidths: setColumnWidths,
         columnWidths: columnWidths,
+        detailPane: detailPane,
         isOwnPage: isOwnPage,
         sortBy: sortBy,
         sortColumn: sortColumn,

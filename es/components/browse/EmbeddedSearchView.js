@@ -242,6 +242,7 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'facets': _propTypes["default"].array,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
+  'detailPane': _propTypes["default"].element,
   'onLoad': _propTypes["default"].func,
   'hideFacets': _propTypes["default"].arrayOf(_propTypes["default"].string),
   'hideColumns': _propTypes["default"].arrayOf(_propTypes["default"].string),

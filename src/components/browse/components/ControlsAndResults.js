@@ -1,11 +1,7 @@
 'use strict';
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import url from 'url';
-import _ from 'underscore';
 import memoize from 'memoize-one';
-import ReactTooltip from 'react-tooltip';
 import { isSelectAction } from './../../util/misc';
 import { getAbstractTypeForType, getSchemaTypeFromSearchContext } from './../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
@@ -60,7 +56,7 @@ export class ControlsAndResults extends React.PureComponent {
 
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
             facets, termTransformFxn, rowHeight,
-            separateSingleTermFacets, topLeftChildren, navigate,
+            separateSingleTermFacets, navigate,
             facetColumnClassName = "col-12 col-sm-5 col-lg-4 col-xl-3",
             tableColumnClassName = "col-12 col-sm-7 col-lg-8 col-xl-9",
             // Default is component that renders out predefined buttons if receives props/data for them such as "Create New", "Full Screen", and "Column Selector".
@@ -68,6 +64,7 @@ export class ControlsAndResults extends React.PureComponent {
             // Default is blank element with same height as AboveSearchViewTableControls that allows to align tops of FacetList+Table headings.
             aboveFacetListComponent = <div className="above-results-table-row"/>,
             defaultOpenIndices = null,
+            detailPane = null,
 
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
             href, onFilter,
@@ -97,7 +94,7 @@ export class ControlsAndResults extends React.PureComponent {
 
         const searchResultTableProps = {
             context, href, navigate, currentAction, schemas, results, columnDefinitions, visibleColumnDefinitions,
-            setColumnWidths, columnWidths,
+            setColumnWidths, columnWidths, detailPane,
             isOwnPage, sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
@@ -113,10 +110,8 @@ export class ControlsAndResults extends React.PureComponent {
         };
 
         const aboveTableControlsProps = {
-            // 'isFullscreen' & 'toggleFullScreen' are specific to 4DN's App.js, we could ideally refactor this out eventually.
-            // Perhaps in same way as 'topLeftChildren' is setup... food 4 thought.
             context, showTotalResults, hiddenColumns, columnDefinitions, addHiddenColumn, removeHiddenColumn,
-            isFullscreen, toggleFullScreen, currentAction, windowWidth, windowHeight, topLeftChildren
+            currentAction, windowWidth, windowHeight
         };
 
         let extendedAboveTableComponent, extendedAboveFacetListComponent;

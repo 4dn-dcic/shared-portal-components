@@ -289,6 +289,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props3 = this.props,
           columnDefinitions = _this$props3.columnDefinitions,
           renderDetailPane = _this$props3.renderDetailPane,
+          detailPane = _this$props3.detailPane,
           _this$props3$sortColu = _this$props3.sortColumn,
           sortColumn = _this$props3$sortColu === void 0 ? null : _this$props3$sortColu,
           _this$props3$sortReve = _this$props3.sortReverse,
@@ -307,7 +308,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var leftOffset = 0 - tableContainerScrollLeft;
       var isSortable = typeof sortBy === "function";
       var isAdjustable = !!(typeof setColumnWidths === "function" && columnWidths);
-      var outerClassName = "search-headers-row" + (isAdjustable ? '' : ' non-adjustable') + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '');
+      var outerClassName = "search-headers-row" + (isAdjustable ? '' : ' non-adjustable') + (typeof renderDetailPane !== 'function' && !detailPane ? ' no-detail-pane' : '');
       var commonProps = {
         sortByField: isSortable ? this.sortByField : null,
         // Disable sorting if no sortBy func.
@@ -385,6 +386,7 @@ _defineProperty(HeadersRow, "propTypes", {
     })
   })).isRequired,
   'mounted': _propTypes["default"].bool.isRequired,
+  'detailPane': _propTypes["default"].element,
   'renderDetailPane': _propTypes["default"].func,
   'width': _propTypes["default"].number,
   'defaultMinColumnWidth': _propTypes["default"].number,

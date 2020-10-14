@@ -66,7 +66,8 @@ export class ColumnCombiner extends React.PureComponent {
             // We want `defaultHiddenColumns` memoized separately from `columnDefinitions`
             // because `defaultHiddenColumns` change triggers reset in `ColumnCombiner`.
             // This is becaused `columnExtensionMap` may change more frequently than `columns`.
-            // e.g. in response to SelectedFiles' state.selectedFiles changing.
+            // e.g. in response to SelectedFiles' state.selectedFiles changing display_title column
+            // render func in portal-specific logic or `detailPane`, like-wise.
             getDefaultHiddenColumns: memoize(
                 defaultHiddenColumnMapFromColumns,
                 ([ nextColumns ], [ prevColumns ]) => !this.memoized.haveContextColumnsChanged(prevColumns, nextColumns)

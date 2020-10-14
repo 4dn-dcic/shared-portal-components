@@ -32,6 +32,7 @@ export class HeadersRow extends React.PureComponent {
             })
         })).isRequired,
         'mounted' : PropTypes.bool.isRequired,
+        'detailPane' : PropTypes.element,
         'renderDetailPane' : PropTypes.func,
         'width' : PropTypes.number,
         'defaultMinColumnWidth' : PropTypes.number,
@@ -206,6 +207,7 @@ export class HeadersRow extends React.PureComponent {
         const {
             columnDefinitions,
             renderDetailPane,
+            detailPane,
             sortColumn = null,
             sortReverse = false,
             sortBy,
@@ -223,7 +225,7 @@ export class HeadersRow extends React.PureComponent {
         const outerClassName = (
             "search-headers-row"
             + (isAdjustable ? '' : ' non-adjustable')
-            + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '')
+            + ((typeof renderDetailPane !== 'function' && !detailPane) ? ' no-detail-pane' : '')
         );
         const outerStyle = {
             'width' : width || null // Only passed in from ItemPage

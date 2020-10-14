@@ -84,9 +84,14 @@ export class WindowNavigationController extends React.PureComponent {
     }
 
     render(){
-        const { children, ...passProps } = this.props;
+        const {
+            children,
+            showClearFiltersButton: propShowClearFiltersBtn,
+            ...passProps
+        } = this.props;
         const { href, context } = passProps;
-        const showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context || {});
+        const showClearFiltersButton = typeof propShowClearFiltersBtn === "boolean" ?
+            propShowClearFiltersBtn : this.memoized.isClearFiltersBtnVisible(href, context || {});
 
         const propsToPass = {
             ...passProps,
