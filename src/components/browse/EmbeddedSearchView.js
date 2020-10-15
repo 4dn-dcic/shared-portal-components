@@ -43,6 +43,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         'facets'        : PropTypes.array,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
+        'detailPane'    : PropTypes.element,
         'onLoad'        : PropTypes.func,
         'hideFacets'    : PropTypes.arrayOf(PropTypes.string),
         'hideColumns'    : PropTypes.arrayOf(PropTypes.string),
@@ -109,7 +110,9 @@ export class EmbeddedSearchView extends React.PureComponent {
             columns = null,
             hideColumns,
             facets,
-            showAboveTableControls = false, // Deprecated? Unused here? Will become deprecated for EmbeddedSearchView purposes at least probably.
+            // showAboveTableControls = false, // Deprecated? Unused here? Will become deprecated for EmbeddedSearchView purposes at least probably.
+            aboveTableComponent = null,         // Override default default to be null.
+            aboveFacetListComponent = null,     // Override default default to be null.
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
@@ -122,6 +125,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             onClearFiltersVirtual,
             // Optional prop to override VirtualHrefController's own calculation of this.
             // Must be static function that accepts currentSearchHref as first parameter and original searchHref as second one.
+            // (On other hand, `SearchView` component accepts boolean `showClearFiltersButton`, as we have `context` etc available there.)
             isClearFiltersBtnVisible,
             ...passProps
         } = this.props;
@@ -129,7 +133,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         // If facets are null (hidden/excluded), set table col to be full width of container.
         const tableColumnClassName = facets === null ? "col-12" : undefined;
         // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
-        const viewProps = { ...passProps, showAboveTableControls, tableColumnClassName };
+        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, tableColumnClassName };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
         return (

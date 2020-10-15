@@ -143,24 +143,32 @@ class ResultDetail extends React.PureComponent{
         const {
             open, rowNumber, result, isOwnPage = true,
             tableContainerWidth, tableContainerScrollLeft,
+            detailPane: propDetailPane,
             renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight
         } = this.props;
         const { closing } = this.state;
 
         // Account for vertical scrollbar decreasing width of container.
-        const useWidth = isOwnPage ? tableContainerWidth : tableContainerWidth - 30;
+        const containerWidth = isOwnPage ? tableContainerWidth : tableContainerWidth - 30;
+
+        const propsFromTable = {
+            open, toggleDetailOpen, tableContainerScrollLeft,
+            setDetailHeight, detailPaneHeight, setDetailHeightFromPane : this.setDetailHeightFromPane
+        };
+
+        const detailPane = React.isValidElement(propDetailPane) ? React.cloneElement(propDetailPane, { result, rowNumber, containerWidth, propsFromTable })
+            : typeof renderDetailPane === "function" ? renderDetailPane(result, rowNumber, containerWidth, propsFromTable)
+                : null;
+
 
         return (
             <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} style={{ minHeight: detailPaneHeight }}>
                 { open ?
                     <div className="result-table-detail" ref={this.detailRef} style={{
-                        width : useWidth,
+                        width : containerWidth,
                         transform : vizStyle.translate3d(tableContainerScrollLeft)
                     }}>
-                        { renderDetailPane(
-                            result, rowNumber, useWidth,
-                            { open, tableContainerScrollLeft, toggleDetailOpen, setDetailHeight, detailPaneHeight, setDetailHeightFromPane : this.setDetailHeightFromPane }
-                        ) }
+                        { detailPane }
                         <div className="close-button-container text-center" onClick={toggleDetailOpen} data-tip="Collapse Details">
                             <i className="icon icon-angle-up fas"/>
                         </div>
@@ -204,6 +212,7 @@ class ResultRow extends React.PureComponent {
         'columnDefinitions'     : HeadersRow.propTypes.columnDefinitions,
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'renderDetailPane'  : PropTypes.func.isRequired,
+        'detailPane' : PropTypes.element,
         'detailOpen' : PropTypes.bool.isRequired,
         'setDetailHeight' : PropTypes.func.isRequired,
         'id' : PropTypes.string.isRequired,
@@ -278,17 +287,15 @@ class ResultRow extends React.PureComponent {
 
     renderColumns(){
         // TODO (?) prop func to do this to control which columns get which props.
-        // to make more reusable re: e.g. `selectedFiles` (= 4DN-specific).
-        const { columnDefinitions, selectedFiles } = this.props;
+        const { columnDefinitions } = this.props;
         // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction', 'detailOpen'
-        const commonProps = _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'id', 'toggleDetailPaneOpen');
+        const commonProps = _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
         return columnDefinitions.map((columnDefinition, columnNumber) => { // todo: rename columnNumber to columnIndex
             const { field } = columnDefinition;
             const passedProps = {
                 ...commonProps, columnDefinition, columnNumber,
                 // Only needed on first column (contains title, checkbox)
-                'toggleDetailOpen' : columnNumber === 0 ? this.toggleDetailOpen : null,
-                'selectedFiles' : columnNumber === 0 ? selectedFiles : null
+                'toggleDetailOpen' : columnNumber === 0 ? this.toggleDetailOpen : null
             };
             return <ResultRowColumnBlock {...passedProps} key={field} />;
         });
@@ -302,8 +309,6 @@ class ResultRow extends React.PureComponent {
         /**
          * Props passed to ResultDetail include:
          * `result`, `renderDetailPane`, `rowNumber`, `tableContainerWidth`, `tableContainerScrollLeft`.
-         *
-         * It should also contain selectedFiles if parent passes it down.
          */
         const detailProps = _.omit(this.props,
             'mounted', 'columnDefinitions',
@@ -920,13 +925,13 @@ class DimensioningContainer extends React.PureComponent {
 
         const headerRowCommonProps = {
             ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse',
-                'defaultMinColumnWidth', 'renderDetailPane', 'windowWidth'),
+                'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth'),
             mounted, results, rowHeight, setColumnWidths, columnWidths,
             tableContainerScrollLeft
         };
 
         const resultRowCommonProps = _.extend(
-            _.pick(this.props, 'renderDetailPane', 'href', 'currentAction', 'selectedFiles', 'schemas', 'termTransformFxn'),
+            _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn'),
             {
                 context, rowHeight, navigate, isOwnPage, columnWidths,
                 columnDefinitions, tableContainerWidth, tableContainerScrollLeft, windowWidth,
@@ -1032,7 +1037,9 @@ export class SearchResultTable extends React.PureComponent {
         'columnDefinitions' : PropTypes.arrayOf(PropTypes.object),
         'defaultWidthMap'   : PropTypes.shape({ 'lg' : PropTypes.number.isRequired, 'md' : PropTypes.number.isRequired, 'sm' : PropTypes.number.isRequired }).isRequired,
         'hiddenColumns'     : PropTypes.objectOf(PropTypes.bool),
+        // One of the following 2 is recommended for custom detail panes:
         'renderDetailPane'  : PropTypes.func,
+        'detailPane'        : PropTypes.element,
         'context'           : PropTypes.shape({
             'total'             : PropTypes.number.isRequired
         }).isRequired,
@@ -1056,6 +1063,7 @@ export class SearchResultTable extends React.PureComponent {
         //'columnExtensionMap' : basicColumnExtensionMap,
         'columnDefinitions' : columnsToColumnDefinitions({ 'display_title' : { 'title' : 'Title' } }, basicColumnExtensionMap), // Fallback - just title column.
         'renderDetailPane' : function(result, rowNumber, width, props){ return <DefaultDetailPane {...props} {...{ result, rowNumber, width }} />; },
+        'detailPane' : null,
         'defaultMinColumnWidth' : 55,
         'hiddenColumns' : null,
         // This value (the default or if passed in) should be aligned to value in CSS.
