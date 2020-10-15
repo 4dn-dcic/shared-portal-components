@@ -153,3 +153,64 @@ export function fetchPolyfill(url, options){
     });
     return req;
 }
+
+/**
+ * A class utility for executing promise-chains in a sequential manner. Includes some
+ * scaffolding for aborting promises; needs more work in future.
+ *
+ * In drag-and-drop upload, this class ensures that each Item is uploaded and linked
+ * before starting the upload of the next item, so that the new atIds can be collected
+ * and patched to the parent together.
+ */
+export class PromiseQueue {
+    constructor() {
+        this.queue = [];
+        this.pendingPromise = false;
+        this.stop = false;
+    }
+
+    enqueue(promise) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({
+                promise,
+                resolve,
+                reject,
+            });
+            this.dequeue();
+        });
+    }
+
+    dequeue() {
+        if (this.pendingPromise) {
+            return false;
+        }
+        if (this.stop) {
+            this.queue = [];
+            this.stop = false;
+            return;
+        }
+        const item = this.queue.shift();
+        if (!item) {
+            return false;
+        }
+        try {
+            this.pendingPromise = true;
+            item.promise()
+                .then((value) => {
+                    this.pendingPromise = false;
+                    item.resolve(value);
+                    this.dequeue();
+                })
+                .catch((err) => {
+                    this.pendingPromise = false;
+                    item.reject(err);
+                    this.dequeue();
+                });
+        } catch (err) {
+            this.pendingPromise = false;
+            item.reject(err);
+            this.dequeue();
+        }
+        return true;
+    }
+}
