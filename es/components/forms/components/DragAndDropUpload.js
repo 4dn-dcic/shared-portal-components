@@ -21,11 +21,11 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -57,98 +57,18 @@ var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Co
   return DragAndDropUploadSubmissionViewController;
 }(_react["default"].Component);
 /**
- * A class utility for executing promise-chains in a sequential manner. Includes some
- * scaffolding for aborting promises; needs more work in future.
- *
- * In drag-and-drop upload, this class ensures that each Item is uploaded and linked
- * before starting the upload of the next item, so that the new atIds can be collected
- * and patched to the parent together.
- */
-
-
-exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
-
-var PromiseQueue = /*#__PURE__*/function () {
-  function PromiseQueue() {
-    _classCallCheck(this, PromiseQueue);
-
-    this.queue = [];
-    this.pendingPromise = false;
-    this.stop = false;
-  }
-
-  _createClass(PromiseQueue, [{
-    key: "enqueue",
-    value: function enqueue(promise) {
-      var _this = this;
-
-      return new Promise(function (resolve, reject) {
-        _this.queue.push({
-          promise: promise,
-          resolve: resolve,
-          reject: reject
-        });
-
-        _this.dequeue();
-      });
-    }
-  }, {
-    key: "dequeue",
-    value: function dequeue() {
-      var _this2 = this;
-
-      if (this.pendingPromise) {
-        return false;
-      }
-
-      if (this.stop) {
-        this.queue = [];
-        this.stop = false;
-        return;
-      }
-
-      var item = this.queue.shift();
-
-      if (!item) {
-        return false;
-      }
-
-      try {
-        this.pendingPromise = true;
-        item.promise().then(function (value) {
-          _this2.pendingPromise = false;
-          item.resolve(value);
-
-          _this2.dequeue();
-        })["catch"](function (err) {
-          _this2.pendingPromise = false;
-          item.reject(err);
-
-          _this2.dequeue();
-        });
-      } catch (err) {
-        this.pendingPromise = false;
-        item.reject(err);
-        this.dequeue();
-      }
-
-      return true;
-    }
-  }]);
-
-  return PromiseQueue;
-}();
-/**
  * Main component for independent drag and drop file upload. May eventually be updated to take a prop
  * for onUploadStart... OR patchToParent, to update SV SAYTAJAX interface via SV-onchange or SV-selectcomplete.
  *
- * Note: Files are uploaded one after another due to
- * use of PromiseQueue. This will help with managing state updates if we ever choose to get more granular in
+ * Note: Files are uploaded one after another due to use of PromiseQueue (now in SPC util.ajax)
+ * This will help with managing state updates if we ever choose to get more granular in
  * how upload/error status is indicated (i.e. on a per-file basis in UI rather than via alerts).
  *
  * Heavily reworked from this reference: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
  */
 
+
+exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
 
 var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) {
   _inherits(DragAndDropFileUploadController, _React$Component2);
@@ -156,28 +76,28 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
   var _super2 = _createSuper(DragAndDropFileUploadController);
 
   function DragAndDropFileUploadController(props) {
-    var _this3;
+    var _this;
 
     _classCallCheck(this, DragAndDropFileUploadController);
 
-    _this3 = _super2.call(this, props);
-    _this3.state = {
+    _this = _super2.call(this, props);
+    _this.state = {
       files: [],
       // Always in an array, even if multiselect disabled
       isLoading: false
     };
     console.log("DragAndDropUploadFileControlller props", props);
-    _this3.handleAddFile = _this3.handleAddFile.bind(_assertThisInitialized(_this3));
-    _this3.handleRemoveFile = _this3.handleRemoveFile.bind(_assertThisInitialized(_this3));
-    _this3.handleClearAllFiles = _this3.handleClearAllFiles.bind(_assertThisInitialized(_this3));
-    _this3.onUploadStart = _this3.onUploadStart.bind(_assertThisInitialized(_this3));
-    return _this3;
+    _this.handleAddFile = _this.handleAddFile.bind(_assertThisInitialized(_this));
+    _this.handleRemoveFile = _this.handleRemoveFile.bind(_assertThisInitialized(_this));
+    _this.handleClearAllFiles = _this.handleClearAllFiles.bind(_assertThisInitialized(_this));
+    _this.onUploadStart = _this.onUploadStart.bind(_assertThisInitialized(_this));
+    return _this;
   }
 
   _createClass(DragAndDropFileUploadController, [{
     key: "handleAddFile",
     value: function handleAddFile(evt) {
-      var _this4 = this;
+      var _this2 = this;
 
       var _evt$dataTransfer = evt.dataTransfer,
           items = _evt$dataTransfer.items,
@@ -223,7 +143,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
             } else {
               alert('ERROR: There was a problem reading the given file. Please try again.');
             }
-          }.bind(_this4);
+          }.bind(_this2);
 
           fileArr.push(attachment);
         };
@@ -385,21 +305,21 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
   }, {
     key: "onUploadStart",
     value: function onUploadStart() {
-      var _this5 = this;
+      var _this3 = this;
 
       var files = this.state.files;
       var previouslySubmittedAtIds = [];
 
       var newFileSubmit = function (file) {
         console.log("Attempting to upload file... ", file);
-        return _this5.createItem(file, true) // Validate
+        return _this3.createItem(file, true) // Validate
         .then(function (response) {
           if (response.status && response.status !== 'success') {
             var errorMessage = "Validation failed!\n\n".concat(response.description, " ").concat(response.detail);
             throw new Error(errorMessage);
           } else {
             console.log("validation succeeded");
-            return _this5.createItem(file, false); // Submit item
+            return _this3.createItem(file, false); // Submit item
           }
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
@@ -412,7 +332,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
             var submitted_at_id = responseData['@id']; // Also pass through the atIds of other new files
 
             previouslySubmittedAtIds.push(submitted_at_id);
-            return _this5.patchToParent(resp, previouslySubmittedAtIds);
+            return _this3.patchToParent(resp, previouslySubmittedAtIds);
           }
         }).then(function (res) {
           if (res.status && res.status !== 'success') {
@@ -422,7 +342,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
           } else {
             alert("".concat(file.download, " uploaded and linked successfully."));
 
-            _this5.handleRemoveFile(file.download);
+            _this3.handleRemoveFile(file.download);
           }
         })["catch"](function (error) {
           console.log("Error occurred", error);
@@ -432,7 +352,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
       this.setState({
         isLoading: true
       }, function () {
-        var promiseQueue = new PromiseQueue();
+        var promiseQueue = new _util.ajax.PromiseQueue();
         var allPromises = []; // Add each file submission chain to the queue, so each file uploads sequentially
 
         files.forEach(function (file) {
@@ -446,7 +366,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
         })["catch"](function (error) {
           console.log("May not have completed all uploads!", error);
         })["finally"](function () {
-          _this5.setState({
+          _this3.setState({
             isLoading: false
           });
         });
@@ -516,19 +436,19 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
   var _super3 = _createSuper(DragAndDropUploadButton);
 
   function DragAndDropUploadButton(props) {
-    var _this6;
+    var _this4;
 
     _classCallCheck(this, DragAndDropUploadButton);
 
-    _this6 = _super3.call(this, props);
-    _this6.state = {
+    _this4 = _super3.call(this, props);
+    _this4.state = {
       showModal: false
     };
     console.log("props, ", props);
-    _this6.onHide = _this6.onHide.bind(_assertThisInitialized(_this6));
-    _this6.onShow = _this6.onShow.bind(_assertThisInitialized(_this6));
-    _this6.handleHideModal = _this6.handleHideModal.bind(_assertThisInitialized(_this6));
-    return _this6;
+    _this4.onHide = _this4.onHide.bind(_assertThisInitialized(_this4));
+    _this4.onShow = _this4.onShow.bind(_assertThisInitialized(_this4));
+    _this4.handleHideModal = _this4.handleHideModal.bind(_assertThisInitialized(_this4));
+    return _this4;
   }
 
   _createClass(DragAndDropUploadButton, [{
@@ -737,21 +657,21 @@ var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   var _super5 = _createSuper(DragAndDropZone);
 
   function DragAndDropZone(props) {
-    var _this7;
+    var _this5;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this7 = _super5.call(this, props);
-    _this7.state = {
+    _this5 = _super5.call(this, props);
+    _this5.state = {
       dragging: false
     };
-    _this7.dropZoneRef = /*#__PURE__*/_react["default"].createRef();
-    _this7.fileUploadRef = /*#__PURE__*/_react["default"].createRef();
-    _this7.cleanUpEventListeners = _this7.cleanUpEventListeners.bind(_assertThisInitialized(_this7));
-    _this7.setUpEventListeners = _this7.setUpEventListeners.bind(_assertThisInitialized(_this7));
-    _this7.handleDrop = _this7.handleDrop.bind(_assertThisInitialized(_this7));
-    _this7.handleDropzoneClick = _this7.handleDropzoneClick.bind(_assertThisInitialized(_this7));
-    return _this7;
+    _this5.dropZoneRef = /*#__PURE__*/_react["default"].createRef();
+    _this5.fileUploadRef = /*#__PURE__*/_react["default"].createRef();
+    _this5.cleanUpEventListeners = _this5.cleanUpEventListeners.bind(_assertThisInitialized(_this5));
+    _this5.setUpEventListeners = _this5.setUpEventListeners.bind(_assertThisInitialized(_this5));
+    _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
+    _this5.handleDropzoneClick = _this5.handleDropzoneClick.bind(_assertThisInitialized(_this5));
+    return _this5;
   }
 
   _createClass(DragAndDropZone, [{
@@ -839,7 +759,7 @@ var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   }, {
     key: "render",
     value: function render() {
-      var _this8 = this;
+      var _this6 = this;
 
       var _this$props7 = this.props,
           files = _this$props7.files,
@@ -853,7 +773,7 @@ var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
         ref: this.fileUploadRef,
         multiple: true,
         onChange: function onChange(e) {
-          return _this8.handleAddFromBrowse(e);
+          return _this6.handleAddFromBrowse(e);
         },
         name: "filesFromBrowse",
         className: "d-none"

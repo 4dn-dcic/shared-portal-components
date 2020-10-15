@@ -9,6 +9,7 @@ exports.load = load;
 exports.promise = promise;
 exports.fetch = fetch;
 exports.fetchPolyfill = fetchPolyfill;
+exports.PromiseQueue = void 0;
 
 var _underscore = _interopRequireDefault(require("underscore"));
 
@@ -21,6 +22,12 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /**
  * @private
@@ -210,3 +217,85 @@ function fetchPolyfill(url, options) {
   });
   return req;
 }
+/**
+ * A class utility for executing promise-chains in a sequential manner. Includes some
+ * scaffolding for aborting promises; needs more work in future.
+ *
+ * In drag-and-drop upload, this class ensures that each Item is uploaded and linked
+ * before starting the upload of the next item, so that the new atIds can be collected
+ * and patched to the parent together.
+ */
+
+
+var PromiseQueue = /*#__PURE__*/function () {
+  function PromiseQueue() {
+    _classCallCheck(this, PromiseQueue);
+
+    this.queue = [];
+    this.pendingPromise = false;
+    this.stop = false;
+  }
+
+  _createClass(PromiseQueue, [{
+    key: "enqueue",
+    value: function enqueue(promise) {
+      var _this = this;
+
+      return new Promise(function (resolve, reject) {
+        _this.queue.push({
+          promise: promise,
+          resolve: resolve,
+          reject: reject
+        });
+
+        _this.dequeue();
+      });
+    }
+  }, {
+    key: "dequeue",
+    value: function dequeue() {
+      var _this2 = this;
+
+      if (this.pendingPromise) {
+        return false;
+      }
+
+      if (this.stop) {
+        this.queue = [];
+        this.stop = false;
+        return;
+      }
+
+      var item = this.queue.shift();
+
+      if (!item) {
+        return false;
+      }
+
+      try {
+        this.pendingPromise = true;
+        item.promise().then(function (value) {
+          _this2.pendingPromise = false;
+          item.resolve(value);
+
+          _this2.dequeue();
+        })["catch"](function (err) {
+          _this2.pendingPromise = false;
+          item.reject(err);
+
+          _this2.dequeue();
+        });
+      } catch (err) {
+        this.pendingPromise = false;
+        item.reject(err);
+        this.dequeue();
+      }
+
+      return true;
+    }
+  }]);
+
+  return PromiseQueue;
+}();
+
+exports.PromiseQueue = PromiseQueue;
