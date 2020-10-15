@@ -56,7 +56,6 @@ var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
         var anySelected = renderedFacet.props.anyTermsSelected;
 
         if (anySelected) {
-          console.log(renderedFacet);
           return true;
         }
       }
@@ -95,15 +94,24 @@ var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props2 = this.props,
           title = _this$props2.title,
           renderedFacets = _this$props2.children,
-          tooltip = _this$props2.tooltip,
+          propTip = _this$props2.tooltip,
           facetOpen = _this$props2.facetOpen,
           _this$props2$openFace = _this$props2.openFacets,
           openFacets = _this$props2$openFace === void 0 ? {} : _this$props2$openFace;
-      var anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets); // Ensure all facets within group are not "static single terms".
+      var anySelections = this.memoized.anyFacetsHaveSelection(renderedFacets);
+      var tooltip = propTip || "Group of facets containing "; // We'll append to this in .map loop below if !propTip.
+      // Ensure all facets within group are not "static single terms".
       // Pass in facetOpen prop.
 
-      var extendedFacets = _react["default"].Children.map(renderedFacets, function (renderedFacet) {
-        var field = renderedFacet.props.facet.field;
+      var extendedFacets = _react["default"].Children.map(renderedFacets, function (renderedFacet, i) {
+        var _renderedFacet$props$ = renderedFacet.props.facet,
+            field = _renderedFacet$props$.field,
+            childTitle = _renderedFacet$props$.title;
+
+        if (!propTip) {
+          tooltip += (i === 0 ? "" : ", ") + childTitle;
+        }
+
         return /*#__PURE__*/_react["default"].cloneElement(renderedFacet, {
           isStatic: false,
           facetOpen: openFacets[field]

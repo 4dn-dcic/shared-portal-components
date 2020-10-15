@@ -330,9 +330,9 @@ SearchAsYouTypeAjax.defaultProps = {
       "data-tip": description,
       key: atID
     }, /*#__PURE__*/_react["default"].createElement("h5", {
-      className: "text-300 text-ellipsis-container"
+      className: "text-300 text-truncate"
     }, title), /*#__PURE__*/_react["default"].createElement("h6", {
-      className: "text-mono text-400 text-ellipsis-container"
+      className: "text-mono text-400 text-truncate"
     }, atID));
   },
   "titleRenderFunction": function titleRenderFunction(result) {
@@ -479,9 +479,9 @@ var optionCustomizationsByType = {
         "data-tip": description,
         key: atID
       }, /*#__PURE__*/_react["default"].createElement("h5", {
-        className: "text-300 text-ellipsis-container"
+        className: "text-300 text-truncate"
       }, title), /*#__PURE__*/_react["default"].createElement("h6", {
-        className: "text-mono text-400 text-ellipsis-container"
+        className: "text-mono text-400 text-truncate"
       }, accession));
     },
     "fieldsToRequest": ['accession', 'status', 'date_created']
@@ -518,9 +518,9 @@ var optionCustomizationsByType = {
         "data-tip": description,
         key: atID
       }, /*#__PURE__*/_react["default"].createElement("h5", {
-        className: "text-300 text-ellipsis-container"
+        className: "text-300 text-truncate"
       }, title), /*#__PURE__*/_react["default"].createElement("h6", {
-        className: "text-mono text-400 text-ellipsis-container"
+        className: "text-mono text-400 text-truncate"
       }, atID));
     },
     "fieldsToRequest": ['status', 'description', 'date_created', 'submitted_by']
@@ -537,9 +537,9 @@ var optionCustomizationsByType = {
         "data-tip": description,
         key: atID
       }, /*#__PURE__*/_react["default"].createElement("h5", {
-        className: "text-300 text-ellipsis-container"
+        className: "text-300 text-truncate"
       }, title), /*#__PURE__*/_react["default"].createElement("h6", {
-        className: "text-mono text-400 text-ellipsis-container"
+        className: "text-mono text-400 text-truncate"
       }, atID));
     },
     "fieldsToRequest": ['status', 'description', 'date_created', 'submitted_by']
@@ -554,7 +554,7 @@ var optionCustomizationsByType = {
         "data-tip": description,
         key: atID
       }, /*#__PURE__*/_react["default"].createElement("h5", {
-        className: "text-300 text-ellipsis-container"
+        className: "text-300 text-truncate"
       }, title), /*#__PURE__*/_react["default"].createElement("h6", {
         className: "text-mono text-400"
       }, hpo_id));
@@ -863,7 +863,7 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
             }));
           } else {
             return /*#__PURE__*/_react["default"].createElement("div", {
-              className: "incomplete-linked-object-display-container text-ellipsis-container"
+              className: "incomplete-linked-object-display-container text-truncate"
             }, /*#__PURE__*/_react["default"].createElement("i", {
               className: "icon icon-fw icon-edit far"
             }), "\xA0\xA0", /*#__PURE__*/_react["default"].createElement("a", {

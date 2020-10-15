@@ -105,7 +105,7 @@ export class SearchSelectionMenu extends React.PureComponent {
                                 onDropdownSelect(option);
                             }
                             return (
-                                <Dropdown.Item data-index={idx} onClick={onClick} key={idx} eventKey={idx} className="text-ellipsis-container" tabIndex="3">
+                                <Dropdown.Item data-index={idx} onClick={onClick} key={idx} eventKey={idx} className="text-truncate" tabIndex="3">
                                     { renderedOption }
                                 </Dropdown.Item>
                             );

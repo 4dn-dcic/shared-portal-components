@@ -193,7 +193,7 @@ var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
           },
           key: idx,
           eventKey: idx,
-          className: "text-ellipsis-container",
+          className: "text-truncate",
           tabIndex: "3"
         }, renderedOption);
       })));

@@ -165,7 +165,7 @@ class TableEntry extends React.Component {
         let collapsibleButton;
         if (collapsible && childHeaders.length > 0){
             collapsibleButton = <i
-                className={"inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus')}
+                className={"d-inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus')}
                 onClick={this.toggleOpen}
             />;
         }

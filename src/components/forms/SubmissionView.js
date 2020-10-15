@@ -1738,7 +1738,7 @@ class DetailTitleBanner extends React.PureComponent {
         return (
             <h3 className="crumbs-title mb-2">
                 <div className="subtitle-heading form-section-heading mb-08">
-                    <span className="inline-block clickable" onClick={this.toggleOpen}>
+                    <span className="d-inline-block clickable" onClick={this.toggleOpen}>
                         Currently Editing { currKey > 0 ? <i className={"icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')} /> : null }
                     </span>
                 </div>

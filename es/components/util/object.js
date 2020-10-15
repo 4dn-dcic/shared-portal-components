@@ -154,7 +154,7 @@ function linkFromItem(item) {
 
   if (addDescriptionTip && typeof propsToInclude['data-tip'] === 'undefined' && item.description) {
     propsToInclude['data-tip'] = item.description;
-    propsToInclude.className = (propsToInclude.className || '') + ' inline-block';
+    propsToInclude.className = (propsToInclude.className || '') + ' d-inline-block';
   }
 
   return /*#__PURE__*/_react["default"].createElement("a", _extends({

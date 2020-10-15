@@ -35,9 +35,9 @@ export function getSchemaProperty(field, schemas, startAt = 'ExperimentSet'){
             return null;
         }
         if (fieldPartIndex >= fieldParts.length - 1) {
-            if (property && property.type === "array" && property.items) {
-                return property.items;
-            }
+            // if (property && property.type === "array" && property.items) {
+            //     return property.items;
+            // }
             return property;
         }
         let nextSchemaProperties = null;

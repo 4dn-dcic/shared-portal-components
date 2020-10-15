@@ -427,7 +427,7 @@ class SubItemTable extends React.Component {
                             'value' : _.map(value, function(embeddedRow, i){
                                 return (
                                     <div style={{ whiteSpace: "nowrap" }} className="text-left child-list-row" key={colKey + '--row-' + i}>
-                                        <div className="inline-block child-list-row-number">{ i + 1 }.</div>
+                                        <div className="d-inline-block child-list-row-number">{ i + 1 }.</div>
                                         { allKeys.map((k, j)=>{
                                             var renderedSubVal;// = Schemas.Term.toName(k, embeddedRow[k]);
                                             if (typeof columnDefinitions[parentKey + '.' + colKey + '.' + k] !== 'undefined'){
@@ -447,7 +447,7 @@ class SubItemTable extends React.Component {
                                             return (
                                                 <div
                                                     key={colKey + '.' + k + '--row-' + i}
-                                                    className={"inline-block child-column-" + colKey + '.' + k}
+                                                    className={"d-inline-block child-column-" + colKey + '.' + k}
                                                     style={{ width : !subListKeyWidths ? null : ((subListKeyWidths[colKey] || {})[k] || null) }}
                                                 >
                                                     { renderedSubVal }
@@ -516,8 +516,8 @@ class SubItemTable extends React.Component {
                                                     return (
                                                         <div style={{ whiteSpace: "nowrap" }} className="sub-list-keys-header">
                                                             {
-                                                                [<div key="sub-header-rowNumber" className="inline-block child-list-row-number">&nbsp;</div>].concat(colKeyContainer.childKeys.map((ck)=>
-                                                                    <div key={"sub-header-for-" + colKey + '.' + ck} className="inline-block" data-key={colKey + '.' + ck} ref={function(r){
+                                                                [<div key="sub-header-rowNumber" className="d-inline-block child-list-row-number">&nbsp;</div>].concat(colKeyContainer.childKeys.map((ck)=>
+                                                                    <div key={"sub-header-for-" + colKey + '.' + ck} className="d-inline-block" data-key={colKey + '.' + ck} ref={function(r){
                                                                         if (r) subListKeyRefs[colKey][ck] = r;
                                                                     }} style={{ 'width' : !subListKeyWidths ? null : ((subListKeyWidths[colKey] || {})[ck] || null) }}>
                                                                         <TooltipInfoIconContainer
@@ -611,7 +611,7 @@ class DetailRow extends React.PureComponent {
         if (labelNumber) {
             labelToShow = (
                 <span>
-                    <span className={"label-number right inline-block" + (isOpen ? ' active' : '')}><span className="number-icon text-200">#</span> { labelNumber }</span>
+                    <span className={"label-number right d-inline-block" + (isOpen ? ' active' : '')}><span className="number-icon text-200">#</span> { labelNumber }</span>
                     { label }
                 </span>
             );

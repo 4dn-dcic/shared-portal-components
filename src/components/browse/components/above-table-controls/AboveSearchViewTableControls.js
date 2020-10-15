@@ -13,7 +13,7 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
     let total = null;
     if (showTotalResults) {
         total = (
-            <div style={{ 'verticalAlign' : 'bottom' }} className="inline-block">
+            <div className="d-inline-block align-bottom">
                 <span className="text-500" id="results-count">
                     {
                         typeof showTotalResults === 'number' ? showTotalResults

@@ -71,10 +71,9 @@ function getSchemaProperty(field, schemas) {
     }
 
     if (fieldPartIndex >= fieldParts.length - 1) {
-      if (property && property.type === "array" && property.items) {
-        return property.items;
-      }
-
+      // if (property && property.type === "array" && property.items) {
+      //     return property.items;
+      // }
       return property;
     }
 
