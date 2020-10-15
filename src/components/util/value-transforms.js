@@ -26,7 +26,7 @@ export function bytesToLargerUnit(bytes, level = 0){
 }
 
 export function roundLargeNumber(num, decimalPlaces = 2, level = 0){
-    if (num > 1000 && level < numberLevels.length) {
+    if (num >= 1000 && level < numberLevels.length) {
         return roundLargeNumber(num / 1000, decimalPlaces, level + 1);
     } else {
         const multiplier = Math.pow(10, decimalPlaces);

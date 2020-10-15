@@ -136,7 +136,7 @@ var basicColumnExtensionMap = {
     'render': function (result) {
       if (!result.date_created) return null;
       return /*#__PURE__*/_react["default"].createElement("span", {
-        className: "value"
+        className: "value text-right"
       }, /*#__PURE__*/_react["default"].createElement(_LocalizedTime.LocalizedTime, {
         timestamp: result.date_created,
         formatType: "date-sm"
@@ -158,7 +158,7 @@ var basicColumnExtensionMap = {
           date_modified = _result$last_modified2 === void 0 ? null : _result$last_modified2;
       if (!date_modified) return null;
       return /*#__PURE__*/_react["default"].createElement("span", {
-        className: "value"
+        className: "value text-right"
       }, /*#__PURE__*/_react["default"].createElement(_LocalizedTime.LocalizedTime, {
         timestamp: date_modified,
         formatType: "date-sm"

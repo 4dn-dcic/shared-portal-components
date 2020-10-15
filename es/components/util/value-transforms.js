@@ -46,7 +46,7 @@ function roundLargeNumber(num) {
   var decimalPlaces = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
   var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 
-  if (num > 1000 && level < numberLevels.length) {
+  if (num >= 1000 && level < numberLevels.length) {
     return roundLargeNumber(num / 1000, decimalPlaces, level + 1);
   } else {
     var multiplier = Math.pow(10, decimalPlaces);
