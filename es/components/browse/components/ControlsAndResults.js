@@ -195,7 +195,6 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         termTransformFxn: termTransformFxn,
         separateSingleTermFacets: separateSingleTermFacets,
         itemTypeForSchemas: searchItemType,
-        className: "with-header-bg",
         maxBodyHeight: !isOwnPage && maxHeight || null,
         onClearFilters: this.onClearFiltersClick,
         addToBodyClassList: addToBodyClassList,
@@ -235,9 +234,15 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         className: "row search-view-controls-and-results",
         "data-search-item-type": searchItemType,
         "data-search-abstract-type": searchAbstractItemType
-      }, Array.isArray(facets) && facets.length ? /*#__PURE__*/_react["default"].createElement("div", {
+      }, facets === null ? null : /*#__PURE__*/_react["default"].createElement("div", {
         className: facetColumnClassName
-      }, extendedAboveFacetListComponent, /*#__PURE__*/_react["default"].createElement(_FacetList.FacetList, facetListProps)) : null, /*#__PURE__*/_react["default"].createElement("div", {
+      }, extendedAboveFacetListComponent, Array.isArray(facets) && facets.length > 0 ? /*#__PURE__*/_react["default"].createElement(_FacetList.FacetList, facetListProps) : isContextLoading ? /*#__PURE__*/_react["default"].createElement("div", {
+        className: "facets-container with-header-bg"
+      }, /*#__PURE__*/_react["default"].createElement(_FacetList.FacetListHeader, null), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "text-center py-4 text-secondary"
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-spin icon-circle-notch fas icon-2x"
+      }))) : null), /*#__PURE__*/_react["default"].createElement("div", {
         className: tableColumnClassName
       }, extendedAboveTableComponent, /*#__PURE__*/_react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
         context: context,

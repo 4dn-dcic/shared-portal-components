@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.generateNextHref = generateNextHref;
-exports.FacetList = void 0;
+exports.FacetListHeader = exports.FacetList = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -748,9 +748,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props5 = this.props,
           _this$props5$facets = _this$props5.facets,
           facets = _this$props5$facets === void 0 ? null : _this$props5$facets,
-          className = _this$props5.className,
-          _this$props5$title = _this$props5.title,
-          title = _this$props5$title === void 0 ? "Properties" : _this$props5$title,
+          title = _this$props5.title,
           _this$props5$onClearF = _this$props5.onClearFilters,
           onClearFilters = _this$props5$onClearF === void 0 ? null : _this$props5$onClearF,
           _this$props5$showClea = _this$props5.showClearFiltersButton,
@@ -785,38 +783,16 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           staticFacetElements = _this$renderFacetComp3.staticFacetElements,
           selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
 
-      var anyFacetsOpen = _underscore["default"].keys(openFacets).length !== 0;
       return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "facets-container facets" + (className ? ' ' + className : '')
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row facets-header"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "col facets-title-column text-truncate"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-filter fas"
-      }), "\xA0", /*#__PURE__*/_react["default"].createElement("h4", {
-        className: "facets-title"
-      }, title)), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "col-auto"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "btn-group btn-group-sm properties-controls",
-        role: "group",
-        "aria-label": "Properties Controls"
-      }, anyFacetsOpen ? /*#__PURE__*/_react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-outline-light",
-        onClick: this.handleCollapseAllFacets,
-        "data-tip": "Collapse all facets below"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-minus fas"
-      })) : null, showClearFiltersButton && typeof onClearFilters === "function" ? /*#__PURE__*/_react["default"].createElement("button", {
-        type: "button",
-        className: "btn btn-outline-light",
-        onClick: onClearFilters,
-        "data-tip": "Clear all filters"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-times fas"
-      })) : null))), /*#__PURE__*/_react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/_react["default"].createElement("div", {
+        className: "facets-container facets with-header-bg"
+      }, /*#__PURE__*/_react["default"].createElement(FacetListHeader, _extends({
+        openFacets: openFacets,
+        title: title,
+        onClearFilters: onClearFilters,
+        showClearFiltersButton: showClearFiltersButton
+      }, {
+        onCollapseFacets: this.handleCollapseAllFacets
+      })), /*#__PURE__*/_react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/_react["default"].createElement("div", {
         className: "row facet-list-separator"
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "col-12"
@@ -836,10 +812,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return FacetList;
-}(_react["default"].PureComponent); // TODO: Pull out the split terms into own component
-// 2: get ourselves the fieldSchema and pass it down in here.
-// function
-
+}(_react["default"].PureComponent);
 
 exports.FacetList = FacetList;
 
@@ -921,3 +894,47 @@ _defineProperty(FacetList, "defaultProps", {
     return term;
   }
 });
+
+var FacetListHeader = /*#__PURE__*/_react["default"].memo(function (props) {
+  var _props$title = props.title,
+      title = _props$title === void 0 ? "Properties" : _props$title,
+      _props$openFacets = props.openFacets,
+      openFacets = _props$openFacets === void 0 ? {} : _props$openFacets,
+      _props$showClearFilte = props.showClearFiltersButton,
+      showClearFiltersButton = _props$showClearFilte === void 0 ? false : _props$showClearFilte,
+      _props$onClearFilters = props.onClearFilters,
+      onClearFilters = _props$onClearFilters === void 0 ? null : _props$onClearFilters,
+      onCollapseFacets = props.onCollapseFacets;
+  var anyFacetsOpen = Object.keys(openFacets).length !== 0;
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "row facets-header"
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "col facets-title-column text-truncate"
+  }, /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-fw icon-filter fas"
+  }), "\xA0", /*#__PURE__*/_react["default"].createElement("h4", {
+    className: "facets-title"
+  }, title)), /*#__PURE__*/_react["default"].createElement("div", {
+    className: "col-auto"
+  }, /*#__PURE__*/_react["default"].createElement("div", {
+    className: "btn-group btn-group-sm properties-controls",
+    role: "group",
+    "aria-label": "Properties Controls"
+  }, anyFacetsOpen ? /*#__PURE__*/_react["default"].createElement("button", {
+    type: "button",
+    className: "btn btn-outline-light",
+    onClick: onCollapseFacets,
+    "data-tip": "Collapse all facets below"
+  }, /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-fw icon-minus fas"
+  })) : null, showClearFiltersButton && typeof onClearFilters === "function" ? /*#__PURE__*/_react["default"].createElement("button", {
+    type: "button",
+    className: "btn btn-outline-light",
+    onClick: onClearFilters,
+    "data-tip": "Clear all filters"
+  }, /*#__PURE__*/_react["default"].createElement("i", {
+    className: "icon icon-fw icon-times fas"
+  })) : null)));
+});
+
+exports.FacetListHeader = FacetListHeader;

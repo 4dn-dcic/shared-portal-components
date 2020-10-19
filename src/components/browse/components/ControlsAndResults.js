@@ -8,7 +8,7 @@ import { patchedConsoleInstance as console } from './../../util/patched-console'
 
 import { AboveSearchViewTableControls } from './above-table-controls/AboveSearchViewTableControls';
 import { SearchResultTable } from './SearchResultTable';
-import { FacetList } from './FacetList';
+import { FacetList, FacetListHeader } from './FacetList';
 import { SearchResultDetailPane } from './SearchResultDetailPane';
 import { SelectStickyFooter } from './SelectedItemsController';
 
@@ -69,8 +69,8 @@ export class ControlsAndResults extends React.PureComponent {
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
             href, onFilter,
             showClearFiltersButton = false,
-            isOwnPage = true,
-            isContextLoading = false,
+            isOwnPage = true,         // <- False when rendered by EmbeddedSearchView, else is true when from a SearchView
+            isContextLoading = false, // <- Only applicable for EmbeddedSearchView, passed in by VirtualHrefController only, else is false always since we initialize immediately over search-response context that already has first 25 results
 
             // From EmbeddedSearchView/manual-entry, used if isOwnPage is true
             maxHeight = SearchResultTable.defaultProps.maxHeight,
@@ -96,14 +96,14 @@ export class ControlsAndResults extends React.PureComponent {
             context, href, navigate, currentAction, schemas, results, columnDefinitions, visibleColumnDefinitions,
             setColumnWidths, columnWidths, detailPane,
             isOwnPage, sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
-            defaultOpenIndices, maxHeight, isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
+            defaultOpenIndices, maxHeight,
+            isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 
         const facetListProps = {
             facets, filters, schemas, currentAction, showClearFiltersButton,
             session, onFilter, windowWidth, windowHeight, termTransformFxn, separateSingleTermFacets,
             itemTypeForSchemas: searchItemType,
-            className: "with-header-bg",
             maxBodyHeight: (!isOwnPage && maxHeight) || null,
             onClearFilters: this.onClearFiltersClick,
             addToBodyClassList, removeFromBodyClassList
@@ -133,12 +133,21 @@ export class ControlsAndResults extends React.PureComponent {
 
         return (
             <div className="row search-view-controls-and-results" data-search-item-type={searchItemType} data-search-abstract-type={searchAbstractItemType}>
-                { Array.isArray(facets) && facets.length ?
+                { facets === null ? null: (
                     <div className={facetColumnClassName}>
                         { extendedAboveFacetListComponent }
-                        <FacetList {...facetListProps} />
+                        { Array.isArray(facets) && facets.length > 0 ?
+                            <FacetList {...facetListProps} />
+                            : isContextLoading ?
+                                <div className="facets-container with-header-bg">
+                                    <FacetListHeader />
+                                    <div className="text-center py-4 text-secondary">
+                                        <i className="icon icon-spin icon-circle-notch fas icon-2x" />
+                                    </div>
+                                </div>
+                                : null }
                     </div>
-                    : null }
+                ) }
                 <div className={tableColumnClassName}>
                     { extendedAboveTableComponent }
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />

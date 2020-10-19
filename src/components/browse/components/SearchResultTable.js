@@ -1025,7 +1025,7 @@ class DimensioningContainer extends React.PureComponent {
  * @prop {function}         sortBy              Callback function for performing a sort, acceping 'sortColumn' and 'sortReverse' as params. As fed by SortController.
  * @prop {function}         termTransformFxn    Function passed from parent portal to transform system values into human readable values. Is portal-specific; not used if `render` for field in columnExtensionMap/columnDefinition exists/used.
  */
-export class SearchResultTable extends React.PureComponent {
+export class SearchResultTable extends React.Component {
 
     static isDesktopClientside(windowWidth){
         return !isServerSide() && responsiveGridState(windowWidth) !== 'xs';
@@ -1074,7 +1074,7 @@ export class SearchResultTable extends React.PureComponent {
         'fullWidthContainerSelectorString' : '.browse-page-container',
         'currentAction' : null,
         'isOwnPage' : true,
-        'maxHeight' : 400, // Used only if isOwnPage is false
+        'maxHeight' : 400, // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
         'isContextLoading' : false // Used only if isOwnPage is false
     };
 
@@ -1091,10 +1091,11 @@ export class SearchResultTable extends React.PureComponent {
         if (isContextLoading && !context) {
             // Initial context (pre-sort, filter, etc) loading.
             // Only applicable for EmbeddedSearchView
+            // Maybe move up to ControlsAndResults?
             return (
                 <div className={"search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")}>
-                    <div className="search-results-container text-center py-5">
-                        <i className="icon icon-fw icon-spin icon-circle-notch fas icon-2x text-secondary" />
+                    <div className="search-results-container text-center text-secondary py-5">
+                        <i className="icon icon-fw icon-spin icon-circle-notch fas icon-2x" />
                     </div>
                 </div>
             );

@@ -572,8 +572,7 @@ export class FacetList extends React.PureComponent {
     render() {
         const {
             facets = null,
-            className,
-            title = "Properties",
+            title,
             onClearFilters = null,
             showClearFiltersButton = false,
             maxBodyHeight: maxHeight = null
@@ -595,46 +594,11 @@ export class FacetList extends React.PureComponent {
         };
 
         const { staticFacetElements, selectableFacetElements } = this.renderFacetComponents();
-        const anyFacetsOpen = _.keys(openFacets).length !== 0;
 
         return (
             <React.Fragment>
-                <div className={"facets-container facets" + (className ? ' ' + className : '')}>
-                    <div className="row facets-header">
-                        <div className="col facets-title-column text-truncate">
-                            <i className="icon icon-fw icon-filter fas"></i>
-                            &nbsp;
-                            <h4 className="facets-title">{ title }</h4>
-                        </div>
-                        <div className="col-auto">
-                            <div className="btn-group btn-group-sm properties-controls" role="group" aria-label="Properties Controls">
-                                { anyFacetsOpen ?
-                                    <button type="button" className="btn btn-outline-light" onClick={this.handleCollapseAllFacets} data-tip="Collapse all facets below">
-                                        <i className="icon icon-fw icon-minus fas"/>
-                                    </button>
-                                    : null }
-                                { showClearFiltersButton && typeof onClearFilters === "function" ?
-                                    <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
-                                        <i className="icon icon-fw icon-times fas"/>
-                                    </button>
-                                    : null }
-                            </div>
-                        </div>
-                        {/*
-                        <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
-                            <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
-                                <i className="icon icon-fw icon-times fas mr-03"/>
-                                <span>Clear All</span>
-                            </a>
-                        </div>
-                        <div className={"col-auto clear-filters-control" + (anyFacetsOpen ? '' : ' placeholder')}>
-                            <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
-                                <i className="icon icon-fw icon-minus fas mr-03"/>
-                                <span>Clear All</span>
-                            </a>
-                        </div>
-                        */}
-                    </div>
+                <div className="facets-container facets with-header-bg">
+                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton }} onCollapseFacets={this.handleCollapseAllFacets} />
                     <div {...bodyProps}>
                         { selectableFacetElements }
                         { staticFacetElements.length > 0 ?
@@ -657,8 +621,51 @@ export class FacetList extends React.PureComponent {
     }
 }
 
-// TODO: Pull out the split terms into own component
-// 2: get ourselves the fieldSchema and pass it down in here.
 
-// function
-
+export const FacetListHeader = React.memo(function FacetListHeader(props){
+    const {
+        title = "Properties",
+        openFacets = {},
+        showClearFiltersButton = false,
+        onClearFilters = null,
+        onCollapseFacets
+    } = props;
+    const anyFacetsOpen = Object.keys(openFacets).length !== 0;
+    return (
+        <div className="row facets-header">
+            <div className="col facets-title-column text-truncate">
+                <i className="icon icon-fw icon-filter fas"></i>
+                &nbsp;
+                <h4 className="facets-title">{ title }</h4>
+            </div>
+            <div className="col-auto">
+                <div className="btn-group btn-group-sm properties-controls" role="group" aria-label="Properties Controls">
+                    { anyFacetsOpen ?
+                        <button type="button" className="btn btn-outline-light" onClick={onCollapseFacets} data-tip="Collapse all facets below">
+                            <i className="icon icon-fw icon-minus fas"/>
+                        </button>
+                        : null }
+                    { showClearFiltersButton && typeof onClearFilters === "function" ?
+                        <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
+                            <i className="icon icon-fw icon-times fas"/>
+                        </button>
+                        : null }
+                </div>
+            </div>
+            {/*
+            <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
+                <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
+                    <i className="icon icon-fw icon-times fas mr-03"/>
+                    <span>Clear All</span>
+                </a>
+            </div>
+            <div className={"col-auto clear-filters-control" + (anyFacetsOpen ? '' : ' placeholder')}>
+                <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
+                    <i className="icon icon-fw icon-minus fas mr-03"/>
+                    <span>Clear All</span>
+                </a>
+            </div>
+            */}
+        </div>
+    );
+});

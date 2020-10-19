@@ -1416,8 +1416,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
  */
 
 
-var SearchResultTable = /*#__PURE__*/function (_React$PureComponent5) {
-  _inherits(SearchResultTable, _React$PureComponent5);
+var SearchResultTable = /*#__PURE__*/function (_React$Component2) {
+  _inherits(SearchResultTable, _React$Component2);
 
   var _super6 = _createSuper(SearchResultTable);
 
@@ -1454,12 +1454,13 @@ var SearchResultTable = /*#__PURE__*/function (_React$PureComponent5) {
       if (isContextLoading && !context) {
         // Initial context (pre-sort, filter, etc) loading.
         // Only applicable for EmbeddedSearchView
+        // Maybe move up to ControlsAndResults?
         return /*#__PURE__*/_react["default"].createElement("div", {
           className: "search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")
         }, /*#__PURE__*/_react["default"].createElement("div", {
-          className: "search-results-container text-center py-5"
+          className: "search-results-container text-center text-secondary py-5"
         }, /*#__PURE__*/_react["default"].createElement("i", {
-          className: "icon icon-fw icon-spin icon-circle-notch fas icon-2x text-secondary"
+          className: "icon icon-fw icon-spin icon-circle-notch fas icon-2x"
         })));
       } // We filter down the columnDefinitions here (rather than in CustomColumnController)
       // because they are still necessary for UI for selection of visible/invisible columns
@@ -1473,7 +1474,7 @@ var SearchResultTable = /*#__PURE__*/function (_React$PureComponent5) {
   }]);
 
   return SearchResultTable;
-}(_react["default"].PureComponent);
+}(_react["default"].Component);
 
 exports.SearchResultTable = SearchResultTable;
 
@@ -1541,7 +1542,7 @@ _defineProperty(SearchResultTable, "defaultProps", {
   'currentAction': null,
   'isOwnPage': true,
   'maxHeight': 400,
-  // Used only if isOwnPage is false
+  // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
   'isContextLoading': false // Used only if isOwnPage is false
 
 });
