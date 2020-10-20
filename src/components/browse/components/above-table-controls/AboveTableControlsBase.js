@@ -17,12 +17,13 @@ import { CustomColumnSelector } from './../CustomColumnController';
  */
 export class AboveTableControlsBase extends React.PureComponent {
 
+    // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
     static getCustomColumnSelectorPanelMapDefinition(props){
         return {
             "customColumns" : {
                 "title" : (
                     <React.Fragment>
-                        <i className="icon icon-fw icon-gear fas"/>
+                        <i className="icon icon-fw icon-cog fas"/>
                         <span className="title-contents">Configure Visible Columns</span>
                     </React.Fragment>
                 ),
@@ -50,7 +51,7 @@ export class AboveTableControlsBase extends React.PureComponent {
         this.handleOpenColumnsSelectionPanel = this.handleOpenToggle.bind(this, 'customColumns');
 
         this.panelToggleFxns = {};
-        _.forEach(_.keys(props.panelMap), (key)=>{
+        Object.keys(props.panelMap).forEach((key) => {
             this.panelToggleFxns[key] = this.handleOpenToggle.bind(this, key);
         });
 
@@ -102,20 +103,25 @@ export class AboveTableControlsBase extends React.PureComponent {
     render(){
         const { children, panelMap = {} } = this.props;
         const { open, reallyOpen } = this.state;
-        const extendedChildren = React.Children.map(children, (child) =>
-            React.cloneElement(child, {
-                "panelToggleFxns" : this.panelToggleFxns,
-                "onClosePanel" : this.handleClose,
-                "currentOpenPanel" : open || reallyOpen
-            })
-        );
+        const extendedChildren = React.Children.map(children, (child) => {
+            if (React.isValidElement(child)) {
+                if (typeof child.type !== "string") {
+                    return React.cloneElement(child, {
+                        "panelToggleFxns" : this.panelToggleFxns,
+                        "onClosePanel" : this.handleClose,
+                        "currentOpenPanel" : open || reallyOpen
+                    });
+                }
+            }
+            return child;
+        });
 
         const panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
         const { title: panelTitle, body: panelBody, className: panelCls } = panelDefinition || {};
 
         return (
             <div className="above-results-table-row">
-                <div className="row">
+                <div className="row align-items-center">
                     { extendedChildren }
                     <RightButtonsSection {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')}
                         currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} />
@@ -135,7 +141,7 @@ AboveTableControlsBase.defaultProps = {
     "panelMap" : {
         // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
         "customColumns" : {
-            "title" : <span><i className="icon icon-fw icon-gear fas"/> hello world</span>,
+            "title" : <span><i className="icon icon-fw icon-cog fas"/> hello world</span>,
             "body" : "Hello World",
             "className" : "visible-columns-selector-panel"
         }

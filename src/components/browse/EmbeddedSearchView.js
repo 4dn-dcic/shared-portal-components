@@ -104,13 +104,11 @@ export class EmbeddedSearchView extends React.PureComponent {
             context,                // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             currentAction = null,   // From App.js; is NOT passed down. Always should be null for embedded search views.
             searchHref,
-            // schemas = null,
-            //facets : propFacets,
+            // schemas = null,       // Passed down in passProps
             navigate: propNavigate,  // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             columns = null,
             hideColumns,
             facets,
-            // showAboveTableControls = false, // Deprecated? Unused here? Will become deprecated for EmbeddedSearchView purposes at least probably.
             aboveTableComponent = null,         // Override default default to be null.
             aboveFacetListComponent = null,     // Override default default to be null.
             columnExtensionMap = basicColumnExtensionMap,
@@ -118,7 +116,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             filterFacetFxn: propFacetFilterFxn = null,
             filterColumnFxn,
             windowWidth,
-            // Will inherit props from VirtualHrefController
+            // Will inherit props from VirtualHrefController, including search response `context`.
             embeddedTableHeader = null,
             // Optional prop to which virtualNavigate is passed that may override default
             // of navigating back to `searchHref`.

@@ -13,7 +13,7 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
     let total = null;
     if (showTotalResults) {
         total = (
-            <div className="d-inline-block align-bottom">
+            <div className="d-inline-block">
                 <span className="text-500" id="results-count">
                     {
                         typeof showTotalResults === 'number' ? showTotalResults
@@ -42,6 +42,7 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
     }
 
     return (
+        // TODO refactor out panelMap stuff.
         <AboveTableControlsBase panelMap={AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)}
             {..._.pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')}>
             <LeftSectionControls {...{ total, addButton, topLeftChildren }} />
@@ -52,7 +53,7 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
 function LeftSectionControls({ total, addButton, topLeftChildren, panelToggleFxns, onClosePanel, currentOpenPanel }) {
     if (!total && !addButton && !topLeftChildren) return null;
     return (
-        <div key="total-count" className="pull-left pt-11 box results-count">
+        <div key="total-count" className="col pt-11 box results-count">
             {total}{topLeftChildren || addButton}
         </div>
     );

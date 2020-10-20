@@ -44,7 +44,7 @@ var RightButtonsSection = /*#__PURE__*/_react["default"].memo(function (props) {
       isFullscreen = props.isFullscreen,
       toggleFullScreen = props.toggleFullScreen;
   return /*#__PURE__*/_react["default"].createElement("div", {
-    className: "right-buttons"
+    className: "right-buttons col-auto"
   }, /*#__PURE__*/_react["default"].createElement(ConfigureVisibleColumnsButton, {
     onClick: onColumnsBtnClick,
     open: currentOpenPanel === "customColumns"

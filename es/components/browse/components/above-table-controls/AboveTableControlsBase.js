@@ -58,11 +58,12 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
 
   _createClass(AboveTableControlsBase, null, [{
     key: "getCustomColumnSelectorPanelMapDefinition",
+    // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
     value: function getCustomColumnSelectorPanelMapDefinition(props) {
       return {
         "customColumns": {
           "title": /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("i", {
-            className: "icon icon-fw icon-gear fas"
+            className: "icon icon-fw icon-cog fas"
           }), /*#__PURE__*/_react["default"].createElement("span", {
             className: "title-contents"
           }, "Configure Visible Columns")),
@@ -100,8 +101,7 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
     _this.handleClose = _this.handleOpenToggle.bind(_assertThisInitialized(_this), false);
     _this.handleOpenColumnsSelectionPanel = _this.handleOpenToggle.bind(_assertThisInitialized(_this), 'customColumns');
     _this.panelToggleFxns = {};
-
-    _underscore["default"].forEach(_underscore["default"].keys(props.panelMap), function (key) {
+    Object.keys(props.panelMap).forEach(function (key) {
       _this.panelToggleFxns[key] = _this.handleOpenToggle.bind(_assertThisInitialized(_this), key);
     });
     /**
@@ -109,7 +109,6 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
      * @property {boolean} state.reallyOpen - Extra check for if open, will remain true until 'closing' transition is complete.
      * @property {string[]} state.fileTypeFilters - List of file_type_detailed strings that we filter selected files down to.
      */
-
 
     _this.state = {
       'open': false,
@@ -181,11 +180,17 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
           reallyOpen = _this$state.reallyOpen;
 
       var extendedChildren = _react["default"].Children.map(children, function (child) {
-        return /*#__PURE__*/_react["default"].cloneElement(child, {
-          "panelToggleFxns": _this3.panelToggleFxns,
-          "onClosePanel": _this3.handleClose,
-          "currentOpenPanel": open || reallyOpen
-        });
+        if ( /*#__PURE__*/_react["default"].isValidElement(child)) {
+          if (typeof child.type !== "string") {
+            return /*#__PURE__*/_react["default"].cloneElement(child, {
+              "panelToggleFxns": _this3.panelToggleFxns,
+              "onClosePanel": _this3.handleClose,
+              "currentOpenPanel": open || reallyOpen
+            });
+          }
+        }
+
+        return child;
       });
 
       var panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
@@ -198,7 +203,7 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/_react["default"].createElement("div", {
         className: "above-results-table-row"
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row"
+        className: "row align-items-center"
       }, extendedChildren, /*#__PURE__*/_react["default"].createElement(_RightButtonsSection.RightButtonsSection, _extends({}, _underscore["default"].pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
         currentOpenPanel: open || reallyOpen,
         onColumnsBtnClick: this.panelToggleFxns.customColumns
@@ -222,7 +227,7 @@ AboveTableControlsBase.defaultProps = {
     // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
     "customColumns": {
       "title": /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-gear fas"
+        className: "icon icon-fw icon-cog fas"
       }), " hello world"),
       "body": "Hello World",
       "className": "visible-columns-selector-panel"
