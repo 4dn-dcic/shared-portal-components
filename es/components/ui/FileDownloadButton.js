@@ -46,18 +46,25 @@ function FileDownloadButton(props) {
       title = props.title,
       filename = props.filename,
       size = props.size,
+      tooltip = props.tooltip,
       onClick = props.onClick;
   var cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
-  return /*#__PURE__*/_react["default"].createElement("a", _extends({
+
+  var button = /*#__PURE__*/_react["default"].createElement("a", _extends({
     href: href,
     onClick: onClick
   }, {
     className: cls,
     download: true,
-    "data-tip": filename || null
+    "data-tip": tooltip || filename || null
   }), /*#__PURE__*/_react["default"].createElement("i", {
     className: "icon icon-fw icon-cloud-download-alt fas"
   }), title ? /*#__PURE__*/_react["default"].createElement("span", null, "\xA0 ", title) : null);
+
+  return disabled && tooltip ? /*#__PURE__*/_react["default"].createElement("span", {
+    "data-tip": tooltip,
+    className: "w-100"
+  }, button) : button;
 }
 
 FileDownloadButton.defaultProps = {
@@ -88,18 +95,20 @@ var FileDownloadButtonAuto = /*#__PURE__*/_react["default"].memo(function (props
   var file = props.result,
       canDownloadStatuses = props.canDownloadStatuses,
       _props$onClick = props.onClick,
-      onClick = _props$onClick === void 0 ? null : _props$onClick;
+      onClick = _props$onClick === void 0 ? null : _props$onClick,
+      _props$disabled = props.disabled,
+      propDisabled = _props$disabled === void 0 ? false : _props$disabled;
   var href = file.href,
       filename = file.filename;
-  var isDisabled = !canDownloadFile(file, canDownloadStatuses);
+  var isDownloadable = canDownloadFile(file, canDownloadStatuses);
   var passProps = {
     onClick: onClick,
     href: href,
     filename: filename,
-    'disabled': isDisabled,
-    'title': isDisabled ? 'Not ready to download' : FileDownloadButton.defaultProps.title
+    'disabled': !!propDisabled || !isDownloadable,
+    'title': !isDownloadable ? 'Not ready to download' : FileDownloadButton.defaultProps.title
   };
-  return /*#__PURE__*/_react["default"].createElement(FileDownloadButton, _extends({}, props, passProps));
+  return /*#__PURE__*/_react["default"].createElement(FileDownloadButton, _extends({}, _underscore["default"].omit(props, 'disabled'), passProps));
 });
 
 exports.FileDownloadButtonAuto = FileDownloadButtonAuto;
@@ -109,7 +118,9 @@ FileDownloadButtonAuto.propTypes = {
     'filename': _propTypes["default"].string.isRequired
   }).isRequired,
   'canDownloadStatuses': _propTypes["default"].arrayOf(_propTypes["default"].string),
-  'onClick': _propTypes["default"].func
+  'onClick': _propTypes["default"].func,
+  'disabled': _propTypes["default"].bool,
+  'tooltip': _propTypes["default"].string
 };
 FileDownloadButtonAuto.defaultProps = {
   'canDownloadStatuses': ['uploaded', 'released', 'replaced', 'submission in progress', 'released to project', 'archived']
