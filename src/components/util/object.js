@@ -171,7 +171,7 @@ export function getNestedProperty(object, propertyName, suppressNotFoundError = 
                 }
                 return arrayVals;
             } else {
-                if (typeof object === 'undefined' || !object) {
+                if (typeof currentNode === 'undefined' || !currentNode) {
                     if (!suppressNotFoundError) throw new Error('Field ' + _.clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
                     return;
                 }

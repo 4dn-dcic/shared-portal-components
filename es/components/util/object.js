@@ -309,7 +309,7 @@ function getNestedProperty(object, propertyName) {
 
         return arrayVals;
       } else {
-        if (typeof object === 'undefined' || !object) {
+        if (typeof currentNode === 'undefined' || !currentNode) {
           if (!suppressNotFoundError) throw new Error('Field ' + _underscore["default"].clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
           return;
         }
