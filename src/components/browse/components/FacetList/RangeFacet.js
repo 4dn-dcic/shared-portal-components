@@ -327,7 +327,7 @@ export class RangeFacet extends React.PureComponent {
                 <Collapse in={isOpen}>
                     <div className="inner-panel">
                         <div className="row">
-                            <label className="col-auto mb-0">
+                            <label className="col-auto mb-0 small">
                                 From:
                             </label>
                             <RangeDropdown
@@ -344,8 +344,8 @@ export class RangeFacet extends React.PureComponent {
                             </div>
                             */}
                         </div>
-                        <div className="row">
-                            <label className="col-auto mb-0">
+                        <div className="row ml-05">
+                            <label className="col-auto mb-0 small">
                                 To:
                             </label>
                             <RangeDropdown

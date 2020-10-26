@@ -162,8 +162,12 @@ $facetlist-term-block-height: default !default;
         }
 
         &.range-facet {
+            &:not(.closed) { /* allows for side by side display without interfering with open/closed state */
+                > .inner-panel {
+                    display: flex;
+                }
+            }
             > .inner-panel {
-
                 padding-top: 5px;
 
                 > div.row {

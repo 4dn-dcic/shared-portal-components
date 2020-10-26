@@ -452,7 +452,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "row"
       }, /*#__PURE__*/_react["default"].createElement("label", {
-        className: "col-auto mb-0"
+        className: "col-auto mb-0 small"
       }, "From:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
         fieldType: "from",
         title: fromTitle,
@@ -468,9 +468,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         id: "from_" + field,
         reset: fromVal !== null ? this.resetFrom : null
       })), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row"
+        className: "row ml-05"
       }, /*#__PURE__*/_react["default"].createElement("label", {
-        className: "col-auto mb-0"
+        className: "col-auto mb-0 small"
       }, "To:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
         fieldType: "to",
         title: toTitle,
