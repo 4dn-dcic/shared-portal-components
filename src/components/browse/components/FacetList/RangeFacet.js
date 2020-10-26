@@ -328,9 +328,10 @@ export class RangeFacet extends React.PureComponent {
                     <div className="inner-panel">
                         <div className="row">
                             <label className="col-auto mb-0">
-                                <i className="icon icon-fw icon-greater-than-equal fas small"/>
+                                From:
                             </label>
                             <RangeDropdown
+                                fieldType="from"
                                 title={fromTitle} value={fromVal} savedValue={savedFromVal}
                                 max={toVal || null} increments={fromIncrements}
                                 variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"}
@@ -345,9 +346,10 @@ export class RangeFacet extends React.PureComponent {
                         </div>
                         <div className="row">
                             <label className="col-auto mb-0">
-                                <i className="icon icon-fw icon-less-than-equal fas small"/>
+                                To:
                             </label>
                             <RangeDropdown
+                                fieldType="to"
                                 title={toTitle} value={toVal} savedValue={savedToVal}
                                 min={fromVal || null} increments={toIncrements}
                                 variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"}
@@ -375,6 +377,8 @@ class RangeDropdown extends React.PureComponent {
         this.onTextInputChange = this.onTextInputChange.bind(this);
         this.onDropdownSelect = this.onDropdownSelect.bind(this);
         this.onTextInputFormSubmit = this.onTextInputFormSubmit.bind(this);
+
+        console.log("props", props);
     }
 
     onTextInputChange(evt){
@@ -414,7 +418,8 @@ class RangeDropdown extends React.PureComponent {
             termTransformFxn, id,
             facet,
             increments = [],
-            reset = null
+            reset = null,
+            fieldType = null // either "from" or "to", determines symbols shown/tooltip (if not "from", usually assumed "to")
         } = this.props;
         const updateAble = (savedValue !== value);
         const {
@@ -424,11 +429,27 @@ class RangeDropdown extends React.PureComponent {
             number_step: step = "any"
         } = facet;
 
-        let showTitle = title;
+        let showTitle = (
+            <div className="d-flex">
+                { fieldType ?
+                    <div className="clear-icon-container col-auto d-flex align-items-center"
+                        data-tip={`${fieldType === "from" ? "Greater than or equal to" : "Less than or equal to"}`}>
+                        <i className={`icon icon-fw ${fieldType === "from" ? "icon-greater-than-equal" : "icon-less-than-equal"} fas`}/>
+                    </div>
+                    : null }
+                <div className="col px-0">{ title }</div>
+            </div>
+        );
 
         if (typeof reset === "function") {
             showTitle = (
                 <div className="d-flex">
+                    { fieldType ?
+                        <div className="clear-icon-container col-auto d-flex align-items-center"
+                            data-tip={`${fieldType === "from" ? "Greater than or equal to" : "Less than or equal to"}`}>
+                            <i className={`icon icon-fw ${fieldType === "from" ? "icon-greater-than-equal" : "icon-less-than-equal"} fas`}/>
+                        </div>
+                        : null }
                     <div className="clear-icon-container col-auto clickable d-flex align-items-center" onClick={reset}
                         data-tip="Click to unset">
                         <i className="icon icon-fw fas icon-minus-circle"/>

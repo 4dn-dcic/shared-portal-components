@@ -453,9 +453,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         className: "row"
       }, /*#__PURE__*/_react["default"].createElement("label", {
         className: "col-auto mb-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-greater-than-equal fas small"
-      })), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
+      }, "From:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
+        fieldType: "from",
         title: fromTitle,
         value: fromVal,
         savedValue: savedFromVal,
@@ -472,9 +471,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         className: "row"
       }, /*#__PURE__*/_react["default"].createElement("label", {
         className: "col-auto mb-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-less-than-equal fas small"
-      })), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
+      }, "To:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
+        fieldType: "to",
         title: toTitle,
         value: toVal,
         savedValue: savedToVal,
@@ -510,6 +508,9 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
     _this2.onTextInputChange = _this2.onTextInputChange.bind(_assertThisInitialized(_this2));
     _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
     _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
+
+    _patchedConsole.patchedConsoleInstance.log("props", props);
+
     return _this2;
   }
 
@@ -577,7 +578,9 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           _this$props8$incremen = _this$props8.increments,
           increments = _this$props8$incremen === void 0 ? [] : _this$props8$incremen,
           _this$props8$reset = _this$props8.reset,
-          reset = _this$props8$reset === void 0 ? null : _this$props8$reset;
+          reset = _this$props8$reset === void 0 ? null : _this$props8$reset,
+          _this$props8$fieldTyp = _this$props8.fieldType,
+          fieldType = _this$props8$fieldTyp === void 0 ? null : _this$props8$fieldTyp;
       var updateAble = savedValue !== value;
       var _facet$field_type3 = facet.field_type,
           field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
@@ -585,12 +588,27 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           fMax = facet.max,
           _facet$number_step2 = facet.number_step,
           step = _facet$number_step2 === void 0 ? "any" : _facet$number_step2;
-      var showTitle = title;
+
+      var showTitle = /*#__PURE__*/_react["default"].createElement("div", {
+        className: "d-flex"
+      }, fieldType ? /*#__PURE__*/_react["default"].createElement("div", {
+        className: "clear-icon-container col-auto d-flex align-items-center",
+        "data-tip": "".concat(fieldType === "from" ? "Greater than or equal to" : "Less than or equal to")
+      }, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw ".concat(fieldType === "from" ? "icon-greater-than-equal" : "icon-less-than-equal", " fas")
+      })) : null, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "col px-0"
+      }, title));
 
       if (typeof reset === "function") {
         showTitle = /*#__PURE__*/_react["default"].createElement("div", {
           className: "d-flex"
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, fieldType ? /*#__PURE__*/_react["default"].createElement("div", {
+          className: "clear-icon-container col-auto d-flex align-items-center",
+          "data-tip": "".concat(fieldType === "from" ? "Greater than or equal to" : "Less than or equal to")
+        }, /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-fw ".concat(fieldType === "from" ? "icon-greater-than-equal" : "icon-less-than-equal", " fas")
+        })) : null, /*#__PURE__*/_react["default"].createElement("div", {
           className: "clear-icon-container col-auto clickable d-flex align-items-center",
           onClick: reset,
           "data-tip": "Click to unset"
