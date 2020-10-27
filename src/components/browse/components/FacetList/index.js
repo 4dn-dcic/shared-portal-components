@@ -575,7 +575,8 @@ export class FacetList extends React.PureComponent {
             title,
             onClearFilters = null,
             showClearFiltersButton = false,
-            maxBodyHeight: maxHeight = null
+            maxBodyHeight: maxHeight = null,
+            isContextLoading = false
         } = this.props;
         const { openFacets, openPopover } = this.state;
         const { popover: popoverJSX, ref: popoverTargetRef } = openPopover || {};
@@ -597,7 +598,7 @@ export class FacetList extends React.PureComponent {
 
         return (
             <React.Fragment>
-                <div className="facets-container facets with-header-bg">
+                <div className="facets-container facets with-header-bg" data-context-loading={isContextLoading}>
                     <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton }} onCollapseFacets={this.handleCollapseAllFacets} />
                     <div {...bodyProps}>
                         { selectableFacetElements }
