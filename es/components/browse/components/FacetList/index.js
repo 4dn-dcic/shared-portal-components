@@ -754,7 +754,9 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           _this$props5$showClea = _this$props5.showClearFiltersButton,
           showClearFiltersButton = _this$props5$showClea === void 0 ? false : _this$props5$showClea,
           _this$props5$maxBodyH = _this$props5.maxBodyHeight,
-          maxHeight = _this$props5$maxBodyH === void 0 ? null : _this$props5$maxBodyH;
+          maxHeight = _this$props5$maxBodyH === void 0 ? null : _this$props5$maxBodyH,
+          _this$props5$isContex = _this$props5.isContextLoading,
+          isContextLoading = _this$props5$isContex === void 0 ? false : _this$props5$isContex;
       var _this$state3 = this.state,
           openFacets = _this$state3.openFacets,
           openPopover = _this$state3.openPopover;
@@ -784,7 +786,8 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
 
       return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "facets-container facets with-header-bg"
+        className: "facets-container facets with-header-bg",
+        "data-context-loading": isContextLoading
       }, /*#__PURE__*/_react["default"].createElement(FacetListHeader, _extends({
         openFacets: openFacets,
         title: title,

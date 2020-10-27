@@ -126,8 +126,6 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           windowHeight = _this$props2.windowHeight,
           registerWindowOnScrollHandler = _this$props2.registerWindowOnScrollHandler,
           session = _this$props2.session,
-          isFullscreen = _this$props2.isFullscreen,
-          toggleFullScreen = _this$props2.toggleFullScreen,
           addToBodyClassList = _this$props2.addToBodyClassList,
           removeFromBodyClassList = _this$props2.removeFromBodyClassList,
           facets = _this$props2.facets,
@@ -176,9 +174,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
 
       var _ref = context || {},
           results = _ref["@graph"],
-          filters = _ref.filters,
-          _ref$total = _ref.total,
-          showTotalResults = _ref$total === void 0 ? 0 : _ref$total;
+          filters = _ref.filters;
 
       var searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
       var searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
@@ -188,6 +184,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         schemas: schemas,
         currentAction: currentAction,
         showClearFiltersButton: showClearFiltersButton,
+        isContextLoading: isContextLoading,
         session: session,
         onFilter: onFilter,
         windowWidth: windowWidth,
@@ -202,9 +199,10 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       };
       var aboveTableControlsProps = {
         context: context,
-        showTotalResults: showTotalResults,
-        hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions,
+        navigate: navigate,
+        // TODO: compoundSearchNavigate,
+        hiddenColumns: hiddenColumns,
         addHiddenColumn: addHiddenColumn,
         removeHiddenColumn: removeHiddenColumn,
         currentAction: currentAction,

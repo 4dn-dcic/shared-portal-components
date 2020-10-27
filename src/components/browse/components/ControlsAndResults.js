@@ -51,7 +51,7 @@ export class ControlsAndResults extends React.PureComponent {
     render() {
         const {
             // From Redux store or App.js:
-            context, schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session, isFullscreen, toggleFullScreen,
+            context, schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session,
             addToBodyClassList, removeFromBodyClassList,
 
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
@@ -88,7 +88,7 @@ export class ControlsAndResults extends React.PureComponent {
         } = this.props;
 
         // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
-        const { "@graph" : results, filters, total: showTotalResults = 0 } = context || {};
+        const { "@graph" : results, filters } = context || {};
         const searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
         const searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
 
@@ -101,7 +101,7 @@ export class ControlsAndResults extends React.PureComponent {
         };
 
         const facetListProps = {
-            facets, filters, schemas, currentAction, showClearFiltersButton,
+            facets, filters, schemas, currentAction, showClearFiltersButton, isContextLoading,
             session, onFilter, windowWidth, windowHeight, termTransformFxn, separateSingleTermFacets,
             itemTypeForSchemas: searchItemType,
             maxBodyHeight: (!isOwnPage && maxHeight) || null,
@@ -110,7 +110,10 @@ export class ControlsAndResults extends React.PureComponent {
         };
 
         const aboveTableControlsProps = {
-            context, showTotalResults, hiddenColumns, columnDefinitions, addHiddenColumn, removeHiddenColumn,
+            context, columnDefinitions,
+            navigate,
+            // TODO: compoundSearchNavigate,
+            hiddenColumns, addHiddenColumn, removeHiddenColumn,
             currentAction, windowWidth, windowHeight
         };
 
