@@ -101,18 +101,17 @@ export class SortController extends React.PureComponent {
     }
 
     render(){
-        const { children, context, href } = this.props;
+        const { children, context, ...passProps } = this.props;
         const { sortColumn, sortReverse } = this.memoized.getSortColumnAndReverseFromContext(context);
-        // The below `page` and `limit` aren't used any longer (I think).
-        const { page, limit } = this.memoized.getPageAndLimitFromURL(href);
-        const propsToPass = _.extend(
-            _.omit(this.props, 'children'),
-            { 'sortBy' : this.sortBy, },
-            { sortColumn, sortReverse, page, limit }
-        );
+        const childProps = {
+            ...passProps,
+            context,
+            sortColumn, sortReverse,
+            sortBy: this.sortBy
+        };
 
         return React.Children.map(children, function(c){
-            return React.cloneElement(c, propsToPass);
+            return React.cloneElement(c, childProps);
         });
     }
 

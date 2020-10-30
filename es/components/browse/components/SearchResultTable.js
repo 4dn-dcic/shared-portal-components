@@ -204,7 +204,8 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
           result = _this$props.result,
           context = _this$props.context,
           rowNumber = _this$props.rowNumber,
-          href = _this$props.href;
+          href = _this$props.href,
+          isOwnPage = _this$props.isOwnPage;
       var pastOpen = pastProps.open;
 
       if (pastOpen !== open) {
@@ -212,8 +213,8 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
           this.setDetailHeightFromPane();
           var display_title = result.display_title;
           analytics.productAddDetailViewed(result, context, {
-            position: rowNumber,
-            list: analytics.hrefToListName(href)
+            "position": rowNumber,
+            "list": isOwnPage ? "Embedded Search View" : analytics.hrefToListName(href)
           });
           analytics.event("SearchResult DetailPane", "Opened", {
             eventLabel: display_title
@@ -371,11 +372,12 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       var _this$props5 = this.props,
           result = _this$props5.result,
           href = _this$props5.href,
-          schemas = _this$props5.schemas; // Result JSON itself.
+          schemas = _this$props5.schemas; // TODO: handle lack of href and grab from window.location instead.
+      // Result JSON itself.
 
       evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result)); // Result URL and @id.
 
-      var hrefParts = _url["default"].parse(href);
+      var hrefParts = typeof href === "string" ? _url["default"].parse(href) : window.location;
 
       var atId = _object.itemUtil.atId(result);
 
@@ -571,6 +573,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
 
       var _this$props7 = this.props,
           origHref = _this$props7.href,
+          origCompoundFilterSet = _this$props7.requestedCompoundFilterSet,
           _this$props7$results = _this$props7.results,
           existingResults = _this$props7$results === void 0 ? [] : _this$props7$results,
           _this$props7$isOwnPag = _this$props7.isOwnPage,
@@ -579,16 +582,23 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
           setResults = _this$props7.setResults,
           _this$props7$navigate = _this$props7.navigate,
           navigate = _this$props7$navigate === void 0 ? _navigate.navigate : _this$props7$navigate;
-
-      var parts = _url["default"].parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-
-
-      var query = parts.query;
       var nextFromValue = existingResults.length;
-      query.from = nextFromValue;
-      parts.search = '?' + _querystring["default"].stringify(query);
+      var nextHref = null;
+      var nextCompoundFilterSetRequest = null;
 
-      var nextHref = _url["default"].format(parts);
+      if (typeof origHref === "string") {
+        var parts = _url["default"].parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
+
+
+        var query = parts.query;
+        query.from = nextFromValue;
+        parts.search = '?' + _querystring["default"].stringify(query);
+        nextHref = _url["default"].format(parts);
+      } else {
+        nextCompoundFilterSetRequest = _objectSpread(_objectSpread({}, origCompoundFilterSet), {}, {
+          "from": nextFromValue
+        });
+      }
 
       var requestInThisScope = null;
 
@@ -630,7 +640,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
             _this5.setState({
               'isLoading': false
             }, function () {
-              analytics.impressionListOfItems(nextResults, nextHref, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View");
+              analytics.impressionListOfItems(nextResults, nextHref || window.location.href, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View");
               analytics.event('SearchResultTable', "Loaded More Results", {
                 eventValue: nextFromValue
               });
@@ -649,7 +659,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
       this.setState({
         'isLoading': true
       }, function () {
-        _this5.currRequest = requestInThisScope = (0, _ajax.load)(nextHref, loadCallback, 'GET', loadCallback);
+        _this5.currRequest = requestInThisScope = (0, _ajax.load)(nextCompoundFilterSetRequest ? "/compound_search" : nextHref, loadCallback, nextCompoundFilterSetRequest ? "POST" : "GET", loadCallback, nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null);
       });
     }
   }, {

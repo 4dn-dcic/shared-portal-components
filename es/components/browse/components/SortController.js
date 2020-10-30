@@ -23,6 +23,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -167,28 +171,21 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props2 = this.props,
           children = _this$props2.children,
           context = _this$props2.context,
-          href = _this$props2.href;
+          passProps = _objectWithoutProperties(_this$props2, ["children", "context"]);
 
       var _this$memoized$getSor = this.memoized.getSortColumnAndReverseFromContext(context),
           sortColumn = _this$memoized$getSor.sortColumn,
-          sortReverse = _this$memoized$getSor.sortReverse; // The below `page` and `limit` aren't used any longer (I think).
+          sortReverse = _this$memoized$getSor.sortReverse;
 
-
-      var _this$memoized$getPag = this.memoized.getPageAndLimitFromURL(href),
-          page = _this$memoized$getPag.page,
-          limit = _this$memoized$getPag.limit;
-
-      var propsToPass = _underscore["default"].extend(_underscore["default"].omit(this.props, 'children'), {
-        'sortBy': this.sortBy
-      }, {
+      var childProps = _objectSpread(_objectSpread({}, passProps), {}, {
+        context: context,
         sortColumn: sortColumn,
         sortReverse: sortReverse,
-        page: page,
-        limit: limit
+        sortBy: this.sortBy
       });
 
       return _react["default"].Children.map(children, function (c) {
-        return /*#__PURE__*/_react["default"].cloneElement(c, propsToPass);
+        return /*#__PURE__*/_react["default"].cloneElement(c, childProps);
       });
     }
   }]);

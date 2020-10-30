@@ -124,13 +124,16 @@ class ResultDetail extends React.PureComponent{
     }
 
     componentDidUpdate(pastProps){
-        const { open, setDetailHeight, result, context, rowNumber, href } = this.props;
+        const { open, setDetailHeight, result, context, rowNumber, href, isOwnPage } = this.props;
         const { open: pastOpen } = pastProps;
         if (pastOpen !== open){
             if (open && typeof setDetailHeight === 'function'){
                 this.setDetailHeightFromPane();
                 const { display_title } = result;
-                analytics.productAddDetailViewed(result, context, { position: rowNumber, list: analytics.hrefToListName(href)  });
+                analytics.productAddDetailViewed(result, context, {
+                    "position": rowNumber,
+                    "list": isOwnPage ? "Embedded Search View" :analytics.hrefToListName(href)
+                });
                 analytics.event("SearchResult DetailPane", "Opened", { eventLabel: display_title });
 
             } else if (!open && typeof setDetailHeight === 'function') {
@@ -252,11 +255,13 @@ class ResultRow extends React.PureComponent {
         if (!evt || !evt.dataTransfer) return;
         const { result, href, schemas } = this.props;
 
+        // TODO: handle lack of href and grab from window.location instead.
+
         // Result JSON itself.
         evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result));
 
         // Result URL and @id.
-        const hrefParts = url.parse(href);
+        const hrefParts = typeof href === "string" ? url.parse(href) : window.location;
         const atId = itemUtil.atId(result);
         const formedURL = (
             (hrefParts.protocol || '') +
@@ -413,19 +418,32 @@ class LoadMoreAsYouScroll extends React.PureComponent {
 
     handleLoad(){
         const {
+            // We usually only have _one_ of href or requestedCompoundFilterSet.
             href: origHref,
+            requestedCompoundFilterSet: origCompoundFilterSet,
             results: existingResults = [],
             isOwnPage = true,
             onDuplicateResultsFoundCallback,
             setResults,
             navigate = globalPageNavigate // Use VirtualHrefController.virtualNavigate if is passed in.
         } = this.props;
-        const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-        const { query } = parts;
+
         const nextFromValue = existingResults.length;
-        query.from = nextFromValue;
-        parts.search = '?' + queryString.stringify(query);
-        const nextHref = url.format(parts);
+
+        let nextHref = null;
+        let nextCompoundFilterSetRequest = null;
+        if (typeof origHref === "string") {
+            const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
+            const { query } = parts;
+            query.from = nextFromValue;
+            parts.search = '?' + queryString.stringify(query);
+            nextHref = url.format(parts);
+        } else {
+            nextCompoundFilterSetRequest = {
+                ...origCompoundFilterSet,
+                "from" : nextFromValue
+            };
+        }
 
         let requestInThisScope = null;
 
@@ -457,7 +475,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                     this.setState({ 'isLoading' : false }, ()=>{
                         analytics.impressionListOfItems(
                             nextResults,
-                            nextHref,
+                            nextHref || window.location.href,
                             isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View"
                         );
                         analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextFromValue });
@@ -471,8 +489,14 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             this.currRequest = null;
         };
 
-        this.setState({ 'isLoading' : true }, ()=>{
-            this.currRequest = requestInThisScope = load(nextHref, loadCallback, 'GET', loadCallback);
+        this.setState({ 'isLoading' : true }, () => {
+            this.currRequest = requestInThisScope = load(
+                nextCompoundFilterSetRequest ? "/compound_search" : nextHref,
+                loadCallback,
+                nextCompoundFilterSetRequest ? "POST" : "GET",
+                loadCallback,
+                nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null
+            );
         });
     }
 

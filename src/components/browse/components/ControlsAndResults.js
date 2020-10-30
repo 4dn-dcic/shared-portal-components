@@ -51,7 +51,7 @@ export class ControlsAndResults extends React.PureComponent {
     render() {
         const {
             // From Redux store or App.js:
-            context, schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session,
+            schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session,
             addToBodyClassList, removeFromBodyClassList,
 
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
@@ -66,9 +66,9 @@ export class ControlsAndResults extends React.PureComponent {
             defaultOpenIndices = null,
             detailPane = null,
 
-            // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
-            href, onFilter,
-            showClearFiltersButton = false,
+            // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href & context)
+            context, href, requestedCompoundFilterSet,
+            onFilter, showClearFiltersButton = false,
             isOwnPage = true,         // <- False when rendered by EmbeddedSearchView, else is true when from a SearchView
             isContextLoading = false, // <- Only applicable for EmbeddedSearchView, passed in by VirtualHrefController only, else is false always since we initialize immediately over search-response context that already has first 25 results
 
@@ -93,7 +93,8 @@ export class ControlsAndResults extends React.PureComponent {
         const searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
 
         const searchResultTableProps = {
-            context, href, navigate, currentAction, schemas, results, columnDefinitions, visibleColumnDefinitions,
+            context, href, requestedCompoundFilterSet, navigate, currentAction, schemas, results,
+            columnDefinitions, visibleColumnDefinitions,
             setColumnWidths, columnWidths, detailPane,
             isOwnPage, sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight,
@@ -136,7 +137,7 @@ export class ControlsAndResults extends React.PureComponent {
 
         return (
             <div className="row search-view-controls-and-results" data-search-item-type={searchItemType} data-search-abstract-type={searchAbstractItemType}>
-                { facets === null ? null: (
+                { facets === null ? null: ( // TODO: Hide if using `requestedCompoundFilterSet` instead of `href`
                     <div className={facetColumnClassName}>
                         { extendedAboveFacetListComponent }
                         { Array.isArray(facets) && facets.length > 0 ?

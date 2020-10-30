@@ -103,7 +103,10 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
         }
     }
 
-    return targetSearchHref;
+    // Endpoint will redirect/correct to this anyway, may as well keep consistent.
+    // Alternatively we could/should save href we get back from search response (which
+    // should then also be correct... and probably be more reliable.. will try do..)
+    return targetSearchHref.replaceAll("%20", "+");
 }
 
 

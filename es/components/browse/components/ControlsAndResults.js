@@ -119,7 +119,6 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
-          context = _this$props2.context,
           schemas = _this$props2.schemas,
           currentAction = _this$props2.currentAction,
           windowWidth = _this$props2.windowWidth,
@@ -147,7 +146,9 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           defaultOpenIndices = _this$props2$defaultO === void 0 ? null : _this$props2$defaultO,
           _this$props2$detailPa = _this$props2.detailPane,
           detailPane = _this$props2$detailPa === void 0 ? null : _this$props2$detailPa,
+          context = _this$props2.context,
           href = _this$props2.href,
+          requestedCompoundFilterSet = _this$props2.requestedCompoundFilterSet,
           onFilter = _this$props2.onFilter,
           _this$props2$showClea = _this$props2.showClearFiltersButton,
           showClearFiltersButton = _this$props2$showClea === void 0 ? false : _this$props2$showClea,
@@ -232,7 +233,10 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         className: "row search-view-controls-and-results",
         "data-search-item-type": searchItemType,
         "data-search-abstract-type": searchAbstractItemType
-      }, facets === null ? null : /*#__PURE__*/_react["default"].createElement("div", {
+      }, facets === null ? null :
+      /*#__PURE__*/
+      // TODO: Hide if using `requestedCompoundFilterSet` instead of `href`
+      _react["default"].createElement("div", {
         className: facetColumnClassName
       }, extendedAboveFacetListComponent, Array.isArray(facets) && facets.length > 0 ? /*#__PURE__*/_react["default"].createElement(_FacetList.FacetList, facetListProps) : isContextLoading ? /*#__PURE__*/_react["default"].createElement("div", {
         className: "facets-container with-header-bg"
@@ -245,6 +249,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       }, extendedAboveTableComponent, /*#__PURE__*/_react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
         context: context,
         href: href,
+        requestedCompoundFilterSet: requestedCompoundFilterSet,
         navigate: navigate,
         currentAction: currentAction,
         schemas: schemas,
