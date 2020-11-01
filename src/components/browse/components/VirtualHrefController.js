@@ -6,7 +6,7 @@ import _ from 'underscore';
 import url from 'url';
 import * as analytics from './../../util/analytics';
 import { load as ajaxLoad } from './../../util/ajax';
-import { navigate } from './../../util/navigate';
+import { navigate as globalNavigate } from './../../util/navigate';
 import { getTermFacetStatus } from './../../util/search-filters';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { generateNextHref } from './FacetList';
@@ -133,7 +133,7 @@ export class VirtualHrefController extends React.PureComponent {
 
         console.log('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
 
-        this.setState({ "isContextLoading" : true }, ()=>{
+        this.setState({ "isContextLoading" : true }, () => {
             const onLoadResponse = (nextContext) => {
                 const { total, '@graph' : initialResults } = nextContext;
                 if (scopedRequest !== this.currRequest) {
@@ -142,6 +142,10 @@ export class VirtualHrefController extends React.PureComponent {
                 }
                 if (typeof total !== "number") {
                     throw new Error("Did not get back a search response");
+                }
+
+                if (typeof globalNavigate.updateUserInfo === "function") {
+                    globalNavigate.updateUserInfo();
                 }
 
                 // Get correct URL from XHR, in case we hit a redirect during the request.
@@ -167,7 +171,7 @@ export class VirtualHrefController extends React.PureComponent {
                     }
                 }
 
-                console.log("AAAA", nextContext);
+                console.info("Loaded Next Context", nextContext);
 
                 this.setState({
                     virtualContext: nextContext,

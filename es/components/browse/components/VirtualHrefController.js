@@ -221,6 +221,10 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
 
           if (typeof total !== "number") {
             throw new Error("Did not get back a search response");
+          }
+
+          if (typeof _navigate.navigate.updateUserInfo === "function") {
+            _navigate.navigate.updateUserInfo();
           } // Get correct URL from XHR, in case we hit a redirect during the request.
 
 
@@ -241,7 +245,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
             }
           }
 
-          _patchedConsole.patchedConsoleInstance.log("AAAA", nextContext);
+          _patchedConsole.patchedConsoleInstance.info("Loaded Next Context", nextContext);
 
           _this2.setState({
             virtualContext: nextContext,
