@@ -1057,7 +1057,9 @@ export class SearchResultTable extends React.Component {
 
     static propTypes = {
         'results'           : PropTypes.arrayOf(ResultRow.propTypes.result).isRequired,
-        'href'              : PropTypes.string.isRequired,
+        // Either href or requestedCompoundFilterSet should be present:
+        'href'              : PropTypes.string,
+        'requestedCompoundFilterSet' : PropTypes.object,
         'columnDefinitions' : PropTypes.arrayOf(PropTypes.object),
         'defaultWidthMap'   : PropTypes.shape({ 'lg' : PropTypes.number.isRequired, 'md' : PropTypes.number.isRequired, 'sm' : PropTypes.number.isRequired }).isRequired,
         'hiddenColumns'     : PropTypes.objectOf(PropTypes.bool),

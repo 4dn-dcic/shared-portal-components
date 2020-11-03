@@ -1490,7 +1490,9 @@ exports.SearchResultTable = SearchResultTable;
 
 _defineProperty(SearchResultTable, "propTypes", {
   'results': _propTypes["default"].arrayOf(ResultRow.propTypes.result).isRequired,
-  'href': _propTypes["default"].string.isRequired,
+  // Either href or requestedCompoundFilterSet should be present:
+  'href': _propTypes["default"].string,
+  'requestedCompoundFilterSet': _propTypes["default"].object,
   'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].object),
   'defaultWidthMap': _propTypes["default"].shape({
     'lg': _propTypes["default"].number.isRequired,
