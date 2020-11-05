@@ -504,7 +504,8 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
 
     _this2 = _super2.call(this, props);
     _this2.state = {
-      showMenu: false
+      showMenu: false,
+      toggling: false
     };
     _this2.onTextInputChange = _this2.onTextInputChange.bind(_assertThisInitialized(_this2));
     _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
@@ -555,6 +556,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
       }
 
       update();
+      this.toggleDrop();
     }
   }, {
     key: "onTextInputKeyDown",
@@ -567,10 +569,22 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "toggleDrop",
     value: function toggleDrop() {
-      var showMenu = this.state.showMenu;
-      this.setState({
-        showMenu: !showMenu
-      });
+      var _this3 = this;
+
+      var _this$state2 = this.state,
+          showMenu = _this$state2.showMenu,
+          toggling = _this$state2.toggling; // Note: toggling state addresses bug where state updates stack and end up resulting in no state change
+
+      if (!toggling) {
+        this.setState({
+          showMenu: !showMenu,
+          toggling: true
+        }, function () {
+          _this3.setState({
+            toggling: false
+          });
+        });
+      }
     }
   }, {
     key: "render",

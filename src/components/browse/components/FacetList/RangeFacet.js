@@ -373,7 +373,10 @@ class RangeDropdown extends React.PureComponent {
     constructor(props){
         super(props);
 
-        this.state = { showMenu : false };
+        this.state = {
+            showMenu : false,
+            toggling: false
+        };
         this.onTextInputChange = this.onTextInputChange.bind(this);
         this.onDropdownSelect = this.onDropdownSelect.bind(this);
         this.onTextInputFormSubmit = this.onTextInputFormSubmit.bind(this);
@@ -407,6 +410,7 @@ class RangeDropdown extends React.PureComponent {
             return;
         }
         update();
+        this.toggleDrop();
     }
 
     onTextInputKeyDown(evt) {
@@ -417,8 +421,13 @@ class RangeDropdown extends React.PureComponent {
     }
 
     toggleDrop() {
-        const { showMenu } = this.state;
-        this.setState({ showMenu : !showMenu });
+        const { showMenu, toggling } = this.state;
+        // Note: toggling state addresses bug where state updates stack and end up resulting in no state change
+        if (!toggling) {
+            this.setState({ showMenu : !showMenu, toggling: true }, () => {
+                this.setState({ toggling: false });
+            } );
+        }
     }
 
     render(){
