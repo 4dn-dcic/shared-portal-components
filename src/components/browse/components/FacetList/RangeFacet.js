@@ -326,12 +326,11 @@ export class RangeFacet extends React.PureComponent {
                 </h5>
                 <Collapse in={isOpen}>
                     <div className="inner-panel">
-                        <div className="row">
-                            <label className="col-auto mb-0 small">
+                        <div className="not-row">
+                            <label className="mb-0 small">
                                 From:
                             </label>
                             <RangeDropdown
-                                fieldType="from"
                                 title={fromTitle} value={fromVal} savedValue={savedFromVal}
                                 max={toVal || null} increments={fromIncrements}
                                 variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"}
@@ -344,12 +343,11 @@ export class RangeFacet extends React.PureComponent {
                             </div>
                             */}
                         </div>
-                        <div className="row ml-05">
-                            <label className="col-auto mb-0 small">
+                        <div className="not-row ml-05">
+                            <label className="mb-0 small">
                                 To:
                             </label>
                             <RangeDropdown
-                                fieldType="to"
                                 title={toTitle} value={toVal} savedValue={savedToVal}
                                 min={fromVal || null} increments={toIncrements}
                                 variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"}
@@ -374,9 +372,13 @@ class RangeDropdown extends React.PureComponent {
 
     constructor(props){
         super(props);
+
+        this.state = { showMenu : false };
         this.onTextInputChange = this.onTextInputChange.bind(this);
         this.onDropdownSelect = this.onDropdownSelect.bind(this);
         this.onTextInputFormSubmit = this.onTextInputFormSubmit.bind(this);
+        this.onTextInputKeyDown = this.onTextInputKeyDown.bind(this);
+        this.toggleDrop = this.toggleDrop.bind(this);
 
         console.log("props", props);
     }
@@ -407,7 +409,20 @@ class RangeDropdown extends React.PureComponent {
         update();
     }
 
+    onTextInputKeyDown(evt) {
+        if (evt.key === "Enter" || evt.keyCode === 13) {
+            this.onTextInputFormSubmit(evt);
+            this.toggleDrop();
+        }
+    }
+
+    toggleDrop() {
+        const { showMenu } = this.state;
+        this.setState({ showMenu : !showMenu });
+    }
+
     render(){
+        const { showMenu } = this.state;
         const {
             variant = "outline-dark", size = "sm", disabled = false,
             className = "range-dropdown-container col",
@@ -418,8 +433,7 @@ class RangeDropdown extends React.PureComponent {
             termTransformFxn, id,
             facet,
             increments = [],
-            reset = null,
-            fieldType = null // either "from" or "to", determines symbols shown/tooltip (if not "from", usually assumed "to")
+            reset = null
         } = this.props;
         const updateAble = (savedValue !== value);
         const {
@@ -431,12 +445,6 @@ class RangeDropdown extends React.PureComponent {
 
         let showTitle = (
             <div className="d-flex">
-                { fieldType ?
-                    <div className="clear-icon-container col-auto d-flex align-items-center"
-                        data-tip={`${fieldType === "from" ? "Greater than or equal to" : "Less than or equal to"}`}>
-                        <i className={`icon icon-fw ${fieldType === "from" ? "icon-greater-than-equal" : "icon-less-than-equal"} fas`}/>
-                    </div>
-                    : null }
                 <div className="col px-0">{ title }</div>
             </div>
         );
@@ -444,12 +452,6 @@ class RangeDropdown extends React.PureComponent {
         if (typeof reset === "function") {
             showTitle = (
                 <div className="d-flex">
-                    { fieldType ?
-                        <div className="clear-icon-container col-auto d-flex align-items-center"
-                            data-tip={`${fieldType === "from" ? "Greater than or equal to" : "Less than or equal to"}`}>
-                            <i className={`icon icon-fw ${fieldType === "from" ? "icon-greater-than-equal" : "icon-less-than-equal"} fas`}/>
-                        </div>
-                        : null }
                     <div className="clear-icon-container col-auto clickable d-flex align-items-center" onClick={reset}
                         data-tip="Click to unset">
                         <i className="icon icon-fw fas icon-minus-circle"/>
@@ -461,11 +463,11 @@ class RangeDropdown extends React.PureComponent {
 
         if (field_type === "date") {
             return (
-                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight title={showTitle}>
+                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight title={showTitle} show={showMenu} onToggle={this.toggleDrop}>
                     <form className="inline-input-container pb-0 mb-0 border-0" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
                             <input type="date" className="form-control"
-                                value={value} data-value={value} onChange={this.onTextInputChange} />
+                                value={value} data-value={value} onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
                         </div>
                         <button type="submit" disabled={!updateAble} className="btn">
                             <i className="icon icon-fw icon-check fas"/>
@@ -507,10 +509,10 @@ class RangeDropdown extends React.PureComponent {
             });
 
             return (
-                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect} title={showTitle}>
+                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect} title={showTitle} show={showMenu} onToggle={this.toggleDrop}>
                     <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
-                            <input type="number" className="form-control" {...{ value, placeholder, step }} onChange={this.onTextInputChange} />
+                            <input type="number" className="form-control" {...{ value, placeholder, step }} onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
                         </div>
                         <button type="submit" disabled={!updateAble} className="btn">
                             <i className="icon icon-fw icon-check fas"/>

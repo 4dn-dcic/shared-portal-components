@@ -450,11 +450,10 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "inner-panel"
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row"
+        className: "not-row"
       }, /*#__PURE__*/_react["default"].createElement("label", {
-        className: "col-auto mb-0 small"
+        className: "mb-0 small"
       }, "From:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
-        fieldType: "from",
         title: fromTitle,
         value: fromVal,
         savedValue: savedFromVal,
@@ -468,11 +467,10 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         id: "from_" + field,
         reset: fromVal !== null ? this.resetFrom : null
       })), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row ml-05"
+        className: "not-row ml-05"
       }, /*#__PURE__*/_react["default"].createElement("label", {
-        className: "col-auto mb-0 small"
+        className: "mb-0 small"
       }, "To:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
-        fieldType: "to",
         title: toTitle,
         value: toVal,
         savedValue: savedToVal,
@@ -505,9 +503,14 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
     _classCallCheck(this, RangeDropdown);
 
     _this2 = _super2.call(this, props);
+    _this2.state = {
+      showMenu: false
+    };
     _this2.onTextInputChange = _this2.onTextInputChange.bind(_assertThisInitialized(_this2));
     _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
     _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
+    _this2.onTextInputKeyDown = _this2.onTextInputKeyDown.bind(_assertThisInitialized(_this2));
+    _this2.toggleDrop = _this2.toggleDrop.bind(_assertThisInitialized(_this2));
 
     _patchedConsole.patchedConsoleInstance.log("props", props);
 
@@ -554,8 +557,25 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
       update();
     }
   }, {
+    key: "onTextInputKeyDown",
+    value: function onTextInputKeyDown(evt) {
+      if (evt.key === "Enter" || evt.keyCode === 13) {
+        this.onTextInputFormSubmit(evt);
+        this.toggleDrop();
+      }
+    }
+  }, {
+    key: "toggleDrop",
+    value: function toggleDrop() {
+      var showMenu = this.state.showMenu;
+      this.setState({
+        showMenu: !showMenu
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
+      var showMenu = this.state.showMenu;
       var _this$props8 = this.props,
           _this$props8$variant = _this$props8.variant,
           variant = _this$props8$variant === void 0 ? "outline-dark" : _this$props8$variant,
@@ -578,9 +598,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           _this$props8$incremen = _this$props8.increments,
           increments = _this$props8$incremen === void 0 ? [] : _this$props8$incremen,
           _this$props8$reset = _this$props8.reset,
-          reset = _this$props8$reset === void 0 ? null : _this$props8$reset,
-          _this$props8$fieldTyp = _this$props8.fieldType,
-          fieldType = _this$props8$fieldTyp === void 0 ? null : _this$props8$fieldTyp;
+          reset = _this$props8$reset === void 0 ? null : _this$props8$reset;
       var updateAble = savedValue !== value;
       var _facet$field_type3 = facet.field_type,
           field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
@@ -591,24 +609,14 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
 
       var showTitle = /*#__PURE__*/_react["default"].createElement("div", {
         className: "d-flex"
-      }, fieldType ? /*#__PURE__*/_react["default"].createElement("div", {
-        className: "clear-icon-container col-auto d-flex align-items-center",
-        "data-tip": "".concat(fieldType === "from" ? "Greater than or equal to" : "Less than or equal to")
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw ".concat(fieldType === "from" ? "icon-greater-than-equal" : "icon-less-than-equal", " fas")
-      })) : null, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "col px-0"
       }, title));
 
       if (typeof reset === "function") {
         showTitle = /*#__PURE__*/_react["default"].createElement("div", {
           className: "d-flex"
-        }, fieldType ? /*#__PURE__*/_react["default"].createElement("div", {
-          className: "clear-icon-container col-auto d-flex align-items-center",
-          "data-tip": "".concat(fieldType === "from" ? "Greater than or equal to" : "Less than or equal to")
-        }, /*#__PURE__*/_react["default"].createElement("i", {
-          className: "icon icon-fw ".concat(fieldType === "from" ? "icon-greater-than-equal" : "icon-less-than-equal", " fas")
-        })) : null, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/_react["default"].createElement("div", {
           className: "clear-icon-container col-auto clickable d-flex align-items-center",
           onClick: reset,
           "data-tip": "Click to unset"
@@ -628,7 +636,9 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           id: id
         }, {
           alignRight: true,
-          title: showTitle
+          title: showTitle,
+          show: showMenu,
+          onToggle: this.toggleDrop
         }), /*#__PURE__*/_react["default"].createElement("form", {
           className: "inline-input-container pb-0 mb-0 border-0",
           onSubmit: this.onTextInputFormSubmit
@@ -639,6 +649,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           className: "form-control",
           value: value,
           "data-value": value,
+          onKeyDown: this.onTextInputKeyDown,
           onChange: this.onTextInputChange
         })), /*#__PURE__*/_react["default"].createElement("button", {
           type: "submit",
@@ -681,7 +692,9 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
         }, {
           alignRight: true,
           onSelect: this.onDropdownSelect,
-          title: showTitle
+          title: showTitle,
+          show: showMenu,
+          onToggle: this.toggleDrop
         }), /*#__PURE__*/_react["default"].createElement("form", {
           className: "inline-input-container",
           onSubmit: this.onTextInputFormSubmit
@@ -695,6 +708,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           placeholder: placeholder,
           step: step
         }, {
+          onKeyDown: this.onTextInputKeyDown,
           onChange: this.onTextInputChange
         }))), /*#__PURE__*/_react["default"].createElement("button", {
           type: "submit",
