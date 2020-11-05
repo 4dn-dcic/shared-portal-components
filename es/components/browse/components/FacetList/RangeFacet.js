@@ -324,6 +324,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     key: "termTitle",
     value: function termTitle(fieldName, value) {
       var allowJSX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+      var toPrecision = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
       var _this$props4 = this.props,
           _this$props4$facet$fi = _this$props4.facet.field_type,
           field_type = _this$props4$facet$fi === void 0 ? "number" : _this$props4$facet$fi,
@@ -348,13 +349,17 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       var absVal = Math.abs(transformedValue);
 
-      if (absVal.toString().length <= 7) {
+      if (absVal.toString().length <= 6) {
         // Else is too long and will go thru toPrecision or toExponential.
         if (absVal >= 1000) {
           return (0, _valueTransforms.decorateNumberWithCommas)(transformedValue);
         } else {
           return transformedValue;
         }
+      }
+
+      if (toPrecision) {
+        return transformedValue.toPrecision(3);
       }
 
       return transformedValue.toExponential(3);
@@ -621,11 +626,15 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           _facet$number_step2 = facet.number_step,
           step = _facet$number_step2 === void 0 ? "any" : _facet$number_step2;
 
+      var emptyValue = /*#__PURE__*/_react["default"].createElement("span", {
+        className: "ml-1 mr-1"
+      }, "-");
+
       var showTitle = /*#__PURE__*/_react["default"].createElement("div", {
         className: "d-flex"
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "col px-0"
-      }, title));
+      }, value ? title : emptyValue));
 
       if (typeof reset === "function") {
         showTitle = /*#__PURE__*/_react["default"].createElement("div", {
@@ -638,7 +647,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           className: "icon icon-fw fas icon-minus-circle"
         })), /*#__PURE__*/_react["default"].createElement("div", {
           className: "col px-0"
-        }, title));
+        }, value ? title : emptyValue));
       }
 
       if (field_type === "date") {

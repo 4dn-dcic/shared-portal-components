@@ -225,7 +225,7 @@ export class RangeFacet extends React.PureComponent {
      * If no other transformations specified, and have a large number, then
      * condense it using `toExponential`.
      */
-    termTitle(fieldName, value, allowJSX = true){
+    termTitle(fieldName, value, allowJSX = true, toPrecision = true){
         const {
             facet: { field_type = "number" },
             termTransformFxn
@@ -244,7 +244,7 @@ export class RangeFacet extends React.PureComponent {
             return transformedValue;
         }
         const absVal = Math.abs(transformedValue);
-        if (absVal.toString().length <= 7){
+        if (absVal.toString().length <= 6){
             // Else is too long and will go thru toPrecision or toExponential.
             if (absVal >= 1000) {
                 return decorateNumberWithCommas(transformedValue);
@@ -252,6 +252,8 @@ export class RangeFacet extends React.PureComponent {
                 return transformedValue;
             }
         }
+
+        if (toPrecision) { return transformedValue.toPrecision(3); }
         return transformedValue.toExponential(3);
     }
 
@@ -452,9 +454,10 @@ class RangeDropdown extends React.PureComponent {
             number_step: step = "any"
         } = facet;
 
+        const emptyValue = <span className="ml-1 mr-1">-</span>;
         let showTitle = (
             <div className="d-flex">
-                <div className="col px-0">{ title }</div>
+                <div className="col px-0">{ value ? title : emptyValue}</div>
             </div>
         );
 
@@ -465,7 +468,7 @@ class RangeDropdown extends React.PureComponent {
                         data-tip="Click to unset">
                         <i className="icon icon-fw fas icon-minus-circle"/>
                     </div>
-                    <div className="col px-0">{ title }</div>
+                    <div className="col px-0">{ value ? title : emptyValue }</div>
                 </div>
             );
         }
