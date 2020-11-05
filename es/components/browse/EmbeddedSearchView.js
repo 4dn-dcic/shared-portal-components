@@ -211,7 +211,7 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         onClearFiltersVirtual: onClearFiltersVirtual,
         isClearFiltersBtnVisible: isClearFiltersBtnVisible
       }, {
-        key: searchHref
+        key: searchHref || 1
       }), embeddedTableHeader, /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
@@ -232,7 +232,8 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
 exports.EmbeddedSearchView = EmbeddedSearchView;
 
 _defineProperty(EmbeddedSearchView, "propTypes", {
-  'searchHref': _propTypes["default"].string.isRequired,
+  // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
+  'searchHref': _propTypes["default"].string,
   // From Redux store; is NOT passed down. Overriden instead.
   'context': _propTypes["default"].object,
   // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.

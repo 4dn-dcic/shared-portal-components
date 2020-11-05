@@ -132,7 +132,7 @@ class ResultDetail extends React.PureComponent{
                 const { display_title } = result;
                 analytics.productAddDetailViewed(result, context, {
                     "position": rowNumber,
-                    "list": isOwnPage ? "Embedded Search View" :analytics.hrefToListName(href)
+                    "list": !isOwnPage ? "Embedded Search View": analytics.hrefToListName(href)
                 });
                 analytics.event("SearchResult DetailPane", "Opened", { eventLabel: display_title });
 
@@ -714,7 +714,7 @@ class DimensioningContainer extends React.PureComponent {
         };
     }
 
-    static getDerivedStateFromProps({ results: ctxResults }, { originalResults }){
+    static getDerivedStateFromProps({ results: ctxResults = [] }, { originalResults }){
         if (ctxResults !== originalResults) {
             // `context` has changed upstream, reset results and detail panes.
             return {
@@ -738,14 +738,15 @@ class DimensioningContainer extends React.PureComponent {
         this.onHorizontalScroll = this.onHorizontalScroll.bind(this);
         this.setResults = this.setResults.bind(this);
         this.canLoadMore = this.canLoadMore.bind(this);
+        const { results: originalResults = [] } = props;
         this.state = {
             'mounted'   : false,
-            'results'   : props.results.slice(0),
+            'results'   : originalResults.slice(0),
             // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
             'openDetailPanes' : {},
             'tableContainerScrollLeft' : 0,
             'tableContainerWidth' : 0,
-            'originalResults' : props.results // Reference to original results in order to utilize getDerivedStateFromProps.
+            originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
         };
 
         if (this.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0){

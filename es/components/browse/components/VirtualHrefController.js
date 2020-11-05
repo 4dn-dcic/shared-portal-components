@@ -39,6 +39,8 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -62,8 +64,6 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * Accepts and parses the `href` from Redux / App.
@@ -96,7 +96,10 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     }
   }, {
     key: "isClearFiltersBtnVisible",
-    value: function isClearFiltersBtnVisible(virtualHref, originalSearchHref) {
+    value: function isClearFiltersBtnVisible() {
+      var virtualHref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var originalSearchHref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
       if (virtualHref === null) {
         // Case if state.virtualCompoundFilterSet is not null.
         // Is moot since in such case, FacetList will be invisible or at least
@@ -104,8 +107,8 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
         return false;
       }
 
-      var virtualHrefPartsQuery = _url["default"].parse(virtualHref, true).query || {};
-      var origHrefQuery = _url["default"].parse(originalSearchHref, true).query || {};
+      var virtualHrefPartsQuery = _url["default"].parse(virtualHref || "", true).query || {};
+      var origHrefQuery = _url["default"].parse(originalSearchHref || "", true).query || {};
       return !_underscore["default"].isEqual(origHrefQuery, virtualHrefPartsQuery);
     }
   }]);
@@ -128,25 +131,28 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
       })
     };
     _this.state = {
-      "virtualHref": props.searchHref,
+      "virtualHref": props.searchHref || null,
       // Takes precedence over virtualHref, if present.
       // TODO: Allow props.compoundFilterSet to init with perhaps.
       "virtualCompoundFilterSet": null,
-      "isContextLoading": true,
+      "isContextLoading": false,
       "virtualContext": undefined // Let downstream components use defaultProps to fallback
 
     };
     return _this;
   }
+  /** Will not be called if EmbeddedSearchView is not initialized with a `props.searchHref` */
+
 
   _createClass(VirtualHrefController, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this$state = this.state,
           virtualHref = _this$state.virtualHref,
-          virtualContext = _this$state.virtualContext;
+          virtualContext = _this$state.virtualContext,
+          isContextLoading = _this$state.isContextLoading;
 
-      if (!virtualContext && virtualHref) {
+      if (!isContextLoading && !virtualContext && virtualHref) {
         // No results yet loaded.
         this.virtualNavigate(virtualHref);
       }
@@ -204,7 +210,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
 
       var scopedRequest;
 
-      _patchedConsole.patchedConsoleInstance.log('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
+      _patchedConsole.patchedConsoleInstance.warn('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
 
       this.setState({
         "isContextLoading": true
@@ -214,10 +220,12 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
               initialResults = nextContext['@graph'];
 
           if (scopedRequest !== _this2.currRequest) {
-            _patchedConsole.patchedConsoleInstance.warn("This is no longer the current request");
+            _patchedConsole.patchedConsoleInstance.warn("This is no longer the current request", scopedRequest, _this2.currRequest);
 
             return false;
           }
+
+          _this2.currRequest = null;
 
           if (typeof total !== "number") {
             throw new Error("Did not get back a search response");
@@ -248,10 +256,10 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           _patchedConsole.patchedConsoleInstance.info("Loaded Next Context", nextContext);
 
           _this2.setState({
-            virtualContext: nextContext,
-            isContextLoading: false,
-            virtualHref: responseHref,
-            virtualCompoundFilterSet: virtualCompoundFilterSet
+            "virtualContext": nextContext,
+            "isContextLoading": false,
+            "virtualHref": responseHref,
+            "virtualCompoundFilterSet": virtualCompoundFilterSet
           }, function () {
             if (typeof callback === "function") {
               callback(nextContext);
@@ -262,6 +270,13 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
             }
           });
         };
+
+        if (_this2.currRequest) {
+          // Try cancel existing request if possible.
+          _this2.currRequest.abort();
+
+          _this2.currRequest = null;
+        }
 
         scopedRequest = _this2.currRequest = (0, _ajax.load)(nextHrefFull ? nextHrefFull : "/compound_search", onLoadResponse, nextHrefFull ? "GET" : "POST", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
       });
@@ -348,7 +363,3 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
 }(_react["default"].PureComponent);
 
 exports.VirtualHrefController = VirtualHrefController;
-
-_defineProperty(VirtualHrefController, "defaultProps", {
-  "searchHref": "/search/?type=Item"
-});

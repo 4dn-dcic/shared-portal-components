@@ -592,8 +592,7 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
 
       _sort_fields$ = _sort_fields$ === void 0 ? {} : _sort_fields$;
       var _sort_fields$$field = _sort_fields$.field,
-          firstSortField = _sort_fields$$field === void 0 ? null : _sort_fields$$field;
-      console.log("TTTT", this.props, firstSortField); // If not multiple options, just sort on the only sort field available.
+          firstSortField = _sort_fields$$field === void 0 ? null : _sort_fields$$field; // If not multiple options, just sort on the only sort field available.
       // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
 
       sortByField(firstSortField || field);

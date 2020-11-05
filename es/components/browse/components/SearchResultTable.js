@@ -214,7 +214,7 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
           var display_title = result.display_title;
           analytics.productAddDetailViewed(result, context, {
             "position": rowNumber,
-            "list": isOwnPage ? "Embedded Search View" : analytics.hrefToListName(href)
+            "list": !isOwnPage ? "Embedded Search View" : analytics.hrefToListName(href)
           });
           analytics.event("SearchResult DetailPane", "Opened", {
             eventLabel: display_title
@@ -1008,7 +1008,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
   }, {
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(_ref4, _ref5) {
-      var ctxResults = _ref4.results;
+      var _ref4$results = _ref4.results,
+          ctxResults = _ref4$results === void 0 ? [] : _ref4$results;
       var originalResults = _ref5.originalResults;
 
       if (ctxResults !== originalResults) {
@@ -1040,14 +1041,16 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
     _this8.onHorizontalScroll = _this8.onHorizontalScroll.bind(_assertThisInitialized(_this8));
     _this8.setResults = _this8.setResults.bind(_assertThisInitialized(_this8));
     _this8.canLoadMore = _this8.canLoadMore.bind(_assertThisInitialized(_this8));
+    var _props$results = props.results,
+        originalResults = _props$results === void 0 ? [] : _props$results;
     _this8.state = {
       'mounted': false,
-      'results': props.results.slice(0),
+      'results': originalResults.slice(0),
       // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
       'openDetailPanes': {},
       'tableContainerScrollLeft': 0,
       'tableContainerWidth': 0,
-      'originalResults': props.results // Reference to original results in order to utilize getDerivedStateFromProps.
+      originalResults: originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
 
     };
 

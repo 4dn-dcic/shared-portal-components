@@ -38,21 +38,17 @@ export class VirtualHrefController extends React.PureComponent {
         return facets.filter(filterFacetFxn);
     }
 
-    static isClearFiltersBtnVisible(virtualHref, originalSearchHref){
+    static isClearFiltersBtnVisible(virtualHref = null, originalSearchHref = null){
         if (virtualHref === null) {
             // Case if state.virtualCompoundFilterSet is not null.
             // Is moot since in such case, FacetList will be invisible or at least
             // non-functioning anyways.
             return false;
         }
-        const virtualHrefPartsQuery = url.parse(virtualHref, true).query || {};
-        const origHrefQuery = url.parse(originalSearchHref, true).query || {};
+        const virtualHrefPartsQuery = url.parse(virtualHref || "", true).query || {};
+        const origHrefQuery = url.parse(originalSearchHref || "", true).query || {};
         return !_.isEqual(origHrefQuery, virtualHrefPartsQuery);
     }
-
-    static defaultProps = {
-        "searchHref" : "/search/?type=Item"
-    };
 
     constructor(props){
         super(props);
@@ -72,18 +68,19 @@ export class VirtualHrefController extends React.PureComponent {
         };
 
         this.state = {
-            "virtualHref" : props.searchHref,
+            "virtualHref" : props.searchHref || null,
             // Takes precedence over virtualHref, if present.
             // TODO: Allow props.compoundFilterSet to init with perhaps.
             "virtualCompoundFilterSet" : null,
-            "isContextLoading" : true,
+            "isContextLoading" : false,
             "virtualContext" : undefined // Let downstream components use defaultProps to fallback
         };
     }
 
+    /** Will not be called if EmbeddedSearchView is not initialized with a `props.searchHref` */
     componentDidMount(){
-        const { virtualHref, virtualContext } = this.state;
-        if (!virtualContext && virtualHref) { // No results yet loaded.
+        const { virtualHref, virtualContext, isContextLoading } = this.state;
+        if (!isContextLoading && !virtualContext && virtualHref) { // No results yet loaded.
             this.virtualNavigate(virtualHref);
         }
     }
@@ -105,7 +102,6 @@ export class VirtualHrefController extends React.PureComponent {
             virtualHref: currentHref = null,
             virtualContext: existingContext
         } = this.state;
-
 
         let nextHrefFull = null;
         let virtualCompoundFilterSet = null;
@@ -131,15 +127,19 @@ export class VirtualHrefController extends React.PureComponent {
 
         let scopedRequest;
 
-        console.log('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
+        console.warn('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
 
         this.setState({ "isContextLoading" : true }, () => {
+
             const onLoadResponse = (nextContext) => {
                 const { total, '@graph' : initialResults } = nextContext;
                 if (scopedRequest !== this.currRequest) {
-                    console.warn("This is no longer the current request");
+                    console.warn("This is no longer the current request", scopedRequest, this.currRequest);
                     return false;
                 }
+
+                this.currRequest = null;
+
                 if (typeof total !== "number") {
                     throw new Error("Did not get back a search response");
                 }
@@ -174,10 +174,10 @@ export class VirtualHrefController extends React.PureComponent {
                 console.info("Loaded Next Context", nextContext);
 
                 this.setState({
-                    virtualContext: nextContext,
-                    isContextLoading: false,
-                    virtualHref: responseHref,
-                    virtualCompoundFilterSet: virtualCompoundFilterSet
+                    "virtualContext": nextContext,
+                    "isContextLoading": false,
+                    "virtualHref": responseHref,
+                    "virtualCompoundFilterSet": virtualCompoundFilterSet
                 }, () => {
                     if (typeof callback === "function"){
                         callback(nextContext);
@@ -187,6 +187,12 @@ export class VirtualHrefController extends React.PureComponent {
                     }
                 });
             };
+
+            if (this.currRequest) {
+                // Try cancel existing request if possible.
+                this.currRequest.abort();
+                this.currRequest = null;
+            }
 
             scopedRequest = this.currRequest = ajaxLoad(
                 nextHrefFull ? nextHrefFull : "/compound_search",

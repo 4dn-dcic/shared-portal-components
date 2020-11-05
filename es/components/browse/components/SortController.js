@@ -135,28 +135,51 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
 
       var _this$props = this.props,
           propNavigate = _this$props.navigate,
-          href = _this$props.href;
-      if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
-      if (typeof href !== 'string') throw new Error("Browse doesn't have props.href.");
+          _this$props$href = _this$props.href,
+          currSearchHref = _this$props$href === void 0 ? null : _this$props$href,
+          _this$props$requested = _this$props.requestedCompoundFilterSet,
+          requestedCompoundFilterSet = _this$props$requested === void 0 ? null : _this$props$requested;
+      var href = null;
 
-      var _url$parse2 = _url["default"].parse(href, true),
-          query = _url$parse2.query,
-          urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
-
-      if (key) {
-        query.sort = (reverse ? '-' : '') + key;
+      if (currSearchHref) {
+        href = currSearchHref;
+      } else if (requestedCompoundFilterSet) {
+        href = "?" + requestedCompoundFilterSet.global_flags || "";
       } else {
-        delete query.sort;
+        throw new Error("SortController doesn't have `props.href` nor `requestedCompoundFilterSet`.");
       }
 
-      urlParts.search = '?' + _querystring["default"].stringify(query);
-
-      var newHref = _url["default"].format(urlParts);
-
+      if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
+      if (typeof href !== 'string') throw new Error("Browse doesn't have props.href.");
       this.setState({
         'changingPage': true
       }, function () {
-        propNavigate(newHref, {
+        var _url$parse2 = _url["default"].parse(href, true),
+            query = _url$parse2.query,
+            urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
+
+        if (key) {
+          query.sort = (reverse ? '-' : '') + key;
+        } else {
+          delete query.sort;
+        }
+
+        var stringifiedNextQuery = _querystring["default"].stringify(query);
+
+        var navTarget = null;
+
+        if (currSearchHref) {
+          urlParts.search = '?' + _querystring["default"].stringify(query);
+          navTarget = _url["default"].format(urlParts);
+        } else if (requestedCompoundFilterSet) {
+          navTarget = _objectSpread(_objectSpread({}, requestedCompoundFilterSet), {}, {
+            "global_flags": stringifiedNextQuery
+          });
+        } else {
+          throw new Error("SortController doesn't have `props.href` nor `requestedCompoundFilterSet`.");
+        }
+
+        propNavigate(navTarget, {
           'replace': true
         }, function () {
           _this2.setState({

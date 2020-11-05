@@ -31,7 +31,8 @@ export class EmbeddedSearchView extends React.PureComponent {
      * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
      */
     static propTypes = {
-        'searchHref'    : PropTypes.string.isRequired,
+        // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
+        'searchHref'    : PropTypes.string,
         // From Redux store; is NOT passed down. Overriden instead.
         'context'       : PropTypes.object,
         // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
@@ -137,7 +138,7 @@ export class EmbeddedSearchView extends React.PureComponent {
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref || 1}>
                     { embeddedTableHeader }
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>

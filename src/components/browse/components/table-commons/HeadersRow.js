@@ -399,8 +399,6 @@ class ColumnSorterIcon extends React.PureComponent {
 
         const [ { field: firstSortField = null } = {} ] = sort_fields;
 
-        console.log("TTTT", this.props, firstSortField);
-
         // If not multiple options, just sort on the only sort field available.
         // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
         sortByField(firstSortField || field);

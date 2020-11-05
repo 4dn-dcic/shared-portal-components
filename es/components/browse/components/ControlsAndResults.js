@@ -238,7 +238,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       // TODO: Hide if using `requestedCompoundFilterSet` instead of `href`
       _react["default"].createElement("div", {
         className: facetColumnClassName
-      }, extendedAboveFacetListComponent, Array.isArray(facets) && facets.length > 0 ? /*#__PURE__*/_react["default"].createElement(_FacetList.FacetList, facetListProps) : requestedCompoundFilterSet ?
+      }, extendedAboveFacetListComponent, requestedCompoundFilterSet ?
       /*#__PURE__*/
       // Compound search used, FacetList UI cannot be used -
       _react["default"].createElement("div", {
@@ -247,7 +247,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         className: "py-4"
       }, /*#__PURE__*/_react["default"].createElement("h4", {
         className: "text-400 text-center"
-      }, "Compound Filter"))) : isContextLoading ? /*#__PURE__*/_react["default"].createElement("div", {
+      }, "Compound Filter"))) : Array.isArray(facets) && facets.length > 0 ? /*#__PURE__*/_react["default"].createElement(_FacetList.FacetList, facetListProps) : isContextLoading ? /*#__PURE__*/_react["default"].createElement("div", {
         className: "facets-container with-header-bg"
       }, /*#__PURE__*/_react["default"].createElement(_FacetList.FacetListHeader, null), /*#__PURE__*/_react["default"].createElement("div", {
         className: "text-center py-4 text-secondary"
