@@ -118,6 +118,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             windowWidth,
             // Will inherit props from VirtualHrefController, including search response `context`.
             embeddedTableHeader = null,
+            embeddedTableFooter = null,
             // Optional prop to which virtualNavigate is passed that may override default
             // of navigating back to `searchHref`.
             onClearFiltersVirtual,
@@ -145,6 +146,7 @@ export class EmbeddedSearchView extends React.PureComponent {
                             </SortController>
                         </CustomColumnController>
                     </ColumnCombiner>
+                    { embeddedTableFooter }
                 </VirtualHrefController>
             </div>
         );

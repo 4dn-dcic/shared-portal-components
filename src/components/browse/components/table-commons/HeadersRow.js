@@ -69,7 +69,7 @@ export class HeadersRow extends React.PureComponent {
         const retObj = {};
         columnDefinitions.forEach(function({ field, sort_fields = [] }){
             if (sort_fields.length < 2) {
-                const useField = sort_fields[0] || field;
+                const useField = (sort_fields[0] && sort_fields[0].field) || field;
                 if (useField === sortColumn) {
                     retObj[field] = [ sortReverse ];
                 }
@@ -376,7 +376,10 @@ class ColumnSorterIcon extends React.PureComponent {
     onIconClick(e){
         e.preventDefault();
         const {
-            columnDefinition : { field, sort_fields = [] },
+            columnDefinition : {
+                field,
+                sort_fields = []
+            },
             showingSortOptionsMenu = false,
             setShowingSortFieldsFor,
             sortByField
@@ -394,9 +397,13 @@ class ColumnSorterIcon extends React.PureComponent {
             return;
         }
 
+        const [ { field: firstSortField = null } = {} ] = sort_fields;
+
+        console.log("TTTT", this.props, firstSortField);
+
         // If not multiple options, just sort on the only sort field available.
         // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
-        sortByField(sort_fields[0] || field);
+        sortByField(firstSortField || field);
     }
 
     render(){

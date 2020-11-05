@@ -6,7 +6,7 @@ import _ from 'underscore';
 import url from 'url';
 import * as analytics from './../../util/analytics';
 import { load as ajaxLoad } from './../../util/ajax';
-import { navigate } from './../../util/navigate';
+import { navigate as globalNavigate } from './../../util/navigate';
 import { getTermFacetStatus } from './../../util/search-filters';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { generateNextHref } from './FacetList';
@@ -39,6 +39,12 @@ export class VirtualHrefController extends React.PureComponent {
     }
 
     static isClearFiltersBtnVisible(virtualHref, originalSearchHref){
+        if (virtualHref === null) {
+            // Case if state.virtualCompoundFilterSet is not null.
+            // Is moot since in such case, FacetList will be invisible or at least
+            // non-functioning anyways.
+            return false;
+        }
         const virtualHrefPartsQuery = url.parse(virtualHref, true).query || {};
         const origHrefQuery = url.parse(originalSearchHref, true).query || {};
         return !_.isEqual(origHrefQuery, virtualHrefPartsQuery);
@@ -67,6 +73,9 @@ export class VirtualHrefController extends React.PureComponent {
 
         this.state = {
             "virtualHref" : props.searchHref,
+            // Takes precedence over virtualHref, if present.
+            // TODO: Allow props.compoundFilterSet to init with perhaps.
+            "virtualCompoundFilterSet" : null,
             "isContextLoading" : true,
             "virtualContext" : undefined // Let downstream components use defaultProps to fallback
         };
@@ -79,19 +88,52 @@ export class VirtualHrefController extends React.PureComponent {
         }
     }
 
-    virtualNavigate(nextHref, navOpts, callback){
+    /**
+     * Unlike App.navigate, this also supports JSON body as first param
+     * in order to perform compound search.
+     * This props.navigate must only be called by child/downstream components
+     * of EmbeddedSearchViews. Children of non-Embedded Search View generally
+     * should use the global `navigate`, instead.
+     *
+     * @param {string|{ filter_blocks: { query:string }[], intersect: boolean, global_flags: string }} navigationTarget - Search href or a compound filterset representation.
+     * @param {Object} navOpts - Kept for standardization with App.navigate, not used here.
+     * @param {function} callback - Executed after successful response.
+     */
+    virtualNavigate(navigationTarget, navOpts, callback){
         const { onLoad = null } = this.props;
-        const { virtualHref: currentHref, virtualContext: existingContext } = this.state;
+        const {
+            virtualHref: currentHref = null,
+            virtualContext: existingContext
+        } = this.state;
 
-        // There is (very large) chance that `nextHref` does not have domain name, path, etc.
-        // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
-        const nextHrefFull = url.resolve(currentHref, nextHref);
+
+        let nextHrefFull = null;
+        let virtualCompoundFilterSet = null;
+        if (typeof navigationTarget === "string") {
+            // There is (very large) chance that `nextHref` does not have domain name, path, etc.
+            // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
+            nextHrefFull = url.resolve(currentHref || "/search/", navigationTarget);
+        } else {
+            // Minor validation - let throw errors here.
+            const { filter_blocks } = navigationTarget;
+            if (filter_blocks.length === 0) {
+                throw new Error("Must have 1+ filter blocks");
+            }
+            const anyWithoutQueries = _.any(filter_blocks, function({ query }){
+                if (typeof query !== "string") return true;
+                return false;
+            });
+            if (anyWithoutQueries) {
+                throw new Error("Each filterblock must have a query");
+            }
+            virtualCompoundFilterSet = navigationTarget;
+        }
 
         let scopedRequest;
 
-        console.log('VIRTUAL NAVIGATE CALLED', nextHref, nextHrefFull, navOpts);
+        console.log('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
 
-        this.setState({ "isContextLoading" : true }, ()=>{
+        this.setState({ "isContextLoading" : true }, () => {
             const onLoadResponse = (nextContext) => {
                 const { total, '@graph' : initialResults } = nextContext;
                 if (scopedRequest !== this.currRequest) {
@@ -102,10 +144,26 @@ export class VirtualHrefController extends React.PureComponent {
                     throw new Error("Did not get back a search response");
                 }
 
+                if (typeof globalNavigate.updateUserInfo === "function") {
+                    globalNavigate.updateUserInfo();
+                }
+
+                // Get correct URL from XHR, in case we hit a redirect during the request.
+                let responseHref = null;
+                if (!virtualCompoundFilterSet) {
+                    responseHref = (
+                        scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL
+                    ) || nextHrefFull;
+                }
+
                 if (typeof existingContext === "undefined"){
                     // First time we've loaded response context. Register analytics event.
                     if (Array.isArray(initialResults)){
-                        analytics.impressionListOfItems(initialResults, nextHrefFull, "Embedded Search View");
+                        analytics.impressionListOfItems(
+                            initialResults,
+                            responseHref || "/compound_search",
+                            "Embedded Search View"
+                        );
                         const evtObj = analytics.eventObjectFromCtx(existingContext);
                         delete evtObj.name;
                         evtObj.eventValue = initialResults.length;
@@ -113,11 +171,14 @@ export class VirtualHrefController extends React.PureComponent {
                     }
                 }
 
+                console.info("Loaded Next Context", nextContext);
+
                 this.setState({
                     virtualContext: nextContext,
                     isContextLoading: false,
-                    virtualHref: nextHrefFull
-                }, ()=>{
+                    virtualHref: responseHref,
+                    virtualCompoundFilterSet: virtualCompoundFilterSet
+                }, () => {
                     if (typeof callback === "function"){
                         callback(nextContext);
                     }
@@ -127,7 +188,13 @@ export class VirtualHrefController extends React.PureComponent {
                 });
             };
 
-            scopedRequest = this.currRequest = ajaxLoad(nextHrefFull, onLoadResponse, "GET", onLoadResponse);
+            scopedRequest = this.currRequest = ajaxLoad(
+                nextHrefFull ? nextHrefFull : "/compound_search",
+                onLoadResponse,
+                nextHrefFull ? "GET" : "POST",
+                onLoadResponse,
+                virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null
+            );
 
         });
 
@@ -176,6 +243,7 @@ export class VirtualHrefController extends React.PureComponent {
         const {
             virtualHref: href,
             virtualContext: context,
+            virtualCompoundFilterSet: requestedCompoundFilterSet,
             isContextLoading
         } = this.state;
 
@@ -187,7 +255,11 @@ export class VirtualHrefController extends React.PureComponent {
 
         const propsToPass = {
             ...passProps,
-            href, context, isContextLoading, facets, showClearFiltersButton,
+            context,
+            requestedCompoundFilterSet,
+            // Don't pass down href if using requestedCompoundFilterSet
+            href: requestedCompoundFilterSet ? null : href,
+            isContextLoading, facets, showClearFiltersButton,
             navigate: this.virtualNavigate,
             onFilter: this.onFilter,
             onClearFilters: this.onClearFilters,
