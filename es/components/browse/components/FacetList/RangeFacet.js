@@ -429,6 +429,11 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
+      var isFromValUnapplied = fromVal !== savedFromVal;
+      var isToValUnapplied = toVal !== savedToVal;
+      var fromVariant = isFromValUnapplied ? "warning" : savedFromVal === null ? "outline-dark" : "primary";
+      var toVariant = isToValUnapplied ? "warning" : savedToVal === null ? "outline-dark" : "primary";
+      var valueUnappliedTip = '<i className="icon fa-exclamation-circle fas"></i>This change is unapplied';
       return /*#__PURE__*/_react["default"].createElement("div", {
         className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
         "data-field": facet.field
@@ -487,7 +492,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         savedValue: savedFromVal,
         max: toVal || null,
         increments: fromIncrements,
-        variant: typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark",
+        variant: fromVariant + " btn-xs",
+        tooltip: isFromValUnapplied ? valueUnappliedTip : null,
         onSelect: this.setFrom,
         update: this.performUpdateFrom,
         termTransformFxn: this.termTitle,
@@ -504,7 +510,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         savedValue: savedToVal,
         min: fromVal || null,
         increments: toIncrements,
-        variant: typeof toVal === "number" || savedToVal ? "primary" : "outline-dark",
+        variant: toVariant + " btn-xs",
+        tooltip: isToValUnapplied ? valueUnappliedTip : null,
         onSelect: this.setTo,
         update: this.performUpdateTo,
         termTransformFxn: this.termTitle,
@@ -605,9 +612,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
     _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
     _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
     _this2.onTextInputKeyDown = _this2.onTextInputKeyDown.bind(_assertThisInitialized(_this2));
-    _this2.toggleDrop = _this2.toggleDrop.bind(_assertThisInitialized(_this2));
-
-    _patchedConsole.patchedConsoleInstance.log("props", props);
+    _this2.toggleDrop = _this2.toggleDrop.bind(_assertThisInitialized(_this2)); // console.log("props", props);
 
     return _this2;
   }
@@ -706,7 +711,8 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           _this$props9$incremen = _this$props9.increments,
           increments = _this$props9$incremen === void 0 ? [] : _this$props9$incremen,
           _this$props9$reset = _this$props9.reset,
-          reset = _this$props9$reset === void 0 ? null : _this$props9$reset;
+          reset = _this$props9$reset === void 0 ? null : _this$props9$reset,
+          tooltip = _this$props9.tooltip;
       var updateAble = savedValue !== value;
       var _facet$field_type3 = facet.field_type,
           field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
@@ -716,28 +722,25 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           step = _facet$number_step2 === void 0 ? "any" : _facet$number_step2;
 
       var emptyValue = /*#__PURE__*/_react["default"].createElement("span", {
-        className: "ml-1 mr-1"
+        className: "mx-1"
       }, "-");
 
       var showTitle = /*#__PURE__*/_react["default"].createElement("div", {
         className: "d-flex"
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "col px-0"
-      }, value !== null ? title : emptyValue));
+        className: "col px-1"
+      }, value !== null ? title : emptyValue)); // if (typeof reset === "function") {
+      //     showTitle = (
+      //         <div className="d-flex">
+      //             <div className="clear-icon-container col-auto clickable d-flex align-items-center" onClick={reset}
+      //                 data-tip="Click to unset">
+      //                 <i className="icon icon-fw fas icon-minus-circle"/>
+      //             </div>
+      //             <div className="col px-0">{ value !== null ? title : emptyValue }</div>
+      //         </div>
+      //     );
+      // }
 
-      if (typeof reset === "function") {
-        showTitle = /*#__PURE__*/_react["default"].createElement("div", {
-          className: "d-flex"
-        }, /*#__PURE__*/_react["default"].createElement("div", {
-          className: "clear-icon-container col-auto clickable d-flex align-items-center",
-          onClick: reset,
-          "data-tip": "Click to unset"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
-          className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/_react["default"].createElement("div", {
-          className: "col px-0"
-        }, value !== null ? title : emptyValue));
-      }
 
       if (field_type === "date") {
         return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
@@ -750,7 +753,9 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           alignRight: true,
           title: showTitle,
           show: showMenu,
-          onToggle: this.toggleDrop
+          onToggle: this.toggleDrop,
+          "data-tip": tooltip,
+          "data-html": true
         }), /*#__PURE__*/_react["default"].createElement("form", {
           className: "inline-input-container pb-0 mb-0 border-0",
           onSubmit: this.onTextInputFormSubmit
@@ -787,6 +792,8 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
         }, new Set());
 
         var menuOptions = _toConsumableArray(menuOptsSet).map(function (increment) {
+          _patchedConsole.patchedConsoleInstance.log("increment: ", increment, " savedValue: ", savedValue, " min: ", min);
+
           return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
             disabled: disabled,
             key: increment,
@@ -806,7 +813,9 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           onSelect: this.onDropdownSelect,
           title: showTitle,
           show: showMenu,
-          onToggle: this.toggleDrop
+          onToggle: this.toggleDrop,
+          "data-tip": tooltip,
+          "data-html": true
         }), /*#__PURE__*/_react["default"].createElement("form", {
           className: "inline-input-container",
           onSubmit: this.onTextInputFormSubmit

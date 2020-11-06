@@ -314,6 +314,16 @@ export class RangeFacet extends React.PureComponent {
 
         const isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
 
+        const isFromValUnapplied = (fromVal !== savedFromVal);
+        const isToValUnapplied = (toVal !== savedToVal);
+
+        const fromVariant = isFromValUnapplied ? "warning" :
+            savedFromVal === null ? "outline-dark" : "primary";
+        const toVariant = isToValUnapplied ? "warning" :
+            savedToVal === null ? "outline-dark" : "primary";
+
+        const valueUnappliedTip = '<i className="icon fa-exclamation-circle fas"></i>This change is unapplied';
+
         return (
             <div className={"facet range-facet" + (isOpen ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
@@ -344,8 +354,8 @@ export class RangeFacet extends React.PureComponent {
                                 </label>
                                 <RangeDropdown
                                     title={fromTitle} value={fromVal} savedValue={savedFromVal}
-                                    max={toVal || null} increments={fromIncrements}
-                                    variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"}
+                                    max={toVal || null} increments={fromIncrements} variant={fromVariant + " btn-xs"}
+                                    tooltip={isFromValUnapplied ? valueUnappliedTip : null}
                                     onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
                                     facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
                                 {/*
@@ -362,7 +372,7 @@ export class RangeFacet extends React.PureComponent {
                                 <RangeDropdown
                                     title={toTitle} value={toVal} savedValue={savedToVal}
                                     min={fromVal || null} increments={toIncrements}
-                                    variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"}
+                                    variant={toVariant + " btn-xs"} tooltip={isToValUnapplied ? valueUnappliedTip : null}
                                     onSelect={this.setTo} update={this.performUpdateTo} termTransformFxn={this.termTitle}
                                     facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
                                 {/*
@@ -448,7 +458,7 @@ class RangeDropdown extends React.PureComponent {
         this.onTextInputKeyDown = this.onTextInputKeyDown.bind(this);
         this.toggleDrop = this.toggleDrop.bind(this);
 
-        console.log("props", props);
+        // console.log("props", props);
     }
 
     onTextInputChange(evt){
@@ -507,7 +517,8 @@ class RangeDropdown extends React.PureComponent {
             termTransformFxn, id,
             facet,
             increments = [],
-            reset = null
+            reset = null,
+            tooltip
         } = this.props;
         const updateAble = (savedValue !== value);
         const {
@@ -517,32 +528,33 @@ class RangeDropdown extends React.PureComponent {
             number_step: step = "any"
         } = facet;
 
-        const emptyValue = <span className="ml-1 mr-1">-</span>;
+        const emptyValue = <span className="mx-1">-</span>;
         let showTitle = (
             <div className="d-flex">
-                <div className="col px-0">{ value !== null ? title : emptyValue}</div>
+                <div className="col px-1">{ value !== null ? title : emptyValue}</div>
             </div>
         );
 
-        if (typeof reset === "function") {
-            showTitle = (
-                <div className="d-flex">
-                    <div className="clear-icon-container col-auto clickable d-flex align-items-center" onClick={reset}
-                        data-tip="Click to unset">
-                        <i className="icon icon-fw fas icon-minus-circle"/>
-                    </div>
-                    <div className="col px-0">{ value !== null ? title : emptyValue }</div>
-                </div>
-            );
-        }
+        // if (typeof reset === "function") {
+        //     showTitle = (
+        //         <div className="d-flex">
+        //             <div className="clear-icon-container col-auto clickable d-flex align-items-center" onClick={reset}
+        //                 data-tip="Click to unset">
+        //                 <i className="icon icon-fw fas icon-minus-circle"/>
+        //             </div>
+        //             <div className="col px-0">{ value !== null ? title : emptyValue }</div>
+        //         </div>
+        //     );
+        // }
 
         if (field_type === "date") {
             return (
-                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight title={showTitle} show={showMenu} onToggle={this.toggleDrop}>
+                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight title={showTitle} show={showMenu}
+                    onToggle={this.toggleDrop} data-tip={tooltip} data-html>
                     <form className="inline-input-container pb-0 mb-0 border-0" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
-                            <input type="date" className="form-control"
-                                value={value} data-value={value} onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
+                            <input type="date" className="form-control" value={value} data-value={value}
+                                onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
                         </div>
                         <button type="submit" disabled={!updateAble} className="btn">
                             <i className="icon icon-fw icon-check fas"/>
@@ -574,6 +586,7 @@ class RangeDropdown extends React.PureComponent {
 
             const menuOptions = [...menuOptsSet].map(function(increment, indx){
                 const active = increment === savedValue;
+                console.log("increment: ", increment, " savedValue: ", savedValue, " min: ", min);
                 return (
                     <DropdownItem disabled={disabled} key={increment} eventKey={increment} active={active}>
                         { termTransformFxn(facet.field, increment, true) }
@@ -584,10 +597,12 @@ class RangeDropdown extends React.PureComponent {
             });
 
             return (
-                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect} title={showTitle} show={showMenu} onToggle={this.toggleDrop}>
+                <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect}
+                    title={showTitle} show={showMenu} onToggle={this.toggleDrop} data-tip={tooltip} data-html>
                     <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
-                            <input type="number" className="form-control" {...{ value, placeholder, step }} onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
+                            <input type="number" className="form-control" {...{ value, placeholder, step }}
+                                onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />
                         </div>
                         <button type="submit" disabled={!updateAble} className="btn">
                             <i className="icon icon-fw icon-check fas"/>

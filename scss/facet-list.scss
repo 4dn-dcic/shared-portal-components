@@ -191,6 +191,9 @@ $facetlist-term-block-height: default !default;
                         padding-left: 5px;
                         padding-right: 10px;
                         > button {
+                            &.btn-warning {
+                                color: #ffffff;
+                            }
                             width: 100%;
                             text-align: right;
                             padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
