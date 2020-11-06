@@ -547,9 +547,9 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
       var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
       var savedToTitle = termTransformFxn(facetField, savedToVal, true);
 
-      if (!savedFromVal && !savedToVal) {
+      if (savedFromVal === null && savedToVal === null) {
         return null;
-      } else if (savedFromVal && savedToVal) {
+      } else if (savedFromVal !== null && savedToVal !== null) {
         return /*#__PURE__*/_react["default"].createElement("button", {
           className: "btn btn-primary btn-block btn-xs mt-05 mb-05",
           type: "button",
@@ -578,7 +578,7 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
           className: "icon icon-fw fas icon-minus-circle"
         })), /*#__PURE__*/_react["default"].createElement("div", {
           className: "col px-0"
-        }, resetTo === null ? null : "".concat(facetTitle, " < ").concat(savedToTitle), resetFrom === null ? null : "".concat(savedFromTitle, " < ").concat(facetTitle))));
+        }, savedToVal !== null ? "".concat(facetTitle, " < ").concat(savedToTitle) : null, savedFromVal !== null ? "".concat(savedFromTitle, " < ").concat(facetTitle) : null)));
       }
     }
   }]);
@@ -723,7 +723,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
         className: "d-flex"
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "col px-0"
-      }, value ? title : emptyValue));
+      }, value !== null ? title : emptyValue));
 
       if (typeof reset === "function") {
         showTitle = /*#__PURE__*/_react["default"].createElement("div", {
@@ -736,7 +736,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           className: "icon icon-fw fas icon-minus-circle"
         })), /*#__PURE__*/_react["default"].createElement("div", {
           className: "col px-0"
-        }, value ? title : emptyValue));
+        }, value !== null ? title : emptyValue));
       }
 
       if (field_type === "date") {

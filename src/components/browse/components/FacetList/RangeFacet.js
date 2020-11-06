@@ -400,9 +400,9 @@ class RangeClear extends React.PureComponent {
         const savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
         const savedToTitle = termTransformFxn(facetField, savedToVal, true);
 
-        if (!savedFromVal && !savedToVal) {
+        if (savedFromVal === null && savedToVal === null) {
             return null;
-        } else if (savedFromVal && savedToVal) {
+        } else if (savedFromVal !== null && savedToVal !== null) {
             return (
                 <button className="btn btn-primary btn-block btn-xs mt-05 mb-05" type="button" onClick={resetAll}>
                     <div className="d-flex">
@@ -423,8 +423,8 @@ class RangeClear extends React.PureComponent {
                             <i className="icon icon-fw fas icon-minus-circle"/>
                         </div>
                         <div className="col px-0">
-                            { resetTo === null ? null : `${facetTitle} < ${savedToTitle}` }
-                            { resetFrom === null ? null : `${savedFromTitle} < ${facetTitle}`}
+                            { savedToVal !== null ? `${facetTitle} < ${savedToTitle}` : null }
+                            { savedFromVal !== null ? `${savedFromTitle} < ${facetTitle}`: null }
                         </div>
                     </div>
                 </button>
@@ -520,7 +520,7 @@ class RangeDropdown extends React.PureComponent {
         const emptyValue = <span className="ml-1 mr-1">-</span>;
         let showTitle = (
             <div className="d-flex">
-                <div className="col px-0">{ value ? title : emptyValue}</div>
+                <div className="col px-0">{ value !== null ? title : emptyValue}</div>
             </div>
         );
 
@@ -531,7 +531,7 @@ class RangeDropdown extends React.PureComponent {
                         data-tip="Click to unset">
                         <i className="icon icon-fw fas icon-minus-circle"/>
                     </div>
-                    <div className="col px-0">{ value ? title : emptyValue }</div>
+                    <div className="col px-0">{ value !== null ? title : emptyValue }</div>
                 </div>
             );
         }
