@@ -64,11 +64,9 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
     /**
      * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
      *
-     * @static
+     * @deprecated
      * @param {string} href - Current page href, with query.
      * @returns {Object} { 'page' : int, 'limit' : int }
-     *
-     * @memberof SortController
      */
     value: function getPageAndLimitFromURL(href) {
       var _url$parse = _url["default"].parse(href, true),
@@ -122,7 +120,6 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
     }; // 'changingPage' = historical name, analogous of 'loading'
 
     _this.memoized = {
-      getPageAndLimitFromURL: (0, _memoizeOne["default"])(SortController.getPageAndLimitFromURL),
       getSortColumnAndReverseFromContext: (0, _memoizeOne["default"])(SortController.getSortColumnAndReverseFromContext)
     };
     return _this;

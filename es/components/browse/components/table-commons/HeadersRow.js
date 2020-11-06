@@ -187,6 +187,9 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var _this$state = this.state,
           showingSortFieldsForColumn = _this$state.showingSortFieldsForColumn,
           loadingField = _this$state.loadingField;
+      var pastColumn = pastProps.sortColumn,
+          pastReverse = pastProps.sortReverse,
+          pastScrollLeft = pastProps.tableContainerScrollLeft;
 
       if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn) {
         _WindowClickEventDelegator.WindowClickEventDelegator.addHandler("click", this.onWindowClick, {
@@ -203,12 +206,12 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       } // Unset loading icon
 
 
-      if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastProps.sortColumn || sortReverse !== pastProps.sortReverse)) {
+      if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastColumn || sortReverse !== pastReverse)) {
         nextState.loadingField = null;
       } // Unset dropdown menu if start scrolling horizontally
 
 
-      if (tableContainerScrollLeft !== pastProps.tableContainerScrollLeft) {
+      if (tableContainerScrollLeft !== pastScrollLeft) {
         nextState.showingSortFieldsForColumn = null;
       }
 

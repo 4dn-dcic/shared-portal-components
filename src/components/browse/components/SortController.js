@@ -28,11 +28,9 @@ export class SortController extends React.PureComponent {
     /**
      * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
      *
-     * @static
+     * @deprecated
      * @param {string} href - Current page href, with query.
      * @returns {Object} { 'page' : int, 'limit' : int }
-     *
-     * @memberof SortController
      */
     static getPageAndLimitFromURL(href){
         const { query } = url.parse(href, true);
@@ -73,7 +71,6 @@ export class SortController extends React.PureComponent {
         this.state = { 'changingPage' : false }; // 'changingPage' = historical name, analogous of 'loading'
 
         this.memoized = {
-            getPageAndLimitFromURL: memoize(SortController.getPageAndLimitFromURL),
             getSortColumnAndReverseFromContext: memoize(SortController.getSortColumnAndReverseFromContext)
         };
     }

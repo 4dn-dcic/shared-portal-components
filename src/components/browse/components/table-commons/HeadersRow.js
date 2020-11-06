@@ -125,6 +125,7 @@ export class HeadersRow extends React.PureComponent {
     componentDidUpdate(pastProps, pastState){
         const { columnWidths, sortColumn, sortReverse, tableContainerScrollLeft } = this.props;
         const { showingSortFieldsForColumn, loadingField } = this.state;
+        const { sortColumn: pastColumn, sortReverse: pastReverse, tableContainerScrollLeft: pastScrollLeft } = pastProps;
 
         if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn){
             WindowClickEventDelegator.addHandler("click", this.onWindowClick, { passive: true });
@@ -139,12 +140,12 @@ export class HeadersRow extends React.PureComponent {
         }
 
         // Unset loading icon
-        if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastProps.sortColumn || sortReverse !== pastProps.sortReverse)) {
+        if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastColumn || sortReverse !== pastReverse)) {
             nextState.loadingField = null;
         }
 
         // Unset dropdown menu if start scrolling horizontally
-        if (tableContainerScrollLeft !== pastProps.tableContainerScrollLeft) {
+        if (tableContainerScrollLeft !== pastScrollLeft) {
             nextState.showingSortFieldsForColumn = null;
         }
 
