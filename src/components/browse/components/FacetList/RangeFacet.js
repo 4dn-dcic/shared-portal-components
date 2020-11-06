@@ -142,6 +142,7 @@ export class RangeFacet extends React.PureComponent {
         this.setTo = this.setTo.bind(this);
         this.resetFrom = this.resetFrom.bind(this);
         this.resetTo = this.resetTo.bind(this);
+        this.resetAll = this.resetAll.bind(this); // tentative - will likely be replaced with a prop
         this.performUpdateFrom = this.performUpdateFrom.bind(this);
         this.performUpdateTo = this.performUpdateTo.bind(this);
         this.termTitle = this.termTitle.bind(this);
@@ -213,6 +214,12 @@ export class RangeFacet extends React.PureComponent {
     resetTo(e){
         e.stopPropagation();
         this.setTo(null, this.performUpdateTo);
+    }
+
+    resetAll(e) { // Doesn't work great; need to define this method higher up, where original onFilter methods are defined
+        e.stopPropagation();
+        this.setTo(null, this.performUpdateTo);
+        this.setFrom(null, this.performUpdateFrom);
     }
 
     handleOpenToggleClick(e) {
@@ -328,39 +335,43 @@ export class RangeFacet extends React.PureComponent {
                 </h5>
                 <Collapse in={isOpen}>
                     <div className="inner-panel">
-                        <div className="not-row">
-                            <label className="mb-0 small">
-                                From:
-                            </label>
-                            <RangeDropdown
-                                title={fromTitle} value={fromVal} savedValue={savedFromVal}
-                                max={toVal || null} increments={fromIncrements}
-                                variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"}
-                                onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
-                                facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
-                            {/*
-                            <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
-                                onClick={fromVal !== null ? this.resetFrom : null}>
-                                <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
+                        <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet }} resetAll={this.resetAll} termTransformFxn={this.termTitle}
+                            resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} />
+                        <div className="range-drop-group">
+                            <div className="range-drop">
+                                <label className="mb-0 small">
+                                    From:
+                                </label>
+                                <RangeDropdown
+                                    title={fromTitle} value={fromVal} savedValue={savedFromVal}
+                                    max={toVal || null} increments={fromIncrements}
+                                    variant={typeof fromVal === "number" || savedFromVal ? "primary" : "outline-dark"}
+                                    onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
+                                    facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
+                                {/*
+                                <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
+                                    onClick={fromVal !== null ? this.resetFrom : null}>
+                                    <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
+                                </div>
+                                */}
                             </div>
-                            */}
-                        </div>
-                        <div className="not-row ml-05">
-                            <label className="mb-0 small">
-                                To:
-                            </label>
-                            <RangeDropdown
-                                title={toTitle} value={toVal} savedValue={savedToVal}
-                                min={fromVal || null} increments={toIncrements}
-                                variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"}
-                                onSelect={this.setTo} update={this.performUpdateTo} termTransformFxn={this.termTitle}
-                                facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
-                            {/*
-                            <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
-                                onClick={toVal !== null ? this.resetTo : null}>
-                                <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
+                            <div className="range-drop ml-05">
+                                <label className="mb-0 small">
+                                    To:
+                                </label>
+                                <RangeDropdown
+                                    title={toTitle} value={toVal} savedValue={savedToVal}
+                                    min={fromVal || null} increments={toIncrements}
+                                    variant={typeof toVal === "number" || savedToVal ? "primary" : "outline-dark"}
+                                    onSelect={this.setTo} update={this.performUpdateTo} termTransformFxn={this.termTitle}
+                                    facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
+                                {/*
+                                <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
+                                    onClick={toVal !== null ? this.resetTo : null}>
+                                    <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
+                                </div>
+                                */}
                             </div>
-                            */}
                         </div>
                     </div>
                 </Collapse>
@@ -368,6 +379,58 @@ export class RangeFacet extends React.PureComponent {
         );
     }
 
+}
+
+class RangeClear extends React.PureComponent {
+    render() {
+        const {
+            savedFromVal,
+            savedToVal,
+            resetTo,
+            resetFrom,
+            resetAll,
+            facet,
+            termTransformFxn
+        } = this.props;
+        const {
+            field: facetField,
+            title: facetTitle
+        } = facet;
+
+        const savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
+        const savedToTitle = termTransformFxn(facetField, savedToVal, true);
+
+        if (!savedFromVal && !savedToVal) {
+            return null;
+        } else if (savedFromVal && savedToVal) {
+            return (
+                <button className="btn btn-primary btn-block btn-xs mt-05 mb-05" type="button" onClick={resetAll}>
+                    <div className="d-flex">
+                        <div className="clear-icon-container col-auto clickable d-flex align-items-center"
+                            data-tip="Click to unset">
+                            <i className="icon icon-fw fas icon-minus-circle"/>
+                        </div>
+                        <div className="col px-0">{savedFromTitle} &gt; {facetTitle} &gt; {savedToTitle}</div>
+                    </div>
+                </button>
+            );
+        } else {
+            return (
+                <button className="btn btn-primary btn-block btn-xs mt-05 mb-05" type="button" onClick={resetTo === null ? resetFrom : resetTo}>
+                    <div className="d-flex">
+                        <div className="clear-icon-container col-auto clickable d-flex align-items-center"
+                            data-tip="Click to unset">
+                            <i className="icon icon-fw fas icon-minus-circle"/>
+                        </div>
+                        <div className="col px-0">
+                            { resetTo === null ? null : `${facetTitle} < ${savedToTitle}` }
+                            { resetFrom === null ? null : `${savedFromTitle} < ${facetTitle}`}
+                        </div>
+                    </div>
+                </button>
+            );
+        }
+    }
 }
 
 class RangeDropdown extends React.PureComponent {

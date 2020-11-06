@@ -163,21 +163,26 @@ $facetlist-term-block-height: default !default;
 
         &.range-facet {
             &:not(.closed) { /* allows for side by side display without interfering with open/closed state */
-                > .inner-panel {
+                > .inner-panel .range-drop-group {
                     display: flex;
                     justify-content: center;
                     background-color: #eeeeee;
                 }
             }
-            > .inner-panel.collapsing {
-                display: flex;
-                justify-content: center;
-                background-color: #eeeeee;
-            }
             > .inner-panel {
                 padding-top: 5px;
+                padding-bottom: 5px;
 
-                > div.not-row {
+                &.collapsing {
+                    > .range-drop-group {
+                        display: flex;
+                        justify-content: center;
+                        background-color: #eeeeee;
+                    }
+                }
+
+                > div.range-drop-group div.range-drop {
+                    padding-top: 5px;
                     padding-bottom: 5px;
                     display: flex;
                     align-items: center;

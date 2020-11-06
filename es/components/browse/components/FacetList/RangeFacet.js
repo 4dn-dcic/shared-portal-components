@@ -212,6 +212,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this.setTo = _this.setTo.bind(_assertThisInitialized(_this));
     _this.resetFrom = _this.resetFrom.bind(_assertThisInitialized(_this));
     _this.resetTo = _this.resetTo.bind(_assertThisInitialized(_this));
+    _this.resetAll = _this.resetAll.bind(_assertThisInitialized(_this)); // tentative - will likely be replaced with a prop
+
     _this.performUpdateFrom = _this.performUpdateFrom.bind(_assertThisInitialized(_this));
     _this.performUpdateTo = _this.performUpdateTo.bind(_assertThisInitialized(_this));
     _this.termTitle = _this.termTitle.bind(_assertThisInitialized(_this));
@@ -303,6 +305,14 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     value: function resetTo(e) {
       e.stopPropagation();
       this.setTo(null, this.performUpdateTo);
+    }
+  }, {
+    key: "resetAll",
+    value: function resetAll(e) {
+      // Doesn't work great; need to define this method higher up, where original onFilter methods are defined
+      e.stopPropagation();
+      this.setTo(null, this.performUpdateTo);
+      this.setFrom(null, this.performUpdateFrom);
     }
   }, {
     key: "handleOpenToggleClick",
@@ -454,8 +464,21 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         "in": isOpen
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "inner-panel"
+      }, /*#__PURE__*/_react["default"].createElement(RangeClear, _extends({
+        fromTitle: fromTitle,
+        toTitle: toTitle,
+        savedFromVal: savedFromVal,
+        savedToVal: savedToVal,
+        facet: facet
+      }, {
+        resetAll: this.resetAll,
+        termTransformFxn: this.termTitle,
+        resetFrom: fromVal !== null ? this.resetFrom : null,
+        resetTo: toVal !== null ? this.resetTo : null
+      })), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "range-drop-group"
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "not-row"
+        className: "range-drop"
       }, /*#__PURE__*/_react["default"].createElement("label", {
         className: "mb-0 small"
       }, "From:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
@@ -472,7 +495,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         id: "from_" + field,
         reset: fromVal !== null ? this.resetFrom : null
       })), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "not-row ml-05"
+        className: "range-drop ml-05"
       }, /*#__PURE__*/_react["default"].createElement("label", {
         className: "mb-0 small"
       }, "To:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
@@ -488,7 +511,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "to_" + field,
         reset: toVal !== null ? this.resetTo : null
-      })))));
+      }))))));
     }
   }]);
 
@@ -497,17 +520,83 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
 exports.RangeFacet = RangeFacet;
 
-var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(RangeDropdown, _React$PureComponent2);
+var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
+  _inherits(RangeClear, _React$PureComponent2);
 
-  var _super2 = _createSuper(RangeDropdown);
+  var _super2 = _createSuper(RangeClear);
+
+  function RangeClear() {
+    _classCallCheck(this, RangeClear);
+
+    return _super2.apply(this, arguments);
+  }
+
+  _createClass(RangeClear, [{
+    key: "render",
+    value: function render() {
+      var _this$props6 = this.props,
+          savedFromVal = _this$props6.savedFromVal,
+          savedToVal = _this$props6.savedToVal,
+          resetTo = _this$props6.resetTo,
+          resetFrom = _this$props6.resetFrom,
+          resetAll = _this$props6.resetAll,
+          facet = _this$props6.facet,
+          termTransformFxn = _this$props6.termTransformFxn;
+      var facetField = facet.field,
+          facetTitle = facet.title;
+      var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
+      var savedToTitle = termTransformFxn(facetField, savedToVal, true);
+
+      if (!savedFromVal && !savedToVal) {
+        return null;
+      } else if (savedFromVal && savedToVal) {
+        return /*#__PURE__*/_react["default"].createElement("button", {
+          className: "btn btn-primary btn-block btn-xs mt-05 mb-05",
+          type: "button",
+          onClick: resetAll
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "d-flex"
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "clear-icon-container col-auto clickable d-flex align-items-center",
+          "data-tip": "Click to unset"
+        }, /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-fw fas icon-minus-circle"
+        })), /*#__PURE__*/_react["default"].createElement("div", {
+          className: "col px-0"
+        }, savedFromTitle, " > ", facetTitle, " > ", savedToTitle)));
+      } else {
+        return /*#__PURE__*/_react["default"].createElement("button", {
+          className: "btn btn-primary btn-block btn-xs mt-05 mb-05",
+          type: "button",
+          onClick: resetTo === null ? resetFrom : resetTo
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "d-flex"
+        }, /*#__PURE__*/_react["default"].createElement("div", {
+          className: "clear-icon-container col-auto clickable d-flex align-items-center",
+          "data-tip": "Click to unset"
+        }, /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-fw fas icon-minus-circle"
+        })), /*#__PURE__*/_react["default"].createElement("div", {
+          className: "col px-0"
+        }, resetTo === null ? null : "".concat(facetTitle, " < ").concat(savedToTitle), resetFrom === null ? null : "".concat(savedFromTitle, " < ").concat(facetTitle))));
+      }
+    }
+  }]);
+
+  return RangeClear;
+}(_react["default"].PureComponent);
+
+var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
+  _inherits(RangeDropdown, _React$PureComponent3);
+
+  var _super3 = _createSuper(RangeDropdown);
 
   function RangeDropdown(props) {
     var _this2;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this2 = _super2.call(this, props);
+    _this2 = _super3.call(this, props);
     _this2.state = {
       showMenu: false,
       toggling: false
@@ -535,10 +624,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "onDropdownSelect",
     value: function onDropdownSelect(evtKey) {
-      var _this$props6 = this.props,
-          onSelect = _this$props6.onSelect,
-          update = _this$props6.update,
-          savedValue = _this$props6.savedValue;
+      var _this$props7 = this.props,
+          onSelect = _this$props7.onSelect,
+          update = _this$props7.update,
+          savedValue = _this$props7.savedValue;
 
       if (parseFloat(evtKey) === savedValue) {
         return false;
@@ -549,10 +638,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "onTextInputFormSubmit",
     value: function onTextInputFormSubmit(evt) {
-      var _this$props7 = this.props,
-          update = _this$props7.update,
-          savedValue = _this$props7.savedValue,
-          value = _this$props7.value;
+      var _this$props8 = this.props,
+          update = _this$props8.update,
+          savedValue = _this$props8.savedValue,
+          value = _this$props8.value;
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -595,29 +684,29 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       var showMenu = this.state.showMenu;
-      var _this$props8 = this.props,
-          _this$props8$variant = _this$props8.variant,
-          variant = _this$props8$variant === void 0 ? "outline-dark" : _this$props8$variant,
-          _this$props8$size = _this$props8.size,
-          size = _this$props8$size === void 0 ? "sm" : _this$props8$size,
-          _this$props8$disabled = _this$props8.disabled,
-          disabled = _this$props8$disabled === void 0 ? false : _this$props8$disabled,
-          _this$props8$classNam = _this$props8.className,
-          className = _this$props8$classNam === void 0 ? "range-dropdown-container col" : _this$props8$classNam,
-          propMin = _this$props8.min,
-          propMax = _this$props8.max,
-          value = _this$props8.value,
-          savedValue = _this$props8.savedValue,
-          _this$props8$placehol = _this$props8.placeholder,
-          placeholder = _this$props8$placehol === void 0 ? "Type..." : _this$props8$placehol,
-          title = _this$props8.title,
-          termTransformFxn = _this$props8.termTransformFxn,
-          id = _this$props8.id,
-          facet = _this$props8.facet,
-          _this$props8$incremen = _this$props8.increments,
-          increments = _this$props8$incremen === void 0 ? [] : _this$props8$incremen,
-          _this$props8$reset = _this$props8.reset,
-          reset = _this$props8$reset === void 0 ? null : _this$props8$reset;
+      var _this$props9 = this.props,
+          _this$props9$variant = _this$props9.variant,
+          variant = _this$props9$variant === void 0 ? "outline-dark" : _this$props9$variant,
+          _this$props9$size = _this$props9.size,
+          size = _this$props9$size === void 0 ? "sm" : _this$props9$size,
+          _this$props9$disabled = _this$props9.disabled,
+          disabled = _this$props9$disabled === void 0 ? false : _this$props9$disabled,
+          _this$props9$classNam = _this$props9.className,
+          className = _this$props9$classNam === void 0 ? "range-dropdown-container col" : _this$props9$classNam,
+          propMin = _this$props9.min,
+          propMax = _this$props9.max,
+          value = _this$props9.value,
+          savedValue = _this$props9.savedValue,
+          _this$props9$placehol = _this$props9.placeholder,
+          placeholder = _this$props9$placehol === void 0 ? "Type..." : _this$props9$placehol,
+          title = _this$props9.title,
+          termTransformFxn = _this$props9.termTransformFxn,
+          id = _this$props9.id,
+          facet = _this$props9.facet,
+          _this$props9$incremen = _this$props9.increments,
+          increments = _this$props9$incremen === void 0 ? [] : _this$props9$incremen,
+          _this$props9$reset = _this$props9.reset,
+          reset = _this$props9$reset === void 0 ? null : _this$props9$reset;
       var updateAble = savedValue !== value;
       var _facet$field_type3 = facet.field_type,
           field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
