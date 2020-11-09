@@ -150,6 +150,18 @@ export class FacetList extends React.PureComponent {
                 setTimeout(callback, 1000);
             }
         },
+        'onFilterMultiple' : function(filterObjArr) {
+            console.log('FacetList: props.onFilterMultiple(');
+            filterObjArr.forEach((filterObj, i) => {
+                const { facet, term, callback } = filterObj;
+                console.log('Item #' + i + ": (" + facet.field, ", " + term.key + ', callback)');
+                console.log(facet, term);
+                if (i === 0 && typeof callback === 'function') {
+                    setTimeout(callback, 1000);
+                }
+            });
+            console.log(")");
+        },
         'onClearFilters'    : function(e, callback){
             // Clear Redux filters, or go base search url.
             e.preventDefault();
@@ -367,6 +379,8 @@ export class FacetList extends React.PureComponent {
 
     constructor(props){
         super(props);
+
+        console.log("FacetList props,", props);
         this.onFilterExtended = this.onFilterExtended.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
         this.handleToggleFacetOpen = this.handleToggleFacetOpen.bind(this);
@@ -541,12 +555,12 @@ export class FacetList extends React.PureComponent {
         const {
             facets = null,
             separateSingleTermFacets = false,
-            href, schemas, filters, itemTypeForSchemas, termTransformFxn, persistentCount
+            href, schemas, filters, itemTypeForSchemas, termTransformFxn, persistentCount, onFilterMultiple
         } = this.props;
         const { openFacets, openPopover } = this.state;
         const facetComponentProps = {
             href, schemas, filters, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
-            openPopover,
+            openPopover, onFilterMultiple, /* TODO: update onFilterMultiple w/extension method for analytics */
             onFilter:       this.onFilterExtended,
             getTermStatus:  this.getTermStatus,
             onToggleOpen:   this.handleToggleFacetOpen,

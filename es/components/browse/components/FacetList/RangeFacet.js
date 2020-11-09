@@ -210,12 +210,14 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this.handleOpenToggleClick = _this.handleOpenToggleClick.bind(_assertThisInitialized(_this));
     _this.setFrom = _this.setFrom.bind(_assertThisInitialized(_this));
     _this.setTo = _this.setTo.bind(_assertThisInitialized(_this));
+    _this.setToAndFrom = _this.setToAndFrom.bind(_assertThisInitialized(_this));
     _this.resetFrom = _this.resetFrom.bind(_assertThisInitialized(_this));
     _this.resetTo = _this.resetTo.bind(_assertThisInitialized(_this));
-    _this.resetAll = _this.resetAll.bind(_assertThisInitialized(_this)); // tentative - will likely be replaced with a prop
+    _this.resetToAndFrom = _this.resetToAndFrom.bind(_assertThisInitialized(_this)); // tentative - will likely be replaced with a prop
 
     _this.performUpdateFrom = _this.performUpdateFrom.bind(_assertThisInitialized(_this));
     _this.performUpdateTo = _this.performUpdateTo.bind(_assertThisInitialized(_this));
+    _this.performUpdateToAndFrom = _this.performUpdateToAndFrom.bind(_assertThisInitialized(_this));
     _this.termTitle = _this.termTitle.bind(_assertThisInitialized(_this));
     _this.memoized = {
       fieldSchema: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaProperty),
@@ -269,6 +271,22 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }
     }
   }, {
+    key: "setToAndFrom",
+    value: function setToAndFrom(toValue, fromValue, callback) {
+      var facet = this.props.facet;
+
+      try {
+        var fromVal = RangeFacet.parseAndValidate(facet, fromValue);
+        var toVal = RangeFacet.parseAndValidate(facet, toValue);
+        this.setState({
+          toVal: toVal,
+          fromVal: fromVal
+        }, callback);
+      } catch (e) {
+        _patchedConsole.patchedConsoleInstance.error("Couldn't set value", e);
+      }
+    }
+  }, {
     key: "performUpdateFrom",
     value: function performUpdateFrom() {
       var _this$props = this.props,
@@ -295,6 +313,31 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       });
     }
   }, {
+    key: "performUpdateToAndFrom",
+    value: function performUpdateToAndFrom() {
+      var _this$props3 = this.props,
+          onFilterMultiple = _this$props3.onFilterMultiple,
+          facet = _this$props3.facet;
+      var _this$state = this.state,
+          toVal = _this$state.toVal,
+          fromVal = _this$state.fromVal;
+      onFilterMultiple([{
+        facet: _objectSpread(_objectSpread({}, facet), {}, {
+          field: facet.field + ".from"
+        }),
+        term: {
+          key: fromVal
+        }
+      }, {
+        facet: _objectSpread(_objectSpread({}, facet), {}, {
+          field: facet.field + ".to"
+        }),
+        term: {
+          key: toVal
+        }
+      }]);
+    }
+  }, {
     key: "resetFrom",
     value: function resetFrom(e) {
       e.stopPropagation();
@@ -307,22 +350,21 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       this.setTo(null, this.performUpdateTo);
     }
   }, {
-    key: "resetAll",
-    value: function resetAll(e) {
+    key: "resetToAndFrom",
+    value: function resetToAndFrom(e) {
       // Doesn't work great; need to define this method higher up, where original onFilter methods are defined
       e.stopPropagation();
-      this.setTo(null, this.performUpdateTo);
-      this.setFrom(null, this.performUpdateFrom);
+      this.setToAndFrom(null, null, this.performUpdateToAndFrom);
     }
   }, {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
       e.preventDefault();
-      var _this$props3 = this.props,
-          onToggleOpen = _this$props3.onToggleOpen,
-          field = _this$props3.facet.field,
-          _this$props3$facetOpe = _this$props3.facetOpen,
-          facetOpen = _this$props3$facetOpe === void 0 ? false : _this$props3$facetOpe;
+      var _this$props4 = this.props,
+          onToggleOpen = _this$props4.onToggleOpen,
+          field = _this$props4.facet.field,
+          _this$props4$facetOpe = _this$props4.facetOpen,
+          facetOpen = _this$props4$facetOpe === void 0 ? false : _this$props4$facetOpe;
       onToggleOpen(field, !facetOpen);
     }
     /**
@@ -335,10 +377,10 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     value: function termTitle(fieldName, value) {
       var allowJSX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
       var toPrecision = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-      var _this$props4 = this.props,
-          _this$props4$facet$fi = _this$props4.facet.field_type,
-          field_type = _this$props4$facet$fi === void 0 ? "number" : _this$props4$facet$fi,
-          termTransformFxn = _this$props4.termTransformFxn;
+      var _this$props5 = this.props,
+          _this$props5$facet$fi = _this$props5.facet.field_type,
+          field_type = _this$props5$facet$fi === void 0 ? "number" : _this$props5$facet$fi,
+          termTransformFxn = _this$props5.termTransformFxn;
 
       if (field_type === "date") {
         return /*#__PURE__*/_react["default"].createElement(_LocalizedTime.LocalizedTime, {
@@ -377,17 +419,17 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props5 = this.props,
-          schemas = _this$props5.schemas,
-          itemTypeForSchemas = _this$props5.itemTypeForSchemas,
-          facet = _this$props5.facet,
-          propTitle = _this$props5.title,
-          isStatic = _this$props5.isStatic,
-          savedFromVal = _this$props5.fromVal,
-          savedToVal = _this$props5.toVal,
-          facetOpen = _this$props5.facetOpen,
-          openPopover = _this$props5.openPopover,
-          setOpenPopover = _this$props5.setOpenPopover;
+      var _this$props6 = this.props,
+          schemas = _this$props6.schemas,
+          itemTypeForSchemas = _this$props6.itemTypeForSchemas,
+          facet = _this$props6.facet,
+          propTitle = _this$props6.title,
+          isStatic = _this$props6.isStatic,
+          savedFromVal = _this$props6.fromVal,
+          savedToVal = _this$props6.toVal,
+          facetOpen = _this$props6.facetOpen,
+          openPopover = _this$props6.openPopover,
+          setOpenPopover = _this$props6.setOpenPopover;
       var _facet$field_type2 = facet.field_type,
           field_type = _facet$field_type2 === void 0 ? "number" : _facet$field_type2,
           field = facet.field,
@@ -406,9 +448,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       var fieldSchemaDescription = (fieldSchema || {}).description; // fieldSchema not present if no schemas loaded yet.
 
-      var _this$state = this.state,
-          fromVal = _this$state.fromVal,
-          toVal = _this$state.toVal;
+      var _this$state2 = this.state,
+          fromVal = _this$state2.fromVal,
+          toVal = _this$state2.toVal;
 
       var _this$memoized$validI = this.memoized.validIncrements(facet),
           fromIncrements = _this$memoized$validI.fromIncrements,
@@ -476,7 +518,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         savedToVal: savedToVal,
         facet: facet
       }, {
-        resetAll: this.resetAll,
+        resetAll: this.resetToAndFrom,
         termTransformFxn: this.termTitle,
         resetFrom: fromVal !== null ? this.resetFrom : null,
         resetTo: toVal !== null ? this.resetTo : null
@@ -541,14 +583,14 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
   _createClass(RangeClear, [{
     key: "render",
     value: function render() {
-      var _this$props6 = this.props,
-          savedFromVal = _this$props6.savedFromVal,
-          savedToVal = _this$props6.savedToVal,
-          resetTo = _this$props6.resetTo,
-          resetFrom = _this$props6.resetFrom,
-          resetAll = _this$props6.resetAll,
-          facet = _this$props6.facet,
-          termTransformFxn = _this$props6.termTransformFxn;
+      var _this$props7 = this.props,
+          savedFromVal = _this$props7.savedFromVal,
+          savedToVal = _this$props7.savedToVal,
+          resetTo = _this$props7.resetTo,
+          resetFrom = _this$props7.resetFrom,
+          resetAll = _this$props7.resetAll,
+          facet = _this$props7.facet,
+          termTransformFxn = _this$props7.termTransformFxn;
       var facetField = facet.field,
           facetTitle = facet.title;
       var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
@@ -630,10 +672,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "onDropdownSelect",
     value: function onDropdownSelect(evtKey) {
-      var _this$props7 = this.props,
-          onSelect = _this$props7.onSelect,
-          update = _this$props7.update,
-          savedValue = _this$props7.savedValue;
+      var _this$props8 = this.props,
+          onSelect = _this$props8.onSelect,
+          update = _this$props8.update,
+          savedValue = _this$props8.savedValue;
 
       if (parseFloat(evtKey) === savedValue) {
         return false;
@@ -644,10 +686,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "onTextInputFormSubmit",
     value: function onTextInputFormSubmit(evt) {
-      var _this$props8 = this.props,
-          update = _this$props8.update,
-          savedValue = _this$props8.savedValue,
-          value = _this$props8.value;
+      var _this$props9 = this.props,
+          update = _this$props9.update,
+          savedValue = _this$props9.savedValue,
+          value = _this$props9.value;
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -671,9 +713,9 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
     value: function toggleDrop() {
       var _this3 = this;
 
-      var _this$state2 = this.state,
-          showMenu = _this$state2.showMenu,
-          toggling = _this$state2.toggling; // Note: toggling state addresses bug where state updates stack and end up resulting in no state change
+      var _this$state3 = this.state,
+          showMenu = _this$state3.showMenu,
+          toggling = _this$state3.toggling; // Note: toggling state addresses bug where state updates stack and end up resulting in no state change
 
       if (!toggling) {
         this.setState({
@@ -696,30 +738,30 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
     key: "render",
     value: function render() {
       var showMenu = this.state.showMenu;
-      var _this$props9 = this.props,
-          _this$props9$variant = _this$props9.variant,
-          variant = _this$props9$variant === void 0 ? "outline-dark" : _this$props9$variant,
-          _this$props9$size = _this$props9.size,
-          size = _this$props9$size === void 0 ? "sm" : _this$props9$size,
-          _this$props9$disabled = _this$props9.disabled,
-          disabled = _this$props9$disabled === void 0 ? false : _this$props9$disabled,
-          _this$props9$classNam = _this$props9.className,
-          className = _this$props9$classNam === void 0 ? "range-dropdown-container col" : _this$props9$classNam,
-          propMin = _this$props9.min,
-          propMax = _this$props9.max,
-          value = _this$props9.value,
-          savedValue = _this$props9.savedValue,
-          _this$props9$placehol = _this$props9.placeholder,
-          placeholder = _this$props9$placehol === void 0 ? "Type..." : _this$props9$placehol,
-          title = _this$props9.title,
-          termTransformFxn = _this$props9.termTransformFxn,
-          id = _this$props9.id,
-          facet = _this$props9.facet,
-          _this$props9$incremen = _this$props9.increments,
-          increments = _this$props9$incremen === void 0 ? [] : _this$props9$incremen,
-          _this$props9$reset = _this$props9.reset,
-          reset = _this$props9$reset === void 0 ? null : _this$props9$reset,
-          tooltip = _this$props9.tooltip;
+      var _this$props10 = this.props,
+          _this$props10$variant = _this$props10.variant,
+          variant = _this$props10$variant === void 0 ? "outline-dark" : _this$props10$variant,
+          _this$props10$size = _this$props10.size,
+          size = _this$props10$size === void 0 ? "sm" : _this$props10$size,
+          _this$props10$disable = _this$props10.disabled,
+          disabled = _this$props10$disable === void 0 ? false : _this$props10$disable,
+          _this$props10$classNa = _this$props10.className,
+          className = _this$props10$classNa === void 0 ? "range-dropdown-container col" : _this$props10$classNa,
+          propMin = _this$props10.min,
+          propMax = _this$props10.max,
+          value = _this$props10.value,
+          savedValue = _this$props10.savedValue,
+          _this$props10$placeho = _this$props10.placeholder,
+          placeholder = _this$props10$placeho === void 0 ? "Type..." : _this$props10$placeho,
+          title = _this$props10.title,
+          termTransformFxn = _this$props10.termTransformFxn,
+          id = _this$props10.id,
+          facet = _this$props10.facet,
+          _this$props10$increme = _this$props10.increments,
+          increments = _this$props10$increme === void 0 ? [] : _this$props10$increme,
+          _this$props10$reset = _this$props10.reset,
+          reset = _this$props10$reset === void 0 ? null : _this$props10$reset,
+          tooltip = _this$props10.tooltip;
       var updateAble = savedValue !== value;
       var _facet$field_type3 = facet.field_type,
           field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,

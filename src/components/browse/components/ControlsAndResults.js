@@ -67,7 +67,7 @@ export class ControlsAndResults extends React.PureComponent {
             detailPane = null,
 
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
-            href, onFilter,
+            href, onFilter, onFilterMultiple,
             showClearFiltersButton = false,
             isOwnPage = true,         // <- False when rendered by EmbeddedSearchView, else is true when from a SearchView
             isContextLoading = false, // <- Only applicable for EmbeddedSearchView, passed in by VirtualHrefController only, else is false always since we initialize immediately over search-response context that already has first 25 results
@@ -102,7 +102,7 @@ export class ControlsAndResults extends React.PureComponent {
 
         const facetListProps = {
             facets, filters, schemas, currentAction, showClearFiltersButton,
-            session, onFilter, windowWidth, windowHeight, termTransformFxn, separateSingleTermFacets,
+            session, onFilter, onFilterMultiple, windowWidth, windowHeight, termTransformFxn, separateSingleTermFacets,
             itemTypeForSchemas: searchItemType,
             maxBodyHeight: (!isOwnPage && maxHeight) || null,
             onClearFilters: this.onClearFiltersClick,

@@ -140,11 +140,13 @@ export class RangeFacet extends React.PureComponent {
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.setFrom = this.setFrom.bind(this);
         this.setTo = this.setTo.bind(this);
+        this.setToAndFrom = this.setToAndFrom.bind(this);
         this.resetFrom = this.resetFrom.bind(this);
         this.resetTo = this.resetTo.bind(this);
-        this.resetAll = this.resetAll.bind(this); // tentative - will likely be replaced with a prop
+        this.resetToAndFrom = this.resetToAndFrom.bind(this); // tentative - will likely be replaced with a prop
         this.performUpdateFrom = this.performUpdateFrom.bind(this);
         this.performUpdateTo = this.performUpdateTo.bind(this);
+        this.performUpdateToAndFrom = this.performUpdateToAndFrom.bind(this);
         this.termTitle = this.termTitle.bind(this);
 
         this.memoized = {
@@ -188,6 +190,17 @@ export class RangeFacet extends React.PureComponent {
         }
     }
 
+    setToAndFrom(toValue, fromValue, callback) {
+        const { facet } = this.props;
+        try {
+            const fromVal = RangeFacet.parseAndValidate(facet, fromValue);
+            const toVal = RangeFacet.parseAndValidate(facet, toValue);
+            this.setState({ toVal, fromVal }, callback);
+        } catch (e) {
+            console.error("Couldn't set value", e);
+        }
+    }
+
     performUpdateFrom(){
         const { onFilter, facet } = this.props;
         const { fromVal } = this.state;
@@ -206,6 +219,22 @@ export class RangeFacet extends React.PureComponent {
         );
     }
 
+    performUpdateToAndFrom() {
+        const { onFilterMultiple, facet } = this.props;
+        const { toVal, fromVal } = this.state;
+
+        onFilterMultiple(
+            [{
+                facet: { ...facet, field: facet.field + ".from" },
+                term: { key: fromVal }
+            },
+            {
+                facet: { ...facet, field: facet.field + ".to" },
+                term: { key: toVal }
+            }]
+        );
+    }
+
     resetFrom(e){
         e.stopPropagation();
         this.setFrom(null, this.performUpdateFrom);
@@ -216,10 +245,9 @@ export class RangeFacet extends React.PureComponent {
         this.setTo(null, this.performUpdateTo);
     }
 
-    resetAll(e) { // Doesn't work great; need to define this method higher up, where original onFilter methods are defined
+    resetToAndFrom(e) { // Doesn't work great; need to define this method higher up, where original onFilter methods are defined
         e.stopPropagation();
-        this.setTo(null, this.performUpdateTo);
-        this.setFrom(null, this.performUpdateFrom);
+        this.setToAndFrom(null, null, this.performUpdateToAndFrom);
     }
 
     handleOpenToggleClick(e) {
@@ -345,7 +373,7 @@ export class RangeFacet extends React.PureComponent {
                 </h5>
                 <Collapse in={isOpen}>
                     <div className="inner-panel">
-                        <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet }} resetAll={this.resetAll} termTransformFxn={this.termTitle}
+                        <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet }} resetAll={this.resetToAndFrom} termTransformFxn={this.termTitle}
                             resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} />
                         <div className="range-drop-group">
                             <div className="range-drop">

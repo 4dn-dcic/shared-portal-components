@@ -462,6 +462,9 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, FacetList);
 
     _this = _super.call(this, props);
+
+    _patchedConsole.patchedConsoleInstance.log("FacetList props,", props);
+
     _this.onFilterExtended = _this.onFilterExtended.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.handleToggleFacetOpen = _this.handleToggleFacetOpen.bind(_assertThisInitialized(_this));
@@ -712,7 +715,8 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           filters = _this$props4.filters,
           itemTypeForSchemas = _this$props4.itemTypeForSchemas,
           termTransformFxn = _this$props4.termTransformFxn,
-          persistentCount = _this$props4.persistentCount;
+          persistentCount = _this$props4.persistentCount,
+          onFilterMultiple = _this$props4.onFilterMultiple;
       var _this$state2 = this.state,
           openFacets = _this$state2.openFacets,
           openPopover = _this$state2.openPopover;
@@ -725,6 +729,9 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         persistentCount: persistentCount,
         separateSingleTermFacets: separateSingleTermFacets,
         openPopover: openPopover,
+        onFilterMultiple: onFilterMultiple,
+
+        /* TODO: update onFilterMultiple w/extension method for analytics */
         onFilter: this.onFilterExtended,
         getTermStatus: this.getTermStatus,
         onToggleOpen: this.handleToggleFacetOpen,
@@ -869,6 +876,25 @@ _defineProperty(FacetList, "defaultProps", {
     if (typeof callback === 'function') {
       setTimeout(callback, 1000);
     }
+  },
+  'onFilterMultiple': function onFilterMultiple(filterObjArr) {
+    _patchedConsole.patchedConsoleInstance.log('FacetList: props.onFilterMultiple(');
+
+    filterObjArr.forEach(function (filterObj, i) {
+      var facet = filterObj.facet,
+          term = filterObj.term,
+          callback = filterObj.callback;
+
+      _patchedConsole.patchedConsoleInstance.log('Item #' + i + ": (" + facet.field, ", " + term.key + ', callback)');
+
+      _patchedConsole.patchedConsoleInstance.log(facet, term);
+
+      if (i === 0 && typeof callback === 'function') {
+        setTimeout(callback, 1000);
+      }
+    });
+
+    _patchedConsole.patchedConsoleInstance.log(")");
   },
   'onClearFilters': function onClearFilters(e, callback) {
     // Clear Redux filters, or go base search url.

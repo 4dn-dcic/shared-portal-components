@@ -93,6 +93,7 @@ var WindowNavigationController = /*#__PURE__*/function (_React$PureComponent) {
 
     _this = _super.call(this, props);
     _this.onFilter = _this.onFilter.bind(_assertThisInitialized(_this));
+    _this.onFilterMultiple = _this.onFilterMultiple.bind(_assertThisInitialized(_this));
     _this.onClearFilters = _this.onClearFilters.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.memoized = {
@@ -113,16 +114,58 @@ var WindowNavigationController = /*#__PURE__*/function (_React$PureComponent) {
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
     }
+    /**
+     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term, callback)}) and generates a composite href before navigating
+     * @param {Array} filterObjs An object containing {facet, term, callback}
+     * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
+     * desired functionality.
+     */
+
   }, {
-    key: "onClearFilters",
-    value: function onClearFilters() {
-      var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    key: "onFilterMultiple",
+    value: function onFilterMultiple() {
+      var filterObjs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var _this$props2 = this.props,
           href = _this$props2.href,
           _this$props2$navigate = _this$props2.navigate,
           propNavigate = _this$props2$navigate === void 0 ? _navigate.navigate : _this$props2$navigate,
-          _this$props2$context$ = _this$props2.context.clear_filters,
-          clearFiltersURLOriginal = _this$props2$context$ === void 0 ? null : _this$props2$context$;
+          contextFilters = _this$props2.context.filters;
+
+      if (filterObjs.length === 0) {
+        _patchedConsole.patchedConsoleInstance.log("Attempted multi-filter, but no objects passed in!");
+
+        return null;
+      }
+
+      var newHref = href; // initialize to href
+
+      var callback; // Update href to include facet/term query pairs for each new item
+
+      filterObjs.forEach(function (obj, i) {
+        var facet = obj.facet,
+            term = obj.term,
+            thisCallback = obj.callback;
+        var thisHref = (0, _FacetList.generateNextHref)(newHref, contextFilters, facet, term);
+        newHref = thisHref;
+
+        if (i === 0) {
+          callback = thisCallback;
+        }
+      });
+      return propNavigate(newHref, {
+        'dontScrollToTop': true
+      }, typeof callback === "function" ? callback : null);
+    }
+  }, {
+    key: "onClearFilters",
+    value: function onClearFilters() {
+      var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var _this$props3 = this.props,
+          href = _this$props3.href,
+          _this$props3$navigate = _this$props3.navigate,
+          propNavigate = _this$props3$navigate === void 0 ? _navigate.navigate : _this$props3$navigate,
+          _this$props3$context$ = _this$props3.context.clear_filters,
+          clearFiltersURLOriginal = _this$props3$context$ === void 0 ? null : _this$props3$context$;
       var clearFiltersURL = clearFiltersURLOriginal;
 
       if (!clearFiltersURL) {
@@ -149,10 +192,10 @@ var WindowNavigationController = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          children = _this$props3.children,
-          propShowClearFiltersBtn = _this$props3.showClearFiltersButton,
-          passProps = _objectWithoutProperties(_this$props3, ["children", "showClearFiltersButton"]);
+      var _this$props4 = this.props,
+          children = _this$props4.children,
+          propShowClearFiltersBtn = _this$props4.showClearFiltersButton,
+          passProps = _objectWithoutProperties(_this$props4, ["children", "showClearFiltersButton"]);
 
       var href = passProps.href,
           context = passProps.context;
@@ -161,6 +204,7 @@ var WindowNavigationController = /*#__PURE__*/function (_React$PureComponent) {
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         showClearFiltersButton: showClearFiltersButton,
         onFilter: this.onFilter,
+        onFilterMultiple: this.onFilterMultiple,
         onClearFilters: this.onClearFilters,
         getTermStatus: this.getTermStatus
       });
