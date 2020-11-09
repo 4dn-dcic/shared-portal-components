@@ -457,6 +457,7 @@ class RangeDropdown extends React.PureComponent {
         this.onTextInputFormSubmit = this.onTextInputFormSubmit.bind(this);
         this.onTextInputKeyDown = this.onTextInputKeyDown.bind(this);
         this.toggleDrop = this.toggleDrop.bind(this);
+        this.onBlur = this.onBlur.bind(this);
 
         // console.log("props", props);
     }
@@ -505,6 +506,10 @@ class RangeDropdown extends React.PureComponent {
         }
     }
 
+    onBlur(evt) { // Update saved value with current value of input when clicking off
+        this.onTextInputFormSubmit(evt);
+    }
+
     render(){
         const { showMenu } = this.state;
         const {
@@ -550,7 +555,7 @@ class RangeDropdown extends React.PureComponent {
         if (field_type === "date") {
             return (
                 <DropdownButton {...{ variant, disabled, className, size, id }} alignRight title={showTitle} show={showMenu}
-                    onToggle={this.toggleDrop} data-tip={tooltip} data-html>
+                    onToggle={this.toggleDrop} onBlur={this.onBlur} data-tip={tooltip} data-html>
                     <form className="inline-input-container pb-0 mb-0 border-0" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
                             <input type="date" className="form-control" value={value} data-value={value}
@@ -598,7 +603,7 @@ class RangeDropdown extends React.PureComponent {
 
             return (
                 <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect}
-                    title={showTitle} show={showMenu} onToggle={this.toggleDrop} data-tip={tooltip} data-html>
+                    title={showTitle} show={showMenu} onToggle={this.toggleDrop} onBlur={this.onBlur} data-tip={tooltip} data-html>
                     <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
                             <input type="number" className="form-control" {...{ value, placeholder, step }}

@@ -612,7 +612,8 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
     _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
     _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
     _this2.onTextInputKeyDown = _this2.onTextInputKeyDown.bind(_assertThisInitialized(_this2));
-    _this2.toggleDrop = _this2.toggleDrop.bind(_assertThisInitialized(_this2)); // console.log("props", props);
+    _this2.toggleDrop = _this2.toggleDrop.bind(_assertThisInitialized(_this2));
+    _this2.onBlur = _this2.onBlur.bind(_assertThisInitialized(_this2)); // console.log("props", props);
 
     return _this2;
   }
@@ -686,6 +687,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
       }
     }
   }, {
+    key: "onBlur",
+    value: function onBlur(evt) {
+      // Update saved value with current value of input when clicking off
+      this.onTextInputFormSubmit(evt);
+    }
+  }, {
     key: "render",
     value: function render() {
       var showMenu = this.state.showMenu;
@@ -754,6 +761,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           title: showTitle,
           show: showMenu,
           onToggle: this.toggleDrop,
+          onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
         }), /*#__PURE__*/_react["default"].createElement("form", {
@@ -814,6 +822,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           title: showTitle,
           show: showMenu,
           onToggle: this.toggleDrop,
+          onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
         }), /*#__PURE__*/_react["default"].createElement("form", {
