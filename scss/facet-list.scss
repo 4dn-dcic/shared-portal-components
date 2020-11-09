@@ -181,6 +181,12 @@ $facetlist-term-block-height: default !default;
                     }
                 }
 
+                > button.range-clear.btn {
+                    &.btn-warning {
+                        color: #ffffff;
+                    }
+                }
+
                 > div.range-drop-group div.range-drop {
                     padding-top: 5px;
                     padding-bottom: 5px;

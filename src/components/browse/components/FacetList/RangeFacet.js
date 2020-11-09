@@ -350,8 +350,6 @@ export class RangeFacet extends React.PureComponent {
         const toVariant = isToValUnapplied ? "warning" :
             savedToVal === null ? "outline-dark" : "primary";
 
-        const valueUnappliedTip = '<i className="icon fa-exclamation-circle fas"></i>This change is unapplied';
-
         return (
             <div className={"facet range-facet" + (isOpen ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
@@ -383,7 +381,6 @@ export class RangeFacet extends React.PureComponent {
                                 <RangeDropdown
                                     title={fromTitle} value={fromVal} savedValue={savedFromVal}
                                     max={toVal || null} increments={fromIncrements} variant={fromVariant + " btn-xs"}
-                                    tooltip={isFromValUnapplied ? valueUnappliedTip : null}
                                     onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
                                     facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
                                 {/*
@@ -399,9 +396,8 @@ export class RangeFacet extends React.PureComponent {
                                 </label>
                                 <RangeDropdown
                                     title={toTitle} value={toVal} savedValue={savedToVal}
-                                    min={fromVal || null} increments={toIncrements}
-                                    variant={toVariant + " btn-xs"} tooltip={isToValUnapplied ? valueUnappliedTip : null}
-                                    onSelect={this.setTo} update={this.performUpdateTo} termTransformFxn={this.termTitle}
+                                    min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
+                                    variant={toVariant + " btn-xs"} onSelect={this.setTo} update={this.performUpdateTo}
                                     facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
                                 {/*
                                 <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
@@ -440,9 +436,12 @@ class RangeClear extends React.PureComponent {
 
         if (savedFromVal === null && savedToVal === null) {
             return null;
-        } else if (savedFromVal !== null && savedToVal !== null) {
+        } else if (savedFromVal !== null && savedToVal !== null) { // To and From present
+            const invalidRange = savedToVal < savedFromVal;
+            const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
             return (
-                <button className="btn btn-primary btn-block btn-xs mt-05 mb-05" type="button" onClick={resetAll}>
+                <button className={"range-clear btn btn-block btn-xs mt-05 mb-05 " + btnVariant} type="button" onClick={resetAll} data-html={invalidRange}
+                    data-tip={invalidRange ? '<i className="icon fa-exclamation-circle fas"></i>This range is invalid. Adjust range boundaries for better results.': null}>
                     <div className="d-flex">
                         <div className="clear-icon-container col-auto clickable d-flex align-items-center"
                             data-tip="Click to unset">
@@ -452,9 +451,9 @@ class RangeClear extends React.PureComponent {
                     </div>
                 </button>
             );
-        } else {
+        } else { // Only To or From present
             return (
-                <button className="btn btn-primary btn-block btn-xs mt-05 mb-05" type="button" onClick={resetTo === null ? resetFrom : resetTo}>
+                <button className="range-clear btn btn-primary btn-block btn-xs mt-05 mb-05" type="button" onClick={resetTo === null ? resetFrom : resetTo}>
                     <div className="d-flex">
                         <div className="clear-icon-container col-auto clickable d-flex align-items-center"
                             data-tip="Click to unset">

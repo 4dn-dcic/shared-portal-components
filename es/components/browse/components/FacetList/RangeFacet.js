@@ -471,11 +471,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
-      var isFromValUnapplied = fromVal !== savedFromVal;
-      var isToValUnapplied = toVal !== savedToVal;
-      var fromVariant = isFromValUnapplied ? "warning" : savedFromVal === null ? "outline-dark" : "primary";
-      var toVariant = isToValUnapplied ? "warning" : savedToVal === null ? "outline-dark" : "primary";
-      var valueUnappliedTip = '<i className="icon fa-exclamation-circle fas"></i>This change is unapplied';
+      var fromVariant = fromVal !== savedFromVal ? "warning" : savedFromVal === null ? "outline-dark" : "primary";
+      var toVariant = toVal !== savedToVal ? "warning" : savedToVal === null ? "outline-dark" : "primary";
       return /*#__PURE__*/_react["default"].createElement("div", {
         className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
         "data-field": facet.field
@@ -535,7 +532,6 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         max: toVal || null,
         increments: fromIncrements,
         variant: fromVariant + " btn-xs",
-        tooltip: isFromValUnapplied ? valueUnappliedTip : null,
         onSelect: this.setFrom,
         update: this.performUpdateFrom,
         termTransformFxn: this.termTitle,
@@ -552,11 +548,10 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         savedValue: savedToVal,
         min: fromVal || null,
         increments: toIncrements,
+        termTransformFxn: this.termTitle,
         variant: toVariant + " btn-xs",
-        tooltip: isToValUnapplied ? valueUnappliedTip : null,
         onSelect: this.setTo,
         update: this.performUpdateTo,
-        termTransformFxn: this.termTitle,
         facet: facet,
         id: "to_" + field,
         reset: toVal !== null ? this.resetTo : null
@@ -599,10 +594,15 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
       if (savedFromVal === null && savedToVal === null) {
         return null;
       } else if (savedFromVal !== null && savedToVal !== null) {
+        // To and From present
+        var invalidRange = savedToVal < savedFromVal;
+        var btnVariant = invalidRange ? "btn-warning" : "btn-primary";
         return /*#__PURE__*/_react["default"].createElement("button", {
-          className: "btn btn-primary btn-block btn-xs mt-05 mb-05",
+          className: "range-clear btn btn-block btn-xs mt-05 mb-05 " + btnVariant,
           type: "button",
-          onClick: resetAll
+          onClick: resetAll,
+          "data-html": invalidRange,
+          "data-tip": invalidRange ? '<i className="icon fa-exclamation-circle fas"></i>This range is invalid. Adjust range boundaries for better results.' : null
         }, /*#__PURE__*/_react["default"].createElement("div", {
           className: "d-flex"
         }, /*#__PURE__*/_react["default"].createElement("div", {
@@ -614,8 +614,9 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
           className: "col px-0"
         }, savedFromTitle, " > ", facetTitle, " > ", savedToTitle)));
       } else {
+        // Only To or From present
         return /*#__PURE__*/_react["default"].createElement("button", {
-          className: "btn btn-primary btn-block btn-xs mt-05 mb-05",
+          className: "range-clear btn btn-primary btn-block btn-xs mt-05 mb-05",
           type: "button",
           onClick: resetTo === null ? resetFrom : resetTo
         }, /*#__PURE__*/_react["default"].createElement("div", {
