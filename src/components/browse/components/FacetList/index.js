@@ -133,6 +133,7 @@ export class FacetList extends React.PureComponent {
         'className' : PropTypes.string,     // Extra class
         'href' : PropTypes.string,
         'onFilter' : PropTypes.func,        // What happens when Term is clicked.
+        'onFilterMultiple': PropTypes.func, // Same as onFilter, but processes multiple filter changes in one go
         'separateSingleTermFacets' : PropTypes.bool,
         'maxBodyHeight' : PropTypes.number
     };
@@ -377,11 +378,32 @@ export class FacetList extends React.PureComponent {
         });
     }
 
+    /**
+     * Used by this.onFilterExtended and this.onFilterMultipleExtended to send google analytics on a selected facet before filtering
+     */
+    static sendAnalyticsPreFilter(facet, term, contextFilters) {
+        const { field } = facet;
+        const { key: termKey } = term;
+
+        const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+        const isUnselecting = !!(statusAndHref.href);
+
+        return analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
+            field,
+            'term'              : termKey,
+            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
+            'currentFilters'    : analytics.getStringifiedCurrentFilters(
+                contextFiltersToExpSetFilters(contextFilters || null)
+            ), // 'Existing' filters, or filters at time of action, go here.
+        });
+    }
+
     constructor(props){
         super(props);
 
         console.log("FacetList props,", props);
         this.onFilterExtended = this.onFilterExtended.bind(this);
+        this.onFilterMultipleExtended = this.onFilterMultipleExtended.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
         this.handleToggleFacetOpen = this.handleToggleFacetOpen.bind(this);
         this.handleCollapseAllFacets = this.handleCollapseAllFacets.bind(this);
@@ -487,22 +509,21 @@ export class FacetList extends React.PureComponent {
      */
     onFilterExtended(facet, term, callback){
         const { onFilter, filters: contextFilters } = this.props;
-        const { field } = facet;
-        const { key: termKey } = term;
-
-        const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
-        const isUnselecting = !!(statusAndHref.href);
-
-        analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
-            field,
-            'term'              : termKey,
-            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
-            'currentFilters'    : analytics.getStringifiedCurrentFilters(
-                contextFiltersToExpSetFilters(contextFilters || null)
-            ), // 'Existing' filters, or filters at time of action, go here.
-        });
+        FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
 
         return onFilter(...arguments);
+    }
+
+    onFilterMultipleExtended(filterObjArray) {
+        const { onFilterMultiple, filters: contextFilters } = this.props;
+
+        filterObjArray.forEach((filterObj) => {
+            const { facet, term } = filterObj;
+            const lol = FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
+            console.log("results from sendAnalytics", lol);
+        });
+
+        return onFilterMultiple(...arguments);
     }
 
     getTermStatus(term, facet){
@@ -555,13 +576,14 @@ export class FacetList extends React.PureComponent {
         const {
             facets = null,
             separateSingleTermFacets = false,
-            href, schemas, filters, itemTypeForSchemas, termTransformFxn, persistentCount, onFilterMultiple
+            href, schemas, filters, itemTypeForSchemas, termTransformFxn, persistentCount
         } = this.props;
         const { openFacets, openPopover } = this.state;
         const facetComponentProps = {
             href, schemas, filters, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
-            openPopover, onFilterMultiple, /* TODO: update onFilterMultiple w/extension method for analytics */
+            openPopover,
             onFilter:       this.onFilterExtended,
+            onFilterMultiple: this.onFilterMultipleExtended,
             getTermStatus:  this.getTermStatus,
             onToggleOpen:   this.handleToggleFacetOpen,
             setOpenPopover: this.setOpenPopover,
