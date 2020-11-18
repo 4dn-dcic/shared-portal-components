@@ -1,18 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.LinkToDropdown = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _reactBootstrap = require("react-bootstrap");
-
-var _util = require("./../../util");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -53,7 +40,11 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
+import React from 'react';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import { ajax, console } from './../../util';
+export var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(LinkToDropdown, _React$PureComponent);
 
   var _super = _createSuper(LinkToDropdown);
@@ -123,7 +114,7 @@ var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         loading: true
       }, function () {
-        _util.ajax.load(requestHref, cb, 'GET', cb);
+        ajax.load(requestHref, cb, 'GET', cb);
       });
     }
   }, {
@@ -181,12 +172,12 @@ var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
       var renderedOptions = null;
 
       if (loading) {
-        title = /*#__PURE__*/_react["default"].createElement("i", {
+        title = /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-spin icon-circle-notch fas"
         });
         disabled = true;
       } else if (error || !Array.isArray(optionResults)) {
-        title = /*#__PURE__*/_react["default"].createElement("span", {
+        title = /*#__PURE__*/React.createElement("span", {
           className: "error"
         }, error);
         disabled = true;
@@ -234,22 +225,22 @@ var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
           renderedOptions = filteredOptions.map(function (selectableItem) {
             var display_title = selectableItem.display_title,
                 itemID = selectableItem['@id'];
-            return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.DropdownItem, {
+            return /*#__PURE__*/React.createElement(DropdownItem, {
               className: "selectable-item-option",
               key: itemID,
               eventKey: itemID,
               active: selectedID === itemID
-            }, /*#__PURE__*/_react["default"].createElement("div", {
+            }, /*#__PURE__*/React.createElement("div", {
               className: "row"
-            }, /*#__PURE__*/_react["default"].createElement("div", {
+            }, /*#__PURE__*/React.createElement("div", {
               className: "col"
-            }, /*#__PURE__*/_react["default"].createElement("span", {
+            }, /*#__PURE__*/React.createElement("span", {
               className: "text-600 d-block"
-            }, display_title)), /*#__PURE__*/_react["default"].createElement("div", {
+            }, display_title)), /*#__PURE__*/React.createElement("div", {
               className: "col-auto d-none d-md-inline-block"
-            }, /*#__PURE__*/_react["default"].createElement("i", {
+            }, /*#__PURE__*/React.createElement("i", {
               className: "icon icon-fw icon-link fas small mr-05"
-            }), /*#__PURE__*/_react["default"].createElement("span", {
+            }), /*#__PURE__*/React.createElement("span", {
               className: "text-monospace small"
             }, itemID))));
           });
@@ -259,16 +250,16 @@ var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var className = "linkto-dropdown" + (propClsName ? " " + propClsName : "");
-      return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.DropdownButton, _extends({
+      return /*#__PURE__*/React.createElement(DropdownButton, _extends({
         variant: variant,
         title: title,
         disabled: disabled,
         className: className
       }, {
         onSelect: this.handleSelect
-      }), searchAsYouType ? /*#__PURE__*/_react["default"].createElement("div", {
+      }), searchAsYouType ? /*#__PURE__*/React.createElement("div", {
         className: "search-as-you-type-container"
-      }, /*#__PURE__*/_react["default"].createElement("input", {
+      }, /*#__PURE__*/React.createElement("input", {
         type: "text",
         className: "form-control",
         value: typedSearchQuery,
@@ -279,9 +270,7 @@ var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return LinkToDropdown;
-}(_react["default"].PureComponent);
-
-exports.LinkToDropdown = LinkToDropdown;
+}(React.PureComponent);
 
 _defineProperty(LinkToDropdown, "defaultProps", {
   'searchURL': "/search/?type=Project",
@@ -298,7 +287,7 @@ _defineProperty(LinkToDropdown, "defaultProps", {
    * @param {*} itemJson - JSON/context of selected item. Will only contain limited subset of fields, e.g. type and title.
    */
   'onSelect': function onSelect(itemJson, itemID) {
-    _util.console.info("Selected!", itemID, itemJson);
+    console.info("Selected!", itemID, itemJson);
   }
 });
 

@@ -1,22 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VerticalScrollContainer = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = require("underscore");
-
-var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
-
-var _utilities = require("./../../viz/utilities");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -41,6 +22,11 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import { debounce } from 'underscore';
+import Fade from 'react-bootstrap/esm/Fade';
+import { requestAnimationFrame as raf } from './../../viz/utilities';
 /*
 Button scrolling code adapted from:
 https://tj.ie/scrollable-container-controls-with-react/
@@ -48,7 +34,8 @@ https://tj.ie/scrollable-container-controls-with-react/
 This component is used by:
     - SearchSelectionMenu.js
 */
-var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
+
+export var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(VerticalScrollContainer, _React$PureComponent);
 
   var _super = _createSuper(VerticalScrollContainer);
@@ -65,7 +52,7 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
       canScrollDown: false,
       scrollingDirection: null
     };
-    _this.scrollContainer = /*#__PURE__*/_react["default"].createRef();
+    _this.scrollContainer = /*#__PURE__*/React.createRef();
     _this.onMouseDownJumpToTop = _this.onMouseDownJumpToTop.bind(_assertThisInitialized(_this));
     _this.onMouseDownJumpToBottom = _this.onMouseDownJumpToBottom.bind(_assertThisInitialized(_this));
     _this.onMouseOverScrollDown = _this.onMouseOverScrollDown.bind(_assertThisInitialized(_this));
@@ -76,9 +63,9 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
     _this.checkForOverflow = _this.checkForOverflow.bind(_assertThisInitialized(_this));
     _this.checkForScrollPosition = _this.checkForScrollPosition.bind(_assertThisInitialized(_this));
     _this.checkArrowKeyScrollPosition = _this.checkArrowKeyScrollPosition.bind(_assertThisInitialized(_this));
-    _this.debounceCheckforOverflow = (0, _underscore.debounce)(_this.checkForOverflow, 500, true);
-    _this.debounceCheckForScrollPosition = (0, _underscore.debounce)(_this.checkForScrollPosition, 100, false);
-    _this.debounceCheckForScrollPositionImmediate = (0, _underscore.debounce)(_this.checkForScrollPosition, 100, true);
+    _this.debounceCheckforOverflow = debounce(_this.checkForOverflow, 500, true);
+    _this.debounceCheckForScrollPosition = debounce(_this.checkForScrollPosition, 100, false);
+    _this.debounceCheckForScrollPositionImmediate = debounce(_this.checkForScrollPosition, 100, true);
     return _this;
   }
 
@@ -163,7 +150,7 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         scrollingDirection: -1
       }, function () {
-        (0, _utilities.requestAnimationFrame)(_this2.performScrollAction);
+        raf(_this2.performScrollAction);
       });
     }
   }, {
@@ -174,7 +161,7 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         scrollingDirection: -1
       }, function () {
-        (0, _utilities.requestAnimationFrame)(_this3.performJumpToAction);
+        raf(_this3.performJumpToAction);
       });
     }
   }, {
@@ -185,7 +172,7 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         scrollingDirection: 1
       }, function () {
-        (0, _utilities.requestAnimationFrame)(_this4.performScrollAction);
+        raf(_this4.performScrollAction);
       });
     }
   }, {
@@ -196,7 +183,7 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         scrollingDirection: 1
       }, function () {
-        (0, _utilities.requestAnimationFrame)(_this5.performJumpToAction);
+        raf(_this5.performJumpToAction);
       });
     }
   }, {
@@ -234,7 +221,7 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
         behavior: 'smooth',
         top: scrollRate * scrollingDirection
       });
-      (0, _utilities.requestAnimationFrame)(this.performScrollAction);
+      raf(this.performScrollAction);
     }
   }, {
     key: "render",
@@ -248,57 +235,55 @@ var VerticalScrollContainer = /*#__PURE__*/function (_React$PureComponent) {
           hasOverflow = _this$state2.hasOverflow,
           canScrollUp = _this$state2.canScrollUp,
           canScrollDown = _this$state2.canScrollDown;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "vertical-scroll-container"
-      }, /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+      }, /*#__PURE__*/React.createElement(Fade, {
         "in": hasOverflow && canScrollUp,
         timeout: "500",
         mountOnEnter: true,
         unmountOnExit: true
-      }, /*#__PURE__*/_react["default"].createElement("button", {
+      }, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "button-scroll arrow-up d-block text-center w-100",
         onClick: this.onMouseDownJumpToTop,
         disabled: !canScrollUp,
         onMouseOver: this.onMouseOverScrollUp,
         onMouseOut: this.onMouseUp
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-angle-up"
-      }))), /*#__PURE__*/_react["default"].createElement("div", {
+      }))), /*#__PURE__*/React.createElement("div", {
         className: "scrollable-list-container",
         ref: this.scrollContainer
-      }, /*#__PURE__*/_react["default"].createElement("ul", {
+      }, /*#__PURE__*/React.createElement("ul", {
         className: "scroll-items list-unstyled my-0"
-      }, header, items, footer)), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+      }, header, items, footer)), /*#__PURE__*/React.createElement(Fade, {
         "in": hasOverflow && canScrollDown,
         timeout: "500",
         mountOnEnter: true,
         unmountOnExit: true
-      }, /*#__PURE__*/_react["default"].createElement("button", {
+      }, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "button-scroll arrow-down d-block text-center w-100",
         onClick: this.onMouseDownJumpToBottom,
         disabled: !canScrollDown,
         onMouseOver: this.onMouseOverScrollDown,
         onMouseOut: this.onMouseUp
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-angle-down"
       }))));
     }
   }]);
 
   return VerticalScrollContainer;
-}(_react["default"].PureComponent);
-
-exports.VerticalScrollContainer = VerticalScrollContainer;
+}(React.PureComponent);
 
 _defineProperty(VerticalScrollContainer, "defaultProps", {
   'scrollRate': 40
 });
 
 VerticalScrollContainer.propTypes = {
-  scrollRate: _propTypes["default"].number,
-  items: _propTypes["default"].arrayOf(_propTypes["default"].any),
-  header: _propTypes["default"].any,
-  footer: _propTypes["default"].any
+  scrollRate: PropTypes.number,
+  items: PropTypes.arrayOf(PropTypes.any),
+  header: PropTypes.any,
+  footer: PropTypes.any
 };

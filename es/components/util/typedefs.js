@@ -16,11 +16,7 @@
  * @property {string} [display_title] - Title for Item or page.
  */
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.AlertObj = exports.NavigateOpts = exports.ColumnDefinition = exports.ColumnDefinitionRenderFxn = exports.SearchResponse = exports.TabObject = exports.ExperimentSet = exports.Experiment = exports.File = exports.StaticPage = exports.StaticSection = exports.URLParts = exports.Item = exports.JSONContentResponse = void 0;
-var JSONContentResponse;
+export var JSONContentResponse;
 /**
  * @typedef {JSONContentResponse} Item
  * @property {string}       @id             Identifier and/or URL to Item.
@@ -31,8 +27,7 @@ var JSONContentResponse;
  * @property {string}       [date_created]  Date Item was added to database.
  */
 
-exports.JSONContentResponse = JSONContentResponse;
-var Item;
+export var Item;
 /**
  * @typedef {Object} URLParts
  * @property {string}       host            Full lower-cased host portion of the URL, including the port if specified.
@@ -49,8 +44,7 @@ var Item;
  * @see https://nodejs.org/docs/latest/api/url.html#url_legacy_urlobject
  */
 
-exports.Item = Item;
-var URLParts; // ----------------------------------------------------------------------------
+export var URLParts; // ----------------------------------------------------------------------------
 // Item Related Type-Defs
 
 /**
@@ -59,8 +53,7 @@ var URLParts; // ---------------------------------------------------------------
  * @property {string}       [filetype=text] Format of the content. Could be 'md', 'html', 'text', 'code', etc.
  */
 
-exports.URLParts = URLParts;
-var StaticSection;
+export var StaticSection;
 /**
  * @typedef {Item} StaticPage
  * @property {string}               @id         URI/ID of current page. May differ from database-item `@ID`.
@@ -71,8 +64,7 @@ var StaticSection;
  * @property {{ enabled: boolean }} toc         Options for table of contents.
  */
 
-exports.StaticSection = StaticSection;
-var StaticPage;
+export var StaticPage;
 /**
  * @typedef {Item} File
  * @property {?string} href                 URI/pathname to where File may be downloaded.
@@ -80,24 +72,21 @@ var StaticPage;
  * @property {string} [higlass_uid]         UID of file on HiGlass server, if any.
  */
 
-exports.StaticPage = StaticPage;
-var File;
+export var File;
 /**
  * @typedef {Item} Experiment
  * @property {?File[]} files                Objects/linkTos representing File items.
  * @property {?File[]} processed_files      Objects/linkTos representing Processed File items.
  */
 
-exports.File = File;
-var Experiment;
+export var Experiment;
 /**
  * @typedef {Item} ExperimentSet
  * @property {?Experiment[]} experiments_in_set     Objects/linkTos representing File items.
  * @property {?File[]} processed_files              Objects/linkTos representing Processed File items.
  */
 
-exports.Experiment = Experiment;
-var ExperimentSet;
+export var ExperimentSet;
 /**
  * An object containing data to fully represent a tab of a tab view.
  *
@@ -123,8 +112,7 @@ var ExperimentSet;
  *      }
  */
 
-exports.ExperimentSet = ExperimentSet;
-var TabObject; // ----------------------------------------------------------------------------
+export var TabObject; // ----------------------------------------------------------------------------
 // Browse/Search Related Type-Defs
 
 /**
@@ -136,8 +124,7 @@ var TabObject; // --------------------------------------------------------------
  * @property {number} total - Total number of results expected for query.
  */
 
-exports.TabObject = TabObject;
-var SearchResponse;
+export var SearchResponse;
 /**
  * @typedef {function} ColumnDefinitionRenderFxn
  * @param {Item} result - Item from search result. Not parsed in any way.
@@ -152,8 +139,7 @@ var SearchResponse;
  *      }
  */
 
-exports.SearchResponse = SearchResponse;
-var ColumnDefinitionRenderFxn;
+export var ColumnDefinitionRenderFxn;
 /**
  * A JSON object which contains some properties that define a renderable column.
  *
@@ -165,8 +151,7 @@ var ColumnDefinitionRenderFxn;
  * @property {ColumnDefinitionRenderFxn} [render] - Optional function to render column in some custom way, for example in order to format a date-time value.
  */
 
-exports.ColumnDefinitionRenderFxn = ColumnDefinitionRenderFxn;
-var ColumnDefinition; // ----------------------------------------------------------------------------
+export var ColumnDefinition; // ----------------------------------------------------------------------------
 // Common-ish type-defs
 
 /**
@@ -182,8 +167,7 @@ var ColumnDefinition; // -------------------------------------------------------
  * @property {boolean} dontScrollToTop      Don't scroll to top of page after completion.
  */
 
-exports.ColumnDefinition = ColumnDefinition;
-var NavigateOpts;
+export var NavigateOpts;
 /**
  * Object used to represent alert message element contents at top of page.
  *
@@ -194,6 +178,4 @@ var NavigateOpts;
  * @property {number} [navigateDisappearThreshold=1] - After how many navigations should this alert be automatically removed.
  */
 
-exports.NavigateOpts = NavigateOpts;
-var AlertObj;
-exports.AlertObj = AlertObj;
+export var AlertObj;

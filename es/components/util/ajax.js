@@ -1,30 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.load = load;
-exports.promise = promise;
-exports.fetch = fetch;
-exports.fetchPolyfill = fetchPolyfill;
-exports.FetchedItem = exports.PromiseQueue = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _Alerts = require("./../ui/Alerts");
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var JWT = _interopRequireWildcard(require("./json-web-token"));
-
-var _patchedConsole = require("./patched-console");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -57,9 +32,15 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+import React, { useState, useEffect } from 'react';
+import { Alerts } from './../ui/Alerts';
+import _ from 'underscore';
+import * as JWT from './json-web-token';
+import { patchedConsoleInstance as console } from './patched-console';
 /**
  * @private
  */
+
 var defaultHeaders = {
   "Content-Type": "application/json; charset=UTF-8",
   "Accept": "application/json",
@@ -78,10 +59,10 @@ var defaultHeaders = {
 function setHeaders(xhr) {
   var headers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var deleteHeaders = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-  headers = JWT.addToHeaders(_underscore["default"].extend({}, defaultHeaders, headers)); // Set defaults, add JWT if set
+  headers = JWT.addToHeaders(_.extend({}, defaultHeaders, headers)); // Set defaults, add JWT if set
   // Put everything in the header
 
-  var headerKeys = _underscore["default"].keys(headers);
+  var headerKeys = _.keys(headers);
 
   for (var i = 0; i < headerKeys.length; i++) {
     if (deleteHeaders.indexOf(headerKeys[i]) > -1) {
@@ -94,7 +75,7 @@ function setHeaders(xhr) {
   return xhr;
 }
 
-function load(url, callback) {
+export function load(url, callback) {
   var method = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'GET';
   var fallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
   var data = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
@@ -114,13 +95,10 @@ function load(url, callback) {
 
         try {
           response = JSON.parse(xhr.responseText);
-
-          _patchedConsole.patchedConsoleInstance.error('ajax.load error: ', response);
-
+          console.error('ajax.load error: ', response);
           if (typeof fallback === 'function') fallback(response, xhr);
         } catch (error) {
-          _patchedConsole.patchedConsoleInstance.error('Non-JSON error response:', xhr.responseText);
-
+          console.error('Non-JSON error response:', xhr.responseText);
           if (typeof fallback === 'function') fallback({}, xhr);
         }
       }
@@ -145,8 +123,7 @@ function load(url, callback) {
  * interface.
  */
 
-
-function promise(url) {
+export function promise(url) {
   var method = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'GET';
   var headers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   var data = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -161,12 +138,10 @@ function promise(url) {
 
       try {
         response = JSON.parse(xhr.responseText);
-        if (debugResponse) _patchedConsole.patchedConsoleInstance.info('Received data from ' + method + ' ' + url + ':', response);
+        if (debugResponse) console.info('Received data from ' + method + ' ' + url + ':', response);
       } catch (e) {
-        _patchedConsole.patchedConsoleInstance.log(xhr);
-
-        _patchedConsole.patchedConsoleInstance.error("Non-JSON error response:", xhr.responseText);
-
+        console.log(xhr);
+        console.error("Non-JSON error response:", xhr.responseText);
         reject(xhr);
         return;
       }
@@ -208,14 +183,13 @@ function promise(url) {
  * @param {any} options
  */
 
-
-function fetch(targetURL, options) {
-  options = _underscore["default"].extend({
+export function fetch(targetURL, options) {
+  options = _.extend({
     'credentials': 'same-origin'
   }, options);
   var http_method = options.method || 'GET';
 
-  var headers = options.headers = _underscore["default"].extend({}, options.headers || {}); // Strip url fragment.
+  var headers = options.headers = _.extend({}, options.headers || {}); // Strip url fragment.
 
 
   var hashIndex = targetURL.indexOf('#');
@@ -235,8 +209,7 @@ function fetch(targetURL, options) {
 }
 /** Calls ajax.fetch() internally, but adds 'json' function to return self. */
 
-
-function fetchPolyfill(url, options) {
+export function fetchPolyfill(url, options) {
   var req = fetch(url, options);
   req.then(function (resp) {
     resp.json = function () {
@@ -254,8 +227,7 @@ function fetchPolyfill(url, options) {
  * and patched to the parent together.
  */
 
-
-var PromiseQueue = /*#__PURE__*/function () {
+export var PromiseQueue = /*#__PURE__*/function () {
   function PromiseQueue() {
     _classCallCheck(this, PromiseQueue);
 
@@ -334,10 +306,7 @@ var PromiseQueue = /*#__PURE__*/function () {
  * albeit quite a bit simpler hopefully.
  */
 
-
-exports.PromiseQueue = PromiseQueue;
-
-var FetchedItem = /*#__PURE__*/function (_React$Component) {
+export var FetchedItem = /*#__PURE__*/function (_React$Component) {
   _inherits(FetchedItem, _React$Component);
 
   var _super = _createSuper(FetchedItem);
@@ -384,8 +353,7 @@ var FetchedItem = /*#__PURE__*/function (_React$Component) {
       };
 
       var onFail = function () {
-        _Alerts.Alerts.queue(_Alerts.Alerts.ConnectionError);
-
+        Alerts.queue(Alerts.ConnectionError);
         onSuccess(null);
       };
 
@@ -413,8 +381,8 @@ var FetchedItem = /*#__PURE__*/function (_React$Component) {
 
       var passProps = _objectSpread(_objectSpread({}, remainingProps), {}, (_objectSpread2 = {}, _defineProperty(_objectSpread2, fetchedItemPropName, fetchedItem), _defineProperty(_objectSpread2, isFetchingItemPropName, isFetchingItem), _objectSpread2));
 
-      return _react["default"].Children.map(children, function (child) {
-        if (! /*#__PURE__*/_react["default"].isValidElement(child)) {
+      return React.Children.map(children, function (child) {
+        if (! /*#__PURE__*/React.isValidElement(child)) {
           return child;
         }
 
@@ -422,15 +390,13 @@ var FetchedItem = /*#__PURE__*/function (_React$Component) {
           return child;
         }
 
-        return /*#__PURE__*/_react["default"].cloneElement(child, passProps);
+        return /*#__PURE__*/React.cloneElement(child, passProps);
       });
     }
   }]);
 
   return FetchedItem;
-}(_react["default"].Component);
-
-exports.FetchedItem = FetchedItem;
+}(React.Component);
 
 _defineProperty(FetchedItem, "defaultProps", {
   "fetchedItemPropName": "fetchedItem",

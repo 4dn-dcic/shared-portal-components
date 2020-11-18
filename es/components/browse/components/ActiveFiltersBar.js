@@ -1,26 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ActiveFiltersBar = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var vizUtil = _interopRequireWildcard(require("./../../viz/utilities"));
-
-var _util = require("./../../util");
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -61,7 +40,12 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
+import React from 'react';
+import _ from 'underscore';
+import memoize from "memoize-one";
+import * as vizUtil from './../../viz/utilities';
+import { console, searchFilters } from './../../util';
+export var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(ActiveFiltersBar, _React$PureComponent);
 
   var _super = _createSuper(ActiveFiltersBar);
@@ -72,10 +56,10 @@ var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, ActiveFiltersBar);
 
     _this = _super.call(this, props);
-    _this.updateHoverNodes = _underscore["default"].throttle(_this.updateHoverNodes.bind(_assertThisInitialized(_this)), 200);
+    _this.updateHoverNodes = _.throttle(_this.updateHoverNodes.bind(_assertThisInitialized(_this)), 200);
     _this.renderCrumbs = _this.renderCrumbs.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      getSearchItemType: (0, _memoizeOne["default"])(_util.searchFilters.getSearchItemType)
+      getSearchItemType: memoize(searchFilters.getSearchItemType)
     };
     return _this;
   }
@@ -131,7 +115,7 @@ var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
               termSet = _step$value[1];
 
           // Try to get more accurate title from context.facets list, if available.
-          var relatedFacet = Array.isArray(context.facets) && _underscore["default"].findWhere(context.facets, {
+          var relatedFacet = Array.isArray(context.facets) && _.findWhere(context.facets, {
             field: field
           });
 
@@ -144,7 +128,7 @@ var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
           try {
             for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
               var term = _step2.value;
-              renderedNodes.push( /*#__PURE__*/_react["default"].createElement(RegularCrumb, _extends({
+              renderedNodes.push( /*#__PURE__*/React.createElement(RegularCrumb, _extends({
                 filters: filters,
                 field: field,
                 term: term,
@@ -161,11 +145,11 @@ var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
             _iterator2.f();
           }
 
-          renderedFieldFilterGroups.push( /*#__PURE__*/_react["default"].createElement("div", {
+          renderedFieldFilterGroups.push( /*#__PURE__*/React.createElement("div", {
             className: fieldGroupClassName,
             key: field,
             "data-field": field
-          }, renderedNodes, /*#__PURE__*/_react["default"].createElement("div", {
+          }, renderedNodes, /*#__PURE__*/React.createElement("div", {
             className: "field-label"
           }, fieldTitle)));
         }
@@ -181,7 +165,7 @@ var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       var parentId = this.props.parentId;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "active-filters-bar",
         id: parentId + '-crumbs'
       }, this.renderCrumbs());
@@ -189,9 +173,7 @@ var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return ActiveFiltersBar;
-}(_react["default"].PureComponent);
-
-exports.ActiveFiltersBar = ActiveFiltersBar;
+}(React.PureComponent);
 
 _defineProperty(ActiveFiltersBar, "defaultProps", {
   'schemas': null,
@@ -207,7 +189,7 @@ _defineProperty(ActiveFiltersBar, "defaultProps", {
     return term;
   },
   'onTermClick': function onTermClick(field, term) {
-    _util.console.log("Clicked", field, term);
+    console.log("Clicked", field, term);
   },
   'fieldGroupClassName': "field-group mb-32",
   'termClassName': "chart-crumb"
@@ -217,14 +199,14 @@ function Container(_ref2) {
   var sequential = _ref2.sequential,
       children = _ref2.children;
   var title = sequential ? "Examining" : "Currently-selected Filters";
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "active-filters-bar-container"
-  }, /*#__PURE__*/_react["default"].createElement("h5", {
+  }, /*#__PURE__*/React.createElement("h5", {
     className: "crumbs-title"
   }, title), children);
 }
 
-var RegularCrumb = /*#__PURE__*/_react["default"].memo(function (props) {
+var RegularCrumb = /*#__PURE__*/React.memo(function (props) {
   var field = props.field,
       term = props.term,
       _props$color = props.color,
@@ -232,18 +214,18 @@ var RegularCrumb = /*#__PURE__*/_react["default"].memo(function (props) {
       termTransformFxn = props.termTransformFxn,
       _onClick = props.onClick,
       className = props.className;
-  return /*#__PURE__*/_react["default"].createElement("span", {
+  return /*#__PURE__*/React.createElement("span", {
     className: className,
     "data-term": term,
     style: {
       backgroundColor: color
     }
-  }, termTransformFxn(field, term, true), /*#__PURE__*/_react["default"].createElement("span", {
+  }, termTransformFxn(field, term, true), /*#__PURE__*/React.createElement("span", {
     className: "icon-container",
     onClick: function onClick(evt) {
       _onClick(evt, field, term);
     }
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-times fas"
   })));
 });

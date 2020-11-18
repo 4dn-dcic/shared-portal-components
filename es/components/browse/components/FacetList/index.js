@@ -1,51 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.generateNextHref = generateNextHref;
-exports.FacetListHeader = exports.FacetList = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var _queryString = _interopRequireDefault(require("query-string"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _Overlay = _interopRequireDefault(require("react-bootstrap/esm/Overlay"));
-
-var _patchedConsole = require("./../../../util/patched-console");
-
-var _searchFilters = require("./../../../util/search-filters");
-
-var _navigate = require("./../../../util/navigate");
-
-var analytics = _interopRequireWildcard(require("./../../../util/analytics"));
-
-var _layout = require("./../../../util/layout");
-
-var _TermsFacet = require("./TermsFacet");
-
-var _RangeFacet = require("./RangeFacet");
-
-var _FacetTermsList = require("./FacetTermsList");
-
-var _FacetOfFacets = require("./FacetOfFacets");
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
@@ -98,6 +52,32 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React from 'react';
+import memoize from 'memoize-one';
+import PropTypes from 'prop-types';
+import url from 'url';
+import queryString from 'query-string';
+import _ from 'underscore';
+import ReactTooltip from 'react-tooltip';
+import Overlay from 'react-bootstrap/esm/Overlay';
+import { patchedConsoleInstance as console } from './../../../util/patched-console';
+import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus } from './../../../util/search-filters';
+import { navigate } from './../../../util/navigate';
+import * as analytics from './../../../util/analytics';
+import { responsiveGridState } from './../../../util/layout';
+/**
+ * Not too sure whether href in performFilteringQuery will
+ * always be the redux-provided props.href esp. in case of
+ * embedded search views. Since func is only executed onClick
+ * and not as part of view render, is (more) OK to use url.parse
+ * vs memoizedUrlParse IMO.
+ */
+// import { memoizedUrlParse } from './../../../util/misc';
+
+import { TermsFacet } from './TermsFacet';
+import { RangeFacet, getRangeValuesFromFiltersByField } from './RangeFacet';
+import { mergeTerms, countActiveTermsByField } from './FacetTermsList';
+import { FacetOfFacets } from './FacetOfFacets';
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
  * It can work with AJAX-ed in back-end data, as is used for the Browse page, or
@@ -117,13 +97,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @param {{ field: string, aggregation_type: string }} facet - Facet definition for field for which a term was clicked on.
  * @param {{ key: string }} term - Term clicked on.
  */
-function generateNextHref(currentHref, contextFilters, facet, term) {
+
+export function generateNextHref(currentHref, contextFilters, facet, term) {
   var targetSearchHref = null;
   var field = facet.field,
       _facet$aggregation_ty = facet.aggregation_type,
       aggregation_type = _facet$aggregation_ty === void 0 ? "terms" : _facet$aggregation_ty;
 
-  var _getStatusAndUnselect = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, contextFilters),
+  var _getStatusAndUnselect = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters),
       termStatus = _getStatusAndUnselect.status,
       unselectHref = _getStatusAndUnselect.href; // If present in context.filters, means is selected OR omitted. We want to make sure is _neither_ of those here.
   // Omitted and selected filters are both treated the same (as "active" filters, even if are exclusionary).
@@ -137,23 +118,19 @@ function generateNextHref(currentHref, contextFilters, facet, term) {
     if (aggregation_type === "stats") {
       // Keep only 1, delete previous occurences
       // This is only for "range" facets (aggregation_type=stats) where want to ensure that have multiple "date_created.to" values in URL for example.
-      var parts = _url["default"].parse(currentHref, true);
-
+      var parts = url.parse(currentHref, true);
       delete parts.query[field];
-
-      var queryStr = _queryString["default"].stringify(parts.query);
-
+      var queryStr = queryString.stringify(parts.query);
       parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
-
-      var correctedHref = _url["default"].format(parts);
+      var correctedHref = url.format(parts);
 
       if (term.key === null) {
         targetSearchHref = correctedHref; // Keep current, stripped down v.
       } else {
-        targetSearchHref = (0, _searchFilters.buildSearchHref)(field, term.key, correctedHref);
+        targetSearchHref = buildSearchHref(field, term.key, correctedHref);
       }
     } else {
-      targetSearchHref = (0, _searchFilters.buildSearchHref)(field, term.key, currentHref);
+      targetSearchHref = buildSearchHref(field, term.key, currentHref);
     }
   } // If we have a '#' in URL, add to target URL as well.
 
@@ -167,22 +144,21 @@ function generateNextHref(currentHref, contextFilters, facet, term) {
 
 
   if (field === 'type' && !willUnselect) {
-    var _parts = _url["default"].parse(targetSearchHref, true);
+    var _parts = url.parse(targetSearchHref, true);
 
     if (Array.isArray(_parts.query.type)) {
       var types = _parts.query.type;
 
       if (types.length > 1) {
-        var queryParts = _underscore["default"].clone(_parts.query);
+        var queryParts = _.clone(_parts.query);
 
         delete queryParts[""]; // Safety
 
         queryParts.type = encodeURIComponent(term.key); // Only 1 Item type selected at once.
 
-        var searchString = _queryString["default"].stringify(queryParts);
-
+        var searchString = queryString.stringify(queryParts);
         _parts.search = searchString && searchString.length > 0 ? '?' + searchString : '';
-        targetSearchHref = _url["default"].format(_parts);
+        targetSearchHref = url.format(_parts);
       }
     }
   } // Endpoint will redirect/correct to this anyway, may as well keep consistent.
@@ -192,8 +168,7 @@ function generateNextHref(currentHref, contextFilters, facet, term) {
 
   return targetSearchHref.replaceAll("%20", "+");
 }
-
-var FacetList = /*#__PURE__*/function (_React$PureComponent) {
+export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(FacetList, _React$PureComponent);
 
   var _super = _createSuper(FacetList);
@@ -203,7 +178,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
     /** Remove any duplicates, merge in filters without selections as terms */
     value: function sortedFinalFacetObjects(facets, filters) {
-      return _underscore["default"].sortBy(_underscore["default"].map(_underscore["default"].uniq(facets, false, function (f) {
+      return _.sortBy(_.map(_.uniq(facets, false, function (f) {
         return f.field;
       }), // Ensure facets are unique, field-wise.
       function (f) {
@@ -213,7 +188,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
         if (f.aggregation_type === "terms") {
           // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL or something.
-          newFacet.terms = (0, _FacetTermsList.mergeTerms)(f, filters);
+          newFacet.terms = mergeTerms(f, filters);
         }
 
         return newFacet;
@@ -301,7 +276,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
               toVal = _ref$toVal === void 0 ? null : _ref$toVal;
 
           var isStatic = facet.min === facet.max;
-          return /*#__PURE__*/_react["default"].createElement(_RangeFacet.RangeFacet, _extends({}, props, {
+          return /*#__PURE__*/React.createElement(RangeFacet, _extends({}, props, {
             facet: facet,
             key: facetField,
             anyTermsSelected: fromVal !== null || toVal !== null
@@ -320,7 +295,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
           var _isStatic = !_anySelected && facet.terms.length === 1;
 
-          return /*#__PURE__*/_react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, props, {
+          return /*#__PURE__*/React.createElement(TermsFacet, _extends({}, props, {
             terms: facet.terms,
             facet: facet,
             key: facetField,
@@ -376,7 +351,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           componentsToReturn.splice(index, 0,
           /*#__PURE__*/
           // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
-          _react["default"].createElement(_FacetOfFacets.FacetOfFacets, _extends({}, props, facetGroup, {
+          React.createElement(FacetOfFacets, _extends({}, props, facetGroup, {
             title: groupTitle,
             key: groupTitle
           })));
@@ -439,7 +414,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
           if (facetOpen) {
             // Don't clone if don't need to; don't pass openFacets to avoid extraneous re-renders.
-            return /*#__PURE__*/_react["default"].cloneElement(facetElem, {
+            return /*#__PURE__*/React.cloneElement(facetElem, {
               facetOpen: facetOpen
             });
           }
@@ -448,7 +423,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         } else if (typeof groupTitle === "string") {
           // Group Elem; pass in openFacets always as well to add facetOpen to group children
           facetOpen = openFacets["group:" + groupTitle];
-          return /*#__PURE__*/_react["default"].cloneElement(facetElem, {
+          return /*#__PURE__*/React.cloneElement(facetElem, {
             facetOpen: facetOpen,
             openFacets: openFacets
           });
@@ -472,11 +447,11 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     _this.setOpenPopover = _this.setOpenPopover.bind(_assertThisInitialized(_this));
     _this.renderFacetComponents = _this.renderFacetComponents.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      countActiveTermsByField: (0, _memoizeOne["default"])(_FacetTermsList.countActiveTermsByField),
-      getRangeValuesFromFiltersByField: (0, _memoizeOne["default"])(_RangeFacet.getRangeValuesFromFiltersByField),
-      sortedFinalFacetObjects: (0, _memoizeOne["default"])(FacetList.sortedFinalFacetObjects),
-      segmentOutCommonProperties: (0, _memoizeOne["default"])(FacetList.segmentOutCommonProperties),
-      createFacetComponents: (0, _memoizeOne["default"])(FacetList.createFacetComponents, function (paramSetA, paramSetB) {
+      countActiveTermsByField: memoize(countActiveTermsByField),
+      getRangeValuesFromFiltersByField: memoize(getRangeValuesFromFiltersByField),
+      sortedFinalFacetObjects: memoize(FacetList.sortedFinalFacetObjects),
+      segmentOutCommonProperties: memoize(FacetList.segmentOutCommonProperties),
+      createFacetComponents: memoize(FacetList.createFacetComponents, function (paramSetA, paramSetB) {
         var _paramSetA = _toArray(paramSetA),
             propsA = _paramSetA[0],
             argsA = _paramSetA.slice(1);
@@ -504,8 +479,8 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
         return true;
       }),
-      extendComponentsWithFacetOpen: (0, _memoizeOne["default"])(FacetList.extendComponentsWithFacetOpen),
-      getInitialOpenFacetsAfterMount: (0, _memoizeOne["default"])(FacetList.getInitialOpenFacetsAfterMount)
+      extendComponentsWithFacetOpen: memoize(FacetList.extendComponentsWithFacetOpen),
+      getInitialOpenFacetsAfterMount: memoize(FacetList.getInitialOpenFacetsAfterMount)
     };
     _this.state = {
       openFacets: {},
@@ -526,23 +501,21 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           filters = _this$props.filters,
           _this$props$persisten = _this$props.persistentCount,
           persistentCount = _this$props$persisten === void 0 ? 10 : _this$props$persisten;
-      var rgs = (0, _layout.responsiveGridState)(windowWidth || null);
+      var rgs = responsiveGridState(windowWidth || null);
 
       var _this$renderFacetComp = this.renderFacetComponents(),
           selectableFacetElements = _this$renderFacetComp.selectableFacetElements; // Internally memoized - should be performant.
 
 
       if (rgs === "xs") {
-        _reactTooltip["default"].rebuild();
-
+        ReactTooltip.rebuild();
         return;
       } // Skip if we have many facets. We're simply reusing persistentCount variable here
       // but could really be any number/value (8 ? windowHeight // 100 ?)
 
 
       if (selectableFacetElements.length >= persistentCount) {
-        _reactTooltip["default"].rebuild();
-
+        ReactTooltip.rebuild();
         return;
       }
 
@@ -565,7 +538,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           removeFromBodyClassList = _this$props2.removeFromBodyClassList;
 
       if (openFacets !== prevOpenFacets) {
-        _reactTooltip["default"].rebuild();
+        ReactTooltip.rebuild();
       }
 
       if (openPopover !== prevOpenPopover && typeof addToBodyClassList === "function" && typeof removeFromBodyClassList === "function") {
@@ -582,7 +555,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             staticFacetElements = _this$renderFacetComp2.staticFacetElements; // Should be performant re: memoization
 
 
-        var nextOpenFacets = _underscore["default"].clone(openFacets);
+        var nextOpenFacets = _.clone(openFacets);
 
         var changed = false;
         staticFacetElements.forEach(function (facetComponent) {
@@ -613,7 +586,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           contextFilters = _this$props3.filters;
       var field = facet.field;
       var termKey = term.key;
-      var statusAndHref = (0, _searchFilters.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters)(term, facet, contextFilters);
+      var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
       var isUnselecting = !!statusAndHref.href;
       analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
         field: field,
@@ -622,7 +595,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           field: field,
           'term': termKey
         }),
-        'currentFilters': analytics.getStringifiedCurrentFilters((0, _searchFilters.contextFiltersToExpSetFilters)(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
+        'currentFilters': analytics.getStringifiedCurrentFilters(contextFiltersToExpSetFilters(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
 
       });
       return onFilter.apply(void 0, arguments);
@@ -631,7 +604,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     key: "getTermStatus",
     value: function getTermStatus(term, facet) {
       var contextFilters = this.props.filters;
-      return (0, _searchFilters.getTermFacetStatus)(term, facet, contextFilters);
+      return getTermFacetStatus(term, facet, contextFilters);
     }
   }, {
     key: "handleToggleFacetOpen",
@@ -640,7 +613,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       this.setState(function (_ref6) {
         var prevOpenFacets = _ref6.openFacets;
 
-        var openFacets = _underscore["default"].clone(prevOpenFacets);
+        var openFacets = _.clone(prevOpenFacets);
 
         if (typeof nextOpen !== "boolean") {
           nextOpen = openFacets[facetField];
@@ -769,7 +742,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           popoverTargetRef = _ref8.ref;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: "pt-2 pb-2",
           style: {
             color: "#aaa"
@@ -788,25 +761,25 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           staticFacetElements = _this$renderFacetComp3.staticFacetElements,
           selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
 
-      return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: "facets-container facets with-header-bg",
         "data-context-loading": isContextLoading
-      }, /*#__PURE__*/_react["default"].createElement(FacetListHeader, _extends({
+      }, /*#__PURE__*/React.createElement(FacetListHeader, _extends({
         openFacets: openFacets,
         title: title,
         onClearFilters: onClearFilters,
         showClearFiltersButton: showClearFiltersButton
       }, {
         onCollapseFacets: this.handleCollapseAllFacets
-      })), /*#__PURE__*/_react["default"].createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
         className: "row facet-list-separator"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "col-12"
       }, staticFacetElements.length, " Common Properties")) : null, staticFacetElements)), popoverJSX && popoverTargetRef ?
       /*#__PURE__*/
 
       /* `rootClose rootCloseEvent="click"` didn't work as props here */
-      _react["default"].createElement(_Overlay["default"], {
+      React.createElement(Overlay, {
         show: true,
         target: popoverTargetRef,
         flip: true,
@@ -818,47 +791,45 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return FacetList;
-}(_react["default"].PureComponent);
-
-exports.FacetList = FacetList;
+}(React.PureComponent);
 
 _defineProperty(FacetList, "propTypes", {
-  'facets': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-    'field': _propTypes["default"].string,
+  'facets': PropTypes.arrayOf(PropTypes.shape({
+    'field': PropTypes.string,
     // Nested field in experiment(_set), using dot-notation.
-    'terms': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-      'doc_count': _propTypes["default"].number,
+    'terms': PropTypes.arrayOf(PropTypes.shape({
+      'doc_count': PropTypes.number,
       // Exp(set)s matching term
-      'key': _propTypes["default"].string // Unique key/title of term.
+      'key': PropTypes.string // Unique key/title of term.
 
     })),
-    'title': _propTypes["default"].string,
+    'title': PropTypes.string,
     // Title of facet
-    'total': _propTypes["default"].number // # of experiment(_set)s
+    'total': PropTypes.number // # of experiment(_set)s
 
   })),
-  'filters': _propTypes["default"].arrayOf(_propTypes["default"].object).isRequired,
+  'filters': PropTypes.arrayOf(PropTypes.object).isRequired,
   // context.filters
-  'itemTypeForSchemas': _propTypes["default"].string.isRequired,
+  'itemTypeForSchemas': PropTypes.string.isRequired,
   // For tooltips
-  'showClearFiltersButton': _propTypes["default"].bool.isRequired,
-  'onClearFilters': _propTypes["default"].func.isRequired,
+  'showClearFiltersButton': PropTypes.bool.isRequired,
+  'onClearFilters': PropTypes.func.isRequired,
 
   /**
    * In lieu of facets, which are only generated by search.py, can
    * use and format schemas, which are available to experiment-set-view.js through item.js.
    */
-  'schemas': _propTypes["default"].object,
+  'schemas': PropTypes.object,
   // { '<schemaKey : string > (active facet categories)' : Set (active filters within category) }
-  'title': _propTypes["default"].string,
+  'title': PropTypes.string,
   // Title to put atop FacetList
-  'className': _propTypes["default"].string,
+  'className': PropTypes.string,
   // Extra class
-  'href': _propTypes["default"].string,
-  'onFilter': _propTypes["default"].func,
+  'href': PropTypes.string,
+  'onFilter': PropTypes.func,
   // What happens when Term is clicked.
-  'separateSingleTermFacets': _propTypes["default"].bool,
-  'maxBodyHeight': _propTypes["default"].number
+  'separateSingleTermFacets': PropTypes.bool,
+  'maxBodyHeight': PropTypes.number
 });
 
 _defineProperty(FacetList, "defaultProps", {
@@ -868,9 +839,8 @@ _defineProperty(FacetList, "defaultProps", {
    */
   'onFilter': function onFilter(facet, term, callback) {
     // Set redux filter accordingly, or update search query/href.
-    _patchedConsole.patchedConsoleInstance.log('FacetList: props.onFilter(' + facet.field + ', ' + term.key + ', callback)');
-
-    _patchedConsole.patchedConsoleInstance.log(facet, term);
+    console.log('FacetList: props.onFilter(' + facet.field + ', ' + term.key + ', callback)');
+    console.log(facet, term);
 
     if (typeof callback === 'function') {
       setTimeout(callback, 1000);
@@ -879,8 +849,7 @@ _defineProperty(FacetList, "defaultProps", {
   'onClearFilters': function onClearFilters(e, callback) {
     // Clear Redux filters, or go base search url.
     e.preventDefault();
-
-    _patchedConsole.patchedConsoleInstance.log('FacetList: props.onClearFilters(e, callback)');
+    console.log('FacetList: props.onClearFilters(e, callback)');
 
     if (typeof callback === 'function') {
       setTimeout(callback, 1000);
@@ -901,7 +870,7 @@ _defineProperty(FacetList, "defaultProps", {
   }
 });
 
-var FacetListHeader = /*#__PURE__*/_react["default"].memo(function (props) {
+export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
   var _props$title = props.title,
       title = _props$title === void 0 ? "Properties" : _props$title,
       _props$openFacets = props.openFacets,
@@ -912,35 +881,33 @@ var FacetListHeader = /*#__PURE__*/_react["default"].memo(function (props) {
       onClearFilters = _props$onClearFilters === void 0 ? null : _props$onClearFilters,
       onCollapseFacets = props.onCollapseFacets;
   var anyFacetsOpen = Object.keys(openFacets).length !== 0;
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "row facets-header"
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "col facets-title-column text-truncate"
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-filter fas"
-  }), "\xA0", /*#__PURE__*/_react["default"].createElement("h4", {
+  }), "\xA0", /*#__PURE__*/React.createElement("h4", {
     className: "facets-title"
-  }, title)), /*#__PURE__*/_react["default"].createElement("div", {
+  }, title)), /*#__PURE__*/React.createElement("div", {
     className: "col-auto"
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "btn-group btn-group-sm properties-controls",
     role: "group",
     "aria-label": "Properties Controls"
-  }, anyFacetsOpen ? /*#__PURE__*/_react["default"].createElement("button", {
+  }, anyFacetsOpen ? /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-outline-light",
     onClick: onCollapseFacets,
     "data-tip": "Collapse all facets below"
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-minus fas"
-  })) : null, showClearFiltersButton && typeof onClearFilters === "function" ? /*#__PURE__*/_react["default"].createElement("button", {
+  })) : null, showClearFiltersButton && typeof onClearFilters === "function" ? /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-outline-light",
     onClick: onClearFilters,
     "data-tip": "Clear all filters"
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-times fas"
   })) : null)));
 });
-
-exports.FacetListHeader = FacetListHeader;

@@ -1,34 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sendDataToParentWindow = sendDataToParentWindow;
-exports.StickyFooter = StickyFooter;
-exports.SelectStickyFooter = exports.SelectedItemsController = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _Alerts = require("./../../ui/Alerts");
-
-var _object = require("./../../util/object");
-
-var _misc = require("./../../util/misc");
-
-var _basicColumnExtensionMap = require("./../../browse/components/table-commons/basicColumnExtensionMap");
-
-var _schemaTransforms = require("./../../util/schema-transforms");
-
-var _patchedConsole = require("./../../util/patched-console");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
@@ -77,12 +48,21 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React, { useMemo } from 'react';
+import _ from 'underscore';
+import { Alerts } from './../../ui/Alerts';
+import { itemUtil } from './../../util/object';
+import { isSelectAction } from './../../util/misc';
+import { DisplayTitleColumnWrapper, DisplayTitleColumnDefault } from './../../browse/components/table-commons/basicColumnExtensionMap';
+import { getSchemaTypeFromSearchContext, getTitleForType } from './../../util/schema-transforms';
+import { patchedConsoleInstance as console } from './../../util/patched-console';
 /**
  * Utility function to post message to parent window
  * @param {Array} selectedItems: array of {id:ID of selected Item, if any, json:JSON of selected Item, if present (NOT GUARANTEED TO BE PROVIDED)} object
  * set selectedItems as empty array ([]) to close child window
  */
-function sendDataToParentWindow(itemsListWrappedWithID) {
+
+export function sendDataToParentWindow(itemsListWrappedWithID) {
   if (!itemsListWrappedWithID || itemsListWrappedWithID.length === 0) {
     return;
   }
@@ -97,12 +77,12 @@ function sendDataToParentWindow(itemsListWrappedWithID) {
   } catch (err) {
     // Check for presence of parent window and alert if non-existent.
     if (!(typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window)) {
-      _Alerts.Alerts.queue({
+      Alerts.queue({
         'title': 'Failed to send data to parent window.',
         'message': 'Please ensure there is a parent window to which this selection is being sent to. Alternatively, try to drag & drop the Item over instead.'
       });
     } else {
-      _patchedConsole.patchedConsoleInstance.err('Unexpecter error -- browser may not support postMessage', err);
+      console.err('Unexpecter error -- browser may not support postMessage', err);
     }
   } // Nonstandard - in case browser doesn't support postMessage but does support other cross-window events (unlikely).
 
@@ -111,8 +91,7 @@ function sendDataToParentWindow(itemsListWrappedWithID) {
     'detail': eventJSON
   }));
 }
-
-var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
+export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SelectedItemsController, _React$PureComponent);
 
   var _super = _createSuper(SelectedItemsController);
@@ -143,8 +122,7 @@ var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
       this.setState(function (_ref) {
         var prevItems = _ref.selectedItems;
         var nextItems = new Map(prevItems);
-
-        var resultID = _object.itemUtil.atId(result);
+        var resultID = itemUtil.atId(result);
 
         if (nextItems.has(resultID)) {
           nextItems["delete"](resultID);
@@ -215,7 +193,7 @@ var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
           'eventType': 'fourfrontcancelclick'
         }, '*');
       } else {
-        _patchedConsole.patchedConsoleInstance.error("Couldn't access opener window.");
+        console.error("Couldn't access opener window.");
       }
     }
     /**
@@ -239,7 +217,7 @@ var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
           originalColumnExtensionMap = _this$props.columnExtensionMap,
           _this$props$currentAc = _this$props.currentAction,
           currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc;
-      var inSelectionMode = (0, _misc.isSelectAction)(currentAction);
+      var inSelectionMode = isSelectAction(currentAction);
 
       if (!inSelectionMode || !originalColumnExtensionMap) {
         return originalColumnExtensionMap;
@@ -251,7 +229,7 @@ var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
         // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
         // Also add the popLink/target=_blank functionality to links
         // Remove lab.display_title and type columns on selection
-        var newColumnExtensionMap = _underscore["default"].clone(originalColumnExtensionMap);
+        var newColumnExtensionMap = _.clone(originalColumnExtensionMap);
 
         newColumnExtensionMap.display_title = _objectSpread(_objectSpread({}, newColumnExtensionMap.display_title), {}, {
           'minColumnWidth': (originalColumnExtensionMap.display_title.minColumnWidth || 100) + 20,
@@ -262,19 +240,19 @@ var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
                 toggleDetailOpen = parentProps.toggleDetailOpen,
                 href = parentProps.href,
                 context = parentProps.context;
-            return /*#__PURE__*/_react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnWrapper, {
+            return /*#__PURE__*/React.createElement(DisplayTitleColumnWrapper, {
               result: result,
               href: href,
               context: context,
               rowNumber: rowNumber,
               detailOpen: detailOpen,
               toggleDetailOpen: toggleDetailOpen
-            }, /*#__PURE__*/_react["default"].createElement(SelectionItemCheckbox, _extends({
+            }, /*#__PURE__*/React.createElement(SelectionItemCheckbox, _extends({
               selectedItems: selectedItems,
               isMultiSelect: currentAction === 'multiselect'
             }, {
               handleSelectItem: _this2.handleSelectItem
-            })), /*#__PURE__*/_react["default"].createElement(_basicColumnExtensionMap.DisplayTitleColumnDefault, null));
+            })), /*#__PURE__*/React.createElement(DisplayTitleColumnDefault, null));
           }
         });
         return newColumnExtensionMap;
@@ -291,7 +269,7 @@ var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
 
       var selectedItems = this.state.selectedItems;
 
-      _underscore["default"].extend(propsToPass, {
+      _.extend(propsToPass, {
         selectedItems: selectedItems,
         columnExtensionMap: this.columnExtensionMapWithSelectButton(),
         onSelectItem: this.handleSelectItemClick,
@@ -299,31 +277,28 @@ var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent) {
         onCompleteSelection: this.handleSelectItemCompleteClick
       });
 
-      return _react["default"].Children.map(children, function (child) {
-        if (! /*#__PURE__*/_react["default"].isValidElement(child)) {
+      return React.Children.map(children, function (child) {
+        if (! /*#__PURE__*/React.isValidElement(child)) {
           throw new Error('SelectedItemsSearchController expects props.children to be a valid React component instance(s).');
         }
 
-        return /*#__PURE__*/_react["default"].cloneElement(child, propsToPass);
+        return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
     }
   }]);
 
   return SelectedItemsController;
-}(_react["default"].PureComponent);
-
-exports.SelectedItemsController = SelectedItemsController;
-
-var SelectionItemCheckbox = /*#__PURE__*/_react["default"].memo(function (props) {
+}(React.PureComponent);
+var SelectionItemCheckbox = /*#__PURE__*/React.memo(function (props) {
   var selectedItems = props.selectedItems,
       result = props.result,
       isMultiSelect = props.isMultiSelect,
       handleSelectItem = props.handleSelectItem;
-  var isChecked = selectedItems.has(_object.itemUtil.atId(result));
-  var onChange = (0, _react.useMemo)(function () {
+  var isChecked = selectedItems.has(itemUtil.atId(result));
+  var onChange = useMemo(function () {
     return handleSelectItem.bind(handleSelectItem, result, isMultiSelect);
   }, [handleSelectItem, result, isMultiSelect]);
-  return /*#__PURE__*/_react["default"].createElement("input", {
+  return /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     checked: isChecked,
     onChange: onChange,
@@ -332,48 +307,47 @@ var SelectionItemCheckbox = /*#__PURE__*/_react["default"].memo(function (props)
 });
 /** Move to own file later maybe. Especially if functionality expands. */
 
-
-var SelectStickyFooter = /*#__PURE__*/_react["default"].memo(function (props) {
+export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
   var context = props.context,
       schemas = props.schemas,
       selectedItems = props.selectedItems,
       onComplete = props.onComplete,
       onCancel = props.onCancel,
       currentAction = props.currentAction;
-  var itemTypeFriendlyName = (0, _schemaTransforms.getTitleForType)((0, _schemaTransforms.getSchemaTypeFromSearchContext)(context), schemas);
+  var itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context), schemas);
   var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
-  return /*#__PURE__*/_react["default"].createElement(StickyFooter, null, /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement(StickyFooter, null, /*#__PURE__*/React.createElement("div", {
     className: "row selection-controls-footer"
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "col mb-05 mt-05"
-  }, currentAction === 'multiselect' ? /*#__PURE__*/_react["default"].createElement("div", {
+  }, currentAction === 'multiselect' ? /*#__PURE__*/React.createElement("div", {
     className: "row"
-  }, /*#__PURE__*/_react["default"].createElement("h3", {
+  }, /*#__PURE__*/React.createElement("h3", {
     className: "mt-0 mb-0 col-auto text-600"
-  }, selectedItems.size), /*#__PURE__*/_react["default"].createElement("h4", {
+  }, selectedItems.size), /*#__PURE__*/React.createElement("h4", {
     className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
-  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : /*#__PURE__*/_react["default"].createElement("div", {
+  }, itemTypeFriendlyName + (selectedItems.size === 1 ? '' : 's'), " selected")) : /*#__PURE__*/React.createElement("div", {
     className: "row"
-  }, /*#__PURE__*/_react["default"].createElement("h4", {
+  }, /*#__PURE__*/React.createElement("h4", {
     className: "mt-0 mb-0 col-auto text-400"
-  }, selectedItemDisplayTitle), /*#__PURE__*/_react["default"].createElement("h4", {
+  }, selectedItemDisplayTitle), /*#__PURE__*/React.createElement("h4", {
     className: "mt-0 mb-0 text-muted col-auto text-400 px-0"
-  }, "selected"))), /*#__PURE__*/_react["default"].createElement("div", {
+  }, "selected"))), /*#__PURE__*/React.createElement("div", {
     className: "col-12 col-md-auto"
-  }, /*#__PURE__*/_react["default"].createElement("button", {
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-success",
     onClick: onComplete,
     disabled: selectedItems.size === 0,
     "data-tip": "Select checked items and close window"
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw fas icon-check"
-  }), "\xA0 Apply"), /*#__PURE__*/_react["default"].createElement("button", {
+  }), "\xA0 Apply"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-outline-warning ml-1",
     onClick: onCancel,
     "data-tip": "Cancel selection and close window"
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw fas icon-times"
   }), "\xA0 Cancel"))));
 });
@@ -382,16 +356,13 @@ var SelectStickyFooter = /*#__PURE__*/_react["default"].memo(function (props) {
  * TODO: Component can be moved to a separate file.
  */
 
-
-exports.SelectStickyFooter = SelectStickyFooter;
-
-function StickyFooter(_ref2) {
+export function StickyFooter(_ref2) {
   var children = _ref2.children,
       passProps = _objectWithoutProperties(_ref2, ["children"]);
 
-  return /*#__PURE__*/_react["default"].createElement("div", _extends({
+  return /*#__PURE__*/React.createElement("div", _extends({
     className: "sticky-page-footer"
-  }, passProps), /*#__PURE__*/_react["default"].createElement("div", {
+  }, passProps), /*#__PURE__*/React.createElement("div", {
     className: "container"
   }, children));
 }

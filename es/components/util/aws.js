@@ -1,24 +1,15 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.s3UploadFile = s3UploadFile;
-
-var _awsSdk = require("aws-sdk");
-
-// Uploads a given file to s3 using the upload_credentials metadata
+import { S3, config } from 'aws-sdk'; // Uploads a given file to s3 using the upload_credentials metadata
 // for a given object. upload_credentials is an object, made from /types/file.py
 // File is given from <input type=file>
 // If you return null, the upload will fail with a warning message
-function s3UploadFile(file, upload_credentials) {
-  _awsSdk.config.update({
+
+export function s3UploadFile(file, upload_credentials) {
+  config.update({
     accessKeyId: upload_credentials.AccessKeyId,
     secretAccessKey: upload_credentials.SecretAccessKey,
     sessionToken: upload_credentials.SessionToken
   }); // get s3 bucket identity from upload url
   // should be in form: "s3://<bucket>/<extra stuff>"
-
 
   var upload_url = upload_credentials.upload_url;
   var bucket = null;
@@ -33,7 +24,7 @@ function s3UploadFile(file, upload_credentials) {
     return null;
   }
 
-  var s3 = new _awsSdk.S3(); // this function returns an uploadManager
+  var s3 = new S3(); // this function returns an uploadManager
 
   return s3.upload({
     Bucket: bucket,

@@ -1,26 +1,19 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+import _ from 'underscore';
 /**
  * A registry of views to text and possibly sub-text strings.
  * Used to register an Item view to be the renderer for a given Item type[/action], for example.
  *
  * Copied over from ENCODE.
  */
+
 var Registry = /*#__PURE__*/function () {
   function Registry(options) {
     _classCallCheck(this, Registry);
@@ -28,7 +21,7 @@ var Registry = /*#__PURE__*/function () {
     // May provide custom providedBy and fallback functions
     this.views = {};
 
-    _underscore["default"].extend(this, options);
+    _.extend(this, options);
   }
 
   _createClass(Registry, [{
@@ -94,4 +87,4 @@ var Registry = /*#__PURE__*/function () {
   return Registry;
 }();
 
-exports["default"] = Registry;
+export { Registry as default };

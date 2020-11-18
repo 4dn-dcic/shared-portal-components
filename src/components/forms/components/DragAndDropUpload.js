@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import Modal from 'react-bootstrap/esm/Modal';
 import PropTypes from 'prop-types';
 import { ajax } from './../../util';
 import _ from 'underscore';
@@ -438,7 +438,7 @@ class DragAndDropModal extends React.Component {
                     </button>
                     {/* TODO: Controlled file inputs are complicated... maybe wait to implement this
                     // Refer to https://medium.com/trabe/controlled-file-input-components-in-react-3f0d42f901b8 */}
-                   
+
                     <button type="button" className="btn btn-primary" onClick={onUploadStart}
                         disabled={files.length === 0 }>
                         <i className="icon fas icon-upload"></i> Upload {fieldDisplayTitle}

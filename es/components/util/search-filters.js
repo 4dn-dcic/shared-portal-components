@@ -1,44 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getUnselectHrefIfSelectedFromResponseFilters = getUnselectHrefIfSelectedFromResponseFilters;
-exports.getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters;
-exports.buildSearchHref = buildSearchHref;
-exports.changeFilter = changeFilter;
-exports.saveChangedFilters = saveChangedFilters;
-exports.getDateHistogramIntervalFromFacet = getDateHistogramIntervalFromFacet;
-exports.determineIfTermFacetSelected = determineIfTermFacetSelected;
-exports.getTermFacetStatus = getTermFacetStatus;
-exports.isTermSelectedAccordingToExpSetFilters = isTermSelectedAccordingToExpSetFilters;
-exports.unsetAllTermsForField = unsetAllTermsForField;
-exports.filtersToHref = filtersToHref;
-exports.contextFiltersToExpSetFilters = contextFiltersToExpSetFilters;
-exports.expSetFiltersToURLQuery = expSetFiltersToURLQuery;
-exports.expSetFiltersToJSON = expSetFiltersToJSON;
-exports.compareExpSetFilters = compareExpSetFilters;
-exports.filtersToNodes = filtersToNodes;
-exports.convertExpSetFiltersTerms = convertExpSetFiltersTerms;
-exports.searchQueryStringFromHref = searchQueryStringFromHref;
-exports.filterObjExistsAndNoFiltersSelected = filterObjExistsAndNoFiltersSelected;
-exports.getSearchItemType = getSearchItemType;
-exports.NON_FILTER_URL_PARAMS = void 0;
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var _queryString = _interopRequireDefault(require("query-string"));
-
-var _moment = _interopRequireDefault(require("moment"));
-
-var _navigate = require("./navigate");
-
-var _misc = require("./misc");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function () {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
@@ -65,6 +26,12 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 var Alerts = null; //require('./../alerts');
 
+import _ from 'underscore';
+import url from 'url';
+import queryString from 'query-string';
+import moment from 'moment';
+import { navigate } from './navigate';
+import { isServerSide } from './misc';
 /**
  * @deprecated
  * If the given term is selected, return the href for the term from context.filters.
@@ -75,7 +42,8 @@ var Alerts = null; //require('./../alerts');
  * @param {boolean} [includePathName] - If true, will return the pathname in addition to the URI search query.
  * @returns {!string} URL to remove active filter, or null if filter not currently active for provided field:term pair.
  */
-function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
+
+export function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
   var includePathName = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var field = facet.field,
       isRange = facet.aggregation_type && ['range', 'date_histogram', 'histogram'].indexOf(facet.aggregation_type) > -1,
@@ -88,22 +56,21 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
     var toFilter, fromFilter;
 
     if (facet.aggregation_type === 'range') {
-      toFilter = _underscore["default"].findWhere(filters, {
+      toFilter = _.findWhere(filters, {
         'field': field + '.to',
         'term': term.to
-      }), fromFilter = _underscore["default"].findWhere(filters, {
+      }), fromFilter = _.findWhere(filters, {
         'field': field + '.from',
         'term': term.from
       });
     } else if (facet.aggregation_type === 'date_histogram') {
       var interval = getDateHistogramIntervalFromFacet(facet) || 'month',
-          toDate = _moment["default"].utc(term.key);
-
+          toDate = moment.utc(term.key);
       toDate.add(1, interval + 's');
-      toFilter = _underscore["default"].findWhere(filters, {
+      toFilter = _.findWhere(filters, {
         'field': field + '.to',
         'term': toDate.format().slice(0, 10)
-      }), fromFilter = _underscore["default"].findWhere(filters, {
+      }), fromFilter = _.findWhere(filters, {
         'field': field + '.from',
         'term': term.key
       });
@@ -112,7 +79,7 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
     }
 
     if (toFilter && !fromFilter) {
-      parts = _url["default"].parse(toFilter['remove']);
+      parts = url.parse(toFilter['remove']);
 
       if (includePathName) {
         retHref += parts.pathname;
@@ -121,7 +88,7 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
       retHref += parts.search;
       return retHref;
     } else if (!toFilter && fromFilter) {
-      parts = _url["default"].parse(fromFilter['remove']);
+      parts = url.parse(fromFilter['remove']);
 
       if (includePathName) {
         retHref += parts.pathname;
@@ -130,13 +97,13 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
       retHref += parts.search;
       return retHref;
     } else if (toFilter && fromFilter) {
-      var partsFrom = _url["default"].parse(fromFilter['remove'], true),
-          partsTo = _url["default"].parse(toFilter['remove'], true),
+      var partsFrom = url.parse(fromFilter['remove'], true),
+          partsTo = url.parse(toFilter['remove'], true),
           partsFromQ = partsFrom.query,
           partsToQ = partsTo.query,
           commonQs = {};
 
-      _underscore["default"].forEach(_underscore["default"].keys(partsFromQ), function (qk) {
+      _.forEach(_.keys(partsFromQ), function (qk) {
         if (typeof partsToQ[qk] !== 'undefined') {
           if (Array.isArray(partsToQ[qk]) || Array.isArray(partsFromQ[qk])) {
             var a1, a2;
@@ -153,14 +120,14 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
               a2 = [partsFromQ[qk]];
             }
 
-            commonQs[qk] = _underscore["default"].intersection(a1, a2);
+            commonQs[qk] = _.intersection(a1, a2);
           } else {
             commonQs[qk] = partsToQ[qk];
           }
         }
       });
 
-      retHref = '?' + _queryString["default"].stringify(commonQs);
+      retHref = '?' + queryString.stringify(commonQs);
 
       if (includePathName) {
         retHref += partsFrom.pathname;
@@ -174,7 +141,7 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
       filter = filters[i];
 
       if (filter.field == field && filter.term == term.key) {
-        parts = _url["default"].parse(filter.remove);
+        parts = url.parse(filter.remove);
 
         if (includePathName) {
           retHref += parts.pathname;
@@ -198,8 +165,7 @@ function getUnselectHrefIfSelectedFromResponseFilters(term, facet, filters) {
  * @returns {{ 'status' : string, 'href' : string }} status: one of [selected/omitted/none], href: URL to remove active filter, or null if filter not currently active for provided field:term pair.
  */
 
-
-function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, filters) {
+export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, filters) {
   var includePathName = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   //workaround: '!=' condition adds '!' to the end of facet.field in StaticSingleTerm, we remove it
   var field = facet.field.endsWith('!') ? facet.field.slice(0, -1) : facet.field;
@@ -223,7 +189,7 @@ function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, fa
     }
 
     if (found) {
-      parts = _url["default"].parse(filter.remove);
+      parts = url.parse(filter.remove);
 
       if (includePathName) {
         retHref += parts.pathname;
@@ -251,7 +217,7 @@ function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, fa
     }
 
     if (found) {
-      parts = _url["default"].parse(filter.remove);
+      parts = url.parse(filter.remove);
 
       if (includePathName) {
         retHref += parts.pathname;
@@ -279,11 +245,10 @@ function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, fa
  * @returns {string} href - Search URL.
  */
 
+export function buildSearchHref(field, term, searchBase) {
+  var parts = url.parse(searchBase, true);
 
-function buildSearchHref(field, term, searchBase) {
-  var parts = _url["default"].parse(searchBase, true);
-
-  var query = _underscore["default"].clone(parts.query); // format multiple filters on the same field
+  var query = _.clone(parts.query); // format multiple filters on the same field
 
 
   if (field in query) {
@@ -296,10 +261,9 @@ function buildSearchHref(field, term, searchBase) {
     query[field] = term;
   }
 
-  var queryStr = _queryString["default"].stringify(query);
-
+  var queryStr = queryString.stringify(query);
   parts.search = queryStr && queryStr.length > 0 ? '?' + queryStr : '';
-  return _url["default"].format(parts);
+  return url.format(parts);
 }
 /**
  * @deprecated
@@ -314,8 +278,7 @@ function buildSearchHref(field, term, searchBase) {
  * @returns {?Object} Next filters object representation, or void if returnInsteadOfSave is false.
  */
 
-
-function changeFilter(field, term, filters) {
+export function changeFilter(field, term, filters) {
   var callback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
   var returnInsteadOfSave = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
   var href = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
@@ -336,10 +299,10 @@ function changeFilter(field, term, filters) {
 
     if (expSet.size > 0) {
       tempObj[field] = expSet;
-      newObj = _underscore["default"].extend({}, filters, tempObj);
+      newObj = _.extend({}, filters, tempObj);
     } else {
       //remove key if set is empty
-      newObj = _underscore["default"].extend({}, filters);
+      newObj = _.extend({}, filters);
       delete newObj[field];
     }
 
@@ -364,15 +327,14 @@ function changeFilter(field, term, filters) {
  * @returns {void}
  */
 
-
-function saveChangedFilters(newExpSetFilters) {
+export function saveChangedFilters(newExpSetFilters) {
   var href = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var callback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var requiredQs = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   if (!Alerts) Alerts = require('../ui/Alerts').Alerts;
 
   if (!href) {
-    if ((0, _misc.isServerSide)()) {
+    if (isServerSide()) {
       throw new Error("No href provided and cannot get from window as none available server-side.");
     } else {
       console.warn("No HREF (3rd param) supplied, using window.location.href. This might be wrong depending on where we should be browsing.");
@@ -383,7 +345,7 @@ function saveChangedFilters(newExpSetFilters) {
   if (typeof href !== 'string') throw new Error("No valid href (3rd arg) supplied to saveChangedFilters: " + href);
   var origHref = href;
   var newHref = filtersToHref(newExpSetFilters, href, null, false, null, requiredQs);
-  (0, _navigate.navigate)(newHref, {
+  navigate(newHref, {
     replace: true,
     skipConfirmCheck: true
   }, function (result) {
@@ -391,7 +353,7 @@ function saveChangedFilters(newExpSetFilters) {
       // Present an alert box informing user that their new selection is now being UNSELECTED because it returned no results.
       Alerts.queue(Alerts.NoFilterResults); // No results, unset new filters.
 
-      (0, _navigate.navigate)(origHref);
+      navigate(origHref);
     } else {
       // Success. Remove any no result alerts.
       Alerts.deQueue(Alerts.NoFilterResults);
@@ -404,8 +366,7 @@ function saveChangedFilters(newExpSetFilters) {
     if (typeof callback === 'function') setTimeout(callback, 0);
   });
 }
-
-function getDateHistogramIntervalFromFacet(facet) {
+export function getDateHistogramIntervalFromFacet(facet) {
   return facet && facet.aggregation_definition && facet.aggregation_definition.date_histogram && facet.aggregation_definition.date_histogram.interval;
 }
 /**
@@ -420,8 +381,7 @@ function getDateHistogramIntervalFromFacet(facet) {
  * @returns {boolean}
  */
 
-
-function determineIfTermFacetSelected(term, facet, props) {
+export function determineIfTermFacetSelected(term, facet, props) {
   return !!getUnselectHrefIfSelectedFromResponseFilters(term, facet, props.context.filters); // The below might be re-introduced ... but more likely to be removed since we'll have different 'range' Facet component.
 
   /*
@@ -475,8 +435,7 @@ function determineIfTermFacetSelected(term, facet, props) {
  * @returns {string} - returns one of 'selected', 'omitted' or 'none' values
  */
 
-
-function getTermFacetStatus(term, facet, contextFilters) {
+export function getTermFacetStatus(term, facet, contextFilters) {
   var _getStatusAndUnselect = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters),
       status = _getStatusAndUnselect.status;
 
@@ -484,20 +443,18 @@ function getTermFacetStatus(term, facet, contextFilters) {
 }
 /** @deprecated */
 
-
-function isTermSelectedAccordingToExpSetFilters(term, field) {
+export function isTermSelectedAccordingToExpSetFilters(term, field) {
   var expSetFilters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   if (!expSetFilters) expSetFilters = currentExpSetFilters(); // If no expSetFilters are supplied, get them from Redux store.
 
   if (typeof expSetFilters[field] !== 'undefined' && typeof expSetFilters[field].has === 'function' && expSetFilters[field].has(term)) return true;
   return false;
 }
-
-function unsetAllTermsForField(field, expSetFilters) {
+export function unsetAllTermsForField(field, expSetFilters) {
   var save = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
   var href = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
-  var esf = _underscore["default"].clone(expSetFilters);
+  var esf = _.clone(expSetFilters);
 
   delete esf[field];
   if (save && href) return saveChangedFilters(esf, href);else return esf;
@@ -514,20 +471,19 @@ function unsetAllTermsForField(field, expSetFilters) {
  * @returns {string} URL which can be used to request filtered results from back-end, e.g. http://localhost:8000/browse/?type=ExperimentSetReplicate&experimentset_type=replicate&from=0&limit=50&field.name=term1&field2.something=term2[...]
  */
 
-
-function filtersToHref(expSetFilters, currentHref) {
+export function filtersToHref(expSetFilters, currentHref) {
   var sortColumn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var sortReverse = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var hrefPath = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
   var requiredQs = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
   var baseHref = getBaseHref(currentHref, hrefPath, requiredQs); // Include a '?' or '&' if needed.
 
-  var sep = _navigate.navigate.determineSeparatorChar(baseHref),
+  var sep = navigate.determineSeparatorChar(baseHref),
       filterQuery = expSetFiltersToURLQuery(expSetFilters),
       urlString = baseHref + (filterQuery.length > 0 ? sep + filterQuery : '');
 
   if (!sortColumn) {
-    var parts = _url["default"].parse(currentHref, true);
+    var parts = url.parse(currentHref, true);
 
     if (parts.query && typeof parts.query.sort === 'string') {
       if (parts.query.sort.charAt(0) === '-') {
@@ -554,8 +510,7 @@ function filtersToHref(expSetFilters, currentHref) {
  * Taken from search.py
  */
 
-
-var NON_FILTER_URL_PARAMS = ['limit', 'y.limit', 'x.limit', 'mode', 'format', 'frame', 'datastore', 'field', 'region', 'genome', 'sort', 'from', 'referrer', 'q', 'before', 'after'];
+export var NON_FILTER_URL_PARAMS = ['limit', 'y.limit', 'x.limit', 'mode', 'format', 'frame', 'datastore', 'field', 'region', 'genome', 'sort', 'from', 'referrer', 'q', 'before', 'after'];
 /**
  * Convert back-end-supplied 'context.filters' array of filter objects into commonly-used 'expSetFilters' structure.
  * Replaces now-removed 'hrefToFilters' function and copy of expSetFilters passed down from Redux store.
@@ -565,9 +520,7 @@ var NON_FILTER_URL_PARAMS = ['limit', 'y.limit', 'x.limit', 'mode', 'format', 'f
  * @returns {Object} Object with fields (string, dot-separated-nested) as keys and Sets of terms (string) as values for those keys.
  */
 
-exports.NON_FILTER_URL_PARAMS = NON_FILTER_URL_PARAMS;
-
-function contextFiltersToExpSetFilters(contextFilters) {
+export function contextFiltersToExpSetFilters(contextFilters) {
   var excludedQs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   if (!Array.isArray(contextFilters)) {
@@ -576,7 +529,7 @@ function contextFiltersToExpSetFilters(contextFilters) {
   }
 
   if (contextFilters.length === 0) return {};
-  return _underscore["default"].reduce(contextFilters, function (memo, filterObj) {
+  return _.reduce(contextFilters, function (memo, filterObj) {
     if (excludedQs && typeof excludedQs[filterObj.field] !== 'undefined') {
       if (excludedQs[filterObj.field] === true) return memo;
 
@@ -602,14 +555,13 @@ function contextFiltersToExpSetFilters(contextFilters) {
 }
 /** Convert expSetFilters, e.g. as stored in Redux, into a partial URL query: field.name=term1&field2.something=term2[&field3...] */
 
-
-function expSetFiltersToURLQuery(expSetFilters) {
-  return _underscore["default"].map(_underscore["default"].pairs(expSetFiltersToJSON(expSetFilters)), function (_ref) {
+export function expSetFiltersToURLQuery(expSetFilters) {
+  return _.map(_.pairs(expSetFiltersToJSON(expSetFilters)), function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         field = _ref2[0],
         terms = _ref2[1];
 
-    return _underscore["default"].map(terms, function (t) {
+    return _.map(terms, function (t) {
       // `t` term already ran thru encodeURIComponent in `expSetFiltersToJSON`
       return encodeURIComponent(field) + '=' + t.replace(/%20/g, "+");
     }).join('&');
@@ -617,15 +569,14 @@ function expSetFiltersToURLQuery(expSetFilters) {
 }
 /** Normally we have Set objects for Field terms which we convert to arrays */
 
-
-function expSetFiltersToJSON(expSetFilters) {
-  return _underscore["default"].object(_underscore["default"].map(_underscore["default"].pairs(expSetFilters), function (_ref3) {
+export function expSetFiltersToJSON(expSetFilters) {
+  return _.object(_.map(_.pairs(expSetFilters), function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
         field = _ref4[0],
         setOfTerms = _ref4[1];
 
     // Encode to be URI safe -
-    var termsArray = _underscore["default"].map(_toConsumableArray(setOfTerms), function (term) {
+    var termsArray = _.map(_toConsumableArray(setOfTerms), function (term) {
       return encodeURIComponent(term);
     });
 
@@ -641,13 +592,12 @@ function expSetFiltersToJSON(expSetFilters) {
  * @returns {boolean} true if equal.
  */
 
-
-function compareExpSetFilters(expSetFiltersA, expSetFiltersB) {
+export function compareExpSetFilters(expSetFiltersA, expSetFiltersB) {
   if (expSetFiltersA && !expSetFiltersB || !expSetFiltersA && expSetFiltersB) return false;
 
-  var keysA = _underscore["default"].keys(expSetFiltersA);
+  var keysA = _.keys(expSetFiltersA);
 
-  if (keysA.length !== _underscore["default"].keys(expSetFiltersB).length) return false;
+  if (keysA.length !== _.keys(expSetFiltersB).length) return false;
 
   for (var i = 0; i < keysA.length; i++) {
     if (typeof expSetFiltersB[keysA[i]] === 'undefined') return false;
@@ -673,16 +623,15 @@ function compareExpSetFilters(expSetFiltersA, expSetFiltersB) {
 
   return true;
 }
-
-function filtersToNodes() {
+export function filtersToNodes() {
   var expSetFilters = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var orderedFieldNames = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var termTranformFxn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var flatten = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   // Convert orderedFieldNames into object/hash for faster lookups.
   var sortObj = null;
-  if (Array.isArray(orderedFieldNames)) sortObj = _underscore["default"].invert(_underscore["default"].object(_underscore["default"].pairs(orderedFieldNames)));
-  return (0, _underscore["default"])(expSetFilters).chain().pairs() // fieldPair[0] = field, fieldPair[1] = Set of terms
+  if (Array.isArray(orderedFieldNames)) sortObj = _.invert(_.object(_.pairs(orderedFieldNames)));
+  return _(expSetFilters).chain().pairs() // fieldPair[0] = field, fieldPair[1] = Set of terms
   .sortBy(function (fieldPair) {
     if (sortObj && typeof sortObj[fieldPair[0]] !== 'undefined') return parseInt(sortObj[fieldPair[0]]);else return fieldPair[0];
   }).reduce(function (m, fieldPair) {
@@ -717,10 +666,9 @@ function filtersToNodes() {
  * @param {string} [to='array']   One of 'array' or 'set' for what to convert expSetFilter's terms to.
  */
 
-
-function convertExpSetFiltersTerms(expSetFilters) {
+export function convertExpSetFiltersTerms(expSetFilters) {
   var to = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'array';
-  return (0, _underscore["default"])(expSetFilters).chain().pairs().map(function (pair) {
+  return _(expSetFilters).chain().pairs().map(function (pair) {
     if (to === 'array') {
       return [pair[0], _toConsumableArray(pair[1])];
     } else if (to === 'set') {
@@ -732,13 +680,11 @@ function convertExpSetFiltersTerms(expSetFilters) {
 }
 /** Return URL without any queries or hash, ending at pathname. Add hardcoded stuff for /browse/ or /search/ endpoints. */
 
-
 function getBaseHref() {
   var currentHref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '/browse/';
   var hrefPath = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var requiredQs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-  var urlParts = _url["default"].parse(currentHref, true);
+  var urlParts = url.parse(currentHref, true);
 
   if (!hrefPath) {
     hrefPath = urlParts.pathname;
@@ -746,10 +692,10 @@ function getBaseHref() {
 
   var baseHref = urlParts.protocol && urlParts.host ? urlParts.protocol + '//' + urlParts.host + hrefPath : hrefPath;
 
-  var hrefQuery = _underscore["default"].pick(urlParts.query, 'type', 'q');
+  var hrefQuery = _.pick(urlParts.query, 'type', 'q');
 
   if (hrefPath.indexOf('/browse/') > -1) {
-    _underscore["default"].extend(hrefQuery, requiredQs);
+    _.extend(hrefQuery, requiredQs);
   }
 
   if (hrefPath.indexOf('/search/') > -1) {
@@ -758,10 +704,10 @@ function getBaseHref() {
     }
   }
 
-  return baseHref + (_underscore["default"].keys(hrefQuery).length > 0 ? '?' + _queryString["default"].stringify(hrefQuery) : '');
+  return baseHref + (_.keys(hrefQuery).length > 0 ? '?' + queryString.stringify(hrefQuery) : '');
 }
 
-function searchQueryStringFromHref(href) {
+export function searchQueryStringFromHref(href) {
   if (!href) return null;
   if (typeof href !== 'string') return null;
   var searchQueryString = null; // eslint-disable-next-line no-useless-escape
@@ -780,12 +726,10 @@ function searchQueryStringFromHref(href) {
 }
 /** Check whether expSetFiles exists and is empty. */
 
-
-function filterObjExistsAndNoFiltersSelected(expSetFilters) {
-  return _typeof(expSetFilters) === 'object' && expSetFilters !== null && _underscore["default"].keys(expSetFilters).length === 0;
+export function filterObjExistsAndNoFiltersSelected(expSetFilters) {
+  return _typeof(expSetFilters) === 'object' && expSetFilters !== null && _.keys(expSetFilters).length === 0;
 }
-
-function getSearchItemType(context) {
+export function getSearchItemType(context) {
   var _context$filters = context.filters,
       filters = _context$filters === void 0 ? [] : _context$filters;
 

@@ -1,25 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.StackedBlockNameLabel = StackedBlockNameLabel;
-exports.StackedBlockTable = exports.StackedBlock = exports.StackedBlockList = exports.StackedBlockListViewMoreButton = exports.StackedBlockName = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
-
-var _util = require("./../../util");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -46,8 +26,14 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-// eslint-disable-next-line no-unused-vars
-var Item = _util.typedefs.Item;
+import React from 'react';
+import PropTypes from 'prop-types';
+import memoize from 'memoize-one';
+import _ from 'underscore';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import { object, typedefs } from './../../util'; // eslint-disable-next-line no-unused-vars
+
+var Item = typedefs.Item;
 /**
  * @todo:
  * - improve/cleanup code
@@ -56,38 +42,37 @@ var Item = _util.typedefs.Item;
  *   - or pass them thru props here
  */
 
-function StackedBlockNameLabel(props) {
+export function StackedBlockNameLabel(props) {
   var title = props.title,
       subtitle = props.subtitle,
       accession = props.accession,
       className = props.className,
       subtitleVisible = props.subtitleVisible;
   var cls = "label-ext-info" + (className ? ' ' + className : '') + (subtitle || accession ? ' has-subtitle' : '') + (subtitleVisible ? ' subtitle-visible' : '');
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: cls,
     key: "label"
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "label-title"
-  }, title), subtitle || accession ? /*#__PURE__*/_react["default"].createElement("div", {
+  }, title), subtitle || accession ? /*#__PURE__*/React.createElement("div", {
     className: "ext" + (accession ? ' is-accession' : '')
-  }, accession ? /*#__PURE__*/_react["default"].createElement(_util.object.CopyWrapper, {
+  }, accession ? /*#__PURE__*/React.createElement(object.CopyWrapper, {
     value: accession,
     key: "copy-accession"
   }, accession || subtitle) : subtitle) : null);
 }
-
 StackedBlockNameLabel.propTypes = {
   /** Subtitle/label will appear more opaque when not hovered over */
-  'subtitleVisible': _propTypes["default"].bool,
-  'className': _propTypes["default"].string,
-  'title': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].node]),
-  'subtitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].node]),
+  'subtitleVisible': PropTypes.bool,
+  'className': PropTypes.string,
+  'title': PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  'subtitle': PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   // Pass in place of or in addition to subtitle (takes precedence).
-  'accession': _propTypes["default"].string
+  'accession': PropTypes.string
 };
 /** Name element to be put inside of StackedBlocks as the first child. */
 
-var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
+export var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(StackedBlockName, _React$PureComponent);
 
   var _super = _createSuper(StackedBlockName);
@@ -111,10 +96,10 @@ var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
           className = _this$props.className;
       var useStyle = {};
       var colWidthStyle = colWidthStyles[columnClass];
-      if (style) _underscore["default"].extend(useStyle, style);
-      if (colWidthStyle) _underscore["default"].extend(useStyle, colWidthStyle);
+      if (style) _.extend(useStyle, style);
+      if (colWidthStyle) _.extend(useStyle, colWidthStyle);
       if (relativePosition) useStyle.position = 'relative';
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "name col-" + columnClass + (className ? " " + className : ""),
         style: useStyle
       }, label, children);
@@ -122,17 +107,14 @@ var StackedBlockName = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return StackedBlockName;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 /**
  * Button to toggle collapse/visible of longer StacedkBlockLists. Used in StackedBlockLists.
  */
 
-
-exports.StackedBlockName = StackedBlockName;
-
 _defineProperty(StackedBlockName, "Label", StackedBlockNameLabel);
 
-var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureComponent2) {
+export var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(StackedBlockListViewMoreButton, _React$PureComponent2);
 
   var _super2 = _createSuper(StackedBlockListViewMoreButton);
@@ -159,47 +141,44 @@ var StackedBlockListViewMoreButton = /*#__PURE__*/function (_React$PureComponent
 
       if (preventExpand) {
         // Show information label instead of button.
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: "view-more-button"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-plus mr-1 ml-02 small"
-        }), collapsibleChildrenLen + " More" + (title ? ' ' + title : ''), showMoreExtTitle ? /*#__PURE__*/_react["default"].createElement("span", {
+        }), collapsibleChildrenLen + " More" + (title ? ' ' + title : ''), showMoreExtTitle ? /*#__PURE__*/React.createElement("span", {
           className: "ext text-400"
         }, " ", showMoreExtTitle) : null);
       }
 
       var titleStr = (collapsed ? preventExpand ? collapsibleChildrenLen + " More" : "Show ".concat(collapsibleChildrenLen, " More") : "Show Fewer") + (title ? ' ' + title : '');
       var cls = "view-more-button" + (preventExpand ? "" : " clickable");
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: cls,
         onClick: preventExpand ? null : handleCollapseToggle
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "mr-1 icon fas icon-" + (collapsed ? 'plus' : 'minus')
-      }), titleStr, showMoreExtTitle ? /*#__PURE__*/_react["default"].createElement("span", {
+      }), titleStr, showMoreExtTitle ? /*#__PURE__*/React.createElement("span", {
         className: "ext text-400"
       }, " ", showMoreExtTitle) : null);
     }
   }]);
 
   return StackedBlockListViewMoreButton;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 /**
  * List which can be put inside a StackedBlock, after a StackedBlockName, and which holds other StackedBlocks.
  */
 
-
-exports.StackedBlockListViewMoreButton = StackedBlockListViewMoreButton;
-
 _defineProperty(StackedBlockListViewMoreButton, "propTypes", {
-  'collapsibleChildren': _propTypes["default"].array,
-  'collapsed': _propTypes["default"].bool,
-  'handleCollapseToggle': _propTypes["default"].func,
-  'preventExpand': _propTypes["default"].bool,
-  'showMoreExtTitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element]) // + those from parent .List
+  'collapsibleChildren': PropTypes.array,
+  'collapsed': PropTypes.bool,
+  'handleCollapseToggle': PropTypes.func,
+  'preventExpand': PropTypes.bool,
+  'showMoreExtTitle': PropTypes.oneOfType([PropTypes.string, PropTypes.element]) // + those from parent .List
 
 });
 
-var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
+export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(StackedBlockList, _React$PureComponent3);
 
   var _super3 = _createSuper(StackedBlockList);
@@ -229,7 +208,7 @@ var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           colWidthStyles = _this$props3.colWidthStyles,
           columnHeaders = _this$props3.columnHeaders,
           columnClass = _this$props3.columnClass;
-      return _react["default"].Children.map(children, function (c) {
+      return React.Children.map(children, function (c) {
         //if (c.type.displayName !== 'StackedBlock') return c; // Only add props to StackedBlocks
         // TODO: TEST MIGRATION FROM _.PICK
         var childProps = {
@@ -238,19 +217,19 @@ var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           stackDepth: stackDepth + 1
         }; //const childProps = _.pick(this.props, 'colWidthStyles', 'selectedFiles', 'columnHeaders', 'handleFileCheckboxChange');
 
-        _underscore["default"].forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed'], function (prop) {
+        _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
             childProps[prop] = _this2.props[prop] || null;
           }
         });
 
-        _underscore["default"].forEach(_underscore["default"].keys(_this2.props), function (prop) {
+        _.forEach(_.keys(_this2.props), function (prop) {
           if (typeof c.props[prop] === 'undefined' && typeof childProps[prop] === 'undefined' && !StackedBlock.excludedPassedProps.has(prop)) {
             childProps[prop] = _this2.props[prop];
           }
         });
 
-        return /*#__PURE__*/_react["default"].cloneElement(c, childProps, c.props.children);
+        return /*#__PURE__*/React.cloneElement(c, childProps, c.props.children);
       });
     }
   }, {
@@ -282,7 +261,7 @@ var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
 
       if (collapseLongLists === false || !Array.isArray(children) || children.length <= collapseLimit) {
         // Don't have enough items for collapsible element, return plain list.
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: cls,
           style: useStyle
         }, children);
@@ -294,22 +273,22 @@ var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
 
       if (collapsibleChildrenLen > Math.min(collapseShow, 10)) {
         // Don't transition
-        collapsibleChildrenElemsList = collapsed ? null : /*#__PURE__*/_react["default"].createElement("div", {
+        collapsibleChildrenElemsList = collapsed ? null : /*#__PURE__*/React.createElement("div", {
           className: "collapsible-s-block-ext"
         }, collapsibleChildren);
       } else {
-        collapsibleChildrenElemsList = /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+        collapsibleChildrenElemsList = /*#__PURE__*/React.createElement(Collapse, {
           "in": !collapsed
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "collapsible-s-block-ext"
         }, collapsibleChildren));
       }
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: cls,
         "data-count-collapsed": collapsibleChildren.length,
         style: useStyle
-      }, children.slice(0, collapseShow), collapsibleChildrenElemsList, /*#__PURE__*/_react["default"].createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
+      }, children.slice(0, collapseShow), collapsibleChildrenElemsList, /*#__PURE__*/React.createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
         collapsibleChildren: collapsibleChildren,
         collapsed: collapsed,
         handleCollapseToggle: this.handleCollapseToggle
@@ -318,23 +297,21 @@ var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
   }]);
 
   return StackedBlockList;
-}(_react["default"].PureComponent);
-
-exports.StackedBlockList = StackedBlockList;
+}(React.PureComponent);
 
 _defineProperty(StackedBlockList, "ViewMoreButton", StackedBlockListViewMoreButton);
 
 _defineProperty(StackedBlockList, "propTypes", {
-  'showMoreExtTitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element]),
-  'collapseLimit': _propTypes["default"].number,
-  'collapseShow': _propTypes["default"].number,
-  'collapseLongLists': _propTypes["default"].bool,
-  'defaultCollapsed': _propTypes["default"].bool,
-  'children': _propTypes["default"].arrayOf(_propTypes["default"].node),
-  'stackDepth': _propTypes["default"].number
+  'showMoreExtTitle': PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  'collapseLimit': PropTypes.number,
+  'collapseShow': PropTypes.number,
+  'collapseLongLists': PropTypes.bool,
+  'defaultCollapsed': PropTypes.bool,
+  'children': PropTypes.arrayOf(PropTypes.node),
+  'stackDepth': PropTypes.number
 });
 
-var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
+export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
   _inherits(StackedBlock, _React$PureComponent4);
 
   var _super4 = _createSuper(StackedBlock);
@@ -362,7 +339,7 @@ var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
           label = _this$props5.label,
           stackDepth = _this$props5.stackDepth,
           colWidthStyles = _this$props5.colWidthStyles;
-      return _react["default"].Children.map(children, function (c) {
+      return React.Children.map(children, function (c) {
         if (c === null) return null;
         var childProps = {
           columnClass: columnClass,
@@ -378,20 +355,20 @@ var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
         );
         */
 
-        _underscore["default"].forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand'], function (prop) {
+        _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
             childProps[prop] = _this4.props[prop];
           }
         });
 
-        _underscore["default"].forEach(_underscore["default"].keys(_this4.props), function (prop) {
+        _.forEach(_.keys(_this4.props), function (prop) {
           if (typeof c.props[prop] === 'undefined' && typeof childProps[prop] === 'undefined' && !StackedBlock.excludedPassedProps.has(prop)) {
             childProps[prop] = _this4.props[prop];
           }
         });
 
-        if (_underscore["default"].keys(childProps).length > 0) {
-          return /*#__PURE__*/_react["default"].cloneElement(c, childProps, c.props.children);
+        if (_.keys(childProps).length > 0) {
+          return /*#__PURE__*/React.cloneElement(c, childProps, c.props.children);
         } else return c;
       });
     }
@@ -406,14 +383,14 @@ var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
           hideNameOnHover = _this$props6.hideNameOnHover,
           keepLabelOnHover = _this$props6.keepLabelOnHover;
       var classNames = ["s-block", "stack-depth-" + stackDepth, columnClass || null, hideNameOnHover ? ' hide-name-on-block-hover' : null, keepLabelOnHover ? ' keep-label-on-name-hover' : null, className || null, typeof stripe !== 'undefined' && stripe !== null ? stripe === true || stripe === "even" ? "even" : "odd" : null];
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: _underscore["default"].filter(classNames).join(' ')
+      return /*#__PURE__*/React.createElement("div", {
+        className: _.filter(classNames).join(' ')
       }, this.adjustedChildren());
     }
   }]);
 
   return StackedBlock;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 /**
  * To be used within Experiments Set View/Page, or
  * within a collapsible row on the browse page.
@@ -425,16 +402,13 @@ var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
  * of "selectedFiles" Set and "checked", for integration with other pages/UI.
  */
 
-
-exports.StackedBlock = StackedBlock;
-
 _defineProperty(StackedBlock, "Name", StackedBlockName);
 
 _defineProperty(StackedBlock, "List", StackedBlockList);
 
 _defineProperty(StackedBlock, "excludedPassedProps", new Set(['stripe', 'hideNameOnHover', 'keepLabelOnHover', 'className', 'children', 'showMoreExtTitle']));
 
-var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
+export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
   _inherits(StackedBlockTable, _React$PureComponent5);
 
   var _super5 = _createSuper(StackedBlockTable);
@@ -442,7 +416,7 @@ var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
   _createClass(StackedBlockTable, null, [{
     key: "getOriginalColumnWidthArray",
     value: function getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth) {
-      return _underscore["default"].map(columnHeaders, function (c) {
+      return _.map(columnHeaders, function (c) {
         return c.initialWidth || defaultInitialColumnWidth;
       });
     }
@@ -477,7 +451,7 @@ var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
         }];
       });
 
-      var retObj = _underscore["default"].object(orderedMapList);
+      var retObj = _.object(orderedMapList);
 
       columnHeaders.slice().reverse().reduce(function (m, col, idx) {
         var columnClass = col.columnClass,
@@ -504,10 +478,10 @@ var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
 
     _this5 = _super5.call(this, props);
     _this5.adjustedChildren = _this5.adjustedChildren.bind(_assertThisInitialized(_this5));
-    _this5.setCollapsingState = _underscore["default"].throttle(_this5.setCollapsingState.bind(_assertThisInitialized(_this5)));
+    _this5.setCollapsingState = _.throttle(_this5.setCollapsingState.bind(_assertThisInitialized(_this5)));
     _this5.memoized = {
-      totalColumnsMinWidth: (0, _memoizeOne["default"])(StackedBlockTable.totalColumnsMinWidth),
-      colWidthStyles: (0, _memoizeOne["default"])(StackedBlockTable.colWidthStyles)
+      totalColumnsMinWidth: memoize(StackedBlockTable.totalColumnsMinWidth),
+      colWidthStyles: memoize(StackedBlockTable.colWidthStyles)
     };
     _this5.state = {
       'mounted': false
@@ -539,15 +513,15 @@ var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
           columnHeaders = _this$props7.columnHeaders,
           defaultInitialColumnWidth = _this$props7.defaultInitialColumnWidth;
       var colWidthStyles = this.memoized.colWidthStyles(columnHeaders, defaultInitialColumnWidth);
-      return _react["default"].Children.map(children, function (c) {
+      return React.Children.map(children, function (c) {
         // Includes handleFileCheckboxChange, selectedFiles, etc. if present
-        var addedProps = _underscore["default"].omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width'); // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
+        var addedProps = _.omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width'); // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
 
 
         addedProps.colWidthStyles = colWidthStyles;
         addedProps.stackDepth = 0;
         addedProps.columnHeaders = columnHeaders;
-        return /*#__PURE__*/_react["default"].cloneElement(c, addedProps, c.props.children);
+        return /*#__PURE__*/React.cloneElement(c, addedProps, c.props.children);
       });
     }
   }, {
@@ -564,43 +538,41 @@ var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
       var mounted = this.state.mounted;
 
       if (!children) {
-        return /*#__PURE__*/_react["default"].createElement("h6", {
+        return /*#__PURE__*/React.createElement("h6", {
           className: "text-center text-400"
-        }, /*#__PURE__*/_react["default"].createElement("em", null, "No Results"));
+        }, /*#__PURE__*/React.createElement("em", null, "No Results"));
       }
 
       var totalColsWidth = this.memoized.totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth);
       var minTotalWidth = Math.max(width, totalColsWidth); // Includes width, columnHeaders, defaultColumnWidth, [handleFileCheckboxChange, allFiles, selectedFiles, etc.] if present
 
-      var tableHeaderProps = _underscore["default"].omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles', 'width');
+      var tableHeaderProps = _.omit(this.props, 'fadeIn', 'className', 'children', 'stackDepth', 'colWidthStyles', 'width');
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         style: {
           'width': minTotalWidth
         },
         className: "stacked-block-table" + (mounted ? ' mounted' : '') + (fadeIn ? ' fade-in' : '') + (typeof className === 'string' ? ' ' + className : '')
-      }, /*#__PURE__*/_react["default"].createElement(TableHeaders, tableHeaderProps), /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement(TableHeaders, tableHeaderProps), /*#__PURE__*/React.createElement("div", {
         className: "body clearfix"
       }, this.adjustedChildren()));
     }
   }]);
 
   return StackedBlockTable;
-}(_react["default"].PureComponent);
-
-exports.StackedBlockTable = StackedBlockTable;
+}(React.PureComponent);
 
 _defineProperty(StackedBlockTable, "StackedBlock", StackedBlock);
 
 _defineProperty(StackedBlockTable, "propTypes", {
-  'columnHeaders': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-    'columnClass': _propTypes["default"].string.isRequired,
-    'className': _propTypes["default"].string,
-    'title': _propTypes["default"].string.isRequired,
-    'visibleTitle': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element, _propTypes["default"].func]),
-    'initialWidth': _propTypes["default"].number
+  'columnHeaders': PropTypes.arrayOf(PropTypes.shape({
+    'columnClass': PropTypes.string.isRequired,
+    'className': PropTypes.string,
+    'title': PropTypes.string.isRequired,
+    'visibleTitle': PropTypes.oneOfType([PropTypes.string, PropTypes.element, PropTypes.func]),
+    'initialWidth': PropTypes.number
   })).isRequired,
-  'preventExpand': _propTypes["default"].bool
+  'preventExpand': PropTypes.bool
 });
 
 _defineProperty(StackedBlockTable, "defaultProps", {
@@ -618,7 +590,7 @@ _defineProperty(StackedBlockTable, "defaultProps", {
     columnClass: 'file-group',
     title: 'File Group',
     initialWidth: 40,
-    visibleTitle: /*#__PURE__*/_react["default"].createElement("i", {
+    visibleTitle: /*#__PURE__*/React.createElement("i", {
       className: "icon fas icon-download"
     })
   }, {
@@ -638,7 +610,7 @@ function TableHeaders(props) {
   var columnHeaders = props.columnHeaders,
       defaultInitialColumnWidth = props.defaultInitialColumnWidth;
 
-  var headers = _underscore["default"].map(columnHeaders, function (colHeader, index) {
+  var headers = _.map(columnHeaders, function (colHeader, index) {
     var field = colHeader.field,
         title = colHeader.title,
         vTitle = colHeader.visibleTitle,
@@ -662,7 +634,7 @@ function TableHeaders(props) {
       tooltip = null;
     }
 
-    return /*#__PURE__*/_react["default"].createElement("div", {
+    return /*#__PURE__*/React.createElement("div", {
       className: cls,
       key: field || index,
       style: {
@@ -674,18 +646,18 @@ function TableHeaders(props) {
     }, visibleTitle);
   });
 
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "headers stacked-block-table-headers"
   }, headers);
 }
 
 TableHeaders.propTypes = {
   /** Basic props */
-  'columnHeaders': _propTypes["default"].array.isRequired,
-  'defaultInitialColumnWidth': _propTypes["default"].number,
+  'columnHeaders': PropTypes.array.isRequired,
+  'defaultInitialColumnWidth': PropTypes.number,
 
   /** Below needed to feed into visibleTitle func for e.g. checkbox in column title. */
-  'allFiles': _propTypes["default"].arrayOf(_propTypes["default"].object),
-  'selectedFiles': _propTypes["default"].objectOf(_propTypes["default"].oneOfType([_propTypes["default"].object, _propTypes["default"].bool])),
-  'handleFileCheckboxChange': _propTypes["default"].func.isRequired
+  'allFiles': PropTypes.arrayOf(PropTypes.object),
+  'selectedFiles': PropTypes.objectOf(PropTypes.oneOfType([PropTypes.object, PropTypes.bool])),
+  'handleFileCheckboxChange': PropTypes.func.isRequired
 };

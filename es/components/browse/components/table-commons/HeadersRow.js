@@ -1,34 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.HeadersRow = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _reactDraggable = _interopRequireDefault(require("react-draggable"));
-
-var _ColumnCombiner = require("./ColumnCombiner");
-
-var _WindowClickEventDelegator = require("./../../../util/WindowClickEventDelegator");
-
-var _layout = require("./../../../util/layout");
-
-var _utilities = require("./../../../viz/utilities");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -71,13 +40,23 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import Draggable from 'react-draggable';
+import { getColumnWidthFromDefinition } from './ColumnCombiner';
+import { WindowClickEventDelegator } from './../../../util/WindowClickEventDelegator';
+import { findParentElement } from './../../../util/layout';
+import { requestAnimationFrame as raf } from './../../../viz/utilities';
 /**
  * Assumes that is rendered by SearchResultTable and that a SortController instance
  * is above it in the component tree hierarchy (provide sortColumn, sortBy, sortReverse).
  *
  * Can exclude props passed by those two and HeadersRow features/UI will degrade gracefully.
  */
-var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
+
+export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(HeadersRow, _React$PureComponent);
 
   var _super = _createSuper(HeadersRow);
@@ -87,7 +66,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     value: function alignedWidths(columnDefinitions, columnWidths, tempWidths, windowWidth) {
       return columnDefinitions.map(function (columnDefinition) {
         var field = columnDefinition.field;
-        return tempWidths && tempWidths[field] || columnWidths && columnWidths[field] || (0, _ColumnCombiner.getColumnWidthFromDefinition)(columnDefinition, typeof windowWidth === "number", windowWidth);
+        return tempWidths && tempWidths[field] || columnWidths && columnWidths[field] || getColumnWidthFromDefinition(columnDefinition, typeof windowWidth === "number", windowWidth);
       });
     }
     /** Minor optimization to avoid having each col figure out if is active any time sort changes */
@@ -169,9 +148,9 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
 
     };
     _this.memoized = {
-      alignedWidths: (0, _memoizeOne["default"])(HeadersRow.alignedWidths),
-      getActiveColumnMap: (0, _memoizeOne["default"])(HeadersRow.getActiveColumnMap),
-      getRootLoadingField: (0, _memoizeOne["default"])(HeadersRow.getRootLoadingField)
+      alignedWidths: memoize(HeadersRow.alignedWidths),
+      getActiveColumnMap: memoize(HeadersRow.getActiveColumnMap),
+      getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
     };
     return _this;
   }
@@ -192,11 +171,11 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           pastScrollLeft = pastProps.tableContainerScrollLeft;
 
       if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn) {
-        _WindowClickEventDelegator.WindowClickEventDelegator.addHandler("click", this.onWindowClick, {
+        WindowClickEventDelegator.addHandler("click", this.onWindowClick, {
           passive: true
         });
       } else if (!showingSortFieldsForColumn && pastState.showingSortFieldsForColumn) {
-        _WindowClickEventDelegator.WindowClickEventDelegator.removeHandler("click", this.onWindowClick);
+        WindowClickEventDelegator.removeHandler("click", this.onWindowClick);
       }
 
       var nextState = {};
@@ -229,7 +208,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       setTimeout(function () {
         var showingSortFieldsForColumn = _this2.state.showingSortFieldsForColumn;
         var clickedElement = evt.target;
-        var clickedChildOfDropdownMenu = !!(0, _layout.findParentElement)(clickedElement, function (el) {
+        var clickedChildOfDropdownMenu = !!findParentElement(clickedElement, function (el) {
           return el.getAttribute("data-showing-sort-fields-for") === showingSortFieldsForColumn;
         });
 
@@ -273,7 +252,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     value: function setColumnWidthsFromState() {
       var _this3 = this;
 
-      (0, _utilities.requestAnimationFrame)(function () {
+      raf(function () {
         var _this3$props = _this3.props,
             setColumnWidths = _this3$props.setColumnWidths,
             columnWidths = _this3$props.columnWidths;
@@ -336,16 +315,16 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       };
       var alignedWidths = this.memoized.alignedWidths(columnDefinitions, columnWidths, widths, windowWidth);
       var rootLoadingField = this.memoized.getRootLoadingField(columnDefinitions, loadingField);
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: outerClassName,
         style: {
           'width': width || null // Only passed in from ItemPage
 
         },
         "data-showing-sort-fields-for": showingSortFieldsForColumn
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "headers-columns-overflow-container"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "columns clearfix",
         style: {
           left: leftOffset //transform: "translate3d(" + leftOffset + "px, 0px, 0px)"
@@ -356,7 +335,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
         return (
           /*#__PURE__*/
           // `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
-          _react["default"].createElement(HeadersRowColumn, _extends({}, commonProps, {
+          React.createElement(HeadersRowColumn, _extends({}, commonProps, {
             columnDefinition: columnDefinition,
             index: index,
             showingSortOptionsMenu: showingSortFieldsForColumn && showingSortFieldsForColumn === field,
@@ -367,7 +346,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
             key: field
           }))
         );
-      }))), showingSortFieldsForColumn !== null ? /*#__PURE__*/_react["default"].createElement(SortOptionsMenuContainer, _extends({
+      }))), showingSortFieldsForColumn !== null ? /*#__PURE__*/React.createElement(SortOptionsMenuContainer, _extends({
         showingSortFieldsForColumn: showingSortFieldsForColumn,
         columnDefinitions: columnDefinitions,
         sortColumn: sortColumn,
@@ -381,39 +360,37 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return HeadersRow;
-}(_react["default"].PureComponent);
-
-exports.HeadersRow = HeadersRow;
+}(React.PureComponent);
 
 _defineProperty(HeadersRow, "propTypes", {
-  'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-    'field': _propTypes["default"].string.isRequired,
-    'title': _propTypes["default"].string,
-    'sort_fields': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-      'field': _propTypes["default"].string.isRequired,
-      'title': _propTypes["default"].string
+  'columnDefinitions': PropTypes.arrayOf(PropTypes.shape({
+    'field': PropTypes.string.isRequired,
+    'title': PropTypes.string,
+    'sort_fields': PropTypes.arrayOf(PropTypes.shape({
+      'field': PropTypes.string.isRequired,
+      'title': PropTypes.string
     })),
-    'render': _propTypes["default"].func,
-    'widthMap': _propTypes["default"].shape({
-      'lg': _propTypes["default"].number.isRequired,
-      'md': _propTypes["default"].number.isRequired,
-      'sm': _propTypes["default"].number.isRequired
+    'render': PropTypes.func,
+    'widthMap': PropTypes.shape({
+      'lg': PropTypes.number.isRequired,
+      'md': PropTypes.number.isRequired,
+      'sm': PropTypes.number.isRequired
     })
   })).isRequired,
-  'mounted': _propTypes["default"].bool.isRequired,
-  'detailPane': _propTypes["default"].element,
-  'renderDetailPane': _propTypes["default"].func,
-  'width': _propTypes["default"].number,
-  'defaultMinColumnWidth': _propTypes["default"].number,
-  'tableContainerScrollLeft': _propTypes["default"].number,
-  'windowWidth': _propTypes["default"].number,
+  'mounted': PropTypes.bool.isRequired,
+  'detailPane': PropTypes.element,
+  'renderDetailPane': PropTypes.func,
+  'width': PropTypes.number,
+  'defaultMinColumnWidth': PropTypes.number,
+  'tableContainerScrollLeft': PropTypes.number,
+  'windowWidth': PropTypes.number,
   // Passed down from CustomColumnController (if used)
-  'columnWidths': _propTypes["default"].objectOf(_propTypes["default"].number),
-  'setColumnWidths': _propTypes["default"].func,
+  'columnWidths': PropTypes.objectOf(PropTypes.number),
+  'setColumnWidths': PropTypes.func,
   // Passed down from SortController (if used)
-  'sortColumn': _propTypes["default"].string,
-  'sortReverse': _propTypes["default"].bool,
-  'sortBy': _propTypes["default"].func
+  'sortColumn': PropTypes.string,
+  'sortReverse': PropTypes.bool,
+  'sortBy': PropTypes.func
 });
 
 _defineProperty(HeadersRow, "defaultProps", {
@@ -435,7 +412,7 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
     _this4.onDrag = _this4.onDrag.bind(_assertThisInitialized(_this4));
     _this4.onStop = _this4.onStop.bind(_assertThisInitialized(_this4));
     _this4.memoized = {
-      showTooltip: (0, _memoizeOne["default"])(function (colWidth, titleStr) {
+      showTooltip: memoize(function (colWidth, titleStr) {
         return (colWidth - 40) / 7 < (titleStr || "").length;
       })
     };
@@ -484,7 +461,7 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
       var sorterIcon;
 
       if (!noSort && typeof sortByField === 'function' && width >= 50) {
-        sorterIcon = /*#__PURE__*/_react["default"].createElement(ColumnSorterIcon, {
+        sorterIcon = /*#__PURE__*/React.createElement(ColumnSorterIcon, {
           columnDefinition: columnDefinition,
           sortByField: sortByField,
           showingSortOptionsMenu: showingSortOptionsMenu,
@@ -495,7 +472,7 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
       }
 
       var cls = "search-headers-column-block" + (noSort ? " no-sort" : '') + (showingSortOptionsMenu ? " showing-sort-field-options" : "");
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         "data-field": field,
         "data-column-key": field,
         key: field,
@@ -503,14 +480,14 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
         style: {
           width: width
         }
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "inner"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "column-title"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         "data-tip": tooltip,
         "data-html": true
-      }, colTitle || title)), sorterIcon), typeof onAdjusterDrag === "function" ? /*#__PURE__*/_react["default"].createElement(_reactDraggable["default"], {
+      }, colTitle || title)), sorterIcon), typeof onAdjusterDrag === "function" ? /*#__PURE__*/React.createElement(Draggable, {
         position: {
           x: width,
           y: 0
@@ -518,14 +495,14 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
         axis: "x",
         onDrag: this.onDrag,
         onStop: this.onStop
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "width-adjuster"
       })) : null);
     }
   }]);
 
   return HeadersRowColumn;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 
 var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(ColumnSorterIcon, _React$PureComponent3);
@@ -552,7 +529,7 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
     _this5 = _super3.call(this, props);
     _this5.onIconClick = _this5.onIconClick.bind(_assertThisInitialized(_this5));
     _this5.memoized = {
-      isActive: (0, _memoizeOne["default"])(ColumnSorterIcon.isActive)
+      isActive: memoize(ColumnSorterIcon.isActive)
     };
     return _this5;
   }
@@ -641,12 +618,12 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
         tooltip = "" + sort_fields.length + " sort options";
       }
 
-      return /*#__PURE__*/_react["default"].createElement("span", {
+      return /*#__PURE__*/React.createElement("span", {
         className: cls,
         onClick: this.onIconClick,
         "data-tip": tooltip,
         "data-html": true
-      }, /*#__PURE__*/_react["default"].createElement(ColumnSorterIconElement, _extends({
+      }, /*#__PURE__*/React.createElement(ColumnSorterIconElement, _extends({
         showingSortOptionsMenu: showingSortOptionsMenu,
         hasMultipleSortOptions: hasMultipleSortOptions,
         isLoading: isLoading
@@ -657,15 +634,15 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
   }]);
 
   return ColumnSorterIcon;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 
 _defineProperty(ColumnSorterIcon, "propTypes", {
-  'active': _propTypes["default"].any,
+  'active': PropTypes.any,
   'columnDefinition': HeadersRow.propTypes.columnDefinitions,
-  'sortByField': _propTypes["default"].func.isRequired,
-  'showingSortOptionsMenu': _propTypes["default"].bool,
-  'setShowingSortFieldsFor': _propTypes["default"].func,
-  'isLoading': _propTypes["default"].bool
+  'sortByField': PropTypes.func.isRequired,
+  'showingSortOptionsMenu': PropTypes.bool,
+  'setShowingSortFieldsFor': PropTypes.func,
+  'isLoading': PropTypes.bool
 });
 
 _defineProperty(ColumnSorterIcon, "defaultProps", {
@@ -686,7 +663,7 @@ function SortOptionsMenuContainer(props) {
     return null;
   }
 
-  var activeColumnDefinitionIndex = (0, _react.useMemo)(function () {
+  var activeColumnDefinitionIndex = useMemo(function () {
     var colDefLen = columnDefinitions.length;
 
     for (var i = 0; i < colDefLen; i++) {
@@ -698,7 +675,7 @@ function SortOptionsMenuContainer(props) {
     return -1;
   }, [columnDefinitions, showingSortFieldsForColumn]); // Position it under col for which open for in headers row.
 
-  var widthUntilActiveColumnEnd = (0, _react.useMemo)(function () {
+  var widthUntilActiveColumnEnd = useMemo(function () {
     var sumWidths = 0;
 
     for (var i = 0; i <= activeColumnDefinitionIndex; i++) {
@@ -713,9 +690,9 @@ function SortOptionsMenuContainer(props) {
   var style = {
     left: Math.max(200, widthUntilActiveColumnEnd + leftOffset)
   };
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "headers-columns-dropdown-menu-container"
-  }, /*#__PURE__*/_react["default"].createElement(SortOptionsMenu, {
+  }, /*#__PURE__*/React.createElement(SortOptionsMenu, {
     currentSortColumn: currentSortColumn,
     descend: descend,
     sort_fields: sort_fields,
@@ -724,9 +701,9 @@ function SortOptionsMenuContainer(props) {
   }));
 }
 
-var SortOptionsMenu = /*#__PURE__*/_react["default"].memo(function (_ref7) {
+var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref7) {
   var _ref7$header = _ref7.header,
-      header = _ref7$header === void 0 ? /*#__PURE__*/_react["default"].createElement("h5", {
+      header = _ref7$header === void 0 ? /*#__PURE__*/React.createElement("h5", {
     className: "dropdown-header mt-0 px-3 pt-03 text-600"
   }, "Sort by") : _ref7$header,
       currentSortColumn = _ref7.currentSortColumn,
@@ -744,44 +721,43 @@ var SortOptionsMenu = /*#__PURE__*/_react["default"].memo(function (_ref7) {
     var isActive = currentSortColumn === field;
     var cls = "dropdown-item" + " clickable no-highlight no-user-select" + " d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
     var onClick = sortByField.bind(sortByField, field);
-    return /*#__PURE__*/_react["default"].createElement("div", {
+    return /*#__PURE__*/React.createElement("div", {
       className: cls,
       key: field,
       onClick: onClick
-    }, title || field, !isActive ? null : /*#__PURE__*/_react["default"].createElement("i", {
+    }, title || field, !isActive ? null : /*#__PURE__*/React.createElement("i", {
       className: "small icon fas ml-12 icon-arrow-".concat(descend ? "down" : "up")
     }));
   });
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "dropdown-menu show",
     style: style
   }, header, options);
 });
-
-var ColumnSorterIconElement = /*#__PURE__*/_react["default"].memo(function (_ref9) {
+var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref9) {
   var descend = _ref9.descend,
       showingSortOptionsMenu = _ref9.showingSortOptionsMenu,
       _ref9$isLoading = _ref9.isLoading,
       isLoading = _ref9$isLoading === void 0 ? false : _ref9$isLoading;
 
   if (isLoading) {
-    return /*#__PURE__*/_react["default"].createElement("i", {
+    return /*#__PURE__*/React.createElement("i", {
       className: "icon icon-fw icon-circle-notch icon-spin fas"
     });
   }
 
   if (showingSortOptionsMenu) {
-    return /*#__PURE__*/_react["default"].createElement("i", {
+    return /*#__PURE__*/React.createElement("i", {
       className: "icon icon-fw icon-times fas"
     });
   }
 
   if (descend) {
-    return /*#__PURE__*/_react["default"].createElement("i", {
+    return /*#__PURE__*/React.createElement("i", {
       className: "sort-icon icon icon-fw icon-sort-down fas align-top"
     });
   } else {
-    return /*#__PURE__*/_react["default"].createElement("i", {
+    return /*#__PURE__*/React.createElement("i", {
       className: "sort-icon icon icon-fw icon-sort-up fas align-bottom"
     });
   }

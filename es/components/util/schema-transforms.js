@@ -1,30 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getSchemaProperty = getSchemaProperty;
-exports.lookupFieldTitle = lookupFieldTitle;
-exports.getSchemaTypeFromSearchContext = getSchemaTypeFromSearchContext;
-exports.getAllSchemaTypesFromSearchContext = getAllSchemaTypesFromSearchContext;
-exports.flattenSchemaPropertyToColumnDefinition = flattenSchemaPropertyToColumnDefinition;
-exports.getAbstractTypeForType = getAbstractTypeForType;
-exports.getItemType = getItemType;
-exports.getBaseItemType = getBaseItemType;
-exports.getTitleForType = getTitleForType;
-exports.getSchemaForItemType = getSchemaForItemType;
-exports.getItemTypeTitle = getItemTypeTitle;
-exports.getBaseItemTypeTitle = getBaseItemTypeTitle;
-exports.schemasToItemTypeHierarchy = void 0;
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _patchedConsole = require("./patched-console");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -37,7 +10,10 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function getSchemaProperty(field, schemas) {
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import { patchedConsoleInstance as console } from './patched-console';
+export function getSchemaProperty(field, schemas) {
   var startAt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'ExperimentSet';
   var baseSchemaProperties = schemas && schemas[startAt] && schemas[startAt].properties || null;
   var itemTypeHierarchy = schemasToItemTypeHierarchy(schemas);
@@ -46,9 +22,9 @@ function getSchemaProperty(field, schemas) {
 
   function getNextSchemaProperties(linkToName) {
     function combineSchemaPropertiesFor(relatedLinkToNames) {
-      return _underscore["default"].reduce(_underscore["default"].keys(relatedLinkToNames), function (schemaProperties, schemaName) {
+      return _.reduce(_.keys(relatedLinkToNames), function (schemaProperties, schemaName) {
         if (schemas[schemaName]) {
-          return _underscore["default"].extend(schemaProperties, schemas[schemaName].properties);
+          return _.extend(schemaProperties, schemas[schemaName].properties);
         } else return schemaProperties;
       }, {});
     }
@@ -65,8 +41,7 @@ function getSchemaProperty(field, schemas) {
 
     if (!property) {
       // If property(-chain) doesn't exist in schemas, cancel out.
-      _patchedConsole.patchedConsoleInstance.warn("Field \"".concat(field, "\" does not exist in \"").concat(startAt, "\"."));
-
+      console.warn("Field \"".concat(field, "\" does not exist in \"").concat(startAt, "\"."));
       return null;
     }
 
@@ -102,8 +77,7 @@ function getSchemaProperty(field, schemas) {
 }
 /** TODO: consider memoizing multiple via _.memoize() */
 
-
-function lookupFieldTitle(field, schemas) {
+export function lookupFieldTitle(field, schemas) {
   var itemType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'ExperimentSet';
   var itemTypeHierarchy = schemasToItemTypeHierarchy(schemas);
   var schemaProperty = getSchemaProperty(field, schemas, itemTypeHierarchy, itemType);
@@ -122,13 +96,11 @@ function lookupFieldTitle(field, schemas) {
  * @returns {string|null} Type most relevant for current search, or `null`.
  */
 
-
-function getSchemaTypeFromSearchContext(context) {
+export function getSchemaTypeFromSearchContext(context) {
   return getAllSchemaTypesFromSearchContext(context)[0] || null;
 }
-
-function getAllSchemaTypesFromSearchContext(context) {
-  var thisTypeFilters = _underscore["default"].filter(context.filters || [], function (_ref) {
+export function getAllSchemaTypesFromSearchContext(context) {
+  var thisTypeFilters = _.filter(context.filters || [], function (_ref) {
     var field = _ref.field,
         term = _ref.term;
     if (field === 'type' && term !== 'Item') return true;
@@ -152,19 +124,18 @@ function getAllSchemaTypesFromSearchContext(context) {
  * @returns {Object} Object with period-delimited keys instead of nested value to represent nested schema structure.
  */
 
-
-function flattenSchemaPropertyToColumnDefinition(tips) {
+export function flattenSchemaPropertyToColumnDefinition(tips) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var schemas = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-  var flattened = _underscore["default"].pairs(tips).filter(function (p) {
+  var flattened = _.pairs(tips).filter(function (p) {
     if (p[1] && (p[1].items && p[1].items.properties || p[1].properties)) return true;
     return false;
   }).reduce(function (m, p) {
-    _underscore["default"].keys((p[1].items || p[1]).properties).forEach(function (childProperty) {
+    _.keys((p[1].items || p[1]).properties).forEach(function (childProperty) {
       if (typeof m[p[0] + '.' + childProperty] === 'undefined') {
         m[p[0] + '.' + childProperty] = (p[1].items || p[1]).properties[childProperty];
-        m[p[0]] = _underscore["default"].omit(m[p[0]], 'items', 'properties');
+        m[p[0]] = _.omit(m[p[0]], 'items', 'properties');
       }
 
       if (!m[p[0] + '.' + childProperty].title && m[p[0] + '.' + childProperty].linkTo) {
@@ -175,18 +146,17 @@ function flattenSchemaPropertyToColumnDefinition(tips) {
     });
 
     return m;
-  }, _underscore["default"].clone(tips)); // Recurse the result.
+  }, _.clone(tips)); // Recurse the result.
 
 
   if ( // Any more nested levels?
-  depth < 4 && _underscore["default"].find(_underscore["default"].pairs(flattened), function (p) {
+  depth < 4 && _.find(_.pairs(flattened), function (p) {
     if (p[1] && (p[1].items && p[1].items.properties || p[1].properties)) return true;
     return false;
   })) flattened = flattenSchemaPropertyToColumnDefinition(flattened, depth + 1, schemas);
   return flattened;
 }
-
-function getAbstractTypeForType(type, schemas) {
+export function getAbstractTypeForType(type, schemas) {
   var returnSelfIfAbstract = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
   var itemTypeHierarchy = schemasToItemTypeHierarchy(schemas);
   var i;
@@ -200,7 +170,7 @@ function getAbstractTypeForType(type, schemas) {
     }
   }
 
-  var possibleParentTypes = _underscore["default"].keys(itemTypeHierarchy);
+  var possibleParentTypes = _.keys(itemTypeHierarchy);
 
   for (i = 0; i < possibleParentTypes.length; i++) {
     foundObj = itemTypeHierarchy[possibleParentTypes[i]][type];
@@ -220,8 +190,7 @@ function getAbstractTypeForType(type, schemas) {
  * @returns {string} Most specific type's name.
  */
 
-
-function getItemType(context) {
+export function getItemType(context) {
   if (!Array.isArray(context['@type']) || context['@type'].length < 1) {
     return null; //throw new Error("No @type on Item object (context).");
   }
@@ -236,8 +205,7 @@ function getItemType(context) {
  * @returns {string} Base Ttem type.
  */
 
-
-function getBaseItemType(context) {
+export function getBaseItemType(context) {
   var types = context['@type'];
   if (!Array.isArray(types) || types.length === 0) return null;
   var i = 0;
@@ -260,8 +228,7 @@ function getBaseItemType(context) {
  * @returns {string} Human-readable title.
  */
 
-
-function getTitleForType(atType, schemas) {
+export function getTitleForType(atType, schemas) {
   if (!atType) return null;
 
   if (schemas && schemas[atType] && schemas[atType].title) {
@@ -290,8 +257,7 @@ function getTitleForType(atType, schemas) {
  * @returns {Object} Schema for itemType.
  */
 
-
-function getSchemaForItemType(itemType, schemas) {
+export function getSchemaForItemType(itemType, schemas) {
   if (typeof itemType !== 'string') return null;
   if (!schemas) return null;
   return schemas[itemType] || null;
@@ -305,8 +271,7 @@ function getSchemaForItemType(itemType, schemas) {
  * @returns {string} Human-readable Item detailed type title.
  */
 
-
-function getItemTypeTitle(context, schemas) {
+export function getItemTypeTitle(context, schemas) {
   return getTitleForType(getItemType(context), schemas);
 }
 /**
@@ -318,12 +283,10 @@ function getItemTypeTitle(context, schemas) {
  * @returns {string} Human-readable Item base type title.
  */
 
-
-function getBaseItemTypeTitle(context, schemas) {
+export function getBaseItemTypeTitle(context, schemas) {
   return getTitleForType(getBaseItemType(context), schemas);
 }
 /** Converts e.g. "/profiles/File.json" to "File" */
-
 
 function stripTypeFromProfilesHref(profilesHref) {
   return profilesHref.slice(10, -5);
@@ -336,14 +299,14 @@ function stripTypeFromProfilesHref(profilesHref) {
  */
 
 
-var schemasToItemTypeHierarchy = (0, _memoizeOne["default"])(function (schemas) {
-  var allTypesArray = _underscore["default"].keys(schemas);
+export var schemasToItemTypeHierarchy = memoize(function (schemas) {
+  var allTypesArray = _.keys(schemas);
 
   var resHierarchy = {}; // We don't get "Item" delivered from backend else would look for where
   // lack of "rdfs:subClassOf" property value to find Item and make that root.
   // Instead we look for where "Item" is parent to gather root schemas.
 
-  var _$partition = _underscore["default"].partition(allTypesArray, function (typeName) {
+  var _$partition = _.partition(allTypesArray, function (typeName) {
     var typeSchema = schemas[typeName];
 
     if (typeSchema["rdfs:subClassOf"] === "/profiles/Item.json") {
@@ -357,7 +320,7 @@ var schemasToItemTypeHierarchy = (0, _memoizeOne["default"])(function (schemas) 
       remainingTypeNames = _$partition2[1];
 
   function addChildrenRecursively(parentHier, parentTypeSchema) {
-    _underscore["default"].forEach(parentTypeSchema.children || [], function (childTypeURI) {
+    _.forEach(parentTypeSchema.children || [], function (childTypeURI) {
       var childTypeName = stripTypeFromProfilesHref(childTypeURI);
       parentHier[childTypeName] = {};
       var childTypeSchema = schemas[childTypeName];
@@ -368,7 +331,7 @@ var schemasToItemTypeHierarchy = (0, _memoizeOne["default"])(function (schemas) 
     });
   }
 
-  _underscore["default"].forEach(rootTypeNames, function (rootTypeName) {
+  _.forEach(rootTypeNames, function (rootTypeName) {
     resHierarchy[rootTypeName] = {}; // We have 'children' property in schemas, so we just use these
     // for a performance improvement. See below incomplete fxn for alternative
     // implementation relying purely on rds:subClassOf.
@@ -416,4 +379,3 @@ var schemasToItemTypeHierarchy = (0, _memoizeOne["default"])(function (schemas) 
 
   return resHierarchy;
 });
-exports.schemasToItemTypeHierarchy = schemasToItemTypeHierarchy;

@@ -5,28 +5,6 @@ managing the top level state of that component/its children. They are organized 
 (context, hierarchy, miscellanous) alphabetically.
 */
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.buildContext = buildContext;
-exports.findFieldFromContext = findFieldFromContext;
-exports.gatherLinkToTitlesFromContextEmbedded = gatherLinkToTitlesFromContextEmbedded;
-exports.modifyContextInPlace = modifyContextInPlace;
-exports.delvePreExistingObjects = delvePreExistingObjects;
-exports.removeNulls = removeNulls;
-exports.sortPropFields = sortPropFields;
-exports.trimHierarchy = exports.searchHierarchy = exports.replaceInHierarchy = exports.modifyHierarchy = exports.flattenHierarchy = exports.findParentFromHierarchy = void 0;
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _2 = require("./");
-
-var _submissionFields = require("../forms/components/submission-fields");
-
-var _SubmissionTree = require("../forms/components/SubmissionTree");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -41,6 +19,10 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+import _ from 'underscore';
+import { console, JWT, object } from './';
+import { isValueNull } from '../forms/components/submission-fields';
+import { fieldSchemaLinkToType, fieldSchemaLinkToPath } from '../forms/components/SubmissionTree';
 /* CONTEXT HELPERS (for managing SubmissionView.state.keyContext) */
 
 /**
@@ -61,27 +43,26 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
  *
  * @returns {Object} A new object representing context.
  */
-function buildContext(context, itemSchema) {
+
+export function buildContext(context, itemSchema) {
   var objList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var edit = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var create = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
   var initObjs = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
   // console.log("calling buildContext with", ...arguments);
   var built = {};
+  var userGroups = JWT.getUserGroups();
+  var fields = itemSchema.properties ? _.keys(itemSchema.properties) : [];
 
-  var userGroups = _2.JWT.getUserGroups();
-
-  var fields = itemSchema.properties ? _underscore["default"].keys(itemSchema.properties) : [];
-
-  _underscore["default"].forEach(fields, function (field) {
+  _.forEach(fields, function (field) {
     // console.log('building field:', field);
-    var fieldSchema = _2.object.getNestedProperty(itemSchema, ['properties', field], true);
+    var fieldSchema = object.getNestedProperty(itemSchema, ['properties', field], true);
 
     if (!fieldSchema) {
       return;
     }
 
-    if (fieldSchema.exclude_from && (Array.isArray(fieldSchema.exclude_from) && _underscore["default"].contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from === 'FFedit-create')) {
+    if (fieldSchema.exclude_from && (Array.isArray(fieldSchema.exclude_from) && _.contains(fieldSchema.exclude_from, 'FFedit-create') || fieldSchema.exclude_from === 'FFedit-create')) {
       return;
     } // check to see if this field is a calculated prop
 
@@ -92,7 +73,7 @@ function buildContext(context, itemSchema) {
 
 
     if (fieldSchema.permission && fieldSchema.permission == "import_items") {
-      if (!_underscore["default"].contains(userGroups, 'admin')) {
+      if (!_.contains(userGroups, 'admin')) {
         return;
       }
     } // set value to context value if editing/cloning.
@@ -117,7 +98,7 @@ function buildContext(context, itemSchema) {
     }
 
     if (objList !== null) {
-      var linkedProperty = (0, _SubmissionTree.fieldSchemaLinkToPath)(fieldSchema); // Is it a linkTo (recursively or not)?
+      var linkedProperty = fieldSchemaLinkToPath(fieldSchema); // Is it a linkTo (recursively or not)?
 
       var roundTwoExclude = fieldSchema.ff_flag && fieldSchema.ff_flag == 'second round';
 
@@ -125,7 +106,7 @@ function buildContext(context, itemSchema) {
         // If linkTo, add to our list, selecting a nice name for it first.
         //var listTerm = fieldSchema.title ? fieldSchema.title : linked;
         var fieldToStore = field;
-        linkedProperty = _underscore["default"].reject(linkedProperty, function (p) {
+        linkedProperty = _.reject(linkedProperty, function (p) {
           return p === 'items' || p === 'properties';
         });
 
@@ -133,7 +114,7 @@ function buildContext(context, itemSchema) {
           fieldToStore += '.' + linkedProperty.join('.');
         }
 
-        if (!_underscore["default"].contains(objList, fieldToStore)) {
+        if (!_.contains(objList, fieldToStore)) {
           objList.push(fieldToStore);
         } // add pre-existing linkTo objects
 
@@ -167,8 +148,7 @@ function buildContext(context, itemSchema) {
  *          arrayIdx contains the indices of any arrays searched in order to find the object during traversal.
  */
 
-
-function findFieldFromContext(contextToSearch, rootType, schemas) {
+export function findFieldFromContext(contextToSearch, rootType, schemas) {
   var keyIndexToFind = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
   var keyLinkToFind = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
   // console.log("calling findFieldFromContext with: ", ...arguments);
@@ -209,11 +189,11 @@ function findFieldFromContext(contextToSearch, rootType, schemas) {
     var currFieldParts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
     var arrIdx = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
     // console.log("calling scrapeFromcontext with", context, contextKey, contextSchema, currFieldParts, arrIdx);
-    splitField ? _2.console.log("splitField is ", splitField) : null;
+    splitField ? console.log("splitField is ", splitField) : null;
     if (splitField) return; // recurses until it finds the field being sought
     // Searches through the context passed in...
 
-    _underscore["default"].keys(context).forEach(function (propKey) {
+    _.keys(context).forEach(function (propKey) {
       // Store the schema and value of the current nested context object being scraped
       var propVal = context[propKey];
       var propSchema = contextSchema[propKey];
@@ -286,8 +266,7 @@ function findFieldFromContext(contextToSearch, rootType, schemas) {
  * @returns {Object} An object mapping atID/keyIndex to display_title; like SubmissionView.state.keyDisplay
  */
 
-
-function gatherLinkToTitlesFromContextEmbedded(context) {
+export function gatherLinkToTitlesFromContextEmbedded(context) {
   var idsToTitles = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   if (context['@id'] && context.display_title) {
@@ -299,7 +278,7 @@ function gatherLinkToTitlesFromContextEmbedded(context) {
     idsToTitles[context['@id']] = context.display_title;
   }
 
-  _underscore["default"].values(context).forEach(function (value) {
+  _.values(context).forEach(function (value) {
     if (Array.isArray(value)) {
       value.forEach(function (arrItem) {
         if (!Array.isArray(arrItem) && arrItem && _typeof(arrItem) === 'object') {
@@ -337,8 +316,7 @@ function gatherLinkToTitlesFromContextEmbedded(context) {
  * creation of new items of certain types (CaptureC, StaticSection)... more info in the comments of that f(x).
  */
 
-
-function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value) {
+export function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, value) {
   // console.log(`calling modifyContextInPlace with`, splitField, currContext, arrayIdx, fieldType, value);
   var splitFieldLeaf = splitField[splitField.length - 1];
   var arrayIdxPointer = 0;
@@ -353,8 +331,7 @@ function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, valu
     } else {
       // console.log(pointer[splitField[i]]);
       // console.log(pointer);
-      _2.console.error('PROBLEM CREATING NEW CONTEXT WITH: ', fieldType, value);
-
+      console.error('PROBLEM CREATING NEW CONTEXT WITH: ', fieldType, value);
       return;
     } // console.log("pointer after updating with", splitField[i], " :", pointer);
 
@@ -403,12 +380,11 @@ function modifyContextInPlace(splitField, currContext, arrayIdx, fieldType, valu
  * @returns {number} key index of parent or null, if none found
  */
 
-
-var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
+export var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
   if (isNaN(keyIdx) || !hierarchy) return null;
   var found_parent = null;
 
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key) {
     if (keyIdx in hierarchy[key]) {
       found_parent = key;
     } else {
@@ -425,16 +401,13 @@ var findParentFromHierarchy = function myself(hierarchy, keyIdx) {
  * @returns {array}
  */
 
-
-exports.findParentFromHierarchy = findParentFromHierarchy;
-
-var flattenHierarchy = function myself(hierarchy) {
+export var flattenHierarchy = function myself(hierarchy) {
   var found_keys = [];
 
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key) {
     if (!isNaN(key)) key = parseInt(key);
     var sub_keys = myself(hierarchy[key]);
-    found_keys = _underscore["default"].union(found_keys, sub_keys, [key]);
+    found_keys = _.union(found_keys, sub_keys, [key]);
   });
 
   return found_keys;
@@ -445,11 +418,8 @@ var flattenHierarchy = function myself(hierarchy) {
  * Recursive function
  */
 
-
-exports.flattenHierarchy = flattenHierarchy;
-
-var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+export var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
+  _.keys(hierarchy).forEach(function (key) {
     if (key == parentKeyIdx) {
       hierarchy[parentKeyIdx][keyIdx] = {};
     } else {
@@ -463,13 +433,10 @@ var modifyHierarchy = function myself(hierarchy, keyIdx, parentKeyIdx) {
  * Replace a key with a different key in the hierarchy
  */
 
-
-exports.modifyHierarchy = modifyHierarchy;
-
-var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValue) {
+export var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValue) {
   if (typeof existingValueToFind === 'number') existingValueToFind = existingValueToFind + '';
 
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key) {
     if (key === existingValueToFind) {
       var downstream = hierarchy[key];
       hierarchy[newValue] = downstream;
@@ -489,14 +456,11 @@ var replaceInHierarchy = function myself(hierarchy, existingValueToFind, newValu
  * @return a hierarchy object containing everything below the found index
  */
 
-
-exports.replaceInHierarchy = replaceInHierarchy;
-
-var searchHierarchy = function myself(hierarchy, keyIdx) {
+export var searchHierarchy = function myself(hierarchy, keyIdx) {
   if (!hierarchy) return null;
   var found_hierarchy = null;
 
-  _underscore["default"].keys(hierarchy).forEach(function (key) {
+  _.keys(hierarchy).forEach(function (key) {
     if (key == keyIdx) {
       found_hierarchy = hierarchy[key];
     } else {
@@ -516,14 +480,11 @@ var searchHierarchy = function myself(hierarchy, keyIdx) {
  * @return hierarchy, with the passed in key removed
  */
 
-
-exports.searchHierarchy = searchHierarchy;
-
-var trimHierarchy = function myself(hierarchy, keyIdx) {
+export var trimHierarchy = function myself(hierarchy, keyIdx) {
   if (hierarchy[keyIdx]) {
     delete hierarchy[keyIdx];
   } else {
-    _underscore["default"].keys(hierarchy).forEach(function (key) {
+    _.keys(hierarchy).forEach(function (key) {
       hierarchy[key] = myself(hierarchy[key], keyIdx);
     });
   }
@@ -546,10 +507,7 @@ var trimHierarchy = function myself(hierarchy, keyIdx) {
  *
  */
 
-
-exports.trimHierarchy = trimHierarchy;
-
-function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
+export function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
   if (Array.isArray(json)) {
     for (var j = 0; j < json.length; j++) {
       if (fieldSchema.items) {
@@ -558,19 +516,19 @@ function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
     }
   } else if (json instanceof Object && json) {
     if (fieldSchema.properties) {
-      _underscore["default"].keys(json).forEach(function (key) {
+      _.keys(json).forEach(function (key) {
         if (fieldSchema.properties[key]) {
           delvePreExistingObjects(initObjs, json[key], fieldSchema.properties[key], listTerm);
         }
       });
     }
-  } else if (_underscore["default"].contains(_underscore["default"].keys(fieldSchema), 'linkTo')) {
+  } else if (_.contains(_.keys(fieldSchema), 'linkTo')) {
     // non-array, non-object field. check schema to ensure there's a linkTo
     initObjs.push({
       'path': json,
       'display': json,
       'field': listTerm,
-      'type': (0, _SubmissionTree.fieldSchemaLinkToType)(fieldSchema)
+      'type': fieldSchemaLinkToType(fieldSchema)
     });
   }
 }
@@ -582,17 +540,16 @@ function delvePreExistingObjects(initObjs, json, fieldSchema, listTerm) {
  * @returns {Object} The same context which was passed in, minus null-y values.
  */
 
-
-function removeNulls(context) {
-  _underscore["default"].keys(context).forEach(function (key) {
-    if ((0, _submissionFields.isValueNull)(context[key])) {
+export function removeNulls(context) {
+  _.keys(context).forEach(function (key) {
+    if (isValueNull(context[key])) {
       delete context[key];
     } else if (Array.isArray(context[key])) {
-      context[key] = _underscore["default"].filter(context[key], function (v) {
-        return !(0, _submissionFields.isValueNull)(v);
+      context[key] = _.filter(context[key], function (v) {
+        return !isValueNull(v);
       }); // Recurse for any objects
 
-      context[key] = _underscore["default"].map(context[key], function (v) {
+      context[key] = _.map(context[key], function (v) {
         return v && _typeof(v) === 'object' ? removeNulls(v) : v;
       });
     } else if (context[key] instanceof Object) {
@@ -606,8 +563,7 @@ function removeNulls(context) {
  * Sort a list of BuildFields first by required status, then by schema lookup order, then by title
  */
 
-
-function sortPropFields(fields) {
+export function sortPropFields(fields) {
   // console.log('calling sortPropFields with: ', fields);
   var reqFields = [];
   var optFields = [];
@@ -639,7 +595,7 @@ function sortPropFields(fields) {
     return 0;
   }
 
-  _underscore["default"].forEach(fields, function (field) {
+  _.forEach(fields, function (field) {
     if (!field) return;
 
     if (field.props.required) {

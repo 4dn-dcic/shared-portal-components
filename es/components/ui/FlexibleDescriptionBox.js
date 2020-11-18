@@ -1,28 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FlexibleDescriptionBox = exports.FlexibleCharacterCountBox = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _misc = require("./../util/misc");
-
-var _patchedConsole = require("./../util/patched-console");
-
-var _layout = require("./../util/layout");
-
-var _utilities = require("./../viz/utilities");
-
-var _EditableField = require("../forms/components/EditableField");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47,7 +24,15 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var FlexibleCharacterCountBox = /*#__PURE__*/function (_React$Component) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import { isServerSide } from './../util/misc';
+import { patchedConsoleInstance as console } from './../util/patched-console';
+import { gridContainerWidth, textContentWidth } from './../util/layout';
+import { requestAnimationFrame as raf } from './../viz/utilities';
+import { EditableField, FieldSet } from '../forms/components/EditableField';
+export var FlexibleCharacterCountBox = /*#__PURE__*/function (_React$Component) {
   _inherits(FlexibleCharacterCountBox, _React$Component);
 
   var _super = _createSuper(FlexibleCharacterCountBox);
@@ -59,7 +44,7 @@ var FlexibleCharacterCountBox = /*#__PURE__*/function (_React$Component) {
 
     _this = _super.call(this, props);
     _this.render = _this.render.bind(_assertThisInitialized(_this));
-    _this.onClick = _underscore["default"].debounce(_this.onClick.bind(_assertThisInitialized(_this)), 300, true);
+    _this.onClick = _.debounce(_this.onClick.bind(_assertThisInitialized(_this)), 300, true);
     _this.state = {
       'expanded': props.defaultExpanded || false
     };
@@ -88,19 +73,18 @@ var FlexibleCharacterCountBox = /*#__PURE__*/function (_React$Component) {
       var expandable = string.length > (characters || expandCharacters);
 
       if (!expandable) {
-        return /*#__PURE__*/_react["default"].createElement("span", null, string);
+        return /*#__PURE__*/React.createElement("span", null, string);
       }
 
-      var visibleIcon = icon && /*#__PURE__*/_react["default"].cloneElement(icon, {
+      var visibleIcon = icon && /*#__PURE__*/React.cloneElement(icon, {
         'onClick': this.onClick,
         'expanded': expanded,
         'data-expanded': expanded
-      }) || /*#__PURE__*/_react["default"].createElement("i", {
+      }) || /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-" + (expanded ? 'minus' : 'plus'),
         onClick: this.onClick
       });
-
-      return /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement(FlexibleCharacterCountString, {
+      return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(FlexibleCharacterCountString, {
         string: string,
         expanded: expanded,
         expandCharacters: characters || expandCharacters
@@ -109,14 +93,12 @@ var FlexibleCharacterCountBox = /*#__PURE__*/function (_React$Component) {
   }]);
 
   return FlexibleCharacterCountBox;
-}(_react["default"].Component);
-
-exports.FlexibleCharacterCountBox = FlexibleCharacterCountBox;
+}(React.Component);
 
 _defineProperty(FlexibleCharacterCountBox, "propTypes", {
-  'characters': _propTypes["default"].number.isRequired,
-  'string': _propTypes["default"].string.isRequired,
-  'icon': _propTypes["default"].element
+  'characters': PropTypes.number.isRequired,
+  'string': PropTypes.string.isRequired,
+  'icon': PropTypes.element
 });
 
 var FlexibleCharacterCountString = /*#__PURE__*/function (_React$Component2) {
@@ -152,7 +134,7 @@ var FlexibleCharacterCountString = /*#__PURE__*/function (_React$Component2) {
   }]);
 
   return FlexibleCharacterCountString;
-}(_react["default"].Component);
+}(React.Component);
 /**
  * Works by calculating height of text content using a temporary off-screen container element.
  * Not related to FlexibleCharacterCount.. classes above.
@@ -160,16 +142,16 @@ var FlexibleCharacterCountString = /*#__PURE__*/function (_React$Component2) {
 
 
 _defineProperty(FlexibleCharacterCountString, "propTypes", {
-  'string': _propTypes["default"].string,
-  'expanded': _propTypes["default"].oneOfType([_propTypes["default"].bool, _propTypes["default"].func]),
-  'expandCharacters': _propTypes["default"].oneOfType([_propTypes["default"].number, _propTypes["default"].func])
+  'string': PropTypes.string,
+  'expanded': PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
+  'expandCharacters': PropTypes.oneOfType([PropTypes.number, PropTypes.func])
 });
 
 _defineProperty(FlexibleCharacterCountString, "defaultProps", {
   'expanded': false
 });
 
-var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
+export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
   _inherits(FlexibleDescriptionBox, _React$Component3);
 
   var _super3 = _createSuper(FlexibleDescriptionBox);
@@ -204,7 +186,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
       // Handle window resize
       if (pastProps.windowWidth !== this.props.windowWidth) {
         // Recalculate some layouting stuff
-        (0, _utilities.requestAnimationFrame)(function () {
+        raf(function () {
           _this3.setState(function () {
             _this3.descriptionHeight;
 
@@ -223,11 +205,11 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
     value: function componentDidMount() {
       var _this4 = this;
 
-      if (this.props.debug) _patchedConsole.patchedConsoleInstance.info("Mounted FlexibleDescriptionBox");
+      if (this.props.debug) console.info("Mounted FlexibleDescriptionBox");
 
-      if (!(0, _misc.isServerSide)()) {
+      if (!isServerSide()) {
         // Create throttled version of toggleDescriptionExpand for button.
-        this.throttledToggleDescriptionExpand = _underscore["default"].throttle(this.toggleDescriptionExpand, 350);
+        this.throttledToggleDescriptionExpand = _.throttle(this.toggleDescriptionExpand, 350);
         setTimeout(function () {
           var willDescriptionFitAtCurrentSize = _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
 
@@ -255,7 +237,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "dimensions",
     value: function dimensions() {
-      if (this.props.dimensions) return _underscore["default"].extend({}, FlexibleDescriptionBox.defaultDimensions, this.props.dimensions);else return _underscore["default"].clone(FlexibleDescriptionBox.defaultDimensions);
+      if (this.props.dimensions) return _.extend({}, FlexibleDescriptionBox.defaultDimensions, this.props.dimensions);else return _.clone(FlexibleDescriptionBox.defaultDimensions);
     }
   }, {
     key: "checkWillDescriptionFitOneLineAndUpdateHeight",
@@ -269,27 +251,27 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
           linesOfText = _this$props2.linesOfText,
           lineHeight = _this$props2.lineHeight,
           fitTo = _this$props2.fitTo;
-      if ((0, _misc.isServerSide)()) return true;
+      if (isServerSide()) return true;
       var boxRef = this.boxRef && this.boxRef.current || null;
 
       if (!boxRef) {
-        _patchedConsole.patchedConsoleInstance.error("boxRef not available");
+        console.error("boxRef not available");
       }
 
       var dims = this.dimensions();
       var containerWidth;
 
       if (fitTo === 'grid') {
-        containerWidth = (0, _layout.gridContainerWidth)(windowWidth || null);
+        containerWidth = gridContainerWidth(windowWidth || null);
       } else if (fitTo === 'parent') {
-        containerWidth = boxRef && boxRef.parentElement && boxRef.parentElement.offsetWidth || (0, _layout.gridContainerWidth)(windowWidth || null);
+        containerWidth = boxRef && boxRef.parentElement && boxRef.parentElement.offsetWidth || gridContainerWidth(windowWidth || null);
       } else if (fitTo === 'self') {
-        containerWidth = boxRef && boxRef.offsetWidth || (0, _layout.gridContainerWidth)(windowWidth || null);
+        containerWidth = boxRef && boxRef.offsetWidth || gridContainerWidth(windowWidth || null);
       }
 
       containerWidth -= dims.paddingWidth; // Account for inner padding & border.
 
-      var tcw = (0, _layout.textContentWidth)(description, textElement, textClassName, containerWidth - dims.buttonWidth, // Account for expand button.
+      var tcw = textContentWidth(description, textElement, textClassName, containerWidth - dims.buttonWidth, // Account for expand button.
       textStyle);
       if (!tcw) return true;
       this.descriptionHeight = tcw.containerHeight + dims.paddingHeight; // Account for padding, border.
@@ -345,7 +327,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
     value: function havePermissionToEdit() {
       var _this$props$context$a = this.props.context.actions,
           actions = _this$props$context$a === void 0 ? [] : _this$props$context$a;
-      return !!_underscore["default"].findWhere(actions, {
+      return !!_.findWhere(actions, {
         'name': 'edit'
       });
     }
@@ -371,16 +353,16 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
           mounted = _this$state.mounted,
           shortContent = _this$state.shortContent,
           descriptionWhiteSpace = _this$state.descriptionWhiteSpace;
-      if (debug) _patchedConsole.patchedConsoleInstance.log('render FlexibleDescriptionBox');
+      if (debug) console.log('render FlexibleDescriptionBox');
       var expandButton;
       var expanded = descriptionExpanded || propExpanded;
 
       if (!descriptionWillFitOneLine && typeof propExpanded !== 'boolean') {
-        expandButton = /*#__PURE__*/_react["default"].createElement("button", {
+        expandButton = /*#__PURE__*/React.createElement("button", {
           type: "button",
           className: "description-expand-button right",
           onClick: this.throttledToggleDescriptionExpand
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-" + (expanded ? 'minus' : 'plus')
         }));
       }
@@ -389,7 +371,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
       // Moved from componentWillReceiveProps as this lifecycle method is being deprecated.
 
       if (!this.boxRef && (fitTo === 'self' || fitTo === 'parent')) {
-        this.boxRef = /*#__PURE__*/_react["default"].createRef();
+        this.boxRef = /*#__PURE__*/React.createRef();
       }
 
       var _this$props4 = this.props,
@@ -404,7 +386,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
           isInlineEditable = _this$props4.isInlineEditable;
 
       if (isInlineEditable && this.havePermissionToEdit()) {
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           ref: this.boxRef,
           className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
           style: {
@@ -412,13 +394,13 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
             'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
             'visibility': !mounted && showOnMount ? 'hidden' : null
           }
-        }, expandButton, /*#__PURE__*/_react["default"].createElement(_EditableField.FieldSet, {
+        }, expandButton, /*#__PURE__*/React.createElement(FieldSet, {
           context: context,
           className: textClassName,
           style: textStyle,
           schemas: schemas,
           href: href
-        }, /*#__PURE__*/_react["default"].createElement(_EditableField.EditableField, {
+        }, /*#__PURE__*/React.createElement(EditableField, {
           className: textClassName,
           labelID: "description",
           style: "row-without-label",
@@ -429,7 +411,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
         })));
       }
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         ref: this.boxRef,
         className: "flexible-description-box " + (className ? className : '') + (expandButton ? expanded ? ' expanded' : ' collapsed' : ' not-expandable'),
         style: {
@@ -437,7 +419,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
           'whiteSpace': expanded ? 'normal' : descriptionWhiteSpace,
           'visibility': !mounted && showOnMount ? 'hidden' : null
         }
-      }, expandButton, /*#__PURE__*/_react["default"].createElement(textElement, {
+      }, expandButton, /*#__PURE__*/React.createElement(textElement, {
         'className': textClassName,
         'style': textStyle
       }, expanded ? description : shortContent || description));
@@ -445,9 +427,7 @@ var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
   }]);
 
   return FlexibleDescriptionBox;
-}(_react["default"].Component);
-
-exports.FlexibleDescriptionBox = FlexibleDescriptionBox;
+}(React.Component);
 
 _defineProperty(FlexibleDescriptionBox, "defaultDimensions", {
   'paddingWidth': 0,
@@ -457,23 +437,23 @@ _defineProperty(FlexibleDescriptionBox, "defaultDimensions", {
 });
 
 _defineProperty(FlexibleDescriptionBox, "propTypes", {
-  'description': _propTypes["default"].any.isRequired,
-  'dimensions': _propTypes["default"].shape({
-    'paddingWidth': _propTypes["default"].number,
-    'paddingHeight': _propTypes["default"].number,
-    'buttonWidth': _propTypes["default"].number,
-    'initialHeight': _propTypes["default"].number
+  'description': PropTypes.any.isRequired,
+  'dimensions': PropTypes.shape({
+    'paddingWidth': PropTypes.number,
+    'paddingHeight': PropTypes.number,
+    'buttonWidth': PropTypes.number,
+    'initialHeight': PropTypes.number
   }),
-  'fitTo': _propTypes["default"].oneOf(['grid', 'parent', 'self']),
-  'includeButton': _propTypes["default"].bool,
+  'fitTo': PropTypes.oneOf(['grid', 'parent', 'self']),
+  'includeButton': PropTypes.bool,
   // If false, must use refs and call this.toggleDescriptionExpand manually
-  'className': _propTypes["default"].string,
-  'textClassName': _propTypes["default"].string,
-  'textElement': _propTypes["default"].oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
-  'textStyle': _propTypes["default"].object,
-  'expanded': _propTypes["default"].bool,
-  'windowWidth': _propTypes["default"].number.isRequired,
-  'context': _propTypes["default"].object
+  'className': PropTypes.string,
+  'textClassName': PropTypes.string,
+  'textElement': PropTypes.oneOf(['p', 'span', 'div', 'label', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
+  'textStyle': PropTypes.object,
+  'expanded': PropTypes.bool,
+  'windowWidth': PropTypes.number.isRequired,
+  'context': PropTypes.object
 });
 
 _defineProperty(FlexibleDescriptionBox, "defaultProps", {

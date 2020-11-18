@@ -1,26 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SortController = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var _querystring = _interopRequireDefault(require("querystring"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _navigate2 = require("./../../util/navigate");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -53,7 +32,14 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SortController = /*#__PURE__*/function (_React$PureComponent) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import url from 'url';
+import queryString from 'querystring';
+import memoize from 'memoize-one';
+import _ from 'underscore';
+import { navigate as _navigate } from './../../util/navigate';
+export var SortController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SortController, _React$PureComponent);
 
   var _super = _createSuper(SortController);
@@ -69,7 +55,7 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
      * @returns {Object} { 'page' : int, 'limit' : int }
      */
     value: function getPageAndLimitFromURL(href) {
-      var _url$parse = _url["default"].parse(href, true),
+      var _url$parse = url.parse(href, true),
           query = _url$parse.query;
 
       var limit = parseInt(query.limit || 25);
@@ -90,7 +76,7 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
       };
       if (!context || !context.sort) return defaults;
 
-      var sortKey = _underscore["default"].keys(context.sort);
+      var sortKey = _.keys(context.sort);
 
       if (sortKey.length > 0) {
         // Use first if multiple.
@@ -120,7 +106,7 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
     }; // 'changingPage' = historical name, analogous of 'loading'
 
     _this.memoized = {
-      getSortColumnAndReverseFromContext: (0, _memoizeOne["default"])(SortController.getSortColumnAndReverseFromContext)
+      getSortColumnAndReverseFromContext: memoize(SortController.getSortColumnAndReverseFromContext)
     };
     return _this;
   }
@@ -151,7 +137,7 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         'changingPage': true
       }, function () {
-        var _url$parse2 = _url["default"].parse(href, true),
+        var _url$parse2 = url.parse(href, true),
             query = _url$parse2.query,
             urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
 
@@ -161,13 +147,12 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
           delete query.sort;
         }
 
-        var stringifiedNextQuery = _querystring["default"].stringify(query);
-
+        var stringifiedNextQuery = queryString.stringify(query);
         var navTarget = null;
 
         if (currSearchHref) {
-          urlParts.search = '?' + _querystring["default"].stringify(query);
-          navTarget = _url["default"].format(urlParts);
+          urlParts.search = '?' + queryString.stringify(query);
+          navTarget = url.format(urlParts);
         } else if (requestedCompoundFilterSet) {
           navTarget = _objectSpread(_objectSpread({}, requestedCompoundFilterSet), {}, {
             "global_flags": stringifiedNextQuery
@@ -204,27 +189,25 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
         sortBy: this.sortBy
       });
 
-      return _react["default"].Children.map(children, function (c) {
-        return /*#__PURE__*/_react["default"].cloneElement(c, childProps);
+      return React.Children.map(children, function (c) {
+        return /*#__PURE__*/React.cloneElement(c, childProps);
       });
     }
   }]);
 
   return SortController;
-}(_react["default"].PureComponent);
-
-exports.SortController = SortController;
+}(React.PureComponent);
 
 _defineProperty(SortController, "propTypes", {
-  'href': _propTypes["default"].string.isRequired,
-  'context': _propTypes["default"].object.isRequired,
-  'navigate': _propTypes["default"].func,
-  'children': _propTypes["default"].node.isRequired
+  'href': PropTypes.string.isRequired,
+  'context': PropTypes.object.isRequired,
+  'navigate': PropTypes.func,
+  'children': PropTypes.node.isRequired
 });
 
 _defineProperty(SortController, "defaultProps", {
   'navigate': function navigate(href, options, callback) {
     console.info('Called SortController.props.navigate with:', href, options, callback);
-    if (typeof _navigate2.navigate === 'function') return _navigate2.navigate.apply(_navigate2.navigate, arguments);
+    if (typeof _navigate === 'function') return _navigate.apply(_navigate, arguments);
   }
 });

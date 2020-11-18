@@ -1,28 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getFileFormatStr = getFileFormatStr;
-exports.isFileDataComplete = isFileDataComplete;
-exports.groupFilesByRelations = groupFilesByRelations;
-exports.extractSinglyGroupedItems = extractSinglyGroupedItems;
-exports.isFilenameAnImage = isFilenameAnImage;
-exports.getLargeMD5 = getLargeMD5;
-exports.groupFilesByQCSummaryTitles = exports.filterFilesWithQCSummary = exports.filterFilesWithEmbeddedMetricItem = void 0;
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _object = require("./object");
-
-var _misc = require("./misc");
-
-var _patchedConsole = require("./patched-console");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -39,6 +14,11 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
 var CryptoJS = require('crypto-js');
 
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import { itemUtil } from './object';
+import { isServerSide } from './misc';
+import { patchedConsoleInstance as console } from './patched-console';
 /** WE WILL REMOVE MOST FUNCS FROM HERE THAT ARENT REUSABLE & KEEP REST IN PROJ-SPECIFIC REPOS */
 
 /**
@@ -50,7 +30,8 @@ var CryptoJS = require('crypto-js');
  * @param {File} file - A File Item JSON
  * @returns {string|null} Format of the file.
  */
-function getFileFormatStr(file) {
+
+export function getFileFormatStr(file) {
   return file && file.file_format && (file.file_format.file_format || file.file_format.display_title) || null;
 }
 /**
@@ -64,11 +45,10 @@ function getFileFormatStr(file) {
  * @throws Error if file is not an object.
  */
 
-
-function isFileDataComplete(file) {
+export function isFileDataComplete(file) {
   if (!file || _typeof(file) !== 'object') throw new Error('File param is not an object.');
 
-  if ((0, _misc.isServerSide)() || !window || !document) {
+  if (isServerSide() || !window || !document) {
     return true; // For tests, primarily.
   }
 
@@ -98,8 +78,7 @@ function isFileDataComplete(file) {
  * @returns {File[][]} A list of groups (lists) of files grouped by their related_files connection(s).
  */
 
-
-function groupFilesByRelations(files) {
+export function groupFilesByRelations(files) {
   var isBidirectional = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   var groups = [];
   var ungroupedFiles = files.slice(0);
@@ -120,7 +99,7 @@ function groupFilesByRelations(files) {
     }
 
     currFile = currGroup[currGroupIdx];
-    currFileID = _object.itemUtil.atId(currFile);
+    currFileID = itemUtil.atId(currFile);
 
     if (!currFileID) {
       // No view permission most likely, continue.
@@ -130,9 +109,8 @@ function groupFilesByRelations(files) {
     // Bidirectional cases are implicitly handled as part of this.
 
 
-    _underscore["default"].forEach(currFile.related_files || [], function (relatedFileEmbeddedObject) {
-      var relatedFileID = _object.itemUtil.atId(relatedFileEmbeddedObject.file); //const relationshipType = relatedFileEmbeddedObject.relationship_type; // Unused
-
+    _.forEach(currFile.related_files || [], function (relatedFileEmbeddedObject) {
+      var relatedFileID = itemUtil.atId(relatedFileEmbeddedObject.file); //const relationshipType = relatedFileEmbeddedObject.relationship_type; // Unused
 
       if (!relatedFileID) {
         // Most likely no view permissions
@@ -145,13 +123,12 @@ function groupFilesByRelations(files) {
         return;
       }
 
-      var relatedFileIndex = _underscore["default"].findIndex(ungroupedFiles, function (ungroupedFile) {
-        return relatedFileID === _object.itemUtil.atId(ungroupedFile);
+      var relatedFileIndex = _.findIndex(ungroupedFiles, function (ungroupedFile) {
+        return relatedFileID === itemUtil.atId(ungroupedFile);
       });
 
       if (relatedFileIndex === -1) {
-        _patchedConsole.patchedConsoleInstance.warn("Could not find related_file \"" + relatedFileID + "\" in list of ungrouped files.");
-
+        console.warn("Could not find related_file \"" + relatedFileID + "\" in list of ungrouped files.");
         return;
       }
 
@@ -165,8 +142,8 @@ function groupFilesByRelations(files) {
       for (ungroupedIter = 0; ungroupedIter < ungroupedFiles.length; ungroupedIter++) {
         anotherUngroupedFile = ungroupedFiles[ungroupedIter];
 
-        _underscore["default"].forEach(anotherUngroupedFile.related_files || [], function (relatedFileEmbeddedObject) {
-          var relatedFileID = _object.itemUtil.atId(relatedFileEmbeddedObject.file);
+        _.forEach(anotherUngroupedFile.related_files || [], function (relatedFileEmbeddedObject) {
+          var relatedFileID = itemUtil.atId(relatedFileEmbeddedObject.file);
 
           if (!relatedFileID) {
             // Most likely no view permissions
@@ -195,16 +172,15 @@ function groupFilesByRelations(files) {
   groups.push(currGroup);
   return groups;
 }
-
-function extractSinglyGroupedItems(groups) {
-  var _$partition = _underscore["default"].partition(groups, function (g) {
+export function extractSinglyGroupedItems(groups) {
+  var _$partition = _.partition(groups, function (g) {
     return g.length > 1;
   }),
       _$partition2 = _slicedToArray(_$partition, 2),
       multiFileGroups = _$partition2[0],
       singleFileGroups = _$partition2[1];
 
-  return [multiFileGroups, _underscore["default"].flatten(singleFileGroups, true)];
+  return [multiFileGroups, _.flatten(singleFileGroups, true)];
 }
 /**
  * Filter a list of files down to those with a value for `quality_metric` and `quality_metric.overall_quality_status`.
@@ -216,25 +192,23 @@ function extractSinglyGroupedItems(groups) {
  * @returns {File[]|true} Filtered list of files or boolean for "any", depending on `checkAny` param.
  */
 
-
-var filterFilesWithEmbeddedMetricItem = (0, _memoizeOne["default"])(function (files) {
+export var filterFilesWithEmbeddedMetricItem = memoize(function (files) {
   var checkAny = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  var func = checkAny ? _underscore["default"].any : _underscore["default"].filter;
+  var func = checkAny ? _.any : _.filter;
   return func(files, function (f) {
     return f.quality_metric && f.quality_metric.overall_quality_status;
   });
 });
-exports.filterFilesWithEmbeddedMetricItem = filterFilesWithEmbeddedMetricItem;
-var filterFilesWithQCSummary = (0, _memoizeOne["default"])(function (files) {
+export var filterFilesWithQCSummary = memoize(function (files) {
   var checkAny = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  var func = checkAny ? _underscore["default"].any : _underscore["default"].filter;
+  var func = checkAny ? _.any : _.filter;
   return func(files, function (f) {
     var _f$quality_metric = f.quality_metric;
     _f$quality_metric = _f$quality_metric === void 0 ? {} : _f$quality_metric;
     var _f$quality_metric$qua = _f$quality_metric.quality_metric_summary,
         qcs = _f$quality_metric$qua === void 0 ? [] : _f$quality_metric$qua; // Ensure all unique titles
 
-    return qcs.length > 0 && qcs.length === Array.from(new Set(_underscore["default"].pluck(qcs, 'title'))).length;
+    return qcs.length > 0 && qcs.length === Array.from(new Set(_.pluck(qcs, 'title'))).length;
   });
 });
 /**
@@ -245,12 +219,11 @@ var filterFilesWithQCSummary = (0, _memoizeOne["default"])(function (files) {
  * @returns {File[][]} Groups of files as 2d array.
  */
 
-exports.filterFilesWithQCSummary = filterFilesWithQCSummary;
-var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWithMetrics) {
+export var groupFilesByQCSummaryTitles = memoize(function (filesWithMetrics) {
   var sep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "\t";
 
-  var filesByTitles = _underscore["default"].pluck(Array.from(_underscore["default"].reduce(filesWithMetrics, function (m, file) {
-    var titles = _underscore["default"].map(file.quality_metric.quality_metric_summary, function (qcMetric) {
+  var filesByTitles = _.pluck(Array.from(_.reduce(filesWithMetrics, function (m, file) {
+    var titles = _.map(file.quality_metric.quality_metric_summary, function (qcMetric) {
       return qcMetric.title || qcMetric.display_title; // In case becomes an embedded obj at some point.
     });
 
@@ -266,9 +239,7 @@ var groupFilesByQCSummaryTitles = (0, _memoizeOne["default"])(function (filesWit
 
   return filesByTitles;
 });
-exports.groupFilesByQCSummaryTitles = groupFilesByQCSummaryTitles;
-
-function isFilenameAnImage(filename) {
+export function isFilenameAnImage(filename) {
   var suppressErrors = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   var fileNameLower, fileNameLowerEnds;
 
@@ -301,7 +272,6 @@ function isFilenameAnImage(filename) {
  * original arraylength contained within buffer (element 1)
  * Solution originally: https://groups.google.com/forum/#!msg/crypto-js/TOb92tcJlU0/Eq7VZ5tpi-QJ
  */
-
 
 function arrayBufferToWordArray(ab) {
   var i8a = new Uint8Array(ab);
@@ -362,7 +332,7 @@ function readChunked(file, chunkCallback, endCallback) {
  */
 
 
-function getLargeMD5(file, cbProgress) {
+export function getLargeMD5(file, cbProgress) {
   return new Promise(function (resolve, reject) {
     // create algorithm for progressive hashing
     var md5 = CryptoJS.algo.MD5.create();

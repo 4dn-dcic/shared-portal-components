@@ -1,26 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.preset = preset;
-exports.format = format;
-exports.display = display;
-exports.formatPublicationDate = formatPublicationDate;
-exports.LocalizedTime = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _moment = _interopRequireDefault(require("moment"));
-
-var _misc = require("./../util/misc");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -43,7 +22,12 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var LocalizedTime = /*#__PURE__*/function (_React$Component) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import memoize from 'memoize-one';
+import moment from 'moment';
+import { isServerSide } from './../util/misc';
+export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
   _inherits(LocalizedTime, _React$Component);
 
   var _super = _createSuper(LocalizedTime);
@@ -55,10 +39,10 @@ var LocalizedTime = /*#__PURE__*/function (_React$Component) {
 
     _this = _super.call(this, props);
     _this.memoized = {
-      getMoment: (0, _memoizeOne["default"])(function (momentDate, timestamp) {
+      getMoment: memoize(function (momentDate, timestamp) {
         if (momentDate) return momentDate;
-        if (timestamp) return _moment["default"].utc(timestamp);
-        return _moment["default"].utc();
+        if (timestamp) return moment.utc(timestamp);
+        return moment.utc();
       })
     };
     _this.state = {
@@ -88,12 +72,12 @@ var LocalizedTime = /*#__PURE__*/function (_React$Component) {
       var mounted = this.state.mounted;
       var selfMoment = this.memoized.getMoment(momentDate, timestamp);
 
-      if (!mounted || (0, _misc.isServerSide)()) {
-        return /*#__PURE__*/_react["default"].createElement("span", {
+      if (!mounted || isServerSide()) {
+        return /*#__PURE__*/React.createElement("span", {
           className: className + ' utc'
         }, display(selfMoment, formatType, dateTimeSeparator, false, customOutputFormat));
       } else {
-        return /*#__PURE__*/_react["default"].createElement("span", {
+        return /*#__PURE__*/React.createElement("span", {
           className: className + (localize ? ' local' : ' utc')
         }, display(selfMoment, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
@@ -101,22 +85,20 @@ var LocalizedTime = /*#__PURE__*/function (_React$Component) {
   }]);
 
   return LocalizedTime;
-}(_react["default"].Component);
-
-exports.LocalizedTime = LocalizedTime;
+}(React.Component);
 LocalizedTime.propTypes = {
   momentDate: function momentDate(props, propName) {
-    if (props[propName] && !_moment["default"].isMoment(props[propName])) {
+    if (props[propName] && !moment.isMoment(props[propName])) {
       return new Error("momentDate must be an instance of Moment.");
     }
   },
-  timestamp: _propTypes["default"].string,
-  localize: _propTypes["default"].bool,
-  formatType: _propTypes["default"].string,
-  dateTimeSeparator: _propTypes["default"].string,
-  customOutputFormat: _propTypes["default"].string,
-  fallback: _propTypes["default"].string,
-  className: _propTypes["default"].string
+  timestamp: PropTypes.string,
+  localize: PropTypes.bool,
+  formatType: PropTypes.string,
+  dateTimeSeparator: PropTypes.string,
+  customOutputFormat: PropTypes.string,
+  fallback: PropTypes.string,
+  className: PropTypes.string
 };
 LocalizedTime.defaultProps = {
   momentDate: null,
@@ -128,8 +110,7 @@ LocalizedTime.defaultProps = {
   className: "localized-date-time",
   localize: true
 };
-
-function preset() {
+export function preset() {
   var formatType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'date-md';
   var dateTimeSeparator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : " ";
 
@@ -205,16 +186,14 @@ function preset() {
  * @param {string} [dateTimeSeparator] - Separator between date and time if formatting a date-time. Defaults to ' '.
  */
 
-
-function format(timestamp) {
+export function format(timestamp) {
   var formatType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'date-md';
   var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
   var localize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var customOutputFormat = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-  return display(_moment["default"].utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
+  return display(moment.utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
 }
-
-function display(momentObj) {
+export function display(momentObj) {
   var formatType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'date-md';
   var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
   var localize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
@@ -244,8 +223,7 @@ function display(momentObj) {
  * @return {string} Formatted year and possibly month.
  */
 
-
-function formatPublicationDate(utcDate) {
+export function formatPublicationDate(utcDate) {
   var includeMonth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   var includeDay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
   var yearString, monthString, monthIndex, dayString, dayInteger;
@@ -261,13 +239,13 @@ function formatPublicationDate(utcDate) {
     monthIndex = parseInt(monthString) - 1; // 0-based.
     // @see https://momentjs.com/docs/#/i18n/listing-months-weekdays/
 
-    monthString = _moment["default"].months()[monthIndex];
+    monthString = moment.months()[monthIndex];
 
     if (includeDay && utcDate.length >= 10) {
       dayString = utcDate.slice(8, 10);
       dayInteger = parseInt(dayString); // @see https://momentjs.com/docs/#/i18n/locale-data/
 
-      dayString = _moment["default"].localeData().ordinal(dayInteger);
+      dayString = moment.localeData().ordinal(dayInteger);
       return monthString + ' ' + dayString + ', ' + yearString;
     }
 

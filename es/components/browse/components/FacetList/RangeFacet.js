@@ -1,43 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getRangeValuesFromFiltersByField = getRangeValuesFromFiltersByField;
-exports.RangeFacet = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
-
-var _DropdownButton = _interopRequireDefault(require("react-bootstrap/esm/DropdownButton"));
-
-var _DropdownItem = _interopRequireDefault(require("react-bootstrap/esm/DropdownItem"));
-
-var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
-
-var _Popover = _interopRequireDefault(require("react-bootstrap/esm/Popover"));
-
-var _OverlayTrigger = _interopRequireDefault(require("react-bootstrap/esm/OverlayTrigger"));
-
-var _LocalizedTime = require("./../../../ui/LocalizedTime");
-
-var _valueTransforms = require("./../../../util/value-transforms");
-
-var _schemaTransforms = require("./../../../util/schema-transforms");
-
-var _patchedConsole = require("./../../../util/patched-console");
-
-var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -80,7 +42,22 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-function getRangeValuesFromFiltersByField() {
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import Fade from 'react-bootstrap/esm/Fade';
+import Popover from 'react-bootstrap/esm/Popover';
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
+import { LocalizedTime } from './../../../ui/LocalizedTime';
+import { decorateNumberWithCommas } from './../../../util/value-transforms';
+import { getSchemaProperty } from './../../../util/schema-transforms';
+import { patchedConsoleInstance as console } from './../../../util/patched-console';
+import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
+export function getRangeValuesFromFiltersByField() {
   var facets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var filters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
   var facetsByFilterField = {};
@@ -116,8 +93,7 @@ function getRangeValuesFromFiltersByField() {
   });
   return valuesByField;
 }
-
-var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
+export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(RangeFacet, _React$PureComponent);
 
   var _super = _createSuper(RangeFacet);
@@ -151,8 +127,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       if (typeof number_step !== "number" || isNaN(number_step) || number_step <= 0) {
-        _patchedConsole.patchedConsoleInstance.error("Expected number_step to be a positive number");
-
+        console.error("Expected number_step to be a positive number");
         return numVal;
       } // Remove trailing decimals (if any) (round down)
       // Be careful re: float operations (imprecise) and favor integers
@@ -216,8 +191,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this.performUpdateTo = _this.performUpdateTo.bind(_assertThisInitialized(_this));
     _this.termTitle = _this.termTitle.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      fieldSchema: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaProperty),
-      validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements)
+      fieldSchema: memoize(getSchemaProperty),
+      validIncrements: memoize(RangeFacet.validIncrements)
     };
     var fromVal = props.fromVal,
         toVal = props.toVal,
@@ -249,7 +224,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           fromVal: fromVal
         }, callback);
       } catch (e) {
-        _patchedConsole.patchedConsoleInstance.error("Couldn't set value", e);
+        console.error("Couldn't set value", e);
       }
     }
   }, {
@@ -263,7 +238,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           toVal: toVal
         }, callback);
       } catch (e) {
-        _patchedConsole.patchedConsoleInstance.error("Couldn't set value", e);
+        console.error("Couldn't set value", e);
       }
     }
   }, {
@@ -330,7 +305,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           termTransformFxn = _this$props4.termTransformFxn;
 
       if (field_type === "date") {
-        return /*#__PURE__*/_react["default"].createElement(_LocalizedTime.LocalizedTime, {
+        return /*#__PURE__*/React.createElement(LocalizedTime, {
           timestamp: value,
           localize: false
         });
@@ -351,7 +326,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       if (absVal.toString().length <= 7) {
         // Else is too long and will go thru toPrecision or toExponential.
         if (absVal >= 1000) {
-          return (0, _valueTransforms.decorateNumberWithCommas)(transformedValue);
+          return decorateNumberWithCommas(transformedValue);
         } else {
           return transformedValue;
         }
@@ -402,60 +377,59 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var fromTitle, toTitle;
 
       if (field_type === "number" || field_type === "integer") {
-        fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/_react["default"].createElement("em", null, "-Infinite");
-        toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/_react["default"].createElement("em", null, "Infinite");
+        fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
+        toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/React.createElement("em", null, "Infinite");
       } else if (field_type === "date") {
         fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
-        toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/_react["default"].createElement("em", null, "None");
-
-        _patchedConsole.patchedConsoleInstance.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
+        toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/React.createElement("em", null, "None");
+        console.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
       } else {
         throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
       }
 
       var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
         "data-field": facet.field
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "facet-title",
         onClick: this.handleOpenToggleClick
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-place": "right"
-      }, propTitle || facetTitle || field), /*#__PURE__*/_react["default"].createElement(_ExtendedDescriptionPopoverIcon.ExtendedDescriptionPopoverIcon, {
+      }, propTitle || facetTitle || field), /*#__PURE__*/React.createElement(ExtendedDescriptionPopoverIcon, {
         fieldSchema: fieldSchema,
         facet: facet,
         openPopover: openPopover,
         setOpenPopover: setOpenPopover
-      })), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+      })), /*#__PURE__*/React.createElement(Fade, {
         "in": !isOpen
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
-      }, isStatic ? /*#__PURE__*/_react["default"].createElement("i", {
+      }, isStatic ? /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle"),
         style: {
           opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25
         }
-      }) : /*#__PURE__*/_react["default"].createElement("i", {
+      }) : /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas"
-      })))), /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+      })))), /*#__PURE__*/React.createElement(Collapse, {
         "in": isOpen
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "inner-panel"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "row"
-      }, /*#__PURE__*/_react["default"].createElement("label", {
+      }, /*#__PURE__*/React.createElement("label", {
         className: "col-auto mb-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas small"
-      })), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
+      })), /*#__PURE__*/React.createElement(RangeDropdown, {
         title: fromTitle,
         value: fromVal,
         savedValue: savedFromVal,
@@ -468,13 +442,13 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "from_" + field,
         reset: fromVal !== null ? this.resetFrom : null
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
         className: "row"
-      }, /*#__PURE__*/_react["default"].createElement("label", {
+      }, /*#__PURE__*/React.createElement("label", {
         className: "col-auto mb-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-less-than-equal fas small"
-      })), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
+      })), /*#__PURE__*/React.createElement(RangeDropdown, {
         title: toTitle,
         value: toVal,
         savedValue: savedToVal,
@@ -492,9 +466,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return RangeFacet;
-}(_react["default"].PureComponent);
-
-exports.RangeFacet = RangeFacet;
+}(React.PureComponent);
 
 var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(RangeDropdown, _React$PureComponent2);
@@ -588,21 +560,21 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
       var showTitle = title;
 
       if (typeof reset === "function") {
-        showTitle = /*#__PURE__*/_react["default"].createElement("div", {
+        showTitle = /*#__PURE__*/React.createElement("div", {
           className: "d-flex"
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "clear-icon-container col-auto clickable d-flex align-items-center",
           onClick: reset,
           "data-tip": "Click to unset"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/_react["default"].createElement("div", {
+        })), /*#__PURE__*/React.createElement("div", {
           className: "col px-0"
         }, title));
       }
 
       if (field_type === "date") {
-        return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
+        return /*#__PURE__*/React.createElement(DropdownButton, _extends({
           variant: variant,
           disabled: disabled,
           className: className,
@@ -611,22 +583,22 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
         }, {
           alignRight: true,
           title: showTitle
-        }), /*#__PURE__*/_react["default"].createElement("form", {
+        }), /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container pb-0 mb-0 border-0",
           onSubmit: this.onTextInputFormSubmit
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "input-element-container"
-        }, /*#__PURE__*/_react["default"].createElement("input", {
+        }, /*#__PURE__*/React.createElement("input", {
           type: "date",
           className: "form-control",
           value: value,
           "data-value": value,
           onChange: this.onTextInputChange
-        })), /*#__PURE__*/_react["default"].createElement("button", {
+        })), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
           className: "btn"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-check fas"
         }))));
       } else if (field_type === "number" || field_type === "integer") {
@@ -646,15 +618,15 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
         }, new Set());
 
         var menuOptions = _toConsumableArray(menuOptsSet).map(function (increment) {
-          return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
+          return /*#__PURE__*/React.createElement(DropdownItem, {
             disabled: disabled,
             key: increment,
             eventKey: increment,
             active: increment === savedValue
-          }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/_react["default"].createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/_react["default"].createElement("small", null, " (max)") : null);
+          }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/React.createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/React.createElement("small", null, " (max)") : null);
         });
 
-        return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
+        return /*#__PURE__*/React.createElement(DropdownButton, _extends({
           variant: variant,
           disabled: disabled,
           className: className,
@@ -664,12 +636,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           alignRight: true,
           onSelect: this.onDropdownSelect,
           title: showTitle
-        }), /*#__PURE__*/_react["default"].createElement("form", {
+        }), /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container",
           onSubmit: this.onTextInputFormSubmit
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "input-element-container"
-        }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+        }, /*#__PURE__*/React.createElement("input", _extends({
           type: "number",
           className: "form-control"
         }, {
@@ -678,11 +650,11 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
           step: step
         }, {
           onChange: this.onTextInputChange
-        }))), /*#__PURE__*/_react["default"].createElement("button", {
+        }))), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
           className: "btn"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-check fas"
         }))), menuOptions);
       } else {
@@ -692,4 +664,4 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
 
   return RangeDropdown;
-}(_react["default"].PureComponent);
+}(React.PureComponent);

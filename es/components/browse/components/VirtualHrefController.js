@@ -1,38 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VirtualHrefController = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var analytics = _interopRequireWildcard(require("./../../util/analytics"));
-
-var _ajax = require("./../../util/ajax");
-
-var _navigate = require("./../../util/navigate");
-
-var _searchFilters = require("./../../util/search-filters");
-
-var _patchedConsole = require("./../../util/patched-console");
-
-var _FacetList = require("./FacetList");
-
-var _typedefs = require("./../../util/typedefs");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -65,13 +32,26 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React, { useMemo } from 'react';
+import memoize from 'memoize-one';
+import _ from 'underscore';
+import url from 'url';
+import * as analytics from './../../util/analytics';
+import { load as ajaxLoad } from './../../util/ajax';
+import { navigate as globalNavigate } from './../../util/navigate';
+import { getTermFacetStatus } from './../../util/search-filters';
+import { patchedConsoleInstance as console } from './../../util/patched-console';
+import { generateNextHref } from './FacetList'; // eslint-disable-next-line no-unused-vars
+
+import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/typedefs';
 /**
  * Accepts and parses the `href` from Redux / App.
  * Passes `href` downstream to descendant components,
  * as well as onFilter and onClearFilters functions which
  * navigate to new href.
  */
-var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
+
+export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(VirtualHrefController, _React$PureComponent);
 
   var _super = _createSuper(VirtualHrefController);
@@ -107,9 +87,9 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
         return false;
       }
 
-      var virtualHrefPartsQuery = _url["default"].parse(virtualHref || "", true).query || {};
-      var origHrefQuery = _url["default"].parse(originalSearchHref || "", true).query || {};
-      return !_underscore["default"].isEqual(origHrefQuery, virtualHrefPartsQuery);
+      var virtualHrefPartsQuery = url.parse(virtualHref || "", true).query || {};
+      var origHrefQuery = url.parse(originalSearchHref || "", true).query || {};
+      return !_.isEqual(origHrefQuery, virtualHrefPartsQuery);
     }
   }]);
 
@@ -124,8 +104,8 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.virtualNavigate = _this.virtualNavigate.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      transformedFacets: (0, _memoizeOne["default"])(VirtualHrefController.transformedFacets),
-      isClearFiltersBtnVisible: (0, _memoizeOne["default"])(props.isClearFiltersBtnVisible || function (currentVirtualSearcHref) {
+      transformedFacets: memoize(VirtualHrefController.transformedFacets),
+      isClearFiltersBtnVisible: memoize(props.isClearFiltersBtnVisible || function (currentVirtualSearcHref) {
         // We assume props.searchHref doesn't ever change (we don't handle a change of this in any case)
         VirtualHrefController.isClearFiltersBtnVisible(currentVirtualSearcHref, props.searchHref);
       })
@@ -186,7 +166,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
       if (typeof navigationTarget === "string") {
         // There is (very large) chance that `nextHref` does not have domain name, path, etc.
         // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
-        nextHrefFull = _url["default"].resolve(currentHref || "/search/", navigationTarget);
+        nextHrefFull = url.resolve(currentHref || "/search/", navigationTarget);
       } else {
         // Minor validation - let throw errors here.
         var filter_blocks = navigationTarget.filter_blocks;
@@ -195,7 +175,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           throw new Error("Must have 1+ filter blocks");
         }
 
-        var anyWithoutQueries = _underscore["default"].any(filter_blocks, function (_ref) {
+        var anyWithoutQueries = _.any(filter_blocks, function (_ref) {
           var query = _ref.query;
           if (typeof query !== "string") return true;
           return false;
@@ -209,9 +189,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var scopedRequest;
-
-      _patchedConsole.patchedConsoleInstance.warn('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
-
+      console.warn('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
       this.setState({
         "isContextLoading": true
       }, function () {
@@ -220,8 +198,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
               initialResults = nextContext['@graph'];
 
           if (scopedRequest !== _this2.currRequest) {
-            _patchedConsole.patchedConsoleInstance.warn("This is no longer the current request", scopedRequest, _this2.currRequest);
-
+            console.warn("This is no longer the current request", scopedRequest, _this2.currRequest);
             return false;
           }
 
@@ -231,8 +208,8 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
             throw new Error("Did not get back a search response");
           }
 
-          if (typeof _navigate.navigate.updateUserInfo === "function") {
-            _navigate.navigate.updateUserInfo();
+          if (typeof globalNavigate.updateUserInfo === "function") {
+            globalNavigate.updateUserInfo();
           } // Get correct URL from XHR, in case we hit a redirect during the request.
 
 
@@ -253,7 +230,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
             }
           }
 
-          _patchedConsole.patchedConsoleInstance.info("Loaded Next Context", nextContext);
+          console.info("Loaded Next Context", nextContext);
 
           _this2.setState({
             "virtualContext": nextContext,
@@ -278,7 +255,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           _this2.currRequest = null;
         }
 
-        scopedRequest = _this2.currRequest = (0, _ajax.load)(nextHrefFull ? nextHrefFull : "/compound_search", onLoadResponse, nextHrefFull ? "GET" : "POST", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
+        scopedRequest = _this2.currRequest = ajaxLoad(nextHrefFull ? nextHrefFull : "/compound_search", onLoadResponse, nextHrefFull ? "GET" : "POST", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
       });
       return scopedRequest;
     }
@@ -288,7 +265,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
       var _this$state3 = this.state,
           virtualHref = _this$state3.virtualHref,
           virtualContextFilters = _this$state3.virtualContext.filters;
-      return this.virtualNavigate((0, _FacetList.generateNextHref)(virtualHref, virtualContextFilters, facet, term), {
+      return this.virtualNavigate(generateNextHref(virtualHref, virtualContextFilters, facet, term), {
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
     }
@@ -314,7 +291,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     key: "getTermStatus",
     value: function getTermStatus(term, facet) {
       var virtualContextFilters = this.state.virtualContext.filters;
-      return (0, _searchFilters.getTermFacetStatus)(term, facet, virtualContextFilters);
+      return getTermFacetStatus(term, facet, virtualContextFilters);
     }
   }, {
     key: "render",
@@ -352,14 +329,12 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
         getTermStatus: this.getTermStatus
       });
 
-      return _react["default"].Children.map(children, function (child) {
-        if (! /*#__PURE__*/_react["default"].isValidElement(child)) return child;
-        return /*#__PURE__*/_react["default"].cloneElement(child, propsToPass);
+      return React.Children.map(children, function (child) {
+        if (! /*#__PURE__*/React.isValidElement(child)) return child;
+        return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
     }
   }]);
 
   return VirtualHrefController;
-}(_react["default"].PureComponent);
-
-exports.VirtualHrefController = VirtualHrefController;
+}(React.PureComponent);
