@@ -212,7 +212,7 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         isClearFiltersBtnVisible: isClearFiltersBtnVisible
       }, {
         key: searchHref || 1
-      }), embeddedTableHeader, /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
+      }), /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
       }, /*#__PURE__*/_react["default"].createElement(_CustomColumnController.CustomColumnController, _extends({
@@ -220,9 +220,9 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         filterColumnFxn: filterColumnFxn
       }, {
         hiddenColumns: hideColumns
-      }), /*#__PURE__*/_react["default"].createElement(_SortController.SortController, null, /*#__PURE__*/_react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
+      }), /*#__PURE__*/_react["default"].createElement(_SortController.SortController, null, embeddedTableHeader, /*#__PURE__*/_react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
-      }))))), embeddedTableFooter));
+      })), embeddedTableFooter)))));
     }
   }]);
 

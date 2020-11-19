@@ -205,6 +205,7 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
       });
 
       return _react["default"].Children.map(children, function (c) {
+        if (! /*#__PURE__*/_react["default"].isValidElement(c) || typeof c.type === "string") return c;
         return /*#__PURE__*/_react["default"].cloneElement(c, childProps);
       });
     }

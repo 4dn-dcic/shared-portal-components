@@ -99,7 +99,7 @@ export class CustomColumnController extends React.Component {
             hiddenColumns: alwaysHiddenColsList = [],
             columnDefinitions: allColumnDefinitions,
             filterColumnFxn,
-            ...propsToPass
+            ...remainingProps
         } = this.props;
         const { hiddenColumns, columnWidths } = this.state;
         if (!React.isValidElement(children)){
@@ -110,15 +110,16 @@ export class CustomColumnController extends React.Component {
         const columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols, filterColumnFxn);
         const visibleColumnDefinitions = this.memoized.filterOutStateHiddenCols(columnDefinitions, hiddenColumns);
 
-        _.extend(propsToPass, {
+        const propsToPass = {
+            ...remainingProps,
             hiddenColumns,
             columnDefinitions,
             visibleColumnDefinitions,
             columnWidths,
-            'setColumnWidths' : this.setColumnWidths,
-            'addHiddenColumn' : this.addHiddenColumn,
-            'removeHiddenColumn' : this.removeHiddenColumn
-        });
+            'setColumnWidths': this.setColumnWidths,
+            'addHiddenColumn': this.addHiddenColumn,
+            'removeHiddenColumn': this.removeHiddenColumn
+        };
 
         return React.Children.map(children, function(child){
             return React.cloneElement(child, propsToPass);
@@ -129,12 +130,6 @@ export class CustomColumnController extends React.Component {
 
 export class CustomColumnSelector extends React.PureComponent {
 
-    constructor(props){
-        super(props);
-        this.columnDefinitionsWithHiddenState = this.columnDefinitionsWithHiddenState.bind(this);
-        this.handleOptionVisibilityChange = _.throttle(this.handleOptionVisibilityChange.bind(this), 300);
-    }
-
     /**
      * Extends `props.columnDefinitions` (Object[]) with property `hiddenState` (boolean)
      * according to internal state of `hiddenColumns` (Object.<boolean>).
@@ -143,20 +138,28 @@ export class CustomColumnSelector extends React.PureComponent {
      *
      * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
      */
-    columnDefinitionsWithHiddenState(){
-        const { columnDefinitions, hiddenColumns } = this.props;
-        return _.map(
-            _.sortBy(
-                _.filter(columnDefinitions, function(c){ return c.field !== 'display_title'; }),
-                'order'
-            ),
-            function(colDef){
-                return _.extend({}, colDef, { 'hiddenState' : hiddenColumns[colDef.field] === true });
-            }
-        );
+    static columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns) {
+        return _.sortBy(
+            columnDefinitions.filter(function(c){
+                return c.field !== 'display_title'; // Should always remain visible.
+            }),
+            'order'
+        ).map(function(colDef){
+            return { ...colDef, 'hiddenState': hiddenColumns[colDef.field] === true };
+        });
     }
 
-    handleOptionVisibilityChange(field, evt){
+    constructor(props){
+        super(props);
+        this.handleOptionVisibilityChange = _.throttle(this.handleOptionVisibilityChange.bind(this), 300);
+        this.memoized = {
+            columnDefinitionsWithHiddenState: memoize(CustomColumnSelector.columnDefinitionsWithHiddenState)
+        };
+    }
+
+    handleOptionVisibilityChange(evt){
+        evt.stopPropagation();
+        const field = evt.target.value;
         const { hiddenColumns, removeHiddenColumn, addHiddenColumn } = this.props;
         setTimeout(function(){
             if (hiddenColumns[field] === true){
@@ -168,9 +171,10 @@ export class CustomColumnSelector extends React.PureComponent {
     }
 
     render(){
+        const { columnDefinitions, hiddenColumns } = this.props;
         return (
             <div className="row clearfix">
-                { _.map(this.columnDefinitionsWithHiddenState(), (colDef, idx, all) =>
+                { this.memoized.columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns).map((colDef, idx, all) =>
                     <ColumnOption {...colDef} key={colDef.field || idx} allColumns={all} index={idx} handleOptionVisibilityChange={this.handleOptionVisibilityChange} />
                 ) }
             </div>
@@ -186,9 +190,9 @@ CustomColumnSelector.propTypes = {
 
 const ColumnOption = React.memo(function ColumnOption(props){
     const { hiddenState, allColumns, field, title, description, index, handleOptionVisibilityChange } = props;
-    const isChecked = !hiddenState;
+    const checked = !hiddenState;
     const sameTitleColExists = _.any(allColumns.slice(0,index).concat(allColumns.slice(index + 1)), { title });
-    const cls = "clickable" + (isChecked ? ' is-active' : '');
+    const className = "clickable" + (checked ? ' is-active' : '');
     let showDescription = description;
 
     if (sameTitleColExists){
@@ -200,7 +204,7 @@ const ColumnOption = React.memo(function ColumnOption(props){
     }
 
     return (
-        <div className="col-12 col-sm-6 col-lg-3 column-option" key={field} data-tip={showDescription} data-html={true}>
+        <div className="col-12 col-sm-6 col-lg-3 column-option" key={field} data-tip={showDescription} data-html>
             {/*
             <label className="row" style={{ alignItems: "center" }}>
                 <input type="checkbox">
@@ -212,8 +216,7 @@ const ColumnOption = React.memo(function ColumnOption(props){
 
             </input>
             */}
-            <Checkbox checked={isChecked} onChange={(e) => handleOptionVisibilityChange(field,e)}
-                value={field} className={cls}>
+            <Checkbox {...{ className, checked }} value={field} onChange={handleOptionVisibilityChange}>
                 { title }
             </Checkbox>
         </div>

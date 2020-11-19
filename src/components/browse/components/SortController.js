@@ -133,9 +133,9 @@ export class SortController extends React.PureComponent {
         };
 
         return React.Children.map(children, function(c){
+            if (!React.isValidElement(c) || typeof c.type === "string") return c;
             return React.cloneElement(c, childProps);
         });
     }
-
 
 }
