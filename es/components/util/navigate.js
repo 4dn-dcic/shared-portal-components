@@ -94,7 +94,9 @@ navigate.setNavigateFunction = function (navFxn) {
 };
 
 navigate.updateUserInfo = function () {
-  return cachedUpdateUserInfoFunction.apply(void 0, arguments);
+  if (cachedUpdateUserInfoFunction) {
+    return cachedUpdateUserInfoFunction.apply(void 0, arguments);
+  }
 };
 
 navigate.determineSeparatorChar = function (href) {

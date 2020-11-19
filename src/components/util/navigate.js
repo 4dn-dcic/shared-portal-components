@@ -73,7 +73,9 @@ navigate.setNavigateFunction = function(navFxn){
 };
 
 navigate.updateUserInfo = function(){
-    return cachedUpdateUserInfoFunction(...arguments);
+    if (cachedUpdateUserInfoFunction) {
+        return cachedUpdateUserInfoFunction(...arguments);
+    }
 };
 
 
