@@ -59,29 +59,6 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
   var _super = _createSuper(SortController);
 
   _createClass(SortController, null, [{
-    key: "getPageAndLimitFromURL",
-
-    /**
-     * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
-     *
-     * @deprecated
-     * @param {string} href - Current page href, with query.
-     * @returns {Object} { 'page' : int, 'limit' : int }
-     */
-    value: function getPageAndLimitFromURL(href) {
-      var _url$parse = _url["default"].parse(href, true),
-          query = _url$parse.query;
-
-      var limit = parseInt(query.limit || 25);
-      var from = parseInt(query.from || 0);
-      if (isNaN(limit)) limit = 25;
-      if (isNaN(from)) from = 0;
-      return {
-        'page': from / limit + 1,
-        'limit': limit
-      };
-    }
-  }, {
     key: "getSortColumnAndReverseFromContext",
     value: function getSortColumnAndReverseFromContext(context) {
       var defaults = {
@@ -89,8 +66,7 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
         'sortReverse': false
       };
       if (!context || !context.sort) return defaults;
-
-      var sortKey = _underscore["default"].keys(context.sort);
+      var sortKey = Object.keys(context.sort);
 
       if (sortKey.length > 0) {
         // Use first if multiple.
@@ -151,9 +127,9 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         'changingPage': true
       }, function () {
-        var _url$parse2 = _url["default"].parse(href, true),
-            query = _url$parse2.query,
-            urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
+        var _url$parse = _url["default"].parse(href, true),
+            query = _url$parse.query,
+            urlParts = _objectWithoutProperties(_url$parse, ["query"]);
 
         if (key) {
           query.sort = (reverse ? '-' : '') + key;

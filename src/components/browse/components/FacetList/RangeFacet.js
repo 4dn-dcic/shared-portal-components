@@ -135,6 +135,24 @@ export class RangeFacet extends React.PureComponent {
         };
     }
 
+    static initialStateValues(props){
+        const {
+            fromVal,
+            toVal,
+            facet: { field_type = "number" }
+        } = props;
+
+        const state = { fromVal, toVal };
+
+        if (field_type === "date") {
+            // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
+            state.fromVal = (fromVal && fromVal.toString()) || null;
+            state.toVal = (toVal && toVal.toString()) || null;
+        }
+
+        return state;
+    }
+
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
@@ -151,20 +169,19 @@ export class RangeFacet extends React.PureComponent {
             validIncrements: memoize(RangeFacet.validIncrements)
         };
 
-        const {
-            fromVal,
-            toVal,
-            facet: { field_type = "number" }
-        } = props;
+        this.state = { ...RangeFacet.initialStateValues(props), "facetClosing": false };
+    }
 
-        this.state = { fromVal, toVal, facetClosing: false };
-
-        if (field_type === "date") {
-            // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
-            this.state.fromVal = (fromVal && fromVal.toString()) || null;
-            this.state.toVal = (toVal && toVal.toString()) || null;
+    /**
+     * Resets state fromVal and toVal if value from props changes (new filters, etc. received).
+     * Example is if different filter block in CGAP FilterSetUI is selected.
+     */
+    componentDidUpdate(pastProps){
+        const { fromVal, toVal } = this.props;
+        const { fromVal: pastFromVal, toVal: pastToVal } = pastProps;
+        if (fromVal !== pastFromVal || toVal !== pastToVal) {
+            this.setState(RangeFacet.initialStateValues(this.props));
         }
-
     }
 
     setFrom(value, callback){
@@ -283,6 +300,8 @@ export class RangeFacet extends React.PureComponent {
         const { fromVal, toVal } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
         const title = propTitle || facetTitle || field;
+
+        console.log("RANGEFACET", field, title, fromVal, toVal);
 
         let fromTitle, toTitle;
 
