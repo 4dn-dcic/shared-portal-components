@@ -501,8 +501,8 @@ _defineProperty(ResultRow, "propTypes", {
   'context': _propTypes["default"].object.isRequired
 });
 
-var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(LoadMoreAsYouScroll, _React$PureComponent3);
+var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
+  _inherits(LoadMoreAsYouScroll, _React$Component);
 
   var _super3 = _createSuper(LoadMoreAsYouScroll);
 
@@ -529,6 +529,20 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
       };
       return styles;
     }
+  }, {
+    key: "getElementHeight",
+    value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeight) {
+      return Object.keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
+        // openRowHeight + openDetailPane height
+        var savedHeight = openDetailPanes[c.props.id];
+
+        if (savedHeight && typeof savedHeight === 'number') {
+          return openDetailPanes[c.props.id] + openRowHeight;
+        }
+
+        return rowHeight;
+      });
+    }
   }]);
 
   function LoadMoreAsYouScroll(props) {
@@ -537,9 +551,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
     _classCallCheck(this, LoadMoreAsYouScroll);
 
     _this4 = _super3.call(this, props);
-    _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000); //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
-    //this.handleScrollExt = this.handleScrollExt.bind(this);
-
+    _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000);
     _this4.state = {
       'isLoading': false
     };
@@ -549,7 +561,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
     }
 
     _this4.memoized = {
-      getStyles: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getStyles)
+      getStyles: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getStyles),
+      getElementHeight: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getElementHeight)
     };
     _this4.lastIsScrolling = false;
     _this4.infiniteComponentRef = /*#__PURE__*/_react["default"].createRef();
@@ -686,16 +699,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
         }, /*#__PURE__*/_react["default"].createElement("div", null, children));
       }
 
-      var elementHeight = _underscore["default"].keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
-        // openRowHeight + openDetailPane height
-        var savedHeight = openDetailPanes[c.props.id];
-
-        if (savedHeight && typeof savedHeight === 'number') {
-          return openDetailPanes[c.props.id] + openRowHeight;
-        }
-
-        return rowHeight;
-      });
+      var elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight);
       return /*#__PURE__*/_react["default"].createElement(_reactInfinite["default"], {
         className: "react-infinite-container",
         ref: this.infiniteComponentRef,
@@ -719,7 +723,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
   }]);
 
   return LoadMoreAsYouScroll;
-}(_react["default"].PureComponent);
+}(_react["default"].Component);
 
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'href': _propTypes["default"].string.isRequired,
@@ -774,8 +778,8 @@ var LoadingSpinner = /*#__PURE__*/_react["default"].memo(function (_ref3) {
   }), "\xA0 Loading..."));
 });
 
-var ShadowBorderLayer = /*#__PURE__*/function (_React$Component) {
-  _inherits(ShadowBorderLayer, _React$Component);
+var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
+  _inherits(ShadowBorderLayer, _React$Component2);
 
   var _super4 = _createSuper(ShadowBorderLayer);
 
@@ -938,8 +942,8 @@ _defineProperty(ShadowBorderLayer, "defaultProps", {
   'horizontalScrollRateOnEdgeButton': 10
 });
 
-var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
-  _inherits(DimensioningContainer, _React$PureComponent4);
+var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
+  _inherits(DimensioningContainer, _React$PureComponent3);
 
   var _super5 = _createSuper(DimensioningContainer);
 
@@ -1329,7 +1333,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _underscore["default"].pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate')), {}, {
+      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _underscore["default"].pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet')), {}, {
         context: context,
         rowHeight: rowHeight,
         openRowHeight: openRowHeight,
@@ -1429,8 +1433,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
  */
 
 
-var SearchResultTable = /*#__PURE__*/function (_React$Component2) {
-  _inherits(SearchResultTable, _React$Component2);
+var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
+  _inherits(SearchResultTable, _React$Component3);
 
   var _super6 = _createSuper(SearchResultTable);
 

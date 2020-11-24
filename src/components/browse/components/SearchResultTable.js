@@ -347,7 +347,7 @@ class ResultRow extends React.PureComponent {
 }
 
 
-class LoadMoreAsYouScroll extends React.PureComponent {
+class LoadMoreAsYouScroll extends React.Component {
 
     static propTypes = {
         'href' : PropTypes.string.isRequired,
@@ -393,17 +393,27 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         return styles;
     }
 
+    static getElementHeight(openDetailPanes, rowHeight, children, openRowHeight){
+        return Object.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function(c){
+            // openRowHeight + openDetailPane height
+            const savedHeight = openDetailPanes[c.props.id];
+            if (savedHeight && typeof savedHeight === 'number'){
+                return openDetailPanes[c.props.id] + openRowHeight;
+            }
+            return rowHeight;
+        });
+    }
+
     constructor(props){
         super(props);
         this.handleLoad = _.throttle(this.handleLoad.bind(this), 3000);
-        //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
-        //this.handleScrollExt = this.handleScrollExt.bind(this);
         this.state = { 'isLoading' : false };
         if (typeof props.mounted === 'undefined'){
             this.state.mounted = false;
         }
         this.memoized = {
-            getStyles: memoize(LoadMoreAsYouScroll.getStyles)
+            getStyles: memoize(LoadMoreAsYouScroll.getStyles),
+            getElementHeight: memoize(LoadMoreAsYouScroll.getElementHeight)
         };
         this.lastIsScrolling = false;
         this.infiniteComponentRef = React.createRef();
@@ -514,14 +524,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             );
         }
 
-        const elementHeight = _.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function(c){
-            // openRowHeight + openDetailPane height
-            const savedHeight = openDetailPanes[c.props.id];
-            if (savedHeight && typeof savedHeight === 'number'){
-                return openDetailPanes[c.props.id] + openRowHeight;
-            }
-            return rowHeight;
-        });
+        const elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight);
 
         return (
             <Infinite
@@ -968,7 +971,7 @@ class DimensioningContainer extends React.PureComponent {
         );
 
         const loadMoreAsYouScrollProps = {
-            ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate'),
+            ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet'),
             context, rowHeight, openRowHeight,
             results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
