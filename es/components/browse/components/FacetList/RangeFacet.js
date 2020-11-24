@@ -424,10 +424,6 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           fromIncrements = _this$memoized$validI.fromIncrements,
           toIncrements = _this$memoized$validI.toIncrements;
 
-      var title = propTitle || facetTitle || field;
-
-      _patchedConsole.patchedConsoleInstance.log("RANGEFACET", field, title, fromVal, toVal);
-
       var fromTitle, toTitle;
 
       if (field_type === "number" || field_type === "integer") {
@@ -458,7 +454,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/_react["default"].createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-place": "right"
-      }, title), /*#__PURE__*/_react["default"].createElement(_ExtendedDescriptionPopoverIcon.ExtendedDescriptionPopoverIcon, {
+      }, propTitle || facetTitle || field), /*#__PURE__*/_react["default"].createElement(_ExtendedDescriptionPopoverIcon.ExtendedDescriptionPopoverIcon, {
         fieldSchema: fieldSchema,
         facet: facet,
         openPopover: openPopover,

@@ -301,8 +301,6 @@ export class RangeFacet extends React.PureComponent {
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
         const title = propTitle || facetTitle || field;
 
-        console.log("RANGEFACET", field, title, fromVal, toVal);
-
         let fromTitle, toTitle;
 
         if (field_type === "number" || field_type === "integer") {
