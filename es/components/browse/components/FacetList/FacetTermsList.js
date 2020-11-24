@@ -353,7 +353,6 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       var _this$props4 = this.props,
           facet = _this$props4.facet,
           fieldSchema = _this$props4.fieldSchema,
-          terms = _this$props4.terms,
           isStatic = _this$props4.isStatic,
           anySelected = _this$props4.anyTermsSelected,
           termsSelectedCount = _this$props4.termsSelectedCount,
@@ -367,7 +366,9 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       var _facet$description = facet.description,
           facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
           field = facet.field,
-          facetTitle = facet.title;
+          facetTitle = facet.title,
+          _facet$terms = facet.terms,
+          terms = _facet$terms === void 0 ? [] : _facet$terms;
       var expanded = this.state.expanded;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;

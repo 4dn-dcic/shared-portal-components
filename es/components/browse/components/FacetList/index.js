@@ -300,16 +300,18 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
               _ref$toVal = _ref.toVal,
               toVal = _ref$toVal === void 0 ? null : _ref$toVal;
 
-          var isStatic = facet.min === facet.max;
+          var isStatic = facet.min === facet.max; // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+          // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
+
           return /*#__PURE__*/_react["default"].createElement(_RangeFacet.RangeFacet, _extends({}, props, {
-            facet: facet,
-            key: facetField,
-            anyTermsSelected: fromVal !== null || toVal !== null
-          }, {
             isStatic: isStatic,
             grouping: grouping,
             fromVal: fromVal,
-            toVal: toVal
+            toVal: toVal,
+            facet: facet
+          }, {
+            key: "".concat(facetField, ":").concat(fromVal, ":").concat(toVal),
+            anyTermsSelected: fromVal !== null || toVal !== null
           }));
         }
 
@@ -321,14 +323,13 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           var _isStatic = !_anySelected && facet.terms.length === 1;
 
           return /*#__PURE__*/_react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, props, {
-            terms: facet.terms,
-            facet: facet,
-            key: facetField,
-            anyTermsSelected: _anySelected
-          }, {
             isStatic: _isStatic,
             grouping: grouping,
-            termsSelectedCount: termsSelectedCount
+            termsSelectedCount: termsSelectedCount,
+            facet: facet
+          }, {
+            key: facetField,
+            anyTermsSelected: _anySelected
           }));
         }
 

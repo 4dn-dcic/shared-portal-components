@@ -172,18 +172,6 @@ export class RangeFacet extends React.PureComponent {
         this.state = { ...RangeFacet.initialStateValues(props), "facetClosing": false };
     }
 
-    /**
-     * Resets state fromVal and toVal if value from props changes (new filters, etc. received).
-     * Example is if different filter block in CGAP FilterSetUI is selected.
-     */
-    componentDidUpdate(pastProps){
-        const { fromVal, toVal } = this.props;
-        const { fromVal: pastFromVal, toVal: pastToVal } = pastProps;
-        if (fromVal !== pastFromVal || toVal !== pastToVal) {
-            this.setState(RangeFacet.initialStateValues(this.props));
-        }
-    }
-
     setFrom(value, callback){
         const { facet } = this.props;
         try {
