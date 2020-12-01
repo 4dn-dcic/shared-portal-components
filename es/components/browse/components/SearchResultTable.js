@@ -586,7 +586,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
 
       var _this$props7 = this.props,
           origHref = _this$props7.href,
-          origCompoundFilterSet = _this$props7.requestedCompoundFilterSet,
+          _this$props7$requeste = _this$props7.requestedCompoundFilterSet,
+          origCompoundFilterSet = _this$props7$requeste === void 0 ? null : _this$props7$requeste,
           _this$props7$results = _this$props7.results,
           existingResults = _this$props7$results === void 0 ? [] : _this$props7$results,
           _this$props7$isOwnPag = _this$props7.isOwnPage,
@@ -599,7 +600,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
       var nextHref = null;
       var nextCompoundFilterSetRequest = null;
 
-      if (typeof origHref === "string") {
+      if (!origCompoundFilterSet) {
+        // Assumed href/string request
         var parts = _url["default"].parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
 
 
@@ -640,14 +642,23 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           var keyIntersection = _underscore["default"].intersection(oldKeys.sort(), newKeys.sort());
 
           if (keyIntersection.length > 0) {
-            _patchedConsole.patchedConsoleInstance.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
+            _patchedConsole.patchedConsoleInstance.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys); // We can refresh current page to get newest results.
+
 
             _this5.setState({
               'isLoading': false
             }, function () {
-              navigate('', {
-                'inPlace': true
-              }, onDuplicateResultsFoundCallback);
+              if (origCompoundFilterSet) {
+                // Assumed to be embedded search view with virtual navigate (can't query with compound filtersets on /search/ pages)
+                navigate(_objectSpread(_objectSpread({}, origCompoundFilterSet), {}, {
+                  "from": 0
+                }), {}, onDuplicateResultsFoundCallback);
+              } else {
+                // This might be global navigate (if isOwnPage) or virtual navigate (if embedded search view) (which can accept string or obj).
+                navigate('', {
+                  'inPlace': true
+                }, onDuplicateResultsFoundCallback);
+              }
             });
           } else {
             _this5.setState({
@@ -726,7 +737,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
 }(_react["default"].Component);
 
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
-  'href': _propTypes["default"].string.isRequired,
+  'href': _propTypes["default"].string,
+  'requestedCompoundFilterSet': _propTypes["default"].object,
   'results': _propTypes["default"].array.isRequired,
   // From parent
   'rowHeight': _propTypes["default"].number.isRequired,

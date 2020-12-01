@@ -350,7 +350,8 @@ class ResultRow extends React.PureComponent {
 class LoadMoreAsYouScroll extends React.Component {
 
     static propTypes = {
-        'href' : PropTypes.string.isRequired,
+        'href' : PropTypes.string,
+        'requestedCompoundFilterSet': PropTypes.object,
         'results' : PropTypes.array.isRequired,                     // From parent
         'rowHeight' : PropTypes.number.isRequired,
         'isOwnPage' : PropTypes.bool.isRequired,
@@ -430,7 +431,7 @@ class LoadMoreAsYouScroll extends React.Component {
         const {
             // We usually only have _one_ of href or requestedCompoundFilterSet.
             href: origHref,
-            requestedCompoundFilterSet: origCompoundFilterSet,
+            requestedCompoundFilterSet: origCompoundFilterSet = null,
             results: existingResults = [],
             isOwnPage = true,
             onDuplicateResultsFoundCallback,
@@ -442,7 +443,7 @@ class LoadMoreAsYouScroll extends React.Component {
 
         let nextHref = null;
         let nextCompoundFilterSetRequest = null;
-        if (typeof origHref === "string") {
+        if (!origCompoundFilterSet) { // Assumed href/string request
             const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
             const { query } = parts;
             query.from = nextFromValue;
@@ -478,8 +479,15 @@ class LoadMoreAsYouScroll extends React.Component {
                 const keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
                 if (keyIntersection.length > 0){
                     console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
-                    this.setState({ 'isLoading' : false }, ()=>{
-                        navigate('', { 'inPlace' : true }, onDuplicateResultsFoundCallback);
+                    // We can refresh current page to get newest results.
+                    this.setState({ 'isLoading' : false }, function(){
+                        if (origCompoundFilterSet) {
+                            // Assumed to be embedded search view with virtual navigate (can't query with compound filtersets on /search/ pages)
+                            navigate({ ...origCompoundFilterSet, "from": 0 }, {}, onDuplicateResultsFoundCallback);
+                        } else {
+                            // This might be global navigate (if isOwnPage) or virtual navigate (if embedded search view) (which can accept string or obj).
+                            navigate('', { 'inPlace' : true }, onDuplicateResultsFoundCallback);
+                        }
                     });
                 } else {
                     this.setState({ 'isLoading' : false }, ()=>{
