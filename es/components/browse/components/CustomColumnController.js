@@ -161,7 +161,7 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
           alwaysHiddenColsList = _this$props$hiddenCol === void 0 ? [] : _this$props$hiddenCol,
           allColumnDefinitions = _this$props.columnDefinitions,
           filterColumnFxn = _this$props.filterColumnFxn,
-          propsToPass = _objectWithoutProperties(_this$props, ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"]);
+          remainingProps = _objectWithoutProperties(_this$props, ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"]);
 
       var _this$state = this.state,
           hiddenColumns = _this$state.hiddenColumns,
@@ -207,6 +207,28 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
 
   var _super2 = _createSuper(CustomColumnSelector);
 
+  _createClass(CustomColumnSelector, null, [{
+    key: "columnDefinitionsWithHiddenState",
+
+    /**
+     * Extends `props.columnDefinitions` (Object[]) with property `hiddenState` (boolean)
+     * according to internal state of `hiddenColumns` (Object.<boolean>).
+     *
+     * Sorts columns according to order and remove the display_title option, as well.
+     *
+     * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
+     */
+    value: function columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns) {
+      return _underscore["default"].sortBy(columnDefinitions.filter(function (c) {
+        return c.field !== 'display_title'; // Should always remain visible.
+      }), 'order').map(function (colDef) {
+        return _objectSpread(_objectSpread({}, colDef), {}, {
+          'hiddenState': hiddenColumns[colDef.field] === true
+        });
+      });
+    }
+  }]);
+
   function CustomColumnSelector(props) {
     var _this2;
 
@@ -217,15 +239,6 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
     _this2.handleOptionVisibilityChange = _.throttle(_this2.handleOptionVisibilityChange.bind(_assertThisInitialized(_this2)), 300);
     return _this2;
   }
-  /**
-   * Extends `props.columnDefinitions` (Object[]) with property `hiddenState` (boolean)
-   * according to internal state of `hiddenColumns` (Object.<boolean>).
-   *
-   * Sorts columns according to order and remove the display_title option, as well.
-   *
-   * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
-   */
-
 
   _createClass(CustomColumnSelector, [{
     key: "columnDefinitionsWithHiddenState",
@@ -243,11 +256,13 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
     }
   }, {
     key: "handleOptionVisibilityChange",
-    value: function handleOptionVisibilityChange(field) {
-      var _this$props3 = this.props,
-          hiddenColumns = _this$props3.hiddenColumns,
-          removeHiddenColumn = _this$props3.removeHiddenColumn,
-          addHiddenColumn = _this$props3.addHiddenColumn;
+    value: function handleOptionVisibilityChange(evt) {
+      evt.stopPropagation();
+      var field = evt.target.value;
+      var _this$props2 = this.props,
+          hiddenColumns = _this$props2.hiddenColumns,
+          removeHiddenColumn = _this$props2.removeHiddenColumn,
+          addHiddenColumn = _this$props2.addHiddenColumn;
       setTimeout(function () {
         if (hiddenColumns[field] === true) {
           removeHiddenColumn(field);
@@ -289,13 +304,13 @@ var ColumnOption = /*#__PURE__*/React.memo(function (props) {
       description = props.description,
       index = props.index,
       handleOptionVisibilityChange = props.handleOptionVisibilityChange;
-  var isChecked = !hiddenState;
+  var checked = !hiddenState;
 
   var sameTitleColExists = _.any(allColumns.slice(0, index).concat(allColumns.slice(index + 1)), {
     title: title
   });
 
-  var cls = "clickable" + (isChecked ? ' is-active' : '');
+  var className = "clickable" + (checked ? ' is-active' : '');
   var showDescription = description;
 
   if (sameTitleColExists) {
@@ -317,6 +332,6 @@ var ColumnOption = /*#__PURE__*/React.memo(function (props) {
       return handleOptionVisibilityChange(field, e);
     },
     value: field,
-    className: cls
-  }, title));
+    onChange: handleOptionVisibilityChange
+  }), title));
 });

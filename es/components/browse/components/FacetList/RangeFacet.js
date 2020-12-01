@@ -174,6 +174,26 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
       };
     }
+  }, {
+    key: "initialStateValues",
+    value: function initialStateValues(props) {
+      var fromVal = props.fromVal,
+          toVal = props.toVal,
+          _props$facet$field_ty = props.facet.field_type,
+          field_type = _props$facet$field_ty === void 0 ? "number" : _props$facet$field_ty;
+      var state = {
+        fromVal: fromVal,
+        toVal: toVal
+      };
+
+      if (field_type === "date") {
+        // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
+        state.fromVal = fromVal && fromVal.toString() || null;
+        state.toVal = toVal && toVal.toString() || null;
+      }
+
+      return state;
+    }
   }]);
 
   function RangeFacet(props) {
@@ -194,22 +214,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       fieldSchema: memoize(getSchemaProperty),
       validIncrements: memoize(RangeFacet.validIncrements)
     };
-    var fromVal = props.fromVal,
-        toVal = props.toVal,
-        _props$facet$field_ty = props.facet.field_type,
-        field_type = _props$facet$field_ty === void 0 ? "number" : _props$facet$field_ty;
-    _this.state = {
-      fromVal: fromVal,
-      toVal: toVal,
-      facetClosing: false
-    };
-
-    if (field_type === "date") {
-      // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
-      _this.state.fromVal = fromVal && fromVal.toString() || null;
-      _this.state.toVal = toVal && toVal.toString() || null;
-    }
-
+    _this.state = _objectSpread(_objectSpread({}, RangeFacet.initialStateValues(props)), {}, {
+      "facetClosing": false
+    });
     return _this;
   }
 

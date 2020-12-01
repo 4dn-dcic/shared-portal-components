@@ -121,7 +121,7 @@ export class ControlsAndResults extends React.PureComponent {
         let extendedAboveTableComponent, extendedAboveFacetListComponent;
 
         const extendChild = function(child){
-            if (typeof child.type === "string") { // Element, not component
+            if (!React.isValidElement(child) || typeof child.type === "string") {
                 return child;
             }
             return React.cloneElement(child, aboveTableControlsProps);

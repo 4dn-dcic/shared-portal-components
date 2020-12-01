@@ -462,8 +462,8 @@ _defineProperty(ResultRow, "propTypes", {
   'context': PropTypes.object.isRequired
 });
 
-var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(LoadMoreAsYouScroll, _React$PureComponent3);
+var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
+  _inherits(LoadMoreAsYouScroll, _React$Component);
 
   var _super3 = _createSuper(LoadMoreAsYouScroll);
 
@@ -489,6 +489,20 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
 
       };
       return styles;
+    }
+  }, {
+    key: "getElementHeight",
+    value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeight) {
+      return Object.keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
+        // openRowHeight + openDetailPane height
+        var savedHeight = openDetailPanes[c.props.id];
+
+        if (savedHeight && typeof savedHeight === 'number') {
+          return openDetailPanes[c.props.id] + openRowHeight;
+        }
+
+        return rowHeight;
+      });
     }
   }]);
 
@@ -534,7 +548,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
 
       var _this$props7 = this.props,
           origHref = _this$props7.href,
-          origCompoundFilterSet = _this$props7.requestedCompoundFilterSet,
+          _this$props7$requeste = _this$props7.requestedCompoundFilterSet,
+          origCompoundFilterSet = _this$props7$requeste === void 0 ? null : _this$props7$requeste,
           _this$props7$results = _this$props7.results,
           existingResults = _this$props7$results === void 0 ? [] : _this$props7$results,
           _this$props7$isOwnPag = _this$props7.isOwnPage,
@@ -591,9 +606,17 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
             _this5.setState({
               'isLoading': false
             }, function () {
-              navigate('', {
-                'inPlace': true
-              }, onDuplicateResultsFoundCallback);
+              if (origCompoundFilterSet) {
+                // Assumed to be embedded search view with virtual navigate (can't query with compound filtersets on /search/ pages)
+                navigate(_objectSpread(_objectSpread({}, origCompoundFilterSet), {}, {
+                  "from": 0
+                }), {}, onDuplicateResultsFoundCallback);
+              } else {
+                // This might be global navigate (if isOwnPage) or virtual navigate (if embedded search view) (which can accept string or obj).
+                navigate('', {
+                  'inPlace': true
+                }, onDuplicateResultsFoundCallback);
+              }
             });
           } else {
             _this5.setState({
@@ -733,8 +756,8 @@ var LoadingSpinner = /*#__PURE__*/React.memo(function (_ref3) {
   }), "\xA0 Loading..."));
 });
 
-var ShadowBorderLayer = /*#__PURE__*/function (_React$Component) {
-  _inherits(ShadowBorderLayer, _React$Component);
+var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
+  _inherits(ShadowBorderLayer, _React$Component2);
 
   var _super4 = _createSuper(ShadowBorderLayer);
 
@@ -896,8 +919,8 @@ _defineProperty(ShadowBorderLayer, "defaultProps", {
   'horizontalScrollRateOnEdgeButton': 10
 });
 
-var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
-  _inherits(DimensioningContainer, _React$PureComponent4);
+var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
+  _inherits(DimensioningContainer, _React$PureComponent3);
 
   var _super5 = _createSuper(DimensioningContainer);
 

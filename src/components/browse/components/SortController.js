@@ -25,32 +25,13 @@ export class SortController extends React.PureComponent {
         }
     };
 
-    /**
-     * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
-     *
-     * @deprecated
-     * @param {string} href - Current page href, with query.
-     * @returns {Object} { 'page' : int, 'limit' : int }
-     */
-    static getPageAndLimitFromURL(href){
-        const { query } = url.parse(href, true);
-        let limit = parseInt(query.limit || 25);
-        let from  = parseInt(query.from  || 0);
-        if (isNaN(limit)) limit = 25;
-        if (isNaN(from)) from = 0;
-        return {
-            'page' : (from / limit) + 1,
-            'limit' : limit
-        };
-    }
-
     static getSortColumnAndReverseFromContext(context){
         const defaults = {
             'sortColumn'    : null,
             'sortReverse'   : false
         };
         if (!context || !context.sort) return defaults;
-        let sortKey = _.keys(context.sort);
+        let sortKey = Object.keys(context.sort);
         if (sortKey.length > 0){
             // Use first if multiple.
             // eslint-disable-next-line prefer-destructuring
@@ -133,9 +114,9 @@ export class SortController extends React.PureComponent {
         };
 
         return React.Children.map(children, function(c){
+            if (!React.isValidElement(c) || typeof c.type === "string") return c;
             return React.cloneElement(c, childProps);
         });
     }
-
 
 }

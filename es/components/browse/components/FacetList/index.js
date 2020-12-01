@@ -284,7 +284,11 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             isStatic: isStatic,
             grouping: grouping,
             fromVal: fromVal,
-            toVal: toVal
+            toVal: toVal,
+            facet: facet
+          }, {
+            key: "".concat(facetField, ":").concat(fromVal, ":").concat(toVal),
+            anyTermsSelected: fromVal !== null || toVal !== null
           }));
         }
 
@@ -303,7 +307,11 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           }, {
             isStatic: _isStatic,
             grouping: grouping,
-            termsSelectedCount: termsSelectedCount
+            termsSelectedCount: termsSelectedCount,
+            facet: facet
+          }, {
+            key: facetField,
+            anyTermsSelected: _anySelected
           }));
         }
 

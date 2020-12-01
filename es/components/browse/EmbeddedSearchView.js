@@ -175,7 +175,7 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         hiddenColumns: hideColumns
       }), /*#__PURE__*/React.createElement(SortController, null, /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
-      }))))), embeddedTableFooter));
+      })), embeddedTableFooter)))));
     }
   }]);
 

@@ -139,15 +139,15 @@ export class EmbeddedSearchView extends React.PureComponent {
         return (
             <div className="embedded-search-container">
                 <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref || 1}>
-                    { embeddedTableHeader }
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
+                                { embeddedTableHeader }
                                 <ControlsAndResults {...viewProps} isOwnPage={false} />
+                                { embeddedTableFooter }
                             </SortController>
                         </CustomColumnController>
                     </ColumnCombiner>
-                    { embeddedTableFooter }
                 </VirtualHrefController>
             </div>
         );

@@ -114,7 +114,6 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
     value: function render() {
       var _this$props2 = this.props,
           facet = _this$props2.facet,
-          terms = _this$props2.terms,
           getTermStatus = _this$props2.getTermStatus,
           extraClassname = _this$props2.extraClassname,
           termTransformFxn = _this$props2.termTransformFxn,
@@ -122,7 +121,8 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
           isStatic = _this$props2.isStatic,
           schemas = _this$props2.schemas,
           itemTypeForSchemas = _this$props2.itemTypeForSchemas;
-      var field = facet.field;
+      var field = facet.field,
+          terms = facet.terms;
       var filtering = this.state.filtering; // `fieldSchema` may be null esp. if field is 'fake'.
 
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);

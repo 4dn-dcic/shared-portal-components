@@ -196,8 +196,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       var extendedAboveTableComponent, extendedAboveFacetListComponent;
 
       var extendChild = function (child) {
-        if (typeof child.type === "string") {
-          // Element, not component
+        if (! /*#__PURE__*/_react["default"].isValidElement(child) || typeof child.type === "string") {
           return child;
         }
 
