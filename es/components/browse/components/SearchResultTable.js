@@ -493,7 +493,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "getElementHeight",
     value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeight) {
-      return Object.keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
+      return Object.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function (c) {
         // openRowHeight + openDetailPane height
         var savedHeight = openDetailPanes[c.props.id];
 
@@ -512,9 +512,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     _classCallCheck(this, LoadMoreAsYouScroll);
 
     _this4 = _super3.call(this, props);
-    _this4.handleLoad = _.throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000); //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
-    //this.handleScrollExt = this.handleScrollExt.bind(this);
-
+    _this4.handleLoad = _.throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000);
     _this4.state = {
       'isLoading': false
     };
@@ -524,7 +522,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     }
 
     _this4.memoized = {
-      getStyles: memoize(LoadMoreAsYouScroll.getStyles)
+      getStyles: memoize(LoadMoreAsYouScroll.getStyles),
+      getElementHeight: memoize(LoadMoreAsYouScroll.getElementHeight)
     };
     _this4.lastIsScrolling = false;
     _this4.infiniteComponentRef = /*#__PURE__*/React.createRef();
@@ -562,7 +561,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
       var nextHref = null;
       var nextCompoundFilterSetRequest = null;
 
-      if (typeof origHref === "string") {
+      if (!origCompoundFilterSet) {
+        // Assumed href/string request
         var parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
 
         var query = parts.query;
@@ -601,7 +601,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           var keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
 
           if (keyIntersection.length > 0) {
-            console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
+            console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys); // We can refresh current page to get newest results.
 
             _this5.setState({
               'isLoading': false
@@ -668,16 +668,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         }, /*#__PURE__*/React.createElement("div", null, children));
       }
 
-      var elementHeight = _.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function (c) {
-        // openRowHeight + openDetailPane height
-        var savedHeight = openDetailPanes[c.props.id];
-
-        if (savedHeight && typeof savedHeight === 'number') {
-          return openDetailPanes[c.props.id] + openRowHeight;
-        }
-
-        return rowHeight;
-      });
+      var elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight);
       return /*#__PURE__*/React.createElement(Infinite, {
         className: "react-infinite-container",
         ref: this.infiniteComponentRef,
@@ -701,10 +692,11 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
   }]);
 
   return LoadMoreAsYouScroll;
-}(React.PureComponent);
+}(React.Component);
 
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
-  'href': PropTypes.string.isRequired,
+  'href': PropTypes.string,
+  'requestedCompoundFilterSet': PropTypes.object,
   'results': PropTypes.array.isRequired,
   // From parent
   'rowHeight': PropTypes.number.isRequired,
@@ -1310,7 +1302,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate')), {}, {
+      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet')), {}, {
         context: context,
         rowHeight: rowHeight,
         openRowHeight: openRowHeight,
@@ -1409,8 +1401,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
  */
 
 
-export var SearchResultTable = /*#__PURE__*/function (_React$Component2) {
-  _inherits(SearchResultTable, _React$Component2);
+export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
+  _inherits(SearchResultTable, _React$Component3);
 
   var _super6 = _createSuper(SearchResultTable);
 

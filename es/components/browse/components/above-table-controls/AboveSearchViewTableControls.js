@@ -66,7 +66,6 @@ function LeftSectionControls(_ref2) {
       currentOpenPanel = _ref2.currentOpenPanel;
   if (!total && !addButton && !topLeftChildren) return null;
   return /*#__PURE__*/React.createElement("div", {
-    key: "total-count",
-    className: "col pt-11 box results-count"
+    className: "col box results-count d-flex align-items-end"
   }, total, topLeftChildren || addButton);
 }

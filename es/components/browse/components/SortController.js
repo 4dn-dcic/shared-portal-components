@@ -45,29 +45,6 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
   var _super = _createSuper(SortController);
 
   _createClass(SortController, null, [{
-    key: "getPageAndLimitFromURL",
-
-    /**
-     * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
-     *
-     * @deprecated
-     * @param {string} href - Current page href, with query.
-     * @returns {Object} { 'page' : int, 'limit' : int }
-     */
-    value: function getPageAndLimitFromURL(href) {
-      var _url$parse = url.parse(href, true),
-          query = _url$parse.query;
-
-      var limit = parseInt(query.limit || 25);
-      var from = parseInt(query.from || 0);
-      if (isNaN(limit)) limit = 25;
-      if (isNaN(from)) from = 0;
-      return {
-        'page': from / limit + 1,
-        'limit': limit
-      };
-    }
-  }, {
     key: "getSortColumnAndReverseFromContext",
     value: function getSortColumnAndReverseFromContext(context) {
       var defaults = {
@@ -75,8 +52,7 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
         'sortReverse': false
       };
       if (!context || !context.sort) return defaults;
-
-      var sortKey = _.keys(context.sort);
+      var sortKey = Object.keys(context.sort);
 
       if (sortKey.length > 0) {
         // Use first if multiple.
@@ -137,9 +113,9 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
       this.setState({
         'changingPage': true
       }, function () {
-        var _url$parse2 = url.parse(href, true),
-            query = _url$parse2.query,
-            urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
+        var _url$parse = url.parse(href, true),
+            query = _url$parse.query,
+            urlParts = _objectWithoutProperties(_url$parse, ["query"]);
 
         if (key) {
           query.sort = (reverse ? '-' : '') + key;
@@ -190,6 +166,7 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
       });
 
       return React.Children.map(children, function (c) {
+        if (! /*#__PURE__*/React.isValidElement(c) || typeof c.type === "string") return c;
         return /*#__PURE__*/React.cloneElement(c, childProps);
       });
     }

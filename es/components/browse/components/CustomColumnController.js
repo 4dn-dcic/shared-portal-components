@@ -175,7 +175,7 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
       var columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols, filterColumnFxn);
       var visibleColumnDefinitions = this.memoized.filterOutStateHiddenCols(columnDefinitions, hiddenColumns);
 
-      _.extend(propsToPass, {
+      var propsToPass = _objectSpread(_objectSpread({}, remainingProps), {}, {
         hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions,
         visibleColumnDefinitions: visibleColumnDefinitions,
@@ -219,7 +219,7 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
      * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
      */
     value: function columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns) {
-      return _underscore["default"].sortBy(columnDefinitions.filter(function (c) {
+      return _.sortBy(columnDefinitions.filter(function (c) {
         return c.field !== 'display_title'; // Should always remain visible.
       }), 'order').map(function (colDef) {
         return _objectSpread(_objectSpread({}, colDef), {}, {
@@ -235,26 +235,14 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, CustomColumnSelector);
 
     _this2 = _super2.call(this, props);
-    _this2.columnDefinitionsWithHiddenState = _this2.columnDefinitionsWithHiddenState.bind(_assertThisInitialized(_this2));
     _this2.handleOptionVisibilityChange = _.throttle(_this2.handleOptionVisibilityChange.bind(_assertThisInitialized(_this2)), 300);
+    _this2.memoized = {
+      columnDefinitionsWithHiddenState: memoize(CustomColumnSelector.columnDefinitionsWithHiddenState)
+    };
     return _this2;
   }
 
   _createClass(CustomColumnSelector, [{
-    key: "columnDefinitionsWithHiddenState",
-    value: function columnDefinitionsWithHiddenState() {
-      var _this$props2 = this.props,
-          columnDefinitions = _this$props2.columnDefinitions,
-          hiddenColumns = _this$props2.hiddenColumns;
-      return _.map(_.sortBy(_.filter(columnDefinitions, function (c) {
-        return c.field !== 'display_title';
-      }), 'order'), function (colDef) {
-        return _.extend({}, colDef, {
-          'hiddenState': hiddenColumns[colDef.field] === true
-        });
-      });
-    }
-  }, {
     key: "handleOptionVisibilityChange",
     value: function handleOptionVisibilityChange(evt) {
       evt.stopPropagation();
@@ -276,9 +264,12 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
     value: function render() {
       var _this3 = this;
 
+      var _this$props3 = this.props,
+          columnDefinitions = _this$props3.columnDefinitions,
+          hiddenColumns = _this$props3.hiddenColumns;
       return /*#__PURE__*/React.createElement("div", {
         className: "row clearfix"
-      }, _.map(this.columnDefinitionsWithHiddenState(), function (colDef, idx, all) {
+      }, this.memoized.columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns).map(function (colDef, idx, all) {
         return /*#__PURE__*/React.createElement(ColumnOption, _extends({}, colDef, {
           key: colDef.field || idx,
           allColumns: all,
@@ -326,11 +317,10 @@ var ColumnOption = /*#__PURE__*/React.memo(function (props) {
     key: field,
     "data-tip": showDescription,
     "data-html": true
-  }, /*#__PURE__*/React.createElement(Checkbox, {
-    checked: isChecked,
-    onChange: function onChange(e) {
-      return handleOptionVisibilityChange(field, e);
-    },
+  }, /*#__PURE__*/React.createElement(Checkbox, _extends({
+    className: className,
+    checked: checked
+  }, {
     value: field,
     onChange: handleOptionVisibilityChange
   }), title));

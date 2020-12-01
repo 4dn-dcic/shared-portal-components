@@ -165,7 +165,7 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         isClearFiltersBtnVisible: isClearFiltersBtnVisible
       }, {
         key: searchHref || 1
-      }), embeddedTableHeader, /*#__PURE__*/React.createElement(ColumnCombiner, {
+      }), /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
       }, /*#__PURE__*/React.createElement(CustomColumnController, _extends({
@@ -173,7 +173,7 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         filterColumnFxn: filterColumnFxn
       }, {
         hiddenColumns: hideColumns
-      }), /*#__PURE__*/React.createElement(SortController, null, /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
+      }), /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
       })), embeddedTableFooter)))));
     }
