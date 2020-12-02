@@ -293,7 +293,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             _facet$aggregation_ty2 = facet.aggregation_type,
             aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
 
-        if (aggregation_type === "stats") {
+        if (aggregation_type === "stats" || aggregation_type === "range") {
           var _ref = rangeValuesByField[facetField] || {},
               _ref$fromVal = _ref.fromVal,
               fromVal = _ref$fromVal === void 0 ? null : _ref$fromVal,

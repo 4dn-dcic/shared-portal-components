@@ -271,7 +271,7 @@ export class FacetList extends React.PureComponent {
                 aggregation_type = "terms"
             } = facet;
 
-            if (aggregation_type === "stats") {
+            if (aggregation_type === "stats" || aggregation_type === "range") {
                 const { fromVal = null, toVal = null } = rangeValuesByField[facetField] || {};
                 const anySelected = fromVal !== null || toVal !== null;
                 const isStatic = facet.min === facet.max;
