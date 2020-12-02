@@ -7,19 +7,16 @@ import { AboveTableControlsBase } from './AboveTableControlsBase';
 
 /** This left section for Search should be made prettier, either kept in 4DN or re-used. */
 export const AboveSearchViewTableControls = React.memo(function AboveSearchViewTableControls(props){
-    const { context, currentAction, showTotalResults, topLeftChildren } = props;
+    const { context, currentAction, topLeftChildren } = props;
+    const { total: showTotalResults = 0 } = context || {};
 
     // Case if on SearchView
     let total = null;
-    if (showTotalResults) {
+    if (typeof showTotalResults === 'number') {
         total = (
             <div className="d-inline-block">
                 <span className="text-500" id="results-count">
-                    {
-                        typeof showTotalResults === 'number' ? showTotalResults
-                            : context && typeof context.total === 'number' ? context.total
-                                : null
-                    }
+                    { showTotalResults }
                 </span> Results
             </div>
         );
@@ -53,8 +50,8 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
 function LeftSectionControls({ total, addButton, topLeftChildren, panelToggleFxns, onClosePanel, currentOpenPanel }) {
     if (!total && !addButton && !topLeftChildren) return null;
     return (
-        <div key="total-count" className="col pt-11 box results-count">
-            {total}{topLeftChildren || addButton}
+        <div className="col box results-count d-flex align-items-end">
+            { total }{ topLeftChildren || addButton }
         </div>
     );
 }

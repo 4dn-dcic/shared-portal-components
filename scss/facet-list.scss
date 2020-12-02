@@ -110,6 +110,13 @@ $facetlist-term-block-height: default !default;
 
 .facets-container {
 
+    &[data-context-loading="true"]{
+        // Same as for EmbeddedSearchView (see: search-view-table.scss)
+        opacity: 0.75;
+        filter: saturate(0.5);
+        pointer-events: none;
+    }
+
     .facet-list-separator {
         padding: 10px 0;
         text-align: center;

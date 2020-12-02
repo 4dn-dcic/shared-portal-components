@@ -124,13 +124,16 @@ class ResultDetail extends React.PureComponent{
     }
 
     componentDidUpdate(pastProps){
-        const { open, setDetailHeight, result, context, rowNumber, href } = this.props;
+        const { open, setDetailHeight, result, context, rowNumber, href, isOwnPage } = this.props;
         const { open: pastOpen } = pastProps;
         if (pastOpen !== open){
             if (open && typeof setDetailHeight === 'function'){
                 this.setDetailHeightFromPane();
                 const { display_title } = result;
-                analytics.productAddDetailViewed(result, context, { position: rowNumber, list: analytics.hrefToListName(href)  });
+                analytics.productAddDetailViewed(result, context, {
+                    "position": rowNumber,
+                    "list": !isOwnPage ? "Embedded Search View": analytics.hrefToListName(href)
+                });
                 analytics.event("SearchResult DetailPane", "Opened", { eventLabel: display_title });
 
             } else if (!open && typeof setDetailHeight === 'function') {
@@ -252,11 +255,13 @@ class ResultRow extends React.PureComponent {
         if (!evt || !evt.dataTransfer) return;
         const { result, href, schemas } = this.props;
 
+        // TODO: handle lack of href and grab from window.location instead.
+
         // Result JSON itself.
         evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result));
 
         // Result URL and @id.
-        const hrefParts = url.parse(href);
+        const hrefParts = typeof href === "string" ? url.parse(href) : window.location;
         const atId = itemUtil.atId(result);
         const formedURL = (
             (hrefParts.protocol || '') +
@@ -342,10 +347,11 @@ class ResultRow extends React.PureComponent {
 }
 
 
-class LoadMoreAsYouScroll extends React.PureComponent {
+class LoadMoreAsYouScroll extends React.Component {
 
     static propTypes = {
-        'href' : PropTypes.string.isRequired,
+        'href' : PropTypes.string,
+        'requestedCompoundFilterSet': PropTypes.object,
         'results' : PropTypes.array.isRequired,                     // From parent
         'rowHeight' : PropTypes.number.isRequired,
         'isOwnPage' : PropTypes.bool.isRequired,
@@ -388,17 +394,27 @@ class LoadMoreAsYouScroll extends React.PureComponent {
         return styles;
     }
 
+    static getElementHeight(openDetailPanes, rowHeight, children, openRowHeight){
+        return Object.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function(c){
+            // openRowHeight + openDetailPane height
+            const savedHeight = openDetailPanes[c.props.id];
+            if (savedHeight && typeof savedHeight === 'number'){
+                return openDetailPanes[c.props.id] + openRowHeight;
+            }
+            return rowHeight;
+        });
+    }
+
     constructor(props){
         super(props);
         this.handleLoad = _.throttle(this.handleLoad.bind(this), 3000);
-        //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
-        //this.handleScrollExt = this.handleScrollExt.bind(this);
         this.state = { 'isLoading' : false };
         if (typeof props.mounted === 'undefined'){
             this.state.mounted = false;
         }
         this.memoized = {
-            getStyles: memoize(LoadMoreAsYouScroll.getStyles)
+            getStyles: memoize(LoadMoreAsYouScroll.getStyles),
+            getElementHeight: memoize(LoadMoreAsYouScroll.getElementHeight)
         };
         this.lastIsScrolling = false;
         this.infiniteComponentRef = React.createRef();
@@ -413,19 +429,32 @@ class LoadMoreAsYouScroll extends React.PureComponent {
 
     handleLoad(){
         const {
+            // We usually only have _one_ of href or requestedCompoundFilterSet.
             href: origHref,
+            requestedCompoundFilterSet: origCompoundFilterSet = null,
             results: existingResults = [],
             isOwnPage = true,
             onDuplicateResultsFoundCallback,
             setResults,
             navigate = globalPageNavigate // Use VirtualHrefController.virtualNavigate if is passed in.
         } = this.props;
-        const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-        const { query } = parts;
+
         const nextFromValue = existingResults.length;
-        query.from = nextFromValue;
-        parts.search = '?' + queryString.stringify(query);
-        const nextHref = url.format(parts);
+
+        let nextHref = null;
+        let nextCompoundFilterSetRequest = null;
+        if (!origCompoundFilterSet) { // Assumed href/string request
+            const parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
+            const { query } = parts;
+            query.from = nextFromValue;
+            parts.search = '?' + queryString.stringify(query);
+            nextHref = url.format(parts);
+        } else {
+            nextCompoundFilterSetRequest = {
+                ...origCompoundFilterSet,
+                "from" : nextFromValue
+            };
+        }
 
         let requestInThisScope = null;
 
@@ -450,14 +479,21 @@ class LoadMoreAsYouScroll extends React.PureComponent {
                 const keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
                 if (keyIntersection.length > 0){
                     console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
-                    this.setState({ 'isLoading' : false }, ()=>{
-                        navigate('', { 'inPlace' : true }, onDuplicateResultsFoundCallback);
+                    // We can refresh current page to get newest results.
+                    this.setState({ 'isLoading' : false }, function(){
+                        if (origCompoundFilterSet) {
+                            // Assumed to be embedded search view with virtual navigate (can't query with compound filtersets on /search/ pages)
+                            navigate({ ...origCompoundFilterSet, "from": 0 }, {}, onDuplicateResultsFoundCallback);
+                        } else {
+                            // This might be global navigate (if isOwnPage) or virtual navigate (if embedded search view) (which can accept string or obj).
+                            navigate('', { 'inPlace' : true }, onDuplicateResultsFoundCallback);
+                        }
                     });
                 } else {
                     this.setState({ 'isLoading' : false }, ()=>{
                         analytics.impressionListOfItems(
                             nextResults,
-                            nextHref,
+                            nextHref || window.location.href,
                             isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View"
                         );
                         analytics.event('SearchResultTable', "Loaded More Results", { eventValue: nextFromValue });
@@ -471,8 +507,14 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             this.currRequest = null;
         };
 
-        this.setState({ 'isLoading' : true }, ()=>{
-            this.currRequest = requestInThisScope = load(nextHref, loadCallback, 'GET', loadCallback);
+        this.setState({ 'isLoading' : true }, () => {
+            this.currRequest = requestInThisScope = load(
+                nextCompoundFilterSetRequest ? "/compound_search" : nextHref,
+                loadCallback,
+                nextCompoundFilterSetRequest ? "POST" : "GET",
+                loadCallback,
+                nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null
+            );
         });
     }
 
@@ -490,14 +532,7 @@ class LoadMoreAsYouScroll extends React.PureComponent {
             );
         }
 
-        const elementHeight = _.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function(c){
-            // openRowHeight + openDetailPane height
-            const savedHeight = openDetailPanes[c.props.id];
-            if (savedHeight && typeof savedHeight === 'number'){
-                return openDetailPanes[c.props.id] + openRowHeight;
-            }
-            return rowHeight;
-        });
+        const elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight);
 
         return (
             <Infinite
@@ -690,7 +725,7 @@ class DimensioningContainer extends React.PureComponent {
         };
     }
 
-    static getDerivedStateFromProps({ results: ctxResults }, { originalResults }){
+    static getDerivedStateFromProps({ results: ctxResults = [] }, { originalResults }){
         if (ctxResults !== originalResults) {
             // `context` has changed upstream, reset results and detail panes.
             return {
@@ -714,14 +749,15 @@ class DimensioningContainer extends React.PureComponent {
         this.onHorizontalScroll = this.onHorizontalScroll.bind(this);
         this.setResults = this.setResults.bind(this);
         this.canLoadMore = this.canLoadMore.bind(this);
+        const { results: originalResults = [] } = props;
         this.state = {
             'mounted'   : false,
-            'results'   : props.results.slice(0),
+            'results'   : originalResults.slice(0),
             // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
             'openDetailPanes' : {},
             'tableContainerScrollLeft' : 0,
             'tableContainerWidth' : 0,
-            'originalResults' : props.results // Reference to original results in order to utilize getDerivedStateFromProps.
+            originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
         };
 
         if (this.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0){
@@ -943,7 +979,7 @@ class DimensioningContainer extends React.PureComponent {
         );
 
         const loadMoreAsYouScrollProps = {
-            ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate'),
+            ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet'),
             context, rowHeight, openRowHeight,
             results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
@@ -1033,7 +1069,9 @@ export class SearchResultTable extends React.Component {
 
     static propTypes = {
         'results'           : PropTypes.arrayOf(ResultRow.propTypes.result).isRequired,
-        'href'              : PropTypes.string.isRequired,
+        // Either href or requestedCompoundFilterSet should be present:
+        'href'              : PropTypes.string,
+        'requestedCompoundFilterSet' : PropTypes.object,
         'columnDefinitions' : PropTypes.arrayOf(PropTypes.object),
         'defaultWidthMap'   : PropTypes.shape({ 'lg' : PropTypes.number.isRequired, 'md' : PropTypes.number.isRequired, 'sm' : PropTypes.number.isRequired }).isRequired,
         'hiddenColumns'     : PropTypes.objectOf(PropTypes.bool),

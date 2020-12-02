@@ -185,9 +185,12 @@ function generateNextHref(currentHref, contextFilters, facet, term) {
         targetSearchHref = _url["default"].format(_parts);
       }
     }
-  }
+  } // Endpoint will redirect/correct to this anyway, may as well keep consistent.
+  // Alternatively we could/should save href we get back from search response (which
+  // should then also be correct... and probably be more reliable.. will try do..)
 
-  return targetSearchHref;
+
+  return targetSearchHref.replaceAll("%20", "+");
 }
 
 var FacetList = /*#__PURE__*/function (_React$PureComponent) {
@@ -297,16 +300,18 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
               _ref$toVal = _ref.toVal,
               toVal = _ref$toVal === void 0 ? null : _ref$toVal;
 
-          var isStatic = facet.min === facet.max;
+          var isStatic = facet.min === facet.max; // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+          // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
+
           return /*#__PURE__*/_react["default"].createElement(_RangeFacet.RangeFacet, _extends({}, props, {
-            facet: facet,
-            key: facetField,
-            anyTermsSelected: fromVal !== null || toVal !== null
-          }, {
             isStatic: isStatic,
             grouping: grouping,
             fromVal: fromVal,
-            toVal: toVal
+            toVal: toVal,
+            facet: facet
+          }, {
+            key: "".concat(facetField, ":").concat(fromVal, ":").concat(toVal),
+            anyTermsSelected: fromVal !== null || toVal !== null
           }));
         }
 
@@ -318,14 +323,13 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           var _isStatic = !_anySelected && facet.terms.length === 1;
 
           return /*#__PURE__*/_react["default"].createElement(_TermsFacet.TermsFacet, _extends({}, props, {
-            terms: facet.terms,
-            facet: facet,
-            key: facetField,
-            anyTermsSelected: _anySelected
-          }, {
             isStatic: _isStatic,
             grouping: grouping,
-            termsSelectedCount: termsSelectedCount
+            termsSelectedCount: termsSelectedCount,
+            facet: facet
+          }, {
+            key: facetField,
+            anyTermsSelected: _anySelected
           }));
         }
 
@@ -783,7 +787,9 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           _this$props6$showClea = _this$props6.showClearFiltersButton,
           showClearFiltersButton = _this$props6$showClea === void 0 ? false : _this$props6$showClea,
           _this$props6$maxBodyH = _this$props6.maxBodyHeight,
-          maxHeight = _this$props6$maxBodyH === void 0 ? null : _this$props6$maxBodyH;
+          maxHeight = _this$props6$maxBodyH === void 0 ? null : _this$props6$maxBodyH,
+          _this$props6$isContex = _this$props6.isContextLoading,
+          isContextLoading = _this$props6$isContex === void 0 ? false : _this$props6$isContex;
       var _this$state3 = this.state,
           openFacets = _this$state3.openFacets,
           openPopover = _this$state3.openPopover;
@@ -813,7 +819,8 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
 
       return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "facets-container facets with-header-bg"
+        className: "facets-container facets with-header-bg",
+        "data-context-loading": isContextLoading
       }, /*#__PURE__*/_react["default"].createElement(FacetListHeader, _extends({
         openFacets: openFacets,
         title: title,

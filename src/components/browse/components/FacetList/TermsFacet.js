@@ -71,10 +71,10 @@ export class TermsFacet extends React.PureComponent {
 
     render() {
         const {
-            facet, terms, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets,
+            facet, getTermStatus, extraClassname, termTransformFxn, separateSingleTermFacets,
             isStatic, schemas, itemTypeForSchemas
         } = this.props;
-        const { field } = facet;
+        const { field, terms } = facet;
         const { filtering } = this.state;
         // `fieldSchema` may be null esp. if field is 'fake'.
         const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);

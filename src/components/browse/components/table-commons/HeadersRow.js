@@ -69,7 +69,7 @@ export class HeadersRow extends React.PureComponent {
         const retObj = {};
         columnDefinitions.forEach(function({ field, sort_fields = [] }){
             if (sort_fields.length < 2) {
-                const useField = sort_fields[0] || field;
+                const useField = (sort_fields[0] && sort_fields[0].field) || field;
                 if (useField === sortColumn) {
                     retObj[field] = [ sortReverse ];
                 }
@@ -125,6 +125,7 @@ export class HeadersRow extends React.PureComponent {
     componentDidUpdate(pastProps, pastState){
         const { columnWidths, sortColumn, sortReverse, tableContainerScrollLeft } = this.props;
         const { showingSortFieldsForColumn, loadingField } = this.state;
+        const { sortColumn: pastColumn, sortReverse: pastReverse, tableContainerScrollLeft: pastScrollLeft } = pastProps;
 
         if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn){
             WindowClickEventDelegator.addHandler("click", this.onWindowClick, { passive: true });
@@ -139,12 +140,12 @@ export class HeadersRow extends React.PureComponent {
         }
 
         // Unset loading icon
-        if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastProps.sortColumn || sortReverse !== pastProps.sortReverse)) {
+        if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastColumn || sortReverse !== pastReverse)) {
             nextState.loadingField = null;
         }
 
         // Unset dropdown menu if start scrolling horizontally
-        if (tableContainerScrollLeft !== pastProps.tableContainerScrollLeft) {
+        if (tableContainerScrollLeft !== pastScrollLeft) {
             nextState.showingSortFieldsForColumn = null;
         }
 
@@ -376,7 +377,10 @@ class ColumnSorterIcon extends React.PureComponent {
     onIconClick(e){
         e.preventDefault();
         const {
-            columnDefinition : { field, sort_fields = [] },
+            columnDefinition : {
+                field,
+                sort_fields = []
+            },
             showingSortOptionsMenu = false,
             setShowingSortFieldsFor,
             sortByField
@@ -394,9 +398,11 @@ class ColumnSorterIcon extends React.PureComponent {
             return;
         }
 
+        const [ { field: firstSortField = null } = {} ] = sort_fields;
+
         // If not multiple options, just sort on the only sort field available.
         // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
-        sortByField(sort_fields[0] || field);
+        sortByField(firstSortField || field);
     }
 
     render(){

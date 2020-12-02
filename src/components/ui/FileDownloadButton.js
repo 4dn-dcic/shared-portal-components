@@ -11,13 +11,20 @@ import { event as trackEvent } from './../util/analytics';
 
 /** @todo (?) Move to ui folder */
 export function FileDownloadButton(props){
-    const { href, className, disabled, title, filename, size, onClick } = props;
+    const { href, className, disabled, title, filename, size, tooltip, onClick } = props;
     const cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
-    return (
-        <a {...{ href, onClick }} className={cls} download data-tip={filename || null}>
-            <i className="icon icon-fw icon-cloud-download-alt fas"/>{ title ? <span>&nbsp; { title }</span> : null }
+
+    const button = (
+        <a {...{ href, onClick }} className={cls} download data-tip={tooltip || filename || null}>
+            <i className="icon icon-fw icon-cloud-download-alt fas" />{title ? <span>&nbsp; {title}</span> : null}
         </a>
     );
+
+    return (disabled && tooltip) ? (
+        <span data-tip={tooltip} className="w-100">
+            {button}
+        </span>
+    ) : button;
 }
 FileDownloadButton.defaultProps = {
     'className' : "btn-block btn-primary",
@@ -43,15 +50,15 @@ const canDownloadFile = memoize(function(file, validStatuses){
 });
 
 export const FileDownloadButtonAuto = React.memo(function FileDownloadButtonAuto(props){
-    const { result: file, canDownloadStatuses, onClick = null } = props;
+    const { result: file, canDownloadStatuses, onClick = null, disabled: propDisabled = false } = props;
     const { href, filename } = file;
-    const isDisabled = !canDownloadFile(file, canDownloadStatuses);
+    const isDownloadable = canDownloadFile(file, canDownloadStatuses);
     const passProps = {
         onClick, href, filename,
-        'disabled' : isDisabled,
-        'title' : isDisabled ? 'Not ready to download' : FileDownloadButton.defaultProps.title
+        'disabled': !!propDisabled || !isDownloadable,
+        'title': !isDownloadable ? 'Not ready to download' : FileDownloadButton.defaultProps.title
     };
-    return <FileDownloadButton {...props} {...passProps} />;
+    return <FileDownloadButton {..._.omit(props, 'disabled')} {...passProps} />;
 });
 FileDownloadButtonAuto.propTypes = {
     'result' : PropTypes.shape({
@@ -59,7 +66,9 @@ FileDownloadButtonAuto.propTypes = {
         'filename' : PropTypes.string.isRequired,
     }).isRequired,
     'canDownloadStatuses' : PropTypes.arrayOf(PropTypes.string),
-    'onClick' : PropTypes.func
+    'onClick' : PropTypes.func,
+    'disabled': PropTypes.bool,
+    'tooltip': PropTypes.string,
 };
 FileDownloadButtonAuto.defaultProps = {
     'canDownloadStatuses' : [
