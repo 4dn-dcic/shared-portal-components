@@ -225,8 +225,12 @@ export class FacetList extends React.PureComponent {
         let facetIndexWherePastXTerms;
         let currTermCount = 0;
         for (facetIndexWherePastXTerms = 0; facetIndexWherePastXTerms < facetLen; facetIndexWherePastXTerms++) {
-            if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") { // Range Facet (shows 2 'terms' or fields)
+            if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") {
+                // Range facet with stats aggregation Facet (shows 2 'terms' or fields)
                 currTermCount += 2;
+            } else if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "range") {
+                // Range facet with range list (see comment for Terms in else)
+                currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.ranges.length, persistentCount);
             } else {
                 // Terms; Take into account 'view more' button
                 // Slightly deprecated as doesn;t take into account 'mergeTerms'.
@@ -277,7 +281,7 @@ export class FacetList extends React.PureComponent {
                 const isStatic = facet.min === facet.max;
                 // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
                 // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
-                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet }} key={`${facetField}:${fromVal}:${toVal}`} anyTermsSelected={anySelected}  />;
+                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet }} key={facetField} anyTermsSelected={anySelected}  />;
             }
 
             if (aggregation_type === "terms"){

@@ -244,8 +244,11 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
       for (facetIndexWherePastXTerms = 0; facetIndexWherePastXTerms < facetLen; facetIndexWherePastXTerms++) {
         if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") {
-          // Range Facet (shows 2 'terms' or fields)
+          // Range facet with stats aggregation Facet (shows 2 'terms' or fields)
           currTermCount += 2;
+        } else if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "range") {
+          // Range facet with range list (see comment for Terms in else)
+          currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.ranges.length, persistentCount);
         } else {
           // Terms; Take into account 'view more' button
           // Slightly deprecated as doesn;t take into account 'mergeTerms'.
@@ -310,7 +313,7 @@ var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             toVal: toVal,
             facet: facet
           }, {
-            key: "".concat(facetField, ":").concat(fromVal, ":").concat(toVal),
+            key: facetField,
             anyTermsSelected: fromVal !== null || toVal !== null
           }));
         }

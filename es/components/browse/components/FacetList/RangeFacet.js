@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getRangeValuesFromFiltersByField = getRangeValuesFromFiltersByField;
-exports.RangeFacet = void 0;
+exports.RangeTerm = exports.RangeFacet = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -38,8 +38,6 @@ var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon"
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -53,6 +51,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToAr
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -86,7 +86,7 @@ function getRangeValuesFromFiltersByField() {
   var facetsByFilterField = {};
   var valuesByField = {};
   facets.forEach(function (f) {
-    if (f.aggregation_type !== "stats") {
+    if (f.aggregation_type !== "stats" && f.aggregation_type !== "range") {
       return; // Skip
     }
 
@@ -101,7 +101,8 @@ function getRangeValuesFromFiltersByField() {
     if (!facet) return; // Skip, not range facet.
 
     var facetField = facet.field,
-        field_type = facet.field_type;
+        _facet$field_type = facet.field_type,
+        field_type = _facet$field_type === void 0 ? "number" : _facet$field_type;
     valuesByField[facetField] = valuesByField[facetField] || {};
     var value = // Convert to float if numerical field type or leave as string if datetime, etc.
     field_type === "integer" ? parseInt(strValue) : field_type === "number" ? parseFloat(strValue) : strValue;
@@ -125,8 +126,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   _createClass(RangeFacet, null, [{
     key: "parseAndValidate",
     value: function parseAndValidate(facet, value) {
-      var _facet$field_type = facet.field_type,
-          field_type = _facet$field_type === void 0 ? "integer" : _facet$field_type,
+      var _facet$field_type2 = facet.field_type,
+          field_type = _facet$field_type2 === void 0 ? "integer" : _facet$field_type2,
           _facet$number_step = facet.number_step,
           number_step = _facet$number_step === void 0 ? "any" : _facet$number_step;
 
@@ -231,6 +232,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this.setFrom = _this.setFrom.bind(_assertThisInitialized(_this));
     _this.setTo = _this.setTo.bind(_assertThisInitialized(_this));
     _this.setToAndFrom = _this.setToAndFrom.bind(_assertThisInitialized(_this));
+    _this.selectRange = _this.selectRange.bind(_assertThisInitialized(_this));
     _this.resetFrom = _this.resetFrom.bind(_assertThisInitialized(_this));
     _this.resetTo = _this.resetTo.bind(_assertThisInitialized(_this));
     _this.resetToAndFrom = _this.resetToAndFrom.bind(_assertThisInitialized(_this)); // tentative - will likely be replaced with a prop
@@ -328,21 +330,35 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var _this$state = this.state,
           toVal = _this$state.toVal,
           fromVal = _this$state.fromVal;
-      onFilterMultiple([{
-        facet: _objectSpread(_objectSpread({}, facet), {}, {
-          field: facet.field + ".from"
-        }),
-        term: {
-          key: fromVal
-        }
-      }, {
-        facet: _objectSpread(_objectSpread({}, facet), {}, {
-          field: facet.field + ".to"
-        }),
-        term: {
-          key: toVal
-        }
-      }]);
+
+      _patchedConsole.patchedConsoleInstance.log("performUpdate", toVal, fromVal);
+
+      if (toVal === null) {
+        onFilterMultiple([{
+          facet: _objectSpread(_objectSpread({}, facet), {}, {
+            field: facet.field + ".from"
+          }),
+          term: {
+            key: fromVal
+          }
+        }]);
+      } else {
+        onFilterMultiple([{
+          facet: _objectSpread(_objectSpread({}, facet), {}, {
+            field: facet.field + ".from"
+          }),
+          term: {
+            key: fromVal
+          }
+        }, {
+          facet: _objectSpread(_objectSpread({}, facet), {}, {
+            field: facet.field + ".to"
+          }),
+          term: {
+            key: toVal
+          }
+        }]);
+      }
     }
   }, {
     key: "resetFrom",
@@ -359,9 +375,16 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "resetToAndFrom",
     value: function resetToAndFrom(e) {
-      // Doesn't work great; need to define this method higher up, where original onFilter methods are defined
       e.stopPropagation();
       this.setToAndFrom(null, null, this.performUpdateToAndFrom);
+    }
+  }, {
+    key: "selectRange",
+    value: function selectRange(to, from, e) {
+      _patchedConsole.patchedConsoleInstance.log("selectRange", to, from);
+
+      e.stopPropagation();
+      this.setToAndFrom(to, from, this.performUpdateToAndFrom);
     }
   }, {
     key: "handleOpenToggleClick",
@@ -426,6 +449,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       var _this$props6 = this.props,
           schemas = _this$props6.schemas,
           itemTypeForSchemas = _this$props6.itemTypeForSchemas,
@@ -437,9 +462,12 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facetOpen = _this$props6.facetOpen,
           openPopover = _this$props6.openPopover,
           setOpenPopover = _this$props6.setOpenPopover;
-      var _facet$field_type2 = facet.field_type,
-          field_type = _facet$field_type2 === void 0 ? "number" : _facet$field_type2,
+      var aggregation_type = facet.aggregation_type,
+          _facet$field_type3 = facet.field_type,
+          field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
           field = facet.field,
+          _facet$ranges = facet.ranges,
+          ranges = _facet$ranges === void 0 ? [] : _facet$ranges,
           _facet$min = facet.min,
           minValue = _facet$min === void 0 ? null : _facet$min,
           _facet$min_as_string = facet.min_as_string,
@@ -465,9 +493,23 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       var fromTitle, toTitle;
 
+      _patchedConsole.patchedConsoleInstance.log(facet);
+
       if (field_type === "number" || field_type === "integer") {
-        fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/_react["default"].createElement("em", null, "-Infinite");
-        toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/_react["default"].createElement("em", null, "Infinite");
+        if (aggregation_type === "stats") {
+          fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/_react["default"].createElement("em", null, "-Infinite");
+          toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/_react["default"].createElement("em", null, "Infinite");
+        } else if (aggregation_type === "range") {
+          _patchedConsole.patchedConsoleInstance.log("fromVal, toVal", fromVal, _typeof(fromVal), toVal, _typeof(toVal));
+
+          var _ranges$ = ranges[0],
+              firstRange = _ranges$ === void 0 ? null : _ranges$;
+          var lastRange = ranges[ranges.length - 1] || {};
+          fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof firstRange.from === "number" ? this.termTitle(facet.field, firstRange.from) : /*#__PURE__*/_react["default"].createElement("em", null, "-Infinite");
+          toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof lastRange.to === "number" ? this.termTitle(facet.field, lastRange.to) : /*#__PURE__*/_react["default"].createElement("em", null, "Infinite");
+        }
+
+        _patchedConsole.patchedConsoleInstance.log("field", field, "typeof minValue", minValue, _typeof(minValue));
       } else if (field_type === "date") {
         fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
         toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/_react["default"].createElement("em", null, "None");
@@ -477,9 +519,11 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
       }
 
-      var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
-      var fromVariant = fromVal !== savedFromVal ? "warning" : savedFromVal === null ? "outline-dark" : "primary";
-      var toVariant = toVal !== savedToVal ? "warning" : savedToVal === null ? "outline-dark" : "primary";
+      var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null; // const isFromValUnapplied = (fromVal !== savedFromVal);
+      // const isToValUnapplied = (toVal !== savedToVal);
+
+      var fromVariant = savedFromVal === null ? "outline-dark" : "primary";
+      var toVariant = savedToVal === null ? "outline-dark" : "primary";
       return /*#__PURE__*/_react["default"].createElement("div", {
         className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
         "data-field": facet.field
@@ -562,37 +606,168 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "to_" + field,
         reset: toVal !== null ? this.resetTo : null
-      }))))));
+      }))), ranges.map(function (range) {
+        return /*#__PURE__*/_react["default"].createElement(RangeTerm, _extends({
+          key: "".concat(range.to, "-").concat(range.from),
+          onClick: _this2.selectRange
+        }, {
+          range: range,
+          facet: facet
+        }));
+      }))));
     }
   }]);
 
   return RangeFacet;
 }(_react["default"].PureComponent);
+/**
+ * Used to render a term with range functionality in FacetList. Basically same as FacetTermsList > Term... maybe merge later
+ */
+
 
 exports.RangeFacet = RangeFacet;
 
-var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
-  _inherits(RangeClear, _React$PureComponent2);
+var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
+  _inherits(RangeTerm, _React$PureComponent2);
 
-  var _super2 = _createSuper(RangeClear);
+  var _super2 = _createSuper(RangeTerm);
+
+  function RangeTerm(props) {
+    var _this3;
+
+    _classCallCheck(this, RangeTerm);
+
+    _this3 = _super2.call(this, props);
+    _this3.handleClick = _underscore["default"].debounce(_this3.handleClick.bind(_assertThisInitialized(_this3)), 500, true);
+    _this3.state = {
+      'filtering': false
+    };
+    return _this3;
+  }
+
+  _createClass(RangeTerm, [{
+    key: "handleClick",
+    value: function handleClick(e) {
+      var _this4 = this;
+
+      //expecting this onClick to be onFilterMultiple, basically
+      var _this$props7 = this.props,
+          range = _this$props7.range,
+          onClick = _this$props7.onClick;
+      var _range$to = range.to,
+          to = _range$to === void 0 ? null : _range$to,
+          _range$from = range.from,
+          from = _range$from === void 0 ? null : _range$from;
+
+      _patchedConsole.patchedConsoleInstance.log("to and from", to, from);
+
+      e.preventDefault();
+      this.setState({
+        'filtering': true
+      }, function () {
+        onClick(to, from, e, function () {
+          return _this4.setState({
+            'filtering': false
+          });
+        });
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props8 = this.props,
+          range = _this$props8.range,
+          facet = _this$props8.facet,
+          status = _this$props8.status,
+          termTransformFxn = _this$props8.termTransformFxn;
+      var doc_count = range.doc_count,
+          from = range.from,
+          to = range.to,
+          label = range.label;
+      var filtering = this.state.filtering;
+      var icon = null;
+      var title = (typeof from !== 'undefined' ? from : '< ') + (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') + (typeof to !== 'undefined' ? to : '+ ');
+
+      if (filtering) {
+        icon = /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon fas icon-circle-notch icon-spin icon-fw"
+        });
+      } else if (status === 'selected' || status === 'omitted') {
+        icon = /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-minus-circle icon-fw fas"
+        });
+      } else {
+        icon = /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-circle icon-fw unselected far"
+        });
+      }
+
+      if (!title || title === 'null' || title === 'undefined') {
+        title = 'None';
+      }
+
+      var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
+      return /*#__PURE__*/_react["default"].createElement("li", {
+        className: "facet-list-element " + statusClassName,
+        key: label,
+        "data-key": label
+      }, /*#__PURE__*/_react["default"].createElement("a", {
+        className: "term",
+        "data-selected": status !== 'none',
+        href: "#",
+        onClick: this.handleClick,
+        "data-term": label
+      }, /*#__PURE__*/_react["default"].createElement("span", {
+        className: "facet-selector"
+      }, icon), /*#__PURE__*/_react["default"].createElement("span", {
+        className: "facet-item",
+        "data-tip": title.length > 30 ? title : null
+      }, title, " ", label ? "(".concat(label, ")") : null), /*#__PURE__*/_react["default"].createElement("span", {
+        className: "facet-count"
+      }, doc_count || 0)));
+    }
+  }]);
+
+  return RangeTerm;
+}(_react["default"].PureComponent);
+
+exports.RangeTerm = RangeTerm;
+RangeTerm.propTypes = {
+  'facet': _propTypes["default"].shape({
+    'field': _propTypes["default"].string.isRequired
+  }).isRequired,
+  'range': _propTypes["default"].shape({
+    'from': _propTypes["default"].number,
+    'to': _propTypes["default"].number,
+    'label': _propTypes["default"].string,
+    'doc_count': _propTypes["default"].number
+  }).isRequired,
+  // 'getTermStatus'     : PropTypes.func.isRequired,
+  'onClick': _propTypes["default"].func.isRequired
+};
+
+var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
+  _inherits(RangeClear, _React$PureComponent3);
+
+  var _super3 = _createSuper(RangeClear);
 
   function RangeClear() {
     _classCallCheck(this, RangeClear);
 
-    return _super2.apply(this, arguments);
+    return _super3.apply(this, arguments);
   }
 
   _createClass(RangeClear, [{
     key: "render",
     value: function render() {
-      var _this$props7 = this.props,
-          savedFromVal = _this$props7.savedFromVal,
-          savedToVal = _this$props7.savedToVal,
-          resetTo = _this$props7.resetTo,
-          resetFrom = _this$props7.resetFrom,
-          resetAll = _this$props7.resetAll,
-          facet = _this$props7.facet,
-          termTransformFxn = _this$props7.termTransformFxn;
+      var _this$props9 = this.props,
+          savedFromVal = _this$props9.savedFromVal,
+          savedToVal = _this$props9.savedToVal,
+          resetTo = _this$props9.resetTo,
+          resetFrom = _this$props9.resetFrom,
+          resetAll = _this$props9.resetAll,
+          facet = _this$props9.facet,
+          termTransformFxn = _this$props9.termTransformFxn;
       var facetField = facet.field,
           facetTitle = facet.title;
       var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
@@ -619,7 +794,7 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
           className: "icon icon-fw fas icon-minus-circle"
         })), /*#__PURE__*/_react["default"].createElement("div", {
           className: "col px-0"
-        }, savedFromTitle, " > ", facetTitle, " > ", savedToTitle)));
+        }, savedFromTitle, " < ", facetTitle, " < ", savedToTitle)));
       } else {
         // Only To or From present
         return /*#__PURE__*/_react["default"].createElement("button", {
@@ -643,29 +818,29 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent2) {
   return RangeClear;
 }(_react["default"].PureComponent);
 
-var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(RangeDropdown, _React$PureComponent3);
+var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
+  _inherits(RangeDropdown, _React$PureComponent4);
 
-  var _super3 = _createSuper(RangeDropdown);
+  var _super4 = _createSuper(RangeDropdown);
 
   function RangeDropdown(props) {
-    var _this2;
+    var _this5;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this2 = _super3.call(this, props);
-    _this2.state = {
+    _this5 = _super4.call(this, props);
+    _this5.state = {
       showMenu: false,
       toggling: false
     };
-    _this2.onTextInputChange = _this2.onTextInputChange.bind(_assertThisInitialized(_this2));
-    _this2.onDropdownSelect = _this2.onDropdownSelect.bind(_assertThisInitialized(_this2));
-    _this2.onTextInputFormSubmit = _this2.onTextInputFormSubmit.bind(_assertThisInitialized(_this2));
-    _this2.onTextInputKeyDown = _this2.onTextInputKeyDown.bind(_assertThisInitialized(_this2));
-    _this2.toggleDrop = _this2.toggleDrop.bind(_assertThisInitialized(_this2));
-    _this2.onBlur = _this2.onBlur.bind(_assertThisInitialized(_this2)); // console.log("props", props);
+    _this5.onTextInputChange = _this5.onTextInputChange.bind(_assertThisInitialized(_this5));
+    _this5.onDropdownSelect = _this5.onDropdownSelect.bind(_assertThisInitialized(_this5));
+    _this5.onTextInputFormSubmit = _this5.onTextInputFormSubmit.bind(_assertThisInitialized(_this5));
+    _this5.onTextInputKeyDown = _this5.onTextInputKeyDown.bind(_assertThisInitialized(_this5));
+    _this5.toggleDrop = _this5.toggleDrop.bind(_assertThisInitialized(_this5));
+    _this5.onBlur = _this5.onBlur.bind(_assertThisInitialized(_this5)); // console.log("props", props);
 
-    return _this2;
+    return _this5;
   }
 
   _createClass(RangeDropdown, [{
@@ -680,10 +855,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "onDropdownSelect",
     value: function onDropdownSelect(evtKey) {
-      var _this$props8 = this.props,
-          onSelect = _this$props8.onSelect,
-          update = _this$props8.update,
-          savedValue = _this$props8.savedValue;
+      var _this$props10 = this.props,
+          onSelect = _this$props10.onSelect,
+          update = _this$props10.update,
+          savedValue = _this$props10.savedValue;
 
       if (parseFloat(evtKey) === savedValue) {
         return false;
@@ -694,10 +869,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "onTextInputFormSubmit",
     value: function onTextInputFormSubmit(evt) {
-      var _this$props9 = this.props,
-          update = _this$props9.update,
-          savedValue = _this$props9.savedValue,
-          value = _this$props9.value;
+      var _this$props11 = this.props,
+          update = _this$props11.update,
+          savedValue = _this$props11.savedValue,
+          value = _this$props11.value;
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -719,7 +894,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "toggleDrop",
     value: function toggleDrop() {
-      var _this3 = this;
+      var _this6 = this;
 
       var _this$state3 = this.state,
           showMenu = _this$state3.showMenu,
@@ -730,7 +905,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           showMenu: !showMenu,
           toggling: true
         }, function () {
-          _this3.setState({
+          _this6.setState({
             toggling: false
           });
         });
@@ -746,33 +921,33 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
     key: "render",
     value: function render() {
       var showMenu = this.state.showMenu;
-      var _this$props10 = this.props,
-          _this$props10$variant = _this$props10.variant,
-          variant = _this$props10$variant === void 0 ? "outline-dark" : _this$props10$variant,
-          _this$props10$size = _this$props10.size,
-          size = _this$props10$size === void 0 ? "sm" : _this$props10$size,
-          _this$props10$disable = _this$props10.disabled,
-          disabled = _this$props10$disable === void 0 ? false : _this$props10$disable,
-          _this$props10$classNa = _this$props10.className,
-          className = _this$props10$classNa === void 0 ? "range-dropdown-container col" : _this$props10$classNa,
-          propMin = _this$props10.min,
-          propMax = _this$props10.max,
-          value = _this$props10.value,
-          savedValue = _this$props10.savedValue,
-          _this$props10$placeho = _this$props10.placeholder,
-          placeholder = _this$props10$placeho === void 0 ? "Type..." : _this$props10$placeho,
-          title = _this$props10.title,
-          termTransformFxn = _this$props10.termTransformFxn,
-          id = _this$props10.id,
-          facet = _this$props10.facet,
-          _this$props10$increme = _this$props10.increments,
-          increments = _this$props10$increme === void 0 ? [] : _this$props10$increme,
-          _this$props10$reset = _this$props10.reset,
-          reset = _this$props10$reset === void 0 ? null : _this$props10$reset,
-          tooltip = _this$props10.tooltip;
+      var _this$props12 = this.props,
+          _this$props12$variant = _this$props12.variant,
+          variant = _this$props12$variant === void 0 ? "outline-dark" : _this$props12$variant,
+          _this$props12$size = _this$props12.size,
+          size = _this$props12$size === void 0 ? "sm" : _this$props12$size,
+          _this$props12$disable = _this$props12.disabled,
+          disabled = _this$props12$disable === void 0 ? false : _this$props12$disable,
+          _this$props12$classNa = _this$props12.className,
+          className = _this$props12$classNa === void 0 ? "range-dropdown-container col" : _this$props12$classNa,
+          propMin = _this$props12.min,
+          propMax = _this$props12.max,
+          value = _this$props12.value,
+          savedValue = _this$props12.savedValue,
+          _this$props12$placeho = _this$props12.placeholder,
+          placeholder = _this$props12$placeho === void 0 ? "Type..." : _this$props12$placeho,
+          title = _this$props12.title,
+          termTransformFxn = _this$props12.termTransformFxn,
+          id = _this$props12.id,
+          facet = _this$props12.facet,
+          _this$props12$increme = _this$props12.increments,
+          increments = _this$props12$increme === void 0 ? [] : _this$props12$increme,
+          _this$props12$reset = _this$props12.reset,
+          reset = _this$props12$reset === void 0 ? null : _this$props12$reset,
+          tooltip = _this$props12.tooltip;
       var updateAble = savedValue !== value;
-      var _facet$field_type3 = facet.field_type,
-          field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
+      var _facet$field_type4 = facet.field_type,
+          field_type = _facet$field_type4 === void 0 ? "number" : _facet$field_type4,
           fMin = facet.min,
           fMax = facet.max,
           _facet$number_step2 = facet.number_step,
@@ -785,7 +960,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
       var showTitle = /*#__PURE__*/_react["default"].createElement("div", {
         className: "d-flex"
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "col px-1"
+        className: "col px-1 pt-02"
       }, value !== null ? title : emptyValue)); // if (typeof reset === "function") {
       //     showTitle = (
       //         <div className="d-flex">
