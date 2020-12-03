@@ -61,7 +61,7 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
     if (willUnselect) {
         targetSearchHref = unselectHref;
     } else {
-        if (aggregation_type === "stats") {
+        if (aggregation_type === "stats" || aggregation_type === "range") {
             // Keep only 1, delete previous occurences
             // This is only for "range" facets (aggregation_type=stats) where want to ensure that have multiple "date_created.to" values in URL for example.
             const parts = url.parse(currentHref, true);
