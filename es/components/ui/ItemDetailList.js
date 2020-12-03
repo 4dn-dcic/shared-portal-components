@@ -186,9 +186,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       var objectWithAllItemKeys = _underscore["default"].reduce(list, function (m, v) {
         var v2 = _underscore["default"].clone(v);
 
-        var valKeys = _underscore["default"].keys(v2);
-
-        _patchedConsole.patchedConsoleInstance.log('xxx valKeys', valKeys); // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
+        var valKeys = _underscore["default"].keys(v2); // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
 
 
         for (var i = 0; i < valKeys.length; i++) {
@@ -203,8 +201,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
         return _underscore["default"].extend(m, v2);
       }, {});
-
-      _patchedConsole.patchedConsoleInstance.log('xxx objectWithAllItemKeys: ', objectWithAllItemKeys);
 
       var rootKeys = _underscore["default"].keys(objectWithAllItemKeys);
 
@@ -246,8 +242,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                 continue;
               }
 
-              _patchedConsole.patchedConsoleInstance.log('xxx buradayım 7');
-
               return false;
             }
           }
@@ -262,9 +256,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           }
 
           embeddedKeys = _underscore["default"].keys(objectWithAllItemKeys[rootKeys[i]]);
-
-          _patchedConsole.patchedConsoleInstance.log('xxx embeddedKeys: ', embeddedKeys);
-
           if (embeddedKeys.length > 5) return false; // 5 properties to flatten up feels like a good limit. Lets render objects with more than that as lists or own table (not flattened up to another 1).
           // Run some checks against the embedded object's properties. Ensure all nested lists contain plain strings or numbers, as will flatten to simple comma-delimited list.
 
@@ -272,8 +263,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             if (typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'number') continue; // Ensure if property on embedded object's is an array, that is a simple array of strings or numbers - no objects. Will be converted to comma-delimited list.
 
             if (Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) {
-              _patchedConsole.patchedConsoleInstance.log('xxx buradayım 8.0', objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length);
-
               if (objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length < 4 && _underscore["default"].filter(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]], function (v) {
                 if (typeof v === 'string' || typeof v === 'number') {
                   return false;
@@ -286,8 +275,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
               ) {
                   continue;
                 } else {
-                _patchedConsole.patchedConsoleInstance.log('xxx buradayım 8');
-
                 return false;
               }
             } // Ensure that if is not an array, it is a simple string or number (not another embedded object).
@@ -295,12 +282,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
             if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) && objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] && _typeof(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) === 'object') {
               // Embedded object 2 levels deep. No thx we don't want any 'meta.argument_mapping.argument_type' -length column names. Unless it's an Item for which we can just render link for.
-              _patchedConsole.patchedConsoleInstance.log('xxx buradayım 9.0');
-
               if ((0, _object.isAnItem)(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) continue;
-
-              _patchedConsole.patchedConsoleInstance.log('xxx buradayım 9');
-
               return false;
             }
           }
@@ -312,8 +294,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       if (reminderKeys.length <= 2) {
         return false;
       }
-
-      _patchedConsole.patchedConsoleInstance.log('xxx buradayım 10');
 
       return true;
     }
