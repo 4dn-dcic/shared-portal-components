@@ -31,7 +31,8 @@ export class EmbeddedSearchView extends React.PureComponent {
      * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
      */
     static propTypes = {
-        'searchHref'    : PropTypes.string.isRequired,
+        // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
+        'searchHref'    : PropTypes.string,
         // From Redux store; is NOT passed down. Overriden instead.
         'context'       : PropTypes.object,
         // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
@@ -43,6 +44,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         'facets'        : PropTypes.array,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
+        'detailPane'    : PropTypes.element,
         'onLoad'        : PropTypes.func,
         'hideFacets'    : PropTypes.arrayOf(PropTypes.string),
         'hideColumns'    : PropTypes.arrayOf(PropTypes.string),
@@ -103,25 +105,27 @@ export class EmbeddedSearchView extends React.PureComponent {
             context,                // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             currentAction = null,   // From App.js; is NOT passed down. Always should be null for embedded search views.
             searchHref,
-            // schemas = null,
-            //facets : propFacets,
+            // schemas = null,       // Passed down in passProps
             navigate: propNavigate,  // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             columns = null,
             hideColumns,
             facets,
-            showAboveTableControls = false, // Deprecated? Unused here? Will become deprecated for EmbeddedSearchView purposes at least probably.
+            aboveTableComponent = null,         // Override default default to be null.
+            aboveFacetListComponent = null,     // Override default default to be null.
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
             filterColumnFxn,
             windowWidth,
-            // Will inherit props from VirtualHrefController
+            // Will inherit props from VirtualHrefController, including search response `context`.
             embeddedTableHeader = null,
+            embeddedTableFooter = null,
             // Optional prop to which virtualNavigate is passed that may override default
             // of navigating back to `searchHref`.
             onClearFiltersVirtual,
             // Optional prop to override VirtualHrefController's own calculation of this.
             // Must be static function that accepts currentSearchHref as first parameter and original searchHref as second one.
+            // (On other hand, `SearchView` component accepts boolean `showClearFiltersButton`, as we have `context` etc available there.)
             isClearFiltersBtnVisible,
             ...passProps
         } = this.props;
@@ -129,17 +133,18 @@ export class EmbeddedSearchView extends React.PureComponent {
         // If facets are null (hidden/excluded), set table col to be full width of container.
         const tableColumnClassName = facets === null ? "col-12" : undefined;
         // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
-        const viewProps = { ...passProps, showAboveTableControls, tableColumnClassName };
+        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, tableColumnClassName };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref}>
-                    { embeddedTableHeader }
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref || 1}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
+                                { embeddedTableHeader }
                                 <ControlsAndResults {...viewProps} isOwnPage={false} />
+                                { embeddedTableFooter }
                             </SortController>
                         </CustomColumnController>
                     </ColumnCombiner>

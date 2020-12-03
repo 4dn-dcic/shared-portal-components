@@ -36,7 +36,9 @@ export class SearchView extends React.PureComponent {
         'isFullscreen'  : PropTypes.bool.isRequired,
         'toggleFullScreen' : PropTypes.func.isRequired,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
+        'detailPane'    : PropTypes.element,
         'renderDetailPane' : PropTypes.func,
+        'showClearFiltersButton' : PropTypes.bool,
         'isOwnPage'     : PropTypes.bool,
         'schemas'       : PropTypes.object,
         'placeholderReplacementFxn' : PropTypes.func // Passed down to AboveSearchTablePanel StaticSection
@@ -72,6 +74,7 @@ export class SearchView extends React.PureComponent {
         const {
             href,
             context,
+            showClearFiltersButton, // If present/bool, overrides WindowNavigationController's internal calculation (if any non-'type' queries in URL)
             schemas = null,
             currentAction = null,
             facets : propFacets,
@@ -101,7 +104,7 @@ export class SearchView extends React.PureComponent {
         };
 
         let controllersAndView = (
-            <WindowNavigationController {...{ href, context }} navigate={propNavigate}>
+            <WindowNavigationController {...{ href, context, showClearFiltersButton }} navigate={propNavigate}>
                 <ColumnCombiner {...{ columns, columnExtensionMap }}>
                     <CustomColumnController>
                         <SortController>

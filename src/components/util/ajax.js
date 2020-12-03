@@ -1,5 +1,7 @@
 'use strict';
 
+import React, { useState, useEffect } from 'react';
+import { Alerts } from './../ui/Alerts';
 import _ from 'underscore';
 import * as JWT from './json-web-token';
 import { patchedConsoleInstance as console } from './patched-console';
@@ -152,4 +154,141 @@ export function fetchPolyfill(url, options){
         resp.json = function(){ return resp; };
     });
     return req;
+}
+
+/**
+ * A class utility for executing promise-chains in a sequential manner. Includes some
+ * scaffolding for aborting promises; needs more work in future.
+ *
+ * In drag-and-drop upload, this class ensures that each Item is uploaded and linked
+ * before starting the upload of the next item, so that the new atIds can be collected
+ * and patched to the parent together.
+ */
+export class PromiseQueue {
+    constructor() {
+        this.queue = [];
+        this.pendingPromise = false;
+        this.stop = false;
+    }
+
+    enqueue(promise) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({
+                promise,
+                resolve,
+                reject,
+            });
+            this.dequeue();
+        });
+    }
+
+    dequeue() {
+        if (this.pendingPromise) {
+            return false;
+        }
+        if (this.stop) {
+            this.queue = [];
+            this.stop = false;
+            return;
+        }
+        const item = this.queue.shift();
+        if (!item) {
+            return false;
+        }
+        try {
+            this.pendingPromise = true;
+            item.promise()
+                .then((value) => {
+                    this.pendingPromise = false;
+                    item.resolve(value);
+                    this.dequeue();
+                })
+                .catch((err) => {
+                    this.pendingPromise = false;
+                    item.reject(err);
+                    this.dequeue();
+                });
+        } catch (err) {
+            this.pendingPromise = false;
+            item.reject(err);
+            this.dequeue();
+        }
+        return true;
+    }
+}
+
+
+/**
+ * Helper component which will simply AJAX an Item in and pass it down as `props.fetchedItem`
+ * (or other prop name, which may be set via `fetchedItemPropName`).
+ *
+ * Meant to make changing between using Items' embedded_list & AJAXing linkTos simple.
+ * Idea roughly taken from existing 'Fetched' from ENCODE (https://github.com/ENCODE-DCC/encoded/blob/d78448b0a332ec4f056df65f6dee9cf8bacb1ab3/src/encoded/static/components/fetched.js),
+ * albeit quite a bit simpler hopefully.
+ */
+export class FetchedItem extends React.Component {
+
+    static defaultProps = {
+        "fetchedItemPropName": "fetchedItem",
+        "isFetchingItemPropName": "isFetchingItem"
+    };
+
+    constructor(props){
+        super(props);
+        this.fetchItem = this.fetchItem.bind(this);
+        this.state = {
+            "fetchedItem": null,
+            "isFetchingItem": !!(props.atId)
+        };
+    }
+
+    componentDidMount(){
+        this.fetchItem();
+    }
+
+    componentDidUpdate({ atId: pastAtId }){
+        const { atId } = this.props;
+        if (atId !== pastAtId) {
+            this.fetchItem();
+        }
+    }
+
+    fetchItem(){
+        const onSuccess = (res) => {
+            this.setState({
+                "fetchedItem" : res,
+                "isFetchingItem" : false
+            });
+        };
+
+        const onFail = (res) => {
+            Alerts.queue(Alerts.ConnectionError);
+            onSuccess(null);
+        };
+
+        this.setState({ isFetchingItem: true }, () => {
+            const { atId } = this.props;
+            load(atId, onSuccess, "GET", onFail);
+        });
+    }
+
+    render(){
+        const { children, fetchedItemPropName, isFetchingItemPropName, ...remainingProps } = this.props;
+        const { fetchedItem, isFetchingItem } = this.state;
+        const passProps = {
+            ...remainingProps,
+            [fetchedItemPropName]: fetchedItem,
+            [isFetchingItemPropName]: isFetchingItem
+        };
+        return React.Children.map(children, function(child){
+            if (!React.isValidElement(child)) {
+                return child;
+            }
+            if (typeof child.type === "string") {
+                return child;
+            }
+            return React.cloneElement(child, passProps);
+        });
+    }
+
 }

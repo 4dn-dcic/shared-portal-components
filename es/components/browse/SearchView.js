@@ -129,6 +129,7 @@ var SearchView = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props = this.props,
           href = _this$props.href,
           context = _this$props.context,
+          showClearFiltersButton = _this$props.showClearFiltersButton,
           _this$props$schemas = _this$props.schemas,
           schemas = _this$props$schemas === void 0 ? null : _this$props$schemas,
           _this$props$currentAc = _this$props.currentAction,
@@ -142,7 +143,7 @@ var SearchView = /*#__PURE__*/function (_React$PureComponent) {
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
           placeholderReplacementFxn = _this$props.placeholderReplacementFxn,
           windowWidth = _this$props.windowWidth,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "windowWidth"]);
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "windowWidth"]);
 
       var contextFacets = context.facets; // All these controllers pass props down to their children.
       // So we don't need to be repetitive here; i.e. may assume 'context' is available
@@ -159,7 +160,8 @@ var SearchView = /*#__PURE__*/function (_React$PureComponent) {
 
       var controllersAndView = /*#__PURE__*/_react["default"].createElement(_WindowNavigationController.WindowNavigationController, _extends({
         href: href,
-        context: context
+        context: context,
+        showClearFiltersButton: showClearFiltersButton
       }, {
         navigate: propNavigate
       }), /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
@@ -207,7 +209,9 @@ _defineProperty(SearchView, "propTypes", {
   'isFullscreen': _propTypes["default"].bool.isRequired,
   'toggleFullScreen': _propTypes["default"].func.isRequired,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
+  'detailPane': _propTypes["default"].element,
   'renderDetailPane': _propTypes["default"].func,
+  'showClearFiltersButton': _propTypes["default"].bool,
   'isOwnPage': _propTypes["default"].bool,
   'schemas': _propTypes["default"].object,
   'placeholderReplacementFxn': _propTypes["default"].func // Passed down to AboveSearchTablePanel StaticSection

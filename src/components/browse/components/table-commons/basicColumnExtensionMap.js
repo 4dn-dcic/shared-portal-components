@@ -71,7 +71,7 @@ export const basicColumnExtensionMap = {
         'render' : function dateCreatedTitle(result, props){
             if (!result.date_created) return null;
             return (
-                <span className="value">
+                <span className="value text-right">
                     <LocalizedTime timestamp={result.date_created} formatType="date-sm" />
                 </span>
             );
@@ -85,7 +85,7 @@ export const basicColumnExtensionMap = {
             const { last_modified : { date_modified = null } = {} } = result;
             if (!date_modified) return null;
             return (
-                <span className="value">
+                <span className="value text-right">
                     <LocalizedTime timestamp={date_modified} formatType="date-sm" />
                 </span>
             );

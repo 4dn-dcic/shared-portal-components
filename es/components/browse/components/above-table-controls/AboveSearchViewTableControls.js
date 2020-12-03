@@ -19,18 +19,19 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 var AboveSearchViewTableControls = /*#__PURE__*/_react["default"].memo(function (props) {
   var context = props.context,
       currentAction = props.currentAction,
-      showTotalResults = props.showTotalResults,
-      topLeftChildren = props.topLeftChildren; // Case if on SearchView
+      topLeftChildren = props.topLeftChildren;
+  var _ref$total = (context || {}).total,
+      showTotalResults = _ref$total === void 0 ? 0 : _ref$total; // Case if on SearchView
 
   var total = null;
 
-  if (showTotalResults) {
+  if (typeof showTotalResults === 'number') {
     total = /*#__PURE__*/_react["default"].createElement("div", {
-      className: "d-inline-block align-bottom"
+      className: "d-inline-block"
     }, /*#__PURE__*/_react["default"].createElement("span", {
       className: "text-500",
       id: "results-count"
-    }, typeof showTotalResults === 'number' ? showTotalResults : context && typeof context.total === 'number' ? context.total : null), " Results");
+    }, showTotalResults), " Results");
   } // FOR NOW, we'll stick 'add' button here. -- IF NO SELECTED FILES CONTROLS
 
 
@@ -52,27 +53,30 @@ var AboveSearchViewTableControls = /*#__PURE__*/_react["default"].memo(function 
     }
   }
 
-  return /*#__PURE__*/_react["default"].createElement(_AboveTableControlsBase.AboveTableControlsBase, _extends({
-    panelMap: _AboveTableControlsBase.AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)
-  }, _underscore["default"].pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')), /*#__PURE__*/_react["default"].createElement(LeftSectionControls, {
-    total: total,
-    addButton: addButton,
-    topLeftChildren: topLeftChildren
-  }));
+  return (
+    /*#__PURE__*/
+    // TODO refactor out panelMap stuff.
+    _react["default"].createElement(_AboveTableControlsBase.AboveTableControlsBase, _extends({
+      panelMap: _AboveTableControlsBase.AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)
+    }, _underscore["default"].pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')), /*#__PURE__*/_react["default"].createElement(LeftSectionControls, {
+      total: total,
+      addButton: addButton,
+      topLeftChildren: topLeftChildren
+    }))
+  );
 });
 
 exports.AboveSearchViewTableControls = AboveSearchViewTableControls;
 
-function LeftSectionControls(_ref) {
-  var total = _ref.total,
-      addButton = _ref.addButton,
-      topLeftChildren = _ref.topLeftChildren,
-      panelToggleFxns = _ref.panelToggleFxns,
-      onClosePanel = _ref.onClosePanel,
-      currentOpenPanel = _ref.currentOpenPanel;
+function LeftSectionControls(_ref2) {
+  var total = _ref2.total,
+      addButton = _ref2.addButton,
+      topLeftChildren = _ref2.topLeftChildren,
+      panelToggleFxns = _ref2.panelToggleFxns,
+      onClosePanel = _ref2.onClosePanel,
+      currentOpenPanel = _ref2.currentOpenPanel;
   if (!total && !addButton && !topLeftChildren) return null;
   return /*#__PURE__*/_react["default"].createElement("div", {
-    key: "total-count",
-    className: "pull-left pt-11 box results-count"
+    className: "col box results-count d-flex align-items-end"
   }, total, topLeftChildren || addButton);
 }

@@ -151,11 +151,12 @@ var WindowNavigationController = /*#__PURE__*/function (_React$PureComponent) {
     value: function render() {
       var _this$props3 = this.props,
           children = _this$props3.children,
-          passProps = _objectWithoutProperties(_this$props3, ["children"]);
+          propShowClearFiltersBtn = _this$props3.showClearFiltersButton,
+          passProps = _objectWithoutProperties(_this$props3, ["children", "showClearFiltersButton"]);
 
       var href = passProps.href,
           context = passProps.context;
-      var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href, context || {});
+      var showClearFiltersButton = typeof propShowClearFiltersBtn === "boolean" ? propShowClearFiltersBtn : this.memoized.isClearFiltersBtnVisible(href, context || {});
 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         showClearFiltersButton: showClearFiltersButton,

@@ -135,6 +135,24 @@ export class RangeFacet extends React.PureComponent {
         };
     }
 
+    static initialStateValues(props){
+        const {
+            fromVal,
+            toVal,
+            facet: { field_type = "number" }
+        } = props;
+
+        const state = { fromVal, toVal };
+
+        if (field_type === "date") {
+            // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
+            state.fromVal = (fromVal && fromVal.toString()) || null;
+            state.toVal = (toVal && toVal.toString()) || null;
+        }
+
+        return state;
+    }
+
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
@@ -151,20 +169,7 @@ export class RangeFacet extends React.PureComponent {
             validIncrements: memoize(RangeFacet.validIncrements)
         };
 
-        const {
-            fromVal,
-            toVal,
-            facet: { field_type = "number" }
-        } = props;
-
-        this.state = { fromVal, toVal, facetClosing: false };
-
-        if (field_type === "date") {
-            // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
-            this.state.fromVal = (fromVal && fromVal.toString()) || null;
-            this.state.toVal = (toVal && toVal.toString()) || null;
-        }
-
+        this.state = { ...RangeFacet.initialStateValues(props), "facetClosing": false };
     }
 
     setFrom(value, callback){

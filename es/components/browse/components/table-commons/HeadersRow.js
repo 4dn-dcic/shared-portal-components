@@ -29,7 +29,19 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -90,7 +102,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
             sort_fields = _ref$sort_fields === void 0 ? [] : _ref$sort_fields;
 
         if (sort_fields.length < 2) {
-          var useField = sort_fields[0] || field;
+          var useField = sort_fields[0] && sort_fields[0].field || field;
 
           if (useField === sortColumn) {
             retObj[field] = [sortReverse];
@@ -175,6 +187,9 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var _this$state = this.state,
           showingSortFieldsForColumn = _this$state.showingSortFieldsForColumn,
           loadingField = _this$state.loadingField;
+      var pastColumn = pastProps.sortColumn,
+          pastReverse = pastProps.sortReverse,
+          pastScrollLeft = pastProps.tableContainerScrollLeft;
 
       if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn) {
         _WindowClickEventDelegator.WindowClickEventDelegator.addHandler("click", this.onWindowClick, {
@@ -191,12 +206,12 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       } // Unset loading icon
 
 
-      if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastProps.sortColumn || sortReverse !== pastProps.sortReverse)) {
+      if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastColumn || sortReverse !== pastReverse)) {
         nextState.loadingField = null;
       } // Unset dropdown menu if start scrolling horizontally
 
 
-      if (tableContainerScrollLeft !== pastProps.tableContainerScrollLeft) {
+      if (tableContainerScrollLeft !== pastScrollLeft) {
         nextState.showingSortFieldsForColumn = null;
       }
 
@@ -289,6 +304,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props3 = this.props,
           columnDefinitions = _this$props3.columnDefinitions,
           renderDetailPane = _this$props3.renderDetailPane,
+          detailPane = _this$props3.detailPane,
           _this$props3$sortColu = _this$props3.sortColumn,
           sortColumn = _this$props3$sortColu === void 0 ? null : _this$props3$sortColu,
           _this$props3$sortReve = _this$props3.sortReverse,
@@ -307,7 +323,7 @@ var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var leftOffset = 0 - tableContainerScrollLeft;
       var isSortable = typeof sortBy === "function";
       var isAdjustable = !!(typeof setColumnWidths === "function" && columnWidths);
-      var outerClassName = "search-headers-row" + (isAdjustable ? '' : ' non-adjustable') + (typeof renderDetailPane !== 'function' ? ' no-detail-pane' : '');
+      var outerClassName = "search-headers-row" + (isAdjustable ? '' : ' non-adjustable') + (typeof renderDetailPane !== 'function' && !detailPane ? ' no-detail-pane' : '');
       var commonProps = {
         sortByField: isSortable ? this.sortByField : null,
         // Disable sorting if no sortBy func.
@@ -385,6 +401,7 @@ _defineProperty(HeadersRow, "propTypes", {
     })
   })).isRequired,
   'mounted': _propTypes["default"].bool.isRequired,
+  'detailPane': _propTypes["default"].element,
   'renderDetailPane': _propTypes["default"].func,
   'width': _propTypes["default"].number,
   'defaultMinColumnWidth': _propTypes["default"].number,
@@ -571,11 +588,17 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
         // Show options in UI
         setShowingSortFieldsFor(field);
         return;
-      } // If not multiple options, just sort on the only sort field available.
+      }
+
+      var _sort_fields = _slicedToArray(sort_fields, 1),
+          _sort_fields$ = _sort_fields[0];
+
+      _sort_fields$ = _sort_fields$ === void 0 ? {} : _sort_fields$;
+      var _sort_fields$$field = _sort_fields$.field,
+          firstSortField = _sort_fields$$field === void 0 ? null : _sort_fields$$field; // If not multiple options, just sort on the only sort field available.
       // Whether is a single item in sort_fields list or the field/key of column (if no sort_fields).
 
-
-      sortByField(sort_fields[0] || field);
+      sortByField(firstSortField || field);
     }
   }, {
     key: "render",

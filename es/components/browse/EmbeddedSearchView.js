@@ -171,8 +171,10 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
           hideColumns = _this$props.hideColumns,
           facets = _this$props.facets,
-          _this$props$showAbove = _this$props.showAboveTableControls,
-          showAboveTableControls = _this$props$showAbove === void 0 ? false : _this$props$showAbove,
+          _this$props$aboveTabl = _this$props.aboveTableComponent,
+          aboveTableComponent = _this$props$aboveTabl === void 0 ? null : _this$props$aboveTabl,
+          _this$props$aboveFace = _this$props.aboveFacetListComponent,
+          aboveFacetListComponent = _this$props$aboveFace === void 0 ? null : _this$props$aboveFace,
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
           _this$props$onLoad = _this$props.onLoad,
@@ -183,15 +185,18 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           windowWidth = _this$props.windowWidth,
           _this$props$embeddedT = _this$props.embeddedTableHeader,
           embeddedTableHeader = _this$props$embeddedT === void 0 ? null : _this$props$embeddedT,
+          _this$props$embeddedT2 = _this$props.embeddedTableFooter,
+          embeddedTableFooter = _this$props$embeddedT2 === void 0 ? null : _this$props$embeddedT2,
           onClearFiltersVirtual = _this$props.onClearFiltersVirtual,
           isClearFiltersBtnVisible = _this$props.isClearFiltersBtnVisible,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "showAboveTableControls", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "onClearFiltersVirtual", "isClearFiltersBtnVisible"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : undefined; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
 
       var viewProps = _objectSpread(_objectSpread({}, passProps), {}, {
-        showAboveTableControls: showAboveTableControls,
+        aboveTableComponent: aboveTableComponent,
+        aboveFacetListComponent: aboveFacetListComponent,
         tableColumnClassName: tableColumnClassName
       });
 
@@ -206,8 +211,8 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         onClearFiltersVirtual: onClearFiltersVirtual,
         isClearFiltersBtnVisible: isClearFiltersBtnVisible
       }, {
-        key: searchHref
-      }), embeddedTableHeader, /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
+        key: searchHref || 1
+      }), /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
       }, /*#__PURE__*/_react["default"].createElement(_CustomColumnController.CustomColumnController, _extends({
@@ -215,9 +220,9 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         filterColumnFxn: filterColumnFxn
       }, {
         hiddenColumns: hideColumns
-      }), /*#__PURE__*/_react["default"].createElement(_SortController.SortController, null, /*#__PURE__*/_react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
+      }), /*#__PURE__*/_react["default"].createElement(_SortController.SortController, null, embeddedTableHeader, /*#__PURE__*/_react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
-      })))))));
+      })), embeddedTableFooter)))));
     }
   }]);
 
@@ -227,7 +232,8 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
 exports.EmbeddedSearchView = EmbeddedSearchView;
 
 _defineProperty(EmbeddedSearchView, "propTypes", {
-  'searchHref': _propTypes["default"].string.isRequired,
+  // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
+  'searchHref': _propTypes["default"].string,
   // From Redux store; is NOT passed down. Overriden instead.
   'context': _propTypes["default"].object,
   // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
@@ -239,6 +245,7 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'facets': _propTypes["default"].array,
   'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
   'renderDetailPane': _propTypes["default"].func,
+  'detailPane': _propTypes["default"].element,
   'onLoad': _propTypes["default"].func,
   'hideFacets': _propTypes["default"].arrayOf(_propTypes["default"].string),
   'hideColumns': _propTypes["default"].arrayOf(_propTypes["default"].string),

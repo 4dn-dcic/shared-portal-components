@@ -11,7 +11,7 @@ export const RightButtonsSection = React.memo(function RightButtonsSection(props
     const { currentOpenPanel, onColumnsBtnClick, windowWidth, isFullscreen, toggleFullScreen } = props;
     const showToggleLayoutBtn = (typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function');
     return (
-        <div className="right-buttons">
+        <div className="right-buttons col-auto">
             <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} />
             { showToggleLayoutBtn ? <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} /> : null }
         </div>

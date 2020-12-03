@@ -103,7 +103,10 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
         }
     }
 
-    return targetSearchHref;
+    // Endpoint will redirect/correct to this anyway, may as well keep consistent.
+    // Alternatively we could/should save href we get back from search response (which
+    // should then also be correct... and probably be more reliable.. will try do..)
+    return targetSearchHref.replaceAll("%20", "+");
 }
 
 
@@ -259,15 +262,20 @@ export class FacetList extends React.PureComponent {
                 const { fromVal = null, toVal = null } = rangeValuesByField[facetField] || {};
                 const anySelected = fromVal !== null || toVal !== null;
                 const isStatic = facet.min === facet.max;
-                return <RangeFacet {...props} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ isStatic, grouping, fromVal, toVal }} />;
+                // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+                // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
+                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet }} key={`${facetField}:${fromVal}:${toVal}`} anyTermsSelected={anySelected}  />;
             }
+
             if (aggregation_type === "terms"){
                 const termsSelectedCount = activeTermCountByField[facetField] || 0;// countTermsSelected(facet.terms, facet, filters);
                 const anySelected = termsSelectedCount !== 0;
                 const isStatic = !anySelected && facet.terms.length === 1;
-                return <TermsFacet {...props} terms={facet.terms} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ isStatic, grouping, termsSelectedCount }} />;
+                return <TermsFacet {...props} {...{ isStatic, grouping, termsSelectedCount, facet }} key={facetField} anyTermsSelected={anySelected} />;
             }
+
             throw new Error("Unknown aggregation_type");
+
         });
 
         const componentsToReturn = [];  // first populated with ungrouped facets, then facet groups are spliced in
@@ -572,11 +580,11 @@ export class FacetList extends React.PureComponent {
     render() {
         const {
             facets = null,
-            className,
-            title = "Properties",
+            title,
             onClearFilters = null,
             showClearFiltersButton = false,
-            maxBodyHeight: maxHeight = null
+            maxBodyHeight: maxHeight = null,
+            isContextLoading = false
         } = this.props;
         const { openFacets, openPopover } = this.state;
         const { popover: popoverJSX, ref: popoverTargetRef } = openPopover || {};
@@ -595,46 +603,11 @@ export class FacetList extends React.PureComponent {
         };
 
         const { staticFacetElements, selectableFacetElements } = this.renderFacetComponents();
-        const anyFacetsOpen = _.keys(openFacets).length !== 0;
 
         return (
             <React.Fragment>
-                <div className={"facets-container facets" + (className ? ' ' + className : '')}>
-                    <div className="row facets-header">
-                        <div className="col facets-title-column text-truncate">
-                            <i className="icon icon-fw icon-filter fas"></i>
-                            &nbsp;
-                            <h4 className="facets-title">{ title }</h4>
-                        </div>
-                        <div className="col-auto">
-                            <div className="btn-group btn-group-sm properties-controls" role="group" aria-label="Properties Controls">
-                                { anyFacetsOpen ?
-                                    <button type="button" className="btn btn-outline-light" onClick={this.handleCollapseAllFacets} data-tip="Collapse all facets below">
-                                        <i className="icon icon-fw icon-minus fas"/>
-                                    </button>
-                                    : null }
-                                { showClearFiltersButton && typeof onClearFilters === "function" ?
-                                    <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
-                                        <i className="icon icon-fw icon-times fas"/>
-                                    </button>
-                                    : null }
-                            </div>
-                        </div>
-                        {/*
-                        <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
-                            <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
-                                <i className="icon icon-fw icon-times fas mr-03"/>
-                                <span>Clear All</span>
-                            </a>
-                        </div>
-                        <div className={"col-auto clear-filters-control" + (anyFacetsOpen ? '' : ' placeholder')}>
-                            <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
-                                <i className="icon icon-fw icon-minus fas mr-03"/>
-                                <span>Clear All</span>
-                            </a>
-                        </div>
-                        */}
-                    </div>
+                <div className="facets-container facets with-header-bg" data-context-loading={isContextLoading}>
+                    <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton }} onCollapseFacets={this.handleCollapseAllFacets} />
                     <div {...bodyProps}>
                         { selectableFacetElements }
                         { staticFacetElements.length > 0 ?
@@ -657,8 +630,51 @@ export class FacetList extends React.PureComponent {
     }
 }
 
-// TODO: Pull out the split terms into own component
-// 2: get ourselves the fieldSchema and pass it down in here.
 
-// function
-
+export const FacetListHeader = React.memo(function FacetListHeader(props){
+    const {
+        title = "Properties",
+        openFacets = {},
+        showClearFiltersButton = false,
+        onClearFilters = null,
+        onCollapseFacets
+    } = props;
+    const anyFacetsOpen = Object.keys(openFacets).length !== 0;
+    return (
+        <div className="row facets-header">
+            <div className="col facets-title-column text-truncate">
+                <i className="icon icon-fw icon-filter fas"></i>
+                &nbsp;
+                <h4 className="facets-title">{ title }</h4>
+            </div>
+            <div className="col-auto">
+                <div className="btn-group btn-group-sm properties-controls" role="group" aria-label="Properties Controls">
+                    { anyFacetsOpen ?
+                        <button type="button" className="btn btn-outline-light" onClick={onCollapseFacets} data-tip="Collapse all facets below">
+                            <i className="icon icon-fw icon-minus fas"/>
+                        </button>
+                        : null }
+                    { showClearFiltersButton && typeof onClearFilters === "function" ?
+                        <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
+                            <i className="icon icon-fw icon-times fas"/>
+                        </button>
+                        : null }
+                </div>
+            </div>
+            {/*
+            <div className={"col-auto clear-filters-control" + (showClearFiltersButton ? '' : ' placeholder')}>
+                <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
+                    <i className="icon icon-fw icon-times fas mr-03"/>
+                    <span>Clear All</span>
+                </a>
+            </div>
+            <div className={"col-auto clear-filters-control" + (anyFacetsOpen ? '' : ' placeholder')}>
+                <a href="#" onClick={onClearFilters} className={"btn clear-filters-btn btn-xs " + clearButtonClassName}>
+                    <i className="icon icon-fw icon-minus fas mr-03"/>
+                    <span>Clear All</span>
+                </a>
+            </div>
+            */}
+        </div>
+    );
+});
