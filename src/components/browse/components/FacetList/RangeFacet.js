@@ -233,25 +233,16 @@ export class RangeFacet extends React.PureComponent {
         const { onFilterMultiple, facet } = this.props;
         const { toVal, fromVal } = this.state;
         console.log("performUpdate", toVal, fromVal);
-        if (toVal === null) {
-            onFilterMultiple(
-                [{
-                    facet: { ...facet, field: facet.field + ".from" },
-                    term: { key: fromVal }
-                }]
-            );
-        } else {
-            onFilterMultiple(
-                [{
-                    facet: { ...facet, field: facet.field + ".from" },
-                    term: { key: fromVal }
-                },
-                {
-                    facet: { ...facet, field: facet.field + ".to" },
-                    term: { key: toVal }
-                }]
-            );
-        }
+        onFilterMultiple(
+            [{
+                facet: { ...facet, field: facet.field + ".from" },
+                term: { key: fromVal }
+            },
+            {
+                facet: { ...facet, field: facet.field + ".to" },
+                term: { key: toVal }
+            }]
+        );
     }
 
     resetFrom(e){
@@ -450,7 +441,14 @@ export class RangeFacet extends React.PureComponent {
                                 */}
                             </div>
                         </div>
-                        { ranges.map((range) => <RangeTerm key={`${range.to}-${range.from}`} onClick={this.selectRange} {...{ range, facet }} />)}
+                        { ranges && ranges.length > 0 ?
+                            <>
+                                <hr className="mt-05 mb-05"/>
+                                <div className="facet-list">
+                                    { ranges.map((range) => <RangeTerm key={`${range.to}-${range.from}`} onClick={this.selectRange} {...{ range, facet }} />)}
+                                </div>
+                            </>
+                            : null}
                     </div>
                 </Collapse>
             </div>
@@ -510,7 +508,7 @@ export class RangeTerm extends React.PureComponent {
 
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
         return (
-            <li className={"facet-list-element " + statusClassName} key={label} data-key={label}>
+            <li className={"facet-list-element " /*+ statusClassName*/} key={label} data-key={label}>
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {label ? `(${label})` : null}</span>

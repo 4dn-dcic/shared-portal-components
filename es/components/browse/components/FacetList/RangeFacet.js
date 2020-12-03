@@ -343,32 +343,21 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       _patchedConsole.patchedConsoleInstance.log("performUpdate", toVal, fromVal);
 
-      if (toVal === null) {
-        onFilterMultiple([{
-          facet: _objectSpread(_objectSpread({}, facet), {}, {
-            field: facet.field + ".from"
-          }),
-          term: {
-            key: fromVal
-          }
-        }]);
-      } else {
-        onFilterMultiple([{
-          facet: _objectSpread(_objectSpread({}, facet), {}, {
-            field: facet.field + ".from"
-          }),
-          term: {
-            key: fromVal
-          }
-        }, {
-          facet: _objectSpread(_objectSpread({}, facet), {}, {
-            field: facet.field + ".to"
-          }),
-          term: {
-            key: toVal
-          }
-        }]);
-      }
+      onFilterMultiple([{
+        facet: _objectSpread(_objectSpread({}, facet), {}, {
+          field: facet.field + ".from"
+        }),
+        term: {
+          key: fromVal
+        }
+      }, {
+        facet: _objectSpread(_objectSpread({}, facet), {}, {
+          field: facet.field + ".to"
+        }),
+        term: {
+          key: toVal
+        }
+      }]);
     }
   }, {
     key: "resetFrom",
@@ -616,7 +605,11 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "to_" + field,
         reset: toVal !== null ? this.resetTo : null
-      }))), ranges.map(function (range) {
+      }))), ranges && ranges.length > 0 ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("hr", {
+        className: "mt-05 mb-05"
+      }), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "facet-list"
+      }, ranges.map(function (range) {
         return /*#__PURE__*/_react["default"].createElement(RangeTerm, _extends({
           key: "".concat(range.to, "-").concat(range.from),
           onClick: _this2.selectRange
@@ -624,7 +617,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           range: range,
           facet: facet
         }));
-      }))));
+      }))) : null)));
     }
   }]);
 
@@ -716,9 +709,11 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
         title = 'None';
       }
 
-      var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
+      status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
       return /*#__PURE__*/_react["default"].createElement("li", {
-        className: "facet-list-element " + statusClassName,
+        className: "facet-list-element "
+        /*+ statusClassName*/
+        ,
         key: label,
         "data-key": label
       }, /*#__PURE__*/_react["default"].createElement("a", {
