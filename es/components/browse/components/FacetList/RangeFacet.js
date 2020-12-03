@@ -256,6 +256,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     value: function setFrom(value, callback) {
       var facet = this.props.facet;
 
+      _patchedConsole.patchedConsoleInstance.log("setFrom called with", value);
+
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
         this.setState({
@@ -269,6 +271,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     key: "setTo",
     value: function setTo(value, callback) {
       var facet = this.props.facet;
+
+      _patchedConsole.patchedConsoleInstance.log("setTo called with", value);
 
       try {
         var toVal = RangeFacet.parseAndValidate(facet, value);
@@ -302,6 +306,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           onFilter = _this$props.onFilter,
           facet = _this$props.facet;
       var fromVal = this.state.fromVal;
+
+      _patchedConsole.patchedConsoleInstance.log("performUpdateFrom", fromVal);
+
       onFilter(_objectSpread(_objectSpread({}, facet), {}, {
         field: facet.field + ".from"
       }), {
@@ -315,6 +322,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           onFilter = _this$props2.onFilter,
           facet = _this$props2.facet;
       var toVal = this.state.toVal;
+
+      _patchedConsole.patchedConsoleInstance.log("performUpdateTo", toVal);
+
       onFilter(_objectSpread(_objectSpread({}, facet), {}, {
         field: facet.field + ".to"
       }), {
@@ -864,6 +874,8 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
         return false;
       }
 
+      _patchedConsole.patchedConsoleInstance.log("onDropdownSelect", evtKey);
+
       onSelect(evtKey, update);
     }
   }, {
@@ -1030,7 +1042,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
           return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
             disabled: disabled,
             key: increment,
-            eventKey: increment,
+            eventKey: increment === 0 ? increment.toString() : increment,
             active: increment === savedValue
           }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/_react["default"].createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/_react["default"].createElement("small", null, " (max)") : null);
         });

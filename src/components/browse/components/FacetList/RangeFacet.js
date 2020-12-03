@@ -178,6 +178,7 @@ export class RangeFacet extends React.PureComponent {
 
     setFrom(value, callback){
         const { facet } = this.props;
+        console.log("setFrom called with", value);
         try {
             const fromVal = RangeFacet.parseAndValidate(facet, value);
             this.setState({ fromVal }, callback);
@@ -188,6 +189,7 @@ export class RangeFacet extends React.PureComponent {
 
     setTo(value, callback){
         const { facet } = this.props;
+        console.log("setTo called with", value);
         try {
             const toVal = RangeFacet.parseAndValidate(facet, value);
             this.setState({ toVal }, callback);
@@ -210,6 +212,7 @@ export class RangeFacet extends React.PureComponent {
     performUpdateFrom(){
         const { onFilter, facet } = this.props;
         const { fromVal } = this.state;
+        console.log("performUpdateFrom", fromVal);
         onFilter(
             { ...facet, field: facet.field + ".from" },
             { key: fromVal }
@@ -219,6 +222,7 @@ export class RangeFacet extends React.PureComponent {
     performUpdateTo(){
         const { onFilter, facet } = this.props;
         const { toVal } = this.state;
+        console.log("performUpdateTo", toVal);
         onFilter(
             { ...facet, field: facet.field + ".to" },
             { key: toVal }
@@ -248,7 +252,6 @@ export class RangeFacet extends React.PureComponent {
                 }]
             );
         }
-        
     }
 
     resetFrom(e){
@@ -371,9 +374,9 @@ export class RangeFacet extends React.PureComponent {
                     : typeof lastRange.to === "number" ? this.termTitle(facet.field, lastRange.to)
                         : <em>Infinite</em>
                 );
-            };
+            }
             console.log("field", field, "typeof minValue", minValue, typeof minValue);
-            
+
         } else if (field_type === "date") {
             fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
             toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || <em>None</em>;
@@ -618,6 +621,7 @@ class RangeDropdown extends React.PureComponent {
         if (parseFloat(evtKey) === savedValue){
             return false;
         }
+        console.log("onDropdownSelect", evtKey);
         onSelect(evtKey, update);
     }
 
@@ -737,7 +741,7 @@ class RangeDropdown extends React.PureComponent {
                 const active = increment === savedValue;
                 console.log("increment: ", increment, " savedValue: ", savedValue, " min: ", min);
                 return (
-                    <DropdownItem disabled={disabled} key={increment} eventKey={increment} active={active}>
+                    <DropdownItem disabled={disabled} key={increment} eventKey={increment === 0 ? increment.toString() : increment} active={active}>
                         { termTransformFxn(facet.field, increment, true) }
                         { increment === min ? <small> (min)</small> : null }
                         { increment === max ? <small> (max)</small> : null }
