@@ -38,6 +38,8 @@ var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon"
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -51,8 +53,6 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToAr
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -126,8 +126,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   _createClass(RangeFacet, null, [{
     key: "parseAndValidate",
     value: function parseAndValidate(facet, value) {
-      var _facet$field_type2 = facet.field_type,
-          field_type = _facet$field_type2 === void 0 ? "integer" : _facet$field_type2,
+      var aggregation_type = facet.aggregation_type,
+          _facet$field_type2 = facet.field_type,
+          field_type = _facet$field_type2 === void 0 ? aggregation_type === "range" ? "number" : "integer" : _facet$field_type2,
           _facet$number_step = facet.number_step,
           number_step = _facet$number_step === void 0 ? "any" : _facet$number_step;
 
@@ -273,9 +274,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "setFrom",
     value: function setFrom(value, callback) {
-      var facet = this.props.facet;
-
-      _patchedConsole.patchedConsoleInstance.log("setFrom called with", value);
+      var facet = this.props.facet; // console.log("setFrom called with", value);
 
       try {
         var fromVal = RangeFacet.parseAndValidate(facet, value);
@@ -289,9 +288,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "setTo",
     value: function setTo(value, callback) {
-      var facet = this.props.facet;
-
-      _patchedConsole.patchedConsoleInstance.log("setTo called with", value);
+      var facet = this.props.facet; // console.log("setTo called with", value);
 
       try {
         var toVal = RangeFacet.parseAndValidate(facet, value);
@@ -324,9 +321,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props2 = this.props,
           onFilter = _this$props2.onFilter,
           facet = _this$props2.facet;
-      var fromVal = this.state.fromVal;
-
-      _patchedConsole.patchedConsoleInstance.log("performUpdateFrom", fromVal);
+      var fromVal = this.state.fromVal; // console.log("performUpdateFrom", fromVal);
 
       onFilter(_objectSpread(_objectSpread({}, facet), {}, {
         field: facet.field + ".from"
@@ -340,9 +335,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props3 = this.props,
           onFilter = _this$props3.onFilter,
           facet = _this$props3.facet;
-      var toVal = this.state.toVal;
-
-      _patchedConsole.patchedConsoleInstance.log("performUpdateTo", toVal);
+      var toVal = this.state.toVal; // console.log("performUpdateTo", toVal);
 
       onFilter(_objectSpread(_objectSpread({}, facet), {}, {
         field: facet.field + ".to"
@@ -358,9 +351,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facet = _this$props4.facet;
       var _this$state = this.state,
           toVal = _this$state.toVal,
-          fromVal = _this$state.fromVal;
-
-      _patchedConsole.patchedConsoleInstance.log("performUpdate", toVal, fromVal);
+          fromVal = _this$state.fromVal; // console.log("performUpdate", toVal, fromVal);
 
       onFilterMultiple([{
         facet: _objectSpread(_objectSpread({}, facet), {}, {
@@ -399,8 +390,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "selectRange",
     value: function selectRange(to, from, e) {
-      _patchedConsole.patchedConsoleInstance.log("selectRange", to, from);
-
+      // console.log("selectRange", to, from);
       e.stopPropagation();
       this.setToAndFrom(to, from, this.performUpdateToAndFrom);
     }
@@ -511,23 +501,17 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       var fromTitle, toTitle;
 
-      _patchedConsole.patchedConsoleInstance.log(facet);
-
       if (field_type === "number" || field_type === "integer") {
         if (aggregation_type === "stats") {
           fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/_react["default"].createElement("em", null, "-Infinite");
           toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/_react["default"].createElement("em", null, "Infinite");
         } else if (aggregation_type === "range") {
-          _patchedConsole.patchedConsoleInstance.log("fromVal, toVal", fromVal, _typeof(fromVal), toVal, _typeof(toVal));
-
           var _ranges$ = ranges[0],
               firstRange = _ranges$ === void 0 ? null : _ranges$;
           var lastRange = ranges[ranges.length - 1] || {};
           fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof firstRange.from === "number" ? this.termTitle(facet.field, firstRange.from) : /*#__PURE__*/_react["default"].createElement("em", null, "-Infinite");
           toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof lastRange.to === "number" ? this.termTitle(facet.field, lastRange.to) : /*#__PURE__*/_react["default"].createElement("em", null, "Infinite");
         }
-
-        _patchedConsole.patchedConsoleInstance.log("field", field, "typeof minValue", minValue, _typeof(minValue));
       } else if (field_type === "date") {
         fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
         toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/_react["default"].createElement("em", null, "None");
@@ -672,7 +656,6 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
     value: function handleClick(e) {
       var _this4 = this;
 
-      //expecting this onClick to be onFilterMultiple, basically
       var _this$props8 = this.props,
           range = _this$props8.range,
           onClick = _this$props8.onClick;
@@ -680,9 +663,6 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
           to = _range$to === void 0 ? null : _range$to,
           _range$from = range.from,
           from = _range$from === void 0 ? null : _range$from;
-
-      _patchedConsole.patchedConsoleInstance.log("to and from", to, from);
-
       e.preventDefault();
       this.setState({
         'filtering': true
@@ -862,8 +842,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
     _this5.onTextInputFormSubmit = _this5.onTextInputFormSubmit.bind(_assertThisInitialized(_this5));
     _this5.onTextInputKeyDown = _this5.onTextInputKeyDown.bind(_assertThisInitialized(_this5));
     _this5.toggleDrop = _this5.toggleDrop.bind(_assertThisInitialized(_this5));
-    _this5.onBlur = _this5.onBlur.bind(_assertThisInitialized(_this5)); // console.log("props", props);
-
+    _this5.onBlur = _this5.onBlur.bind(_assertThisInitialized(_this5));
     return _this5;
   }
 
@@ -887,8 +866,6 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
       if (parseFloat(evtKey) === savedValue) {
         return false;
       }
-
-      _patchedConsole.patchedConsoleInstance.log("onDropdownSelect", evtKey);
 
       onSelect(evtKey, update);
     }
@@ -1051,8 +1028,6 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
         }, new Set());
 
         var menuOptions = _toConsumableArray(menuOptsSet).map(function (increment) {
-          _patchedConsole.patchedConsoleInstance.log("increment: ", increment, " savedValue: ", savedValue, " min: ", min);
-
           return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
             disabled: disabled,
             key: increment,

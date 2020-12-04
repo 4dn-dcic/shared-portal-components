@@ -66,7 +66,8 @@ export class RangeFacet extends React.PureComponent {
 
     static parseAndValidate(facet, value){
         const {
-            field_type = "integer",
+            aggregation_type,
+            field_type = aggregation_type === "range" ? "number" : "integer",
             number_step = "any"
         } = facet;
 
@@ -190,7 +191,7 @@ export class RangeFacet extends React.PureComponent {
 
     setFrom(value, callback){
         const { facet } = this.props;
-        console.log("setFrom called with", value);
+        // console.log("setFrom called with", value);
         try {
             const fromVal = RangeFacet.parseAndValidate(facet, value);
             this.setState({ fromVal }, callback);
@@ -201,7 +202,7 @@ export class RangeFacet extends React.PureComponent {
 
     setTo(value, callback){
         const { facet } = this.props;
-        console.log("setTo called with", value);
+        // console.log("setTo called with", value);
         try {
             const toVal = RangeFacet.parseAndValidate(facet, value);
             this.setState({ toVal }, callback);
@@ -224,7 +225,7 @@ export class RangeFacet extends React.PureComponent {
     performUpdateFrom(){
         const { onFilter, facet } = this.props;
         const { fromVal } = this.state;
-        console.log("performUpdateFrom", fromVal);
+        // console.log("performUpdateFrom", fromVal);
         onFilter(
             { ...facet, field: facet.field + ".from" },
             { key: fromVal }
@@ -234,7 +235,7 @@ export class RangeFacet extends React.PureComponent {
     performUpdateTo(){
         const { onFilter, facet } = this.props;
         const { toVal } = this.state;
-        console.log("performUpdateTo", toVal);
+        // console.log("performUpdateTo", toVal);
         onFilter(
             { ...facet, field: facet.field + ".to" },
             { key: toVal }
@@ -244,7 +245,7 @@ export class RangeFacet extends React.PureComponent {
     performUpdateToAndFrom() {
         const { onFilterMultiple, facet } = this.props;
         const { toVal, fromVal } = this.state;
-        console.log("performUpdate", toVal, fromVal);
+        // console.log("performUpdate", toVal, fromVal);
         onFilterMultiple(
             [{
                 facet: { ...facet, field: facet.field + ".from" },
@@ -273,7 +274,7 @@ export class RangeFacet extends React.PureComponent {
     }
 
     selectRange(to, from, e) {
-        console.log("selectRange", to, from);
+        // console.log("selectRange", to, from);
         e.stopPropagation();
         this.setToAndFrom(to, from, this.performUpdateToAndFrom);
     }
@@ -353,8 +354,6 @@ export class RangeFacet extends React.PureComponent {
 
         let fromTitle, toTitle;
 
-        console.log(facet);
-
         if (field_type === "number" || field_type === "integer") {
             if (aggregation_type === "stats") {
                 fromTitle = (typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal)
@@ -366,7 +365,6 @@ export class RangeFacet extends React.PureComponent {
                         : <em>Infinite</em>
                 );
             } else if (aggregation_type === "range"){
-                console.log("fromVal, toVal", fromVal, typeof fromVal, toVal, typeof toVal);
                 const { 0: firstRange = null } = ranges;
                 const lastRange = ranges[ranges.length - 1] || {};
                 fromTitle = (typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal)
@@ -378,7 +376,6 @@ export class RangeFacet extends React.PureComponent {
                         : <em>Infinite</em>
                 );
             }
-            console.log("field", field, "typeof minValue", minValue, typeof minValue);
 
         } else if (field_type === "date") {
             fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
@@ -483,10 +480,9 @@ export class RangeTerm extends React.PureComponent {
         };
     }
 
-    handleClick(e) { //expecting this onClick to be onFilterMultiple, basically
+    handleClick(e) {
         var { range, onClick } = this.props;
         var { to = null, from = null } = range;
-        console.log("to and from", to, from);
         e.preventDefault();
         this.setState({ 'filtering' : true }, () => {
             onClick(to, from, e, () => this.setState({ 'filtering' : false }));
@@ -615,8 +611,6 @@ class RangeDropdown extends React.PureComponent {
         this.onTextInputKeyDown = this.onTextInputKeyDown.bind(this);
         this.toggleDrop = this.toggleDrop.bind(this);
         this.onBlur = this.onBlur.bind(this);
-
-        // console.log("props", props);
     }
 
     onTextInputChange(evt){
@@ -631,7 +625,6 @@ class RangeDropdown extends React.PureComponent {
         if (parseFloat(evtKey) === savedValue){
             return false;
         }
-        console.log("onDropdownSelect", evtKey);
         onSelect(evtKey, update);
     }
 
@@ -749,7 +742,6 @@ class RangeDropdown extends React.PureComponent {
 
             const menuOptions = [...menuOptsSet].map(function(increment, indx){
                 const active = increment === savedValue;
-                console.log("increment: ", increment, " savedValue: ", savedValue, " min: ", min);
                 return (
                     <DropdownItem disabled={disabled} key={increment} eventKey={increment === 0 ? increment.toString() : increment} active={active}>
                         { termTransformFxn(facet.field, increment, true) }
