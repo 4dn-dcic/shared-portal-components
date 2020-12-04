@@ -103,7 +103,10 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
         }
     }
 
-    return targetSearchHref;
+    // Endpoint will redirect/correct to this anyway, may as well keep consistent.
+    // Alternatively we could/should save href we get back from search response (which
+    // should then also be correct... and probably be more reliable.. will try do..)
+    return targetSearchHref.replaceAll("%20", "+");
 }
 
 
@@ -259,15 +262,20 @@ export class FacetList extends React.PureComponent {
                 const { fromVal = null, toVal = null } = rangeValuesByField[facetField] || {};
                 const anySelected = fromVal !== null || toVal !== null;
                 const isStatic = facet.min === facet.max;
-                return <RangeFacet {...props} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ isStatic, grouping, fromVal, toVal }} />;
+                // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+                // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
+                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet }} key={`${facetField}:${fromVal}:${toVal}`} anyTermsSelected={anySelected}  />;
             }
+
             if (aggregation_type === "terms"){
                 const termsSelectedCount = activeTermCountByField[facetField] || 0;// countTermsSelected(facet.terms, facet, filters);
                 const anySelected = termsSelectedCount !== 0;
                 const isStatic = !anySelected && facet.terms.length === 1;
-                return <TermsFacet {...props} terms={facet.terms} facet={facet} key={facetField} anyTermsSelected={anySelected} {...{ isStatic, grouping, termsSelectedCount }} />;
+                return <TermsFacet {...props} {...{ isStatic, grouping, termsSelectedCount, facet }} key={facetField} anyTermsSelected={anySelected} />;
             }
+
             throw new Error("Unknown aggregation_type");
+
         });
 
         const componentsToReturn = [];  // first populated with ungrouped facets, then facet groups are spliced in
@@ -575,7 +583,8 @@ export class FacetList extends React.PureComponent {
             title,
             onClearFilters = null,
             showClearFiltersButton = false,
-            maxBodyHeight: maxHeight = null
+            maxBodyHeight: maxHeight = null,
+            isContextLoading = false
         } = this.props;
         const { openFacets, openPopover } = this.state;
         const { popover: popoverJSX, ref: popoverTargetRef } = openPopover || {};
@@ -597,7 +606,7 @@ export class FacetList extends React.PureComponent {
 
         return (
             <React.Fragment>
-                <div className="facets-container facets with-header-bg">
+                <div className="facets-container facets with-header-bg" data-context-loading={isContextLoading}>
                     <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton }} onCollapseFacets={this.handleCollapseAllFacets} />
                     <div {...bodyProps}>
                         { selectableFacetElements }

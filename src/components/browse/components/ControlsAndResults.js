@@ -51,7 +51,7 @@ export class ControlsAndResults extends React.PureComponent {
     render() {
         const {
             // From Redux store or App.js:
-            context, schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session, isFullscreen, toggleFullScreen,
+            schemas, currentAction, windowWidth, windowHeight, registerWindowOnScrollHandler, session,
             addToBodyClassList, removeFromBodyClassList,
 
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
@@ -66,9 +66,9 @@ export class ControlsAndResults extends React.PureComponent {
             defaultOpenIndices = null,
             detailPane = null,
 
-            // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
-            href, onFilter,
-            showClearFiltersButton = false,
+            // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href & context)
+            context, href, requestedCompoundFilterSet,
+            onFilter, showClearFiltersButton = false,
             isOwnPage = true,         // <- False when rendered by EmbeddedSearchView, else is true when from a SearchView
             isContextLoading = false, // <- Only applicable for EmbeddedSearchView, passed in by VirtualHrefController only, else is false always since we initialize immediately over search-response context that already has first 25 results
 
@@ -88,12 +88,13 @@ export class ControlsAndResults extends React.PureComponent {
         } = this.props;
 
         // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
-        const { "@graph" : results, filters, total: showTotalResults = 0 } = context || {};
+        const { "@graph" : results, filters } = context || {};
         const searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
         const searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
 
         const searchResultTableProps = {
-            context, href, navigate, currentAction, schemas, results, columnDefinitions, visibleColumnDefinitions,
+            context, href, requestedCompoundFilterSet, navigate, currentAction, schemas, results,
+            columnDefinitions, visibleColumnDefinitions,
             setColumnWidths, columnWidths, detailPane,
             isOwnPage, sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight,
@@ -101,7 +102,7 @@ export class ControlsAndResults extends React.PureComponent {
         };
 
         const facetListProps = {
-            facets, filters, schemas, currentAction, showClearFiltersButton,
+            facets, filters, schemas, currentAction, showClearFiltersButton, isContextLoading,
             session, onFilter, windowWidth, windowHeight, termTransformFxn, separateSingleTermFacets,
             itemTypeForSchemas: searchItemType,
             maxBodyHeight: (!isOwnPage && maxHeight) || null,
@@ -110,14 +111,17 @@ export class ControlsAndResults extends React.PureComponent {
         };
 
         const aboveTableControlsProps = {
-            context, showTotalResults, hiddenColumns, columnDefinitions, addHiddenColumn, removeHiddenColumn,
+            context, columnDefinitions,
+            navigate,
+            // TODO: compoundSearchNavigate,
+            hiddenColumns, addHiddenColumn, removeHiddenColumn,
             currentAction, windowWidth, windowHeight
         };
 
         let extendedAboveTableComponent, extendedAboveFacetListComponent;
 
         const extendChild = function(child){
-            if (typeof child.type === "string") { // Element, not component
+            if (!React.isValidElement(child) || typeof child.type === "string") {
                 return child;
             }
             return React.cloneElement(child, aboveTableControlsProps);
@@ -133,19 +137,27 @@ export class ControlsAndResults extends React.PureComponent {
 
         return (
             <div className="row search-view-controls-and-results" data-search-item-type={searchItemType} data-search-abstract-type={searchAbstractItemType}>
-                { facets === null ? null: (
+                { facets === null ? null: ( // TODO: Hide if using `requestedCompoundFilterSet` instead of `href`
                     <div className={facetColumnClassName}>
                         { extendedAboveFacetListComponent }
-                        { Array.isArray(facets) && facets.length > 0 ?
-                            <FacetList {...facetListProps} />
-                            : isContextLoading ?
+                        {
+                            requestedCompoundFilterSet ? ( // Compound search used, FacetList UI cannot be used -
+                                <div className="facets-container with-header-bg">
+                                    <FacetListHeader />
+                                    <div className="py-4">
+                                        <h4 className="text-400 text-center">Compound Filter</h4>
+                                    </div>
+                                </div>
+                            ) : Array.isArray(facets) && facets.length > 0 ? (
+                                <FacetList {...facetListProps} />
+                            ) : isContextLoading ? (
                                 <div className="facets-container with-header-bg">
                                     <FacetListHeader />
                                     <div className="text-center py-4 text-secondary">
                                         <i className="icon icon-spin icon-circle-notch fas icon-2x" />
                                     </div>
                                 </div>
-                                : null }
+                            ) : null }
                     </div>
                 ) }
                 <div className={tableColumnClassName}>

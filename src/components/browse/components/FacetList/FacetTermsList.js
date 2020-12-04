@@ -226,7 +226,6 @@ export class FacetTermsList extends React.PureComponent {
         const {
             facet,
             fieldSchema,
-            terms,
             isStatic,
             anyTermsSelected: anySelected,
             termsSelectedCount,
@@ -238,7 +237,7 @@ export class FacetTermsList extends React.PureComponent {
             openPopover,
             setOpenPopover
         } = this.props;
-        const { description: facetSchemaDescription = null, field, title: facetTitle } = facet;
+        const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [] } = facet;
         const { expanded } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;

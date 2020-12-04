@@ -23,6 +23,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -55,31 +59,6 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
   var _super = _createSuper(SortController);
 
   _createClass(SortController, null, [{
-    key: "getPageAndLimitFromURL",
-
-    /**
-     * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
-     *
-     * @static
-     * @param {string} href - Current page href, with query.
-     * @returns {Object} { 'page' : int, 'limit' : int }
-     *
-     * @memberof SortController
-     */
-    value: function getPageAndLimitFromURL(href) {
-      var _url$parse = _url["default"].parse(href, true),
-          query = _url$parse.query;
-
-      var limit = parseInt(query.limit || 25);
-      var from = parseInt(query.from || 0);
-      if (isNaN(limit)) limit = 25;
-      if (isNaN(from)) from = 0;
-      return {
-        'page': from / limit + 1,
-        'limit': limit
-      };
-    }
-  }, {
     key: "getSortColumnAndReverseFromContext",
     value: function getSortColumnAndReverseFromContext(context) {
       var defaults = {
@@ -87,8 +66,7 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
         'sortReverse': false
       };
       if (!context || !context.sort) return defaults;
-
-      var sortKey = _underscore["default"].keys(context.sort);
+      var sortKey = Object.keys(context.sort);
 
       if (sortKey.length > 0) {
         // Use first if multiple.
@@ -118,7 +96,6 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
     }; // 'changingPage' = historical name, analogous of 'loading'
 
     _this.memoized = {
-      getPageAndLimitFromURL: (0, _memoizeOne["default"])(SortController.getPageAndLimitFromURL),
       getSortColumnAndReverseFromContext: (0, _memoizeOne["default"])(SortController.getSortColumnAndReverseFromContext)
     };
     return _this;
@@ -131,28 +108,51 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
 
       var _this$props = this.props,
           propNavigate = _this$props.navigate,
-          href = _this$props.href;
-      if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
-      if (typeof href !== 'string') throw new Error("Browse doesn't have props.href.");
+          _this$props$href = _this$props.href,
+          currSearchHref = _this$props$href === void 0 ? null : _this$props$href,
+          _this$props$requested = _this$props.requestedCompoundFilterSet,
+          requestedCompoundFilterSet = _this$props$requested === void 0 ? null : _this$props$requested;
+      var href = null;
 
-      var _url$parse2 = _url["default"].parse(href, true),
-          query = _url$parse2.query,
-          urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
-
-      if (key) {
-        query.sort = (reverse ? '-' : '') + key;
+      if (currSearchHref) {
+        href = currSearchHref;
+      } else if (requestedCompoundFilterSet) {
+        href = "?" + requestedCompoundFilterSet.global_flags || "";
       } else {
-        delete query.sort;
+        throw new Error("SortController doesn't have `props.href` nor `requestedCompoundFilterSet`.");
       }
 
-      urlParts.search = '?' + _querystring["default"].stringify(query);
-
-      var newHref = _url["default"].format(urlParts);
-
+      if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
+      if (typeof href !== 'string') throw new Error("Browse doesn't have props.href.");
       this.setState({
         'changingPage': true
       }, function () {
-        propNavigate(newHref, {
+        var _url$parse = _url["default"].parse(href, true),
+            query = _url$parse.query,
+            urlParts = _objectWithoutProperties(_url$parse, ["query"]);
+
+        if (key) {
+          query.sort = (reverse ? '-' : '') + key;
+        } else {
+          delete query.sort;
+        }
+
+        var stringifiedNextQuery = _querystring["default"].stringify(query);
+
+        var navTarget = null;
+
+        if (currSearchHref) {
+          urlParts.search = '?' + _querystring["default"].stringify(query);
+          navTarget = _url["default"].format(urlParts);
+        } else if (requestedCompoundFilterSet) {
+          navTarget = _objectSpread(_objectSpread({}, requestedCompoundFilterSet), {}, {
+            "global_flags": stringifiedNextQuery
+          });
+        } else {
+          throw new Error("SortController doesn't have `props.href` nor `requestedCompoundFilterSet`.");
+        }
+
+        propNavigate(navTarget, {
           'replace': true
         }, function () {
           _this2.setState({
@@ -167,28 +167,22 @@ var SortController = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props2 = this.props,
           children = _this$props2.children,
           context = _this$props2.context,
-          href = _this$props2.href;
+          passProps = _objectWithoutProperties(_this$props2, ["children", "context"]);
 
       var _this$memoized$getSor = this.memoized.getSortColumnAndReverseFromContext(context),
           sortColumn = _this$memoized$getSor.sortColumn,
-          sortReverse = _this$memoized$getSor.sortReverse; // The below `page` and `limit` aren't used any longer (I think).
+          sortReverse = _this$memoized$getSor.sortReverse;
 
-
-      var _this$memoized$getPag = this.memoized.getPageAndLimitFromURL(href),
-          page = _this$memoized$getPag.page,
-          limit = _this$memoized$getPag.limit;
-
-      var propsToPass = _underscore["default"].extend(_underscore["default"].omit(this.props, 'children'), {
-        'sortBy': this.sortBy
-      }, {
+      var childProps = _objectSpread(_objectSpread({}, passProps), {}, {
+        context: context,
         sortColumn: sortColumn,
         sortReverse: sortReverse,
-        page: page,
-        limit: limit
+        sortBy: this.sortBy
       });
 
       return _react["default"].Children.map(children, function (c) {
-        return /*#__PURE__*/_react["default"].cloneElement(c, propsToPass);
+        if (! /*#__PURE__*/_react["default"].isValidElement(c) || typeof c.type === "string") return c;
+        return /*#__PURE__*/_react["default"].cloneElement(c, childProps);
       });
     }
   }]);

@@ -15,9 +15,15 @@ var _typedefs = require("./typedefs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+// let cachedAppRootComponentInstance = null;
 var cachedNavFunction = null;
+var cachedUpdateUserInfoFunction = null;
 var callbackFunctions = [];
 /**
+ * All of this is very much of a React anti-pattern...
+ * Much of navigate probably could be more static/global and work w. Redux store maybe,
+ * especially if `session` and similar is moved to Redux store from App component(s).
+ *
  * Navigation function, defined globally to act as alias of App.navigate.
  * Is set in App constructor via navigate.setNavigateFunction.
  *
@@ -25,6 +31,8 @@ var callbackFunctions = [];
  * Uses the same parameters as app.prototype.navigate(..).
  *
  * Use by importing and calling in the same way app.navigate might be used.
+ *
+ * @todo Utilize `cachedAppRootComponentInstance` instead, once we've migrated to `initializeFromApp` for all projects.
  *
  * @param {string}       href                        Where to navigate to.
  * @param {NavigateOpts} [options={}]                Additional options, examine App.navigate for details.
@@ -52,23 +60,41 @@ var navigate = function (href) {
     if (typeof callback === 'function') callback(jsonResponse); // Original callback
   };
 
-  return cachedNavFunction.call(cachedNavFunction, href, options, callbackFxn, fallbackCallback, includeReduxDispatch);
+  return cachedNavFunction(href, options, callbackFxn, fallbackCallback, includeReduxDispatch);
 };
 /******* PUBLIC STATIC FUNCTIONS *******/
 
 /**
  * This is called in app initialization to alias app.navigate into this global module/function.
  *
- * @param {function} navFxn - The `navigate` function bound to `App` component to be aliased.
  * @returns {void}
  */
 
 
 exports.navigate = navigate;
 
+navigate.initializeFromApp = function (rootAppComponentInstance) {
+  if (typeof rootAppComponentInstance.navigate !== 'function') throw new Error("`rootAppComponentInstance.navigate` is not a function."); // cachedAppRootComponentInstance = rootAppComponentInstance; // <-- Super anti-pattern...
+
+  cachedNavFunction = rootAppComponentInstance.navigate;
+  cachedUpdateUserInfoFunction = rootAppComponentInstance.updateUserInfo;
+};
+/**
+ * This is called in app initialization to alias app.navigate into this global module/function.
+ *
+ * @deprecated Replaced by `navigate.initializeFromApp`.
+ * @param {function} navFxn - The `navigate` function bound to `App` component to be aliased.
+ * @returns {void}
+ */
+
+
 navigate.setNavigateFunction = function (navFxn) {
   if (typeof navFxn !== 'function') throw new Error("Not a function.");
   cachedNavFunction = navFxn;
+};
+
+navigate.updateUserInfo = function () {
+  return cachedUpdateUserInfoFunction.apply(void 0, arguments);
 };
 
 navigate.determineSeparatorChar = function (href) {

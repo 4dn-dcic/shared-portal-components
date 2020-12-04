@@ -31,7 +31,8 @@ export class EmbeddedSearchView extends React.PureComponent {
      * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
      */
     static propTypes = {
-        'searchHref'    : PropTypes.string.isRequired,
+        // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
+        'searchHref'    : PropTypes.string,
         // From Redux store; is NOT passed down. Overriden instead.
         'context'       : PropTypes.object,
         // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
@@ -118,6 +119,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             windowWidth,
             // Will inherit props from VirtualHrefController, including search response `context`.
             embeddedTableHeader = null,
+            embeddedTableFooter = null,
             // Optional prop to which virtualNavigate is passed that may override default
             // of navigating back to `searchHref`.
             onClearFiltersVirtual,
@@ -136,12 +138,13 @@ export class EmbeddedSearchView extends React.PureComponent {
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref}>
-                    { embeddedTableHeader }
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref || 1}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
+                                { embeddedTableHeader }
                                 <ControlsAndResults {...viewProps} isOwnPage={false} />
+                                { embeddedTableFooter }
                             </SortController>
                         </CustomColumnController>
                     </ColumnCombiner>

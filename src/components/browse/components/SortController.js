@@ -25,34 +25,13 @@ export class SortController extends React.PureComponent {
         }
     };
 
-    /**
-     * Grab limit & page (via '(from / limit) + 1 ) from URL, if available.
-     *
-     * @static
-     * @param {string} href - Current page href, with query.
-     * @returns {Object} { 'page' : int, 'limit' : int }
-     *
-     * @memberof SortController
-     */
-    static getPageAndLimitFromURL(href){
-        const { query } = url.parse(href, true);
-        let limit = parseInt(query.limit || 25);
-        let from  = parseInt(query.from  || 0);
-        if (isNaN(limit)) limit = 25;
-        if (isNaN(from)) from = 0;
-        return {
-            'page' : (from / limit) + 1,
-            'limit' : limit
-        };
-    }
-
     static getSortColumnAndReverseFromContext(context){
         const defaults = {
             'sortColumn'    : null,
             'sortReverse'   : false
         };
         if (!context || !context.sort) return defaults;
-        let sortKey = _.keys(context.sort);
+        let sortKey = Object.keys(context.sort);
         if (sortKey.length > 0){
             // Use first if multiple.
             // eslint-disable-next-line prefer-destructuring
@@ -73,27 +52,51 @@ export class SortController extends React.PureComponent {
         this.state = { 'changingPage' : false }; // 'changingPage' = historical name, analogous of 'loading'
 
         this.memoized = {
-            getPageAndLimitFromURL: memoize(SortController.getPageAndLimitFromURL),
             getSortColumnAndReverseFromContext: memoize(SortController.getSortColumnAndReverseFromContext)
         };
     }
 
     sortBy(key, reverse) {
-        const { navigate : propNavigate, href } = this.props;
+        const {
+            navigate: propNavigate,
+            href: currSearchHref = null,
+            requestedCompoundFilterSet = null
+        } = this.props;
+
+        let href = null;
+        if (currSearchHref) {
+            href = currSearchHref;
+        } else if (requestedCompoundFilterSet) {
+            href = "?" + requestedCompoundFilterSet.global_flags || "";
+        } else {
+            throw new Error("SortController doesn't have `props.href` nor `requestedCompoundFilterSet`.");
+        }
+
         if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
         if (typeof href !== 'string') throw new Error("Browse doesn't have props.href.");
 
-        const { query, ...urlParts } = url.parse(href, true);
-        if (key){
-            query.sort = (reverse ? '-' : '' ) + key;
-        } else {
-            delete query.sort;
-        }
-        urlParts.search = '?' + queryString.stringify(query);
-        const newHref = url.format(urlParts);
+        this.setState({ 'changingPage' : true }, () => {
+            const { query, ...urlParts } = url.parse(href, true);
 
-        this.setState({ 'changingPage' : true }, ()=>{
-            propNavigate(newHref, { 'replace' : true }, ()=>{
+            if (key){
+                query.sort = (reverse ? '-' : '' ) + key;
+            } else {
+                delete query.sort;
+            }
+
+            const stringifiedNextQuery = queryString.stringify(query);
+
+            let navTarget = null;
+            if (currSearchHref) {
+                urlParts.search = '?' + queryString.stringify(query);
+                navTarget = url.format(urlParts);
+            } else if (requestedCompoundFilterSet) {
+                navTarget = { ...requestedCompoundFilterSet, "global_flags": stringifiedNextQuery };
+            } else {
+                throw new Error("SortController doesn't have `props.href` nor `requestedCompoundFilterSet`.");
+            }
+
+            propNavigate(navTarget, { 'replace' : true }, () => {
                 this.setState({ 'changingPage' : false });
             });
         });
@@ -101,20 +104,19 @@ export class SortController extends React.PureComponent {
     }
 
     render(){
-        const { children, context, href } = this.props;
+        const { children, context, ...passProps } = this.props;
         const { sortColumn, sortReverse } = this.memoized.getSortColumnAndReverseFromContext(context);
-        // The below `page` and `limit` aren't used any longer (I think).
-        const { page, limit } = this.memoized.getPageAndLimitFromURL(href);
-        const propsToPass = _.extend(
-            _.omit(this.props, 'children'),
-            { 'sortBy' : this.sortBy, },
-            { sortColumn, sortReverse, page, limit }
-        );
+        const childProps = {
+            ...passProps,
+            context,
+            sortColumn, sortReverse,
+            sortBy: this.sortBy
+        };
 
         return React.Children.map(children, function(c){
-            return React.cloneElement(c, propsToPass);
+            if (!React.isValidElement(c) || typeof c.type === "string") return c;
+            return React.cloneElement(c, childProps);
         });
     }
-
 
 }

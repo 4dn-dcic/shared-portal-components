@@ -204,7 +204,8 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
           result = _this$props.result,
           context = _this$props.context,
           rowNumber = _this$props.rowNumber,
-          href = _this$props.href;
+          href = _this$props.href,
+          isOwnPage = _this$props.isOwnPage;
       var pastOpen = pastProps.open;
 
       if (pastOpen !== open) {
@@ -212,8 +213,8 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
           this.setDetailHeightFromPane();
           var display_title = result.display_title;
           analytics.productAddDetailViewed(result, context, {
-            position: rowNumber,
-            list: analytics.hrefToListName(href)
+            "position": rowNumber,
+            "list": !isOwnPage ? "Embedded Search View" : analytics.hrefToListName(href)
           });
           analytics.event("SearchResult DetailPane", "Opened", {
             eventLabel: display_title
@@ -371,11 +372,12 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       var _this$props5 = this.props,
           result = _this$props5.result,
           href = _this$props5.href,
-          schemas = _this$props5.schemas; // Result JSON itself.
+          schemas = _this$props5.schemas; // TODO: handle lack of href and grab from window.location instead.
+      // Result JSON itself.
 
       evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result)); // Result URL and @id.
 
-      var hrefParts = _url["default"].parse(href);
+      var hrefParts = typeof href === "string" ? _url["default"].parse(href) : window.location;
 
       var atId = _object.itemUtil.atId(result);
 
@@ -499,8 +501,8 @@ _defineProperty(ResultRow, "propTypes", {
   'context': _propTypes["default"].object.isRequired
 });
 
-var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(LoadMoreAsYouScroll, _React$PureComponent3);
+var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
+  _inherits(LoadMoreAsYouScroll, _React$Component);
 
   var _super3 = _createSuper(LoadMoreAsYouScroll);
 
@@ -527,6 +529,20 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
       };
       return styles;
     }
+  }, {
+    key: "getElementHeight",
+    value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeight) {
+      return Object.keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
+        // openRowHeight + openDetailPane height
+        var savedHeight = openDetailPanes[c.props.id];
+
+        if (savedHeight && typeof savedHeight === 'number') {
+          return openDetailPanes[c.props.id] + openRowHeight;
+        }
+
+        return rowHeight;
+      });
+    }
   }]);
 
   function LoadMoreAsYouScroll(props) {
@@ -535,9 +551,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
     _classCallCheck(this, LoadMoreAsYouScroll);
 
     _this4 = _super3.call(this, props);
-    _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000); //this.handleScrollingStateChange = this.handleScrollingStateChange.bind(this);
-    //this.handleScrollExt = this.handleScrollExt.bind(this);
-
+    _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000);
     _this4.state = {
       'isLoading': false
     };
@@ -547,7 +561,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
     }
 
     _this4.memoized = {
-      getStyles: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getStyles)
+      getStyles: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getStyles),
+      getElementHeight: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getElementHeight)
     };
     _this4.lastIsScrolling = false;
     _this4.infiniteComponentRef = /*#__PURE__*/_react["default"].createRef();
@@ -571,6 +586,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
 
       var _this$props7 = this.props,
           origHref = _this$props7.href,
+          _this$props7$requeste = _this$props7.requestedCompoundFilterSet,
+          origCompoundFilterSet = _this$props7$requeste === void 0 ? null : _this$props7$requeste,
           _this$props7$results = _this$props7.results,
           existingResults = _this$props7$results === void 0 ? [] : _this$props7$results,
           _this$props7$isOwnPag = _this$props7.isOwnPage,
@@ -579,16 +596,24 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
           setResults = _this$props7.setResults,
           _this$props7$navigate = _this$props7.navigate,
           navigate = _this$props7$navigate === void 0 ? _navigate.navigate : _this$props7$navigate;
-
-      var parts = _url["default"].parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-
-
-      var query = parts.query;
       var nextFromValue = existingResults.length;
-      query.from = nextFromValue;
-      parts.search = '?' + _querystring["default"].stringify(query);
+      var nextHref = null;
+      var nextCompoundFilterSetRequest = null;
 
-      var nextHref = _url["default"].format(parts);
+      if (!origCompoundFilterSet) {
+        // Assumed href/string request
+        var parts = _url["default"].parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
+
+
+        var query = parts.query;
+        query.from = nextFromValue;
+        parts.search = '?' + _querystring["default"].stringify(query);
+        nextHref = _url["default"].format(parts);
+      } else {
+        nextCompoundFilterSetRequest = _objectSpread(_objectSpread({}, origCompoundFilterSet), {}, {
+          "from": nextFromValue
+        });
+      }
 
       var requestInThisScope = null;
 
@@ -617,20 +642,29 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
           var keyIntersection = _underscore["default"].intersection(oldKeys.sort(), newKeys.sort());
 
           if (keyIntersection.length > 0) {
-            _patchedConsole.patchedConsoleInstance.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
+            _patchedConsole.patchedConsoleInstance.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys); // We can refresh current page to get newest results.
+
 
             _this5.setState({
               'isLoading': false
             }, function () {
-              navigate('', {
-                'inPlace': true
-              }, onDuplicateResultsFoundCallback);
+              if (origCompoundFilterSet) {
+                // Assumed to be embedded search view with virtual navigate (can't query with compound filtersets on /search/ pages)
+                navigate(_objectSpread(_objectSpread({}, origCompoundFilterSet), {}, {
+                  "from": 0
+                }), {}, onDuplicateResultsFoundCallback);
+              } else {
+                // This might be global navigate (if isOwnPage) or virtual navigate (if embedded search view) (which can accept string or obj).
+                navigate('', {
+                  'inPlace': true
+                }, onDuplicateResultsFoundCallback);
+              }
             });
           } else {
             _this5.setState({
               'isLoading': false
             }, function () {
-              analytics.impressionListOfItems(nextResults, nextHref, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View");
+              analytics.impressionListOfItems(nextResults, nextHref || window.location.href, isOwnPage ? analytics.hrefToListName(nextHref) : "Embedded Search View");
               analytics.event('SearchResultTable', "Loaded More Results", {
                 eventValue: nextFromValue
               });
@@ -649,7 +683,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
       this.setState({
         'isLoading': true
       }, function () {
-        _this5.currRequest = requestInThisScope = (0, _ajax.load)(nextHref, loadCallback, 'GET', loadCallback);
+        _this5.currRequest = requestInThisScope = (0, _ajax.load)(nextCompoundFilterSetRequest ? "/compound_search" : nextHref, loadCallback, nextCompoundFilterSetRequest ? "POST" : "GET", loadCallback, nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null);
       });
     }
   }, {
@@ -676,16 +710,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
         }, /*#__PURE__*/_react["default"].createElement("div", null, children));
       }
 
-      var elementHeight = _underscore["default"].keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
-        // openRowHeight + openDetailPane height
-        var savedHeight = openDetailPanes[c.props.id];
-
-        if (savedHeight && typeof savedHeight === 'number') {
-          return openDetailPanes[c.props.id] + openRowHeight;
-        }
-
-        return rowHeight;
-      });
+      var elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight);
       return /*#__PURE__*/_react["default"].createElement(_reactInfinite["default"], {
         className: "react-infinite-container",
         ref: this.infiniteComponentRef,
@@ -709,10 +734,11 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$PureComponent3) {
   }]);
 
   return LoadMoreAsYouScroll;
-}(_react["default"].PureComponent);
+}(_react["default"].Component);
 
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
-  'href': _propTypes["default"].string.isRequired,
+  'href': _propTypes["default"].string,
+  'requestedCompoundFilterSet': _propTypes["default"].object,
   'results': _propTypes["default"].array.isRequired,
   // From parent
   'rowHeight': _propTypes["default"].number.isRequired,
@@ -764,8 +790,8 @@ var LoadingSpinner = /*#__PURE__*/_react["default"].memo(function (_ref3) {
   }), "\xA0 Loading..."));
 });
 
-var ShadowBorderLayer = /*#__PURE__*/function (_React$Component) {
-  _inherits(ShadowBorderLayer, _React$Component);
+var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
+  _inherits(ShadowBorderLayer, _React$Component2);
 
   var _super4 = _createSuper(ShadowBorderLayer);
 
@@ -928,8 +954,8 @@ _defineProperty(ShadowBorderLayer, "defaultProps", {
   'horizontalScrollRateOnEdgeButton': 10
 });
 
-var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
-  _inherits(DimensioningContainer, _React$PureComponent4);
+var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
+  _inherits(DimensioningContainer, _React$PureComponent3);
 
   var _super5 = _createSuper(DimensioningContainer);
 
@@ -998,7 +1024,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
   }, {
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(_ref4, _ref5) {
-      var ctxResults = _ref4.results;
+      var _ref4$results = _ref4.results,
+          ctxResults = _ref4$results === void 0 ? [] : _ref4$results;
       var originalResults = _ref5.originalResults;
 
       if (ctxResults !== originalResults) {
@@ -1030,14 +1057,16 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
     _this8.onHorizontalScroll = _this8.onHorizontalScroll.bind(_assertThisInitialized(_this8));
     _this8.setResults = _this8.setResults.bind(_assertThisInitialized(_this8));
     _this8.canLoadMore = _this8.canLoadMore.bind(_assertThisInitialized(_this8));
+    var _props$results = props.results,
+        originalResults = _props$results === void 0 ? [] : _props$results;
     _this8.state = {
       'mounted': false,
-      'results': props.results.slice(0),
+      'results': originalResults.slice(0),
       // { row key : detail pane height } used for determining if detail pane is open + height for Infinite listview
       'openDetailPanes': {},
       'tableContainerScrollLeft': 0,
       'tableContainerWidth': 0,
-      'originalResults': props.results // Reference to original results in order to utilize getDerivedStateFromProps.
+      originalResults: originalResults // Reference to original results in order to utilize getDerivedStateFromProps.
 
     };
 
@@ -1316,7 +1345,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _underscore["default"].pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate')), {}, {
+      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _underscore["default"].pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet')), {}, {
         context: context,
         rowHeight: rowHeight,
         openRowHeight: openRowHeight,
@@ -1416,8 +1445,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent4) {
  */
 
 
-var SearchResultTable = /*#__PURE__*/function (_React$Component2) {
-  _inherits(SearchResultTable, _React$Component2);
+var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
+  _inherits(SearchResultTable, _React$Component3);
 
   var _super6 = _createSuper(SearchResultTable);
 
@@ -1480,7 +1509,9 @@ exports.SearchResultTable = SearchResultTable;
 
 _defineProperty(SearchResultTable, "propTypes", {
   'results': _propTypes["default"].arrayOf(ResultRow.propTypes.result).isRequired,
-  'href': _propTypes["default"].string.isRequired,
+  // Either href or requestedCompoundFilterSet should be present:
+  'href': _propTypes["default"].string,
+  'requestedCompoundFilterSet': _propTypes["default"].object,
   'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].object),
   'defaultWidthMap': _propTypes["default"].shape({
     'lg': _propTypes["default"].number.isRequired,

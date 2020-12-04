@@ -174,7 +174,7 @@ var CustomColumnController = /*#__PURE__*/function (_React$Component) {
           alwaysHiddenColsList = _this$props$hiddenCol === void 0 ? [] : _this$props$hiddenCol,
           allColumnDefinitions = _this$props.columnDefinitions,
           filterColumnFxn = _this$props.filterColumnFxn,
-          propsToPass = _objectWithoutProperties(_this$props, ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"]);
+          remainingProps = _objectWithoutProperties(_this$props, ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"]);
 
       var _this$state = this.state,
           hiddenColumns = _this$state.hiddenColumns,
@@ -188,7 +188,7 @@ var CustomColumnController = /*#__PURE__*/function (_React$Component) {
       var columnDefinitions = this.memoized.filterOutPropHiddenCols(allColumnDefinitions, alwaysHiddenCols, filterColumnFxn);
       var visibleColumnDefinitions = this.memoized.filterOutStateHiddenCols(columnDefinitions, hiddenColumns);
 
-      _underscore["default"].extend(propsToPass, {
+      var propsToPass = _objectSpread(_objectSpread({}, remainingProps), {}, {
         hiddenColumns: hiddenColumns,
         columnDefinitions: columnDefinitions,
         visibleColumnDefinitions: visibleColumnDefinitions,
@@ -222,47 +222,50 @@ var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
 
   var _super2 = _createSuper(CustomColumnSelector);
 
+  _createClass(CustomColumnSelector, null, [{
+    key: "columnDefinitionsWithHiddenState",
+
+    /**
+     * Extends `props.columnDefinitions` (Object[]) with property `hiddenState` (boolean)
+     * according to internal state of `hiddenColumns` (Object.<boolean>).
+     *
+     * Sorts columns according to order and remove the display_title option, as well.
+     *
+     * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
+     */
+    value: function columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns) {
+      return _underscore["default"].sortBy(columnDefinitions.filter(function (c) {
+        return c.field !== 'display_title'; // Should always remain visible.
+      }), 'order').map(function (colDef) {
+        return _objectSpread(_objectSpread({}, colDef), {}, {
+          'hiddenState': hiddenColumns[colDef.field] === true
+        });
+      });
+    }
+  }]);
+
   function CustomColumnSelector(props) {
     var _this2;
 
     _classCallCheck(this, CustomColumnSelector);
 
     _this2 = _super2.call(this, props);
-    _this2.columnDefinitionsWithHiddenState = _this2.columnDefinitionsWithHiddenState.bind(_assertThisInitialized(_this2));
     _this2.handleOptionVisibilityChange = _underscore["default"].throttle(_this2.handleOptionVisibilityChange.bind(_assertThisInitialized(_this2)), 300);
+    _this2.memoized = {
+      columnDefinitionsWithHiddenState: (0, _memoizeOne["default"])(CustomColumnSelector.columnDefinitionsWithHiddenState)
+    };
     return _this2;
   }
-  /**
-   * Extends `props.columnDefinitions` (Object[]) with property `hiddenState` (boolean)
-   * according to internal state of `hiddenColumns` (Object.<boolean>).
-   *
-   * Sorts columns according to order and remove the display_title option, as well.
-   *
-   * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
-   */
-
 
   _createClass(CustomColumnSelector, [{
-    key: "columnDefinitionsWithHiddenState",
-    value: function columnDefinitionsWithHiddenState() {
-      var _this$props2 = this.props,
-          columnDefinitions = _this$props2.columnDefinitions,
-          hiddenColumns = _this$props2.hiddenColumns;
-      return _underscore["default"].map(_underscore["default"].sortBy(_underscore["default"].filter(columnDefinitions, function (c) {
-        return c.field !== 'display_title';
-      }), 'order'), function (colDef) {
-        return _underscore["default"].extend({}, colDef, {
-          'hiddenState': hiddenColumns[colDef.field] === true
-        });
-      });
-    }
-  }, {
     key: "handleOptionVisibilityChange",
-    value: function handleOptionVisibilityChange(field) {
-      var _this$props3 = this.props,
-          hiddenColumns = _this$props3.hiddenColumns,
-          removeHiddenColumn = _this$props3.removeHiddenColumn,
-          addHiddenColumn = _this$props3.addHiddenColumn;
+    value: function handleOptionVisibilityChange(evt) {
+      evt.stopPropagation();
+      var field = evt.target.value;
+      var _this$props2 = this.props,
+          hiddenColumns = _this$props2.hiddenColumns,
+          removeHiddenColumn = _this$props2.removeHiddenColumn,
+          addHiddenColumn = _this$props2.addHiddenColumn;
       setTimeout(function () {
         if (hiddenColumns[field] === true) {
           removeHiddenColumn(field);
@@ -276,9 +279,12 @@ var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
     value: function render() {
       var _this3 = this;
 
+      var _this$props3 = this.props,
+          columnDefinitions = _this$props3.columnDefinitions,
+          hiddenColumns = _this$props3.hiddenColumns;
       return /*#__PURE__*/_react["default"].createElement("div", {
         className: "row clearfix"
-      }, _underscore["default"].map(this.columnDefinitionsWithHiddenState(), function (colDef, idx, all) {
+      }, this.memoized.columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns).map(function (colDef, idx, all) {
         return /*#__PURE__*/_react["default"].createElement(ColumnOption, _extends({}, colDef, {
           key: colDef.field || idx,
           allColumns: all,
@@ -307,13 +313,13 @@ var ColumnOption = /*#__PURE__*/_react["default"].memo(function (props) {
       description = props.description,
       index = props.index,
       handleOptionVisibilityChange = props.handleOptionVisibilityChange;
-  var isChecked = !hiddenState;
+  var checked = !hiddenState;
 
   var sameTitleColExists = _underscore["default"].any(allColumns.slice(0, index).concat(allColumns.slice(index + 1)), {
     title: title
   });
 
-  var cls = "clickable" + (isChecked ? ' is-active' : '');
+  var className = "clickable" + (checked ? ' is-active' : '');
   var showDescription = description;
 
   if (sameTitleColExists) {
@@ -329,12 +335,11 @@ var ColumnOption = /*#__PURE__*/_react["default"].memo(function (props) {
     key: field,
     "data-tip": showDescription,
     "data-html": true
-  }, /*#__PURE__*/_react["default"].createElement(_Checkbox.Checkbox, {
-    checked: isChecked,
-    onChange: function onChange(e) {
-      return handleOptionVisibilityChange(field, e);
-    },
+  }, /*#__PURE__*/_react["default"].createElement(_Checkbox.Checkbox, _extends({
+    className: className,
+    checked: checked
+  }, {
     value: field,
-    className: cls
-  }, title));
+    onChange: handleOptionVisibilityChange
+  }), title));
 });

@@ -117,6 +117,10 @@ var shortenString = (0, _memoizeOne["default"])(function (originalText) {
  *
  * 2019-07-10 -- updated to Bootstrap v4 breakpoints, added 'xl'.
  *
+ * @deprecated
+ * Will be replaced by portal-specific versions soon/eventually.
+ * Prefer CSS/classNames if possible.
+ *
  * @param {number} width - Width of the current browser _window_.
  * @return {string} - Abbreviation for column/grid Bootstrap size, e.g. 'lg', 'md', 'sm', or 'xs'.
  */
@@ -144,6 +148,10 @@ var responsiveGridState = (0, _memoizeOne["default"])(function () {
  * $container-desktop - $grid-gutter-width, and
  * $container-large-desktop - $grid-gutter-width
  * in src/encoded/static/scss/bootstrap/_variables.scss.
+ *
+ * @deprecated
+ * Will be replaced by portal-specific versions soon/eventually.
+ * Prefer CSS/classNames if possible.
  *
  * @param {number} [windowWidth] Optional current window width to supply.
  * @return {integer}
