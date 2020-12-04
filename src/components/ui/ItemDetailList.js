@@ -117,7 +117,7 @@ class SubItemTable extends React.Component {
         if (!_.all(list, function(x){ return typeof x === 'object' && x; })) return false;
         if (_.any(list, function(x){
             if (!Array.isArray(x['@type'])){
-                return true; // No @type so we can't get 'columns' from schemas.
+                {/* return true; // No @type so we can't get 'columns' from schemas. */}
             } else {
                 schemaForType = getSchemaForItemType(x['@type'][0], schemas);
                 if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
@@ -226,6 +226,12 @@ class SubItemTable extends React.Component {
                     }
                 }
             }
+        }
+
+        const excludedKeys = ['principals_allowed', '@type', 'uuid'];
+        var reminderKeys = _.difference(_.keys(objectWithAllItemKeys), excludedKeys);
+        if (reminderKeys.length <= 2) {
+            return false;
         }
 
         return true;
