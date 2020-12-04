@@ -176,6 +176,18 @@ export class RangeFacet extends React.PureComponent {
         this.state = { ...RangeFacet.initialStateValues(props), "facetClosing": false };
     }
 
+    componentDidUpdate(pastProps, pastState) {
+        const { toVal: previousToVal, fromVal: previousFromVal } = pastProps;
+        const { toVal, fromVal } = this.props;
+
+        if ((toVal !== previousToVal) || (fromVal !== previousFromVal)) {
+            // console.log("update occurred! toVal ", previousToVal, " -> ", toVal);
+            // console.log("update occurred! fromVal ", previousFromVal, " -> ", fromVal);
+            // force manual update TODO: update for specific filter block switch circumstances
+            this.setState({ toVal, fromVal });
+        }
+    }
+
     setFrom(value, callback){
         const { facet } = this.props;
         console.log("setFrom called with", value);

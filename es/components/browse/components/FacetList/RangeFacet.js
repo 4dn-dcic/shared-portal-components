@@ -252,6 +252,25 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }
 
   _createClass(RangeFacet, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(pastProps) {
+      var previousToVal = pastProps.toVal,
+          previousFromVal = pastProps.fromVal;
+      var _this$props = this.props,
+          toVal = _this$props.toVal,
+          fromVal = _this$props.fromVal;
+
+      if (toVal !== previousToVal || fromVal !== previousFromVal) {
+        // console.log("update occurred! toVal ", previousToVal, " -> ", toVal);
+        // console.log("update occurred! fromVal ", previousFromVal, " -> ", fromVal);
+        // force manual update TODO: update for specific filter block switch circumstances
+        this.setState({
+          toVal: toVal,
+          fromVal: fromVal
+        });
+      }
+    }
+  }, {
     key: "setFrom",
     value: function setFrom(value, callback) {
       var facet = this.props.facet;
@@ -302,9 +321,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "performUpdateFrom",
     value: function performUpdateFrom() {
-      var _this$props = this.props,
-          onFilter = _this$props.onFilter,
-          facet = _this$props.facet;
+      var _this$props2 = this.props,
+          onFilter = _this$props2.onFilter,
+          facet = _this$props2.facet;
       var fromVal = this.state.fromVal;
 
       _patchedConsole.patchedConsoleInstance.log("performUpdateFrom", fromVal);
@@ -318,9 +337,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "performUpdateTo",
     value: function performUpdateTo() {
-      var _this$props2 = this.props,
-          onFilter = _this$props2.onFilter,
-          facet = _this$props2.facet;
+      var _this$props3 = this.props,
+          onFilter = _this$props3.onFilter,
+          facet = _this$props3.facet;
       var toVal = this.state.toVal;
 
       _patchedConsole.patchedConsoleInstance.log("performUpdateTo", toVal);
@@ -334,9 +353,9 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "performUpdateToAndFrom",
     value: function performUpdateToAndFrom() {
-      var _this$props3 = this.props,
-          onFilterMultiple = _this$props3.onFilterMultiple,
-          facet = _this$props3.facet;
+      var _this$props4 = this.props,
+          onFilterMultiple = _this$props4.onFilterMultiple,
+          facet = _this$props4.facet;
       var _this$state = this.state,
           toVal = _this$state.toVal,
           fromVal = _this$state.fromVal;
@@ -389,11 +408,11 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleOpenToggleClick",
     value: function handleOpenToggleClick(e) {
       e.preventDefault();
-      var _this$props4 = this.props,
-          onToggleOpen = _this$props4.onToggleOpen,
-          field = _this$props4.facet.field,
-          _this$props4$facetOpe = _this$props4.facetOpen,
-          facetOpen = _this$props4$facetOpe === void 0 ? false : _this$props4$facetOpe;
+      var _this$props5 = this.props,
+          onToggleOpen = _this$props5.onToggleOpen,
+          field = _this$props5.facet.field,
+          _this$props5$facetOpe = _this$props5.facetOpen,
+          facetOpen = _this$props5$facetOpe === void 0 ? false : _this$props5$facetOpe;
       onToggleOpen(field, !facetOpen);
     }
     /**
@@ -406,10 +425,10 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     value: function termTitle(fieldName, value) {
       var allowJSX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
       var toPrecision = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-      var _this$props5 = this.props,
-          _this$props5$facet$fi = _this$props5.facet.field_type,
-          field_type = _this$props5$facet$fi === void 0 ? "number" : _this$props5$facet$fi,
-          termTransformFxn = _this$props5.termTransformFxn;
+      var _this$props6 = this.props,
+          _this$props6$facet$fi = _this$props6.facet.field_type,
+          field_type = _this$props6$facet$fi === void 0 ? "number" : _this$props6$facet$fi,
+          termTransformFxn = _this$props6.termTransformFxn;
 
       if (field_type === "date") {
         return /*#__PURE__*/_react["default"].createElement(_LocalizedTime.LocalizedTime, {
@@ -450,17 +469,17 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     value: function render() {
       var _this2 = this;
 
-      var _this$props6 = this.props,
-          schemas = _this$props6.schemas,
-          itemTypeForSchemas = _this$props6.itemTypeForSchemas,
-          facet = _this$props6.facet,
-          propTitle = _this$props6.title,
-          isStatic = _this$props6.isStatic,
-          savedFromVal = _this$props6.fromVal,
-          savedToVal = _this$props6.toVal,
-          facetOpen = _this$props6.facetOpen,
-          openPopover = _this$props6.openPopover,
-          setOpenPopover = _this$props6.setOpenPopover;
+      var _this$props7 = this.props,
+          schemas = _this$props7.schemas,
+          itemTypeForSchemas = _this$props7.itemTypeForSchemas,
+          facet = _this$props7.facet,
+          propTitle = _this$props7.title,
+          isStatic = _this$props7.isStatic,
+          savedFromVal = _this$props7.fromVal,
+          savedToVal = _this$props7.toVal,
+          facetOpen = _this$props7.facetOpen,
+          openPopover = _this$props7.openPopover,
+          setOpenPopover = _this$props7.setOpenPopover;
       var aggregation_type = facet.aggregation_type,
           _facet$field_type3 = facet.field_type,
           field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
@@ -654,9 +673,9 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       var _this4 = this;
 
       //expecting this onClick to be onFilterMultiple, basically
-      var _this$props7 = this.props,
-          range = _this$props7.range,
-          onClick = _this$props7.onClick;
+      var _this$props8 = this.props,
+          range = _this$props8.range,
+          onClick = _this$props8.onClick;
       var _range$to = range.to,
           to = _range$to === void 0 ? null : _range$to,
           _range$from = range.from,
@@ -678,11 +697,11 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props8 = this.props,
-          range = _this$props8.range,
-          facet = _this$props8.facet,
-          status = _this$props8.status,
-          termTransformFxn = _this$props8.termTransformFxn;
+      var _this$props9 = this.props,
+          range = _this$props9.range,
+          facet = _this$props9.facet,
+          status = _this$props9.status,
+          termTransformFxn = _this$props9.termTransformFxn;
       var doc_count = range.doc_count,
           from = range.from,
           to = range.to,
@@ -765,14 +784,14 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
   _createClass(RangeClear, [{
     key: "render",
     value: function render() {
-      var _this$props9 = this.props,
-          savedFromVal = _this$props9.savedFromVal,
-          savedToVal = _this$props9.savedToVal,
-          resetTo = _this$props9.resetTo,
-          resetFrom = _this$props9.resetFrom,
-          resetAll = _this$props9.resetAll,
-          facet = _this$props9.facet,
-          termTransformFxn = _this$props9.termTransformFxn;
+      var _this$props10 = this.props,
+          savedFromVal = _this$props10.savedFromVal,
+          savedToVal = _this$props10.savedToVal,
+          resetTo = _this$props10.resetTo,
+          resetFrom = _this$props10.resetFrom,
+          resetAll = _this$props10.resetAll,
+          facet = _this$props10.facet,
+          termTransformFxn = _this$props10.termTransformFxn;
       var facetField = facet.field,
           facetTitle = facet.title;
       var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
@@ -860,10 +879,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
   }, {
     key: "onDropdownSelect",
     value: function onDropdownSelect(evtKey) {
-      var _this$props10 = this.props,
-          onSelect = _this$props10.onSelect,
-          update = _this$props10.update,
-          savedValue = _this$props10.savedValue;
+      var _this$props11 = this.props,
+          onSelect = _this$props11.onSelect,
+          update = _this$props11.update,
+          savedValue = _this$props11.savedValue;
 
       if (parseFloat(evtKey) === savedValue) {
         return false;
@@ -876,10 +895,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
   }, {
     key: "onTextInputFormSubmit",
     value: function onTextInputFormSubmit(evt) {
-      var _this$props11 = this.props,
-          update = _this$props11.update,
-          savedValue = _this$props11.savedValue,
-          value = _this$props11.value;
+      var _this$props12 = this.props,
+          update = _this$props12.update,
+          savedValue = _this$props12.savedValue,
+          value = _this$props12.value;
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -928,30 +947,30 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
     key: "render",
     value: function render() {
       var showMenu = this.state.showMenu;
-      var _this$props12 = this.props,
-          _this$props12$variant = _this$props12.variant,
-          variant = _this$props12$variant === void 0 ? "outline-dark" : _this$props12$variant,
-          _this$props12$size = _this$props12.size,
-          size = _this$props12$size === void 0 ? "sm" : _this$props12$size,
-          _this$props12$disable = _this$props12.disabled,
-          disabled = _this$props12$disable === void 0 ? false : _this$props12$disable,
-          _this$props12$classNa = _this$props12.className,
-          className = _this$props12$classNa === void 0 ? "range-dropdown-container col" : _this$props12$classNa,
-          propMin = _this$props12.min,
-          propMax = _this$props12.max,
-          value = _this$props12.value,
-          savedValue = _this$props12.savedValue,
-          _this$props12$placeho = _this$props12.placeholder,
-          placeholder = _this$props12$placeho === void 0 ? "Type..." : _this$props12$placeho,
-          title = _this$props12.title,
-          termTransformFxn = _this$props12.termTransformFxn,
-          id = _this$props12.id,
-          facet = _this$props12.facet,
-          _this$props12$increme = _this$props12.increments,
-          increments = _this$props12$increme === void 0 ? [] : _this$props12$increme,
-          _this$props12$reset = _this$props12.reset,
-          reset = _this$props12$reset === void 0 ? null : _this$props12$reset,
-          tooltip = _this$props12.tooltip;
+      var _this$props13 = this.props,
+          _this$props13$variant = _this$props13.variant,
+          variant = _this$props13$variant === void 0 ? "outline-dark" : _this$props13$variant,
+          _this$props13$size = _this$props13.size,
+          size = _this$props13$size === void 0 ? "sm" : _this$props13$size,
+          _this$props13$disable = _this$props13.disabled,
+          disabled = _this$props13$disable === void 0 ? false : _this$props13$disable,
+          _this$props13$classNa = _this$props13.className,
+          className = _this$props13$classNa === void 0 ? "range-dropdown-container col" : _this$props13$classNa,
+          propMin = _this$props13.min,
+          propMax = _this$props13.max,
+          value = _this$props13.value,
+          savedValue = _this$props13.savedValue,
+          _this$props13$placeho = _this$props13.placeholder,
+          placeholder = _this$props13$placeho === void 0 ? "Type..." : _this$props13$placeho,
+          title = _this$props13.title,
+          termTransformFxn = _this$props13.termTransformFxn,
+          id = _this$props13.id,
+          facet = _this$props13.facet,
+          _this$props13$increme = _this$props13.increments,
+          increments = _this$props13$increme === void 0 ? [] : _this$props13$increme,
+          _this$props13$reset = _this$props13.reset,
+          reset = _this$props13$reset === void 0 ? null : _this$props13$reset,
+          tooltip = _this$props13.tooltip;
       var updateAble = savedValue !== value;
       var _facet$field_type4 = facet.field_type,
           field_type = _facet$field_type4 === void 0 ? "number" : _facet$field_type4,
