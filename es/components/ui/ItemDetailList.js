@@ -268,7 +268,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
         }
       }
 
-      var reminderKeys = _underscore["default"].difference(_underscore["default"].keys(objectWithAllItemKeys), ['principals_allowed', '@type', 'uuid']);
+      var reminderKeys = _.difference(_.keys(objectWithAllItemKeys), ['principals_allowed', '@type', 'uuid']);
 
       if (reminderKeys.length <= 2) {
         return false;

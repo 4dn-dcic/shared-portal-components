@@ -36,6 +36,7 @@ import React, { useMemo } from 'react';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import url from 'url';
+import queryString from 'query-string';
 import * as analytics from './../../util/analytics';
 import { load as ajaxLoad } from './../../util/ajax';
 import { navigate as globalNavigate } from './../../util/navigate';
@@ -166,7 +167,34 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       if (typeof navigationTarget === "string") {
         // There is (very large) chance that `nextHref` does not have domain name, path, etc.
         // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
-        nextHrefFull = url.resolve(currentHref || "/search/", navigationTarget);
+        nextHrefFull = url.resolve(currentHref || "/search/", navigationTarget); // Divide URL into parts and put into a virtualCompoundFilterSet, in effect making all virtual search
+        // requests into POST requests.
+
+        var targetHrefParts = url.parse(nextHrefFull, true);
+        var gParts = {};
+        var fParts = {};
+        Object.keys(targetHrefParts.query).forEach(function (k) {
+          if (k === "type" || k === "sort" || k === "additional_facet") {
+            gParts[k] = targetHrefParts.query[k];
+          } else {
+            fParts[k] = targetHrefParts.query[k];
+          }
+        });
+        var gStr = queryString.stringify(gParts);
+        var fStr = queryString.stringify(fParts); // If it's a single filter_block requested, we will get back "facets"
+        // and similar things in the response, unlike as for response for real
+        // compound_search request for multiple filter_blocks which would lack those.
+        // We can thus perform a 'drop-in' POST compound_search for 1 filter_block
+        // in place of a GET /search/?type=... request.
+
+        virtualCompoundFilterSet = {
+          "global_flags": gStr,
+          "search_type": gParts.type,
+          "filter_blocks": [{
+            "flags_applied": [],
+            "query": fStr
+          }]
+        };
       } else {
         // Minor validation - let throw errors here.
         var filter_blocks = navigationTarget.filter_blocks;
@@ -211,13 +239,10 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           if (typeof globalNavigate.updateUserInfo === "function") {
             globalNavigate.updateUserInfo();
           } // Get correct URL from XHR, in case we hit a redirect during the request.
+          // (Only for requests with single href, as cannot treat real compound_search multi-filter-block request as href)
 
 
-          var responseHref = null;
-
-          if (!virtualCompoundFilterSet) {
-            responseHref = scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL || nextHrefFull;
-          }
+          var responseHref = !nextHrefFull ? null : !virtualCompoundFilterSet ? scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL || nextHrefFull : nextHrefFull;
 
           if (typeof existingContext === "undefined") {
             // First time we've loaded response context. Register analytics event.
@@ -255,7 +280,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           _this2.currRequest = null;
         }
 
-        scopedRequest = _this2.currRequest = ajaxLoad(nextHrefFull ? nextHrefFull : "/compound_search", onLoadResponse, nextHrefFull ? "GET" : "POST", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
+        scopedRequest = _this2.currRequest = ajaxLoad(virtualCompoundFilterSet ? "/compound_search" : nextHrefFull, onLoadResponse, virtualCompoundFilterSet ? "POST" : "GET", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
       });
       return scopedRequest;
     }

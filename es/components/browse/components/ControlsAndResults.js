@@ -220,7 +220,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       // TODO: Hide if using `requestedCompoundFilterSet` instead of `href`
       React.createElement("div", {
         className: facetColumnClassName
-      }, extendedAboveFacetListComponent, requestedCompoundFilterSet ?
+      }, extendedAboveFacetListComponent, Array.isArray(facets) && facets.length > 0 ? /*#__PURE__*/React.createElement(FacetList, facetListProps) : requestedCompoundFilterSet ?
       /*#__PURE__*/
       // Compound search used, FacetList UI cannot be used -
       React.createElement("div", {
@@ -229,7 +229,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         className: "py-4"
       }, /*#__PURE__*/React.createElement("h4", {
         className: "text-400 text-center"
-      }, "Compound Filter"))) : Array.isArray(facets) && facets.length > 0 ? /*#__PURE__*/React.createElement(FacetList, facetListProps) : isContextLoading ? /*#__PURE__*/React.createElement("div", {
+      }, "Compound Filter"))) : isContextLoading ? /*#__PURE__*/React.createElement("div", {
         className: "facets-container with-header-bg"
       }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
         className: "text-center py-4 text-secondary"

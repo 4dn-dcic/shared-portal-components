@@ -141,15 +141,15 @@ export class ControlsAndResults extends React.PureComponent {
                     <div className={facetColumnClassName}>
                         { extendedAboveFacetListComponent }
                         {
-                            requestedCompoundFilterSet ? ( // Compound search used, FacetList UI cannot be used -
+                            Array.isArray(facets) && facets.length > 0 ? (
+                                <FacetList {...facetListProps} />
+                            ) : requestedCompoundFilterSet ? ( // Compound search used, FacetList UI cannot be used -
                                 <div className="facets-container with-header-bg">
                                     <FacetListHeader />
                                     <div className="py-4">
                                         <h4 className="text-400 text-center">Compound Filter</h4>
                                     </div>
                                 </div>
-                            ) : Array.isArray(facets) && facets.length > 0 ? (
-                                <FacetList {...facetListProps} />
                             ) : isContextLoading ? (
                                 <div className="facets-container with-header-bg">
                                     <FacetListHeader />
