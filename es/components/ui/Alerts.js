@@ -1,22 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.LoginFailed = exports.ConnectionError = exports.NoFilterResults = exports.LoggedOut = exports.Alerts = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
-
-var _typedefs = require("./../util/typedefs");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -47,6 +30,11 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import Fade from 'react-bootstrap/esm/Fade';
+import { AlertObj } from './../util/typedefs';
 var defaultNavigateDisappearThreshold = 1;
 var alertNavigatationCountMap = {};
 var store = null;
@@ -57,7 +45,7 @@ var store = null;
  * title for alert that was queued.
  */
 
-var Alerts = /*#__PURE__*/function (_React$Component) {
+export var Alerts = /*#__PURE__*/function (_React$Component) {
   _inherits(Alerts, _React$Component);
 
   var _super = _createSuper(Alerts);
@@ -94,7 +82,7 @@ var Alerts = /*#__PURE__*/function (_React$Component) {
         currentAlerts = store.getState().alerts;
       }
 
-      var duplicateTitleAlertIdx = _underscore["default"].findIndex(currentAlerts, {
+      var duplicateTitleAlertIdx = _.findIndex(currentAlerts, {
         'title': alert.title
       });
 
@@ -171,9 +159,9 @@ var Alerts = /*#__PURE__*/function (_React$Component) {
       var currentAlerts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       if (!Array.isArray(currentAlerts)) currentAlerts = store.getState().alerts;
 
-      var titles = _underscore["default"].pluck(currentAlerts, 'title').sort();
+      var titles = _.pluck(currentAlerts, 'title').sort();
 
-      var removedTitles = _underscore["default"].difference(_underscore["default"].keys(alertNavigatationCountMap).sort(), titles);
+      var removedTitles = _.difference(_.keys(alertNavigatationCountMap).sort(), titles);
 
       removedTitles.forEach(function (rt) {
         delete alertNavigatationCountMap[rt];
@@ -245,8 +233,8 @@ var Alerts = /*#__PURE__*/function (_React$Component) {
 
       var dismissing = this.state.dismissing;
       if (alerts.length === 0) return null;
-      return /*#__PURE__*/_react["default"].createElement("div", passProps, _underscore["default"].map(alerts, function (alert, index, alerts) {
-        return /*#__PURE__*/_react["default"].createElement(AlertItem, _extends({
+      return /*#__PURE__*/React.createElement("div", passProps, _.map(alerts, function (alert, index, alerts) {
+        return /*#__PURE__*/React.createElement(AlertItem, _extends({
           alert: alert,
           index: index,
           alerts: alerts
@@ -260,9 +248,7 @@ var Alerts = /*#__PURE__*/function (_React$Component) {
   }]);
 
   return Alerts;
-}(_react["default"].Component);
-
-exports.Alerts = Alerts;
+}(React.Component);
 
 _defineProperty(Alerts, "defaultProps", {
   "className": "alerts mt-2"
@@ -274,39 +260,36 @@ Alerts.propTypes = {
    *
    * @type {AlertObj[]}
    */
-  'alerts': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-    'title': _propTypes["default"].string.isRequired,
-    'message': _propTypes["default"].string.isRequired,
-    'style': _propTypes["default"].string,
-    'navigationDissappearThreshold': _propTypes["default"].number
+  'alerts': PropTypes.arrayOf(PropTypes.shape({
+    'title': PropTypes.string.isRequired,
+    'message': PropTypes.string.isRequired,
+    'style': PropTypes.string,
+    'navigationDissappearThreshold': PropTypes.number
   }))
 };
 /**
  * Reusable Alert Definitions
  */
 
-var LoggedOut = Alerts.LoggedOut = {
+export var LoggedOut = Alerts.LoggedOut = {
   "title": "Logged Out",
   "message": "You have been logged out.",
   "style": 'danger',
   'navigateDisappearThreshold': 2
 };
-exports.LoggedOut = LoggedOut;
-var NoFilterResults = Alerts.NoFilterResults = {
+export var NoFilterResults = Alerts.NoFilterResults = {
   'title': "No Results",
   'message': "Selecting this filter returned no results so it was deselected.",
   'style': "warning",
   'navigateDisappearThreshold': 3
 };
-exports.NoFilterResults = NoFilterResults;
-var ConnectionError = Alerts.ConnectionError = {
+export var ConnectionError = Alerts.ConnectionError = {
   "title": "Connection Error",
   "message": "Check your internet connection",
   "style": "danger",
   'navigateDisappearThreshold': 1
 };
-exports.ConnectionError = ConnectionError;
-var LoginFailed = Alerts.LoginFailed = {
+export var LoginFailed = Alerts.LoginFailed = {
   "title": "Login Failed",
   "message": "Your attempt to login failed - please check your credentials or try again later.",
   "style": "danger",
@@ -319,8 +302,6 @@ var LoginFailed = Alerts.LoginFailed = {
  * @ignore
  * @private
  */
-
-exports.LoginFailed = LoginFailed;
 
 var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(AlertItem, _React$PureComponent);
@@ -349,7 +330,7 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
           setDismissing = _this$props2.setDismissing;
       var nextDismissing = dismissing.slice(0);
 
-      if (_underscore["default"].findIndex(nextDismissing, alert) === -1) {
+      if (_.findIndex(nextDismissing, alert) === -1) {
         nextDismissing.push(alert);
       }
 
@@ -363,10 +344,10 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
           dismissing = _this$props3.dismissing,
           setDismissing = _this$props3.setDismissing,
           alerts = _this$props3.alerts;
-      setDismissing(_underscore["default"].without(dismissing, alert));
+      setDismissing(_.without(dismissing, alert));
       store.dispatch({
         type: {
-          'alerts': _underscore["default"].without(alerts, alert)
+          'alerts': _.without(alerts, alert)
         }
       });
     }
@@ -381,28 +362,28 @@ var AlertItem = /*#__PURE__*/function (_React$PureComponent) {
           title = alert.title,
           message = alert.message;
       var hasMessage = !!message;
-      return /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+      return /*#__PURE__*/React.createElement(Fade, {
         timeout: 500,
-        "in": _underscore["default"].findIndex(dismissing, alert) === -1,
+        "in": _.findIndex(dismissing, alert) === -1,
         onExited: this.finishDismiss,
         unmountOnExit: true
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "alert alert-dismissable alert-" + (bsStyle || 'danger') + (noCloseButton === true ? ' no-close-button' : '')
-      }, noCloseButton !== true ? /*#__PURE__*/_react["default"].createElement("button", {
+      }, noCloseButton !== true ? /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "close",
         onClick: this.dismiss
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         "aria-hidden": "true"
-      }, "\xD7"), /*#__PURE__*/_react["default"].createElement("span", {
+      }, "\xD7"), /*#__PURE__*/React.createElement("span", {
         className: "sr-only"
-      }, "Close alert")) : null, /*#__PURE__*/_react["default"].createElement("h4", {
+      }, "Close alert")) : null, /*#__PURE__*/React.createElement("h4", {
         className: "alert-heading mt-0" + (hasMessage ? " mb-05" : " mb-0")
-      }, title), hasMessage ? /*#__PURE__*/_react["default"].createElement("div", {
+      }, title), hasMessage ? /*#__PURE__*/React.createElement("div", {
         className: "mb-0"
       }, message) : null));
     }
   }]);
 
   return AlertItem;
-}(_react["default"].PureComponent);
+}(React.PureComponent);

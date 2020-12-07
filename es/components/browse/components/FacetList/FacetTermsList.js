@@ -1,33 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.anyTermsSelected = anyTermsSelected;
-exports.countActiveTermsByField = countActiveTermsByField;
-exports.mergeTerms = mergeTerms;
-exports.CountIndicator = exports.FacetTermsList = exports.Term = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
-
-var _utilities = require("./../../../viz/utilities");
-
-var _PartialList = require("./../../../ui/PartialList");
-
-var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -64,11 +36,19 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import Fade from 'react-bootstrap/esm/Fade';
+import { stackDotsInContainer } from './../../../viz/utilities';
+import { PartialList } from './../../../ui/PartialList';
+import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 /**
  * Used in FacetList
  * @deprecated
  */
-function anyTermsSelected() {
+
+export function anyTermsSelected() {
   var terms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var facet = arguments.length > 1 ? arguments[1] : undefined;
   var filters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
@@ -94,8 +74,7 @@ function anyTermsSelected() {
  * @returns {Object<string, number>} Counts of selected terms per facet.field.
  */
 
-
-function countActiveTermsByField(filters) {
+export function countActiveTermsByField(filters) {
   var activeTermsByField = {};
   filters.forEach(function (_ref) {
     var rawField = _ref.field,
@@ -107,7 +86,7 @@ function countActiveTermsByField(filters) {
   });
   var countTermsByField = {};
 
-  _underscore["default"].keys(activeTermsByField).forEach(function (field) {
+  _.keys(activeTermsByField).forEach(function (field) {
     countTermsByField[field] = activeTermsByField[field].size;
   });
 
@@ -117,8 +96,7 @@ function countActiveTermsByField(filters) {
  * Used in FacetList
  */
 
-
-function mergeTerms(facet, filters) {
+export function mergeTerms(facet, filters) {
   var activeTermsForField = {};
   filters.forEach(function (f) {
     if (f.field !== facet.field) return;
@@ -143,7 +121,7 @@ function mergeTerms(facet, filters) {
   // Include them so we can unselect them.
 
 
-  var unseenTerms = _underscore["default"].keys(activeTermsForField).map(function (term) {
+  var unseenTerms = _.keys(activeTermsForField).map(function (term) {
     return {
       key: term,
       doc_count: 0
@@ -171,7 +149,7 @@ function segmentTermComponentsByStatus(termComponents) {
  */
 
 
-var Term = /*#__PURE__*/function (_React$PureComponent) {
+export var Term = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(Term, _React$PureComponent);
 
   var _super = _createSuper(Term);
@@ -182,7 +160,7 @@ var Term = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, Term);
 
     _this = _super.call(this, props);
-    _this.handleClick = _underscore["default"].debounce(_this.handleClick.bind(_assertThisInitialized(_this)), 500, true);
+    _this.handleClick = _.debounce(_this.handleClick.bind(_assertThisInitialized(_this)), 500, true);
     _this.state = {
       'filtering': false
     };
@@ -251,15 +229,15 @@ var Term = /*#__PURE__*/function (_React$PureComponent) {
       var icon = null;
 
       if (filtering) {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon = /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
       } else if (status === 'selected' || status === 'omitted') {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon = /*#__PURE__*/React.createElement("i", {
           className: "icon icon-minus-circle icon-fw fas"
         });
       } else {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon = /*#__PURE__*/React.createElement("i", {
           className: "icon icon-circle icon-fw unselected far"
         });
       }
@@ -269,44 +247,41 @@ var Term = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
-      return /*#__PURE__*/_react["default"].createElement("li", {
+      return /*#__PURE__*/React.createElement("li", {
         className: "facet-list-element " + statusClassName,
         key: term.key,
         "data-key": term.key
-      }, /*#__PURE__*/_react["default"].createElement("a", {
+      }, /*#__PURE__*/React.createElement("a", {
         className: "term",
         "data-selected": status !== 'none',
         href: "#",
         onClick: this.handleClick,
         "data-term": term.key
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "facet-selector"
-      }, icon), /*#__PURE__*/_react["default"].createElement("span", {
+      }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item",
         "data-tip": title.length > 30 ? title : null
-      }, title), /*#__PURE__*/_react["default"].createElement("span", {
+      }, title), /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
       }, count)));
     }
   }]);
 
   return Term;
-}(_react["default"].PureComponent);
-
-exports.Term = Term;
+}(React.PureComponent);
 Term.propTypes = {
-  'facet': _propTypes["default"].shape({
-    'field': _propTypes["default"].string.isRequired
+  'facet': PropTypes.shape({
+    'field': PropTypes.string.isRequired
   }).isRequired,
-  'term': _propTypes["default"].shape({
-    'key': _propTypes["default"].string.isRequired,
-    'doc_count': _propTypes["default"].number
+  'term': PropTypes.shape({
+    'key': PropTypes.string.isRequired,
+    'doc_count': PropTypes.number
   }).isRequired,
-  'getTermStatus': _propTypes["default"].func.isRequired,
-  'onClick': _propTypes["default"].func.isRequired
+  'getTermStatus': PropTypes.func.isRequired,
+  'onClick': PropTypes.func.isRequired
 };
-
-var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
+export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
 
   var _super2 = _createSuper(FacetTermsList);
@@ -384,14 +359,14 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         indicator =
         /*#__PURE__*/
         // Small indicator to help represent how many terms there are available for this Facet.
-        _react["default"].createElement(_Fade["default"], {
+        React.createElement(Fade, {
           "in": !facetOpen
-        }, /*#__PURE__*/_react["default"].createElement("span", {
+        }, /*#__PURE__*/React.createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "No useful options (1 total)" + (anySelected ? "; is selected" : ""),
           "data-place": "right",
           "data-any-selected": anySelected
-        }, /*#__PURE__*/_react["default"].createElement(CountIndicator, {
+        }, /*#__PURE__*/React.createElement(CountIndicator, {
           count: termsLen,
           countActive: termsSelectedCount
         })));
@@ -399,42 +374,42 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         indicator =
         /*#__PURE__*/
         // Small indicator to help represent how many terms there are available for this Facet.
-        _react["default"].createElement(_Fade["default"], {
+        React.createElement(Fade, {
           "in": !facetOpen
-        }, /*#__PURE__*/_react["default"].createElement("span", {
+        }, /*#__PURE__*/React.createElement("span", {
           className: "closed-terms-count col-auto px-0" + (anySelected ? " some-selected" : ""),
           "data-tip": "".concat(termsLen, " options with ").concat(termsSelectedCount, " selected"),
           "data-place": "right",
           "data-any-selected": anySelected
-        }, /*#__PURE__*/_react["default"].createElement(CountIndicator, {
+        }, /*#__PURE__*/React.createElement(CountIndicator, {
           count: termsLen,
           countActive: termsSelectedCount
         })));
       } // List of terms
 
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "facet" + (facetOpen || allTermsSelected ? ' open' : ' closed'),
         "data-field": facet.field
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "facet-title",
         onClick: this.handleOpenToggleClick
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-html": true,
         "data-place": "right"
-      }, facetTitle || fieldTitle || field), /*#__PURE__*/_react["default"].createElement(_ExtendedDescriptionPopoverIcon.ExtendedDescriptionPopoverIcon, {
+      }, facetTitle || fieldTitle || field), /*#__PURE__*/React.createElement(ExtendedDescriptionPopoverIcon, {
         fieldSchema: fieldSchema,
         facet: facet,
         openPopover: openPopover,
         setOpenPopover: setOpenPopover
-      })), indicator), /*#__PURE__*/_react["default"].createElement(ListOfTerms, _extends({
+      })), indicator), /*#__PURE__*/React.createElement(ListOfTerms, _extends({
         facet: facet,
         facetOpen: facetOpen,
         terms: terms,
@@ -450,14 +425,11 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
 
   return FacetTermsList;
-}(_react["default"].PureComponent);
-
-exports.FacetTermsList = FacetTermsList;
+}(React.PureComponent);
 FacetTermsList.defaultProps = {
   'persistentCount': 10
 };
-
-var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
+var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
       facetClosing = props.facetClosing,
@@ -470,9 +442,9 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
       termTransformFxn = props.termTransformFxn;
   /** Create term components and sort by status (selected->omitted->unselected) */
 
-  var _useMemo = (0, _react.useMemo)(function () {
+  var _useMemo = useMemo(function () {
     var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
-      return /*#__PURE__*/_react["default"].createElement(Term, _extends({
+      return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
         termTransformFxn: termTransformFxn
@@ -552,35 +524,35 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
     var expandButtonTitle;
 
     if (expanded) {
-      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-minus fas"
       }), " Collapse");
     } else {
-      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-plus fas"
-      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/_react["default"].createElement("span", {
+      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/React.createElement("span", {
         className: "pull-right"
       }, collapsibleTermsItemCount));
     }
 
-    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
-      collapsible: /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0",
         open: expanded,
         persistent: persistentTerms,
         collapsible: collapsibleTerms
-      }), /*#__PURE__*/_react["default"].createElement("div", {
+      }), /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "view-more-button",
         onClick: onToggleExpanded
       }, expandButtonTitle)))
     }));
   } else {
-    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
@@ -588,8 +560,7 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
     }));
   }
 });
-
-var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref5) {
+export var CountIndicator = /*#__PURE__*/React.memo(function (_ref5) {
   var _ref5$count = _ref5.count,
       count = _ref5$count === void 0 ? 1 : _ref5$count,
       _ref5$countActive = _ref5.countActive,
@@ -599,7 +570,7 @@ var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref5) {
       _ref5$width = _ref5.width,
       width = _ref5$width === void 0 ? 40 : _ref5$width;
   var dotCountToShow = Math.min(count, 21);
-  var dotCoords = (0, _utilities.stackDotsInContainer)(dotCountToShow, height, 4, 2, false);
+  var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
   var dots = dotCoords.map(function (_ref6, idx) {
     var _ref7 = _slicedToArray(_ref6, 2),
         x = _ref7[0],
@@ -607,7 +578,7 @@ var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref5) {
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 
-    return /*#__PURE__*/_react["default"].createElement("circle", {
+    return /*#__PURE__*/React.createElement("circle", {
       cx: width - x + 1,
       cy: height - y + 1,
       r: 2,
@@ -619,12 +590,10 @@ var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref5) {
       className: dotCountToShow - idx <= countActive ? "active" : null
     });
   });
-  return /*#__PURE__*/_react["default"].createElement("svg", {
+  return /*#__PURE__*/React.createElement("svg", {
     className: "svg-count-indicator",
     viewBox: "0 0 ".concat(width + 2, " ").concat(height + 2),
     width: width + 2,
     height: height + 2
   }, dots);
 });
-
-exports.CountIndicator = CountIndicator;

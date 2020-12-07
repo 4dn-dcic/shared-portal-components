@@ -4,7 +4,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-import { InputGroup, FormControl, DropdownItem, DropdownButton } from 'react-bootstrap';
+import InputGroup from 'react-bootstrap/esm/InputGroup';
+import FormControl from 'react-bootstrap/esm/FormControl';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 
 import Fade from 'react-bootstrap/esm/Fade';
 import { Checkbox } from './Checkbox';

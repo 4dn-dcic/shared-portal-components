@@ -1,21 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sanitizeOutputValue = sanitizeOutputValue;
-exports.ResultRowColumnBlockValue = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _object = require("./../../../util/object");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -52,12 +36,17 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React from 'react';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import { getNestedProperty, itemUtil } from './../../../util/object';
 /**
  * Implements own `shouldComponentUpdate`.
  * Sometimes, columns other than first column may want to update -- in which case,
  * a `props.shouldComponentUpdateExt` is available but perhaps not fully implemented.
  */
-var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
+
+export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
   _inherits(ResultRowColumnBlockValue, _React$Component);
 
   var _super = _createSuper(ResultRowColumnBlockValue);
@@ -96,7 +85,7 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
         return uniqSet;
       }
 
-      var uniquedValues = _toConsumableArray(flattenSet((0, _object.getNestedProperty)(result, field, true)));
+      var uniquedValues = _toConsumableArray(flattenSet(getNestedProperty(result, field, true)));
 
       var uniquedValuesLen = uniquedValues.length; // No value found - let it default to 'null' and be handled as such
 
@@ -107,7 +96,7 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
 
       if (_typeof(uniquedValues[0]) === "object" && uniquedValues[0]["@id"] && typeof termTransformFxn === "function") {
         // If LinkTo Item(s), return array of JSX elements (spans) which wrap links (assuming is output from termTransformFxn).
-        var uniquedLinkToItems = _underscore["default"].uniq(uniquedValues, false, "@id");
+        var uniquedLinkToItems = _.uniq(uniquedValues, false, "@id");
 
         return uniquedLinkToItems.map(function (v, i) {
           var transformedValue = termTransformFxn(field, v, true); // `allowJSXOutput=true` == likely a link element.
@@ -116,7 +105,7 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
             return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
           }
 
-          return /*#__PURE__*/_react["default"].createElement("span", {
+          return /*#__PURE__*/React.createElement("span", {
             key: i,
             className: "link-wrapper"
           }, i > 0 ? ", " : null, transformedValue);
@@ -139,7 +128,7 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
 
     _this = _super.call(this, props);
     _this.memoized = {
-      transformIfNeeded: (0, _memoizeOne["default"])(ResultRowColumnBlockValue.transformIfNeeded)
+      transformIfNeeded: memoize(ResultRowColumnBlockValue.transformIfNeeded)
     };
     return _this;
   }
@@ -154,7 +143,7 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
           className = _this$props.className;
 
       if (nextProps.columnNumber === 0 || // Update title column more frequently.
-      nextProps.columnDefinition.field !== columnDefinition.field || nextProps.schemas !== schemas || _object.itemUtil.atId(nextProps.result) !== _object.itemUtil.atId(result) || nextProps.className !== className || typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state)) {
+      nextProps.columnDefinition.field !== columnDefinition.field || nextProps.schemas !== schemas || itemUtil.atId(nextProps.result) !== itemUtil.atId(result) || nextProps.className !== className || typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state)) {
         return true;
       }
 
@@ -172,37 +161,37 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
       var field = columnDefinition.field,
           _columnDefinition$ren = columnDefinition.render,
           renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren;
-      var value = renderFxn ? renderFxn(result, _underscore["default"].omit(this.props, 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
+      var value = renderFxn ? renderFxn(result, _.omit(this.props, 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
       // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
       // Could prly make this less verbose later.. we _do_ want to wrap primitive values output from custom render fxn.
 
       var tooltip;
 
       if (typeof value === 'number') {
-        value = /*#__PURE__*/_react["default"].createElement("span", {
+        value = /*#__PURE__*/React.createElement("span", {
           className: "value"
         }, value);
       } else if (typeof value === 'string') {
         if (propTooltip === true && value.length > 25) tooltip = value;
-        value = /*#__PURE__*/_react["default"].createElement("span", {
+        value = /*#__PURE__*/React.createElement("span", {
           className: "value text-center"
         }, value);
       } else if (value === null) {
-        value = /*#__PURE__*/_react["default"].createElement("small", {
+        value = /*#__PURE__*/React.createElement("small", {
           className: "value text-center"
         }, "-");
-      } else if ( /*#__PURE__*/_react["default"].isValidElement(value) && value.type === "a" || Array.isArray(value) && /*#__PURE__*/_react["default"].isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
+      } else if ( /*#__PURE__*/React.isValidElement(value) && value.type === "a" || Array.isArray(value) && /*#__PURE__*/React.isValidElement(value[0]) && (value[0].type === "a" || value[0].props.className === "link-wrapper")) {
         // We let other columnRender funcs define their `value` container (if any)
         // But if is link, e.g. from termTransformFxn, then wrap it to center it.
-        value = /*#__PURE__*/_react["default"].createElement("span", {
+        value = /*#__PURE__*/React.createElement("span", {
           className: "value text-center"
         }, value);
       } else if (typeof value === "boolean") {
-        value = /*#__PURE__*/_react["default"].createElement("span", {
+        value = /*#__PURE__*/React.createElement("span", {
           className: "value text-center"
         }, value);
       } else if (!renderFxn) {
-        value = /*#__PURE__*/_react["default"].createElement("span", {
+        value = /*#__PURE__*/React.createElement("span", {
           className: "value"
         }, value); // JSX from termTransformFxn - assume doesn't take table cell layouting into account.
       } // else is likely JSX from custom render function -- leave as-is
@@ -214,7 +203,7 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
         cls += ' ' + className;
       }
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: cls,
         "data-tip": tooltip
       }, value);
@@ -222,7 +211,7 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
   }]);
 
   return ResultRowColumnBlockValue;
-}(_react["default"].Component);
+}(React.Component);
 /**
  * Ensure we have a valid React element to render.
  * If not, try to detect if Item object, and generate link.
@@ -234,9 +223,6 @@ var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) {
  * @param {any} value - Value to sanitize.
  */
 
-
-exports.ResultRowColumnBlockValue = ResultRowColumnBlockValue;
-
 _defineProperty(ResultRowColumnBlockValue, "defaultProps", {
   'mounted': false,
   'toggleDetailOpen': function toggleDetailOpen() {
@@ -245,14 +231,14 @@ _defineProperty(ResultRowColumnBlockValue, "defaultProps", {
   'shouldComponentUpdateExt': null
 });
 
-function sanitizeOutputValue(value) {
-  if (typeof value !== 'string' && typeof value !== 'number' && ! /*#__PURE__*/_react["default"].isValidElement(value)) {
+export function sanitizeOutputValue(value) {
+  if (typeof value !== 'string' && typeof value !== 'number' && ! /*#__PURE__*/React.isValidElement(value)) {
     if (value && _typeof(value) === 'object') {
       if (typeof value.display_title !== 'undefined') {
-        var atId = _object.itemUtil.atId(value);
+        var atId = itemUtil.atId(value);
 
         if (atId) {
-          return /*#__PURE__*/_react["default"].createElement("a", {
+          return /*#__PURE__*/React.createElement("a", {
             href: atId
           }, value.display_title);
         } else {

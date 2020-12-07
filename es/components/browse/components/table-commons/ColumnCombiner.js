@@ -1,35 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.columnsToColumnDefinitions = columnsToColumnDefinitions;
-exports.haveContextColumnsChanged = haveContextColumnsChanged;
-exports.getColumnWidthFromDefinition = getColumnWidthFromDefinition;
-exports.ColumnCombiner = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _basicColumnExtensionMap = require("./basicColumnExtensionMap");
-
-var _layout = require("./../../../util/layout");
-
-var _misc = require("./../../../util/misc");
-
-var _typedefs = require("./../../../util/typedefs");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -74,6 +44,15 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import { basicColumnExtensionMap, DEFAULT_WIDTH_MAP } from './basicColumnExtensionMap';
+import { responsiveGridState } from './../../../util/layout';
+import { isServerSide } from './../../../util/misc'; // eslint-disable-next-line no-unused-vars
+
+import { Item, ColumnDefinition } from './../../../util/typedefs';
 /**
  * Primarily combines `props.columns` || `props.context.columns` with `props.columnExtensionMap`
  * to generate final array of `columnDefinitions`.
@@ -85,7 +64,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @param {{ columns: Object.<string, Object>?, context: { columns: Object.<string, Object> }, columnExtensionMap: Object.<string, Object> }} props - Props with column info.
  * @returns {JSX.Element} Clone of children, passing in `columnDefinitions` {{ field: string, ... }[]} and `defaultHiddenColumns` {Object<string, bool>}.
  */
-var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
+
+export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(ColumnCombiner, _React$PureComponent);
 
   var _super = _createSuper(ColumnCombiner);
@@ -136,13 +116,13 @@ var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
 
     _this = _super.call(this, props);
     _this.memoized = {
-      haveContextColumnsChanged: (0, _memoizeOne["default"])(haveContextColumnsChanged),
+      haveContextColumnsChanged: memoize(haveContextColumnsChanged),
       // We want `defaultHiddenColumns` memoized separately from `columnDefinitions`
       // because `defaultHiddenColumns` change triggers reset in `ColumnCombiner`.
       // This is becaused `columnExtensionMap` may change more frequently than `columns`.
       // e.g. in response to SelectedFiles' state.selectedFiles changing display_title column
       // render func in portal-specific logic or `detailPane`, like-wise.
-      getDefaultHiddenColumns: (0, _memoizeOne["default"])(defaultHiddenColumnMapFromColumns, function (_ref, _ref2) {
+      getDefaultHiddenColumns: memoize(defaultHiddenColumnMapFromColumns, function (_ref, _ref2) {
         var _ref3 = _slicedToArray(_ref, 1),
             nextColumns = _ref3[0];
 
@@ -151,7 +131,7 @@ var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
 
         return !_this.memoized.haveContextColumnsChanged(prevColumns, nextColumns);
       }),
-      getDefinitions: (0, _memoizeOne["default"])(ColumnCombiner.getDefinitions, // Func to memoize
+      getDefinitions: memoize(ColumnCombiner.getDefinitions, // Func to memoize
 
       /**
        * Custom "param equality" fxn.
@@ -180,7 +160,7 @@ var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
 
         return !_this.memoized.haveContextColumnsChanged(prevColumns, nextColumns);
       }),
-      filteredColumns: (0, _memoizeOne["default"])(ColumnCombiner.filteredColumns)
+      filteredColumns: memoize(ColumnCombiner.filteredColumns)
     };
     return _this;
   }
@@ -217,14 +197,14 @@ var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
         defaultHiddenColumns: this.memoized.getDefaultHiddenColumns(columns)
       });
 
-      return _react["default"].Children.map(children, function (child) {
-        return /*#__PURE__*/_react["default"].cloneElement(child, propsToPass);
+      return React.Children.map(children, function (child) {
+        return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
     }
   }]);
 
   return ColumnCombiner;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 /**
  * Convert a map of field:title to list of column definitions, setting defaults.
  *
@@ -235,19 +215,16 @@ var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
  * @returns {Object[]}                      List of objects containing keys 'title', 'field', 'widthMap', and 'render'.
  */
 
-
-exports.ColumnCombiner = ColumnCombiner;
-
 _defineProperty(ColumnCombiner, "defaultProps", {
   "columns": null,
   // Passed in as prop or defaults to context.columns
-  "columnExtensionMap": _basicColumnExtensionMap.basicColumnExtensionMap
+  "columnExtensionMap": basicColumnExtensionMap
 });
 
-function columnsToColumnDefinitions(columns, columnDefinitionMap) {
-  var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _basicColumnExtensionMap.DEFAULT_WIDTH_MAP;
+export function columnsToColumnDefinitions(columns, columnDefinitionMap) {
+  var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_WIDTH_MAP;
 
-  var uninishedColumnDefinitions = _underscore["default"].pairs(columns).map(function (_ref5) {
+  var uninishedColumnDefinitions = _.pairs(columns).map(function (_ref5) {
     var _ref6 = _slicedToArray(_ref5, 2),
         field = _ref6[0],
         columnProperties = _ref6[1];
@@ -257,11 +234,11 @@ function columnsToColumnDefinitions(columns, columnDefinitionMap) {
     });
   });
 
-  var columnDefinitions = _underscore["default"].map(uninishedColumnDefinitions, function (colDef, i) {
+  var columnDefinitions = _.map(uninishedColumnDefinitions, function (colDef, i) {
     var colDefOverride = columnDefinitionMap && columnDefinitionMap[colDef.field];
 
     if (colDefOverride) {
-      var colDef2 = _underscore["default"].extend({}, colDefOverride, colDef);
+      var colDef2 = _.extend({}, colDefOverride, colDef);
 
       colDef = colDef2;
     }
@@ -272,7 +249,7 @@ function columnsToColumnDefinitions(columns, columnDefinitionMap) {
     return colDef;
   });
 
-  return _underscore["default"].sortBy(columnDefinitions, 'order');
+  return _.sortBy(columnDefinitions, 'order');
 }
 /**
  * Used as equality checker for `columnsToColumnDefinitions` `columns` param memoization.
@@ -287,8 +264,7 @@ function columnsToColumnDefinitions(columns, columnDefinitionMap) {
  * @returns {boolean} If context columns have changed, which should be about same as if type has changed.
  */
 
-
-function haveContextColumnsChanged(cols1, cols2) {
+export function haveContextColumnsChanged(cols1, cols2) {
   if (cols1 === cols2) return false;
   if (cols1 && !cols2) return true;
   if (!cols1 && cols2) return true;
@@ -314,11 +290,10 @@ function haveContextColumnsChanged(cols1, cols2) {
  * @param {Object<string, Object>} columns - Object containing some column definitions/values.
  */
 
-
 function defaultHiddenColumnMapFromColumns(columns) {
   var hiddenColMap = {};
 
-  _underscore["default"].pairs(columns).forEach(function (_ref7) {
+  _.pairs(columns).forEach(function (_ref7) {
     var _ref8 = _slicedToArray(_ref7, 2),
         field = _ref8[0],
         columnDefinition = _ref8[1];
@@ -345,7 +320,7 @@ function defaultHiddenColumnMapFromColumns(columns) {
  */
 
 
-function getColumnWidthFromDefinition(columnDefinition) {
+export function getColumnWidthFromDefinition(columnDefinition) {
   var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   var windowWidth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var w = columnDefinition.width || columnDefinition.baseWidth || null;
@@ -361,7 +336,7 @@ function getColumnWidthFromDefinition(columnDefinition) {
   }
 
   var responsiveGridSize;
-  if (!mounted || (0, _misc.isServerSide)()) responsiveGridSize = 'lg';else responsiveGridSize = (0, _layout.responsiveGridState)(windowWidth);
+  if (!mounted || isServerSide()) responsiveGridSize = 'lg';else responsiveGridSize = responsiveGridState(windowWidth);
   if (responsiveGridSize === 'xs') responsiveGridSize = 'sm';
   if (responsiveGridSize === 'xl') responsiveGridSize = 'lg';
   return widthMap[responsiveGridSize || 'lg'];

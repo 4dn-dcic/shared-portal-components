@@ -1,16 +1,7 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.patchedConsoleInstance = void 0;
-
-var _moment = _interopRequireDefault(require("moment"));
-
-var _misc = require("./misc");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
+import moment from 'moment';
+import { isServerSide } from './misc';
 /**
  * Custom patched console instance for debugging. Only print out statements if debugging/development environment.
  * Prevent potential issues where console might not be available (earlier IE).
@@ -23,8 +14,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  * - or (from same/local directory) -
  * var console = require('./patched-console').default;
  */
-var patchedConsoleInstance = function () {
-  if (!(0, _misc.isServerSide)() && window.patchedConsole) return window.patchedConsole; // Re-use instance if available.
+
+export var patchedConsoleInstance = function () {
+  if (!isServerSide() && window.patchedConsole) return window.patchedConsole; // Re-use instance if available.
 
   var patchedConsole = new function PatchedConsole() {
     var _arguments = arguments,
@@ -75,7 +67,7 @@ var patchedConsoleInstance = function () {
       if (_this._enabled && _this._available && typeof _this._nativeConsole.log !== 'undefined') {
         _this.timeLog = function () {
           // eslint-disable-next-line prefer-spread
-          _this._nativeConsole.log.apply(_this._nativeConsole, ['%c(' + (0, _moment["default"])().format('h:mm:ss.SSS') + ') %c%s'].concat('color: darkcyan', 'color: black', Array.prototype.slice.apply(_arguments)));
+          _this._nativeConsole.log.apply(_this._nativeConsole, ['%c(' + moment().format('h:mm:ss.SSS') + ') %c%s'].concat('color: darkcyan', 'color: black', Array.prototype.slice.apply(_arguments)));
         };
       } else {
         _this.timeLog = _this._dummyFunc;
@@ -110,11 +102,9 @@ var patchedConsoleInstance = function () {
     this._patchMethods();
   }();
 
-  if (!(0, _misc.isServerSide)()) {
+  if (!isServerSide()) {
     window.patchedConsole = patchedConsole;
   }
 
   return patchedConsole;
 }();
-
-exports.patchedConsoleInstance = patchedConsoleInstance;

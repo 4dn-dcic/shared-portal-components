@@ -23,7 +23,6 @@ import { getItemTypeTitle } from './../../util/schema-transforms';
 import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style as vizStyle } from './../../viz/utilities';
 import { Alerts } from './../../ui/Alerts';
 
-import { filterOutHiddenCols } from './CustomColumnController';
 import { ResultRowColumnBlockValue } from './table-commons/ResultRowColumnBlockValue';
 import { columnsToColumnDefinitions, getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
 import { HeadersRow } from './table-commons/HeadersRow';
@@ -1115,13 +1114,6 @@ export class SearchResultTable extends React.Component {
         'maxHeight' : 400, // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
         'isContextLoading' : false // Used only if isOwnPage is false
     };
-
-    constructor(props){
-        super(props);
-        this.memoized = {
-            filterOutHiddenCols: memoize(filterOutHiddenCols)
-        };
-    }
 
     render(){
         const { context, visibleColumnDefinitions, columnDefinitions, isContextLoading = false, isOwnPage } = this.props;

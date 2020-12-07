@@ -1,21 +1,10 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.navigate = void 0;
+import url from 'url';
+import queryString from 'query-string';
+import _ from 'underscore';
+import { NavigateOpts } from './typedefs'; // let cachedAppRootComponentInstance = null;
 
-var _url = _interopRequireDefault(require("url"));
-
-var _queryString = _interopRequireDefault(require("query-string"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _typedefs = require("./typedefs");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-// let cachedAppRootComponentInstance = null;
 var cachedNavFunction = null;
 var cachedUpdateUserInfoFunction = null;
 var callbackFunctions = [];
@@ -53,7 +42,7 @@ var navigate = function (href) {
   if (typeof cachedNavFunction !== 'function') throw new Error('No navigate function cached.');
 
   var callbackFxn = function (jsonResponse) {
-    if (callbackFunctions.length > 0) _underscore["default"].forEach(callbackFunctions, function (cb) {
+    if (callbackFunctions.length > 0) _.forEach(callbackFunctions, function (cb) {
       cb(jsonResponse);
     }); // Any registered callbacks.
 
@@ -70,8 +59,6 @@ var navigate = function (href) {
  * @returns {void}
  */
 
-
-exports.navigate = navigate;
 
 navigate.initializeFromApp = function (rootAppComponentInstance) {
   if (typeof rootAppComponentInstance.navigate !== 'function') throw new Error("`rootAppComponentInstance.navigate` is not a function."); // cachedAppRootComponentInstance = rootAppComponentInstance; // <-- Super anti-pattern...
@@ -105,7 +92,7 @@ navigate.determineSeparatorChar = function (href) {
 
 
 navigate.isSearchHref = function (href) {
-  if (typeof href === 'string') href = _url["default"].parse(href);
+  if (typeof href === 'string') href = url.parse(href);
   if (href.pathname.slice(0, 8) === '/search/') return true;
   return false;
 };
@@ -117,7 +104,7 @@ navigate.registerCallbackFunction = function (fxn) {
 };
 
 navigate.deregisterCallbackFunction = function (fxn) {
-  callbackFunctions = _underscore["default"].without(callbackFunctions, fxn);
+  callbackFunctions = _.without(callbackFunctions, fxn);
 };
 /** Useful for param lists */
 
@@ -127,13 +114,13 @@ navigate.mergeObjectsOfLists = function () {
   var targetObj = arguments[0];
   var sourceObjs = Array.prototype.slice.call(arguments, 1);
 
-  _underscore["default"].forEach(sourceObjs, function (o) {
-    _underscore["default"].forEach(_underscore["default"].keys(o), function (oKey) {
+  _.forEach(sourceObjs, function (o) {
+    _.forEach(_.keys(o), function (oKey) {
       if (typeof targetObj[oKey] === 'undefined') targetObj[oKey] = [];
       if (typeof targetObj[oKey] === 'string') targetObj[oKey] = [targetObj[oKey]];
 
       if (Array.isArray(o[oKey])) {
-        if (!_underscore["default"].every(o[oKey], function (v) {
+        if (!_.every(o[oKey], function (v) {
           return typeof v === 'string';
         })) throw new Error('Must have list of strings as object vals.');
         targetObj[oKey] = targetObj[oKey].concat(o[oKey]);
@@ -145,10 +132,10 @@ navigate.mergeObjectsOfLists = function () {
     });
   });
 
-  _underscore["default"].forEach(_underscore["default"].keys(targetObj), function (tKey) {
+  _.forEach(_.keys(targetObj), function (tKey) {
     if (typeof targetObj[tKey] === 'string') targetObj[tKey] = [targetObj[tKey]]; // Keys which perhaps don't exist on sourceObjs
 
-    targetObj[tKey] = _underscore["default"].uniq(_underscore["default"].filter(targetObj[tKey]));
+    targetObj[tKey] = _.uniq(_.filter(targetObj[tKey]));
     if (targetObj[tKey].length === 0) delete targetObj[tKey];
   });
 
@@ -163,10 +150,12 @@ navigate.sameOrigin = function (from, to) {
     from = document.location.href;
   }
 
-  if (typeof from === 'string') from = _url["default"].parse(from);
-  if (typeof to === 'string') to = _url["default"].parse(_url["default"].resolve(from.href, to));
+  if (typeof from === 'string') from = url.parse(from);
+  if (typeof to === 'string') to = url.parse(url.resolve(from.href, to));
   if (to.protocol === 'data:' || to.protocol === 'javascript:') return true;
   if (from.protocol !== to.protocol) return false;
   if (from.protocol === 'file:') return from.pathname === to.pathname;
   return from.host === to.host;
 };
+
+export { navigate };

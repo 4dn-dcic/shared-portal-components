@@ -1,34 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ItemDetailList = exports.Detail = exports.SubItemListView = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _reactJsonTree = _interopRequireDefault(require("react-json-tree"));
-
-var _object = require("./../util/object");
-
-var _patchedConsole = require("./../util/patched-console");
-
-var _schemaTransforms = require("./../util/schema-transforms");
-
-var _PartialList = require("./PartialList");
-
-var _typedefs = require("./../util/typedefs");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -55,6 +26,18 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import ReactTooltip from 'react-tooltip';
+import JSONTree from 'react-json-tree';
+import { isAnItem, itemUtil, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
+import { patchedConsoleInstance as console } from './../util/patched-console';
+import { getSchemaForItemType, getItemType, flattenSchemaPropertyToColumnDefinition, getSchemaProperty } from './../util/schema-transforms';
+import { PartialList } from './PartialList'; // eslint-disable-next-line no-unused-vars
+
+import { Item } from './../util/typedefs';
 /**
  * This file/component is kind of a mess.
  *
@@ -66,7 +49,8 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
  */
 
 /** Contains and toggles visibility/mounting of a Subview. Renders title for the Subview. */
-var SubItemTitle = /*#__PURE__*/_react["default"].memo(function (_ref) {
+
+var SubItemTitle = /*#__PURE__*/React.memo(function (_ref) {
   var isOpen = _ref.isOpen,
       title = _ref.title,
       onToggle = _ref.onToggle,
@@ -80,37 +64,35 @@ var SubItemTitle = /*#__PURE__*/_react["default"].memo(function (_ref) {
     showTitle = isOpen ? "Collapse" : "Expand";
   }
 
-  if (content && _underscore["default"].any([content.title, content.display_title, content.name], function (p) {
+  if (content && _.any([content.title, content.display_title, content.name], function (p) {
     return typeof p === 'string';
   })) {
-    subtitle = /*#__PURE__*/_react["default"].createElement("span", {
+    subtitle = /*#__PURE__*/React.createElement("span", {
       className: "text-600"
     }, typeof content.title === 'string' ? content.title : typeof content.display_title === 'string' ? content.display_title : content.name);
   }
 
-  return /*#__PURE__*/_react["default"].createElement("span", {
+  return /*#__PURE__*/React.createElement("span", {
     className: "subitem-toggle"
-  }, /*#__PURE__*/_react["default"].createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", {
     className: "link",
     onClick: onToggle
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     style: {
       'color': 'black',
       'paddingRight': 10,
       'paddingLeft': 5
     },
     className: "icon fas " + iconType
-  }), showTitle, " ", subtitle, " ", countProperties && !isOpen ? /*#__PURE__*/_react["default"].createElement("span", null, "(", countProperties, ")") : null));
+  }), showTitle, " ", subtitle, " ", countProperties && !isOpen ? /*#__PURE__*/React.createElement("span", null, "(", countProperties, ")") : null));
 });
-
 SubItemTitle.propTypes = {
-  'onToggle': _propTypes["default"].func,
-  'isOpen': _propTypes["default"].bool,
-  'title': _propTypes["default"].string,
-  'content': _propTypes["default"].object
+  'onToggle': PropTypes.func,
+  'isOpen': PropTypes.bool,
+  'title': PropTypes.string,
+  'content': PropTypes.object
 };
-
-var SubItemListView = /*#__PURE__*/_react["default"].memo(function (props) {
+export var SubItemListView = /*#__PURE__*/React.memo(function (props) {
   var isOpen = props.isOpen,
       item = props.content,
       schemas = props.schemas,
@@ -125,26 +107,23 @@ var SubItemListView = /*#__PURE__*/_react["default"].memo(function (props) {
     termTransformFxn: termTransformFxn,
     'context': item,
     'alwaysCollapsibleKeys': [],
-    'excludedKeys': excludedKeys || _underscore["default"].without(Detail.defaultProps.excludedKeys, // Remove
+    'excludedKeys': excludedKeys || _.without(Detail.defaultProps.excludedKeys, // Remove
     'lab', 'award', 'description').concat([// Add
     'schema_version', 'uuid']),
     'columnDefinitions': columnDefinitions || {},
     'showJSONButton': false,
     'hideButtons': true
   };
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "sub-panel data-display panel-body-with-header"
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "key-value sub-descriptions"
-  }, /*#__PURE__*/_react["default"].createElement(typeof item.display_title === 'string' ? ItemDetailList : Detail, passProps)));
+  }, /*#__PURE__*/React.createElement(typeof item.display_title === 'string' ? ItemDetailList : Detail, passProps)));
 });
 /**
  * Messiness.
  * @todo refactor or get rid of.
  */
-
-
-exports.SubItemListView = SubItemListView;
 
 var SubItemTable = /*#__PURE__*/function (_React$Component) {
   _inherits(SubItemTable, _React$Component);
@@ -166,27 +145,27 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       if (list.length < 1) return false;
       list[0];
       var schemaForType;
-      if (_underscore["default"].any(list, function (x) {
+      if (_.any(list, function (x) {
         return typeof x === 'undefined';
       })) return false;
-      if (!_underscore["default"].all(list, function (x) {
+      if (!_.all(list, function (x) {
         return _typeof(x) === 'object' && x;
       })) return false;
-      if (_underscore["default"].any(list, function (x) {
+      if (_.any(list, function (x) {
         if (!Array.isArray(x['@type'])) {
           {
             /* return true; // No @type so we can't get 'columns' from schemas. */
           }
         } else {
-          schemaForType = (0, _schemaTransforms.getSchemaForItemType)(x['@type'][0], schemas);
+          schemaForType = getSchemaForItemType(x['@type'][0], schemas);
           if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
         }
       })) return false;
 
-      var objectWithAllItemKeys = _underscore["default"].reduce(list, function (m, v) {
-        var v2 = _underscore["default"].clone(v);
+      var objectWithAllItemKeys = _.reduce(list, function (m, v) {
+        var v2 = _.clone(v);
 
-        var valKeys = _underscore["default"].keys(v2); // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
+        var valKeys = _.keys(v2); // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
 
 
         for (var i = 0; i < valKeys.length; i++) {
@@ -194,29 +173,29 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             m[valKeys[i]] = (m[valKeys[i]] || []).concat(v2[valKeys[i]]);
             delete v2[valKeys[i]];
           } else if (v2[valKeys[i]] && _typeof(v2[valKeys[i]]) === 'object') {
-            m[valKeys[i]] = _underscore["default"].extend(m[valKeys[i]] || {}, v2[valKeys[i]]);
+            m[valKeys[i]] = _.extend(m[valKeys[i]] || {}, v2[valKeys[i]]);
             delete v2[valKeys[i]];
           }
         }
 
-        return _underscore["default"].extend(m, v2);
+        return _.extend(m, v2);
       }, {});
 
-      var rootKeys = _underscore["default"].keys(objectWithAllItemKeys);
+      var rootKeys = _.keys(objectWithAllItemKeys);
 
       var embeddedKeys, i, j, k, embeddedListItem, embeddedListItemKeys;
 
       for (i = 0; i < rootKeys.length; i++) {
         if (Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
-          var listObjects = _underscore["default"].filter(objectWithAllItemKeys[rootKeys[i]], function (v) {
+          var listObjects = _.filter(objectWithAllItemKeys[rootKeys[i]], function (v) {
             if (!v || v && _typeof(v) === 'object') return true;
             return false;
           });
 
           if (listObjects.length === 0) continue; // List of strings or values only. Continue.
 
-          var listNotItems = _underscore["default"].filter(listObjects, function (v) {
-            return !(0, _object.isAnItem)(v);
+          var listNotItems = _.filter(listObjects, function (v) {
+            return !isAnItem(v);
           });
 
           if (listNotItems.length === 0) continue; // List of Items that can be rendered as links. Continue.
@@ -224,18 +203,18 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
           for (k = 0; k < listNotItems.length; k++) {
             embeddedListItem = listNotItems[k];
-            embeddedListItemKeys = _underscore["default"].keys(embeddedListItem);
+            embeddedListItemKeys = _.keys(embeddedListItem);
 
             for (j = 0; j < embeddedListItemKeys.length; j++) {
               if (typeof embeddedListItem[embeddedListItemKeys[j]] === 'string' || typeof embeddedListItem[embeddedListItemKeys[j]] === 'number') {
                 continue;
               }
 
-              if ((0, _object.isAnItem)(embeddedListItem[embeddedListItemKeys[j]])) {
+              if (isAnItem(embeddedListItem[embeddedListItemKeys[j]])) {
                 continue;
               }
 
-              if (Array.isArray(embeddedListItem[embeddedListItemKeys[j]]) && _underscore["default"].filter(embeddedListItem[embeddedListItemKeys[j]], function (v) {
+              if (Array.isArray(embeddedListItem[embeddedListItemKeys[j]]) && _.filter(embeddedListItem[embeddedListItemKeys[j]], function (v) {
                 if (typeof v === 'string' || typeof v === 'number') return false;
                 return true;
               }).length === 0) {
@@ -250,12 +229,12 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
         if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]] && _typeof(objectWithAllItemKeys[rootKeys[i]]) === 'object') {
           // Embedded object 1 level deep. Will flatten upwards if passes checks:
           // example: (sub-object) {..., 'stringProp' : 'stringVal', 'meta' : {'argument_name' : 'x', 'argument_type' : 'y'}, ...} ===> (columns) 'stringProp', 'meta.argument_name', 'meta.argument_type'
-          if ((0, _object.isAnItem)(objectWithAllItemKeys[rootKeys[i]])) {
+          if (isAnItem(objectWithAllItemKeys[rootKeys[i]])) {
             // This embedded object is an.... ITEM! Skip rest of checks for this property, we're ok with just drawing link to Item.
             continue;
           }
 
-          embeddedKeys = _underscore["default"].keys(objectWithAllItemKeys[rootKeys[i]]);
+          embeddedKeys = _.keys(objectWithAllItemKeys[rootKeys[i]]);
           if (embeddedKeys.length > 5) return false; // 5 properties to flatten up feels like a good limit. Lets render objects with more than that as lists or own table (not flattened up to another 1).
           // Run some checks against the embedded object's properties. Ensure all nested lists contain plain strings or numbers, as will flatten to simple comma-delimited list.
 
@@ -263,10 +242,10 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             if (typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'number') continue; // Ensure if property on embedded object's is an array, that is a simple array of strings or numbers - no objects. Will be converted to comma-delimited list.
 
             if (Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) {
-              if (objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length < 4 && _underscore["default"].filter(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]], function (v) {
+              if (objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length < 4 && _.filter(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]], function (v) {
                 if (typeof v === 'string' || typeof v === 'number') {
                   return false;
-                } else if (v && _typeof(v) === 'object' && _underscore["default"].keys(v).length < 2) {
+                } else if (v && _typeof(v) === 'object' && _.keys(v).length < 2) {
                   return false;
                 } else {
                   return true;
@@ -282,14 +261,14 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
             if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) && objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] && _typeof(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) === 'object') {
               // Embedded object 2 levels deep. No thx we don't want any 'meta.argument_mapping.argument_type' -length column names. Unless it's an Item for which we can just render link for.
-              if ((0, _object.isAnItem)(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) continue;
+              if (isAnItem(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) continue;
               return false;
             }
           }
         }
       }
 
-      var reminderKeys = _underscore["default"].difference(_underscore["default"].keys(objectWithAllItemKeys), ['principals_allowed', '@type', 'uuid']);
+      var reminderKeys = _.difference(_.keys(objectWithAllItemKeys), ['principals_allowed', '@type', 'uuid']);
 
       if (reminderKeys.length <= 2) {
         return false;
@@ -300,8 +279,8 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "getColumnKeys",
     value: function getColumnKeys(items, columnDefinitions, schemas) {
-      var objectWithAllItemKeys = _underscore["default"].reduce(items, function (m, v) {
-        return _underscore["default"].extend(m, v);
+      var objectWithAllItemKeys = _.reduce(items, function (m, v) {
+        return _.extend(m, v);
       }, {}); //var schemas = this.props.schemas || Schemas.get();
       //var tips = schemas ? tipsFromSchema(schemas, context) : {};
       //if (typeof this.props.keyTitleDescriptionMap === 'object' && this.props.keyTitleDescriptionMap){
@@ -310,12 +289,12 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       // Property columns to push to front (common across all objects)
 
 
-      var rootKeys = _underscore["default"].keys(objectWithAllItemKeys);
+      var rootKeys = _.keys(objectWithAllItemKeys);
 
       var columnKeys = []; // Use schema columns
 
       if (typeof objectWithAllItemKeys.display_title === 'string' && Array.isArray(objectWithAllItemKeys['@type'])) {
-        var columnKeysFromSchema = _underscore["default"].keys((0, _schemaTransforms.getSchemaForItemType)((0, _schemaTransforms.getItemType)(objectWithAllItemKeys), schemas).columns);
+        var columnKeysFromSchema = _.keys(getSchemaForItemType(getItemType(objectWithAllItemKeys), schemas).columns);
 
         columnKeys = rootKeys.filter(function (k) {
           if (k === 'display_title' || k === '@id' || k === 'accession') return true;
@@ -333,9 +312,9 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             if (Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]][0] && _typeof(objectWithAllItemKeys[rootKeys[i]][0]) === 'object' && typeof objectWithAllItemKeys[rootKeys[i]][0].display_title !== 'string') {
               columnKeys.push({
                 'key': rootKeys[i],
-                'childKeys': _underscore["default"].keys(_underscore["default"].reduce(items, function (m1, v1) {
-                  return _underscore["default"].extend(m1, _underscore["default"].reduce(v1[rootKeys[i]], function (m2, v2) {
-                    return _underscore["default"].extend(m2, v2);
+                'childKeys': _.keys(_.reduce(items, function (m1, v1) {
+                  return _.extend(m1, _.reduce(v1[rootKeys[i]], function (m2, v2) {
+                    return _.extend(m2, v2);
                   }, {}));
                 }, {}))
               });
@@ -345,7 +324,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
               });
             }
           } else if (objectWithAllItemKeys[rootKeys[i]] && _typeof(objectWithAllItemKeys[rootKeys[i]]) === 'object') {
-            var itemAtID = typeof objectWithAllItemKeys[rootKeys[i]].display_title === 'string' && _object.itemUtil.atId(objectWithAllItemKeys[rootKeys[i]]);
+            var itemAtID = typeof objectWithAllItemKeys[rootKeys[i]].display_title === 'string' && itemUtil.atId(objectWithAllItemKeys[rootKeys[i]]);
 
             if (itemAtID) {
               columnKeys.push({
@@ -353,7 +332,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
               }); // Keep single key if is an Item, we'll make it into a link.
             } else {
               // Flatten up, otherwise.
-              columnKeys = columnKeys.concat(_underscore["default"].keys(objectWithAllItemKeys[rootKeys[i]]).map(function (embeddedKey) {
+              columnKeys = columnKeys.concat(_.keys(objectWithAllItemKeys[rootKeys[i]]).map(function (embeddedKey) {
                 return {
                   'key': rootKeys[i] + '.' + embeddedKey
                 };
@@ -400,15 +379,14 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       try {
         newVal = JSON.stringify(val);
 
-        if (_underscore["default"].keys(val).length > 1) {
-          _patchedConsole.patchedConsoleInstance.error("ERROR: Value for table cell is not a string, number, or JSX element.\nKey: " + key + '; Value: ' + newVal);
+        if (_.keys(val).length > 1) {
+          console.error("ERROR: Value for table cell is not a string, number, or JSX element.\nKey: " + key + '; Value: ' + newVal);
         }
 
-        newVal = /*#__PURE__*/_react["default"].createElement("code", null, newVal.length <= 25 ? newVal : newVal.slice(0, 25) + '...');
+        newVal = /*#__PURE__*/React.createElement("code", null, newVal.length <= 25 ? newVal : newVal.slice(0, 25) + '...');
       } catch (e) {
-        _patchedConsole.patchedConsoleInstance.error(e, val);
-
-        newVal = /*#__PURE__*/_react["default"].createElement("em", null, '{obj}');
+        console.error(e, val);
+        newVal = /*#__PURE__*/React.createElement("em", null, '{obj}');
       }
 
       return newVal;
@@ -448,7 +426,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       var columnKeys = SubItemTable.getColumnKeys(items, columnDefinitions, schemas); // If is an Item, grab properties for it.
 
       if (items[0] && items[0].display_title) {
-        (0, _object.tipsFromSchema)(schemas, items[0]);
+        tipsFromSchema(schemas, items[0]);
         columnKeys = columnKeys.filter(function (k) {
           if (k === '@id') return false;
           return true;
@@ -460,15 +438,15 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
       if (!subListKeyWidths) {
         subListKeyWidths = this.subListKeyWidths = !mounted || !this.subListKeyRefs ? null : function (refObj) {
-          var keys = _underscore["default"].keys(refObj);
+          var keys = _.keys(refObj);
 
           var widthObj = {};
 
           for (var i = 0; i < keys.length; i++) {
-            widthObj[keys[i]] = _underscore["default"].object(_underscore["default"].pairs(refObj[keys[i]]).map(function (refSet) {
+            widthObj[keys[i]] = _.object(_.pairs(refObj[keys[i]]).map(function (refSet) {
               //var colKey = refSet[1].getAttribute('data-key');
               var colRows = Array.from(document.getElementsByClassName('child-column-' + keys[i] + '.' + refSet[0]));
-              var maxWidth = Math.max(_underscore["default"].reduce(colRows, function (m, v) {
+              var maxWidth = Math.max(_.reduce(colRows, function (m, v) {
                 return Math.max(m, v.offsetWidth);
               }, 0), refSet[1].offsetWidth + 10);
               return [refSet[0], maxWidth
@@ -481,10 +459,10 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
         }(this.subListKeyRefs);
       }
 
-      var rowData = _underscore["default"].map(items, function (item) {
-        return _underscore["default"].map(columnKeys, function (colKeyContainer, colKeyIndex) {
+      var rowData = _.map(items, function (item) {
+        return _.map(columnKeys, function (colKeyContainer, colKeyIndex) {
           var colKey = colKeyContainer.key;
-          var value = (0, _object.getNestedProperty)(item, colKey);
+          var value = getNestedProperty(item, colKey);
           if (!value) return {
             'value': '-',
             'key': colKey
@@ -500,7 +478,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           }
 
           if (Array.isArray(value)) {
-            if (_underscore["default"].all(value, function (v) {
+            if (_.all(value, function (v) {
               return typeof v === 'string';
             })) {
               return {
@@ -511,21 +489,21 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
               };
             }
 
-            if (_underscore["default"].any(value, function (v) {
+            if (_.any(value, function (v) {
               return _typeof(v) === 'object' && v;
             }) && Array.isArray(colKeyContainer.childKeys)) {
               // Embedded list of objects.
               var allKeys = colKeyContainer.childKeys; //_.keys(  _.reduce(value, function(m,v){ return _.extend(m,v); }, {})   );
 
               return {
-                'value': _underscore["default"].map(value, function (embeddedRow, i) {
-                  return /*#__PURE__*/_react["default"].createElement("div", {
+                'value': _.map(value, function (embeddedRow, i) {
+                  return /*#__PURE__*/React.createElement("div", {
                     style: {
                       whiteSpace: "nowrap"
                     },
                     className: "text-left child-list-row",
                     key: colKey + '--row-' + i
-                  }, /*#__PURE__*/_react["default"].createElement("div", {
+                  }, /*#__PURE__*/React.createElement("div", {
                     className: "d-inline-block child-list-row-number"
                   }, i + 1, "."), allKeys.map(function (k) {
                     var renderedSubVal; // = Schemas.Term.toName(k, embeddedRow[k]);
@@ -536,17 +514,17 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                       }
                     }
 
-                    if (!renderedSubVal && embeddedRow[k] && _typeof(embeddedRow[k]) === 'object' && !(0, _object.isAnItem)(embeddedRow[k])) {
-                      renderedSubVal = /*#__PURE__*/_react["default"].createElement("code", null, JSON.stringify(embeddedRow[k]));
+                    if (!renderedSubVal && embeddedRow[k] && _typeof(embeddedRow[k]) === 'object' && !isAnItem(embeddedRow[k])) {
+                      renderedSubVal = /*#__PURE__*/React.createElement("code", null, JSON.stringify(embeddedRow[k]));
                     }
 
                     if (!renderedSubVal) {
-                      renderedSubVal = (0, _object.isAnItem)(embeddedRow[k]) ? /*#__PURE__*/_react["default"].createElement("a", {
-                        href: _object.itemUtil.atId(embeddedRow[k])
-                      }, _object.itemUtil.getTitleStringFromContext(embeddedRow[k])) : termTransformFxn(k, embeddedRow[k]);
+                      renderedSubVal = isAnItem(embeddedRow[k]) ? /*#__PURE__*/React.createElement("a", {
+                        href: itemUtil.atId(embeddedRow[k])
+                      }, itemUtil.getTitleStringFromContext(embeddedRow[k])) : termTransformFxn(k, embeddedRow[k]);
                     }
 
-                    return /*#__PURE__*/_react["default"].createElement("div", {
+                    return /*#__PURE__*/React.createElement("div", {
                       key: colKey + '.' + k + '--row-' + i,
                       className: "d-inline-block child-column-" + colKey + '.' + k,
                       style: {
@@ -561,10 +539,10 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             }
           }
 
-          if ((0, _object.isAnItem)(value)) {
+          if (isAnItem(value)) {
             return {
-              'value': /*#__PURE__*/_react["default"].createElement("a", {
-                href: _object.itemUtil.atId(value)
+              'value': /*#__PURE__*/React.createElement("a", {
+                href: itemUtil.atId(value)
               }, value.display_title),
               'key': colKey
             };
@@ -586,17 +564,17 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       }); // Get property of parent key which has items.properties : { ..these_keys.. }
 
 
-      var parentKeySchemaProperty = (0, _schemaTransforms.getSchemaProperty)(parentKey, schemas, {}, atType);
+      var parentKeySchemaProperty = getSchemaProperty(parentKey, schemas, {}, atType);
 
-      var keyTitleDescriptionMap = _underscore["default"].extend({}, // We have list of sub-embedded Items or sub-embedded objects which have separate 'get properties from schema' funcs (== tipsFromSchema || parentKeySchemaProperty).
-      (0, _schemaTransforms.flattenSchemaPropertyToColumnDefinition)(_object.tipsFromSchema || parentKeySchemaProperty, 0, schemas), columnDefinitions);
+      var keyTitleDescriptionMap = _.extend({}, // We have list of sub-embedded Items or sub-embedded objects which have separate 'get properties from schema' funcs (== tipsFromSchema || parentKeySchemaProperty).
+      flattenSchemaPropertyToColumnDefinition(tipsFromSchema || parentKeySchemaProperty, 0, schemas), columnDefinitions);
 
       var subListKeyRefs = this.subListKeyRefs = {};
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "detail-embedded-table-container"
-      }, /*#__PURE__*/_react["default"].createElement("table", {
+      }, /*#__PURE__*/React.createElement("table", {
         className: "detail-embedded-table"
-      }, /*#__PURE__*/_react["default"].createElement("thead", null, /*#__PURE__*/_react["default"].createElement("tr", null, [/*#__PURE__*/_react["default"].createElement("th", {
+      }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, [/*#__PURE__*/React.createElement("th", {
         key: "rowNumber",
         style: {
           minWidth: 36,
@@ -609,10 +587,10 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
         var title = keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].title || keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].title || colKey;
         var tooltip = keyTitleDescriptionMap[parentKey + '.' + colKey] && keyTitleDescriptionMap[parentKey + '.' + colKey].description || keyTitleDescriptionMap[colKey] && keyTitleDescriptionMap[colKey].description || null;
         var hasChildren = Array.isArray(colKeyContainer.childKeys) && colKeyContainer.childKeys.length > 0;
-        return /*#__PURE__*/_react["default"].createElement("th", {
+        return /*#__PURE__*/React.createElement("th", {
           key: "header-for-" + colKey,
           className: hasChildren ? 'has-children' : null
-        }, /*#__PURE__*/_react["default"].createElement(_object.TooltipInfoIconContainer, {
+        }, /*#__PURE__*/React.createElement(TooltipInfoIconContainer, {
           title: title,
           tooltip: tooltip
         }), hasChildren ? function () {
@@ -620,16 +598,16 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           //var subKeyTitleDescriptionMap = keyTitleDescriptionMap[this.props.parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {};
           var subKeyTitleDescriptionMap = ((keyTitleDescriptionMap[parentKey + '.' + colKey] || keyTitleDescriptionMap[colKey] || {}).items || {}).properties || {};
           subListKeyRefs[colKey] = {};
-          return /*#__PURE__*/_react["default"].createElement("div", {
+          return /*#__PURE__*/React.createElement("div", {
             style: {
               whiteSpace: "nowrap"
             },
             className: "sub-list-keys-header"
-          }, [/*#__PURE__*/_react["default"].createElement("div", {
+          }, [/*#__PURE__*/React.createElement("div", {
             key: "sub-header-rowNumber",
             className: "d-inline-block child-list-row-number"
           }, "\xA0")].concat(colKeyContainer.childKeys.map(function (ck) {
-            return /*#__PURE__*/_react["default"].createElement("div", {
+            return /*#__PURE__*/React.createElement("div", {
               key: "sub-header-for-" + colKey + '.' + ck,
               className: "d-inline-block",
               "data-key": colKey + '.' + ck,
@@ -639,26 +617,26 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
               style: {
                 'width': !subListKeyWidths ? null : (subListKeyWidths[colKey] || {})[ck] || null
               }
-            }, /*#__PURE__*/_react["default"].createElement(_object.TooltipInfoIconContainer, {
+            }, /*#__PURE__*/React.createElement(TooltipInfoIconContainer, {
               title: (keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).title || ck,
               tooltip: (keyTitleDescriptionMap[parentKey + '.' + colKey + '.' + ck] || subKeyTitleDescriptionMap[ck] || {}).description || null
             }));
           })));
         }() : null);
-      })))), /*#__PURE__*/_react["default"].createElement("tbody", null, _underscore["default"].map(rowData, function (row, i) {
-        return /*#__PURE__*/_react["default"].createElement("tr", {
+      })))), /*#__PURE__*/React.createElement("tbody", null, _.map(rowData, function (row, i) {
+        return /*#__PURE__*/React.createElement("tr", {
           key: "row-" + i
-        }, [/*#__PURE__*/_react["default"].createElement("td", {
+        }, [/*#__PURE__*/React.createElement("td", {
           key: "rowNumber"
         }, i + 1, ".")].concat(row.map(function (colVal, j) {
           var val = colVal.value;
 
           if (typeof val === 'boolean') {
-            val = /*#__PURE__*/_react["default"].createElement("code", null, val ? 'True' : 'False');
+            val = /*#__PURE__*/React.createElement("code", null, val ? 'True' : 'False');
           }
 
           if (colVal.key === '@id' && val.slice(0, 1) === '/') {
-            val = /*#__PURE__*/_react["default"].createElement("a", {
+            val = /*#__PURE__*/React.createElement("a", {
               href: val
             }, val);
           }
@@ -667,17 +645,17 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             val = val.slice(0, 50) + '...';
           }
 
-          if (val && _typeof(val) === 'object' && ! /*#__PURE__*/_react["default"].isValidElement(val) && !Array.isArray(val)) {
+          if (val && _typeof(val) === 'object' && ! /*#__PURE__*/React.isValidElement(val) && !Array.isArray(val)) {
             val = SubItemTable.jsonify(val, columnKeys[j].key);
           }
 
-          if (Array.isArray(val) && val.length > 0 && !_underscore["default"].all(val, _react["default"].isValidElement)) {
-            val = _underscore["default"].map(val, function (v, i) {
+          if (Array.isArray(val) && val.length > 0 && !_.all(val, React.isValidElement)) {
+            val = _.map(val, function (v, i) {
               return SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
             });
           }
 
-          return /*#__PURE__*/_react["default"].createElement("td", {
+          return /*#__PURE__*/React.createElement("td", {
             key: "column-for-" + columnKeys[j].key,
             className: colVal.className || null
           }, val);
@@ -687,7 +665,7 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
   }]);
 
   return SubItemTable;
-}(_react["default"].Component);
+}(React.Component);
 
 var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(DetailRow, _React$PureComponent);
@@ -746,24 +724,24 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
       var labelToShow = label;
 
       if (labelNumber) {
-        labelToShow = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("span", {
+        labelToShow = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
           className: "label-number right d-inline-block" + (isOpen ? ' active' : '')
-        }, /*#__PURE__*/_react["default"].createElement("span", {
+        }, /*#__PURE__*/React.createElement("span", {
           className: "number-icon text-200"
         }, "#"), " ", labelNumber), label);
       }
 
       if (value.type === SubItemTitle) {
         // What we have here is an embedded object of some sort. Lets override its 'isOpen' & 'onToggle' functions.
-        value = /*#__PURE__*/_react["default"].cloneElement(value, {
+        value = /*#__PURE__*/React.cloneElement(value, {
           'onToggle': this.handleToggle,
           'isOpen': isOpen
         });
-        return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList.Row, {
+        return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PartialList.Row, {
           field: key,
           label: labelToShow,
           className: (className || '') + (isOpen ? ' open' : '')
-        }, value), /*#__PURE__*/_react["default"].createElement(SubItemListView, _extends({
+        }, value), /*#__PURE__*/React.createElement(SubItemListView, _extends({
           popLink: popLink,
           schemas: schemas,
           isOpen: isOpen,
@@ -777,12 +755,12 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
 
       if (value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" && value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
         // What we have here is a list of embedded objects. Render them out recursively and adjust some styles.
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: "array-group",
           "data-length": item.length
-        }, _react["default"].Children.map(value.props.children, function (c, i) {
-          return /*#__PURE__*/_react["default"].createElement(DetailRow, _extends({}, _this3.props, {
-            label: i === 0 ? labelToShow : /*#__PURE__*/_react["default"].createElement("span", {
+        }, React.Children.map(value.props.children, function (c, i) {
+          return /*#__PURE__*/React.createElement(DetailRow, _extends({}, _this3.props, {
+            label: i === 0 ? labelToShow : /*#__PURE__*/React.createElement("span", {
               className: "dim-duplicate"
             }, labelToShow),
             labelNumber: i + 1,
@@ -793,7 +771,7 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
       } // Default / Pass-Thru
 
 
-      return /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList.Row, {
+      return /*#__PURE__*/React.createElement(PartialList.Row, {
         label: labelToShow,
         field: key,
         className: (className || '') + (isOpen ? ' open' : '')
@@ -802,7 +780,7 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return DetailRow;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 /**
  * The list of properties contained within ItemDetailList.
  * Isolated to allow use without existing in ItemDetailList parent.
@@ -812,7 +790,7 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
  */
 
 
-var Detail = /*#__PURE__*/function (_React$PureComponent2) {
+export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(Detail, _React$PureComponent2);
 
   var _super3 = _createSuper(Detail);
@@ -840,7 +818,7 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
         if (info.description) tooltip = info.description;
       }
 
-      return /*#__PURE__*/_react["default"].createElement(_object.TooltipInfoIconContainer, {
+      return /*#__PURE__*/React.createElement(TooltipInfoIconContainer, {
         title: title || key,
         tooltip: tooltip
       });
@@ -874,10 +852,10 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
       };
 
       if (item === null) {
-        return /*#__PURE__*/_react["default"].createElement("span", null, "No Value");
+        return /*#__PURE__*/React.createElement("span", null, "No Value");
       } else if (Array.isArray(item)) {
         if (SubItemTable.shouldUseTable(item, schemas)) {
-          return /*#__PURE__*/_react["default"].createElement(SubItemTable, _extends({
+          return /*#__PURE__*/React.createElement(SubItemTable, _extends({
             popLink: popLink,
             columnDefinitions: columnDefinitions,
             schemas: schemas,
@@ -889,40 +867,39 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           }));
         }
 
-        return /*#__PURE__*/_react["default"].createElement("ol", null, item.length === 0 ? /*#__PURE__*/_react["default"].createElement("li", null, /*#__PURE__*/_react["default"].createElement("em", null, "None")) : item.map(function (it, i) {
-          return /*#__PURE__*/_react["default"].createElement("li", {
+        return /*#__PURE__*/React.createElement("ol", null, item.length === 0 ? /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("em", null, "None")) : item.map(function (it, i) {
+          return /*#__PURE__*/React.createElement("li", {
             key: i
           }, Detail.formValue(it, popLink, keyPrefix, atType, columnDefinitions, depth + 1, schemas));
         }));
       } else if (_typeof(item) === 'object' && item !== null) {
-        var linkElement = _object.itemUtil.generateLink(item, true, 'display_title', {
+        var linkElement = itemUtil.generateLink(item, true, 'display_title', {
           'target': popLink ? '_blank' : null
         }, true); // if the following is true, we have an embedded Item. Link to it.
-
 
         if (linkElement) {
           return linkElement;
         } else {
           // it must be an embedded sub-object (not Item)
-          var releventProperties = _underscore["default"].object(_underscore["default"].map(_underscore["default"].filter(_underscore["default"].pairs(columnDefinitions), function (c) {
+          var releventProperties = _.object(_.map(_.filter(_.pairs(columnDefinitions), function (c) {
             return c[0].indexOf(keyPrefix + '.') === 0;
           }), function (c) {
             c[0] = c[0].replace(keyPrefix + '.', '');
             return c;
           }));
 
-          return /*#__PURE__*/_react["default"].createElement(SubItemTitle, {
+          return /*#__PURE__*/React.createElement(SubItemTitle, {
             schemas: schemas,
             content: item,
             key: keyPrefix,
-            countProperties: _underscore["default"].keys(item).length,
+            countProperties: _.keys(item).length,
             popLink: popLink,
             columnDefinitions: releventProperties
           });
         }
       } else if (typeof item === 'string') {
         if (keyPrefix === '@id') {
-          return /*#__PURE__*/_react["default"].createElement("a", {
+          return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
             target: popLink ? "_blank" : null
@@ -933,7 +910,7 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           // This is a download link. Format appropriately
           var split_item = item.split('/');
           var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
-          return /*#__PURE__*/_react["default"].createElement("a", {
+          return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
             target: "_blank",
@@ -941,57 +918,57 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
             rel: "noreferrer noopener"
           }, attach_title || item);
         } else if (item.charAt(0) === '/') {
-          if (popLink) return /*#__PURE__*/_react["default"].createElement("a", {
+          if (popLink) return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
             target: "_blank",
             rel: "noreferrer noopener"
-          }, item);else return /*#__PURE__*/_react["default"].createElement("a", {
+          }, item);else return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item
           }, item);
         } else {
           // TODO: more comprehensive regexp url validator needed, look at: https://stackoverflow.com/a/5717133
           // Is a URL. Check if we should render it as a link/uri.
-          var schemaProperty = (0, _schemaTransforms.getSchemaProperty)(keyPrefix, schemas || {}, atType);
+          var schemaProperty = getSchemaProperty(keyPrefix, schemas || {}, atType);
           var schemaPropertyFormat = schemaProperty && typeof schemaProperty.format === 'string' && schemaProperty.format.toLowerCase() || null;
 
           if (schemaPropertyFormat && ['uri', 'url'].indexOf(schemaPropertyFormat) > -1 && item.slice(0, 4) === 'http') {
-            return /*#__PURE__*/_react["default"].createElement("a", {
+            return /*#__PURE__*/React.createElement("a", {
               key: item,
               href: item,
               target: "_blank",
               rel: "noreferrer noopener"
             }, item);
           } else {
-            return /*#__PURE__*/_react["default"].createElement("span", null, termTransformFxn(keyPrefix, item));
+            return /*#__PURE__*/React.createElement("span", null, termTransformFxn(keyPrefix, item));
           }
         }
       } else if (typeof item === 'number') {
-        return /*#__PURE__*/_react["default"].createElement("span", null, termTransformFxn(keyPrefix, item));
+        return /*#__PURE__*/React.createElement("span", null, termTransformFxn(keyPrefix, item));
       } else if (typeof item === 'boolean') {
-        return /*#__PURE__*/_react["default"].createElement("span", {
+        return /*#__PURE__*/React.createElement("span", {
           style: {
             'textTransform': 'capitalize'
           }
         }, item + '');
       }
 
-      return /*#__PURE__*/_react["default"].createElement("span", null, item); // Fallback
+      return /*#__PURE__*/React.createElement("span", null, item); // Fallback
     }
   }, {
     key: "columnDefinitions",
     value: function columnDefinitions(context, schemas, columnDefinitionMap) {
-      var colDefsFromSchema = (0, _schemaTransforms.flattenSchemaPropertyToColumnDefinition)(schemas ? (0, _object.tipsFromSchema)(schemas, context) : {}, 0, schemas);
-      return _underscore["default"].extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
+      var colDefsFromSchema = flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
+      return _.extend(colDefsFromSchema, columnDefinitionMap || {}); // { <property> : { 'title' : ..., 'description' : ... } }
     }
   }, {
     key: "generatedKeysLists",
     value: function generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys) {
-      var sortKeys = _underscore["default"].difference(_underscore["default"].keys(context).sort(), excludedKeys.sort()); // Sort applicable persistent keys by original persistent keys sort order.
+      var sortKeys = _.difference(_.keys(context).sort(), excludedKeys.sort()); // Sort applicable persistent keys by original persistent keys sort order.
 
 
-      var stickyKeysObj = _underscore["default"].object(_underscore["default"].intersection(sortKeys, stickyKeys.slice(0).sort()).map(function (key) {
+      var stickyKeysObj = _.object(_.intersection(sortKeys, stickyKeys.slice(0).sort()).map(function (key) {
         return [key, true];
       }));
 
@@ -1000,11 +977,11 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
         if (stickyKeysObj[key] === true) orderedStickyKeys.push(key);
       });
 
-      var extraKeys = _underscore["default"].difference(sortKeys, stickyKeys.slice(0).sort());
+      var extraKeys = _.difference(sortKeys, stickyKeys.slice(0).sort());
 
-      var collapsibleKeys = _underscore["default"].intersection(extraKeys.sort(), alwaysCollapsibleKeys.slice(0).sort());
+      var collapsibleKeys = _.intersection(extraKeys.sort(), alwaysCollapsibleKeys.slice(0).sort());
 
-      extraKeys = _underscore["default"].difference(extraKeys, collapsibleKeys);
+      extraKeys = _.difference(extraKeys, collapsibleKeys);
       return {
         'persistentKeys': orderedStickyKeys.concat(extraKeys),
         'collapsibleKeys': collapsibleKeys
@@ -1020,8 +997,8 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
     _this4 = _super3.call(this, props);
     _this4.renderDetailRow = _this4.renderDetailRow.bind(_assertThisInitialized(_this4));
     _this4.memoized = {
-      columnDefinitions: (0, _memoizeOne["default"])(Detail.columnDefinitions),
-      generatedKeysLists: (0, _memoizeOne["default"])(Detail.generatedKeysLists)
+      columnDefinitions: memoize(Detail.columnDefinitions),
+      generatedKeysLists: memoize(Detail.generatedKeysLists)
     };
     return _this4;
   }
@@ -1036,7 +1013,7 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           columnDefinitions = _this$props3.columnDefinitions,
           termTransformFxn = _this$props3.termTransformFxn;
       var colDefs = this.memoized.columnDefinitions(context, schemas, columnDefinitions);
-      return /*#__PURE__*/_react["default"].createElement(DetailRow, {
+      return /*#__PURE__*/React.createElement(DetailRow, {
         key: key,
         label: Detail.formKey(colDefs, key),
         item: context[key],
@@ -1062,26 +1039,24 @@ var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           persistentKeys = _this$memoized$genera.persistentKeys,
           collapsibleKeys = _this$memoized$genera.collapsibleKeys;
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "overflow-hidden"
-      }, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
-        persistent: _underscore["default"].map(persistentKeys, this.renderDetailRow),
-        collapsible: _underscore["default"].map(collapsibleKeys, this.renderDetailRow),
+      }, /*#__PURE__*/React.createElement(PartialList, {
+        persistent: _.map(persistentKeys, this.renderDetailRow),
+        collapsible: _.map(collapsibleKeys, this.renderDetailRow),
         open: open
       }));
     }
   }]);
 
   return Detail;
-}(_react["default"].PureComponent);
-
-exports.Detail = Detail;
+}(React.PureComponent);
 
 _defineProperty(Detail, "SubItemTitle", SubItemTitle);
 
 _defineProperty(Detail, "propTypes", {
-  'context': _propTypes["default"].object.isRequired,
-  'columnDefinitions': _propTypes["default"].object
+  'context': PropTypes.object.isRequired,
+  'columnDefinitions': PropTypes.object
 });
 
 _defineProperty(Detail, "defaultProps", {
@@ -1106,7 +1081,7 @@ _defineProperty(Detail, "defaultProps", {
     },
     'subscriptions.url': {
       'render': function render(value) {
-        return /*#__PURE__*/_react["default"].createElement("a", {
+        return /*#__PURE__*/React.createElement("a", {
           href: '/search/' + value
         }, "View Results");
       },
@@ -1134,7 +1109,7 @@ _defineProperty(Detail, "defaultProps", {
       'title': "E-Mail",
       'render': function render(value) {
         if (typeof value === 'string' && value.indexOf('@') > -1) {
-          return /*#__PURE__*/_react["default"].createElement("a", {
+          return /*#__PURE__*/React.createElement("a", {
             href: 'mailto:' + value
           }, value);
         }
@@ -1148,26 +1123,25 @@ _defineProperty(Detail, "defaultProps", {
   }
 });
 
-var ToggleJSONButton = /*#__PURE__*/_react["default"].memo(function (_ref3) {
+var ToggleJSONButton = /*#__PURE__*/React.memo(function (_ref3) {
   var onClick = _ref3.onClick,
       showingJSON = _ref3.showingJSON,
       className = _ref3.className;
-  return /*#__PURE__*/_react["default"].createElement("button", {
+  return /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-block btn-outline-secondary",
     onClick: onClick
-  }, showingJSON ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("i", {
+  }, showingJSON ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
     className: "icon fas icon-fw icon-list"
-  }), " View as List") : /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("i", {
+  }), " View as List") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
     className: "icon fas icon-fw icon-code"
   }), " View as JSON"));
 });
-
-var SeeMoreRowsButton = /*#__PURE__*/_react["default"].memo(function (_ref4) {
+var SeeMoreRowsButton = /*#__PURE__*/React.memo(function (_ref4) {
   var onClick = _ref4.onClick,
       collapsed = _ref4.collapsed,
       className = _ref4.className;
-  return /*#__PURE__*/_react["default"].createElement("button", {
+  return /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-block btn-outline-secondary",
     onClick: onClick
@@ -1182,8 +1156,7 @@ var SeeMoreRowsButton = /*#__PURE__*/_react["default"].memo(function (_ref4) {
  * @type {Component}
  */
 
-
-var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
+export var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(ItemDetailList, _React$PureComponent3);
 
   var _super4 = _createSuper(ItemDetailList);
@@ -1192,15 +1165,15 @@ var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
     key: "getTabObject",
     value: function getTabObject(props) {
       return {
-        tab: /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+        tab: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-list icon-fw"
         }), " Details"),
         key: 'details',
-        content: /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("h3", {
+        content: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
           className: "tab-section-title"
-        }, /*#__PURE__*/_react["default"].createElement("span", null, "Details")), /*#__PURE__*/_react["default"].createElement("hr", {
+        }, /*#__PURE__*/React.createElement("span", null, "Details")), /*#__PURE__*/React.createElement("hr", {
           className: "tab-section-title-horiz-divider mb-05"
-        }), /*#__PURE__*/_react["default"].createElement(ItemDetailList, props))
+        }), /*#__PURE__*/React.createElement(ItemDetailList, props))
       };
     }
   }]);
@@ -1243,13 +1216,13 @@ var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip["default"].rebuild();
+      ReactTooltip.rebuild();
     }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps, pastState) {
       if (this.state.showingJSON === false && pastState.showingJSON === true) {
-        _reactTooltip["default"].rebuild();
+        ReactTooltip.rebuild();
       }
     }
   }, {
@@ -1269,20 +1242,20 @@ var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
       var body;
 
       if (showingJSON) {
-        body = /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
+        body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
           className: "json-tree-wrapper"
-        }, /*#__PURE__*/_react["default"].createElement(_reactJsonTree["default"], {
+        }, /*#__PURE__*/React.createElement(JSONTree, {
           data: context
-        })), /*#__PURE__*/_react["default"].createElement("br", null), /*#__PURE__*/_react["default"].createElement("div", {
+        })), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("div", {
           className: "row"
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "col-12 col-sm-6"
-        }, /*#__PURE__*/_react["default"].createElement(ToggleJSONButton, {
+        }, /*#__PURE__*/React.createElement(ToggleJSONButton, {
           onClick: this.handleToggleJSON,
           showingJSON: showingJSON
         }))));
       } else {
-        var colDefs = _underscore["default"].extend({}, columnDefinitionMap || {}, keyTitleDescriptionMap || {});
+        var colDefs = _.extend({}, columnDefinitionMap || {}, keyTitleDescriptionMap || {});
 
         var isCollapsed;
         if (typeof propCollapsed === 'boolean') isCollapsed = propCollapsed;else isCollapsed = collapsed;
@@ -1291,37 +1264,37 @@ var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
         if (hideButtons) {
           buttonsRow = null;
         } else if (!showJSONButton) {
-          buttonsRow = /*#__PURE__*/_react["default"].createElement("div", {
+          buttonsRow = /*#__PURE__*/React.createElement("div", {
             className: "row"
-          }, /*#__PURE__*/_react["default"].createElement("div", {
+          }, /*#__PURE__*/React.createElement("div", {
             className: "col-12"
-          }, /*#__PURE__*/_react["default"].createElement(SeeMoreRowsButton, {
+          }, /*#__PURE__*/React.createElement(SeeMoreRowsButton, {
             onClick: this.handleToggleCollapsed,
             collapsed: collapsed
           })));
         } else {
-          buttonsRow = /*#__PURE__*/_react["default"].createElement("div", {
+          buttonsRow = /*#__PURE__*/React.createElement("div", {
             className: "row"
-          }, /*#__PURE__*/_react["default"].createElement("div", {
+          }, /*#__PURE__*/React.createElement("div", {
             className: "col-6"
-          }, /*#__PURE__*/_react["default"].createElement(SeeMoreRowsButton, {
+          }, /*#__PURE__*/React.createElement(SeeMoreRowsButton, {
             onClick: this.handleToggleCollapsed,
             collapsed: collapsed
-          })), /*#__PURE__*/_react["default"].createElement("div", {
+          })), /*#__PURE__*/React.createElement("div", {
             className: "col-6"
-          }, /*#__PURE__*/_react["default"].createElement(ToggleJSONButton, {
+          }, /*#__PURE__*/React.createElement(ToggleJSONButton, {
             onClick: this.handleToggleJSON,
             showingJSON: showingJSON
           })));
         }
 
-        body = /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(Detail, _extends({}, this.props, {
+        body = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Detail, _extends({}, this.props, {
           open: !isCollapsed,
           columnDefinitions: colDefs
         })), buttonsRow);
       }
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "item-page-detail",
         style: typeof minHeight === 'number' ? {
           minHeight: minHeight
@@ -1331,9 +1304,7 @@ var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
   }]);
 
   return ItemDetailList;
-}(_react["default"].PureComponent);
-
-exports.ItemDetailList = ItemDetailList;
+}(React.PureComponent);
 
 _defineProperty(ItemDetailList, "Detail", Detail);
 

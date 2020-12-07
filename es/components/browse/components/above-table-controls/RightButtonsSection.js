@@ -1,20 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ToggleLayoutButton = exports.ConfigureVisibleColumnsButton = exports.RightButtonsSection = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _SearchResultTable = require("./../SearchResultTable");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -37,31 +22,32 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var RightButtonsSection = /*#__PURE__*/_react["default"].memo(function (props) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import { SearchResultTable } from './../SearchResultTable';
+export var RightButtonsSection = /*#__PURE__*/React.memo(function (props) {
   var currentOpenPanel = props.currentOpenPanel,
       onColumnsBtnClick = props.onColumnsBtnClick,
       windowWidth = props.windowWidth,
       isFullscreen = props.isFullscreen,
       toggleFullScreen = props.toggleFullScreen;
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "right-buttons col-auto"
-  }, /*#__PURE__*/_react["default"].createElement(ConfigureVisibleColumnsButton, {
+  }, /*#__PURE__*/React.createElement(ConfigureVisibleColumnsButton, {
     onClick: onColumnsBtnClick,
     open: currentOpenPanel === "customColumns"
-  }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ? /*#__PURE__*/_react["default"].createElement(ToggleLayoutButton, {
+  }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ? /*#__PURE__*/React.createElement(ToggleLayoutButton, {
     windowWidth: windowWidth,
     isFullscreen: isFullscreen,
     toggleFullScreen: toggleFullScreen
   }) : null);
 });
-
-exports.RightButtonsSection = RightButtonsSection;
-
-var ConfigureVisibleColumnsButton = /*#__PURE__*/_react["default"].memo(function (_ref) {
+export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_ref) {
   var open = _ref.open,
       onClick = _ref.onClick,
       className = _ref.className;
-  return /*#__PURE__*/_react["default"].createElement("button", {
+  return /*#__PURE__*/React.createElement("button", {
     type: "button",
     key: "toggle-visible-columns",
     "data-tip": "Configure visible columns",
@@ -69,20 +55,18 @@ var ConfigureVisibleColumnsButton = /*#__PURE__*/_react["default"].memo(function
     active: open.toString(),
     onClick: onClick,
     className: (className || "") + (open ? " active" : "")
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-table fas"
-  }), /*#__PURE__*/_react["default"].createElement("i", {
+  }), /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-angle-down ml-03 fas"
   }));
 });
-
-exports.ConfigureVisibleColumnsButton = ConfigureVisibleColumnsButton;
 ConfigureVisibleColumnsButton.defaultProps = {
   "className": "btn btn-outline-primary"
 };
 /** Toggles between regular & full screen views */
 
-var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {
+export var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(ToggleLayoutButton, _React$PureComponent);
 
   var _super = _createSuper(ToggleLayoutButton);
@@ -93,7 +77,7 @@ var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, ToggleLayoutButton);
 
     _this = _super.call(this, props);
-    _this.handleLayoutToggle = _underscore["default"].throttle(_this.handleLayoutToggle.bind(_assertThisInitialized(_this)), 350);
+    _this.handleLayoutToggle = _.throttle(_this.handleLayoutToggle.bind(_assertThisInitialized(_this)), 350);
     return _this;
   }
 
@@ -104,7 +88,7 @@ var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {
           windowWidth = _this$props.windowWidth,
           isFullscreen = _this$props.isFullscreen,
           toggleFullScreen = _this$props.toggleFullScreen;
-      if (!_SearchResultTable.SearchResultTable.isDesktopClientside(windowWidth)) return null;
+      if (!SearchResultTable.isDesktopClientside(windowWidth)) return null;
 
       if (typeof toggleFullScreen !== 'function') {
         console.error('No toggleFullscreen function passed in.');
@@ -120,28 +104,26 @@ var ToggleLayoutButton = /*#__PURE__*/function (_React$PureComponent) {
           isFullscreen = _this$props2.isFullscreen,
           className = _this$props2.className;
       var cls = className + " expand-layout-button" + (!isFullscreen ? '' : ' expanded');
-      return /*#__PURE__*/_react["default"].createElement("button", {
+      return /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: cls,
         onClick: this.handleLayoutToggle,
         "data-tip": (!isFullscreen ? 'Expand' : 'Collapse') + " table width"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw fas icon-" + (!isFullscreen ? 'arrows-alt-h icon-expand' : 'compress')
-      }), /*#__PURE__*/_react["default"].createElement("span", {
+      }), /*#__PURE__*/React.createElement("span", {
         className: "ml-05 d-none d-xl-inline"
       }, !isFullscreen ? "Full Screen" : "Collapse Table Width"));
     }
   }]);
 
   return ToggleLayoutButton;
-}(_react["default"].PureComponent);
-
-exports.ToggleLayoutButton = ToggleLayoutButton;
+}(React.PureComponent);
 ToggleLayoutButton.propTypes = {
-  'windowWidth': _propTypes["default"].number.isRequired,
-  'isFullscreen': _propTypes["default"].bool.isRequired,
-  'toggleFullScreen': _propTypes["default"].func.isRequired,
-  'className': _propTypes["default"].string
+  'windowWidth': PropTypes.number.isRequired,
+  'isFullscreen': PropTypes.bool.isRequired,
+  'toggleFullScreen': PropTypes.func.isRequired,
+  'className': PropTypes.string
 };
 ToggleLayoutButton.defaultProps = {
   'className': "btn btn-outline-primary"

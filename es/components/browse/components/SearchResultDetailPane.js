@@ -1,22 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SearchResultDetailPane = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _ItemDetailList = require("./../../ui/ItemDetailList");
-
-var _FlexibleDescriptionBox = require("./../../ui/FlexibleDescriptionBox");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -41,7 +24,12 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SearchResultDetailPane = /*#__PURE__*/function (_React$PureComponent) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactTooltip from 'react-tooltip';
+import { Detail } from './../../ui/ItemDetailList';
+import { FlexibleDescriptionBox } from './../../ui/FlexibleDescriptionBox';
+export var SearchResultDetailPane = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchResultDetailPane, _React$PureComponent);
 
   var _super = _createSuper(SearchResultDetailPane);
@@ -55,12 +43,12 @@ var SearchResultDetailPane = /*#__PURE__*/function (_React$PureComponent) {
   _createClass(SearchResultDetailPane, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip["default"].rebuild();
+      ReactTooltip.rebuild();
     }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      if (this.props.open && !pastProps.open) _reactTooltip["default"].rebuild();
+      if (this.props.open && !pastProps.open) ReactTooltip.rebuild();
     }
   }, {
     key: "render",
@@ -69,26 +57,26 @@ var SearchResultDetailPane = /*#__PURE__*/function (_React$PureComponent) {
           result = _this$props.result,
           popLink = _this$props.popLink,
           schemas = _this$props.schemas;
-      return /*#__PURE__*/_react["default"].createElement("div", null, !result.description ? null : /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", null, !result.description ? null : /*#__PURE__*/React.createElement("div", {
         className: "flex-description-container"
-      }, /*#__PURE__*/_react["default"].createElement("h5", null, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("h5", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-align-left fas"
-      }), "\xA0 Description"), /*#__PURE__*/_react["default"].createElement(_FlexibleDescriptionBox.FlexibleDescriptionBox //windowWidth={this.props.windowWidth}
+      }), "\xA0 Description"), /*#__PURE__*/React.createElement(FlexibleDescriptionBox //windowWidth={this.props.windowWidth}
       , {
         description: result.description,
         fitTo: "self",
         textClassName: "text-normal",
         collapsedHeight: "auto",
         linesOfText: 2
-      }), /*#__PURE__*/_react["default"].createElement("hr", {
+      }), /*#__PURE__*/React.createElement("hr", {
         className: "desc-separator"
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
         className: "item-page-detail"
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "text-500"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-list fas"
-      }), "\xA0 Details"), /*#__PURE__*/_react["default"].createElement(_ItemDetailList.Detail, {
+      }), "\xA0 Details"), /*#__PURE__*/React.createElement(Detail, {
         context: result,
         open: false,
         popLink: popLink,
@@ -98,17 +86,15 @@ var SearchResultDetailPane = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return SearchResultDetailPane;
-}(_react["default"].PureComponent);
-
-exports.SearchResultDetailPane = SearchResultDetailPane;
+}(React.PureComponent);
 
 _defineProperty(SearchResultDetailPane, "propTypes", {
-  'result': _propTypes["default"].shape({
-    '@id': _propTypes["default"].string,
-    'display_title': _propTypes["default"].string,
-    'description': _propTypes["default"].string
+  'result': PropTypes.shape({
+    '@id': PropTypes.string,
+    'display_title': PropTypes.string,
+    'description': PropTypes.string
   }),
-  'popLink': _propTypes["default"].bool,
-  'schemas': _propTypes["default"].object //'windowWidth' : PropTypes.number.isRequired
+  'popLink': PropTypes.bool,
+  'schemas': PropTypes.object //'windowWidth' : PropTypes.number.isRequired
 
 });

@@ -1,18 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.PartialList = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
-
-var _util = require("./../util");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -35,6 +22,9 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React from 'react';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import { console } from './../util';
 /**
  * Bootstrap 'Row' component which may be used in PartialList's props.collapsible or props.persistent.
  * Renders two row columns: one for props.label and one for props.value or props.children.
@@ -48,7 +38,8 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
  * @prop {Component|Element|string} title - Alias for props.label.
  * @prop {Component|Element|string} children - Alias for props.value.
  */
-var Row = /*#__PURE__*/_react["default"].memo(function (props) {
+
+var Row = /*#__PURE__*/React.memo(function (props) {
   var colSm = props.colSm,
       colMd = props.colMd,
       colLg = props.colLg,
@@ -65,20 +56,19 @@ var Row = /*#__PURE__*/_react["default"].memo(function (props) {
   if (valSm < 3) valSm = 12;
   if (valMd < 3) valMd = 12;
   if (valLg < 3) valLg = 12;
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "row list-item " + className,
     "data-for-field": field
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "item-label col-sm-" + colSm + " col-md-" + colMd + " col-lg-" + colLg
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "inner"
-  }, label || title || "Label")), /*#__PURE__*/_react["default"].createElement("div", {
+  }, label || title || "Label")), /*#__PURE__*/React.createElement("div", {
     className: "item-value col-sm-" + valSm + " col-md-" + valMd + " col-lg-" + valLg
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "inner"
   }, value || val || children || "Value")));
 });
-
 Row.defaultProps = {
   'colSm': 12,
   'colMd': 4,
@@ -98,7 +88,7 @@ Row.defaultProps = {
  * @prop {string}  containerType - Type of element to use as container for the two lists. Defaults to 'div'.
  */
 
-var PartialList = /*#__PURE__*/function (_React$PureComponent) {
+export var PartialList = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(PartialList, _React$PureComponent);
 
   var _super = _createSuper(PartialList);
@@ -184,13 +174,13 @@ var PartialList = /*#__PURE__*/function (_React$PureComponent) {
           open = _this$props2$open === void 0 ? false : _this$props2$open;
       var _this$state$closing = this.state.closing,
           closing = _this$state$closing === void 0 ? false : _this$state$closing;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "expandable-list " + (open ? "open" : "closed") + (className ? " " + className : "")
-      }, persistent || children ? /*#__PURE__*/_react["default"].createElement(containerType, {
+      }, persistent || children ? /*#__PURE__*/React.createElement(containerType, {
         'className': "persistent " + (containerPersistentClassName || containerClassName)
-      }, persistent || children) : null, collapsible ? /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+      }, persistent || children) : null, collapsible ? /*#__PURE__*/React.createElement(Collapse, {
         "in": open
-      }, /*#__PURE__*/_react["default"].createElement(containerType, {
+      }, /*#__PURE__*/React.createElement(containerType, {
         'className': containerCollapseClassName || containerClassName,
         'key': "c"
       }, open || closing ? collapsible : null)) : null);
@@ -198,7 +188,5 @@ var PartialList = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return PartialList;
-}(_react["default"].PureComponent);
-
-exports.PartialList = PartialList;
+}(React.PureComponent);
 PartialList.Row = Row;

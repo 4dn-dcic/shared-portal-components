@@ -1,24 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.WindowDropReceiver = exports.LinkToSelector = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var _patchedConsole = require("./../../util/patched-console");
-
-var _object = require("./../../util/object");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -43,10 +24,17 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import url from 'url';
+import { patchedConsoleInstance as console } from './../../util/patched-console';
+import { itemUtil } from './../../util/object';
 /**
  * Global variable which holds reference to child window, if any.
  * Is re-used if one is open to prevent additional windows being created.
  */
+
 var linkedObjChildWindow = null;
 /**
  * Use to help select Items from a second/child window's SearchView.
@@ -66,7 +54,7 @@ var linkedObjChildWindow = null;
  * This component does not render any of its own JSX/HTML, but will render children if any are passed in.
  */
 
-var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
+export var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(LinkToSelector, _React$PureComponent);
 
   var _super = _createSuper(LinkToSelector);
@@ -113,8 +101,7 @@ var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
       var willUnmount = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
       if (!window) {
-        _patchedConsole.patchedConsoleInstance.error('No window object available. Fine if this appears in a test.');
-
+        console.error('No window object available. Fine if this appears in a test.');
         return;
       }
 
@@ -208,23 +195,20 @@ var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
 
       if (!eventType) {
         // We require an 'eventType' to be present in cross-window messages to help ID what the message is.
-        _patchedConsole.patchedConsoleInstance.error("No eventType specified in message. Canceling.");
-
+        console.error("No eventType specified in message. Canceling.");
         return;
       } // Authenticate message origin to prevent XSS attacks.
 
 
-      var eventOriginParts = _url["default"].parse(evt.origin);
+      var eventOriginParts = url.parse(evt.origin);
 
       if (window.location.host !== eventOriginParts.host) {
-        _patchedConsole.patchedConsoleInstance.error('Received message from unauthorized host. Canceling.');
-
+        console.error('Received message from unauthorized host. Canceling.');
         return;
       }
 
       if (window.location.protocol !== eventOriginParts.protocol) {
-        _patchedConsole.patchedConsoleInstance.error('Received message from unauthorized protocol. Canceling.');
-
+        console.error('Received message from unauthorized protocol. Canceling.');
         return;
       } // The meat of this function/handler. This is what we listen to / expect.
 
@@ -232,7 +216,7 @@ var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
       if (eventType === 'fourfrontselectionclick') {
         var items = evt.data && evt.data.items || evt.detail && evt.detail.items || null;
 
-        if (items && Array.isArray(items) && items.length > 0 && _underscore["default"].every(items, function (item) {
+        if (items && Array.isArray(items) && items.length > 0 && _.every(items, function (item) {
           return item.id && typeof item.id === 'string' && item.json;
         })) {
           return this.receiveData(items);
@@ -258,8 +242,7 @@ var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
 
       setTimeout(function () {
         window && window.addEventListener('message', _this4.handleChildWindowMessage);
-
-        _patchedConsole.patchedConsoleInstance.log('Updated \'message\' event handler');
+        console.log('Updated \'message\' event handler');
       }, 200);
     }
   }, {
@@ -268,7 +251,7 @@ var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
       window.removeEventListener('message', this.handleChildWindowMessage);
 
       if (!this || !this.windowObjectReference) {
-        _patchedConsole.patchedConsoleInstance.warn('Child window no longer available to unbind event handlers. Fine if closed.');
+        console.warn('Child window no longer available to unbind event handlers. Fine if closed.');
       }
     }
   }, {
@@ -313,7 +296,7 @@ var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
     key: "render",
     value: function render() {
       if (this.props.enableWindowDrop) {
-        return /*#__PURE__*/_react["default"].createElement(WindowDropReceiver, this.props);
+        return /*#__PURE__*/React.createElement(WindowDropReceiver, this.props);
       }
 
       return null;
@@ -321,52 +304,50 @@ var LinkToSelector = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return LinkToSelector;
-}(_react["default"].PureComponent);
-
-exports.LinkToSelector = LinkToSelector;
+}(React.PureComponent);
 
 _defineProperty(LinkToSelector, "propTypes", {
   /** Whether component should be listening for Item to be selected */
-  'isSelecting': _propTypes["default"].bool.isRequired,
+  'isSelecting': PropTypes.bool.isRequired,
 
   /** Callback called when Items are received. Should accept array of {id:@ID, json:Item context (not guaranteed)} object and endDataPost (bool) as param */
-  'onSelect': _propTypes["default"].func.isRequired,
+  'onSelect': PropTypes.func.isRequired,
 
   /** Search URL to direct child window to */
-  'searchURL': _propTypes["default"].string.isRequired,
+  'searchURL': PropTypes.string.isRequired,
 
   /** Optional alert to show in child window upon initialization. Not guaranteed to appear in all browsers. */
-  'childWindowAlert': _propTypes["default"].shape({
-    'title': _propTypes["default"].string.isRequired,
-    'message': _propTypes["default"].any.isRequired,
-    'style': _propTypes["default"].string
+  'childWindowAlert': PropTypes.shape({
+    'title': PropTypes.string.isRequired,
+    'message': PropTypes.any.isRequired,
+    'style': PropTypes.string
   }),
 
   /** Optional callback called with no params when child window is closed. Could/should unset `props.isSelecting`. */
-  'onCloseChildWindow': _propTypes["default"].func,
+  'onCloseChildWindow': PropTypes.func,
   // When used with SV, will generally be the IndvObject.selectCancel method
 
   /** If true, then allows to drag & drop Item to window */
-  'enableWindowDrop': _propTypes["default"].bool.isRequired,
+  'enableWindowDrop': PropTypes.bool.isRequired,
 
   /** Text content of message filling window when being dragged over */
-  'dropMessage': _propTypes["default"].string.isRequired
+  'dropMessage': PropTypes.string.isRequired
 });
 
 _defineProperty(LinkToSelector, "defaultProps", {
   'isSelecting': false,
   'onSelect': function onSelect(selectedItems, endDataPost) {
-    _patchedConsole.patchedConsoleInstance.log("Selected", selectedItems, endDataPost);
+    console.log("Selected", selectedItems, endDataPost);
   },
   'onCloseChildWindow': function onCloseChildWindow() {
-    _patchedConsole.patchedConsoleInstance.log("Closed child window");
+    console.log("Closed child window");
   },
   'searchURL': '/search/?currentAction=selection&type=Item',
   'childWindowAlert': {
     'title': "Selecting Item...",
-    'message': /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("p", {
+    'message': /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
       className: "mb-0"
-    }, "Please either ", /*#__PURE__*/_react["default"].createElement("b", null, "drag and drop"), " an Item (row) from this window into the parent window or click its corresponding select (checkbox) button."), /*#__PURE__*/_react["default"].createElement("p", {
+    }, "Please either ", /*#__PURE__*/React.createElement("b", null, "drag and drop"), " an Item (row) from this window into the parent window or click its corresponding select (checkbox) button."), /*#__PURE__*/React.createElement("p", {
       className: "mb-0"
     }, "You may also browse around and drag & drop a link into the parent window as well.")),
     'style': "info"
@@ -375,7 +356,7 @@ _defineProperty(LinkToSelector, "defaultProps", {
   'enableWindowDrop': true
 });
 
-var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
+export var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(WindowDropReceiver, _React$PureComponent2);
 
   var _super2 = _createSuper(WindowDropReceiver);
@@ -387,7 +368,7 @@ var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
 
     _this5 = _super2.call(this, props);
     _this5.handleWindowDragOver = _this5.handleWindowDragOver.bind(_assertThisInitialized(_this5));
-    _this5.refreshWindowDropReceiver = _underscore["default"].throttle(_this5.refreshWindowDropReceiver.bind(_assertThisInitialized(_this5)), 300);
+    _this5.refreshWindowDropReceiver = _.throttle(_this5.refreshWindowDropReceiver.bind(_assertThisInitialized(_this5)), 300);
     _this5.closeWindowDropReceiver = _this5.closeWindowDropReceiver.bind(_assertThisInitialized(_this5));
     _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
     _this5.receiveData = _this5.receiveData.bind(_assertThisInitialized(_this5));
@@ -420,8 +401,7 @@ var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
     key: "manageWindowOnDragHandler",
     value: function manageWindowOnDragHandler(pastProps, nextProps) {
       if (!window) {
-        _patchedConsole.patchedConsoleInstance.error('No window object available. Fine if this appears in a test.');
-
+        console.error('No window object available. Fine if this appears in a test.');
         return;
       }
 
@@ -433,8 +413,7 @@ var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
         window.removeEventListener('dragover', this.handleWindowDragOver);
         window.removeEventListener('drop', this.handleDrop);
         this.closeWindowDropReceiver();
-
-        _patchedConsole.patchedConsoleInstance.log('Removed window event handlers for WindowDropReceiver');
+        console.log('Removed window event handlers for WindowDropReceiver');
       } else if (!pastInSelection && nowInSelection) {
         var _this = this;
 
@@ -444,8 +423,7 @@ var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
           window.addEventListener('dragenter', _this.handleWindowDragEnter);
           window.addEventListener('dragover', _this.handleWindowDragOver);
           window.addEventListener('drop', _this.handleDrop);
-
-          _patchedConsole.patchedConsoleInstance.log('Added window event handlers for WindowDropReceiver');
+          console.log('Added window event handlers for WindowDropReceiver');
         }, 250);
       }
     }
@@ -465,7 +443,7 @@ var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
       var draggedContext = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-json');
       var draggedURI = evt.dataTransfer && evt.dataTransfer.getData('text/plain');
       var draggedID = evt.dataTransfer && evt.dataTransfer.getData('text/4dn-item-id');
-      var atId = draggedID || draggedContext & _object.itemUtil.atId(draggedContext) || _url["default"].parse(draggedURI).pathname || null;
+      var atId = draggedID || draggedContext & itemUtil.atId(draggedContext) || url.parse(draggedURI).pathname || null;
       this.receiveData(atId, draggedContext);
     }
   }, {
@@ -530,9 +508,8 @@ var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
         try {
           itemContext = JSON.parse(itemContext);
         } catch (e) {
-          _patchedConsole.patchedConsoleInstance.warn("Could not parse itemContext into JS data.");
-
-          _patchedConsole.patchedConsoleInstance.error(e);
+          console.warn("Could not parse itemContext into JS data.");
+          console.error(e);
         }
       }
 
@@ -549,25 +526,23 @@ var WindowDropReceiver = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
 
   return WindowDropReceiver;
-}(_react["default"].PureComponent);
-
-exports.WindowDropReceiver = WindowDropReceiver;
+}(React.PureComponent);
 
 _defineProperty(WindowDropReceiver, "propTypes", {
   /** Whether component should be listening for Item to be selected */
-  'isSelecting': _propTypes["default"].bool.isRequired,
+  'isSelecting': PropTypes.bool.isRequired,
 
   /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
-  'onSelect': _propTypes["default"].func.isRequired,
+  'onSelect': PropTypes.func.isRequired,
 
   /** Text content of message filling window when being dragged over */
-  'dropMessage': _propTypes["default"].string.isRequired
+  'dropMessage': PropTypes.string.isRequired
 });
 
 _defineProperty(WindowDropReceiver, "defaultProps", {
   'isSelecting': false,
   'onSelect': function onSelect(items, endDataPost) {
-    _patchedConsole.patchedConsoleInstance.log("Selected", items, endDataPost);
+    console.log("Selected", items, endDataPost);
   },
   'dropMessage': "Drop Item Here"
 });

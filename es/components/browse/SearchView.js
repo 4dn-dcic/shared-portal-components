@@ -1,66 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "ColumnCombiner", {
-  enumerable: true,
-  get: function get() {
-    return _tableCommons.ColumnCombiner;
-  }
-});
-Object.defineProperty(exports, "CustomColumnController", {
-  enumerable: true,
-  get: function get() {
-    return _CustomColumnController.CustomColumnController;
-  }
-});
-Object.defineProperty(exports, "SortController", {
-  enumerable: true,
-  get: function get() {
-    return _SortController.SortController;
-  }
-});
-Object.defineProperty(exports, "SelectedItemsController", {
-  enumerable: true,
-  get: function get() {
-    return _SelectedItemsController.SelectedItemsController;
-  }
-});
-exports.SearchView = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _navigate = require("./../util/navigate");
-
-var _misc = require("./../util/misc");
-
-var _patchedConsole = require("./../util/patched-console");
-
-var _tableCommons = require("./components/table-commons");
-
-var _AboveSearchTablePanel = require("./components/AboveSearchTablePanel");
-
-var _CustomColumnController = require("./components/CustomColumnController");
-
-var _SortController = require("./components/SortController");
-
-var _SelectedItemsController = require("./components/SelectedItemsController");
-
-var _WindowNavigationController = require("./components/WindowNavigationController");
-
-var _ControlsAndResults = require("./components/ControlsAndResults");
-
-var _typedefs = require("./../util/typedefs");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -95,7 +34,24 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SearchView = /*#__PURE__*/function (_React$PureComponent) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import ReactTooltip from 'react-tooltip';
+import { navigate } from './../util/navigate';
+import { isSelectAction } from './../util/misc';
+import { patchedConsoleInstance as console } from './../util/patched-console';
+import { basicColumnExtensionMap, ColumnCombiner } from './components/table-commons';
+import { AboveSearchTablePanel } from './components/AboveSearchTablePanel';
+import { CustomColumnController } from './components/CustomColumnController';
+import { SortController } from './components/SortController';
+import { SelectedItemsController } from './components/SelectedItemsController';
+import { WindowNavigationController } from './components/WindowNavigationController';
+import { ControlsAndResults } from './components/ControlsAndResults'; // eslint-disable-next-line no-unused-vars
+
+import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/typedefs';
+export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnController };
+export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchView, _React$PureComponent);
 
   var _super = _createSuper(SearchView);
@@ -116,7 +72,7 @@ var SearchView = /*#__PURE__*/function (_React$PureComponent) {
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      */
     value: function componentDidMount() {
-      _reactTooltip["default"].rebuild();
+      ReactTooltip.rebuild();
     }
     /**
      * TODO once we have @type : [..more stuff..], change to use instead of `getSchemaTypeFromSearchContext`.
@@ -136,11 +92,11 @@ var SearchView = /*#__PURE__*/function (_React$PureComponent) {
           currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc,
           propFacets = _this$props.facets,
           _this$props$navigate = _this$props.navigate,
-          propNavigate = _this$props$navigate === void 0 ? _navigate.navigate : _this$props$navigate,
+          propNavigate = _this$props$navigate === void 0 ? navigate : _this$props$navigate,
           _this$props$columns = _this$props.columns,
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
           _this$props$columnExt = _this$props.columnExtensionMap,
-          columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
+          columnExtensionMap = _this$props$columnExt === void 0 ? basicColumnExtensionMap : _this$props$columnExt,
           placeholderReplacementFxn = _this$props.placeholderReplacementFxn,
           windowWidth = _this$props.windowWidth,
           passProps = _objectWithoutProperties(_this$props, ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "windowWidth"]);
@@ -158,18 +114,18 @@ var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         facets: propFacets || contextFacets
       });
 
-      var controllersAndView = /*#__PURE__*/_react["default"].createElement(_WindowNavigationController.WindowNavigationController, _extends({
+      var controllersAndView = /*#__PURE__*/React.createElement(WindowNavigationController, _extends({
         href: href,
         context: context,
         showClearFiltersButton: showClearFiltersButton
       }, {
         navigate: propNavigate
-      }), /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
+      }), /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, /*#__PURE__*/_react["default"].createElement(_CustomColumnController.CustomColumnController, null, /*#__PURE__*/_react["default"].createElement(_SortController.SortController, null, /*#__PURE__*/_react["default"].createElement(_ControlsAndResults.ControlsAndResults, childViewProps)))));
+      }, /*#__PURE__*/React.createElement(CustomColumnController, null, /*#__PURE__*/React.createElement(SortController, null, /*#__PURE__*/React.createElement(ControlsAndResults, childViewProps)))));
 
-      if ((0, _misc.isSelectAction)(currentAction)) {
+      if (isSelectAction(currentAction)) {
         // We don't allow "SelectionMode" unless is own page.
         // Could consider changing later once a use case exists.
         controllersAndView =
@@ -177,15 +133,15 @@ var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         // SelectedItemsController must be above ColumnCombiner because it adjusts
         // columnExtensionMap, rather than columnDefinitions. This can be easily changed
         // though if desired.
-        _react["default"].createElement(_SelectedItemsController.SelectedItemsController, {
+        React.createElement(SelectedItemsController, {
           columnExtensionMap: columnExtensionMap,
           currentAction: currentAction
         }, controllersAndView);
       }
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "search-page-container"
-      }, /*#__PURE__*/_react["default"].createElement(_AboveSearchTablePanel.AboveSearchTablePanel, {
+      }, /*#__PURE__*/React.createElement(AboveSearchTablePanel, {
         context: context,
         placeholderReplacementFxn: placeholderReplacementFxn
       }), controllersAndView);
@@ -193,28 +149,26 @@ var SearchView = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return SearchView;
-}(_react["default"].PureComponent);
-
-exports.SearchView = SearchView;
+}(React.PureComponent);
 
 _defineProperty(SearchView, "propTypes", {
-  'context': _propTypes["default"].object.isRequired,
-  'columns': _propTypes["default"].object,
-  'columnExtensionMap': _propTypes["default"].object,
-  'currentAction': _propTypes["default"].string,
-  'href': _propTypes["default"].string.isRequired,
-  'session': _propTypes["default"].bool.isRequired,
-  'navigate': _propTypes["default"].func,
-  'facets': _propTypes["default"].array,
-  'isFullscreen': _propTypes["default"].bool.isRequired,
-  'toggleFullScreen': _propTypes["default"].func.isRequired,
-  'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
-  'detailPane': _propTypes["default"].element,
-  'renderDetailPane': _propTypes["default"].func,
-  'showClearFiltersButton': _propTypes["default"].bool,
-  'isOwnPage': _propTypes["default"].bool,
-  'schemas': _propTypes["default"].object,
-  'placeholderReplacementFxn': _propTypes["default"].func // Passed down to AboveSearchTablePanel StaticSection
+  'context': PropTypes.object.isRequired,
+  'columns': PropTypes.object,
+  'columnExtensionMap': PropTypes.object,
+  'currentAction': PropTypes.string,
+  'href': PropTypes.string.isRequired,
+  'session': PropTypes.bool.isRequired,
+  'navigate': PropTypes.func,
+  'facets': PropTypes.array,
+  'isFullscreen': PropTypes.bool.isRequired,
+  'toggleFullScreen': PropTypes.func.isRequired,
+  'separateSingleTermFacets': PropTypes.bool.isRequired,
+  'detailPane': PropTypes.element,
+  'renderDetailPane': PropTypes.func,
+  'showClearFiltersButton': PropTypes.bool,
+  'isOwnPage': PropTypes.bool,
+  'schemas': PropTypes.object,
+  'placeholderReplacementFxn': PropTypes.func // Passed down to AboveSearchTablePanel StaticSection
 
 });
 
@@ -223,9 +177,9 @@ _defineProperty(SearchView, "defaultProps", {
   // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
   // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
   'columns': null,
-  'navigate': _navigate.navigate,
+  'navigate': navigate,
   'currentAction': null,
-  'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
+  'columnExtensionMap': basicColumnExtensionMap,
   'separateSingleTermFacets': true,
   'isOwnPage': true
 });

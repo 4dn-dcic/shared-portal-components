@@ -1,43 +1,16 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.get = get;
-exports.maybeValid = maybeValid;
-exports.getUserGroups = getUserGroups;
-exports.getUserInfo = getUserInfo;
-exports.getUserDetails = getUserDetails;
-exports.saveUserDetails = saveUserDetails;
-exports.save = save;
-exports.saveUserInfoLocalStorage = saveUserInfoLocalStorage;
-exports.saveUserInfo = saveUserInfo;
-exports.remove = remove;
-exports.addToHeaders = addToHeaders;
-exports.isLoggedInAsAdmin = isLoggedInAsAdmin;
-exports.decode = exports.cookieStore = void 0;
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _universalCookie = _interopRequireDefault(require("universal-cookie"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _misc = require("./misc");
-
-var _patchedConsole = require("./patched-console");
-
-var _object = require("./object");
-
-var _jsonwebtoken = _interopRequireDefault(require("jsonwebtoken"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
+import _ from 'underscore';
+import Cookies from 'universal-cookie';
+import memoize from 'memoize-one';
+import { isServerSide } from './misc';
+import { patchedConsoleInstance as console } from './patched-console';
+import { getNestedProperty } from './object';
+import jwt from 'jsonwebtoken';
 var COOKIE_ID = 'jwtToken';
 /** Interface to grab cookies. We can move to own util file later for re-use if necessary. */
 
-var cookieStore = new _universalCookie["default"]();
-exports.cookieStore = cookieStore;
+export var cookieStore = new Cookies();
 var dummyStorage = {};
 /**
  * Get the current JWT token string from cookie or localStorage.
@@ -47,10 +20,10 @@ var dummyStorage = {};
  * @returns {string} The token.
  */
 
-function get() {
+export function get() {
   var idToken = null;
 
-  if ((0, _misc.isServerSide)()) {
+  if (isServerSide()) {
     idToken = null;
   } else {
     idToken = cookieStore.get(COOKIE_ID) || null;
@@ -65,7 +38,6 @@ function get() {
  * @returns {boolean} True if supported.
  */
 
-
 function storeExists() {
   if (typeof Storage === 'undefined' || typeof localStorage === 'undefined' || !localStorage) return false;
   return true;
@@ -79,7 +51,7 @@ function storeExists() {
  */
 
 
-function maybeValid(jwtToken) {
+export function maybeValid(jwtToken) {
   return typeof jwtToken === 'string' && jwtToken.length > 0 && jwtToken !== "null" && jwtToken !== "expired" ? true : false;
 }
 /**
@@ -90,13 +62,12 @@ function maybeValid(jwtToken) {
  * @returns {string[]} List of group names.
  */
 
-
-function getUserGroups() {
+export function getUserGroups() {
   var userInfo = getUserInfo();
   var userGroups = [];
 
   if (userInfo) {
-    var currGroups = (0, _object.getNestedProperty)(userInfo, ['details', 'groups'], true);
+    var currGroups = getNestedProperty(userInfo, ['details', 'groups'], true);
 
     if (currGroups && Array.isArray(currGroups)) {
       userGroups = currGroups;
@@ -113,8 +84,7 @@ function getUserGroups() {
  * @returns {Object|null} Object containing user info, or null.
  */
 
-
-function getUserInfo() {
+export function getUserInfo() {
   try {
     if (storeExists()) {
       return JSON.parse(localStorage.getItem('user_info'));
@@ -133,8 +103,7 @@ function getUserInfo() {
  * @returns {Object|null} Object containing user details, or null.
  */
 
-
-function getUserDetails() {
+export function getUserDetails() {
   var userInfo = getUserInfo();
   var userDetails = userInfo && userInfo.details || null;
   if (userDetails === 'null') userDetails = null;
@@ -154,8 +123,7 @@ function getUserDetails() {
  * @returns {boolean} True if success. False if no user info.
  */
 
-
-function saveUserDetails(details) {
+export function saveUserDetails(details) {
   var userInfo = getUserInfo();
 
   if (typeof userInfo !== 'undefined' && userInfo) {
@@ -179,8 +147,7 @@ function saveUserDetails(details) {
  * @returns {boolean} True if success.
  */
 
-
-function save(idToken) {
+export function save(idToken) {
   cookieStore.set(COOKIE_ID, idToken, {
     path: '/'
   });
@@ -197,8 +164,7 @@ function save(idToken) {
  * @returns {boolean} True if success.
  */
 
-
-function saveUserInfoLocalStorage(user_info) {
+export function saveUserInfoLocalStorage(user_info) {
   if (storeExists()) {
     localStorage.setItem("user_info", JSON.stringify(user_info));
   } else {
@@ -219,8 +185,7 @@ function saveUserInfoLocalStorage(user_info) {
  * @returns {boolean} True if success.
  */
 
-
-function saveUserInfo(user_info) {
+export function saveUserInfo(user_info) {
   // Delegate JWT token to cookie, keep extended user_info obj (w/ copy of token) in localStorage.
   save(user_info.idToken || user_info.id_token, 'cookie');
   saveUserInfoLocalStorage(user_info);
@@ -232,10 +197,8 @@ function saveUserInfo(user_info) {
  * @public
  */
 
-
-function remove() {
-  _patchedConsole.patchedConsoleInstance.warn("REMOVING JWT!!");
-
+export function remove() {
+  console.warn("REMOVING JWT!!");
   var savedIdToken = cookieStore.get(COOKIE_ID) || null;
 
   if (savedIdToken) {
@@ -250,8 +213,7 @@ function remove() {
     localStorage.removeItem("user_info");
   }
 
-  _patchedConsole.patchedConsoleInstance.info('Removed JWT: ' + savedIdToken);
-
+  console.info('Removed JWT: ' + savedIdToken);
   return true;
 }
 /**
@@ -265,8 +227,7 @@ function remove() {
  * @returns {{ removedCookie: boolean, removedLocalStorage: boolean }} Removal results
  */
 
-
-function addToHeaders() {
+export function addToHeaders() {
   var headers = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var idToken = get('cookie');
 
@@ -287,8 +248,7 @@ function addToHeaders() {
  * @returns {boolean} True if admin.
  */
 
-
-function isLoggedInAsAdmin() {
+export function isLoggedInAsAdmin() {
   var details = getUserDetails();
 
   if (details && Array.isArray(details.groups) && details.groups.indexOf('admin') > -1) {
@@ -299,8 +259,6 @@ function isLoggedInAsAdmin() {
 }
 /** Memoized clone of jwt.decode, for performance */
 
-
-var decode = (0, _memoizeOne["default"])(function (jwtToken) {
-  return jwtToken && _jsonwebtoken["default"].decode(jwtToken);
+export var decode = memoize(function (jwtToken) {
+  return jwtToken && jwt.decode(jwtToken);
 });
-exports.decode = decode;
