@@ -153,7 +153,9 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       })) return false;
       if (_.any(list, function (x) {
         if (!Array.isArray(x['@type'])) {
-          return true; // No @type so we can't get 'columns' from schemas.
+          {
+            /* return true; // No @type so we can't get 'columns' from schemas. */
+          }
         } else {
           schemaForType = getSchemaForItemType(x['@type'][0], schemas);
           if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
@@ -264,6 +266,12 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             }
           }
         }
+      }
+
+      var reminderKeys = _underscore["default"].difference(_underscore["default"].keys(objectWithAllItemKeys), ['principals_allowed', '@type', 'uuid']);
+
+      if (reminderKeys.length <= 2) {
+        return false;
       }
 
       return true;
