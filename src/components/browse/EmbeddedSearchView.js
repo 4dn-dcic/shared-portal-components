@@ -53,6 +53,12 @@ export class EmbeddedSearchView extends React.PureComponent {
         'onClearFiltersVirtual' : PropTypes.func,
         'isClearFiltersBtnVisible' : PropTypes.func,
         'embeddedTableHeader' : PropTypes.element,
+        'embeddedTableFooter' : PropTypes.element,
+        'aboveTableComponent' : PropTypes.element,
+        'aboveFacetListComponent' : PropTypes.element,
+        'facetListComponent' : PropTypes.element,
+        'facetColumnClassName' : PropTypes.string,
+        'tableColumnClassName' : PropTypes.string
     };
 
     static listToObj(hideFacetStrs){
@@ -104,7 +110,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             href,                   // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             context,                // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             currentAction = null,   // From App.js; is NOT passed down. Always should be null for embedded search views.
-            searchHref,
+            searchHref,             // Initial search href; if blank, then no initial request is made.
             // schemas = null,       // Passed down in passProps
             navigate: propNavigate,  // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             columns = null,
@@ -112,6 +118,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             facets,
             aboveTableComponent = null,         // Override default default to be null.
             aboveFacetListComponent = null,     // Override default default to be null.
+            facetListComponent,                 // Preserve/use default value (DefaultFaceetListComponent) set by ControlsAndResults unless overriden by parent UI requirements.
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
@@ -127,13 +134,15 @@ export class EmbeddedSearchView extends React.PureComponent {
             // Must be static function that accepts currentSearchHref as first parameter and original searchHref as second one.
             // (On other hand, `SearchView` component accepts boolean `showClearFiltersButton`, as we have `context` etc available there.)
             isClearFiltersBtnVisible,
+            facetColumnClassName,               // If undefined, default is set in ControlsAndResults.
+            tableColumnClassName: propTableColumnClassName, // If undefined, default is set in ControlsAndResults.
             ...passProps
         } = this.props;
 
         // If facets are null (hidden/excluded), set table col to be full width of container.
-        const tableColumnClassName = facets === null ? "col-12" : undefined;
+        const tableColumnClassName = facets === null ? "col-12" : propTableColumnClassName;
         // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
-        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, tableColumnClassName };
+        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, facetListComponent, tableColumnClassName, facetColumnClassName };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
         return (

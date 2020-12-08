@@ -115,17 +115,25 @@ export class VirtualHrefController extends React.PureComponent {
             // Divide URL into parts and put into a virtualCompoundFilterSet, in effect making all virtual search
             // requests into POST requests.
             const targetHrefParts = url.parse(nextHrefFull, true);
-            const gParts = {};
-            const fParts = {};
+            const globalFlagsParams = {};
+            const filterBlockParams = {};
+            let searchType = null;
             Object.keys(targetHrefParts.query).forEach(function(k){
-                if (k === "type" || k === "sort" || k === "additional_facet") {
-                    gParts[k] = targetHrefParts.query[k];
+                if (k === "type") {
+                    searchType = targetHrefParts.query[k];
+                    if (Array.isArray(searchType)) {
+                        // Shouldn't happen, but sometimes we might get 2 type= in URL. E.g. in response 'filters' "remove" property.
+                        console.warn("Received 2 type= URL params.");
+                        [ searchType ] = searchType;
+                    }
+                    return;
+                }
+                if (k === "sort" || k === "additional_facet") {
+                    globalFlagsParams[k] = targetHrefParts.query[k];
                 } else {
-                    fParts[k] = targetHrefParts.query[k];
+                    filterBlockParams[k] = targetHrefParts.query[k];
                 }
             });
-            const gStr = queryString.stringify(gParts);
-            const fStr = queryString.stringify(fParts);
 
             // If it's a single filter_block requested, we will get back "facets"
             // and similar things in the response, unlike as for response for real
@@ -134,11 +142,11 @@ export class VirtualHrefController extends React.PureComponent {
             // We can thus perform a 'drop-in' POST compound_search for 1 filter_block
             // in place of a GET /search/?type=... request.
             virtualCompoundFilterSet = {
-                "global_flags": gStr,
-                "search_type": gParts.type,
+                "global_flags": queryString.stringify(globalFlagsParams),
+                "search_type": searchType,
                 "filter_blocks": [{
                     "flags_applied": [],
-                    "query": fStr
+                    "query": queryString.stringify(filterBlockParams)
                 }]
             };
         } else {
@@ -239,10 +247,15 @@ export class VirtualHrefController extends React.PureComponent {
     }
 
     onFilter(facet, term, callback){
-        const { virtualHref, virtualContext : { filters: virtualContextFilters } } = this.state;
+        const {
+            virtualHref,
+            virtualContext: { filters: virtualContextFilters }
+        } = this.state;
+
+        const targetHref = generateNextHref(virtualHref, virtualContextFilters, facet, term);
 
         return this.virtualNavigate(
-            generateNextHref(virtualHref, virtualContextFilters, facet, term),
+            targetHref,
             { 'dontScrollToTop' : true },
             typeof callback === "function" ? callback : null
         );

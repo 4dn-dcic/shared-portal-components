@@ -125,6 +125,8 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           aboveFacetListComponent = _this$props2$aboveFac === void 0 ? /*#__PURE__*/React.createElement("div", {
         className: "above-results-table-row"
       }) : _this$props2$aboveFac,
+          _this$props2$facetLis = _this$props2.facetListComponent,
+          facetListComponent = _this$props2$facetLis === void 0 ? /*#__PURE__*/React.createElement(DefaultFacetListComponent, null) : _this$props2$facetLis,
           _this$props2$defaultO = _this$props2.defaultOpenIndices,
           defaultOpenIndices = _this$props2$defaultO === void 0 ? null : _this$props2$defaultO,
           _this$props2$detailPa = _this$props2.detailPane,
@@ -162,80 +164,76 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
 
       var searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
       var searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
-      var facetListProps = {
-        facets: facets,
-        filters: filters,
-        schemas: schemas,
-        currentAction: currentAction,
-        showClearFiltersButton: showClearFiltersButton,
-        isContextLoading: isContextLoading,
-        session: session,
-        onFilter: onFilter,
-        windowWidth: windowWidth,
-        windowHeight: windowHeight,
-        termTransformFxn: termTransformFxn,
-        separateSingleTermFacets: separateSingleTermFacets,
-        itemTypeForSchemas: searchItemType,
-        maxBodyHeight: !isOwnPage && maxHeight || null,
-        onClearFilters: this.onClearFiltersClick,
-        addToBodyClassList: addToBodyClassList,
-        removeFromBodyClassList: removeFromBodyClassList
-      };
-      var aboveTableControlsProps = {
+
+      /**
+       * To Consider:
+       * We could have 1 collection/object of props that is combination of
+       * `aboveTableControlsProps` + `facetListProps` and gets passed down
+       * to all children. This would allow more flexibility to put elements
+       * or controls in various places around table, such as FacetList in
+       * table header.
+       */
+      var commonChildProps = {
+        // Props which don't change too frequently and/or are useful to many components -
         context: context,
-        columnDefinitions: columnDefinitions,
         navigate: navigate,
-        // TODO: compoundSearchNavigate,
+        // <- search response context, prop navigate (could be virtual or global)
+        schemas: schemas,
+        session: session,
+        columnDefinitions: columnDefinitions,
+        facets: facets,
         hiddenColumns: hiddenColumns,
         addHiddenColumn: addHiddenColumn,
         removeHiddenColumn: removeHiddenColumn,
         currentAction: currentAction,
         windowWidth: windowWidth,
-        windowHeight: windowHeight
+        windowHeight: windowHeight,
+        isContextLoading: isContextLoading,
+        onFilter: onFilter,
+        onClearFilters: this.onClearFiltersClick,
+        termTransformFxn: termTransformFxn,
+        itemTypeForSchemas: searchItemType,
+        addToBodyClassList: addToBodyClassList,
+        removeFromBodyClassList: removeFromBodyClassList
       };
-      var extendedAboveTableComponent, extendedAboveFacetListComponent;
+      var extendedAboveTableComponent;
+      var extendedAboveFacetListComponent;
+      var extendedFacetListComponent;
 
-      var extendChild = function (child) {
+      var extendChild = function (propsToPass, child) {
         if (! /*#__PURE__*/React.isValidElement(child) || typeof child.type === "string") {
           return child;
         }
 
-        return /*#__PURE__*/React.cloneElement(child, aboveTableControlsProps);
+        return /*#__PURE__*/React.cloneElement(child, propsToPass);
       };
 
       if (aboveTableComponent) {
-        extendedAboveTableComponent = React.Children.map(aboveTableComponent, extendChild);
+        extendedAboveTableComponent = React.Children.map(aboveTableComponent, extendChild.bind(null, commonChildProps));
       }
 
       if (aboveFacetListComponent) {
-        extendedAboveFacetListComponent = React.Children.map(aboveFacetListComponent, extendChild);
+        extendedAboveFacetListComponent = React.Children.map(aboveFacetListComponent, extendChild.bind(null, commonChildProps));
+      }
+
+      if (facets !== null && facetListComponent) {
+        var facetListProps = _objectSpread(_objectSpread({}, commonChildProps), {}, {
+          showClearFiltersButton: showClearFiltersButton,
+          separateSingleTermFacets: separateSingleTermFacets,
+          requestedCompoundFilterSet: requestedCompoundFilterSet,
+          maxBodyHeight: !isOwnPage && maxHeight || null
+        });
+
+        extendedFacetListComponent = React.Children.map(facetListComponent, extendChild.bind(null, facetListProps));
       }
 
       return /*#__PURE__*/React.createElement("div", {
         className: "row search-view-controls-and-results",
         "data-search-item-type": searchItemType,
         "data-search-abstract-type": searchAbstractItemType
-      }, facets === null ? null :
-      /*#__PURE__*/
-      // TODO: Hide if using `requestedCompoundFilterSet` instead of `href`
-      React.createElement("div", {
+      }, facets === null ? null : /*#__PURE__*/React.createElement("div", {
         className: facetColumnClassName
-      }, extendedAboveFacetListComponent, Array.isArray(facets) && facets.length > 0 ? /*#__PURE__*/React.createElement(FacetList, facetListProps) : requestedCompoundFilterSet ?
-      /*#__PURE__*/
-      // Compound search used, FacetList UI cannot be used -
-      React.createElement("div", {
-        className: "facets-container with-header-bg"
-      }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
-        className: "py-4"
-      }, /*#__PURE__*/React.createElement("h4", {
-        className: "text-400 text-center"
-      }, "Compound Filter"))) : isContextLoading ? /*#__PURE__*/React.createElement("div", {
-        className: "facets-container with-header-bg"
-      }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
-        className: "text-center py-4 text-secondary"
-      }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-spin icon-circle-notch fas icon-2x"
-      }))) : null), /*#__PURE__*/React.createElement("div", {
+      }, extendedAboveFacetListComponent, extendedFacetListComponent), /*#__PURE__*/React.createElement("div", {
         className: tableColumnClassName
       }, extendedAboveTableComponent, /*#__PURE__*/React.createElement(SearchResultTable, _extends({}, {
         context: context,
@@ -279,3 +277,40 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
 
   return ControlsAndResults;
 }(React.PureComponent);
+/**
+ * Should handle most if not all cases.
+ * Paramaterized into own component to allow to swap in different `props.facetListComponent`.
+ */
+
+function DefaultFacetListComponent(props) {
+  var facets = props.facets,
+      isContextLoading = props.isContextLoading,
+      requestedCompoundFilterSet = props.requestedCompoundFilterSet;
+
+  if (Array.isArray(facets) && facets.length > 0) {
+    return /*#__PURE__*/React.createElement(FacetList, props);
+  }
+
+  if (requestedCompoundFilterSet) {
+    // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
+    return /*#__PURE__*/React.createElement("div", {
+      className: "facets-container with-header-bg"
+    }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
+      className: "py-4"
+    }, /*#__PURE__*/React.createElement("h4", {
+      className: "text-400 text-center"
+    }, "Compound Filter")));
+  }
+
+  if (isContextLoading) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "facets-container with-header-bg"
+    }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
+      className: "text-center py-4 text-secondary"
+    }, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-spin icon-circle-notch fas icon-2x"
+    })));
+  }
+
+  return null;
+}

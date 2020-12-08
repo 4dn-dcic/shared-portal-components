@@ -128,6 +128,7 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           aboveTableComponent = _this$props$aboveTabl === void 0 ? null : _this$props$aboveTabl,
           _this$props$aboveFace = _this$props.aboveFacetListComponent,
           aboveFacetListComponent = _this$props$aboveFace === void 0 ? null : _this$props$aboveFace,
+          facetListComponent = _this$props.facetListComponent,
           _this$props$columnExt = _this$props.columnExtensionMap,
           columnExtensionMap = _this$props$columnExt === void 0 ? basicColumnExtensionMap : _this$props$columnExt,
           _this$props$onLoad = _this$props.onLoad,
@@ -142,15 +143,19 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           embeddedTableFooter = _this$props$embeddedT2 === void 0 ? null : _this$props$embeddedT2,
           onClearFiltersVirtual = _this$props.onClearFiltersVirtual,
           isClearFiltersBtnVisible = _this$props.isClearFiltersBtnVisible,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          facetColumnClassName = _this$props.facetColumnClassName,
+          propTableColumnClassName = _this$props.tableColumnClassName,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
-      var tableColumnClassName = facets === null ? "col-12" : undefined; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
+      var tableColumnClassName = facets === null ? "col-12" : propTableColumnClassName; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
 
       var viewProps = _objectSpread(_objectSpread({}, passProps), {}, {
         aboveTableComponent: aboveTableComponent,
         aboveFacetListComponent: aboveFacetListComponent,
-        tableColumnClassName: tableColumnClassName
+        facetListComponent: facetListComponent,
+        tableColumnClassName: tableColumnClassName,
+        facetColumnClassName: facetColumnClassName
       });
 
       var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
@@ -204,7 +209,13 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'filterColumnFxn': PropTypes.func,
   'onClearFiltersVirtual': PropTypes.func,
   'isClearFiltersBtnVisible': PropTypes.func,
-  'embeddedTableHeader': PropTypes.element
+  'embeddedTableHeader': PropTypes.element,
+  'embeddedTableFooter': PropTypes.element,
+  'aboveTableComponent': PropTypes.element,
+  'aboveFacetListComponent': PropTypes.element,
+  'facetListComponent': PropTypes.element,
+  'facetColumnClassName': PropTypes.string,
+  'tableColumnClassName': PropTypes.string
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {

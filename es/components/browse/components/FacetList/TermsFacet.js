@@ -171,6 +171,5 @@ TermsFacet.propTypes = {
   'schemas': PropTypes.object,
   'getTermStatus': PropTypes.func.isRequired,
   'href': PropTypes.string.isRequired,
-  'filters': PropTypes.arrayOf(PropTypes.object).isRequired,
   'windowWidth': PropTypes.number
 };
