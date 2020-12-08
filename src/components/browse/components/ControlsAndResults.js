@@ -63,6 +63,7 @@ export class ControlsAndResults extends React.PureComponent {
             aboveTableComponent = <AboveSearchViewTableControls />, // Gets cloned further down in code to receive props from this ControlsAndResults component.
             // Default is blank element with same height as AboveSearchViewTableControls that allows to align tops of FacetList+Table headings.
             aboveFacetListComponent = <div className="above-results-table-row"/>,
+            facetListComponent = <DefaultFacetListComponent />,
             defaultOpenIndices = null,
             detailPane = null,
 
@@ -101,63 +102,67 @@ export class ControlsAndResults extends React.PureComponent {
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 
-        const facetListProps = {
-            facets, filters, schemas, currentAction, showClearFiltersButton, isContextLoading,
-            session, onFilter, windowWidth, windowHeight, termTransformFxn, separateSingleTermFacets,
-            itemTypeForSchemas: searchItemType,
-            maxBodyHeight: (!isOwnPage && maxHeight) || null,
+
+        /**
+         * To Consider:
+         * We could have 1 collection/object of props that is combination of
+         * `aboveTableControlsProps` + `facetListProps` and gets passed down
+         * to all children. This would allow more flexibility to put elements
+         * or controls in various places around table, such as FacetList in
+         * table header.
+         */
+
+        const commonChildProps = {
+            // Props which don't change too frequently and/or are useful to many components -
+            context, navigate, // <- search response context, prop navigate (could be virtual or global)
+            schemas, session,
+            columnDefinitions, facets,
+            hiddenColumns, addHiddenColumn, removeHiddenColumn,
+            currentAction, windowWidth, windowHeight,
+            isContextLoading,
+            onFilter,
             onClearFilters: this.onClearFiltersClick,
+            termTransformFxn,
+            itemTypeForSchemas: searchItemType,
             addToBodyClassList, removeFromBodyClassList
         };
 
-        const aboveTableControlsProps = {
-            context, columnDefinitions,
-            navigate,
-            // TODO: compoundSearchNavigate,
-            hiddenColumns, addHiddenColumn, removeHiddenColumn,
-            currentAction, windowWidth, windowHeight
-        };
+        let extendedAboveTableComponent;
+        let extendedAboveFacetListComponent;
+        let extendedFacetListComponent;
 
-        let extendedAboveTableComponent, extendedAboveFacetListComponent;
-
-        const extendChild = function(child){
+        const extendChild = function(propsToPass, child){
             if (!React.isValidElement(child) || typeof child.type === "string") {
                 return child;
             }
-            return React.cloneElement(child, aboveTableControlsProps);
+            return React.cloneElement(child, propsToPass);
         };
 
         if (aboveTableComponent) {
-            extendedAboveTableComponent = React.Children.map(aboveTableComponent, extendChild);
+            extendedAboveTableComponent = React.Children.map(aboveTableComponent, extendChild.bind(null, commonChildProps));
         }
 
         if (aboveFacetListComponent) {
-            extendedAboveFacetListComponent = React.Children.map(aboveFacetListComponent, extendChild);
+            extendedAboveFacetListComponent = React.Children.map(aboveFacetListComponent, extendChild.bind(null, commonChildProps));
+        }
+
+        if (facets !== null && facetListComponent) {
+            const facetListProps = {
+                ...commonChildProps,
+                showClearFiltersButton,
+                separateSingleTermFacets,
+                requestedCompoundFilterSet,
+                maxBodyHeight: (!isOwnPage && maxHeight) || null
+            };
+            extendedFacetListComponent = React.Children.map(facetListComponent, extendChild.bind(null, facetListProps));
         }
 
         return (
             <div className="row search-view-controls-and-results" data-search-item-type={searchItemType} data-search-abstract-type={searchAbstractItemType}>
-                { facets === null ? null: ( // TODO: Hide if using `requestedCompoundFilterSet` instead of `href`
+                { facets === null ? null : (
                     <div className={facetColumnClassName}>
                         { extendedAboveFacetListComponent }
-                        {
-                            requestedCompoundFilterSet ? ( // Compound search used, FacetList UI cannot be used -
-                                <div className="facets-container with-header-bg">
-                                    <FacetListHeader />
-                                    <div className="py-4">
-                                        <h4 className="text-400 text-center">Compound Filter</h4>
-                                    </div>
-                                </div>
-                            ) : Array.isArray(facets) && facets.length > 0 ? (
-                                <FacetList {...facetListProps} />
-                            ) : isContextLoading ? (
-                                <div className="facets-container with-header-bg">
-                                    <FacetListHeader />
-                                    <div className="text-center py-4 text-secondary">
-                                        <i className="icon icon-spin icon-circle-notch fas icon-2x" />
-                                    </div>
-                                </div>
-                            ) : null }
+                        { extendedFacetListComponent }
                     </div>
                 ) }
                 <div className={tableColumnClassName}>
@@ -172,4 +177,37 @@ export class ControlsAndResults extends React.PureComponent {
         );
     }
 
+}
+
+/**
+ * Should handle most if not all cases.
+ * Paramaterized into own component to allow to swap in different `props.facetListComponent`.
+ */
+function DefaultFacetListComponent(props){
+    const { facets, isContextLoading, requestedCompoundFilterSet } = props;
+    if (Array.isArray(facets) && facets.length > 0) {
+        return <FacetList {...props} />;
+    }
+    if (requestedCompoundFilterSet) {
+        // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
+        return (
+            <div className="facets-container with-header-bg">
+                <FacetListHeader />
+                <div className="py-4">
+                    <h4 className="text-400 text-center">Compound Filter</h4>
+                </div>
+            </div>
+        );
+    }
+    if (isContextLoading) {
+        return (
+            <div className="facets-container with-header-bg">
+                <FacetListHeader />
+                <div className="text-center py-4 text-secondary">
+                    <i className="icon icon-spin icon-circle-notch fas icon-2x" />
+                </div>
+            </div>
+        );
+    }
+    return null;
 }

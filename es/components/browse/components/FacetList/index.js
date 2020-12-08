@@ -62,7 +62,6 @@ import ReactTooltip from 'react-tooltip';
 import Overlay from 'react-bootstrap/esm/Overlay';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
 import { getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters, buildSearchHref, contextFiltersToExpSetFilters, getTermFacetStatus } from './../../../util/search-filters';
-import { navigate } from './../../../util/navigate';
 import * as analytics from './../../../util/analytics';
 import { responsiveGridState } from './../../../util/layout';
 /**
@@ -499,7 +498,6 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           windowHeight = _this$props.windowHeight,
           windowWidth = _this$props.windowWidth,
           facets = _this$props.facets,
-          filters = _this$props.filters,
           _this$props$persisten = _this$props.persistentCount,
           persistentCount = _this$props$persisten === void 0 ? 10 : _this$props$persisten;
       var rgs = responsiveGridState(windowWidth || null);
@@ -527,14 +525,14 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
-      var prevFilters = prevProps.filters;
+      var prevContext = prevProps.context;
       var prevOpenFacets = prevState.openFacets,
           prevOpenPopover = prevState.openPopover;
       var _this$state = this.state,
           openFacets = _this$state.openFacets,
           openPopover = _this$state.openPopover;
       var _this$props2 = this.props,
-          filters = _this$props2.filters,
+          context = _this$props2.context,
           addToBodyClassList = _this$props2.addToBodyClassList,
           removeFromBodyClassList = _this$props2.removeFromBodyClassList;
 
@@ -550,7 +548,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         }
       }
 
-      if (filters !== prevFilters) {
+      if (context !== prevContext) {
         // If new filterset causes a facet to drop into common properties section, clean up openFacets state accordingly.
         var _this$renderFacetComp2 = this.renderFacetComponents(),
             staticFacetElements = _this$renderFacetComp2.staticFacetElements; // Should be performant re: memoization
@@ -584,7 +582,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     value: function onFilterExtended(facet, term) {
       var _this$props3 = this.props,
           onFilter = _this$props3.onFilter,
-          contextFilters = _this$props3.filters;
+          contextFilters = _this$props3.context.filters;
       var field = facet.field;
       var termKey = term.key;
       var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
@@ -604,7 +602,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "getTermStatus",
     value: function getTermStatus(term, facet) {
-      var contextFilters = this.props.filters;
+      var contextFilters = this.props.context.filters;
       return getTermFacetStatus(term, facet, contextFilters);
     }
   }, {
@@ -684,19 +682,20 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           facets = _this$props4$facets === void 0 ? null : _this$props4$facets,
           _this$props4$separate = _this$props4.separateSingleTermFacets,
           separateSingleTermFacets = _this$props4$separate === void 0 ? false : _this$props4$separate,
+          context = _this$props4.context,
           href = _this$props4.href,
           schemas = _this$props4.schemas,
-          filters = _this$props4.filters,
           itemTypeForSchemas = _this$props4.itemTypeForSchemas,
           termTransformFxn = _this$props4.termTransformFxn,
           persistentCount = _this$props4.persistentCount;
+      var filters = context.filters;
       var _this$state2 = this.state,
           openFacets = _this$state2.openFacets,
           openPopover = _this$state2.openPopover;
       var facetComponentProps = {
         href: href,
         schemas: schemas,
-        filters: filters,
+        context: context,
         itemTypeForSchemas: itemTypeForSchemas,
         termTransformFxn: termTransformFxn,
         persistentCount: persistentCount,
@@ -809,8 +808,10 @@ _defineProperty(FacetList, "propTypes", {
     'total': PropTypes.number // # of experiment(_set)s
 
   })),
-  'filters': PropTypes.arrayOf(PropTypes.object).isRequired,
-  // context.filters
+  'context': PropTypes.shape({
+    'filters': PropTypes.arrayOf(PropTypes.object).isRequired // context.filters
+
+  }).isRequired,
   'itemTypeForSchemas': PropTypes.string.isRequired,
   // For tooltips
   'showClearFiltersButton': PropTypes.bool.isRequired,

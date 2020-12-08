@@ -81,7 +81,6 @@ export class FacetOfFacets extends React.PureComponent {
 FacetOfFacets.propTypes = {
     'defaultGroupOpen'          : PropTypes.bool,
     'facets'                    : PropTypes.arrayOf(PropTypes.element),
-    'filters'                    : PropTypes.arrayOf(PropTypes.object).isRequired,
     'isStatic'                  : PropTypes.bool,
     'itemTypeForSchemas'        : PropTypes.string,
     'mounted'                   : PropTypes.bool,
