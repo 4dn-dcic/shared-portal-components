@@ -28,13 +28,14 @@ export class SearchSelectionMenu extends React.PureComponent {
         const { options: newOptions = [] } = this.props;
         const { refreshKey } = this.state;
 
-        if (oldOptions.length !== newOptions.length) {
+        if ((oldOptions.length !== 0) & (oldOptions.length !== newOptions.length))
+        {
             // used to force Popper.js to refresh and reposition the dropdown
             // if the length of results changes (drop may no longer align correctly, esp.
             // if dropping "up" to avoid collision with bottom of window)
             // TODO: add some more checks to make this more specific to ONLY cases
             // where the drop no longer aligns w/button
-            this.setState({ refreshKey : refreshKey + 1 });
+            this.setState({ refreshKey: refreshKey + 1 });
         }
     }
 
