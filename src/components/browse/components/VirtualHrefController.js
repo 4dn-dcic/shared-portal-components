@@ -306,9 +306,9 @@ export class VirtualHrefController extends React.PureComponent {
         const propsToPass = {
             ...passProps,
             context,
-            requestedCompoundFilterSet,
-            // Don't pass down href if using requestedCompoundFilterSet
-            href: requestedCompoundFilterSet ? null : href,
+            href,
+            // Don't pass down requestedCompoundFilterSet if using (or pretending to use) href
+            requestedCompoundFilterSet: href ? null : requestedCompoundFilterSet,
             isContextLoading, facets, showClearFiltersButton,
             navigate: this.virtualNavigate,
             onFilter: this.onFilter,

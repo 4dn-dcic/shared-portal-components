@@ -370,9 +370,9 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         context: context,
-        requestedCompoundFilterSet: requestedCompoundFilterSet,
-        // Don't pass down href if using requestedCompoundFilterSet
-        href: requestedCompoundFilterSet ? null : href,
+        href: href,
+        // Don't pass down requestedCompoundFilterSet if using (or pretending to use) href
+        requestedCompoundFilterSet: href ? null : requestedCompoundFilterSet,
         isContextLoading: isContextLoading,
         facets: facets,
         showClearFiltersButton: showClearFiltersButton,
