@@ -1,18 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SearchSelectionMenu = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _Dropdown = _interopRequireDefault(require("react-bootstrap/esm/Dropdown"));
-
-var _VerticalScrollContainer = require("./VerticalScrollContainer");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -39,7 +24,11 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
+import React from 'react'; // import PropTypes from 'prop-types';
+
+import Dropdown from 'react-bootstrap/esm/Dropdown';
+import { VerticalScrollContainer } from './VerticalScrollContainer';
+export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchSelectionMenu, _React$PureComponent);
 
   var _super = _createSuper(SearchSelectionMenu);
@@ -55,7 +44,7 @@ var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
       refreshKey: 0 // incremented to force a refresh of dropdown
 
     };
-    _this.dropdown = /*#__PURE__*/_react["default"].createRef();
+    _this.dropdown = /*#__PURE__*/React.createRef();
     _this.onToggleOpen = _this.onToggleOpen.bind(_assertThisInitialized(_this));
     _this.onKeyDown = _this.onKeyDown.bind(_assertThisInitialized(_this));
     return _this;
@@ -153,21 +142,19 @@ var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
           dropOpen = _this$state.dropOpen,
           refreshKey = _this$state.refreshKey;
       var cls = "search-selection-menu" + (className ? " " + className : "");
-
-      var showValue = value && titleRenderFunction(value) || /*#__PURE__*/_react["default"].createElement("span", {
+      var showValue = value && titleRenderFunction(value) || /*#__PURE__*/React.createElement("span", {
         className: "text-300"
       }, "No value");
-
-      return /*#__PURE__*/_react["default"].createElement(_Dropdown["default"], {
+      return /*#__PURE__*/React.createElement(Dropdown, {
         flip: true,
         onToggle: this.onToggleOpen,
         show: dropOpen,
         className: cls
-      }, /*#__PURE__*/_react["default"].createElement(_Dropdown["default"].Toggle, _extends({
+      }, /*#__PURE__*/React.createElement(Dropdown.Toggle, _extends({
         variant: variant
       }, {
         "data-tip": showTips ? value : null
-      }), showValue), /*#__PURE__*/_react["default"].createElement(_Dropdown["default"].Menu, _extends({
+      }), showValue), /*#__PURE__*/React.createElement(Dropdown.Menu, _extends({
         key: refreshKey,
         as: SearchSelectionMenuBody
       }, {
@@ -184,7 +171,7 @@ var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         onKeyDown: this.onKeyDown
       }), options.map(function (option, idx) {
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
-        return /*#__PURE__*/_react["default"].createElement(_Dropdown["default"].Item, {
+        return /*#__PURE__*/React.createElement(Dropdown.Item, {
           "data-index": idx,
           onClick: function (evt) {
             evt.preventDefault();
@@ -201,9 +188,7 @@ var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return SearchSelectionMenu;
-}(_react["default"].PureComponent);
-
-exports.SearchSelectionMenu = SearchSelectionMenu;
+}(React.PureComponent);
 
 _defineProperty(SearchSelectionMenu, "defaultProps", {
   titleRenderFunction: function titleRenderFunction(option) {
@@ -211,7 +196,7 @@ _defineProperty(SearchSelectionMenu, "defaultProps", {
   }
 });
 
-var SearchSelectionMenuBody = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
+var SearchSelectionMenuBody = /*#__PURE__*/React.forwardRef(function (props, ref) {
   var currentTextValue = props.currentTextValue,
       _props$show = props.show,
       show = _props$show === void 0 ? false : _props$show,
@@ -228,16 +213,16 @@ var SearchSelectionMenuBody = /*#__PURE__*/_react["default"].forwardRef(function
       optionsFooter = _props$optionsFooter === void 0 ? null : _props$optionsFooter,
       style = props.style;
   var cls = "search-selection-menu-body" + (className ? " " + className : "");
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     ref: ref,
     className: cls,
     "aria-labelledby": labeledBy,
     style: style
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "inner-container"
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "px-3 py-3 text-input-container"
-  }, show ? /*#__PURE__*/_react["default"].createElement("input", {
+  }, show ? /*#__PURE__*/React.createElement("input", {
     type: "text",
     autoFocus: true,
     value: currentTextValue,
@@ -246,7 +231,7 @@ var SearchSelectionMenuBody = /*#__PURE__*/_react["default"].forwardRef(function
     placeholder: inputPlaceholder,
     tabIndex: "3",
     className: "form-control"
-  }) : null), /*#__PURE__*/_react["default"].createElement(_VerticalScrollContainer.VerticalScrollContainer, {
+  }) : null), /*#__PURE__*/React.createElement(VerticalScrollContainer, {
     header: optionsHeader,
     footer: optionsFooter,
     items: children
