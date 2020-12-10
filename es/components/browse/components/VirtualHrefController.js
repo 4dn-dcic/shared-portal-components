@@ -316,8 +316,16 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
     value: function onFilter(facet, term, callback) {
       var _this$state3 = this.state,
           virtualHref = _this$state3.virtualHref,
-          virtualContextFilters = _this$state3.virtualContext.filters;
-      var targetHref = generateNextHref(virtualHref, virtualContextFilters, facet, term);
+          _this$state3$virtualC = _this$state3.virtualContext,
+          virtualContextFilters = _this$state3$virtualC.filters,
+          virtualContextID = _this$state3$virtualC["@id"]; // There are is a scenario or 2 in which case we might get facets visible after
+      // a compound search request, if using only 1 filter block.
+      // In most cases it'd be after using a `href` to navigate which was translated
+      // to a POST, so we'd be using a virtual href, but at times might be from a literal
+      // filter set with only 1 filter block. In this case we grab the effectively-searched href
+      // from context["@id"].
+
+      var targetHref = generateNextHref(virtualHref || virtualContextID, virtualContextFilters, facet, term);
       return this.virtualNavigate(targetHref, {
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
