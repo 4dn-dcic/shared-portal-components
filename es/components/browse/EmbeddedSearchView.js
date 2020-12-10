@@ -145,7 +145,9 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           isClearFiltersBtnVisible = _this$props.isClearFiltersBtnVisible,
           facetColumnClassName = _this$props.facetColumnClassName,
           propTableColumnClassName = _this$props.tableColumnClassName,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          _this$props$allowPost = _this$props.allowPostRequest,
+          allowPostRequest = _this$props$allowPost === void 0 ? false : _this$props$allowPost,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"]); // If facets are null (hidden/excluded), set table col to be full width of container.
 
 
       var tableColumnClassName = facets === null ? "col-12" : propTableColumnClassName; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
@@ -167,7 +169,8 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         onLoad: onLoad,
         filterFacetFxn: filterFacetFxn,
         onClearFiltersVirtual: onClearFiltersVirtual,
-        isClearFiltersBtnVisible: isClearFiltersBtnVisible
+        isClearFiltersBtnVisible: isClearFiltersBtnVisible,
+        allowPostRequest: allowPostRequest
       }, {
         key: searchHref || 1
       }), /*#__PURE__*/React.createElement(ColumnCombiner, {
@@ -215,7 +218,8 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'aboveFacetListComponent': PropTypes.element,
   'facetListComponent': PropTypes.element,
   'facetColumnClassName': PropTypes.string,
-  'tableColumnClassName': PropTypes.string
+  'tableColumnClassName': PropTypes.string,
+  'allowPostRequest': PropTypes.bool
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {

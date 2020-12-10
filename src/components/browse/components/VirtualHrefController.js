@@ -98,7 +98,7 @@ export class VirtualHrefController extends React.PureComponent {
      * @param {function} callback - Executed after successful response.
      */
     virtualNavigate(navigationTarget, navOpts, callback){
-        const { onLoad = null } = this.props;
+        const { onLoad = null, allowPostRequest = false } = this.props;
         const {
             virtualHref: currentHref = null,
             virtualContext: existingContext
@@ -112,43 +112,47 @@ export class VirtualHrefController extends React.PureComponent {
             // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
             nextHrefFull = url.resolve((currentHref || "/search/"), navigationTarget);
 
-            // Divide URL into parts and put into a virtualCompoundFilterSet, in effect making all virtual search
-            // requests into POST requests.
-            const targetHrefParts = url.parse(nextHrefFull, true);
-            const globalFlagsParams = {};
-            const filterBlockParams = {};
-            let searchType = null;
-            Object.keys(targetHrefParts.query).forEach(function(k){
-                if (k === "type") {
-                    searchType = targetHrefParts.query[k];
-                    if (Array.isArray(searchType)) {
-                        // Shouldn't happen, but sometimes we might get 2 type= in URL. E.g. in response 'filters' "remove" property.
-                        console.warn("Received 2 type= URL params.");
-                        [ searchType ] = searchType;
+            if (allowPostRequest) {
+                // Remove this if condition/wrapper/prop once 4DN has a /compound_search
+
+                // Divide URL into parts and put into a virtualCompoundFilterSet, in effect making all virtual search
+                // requests into POST requests.
+                const targetHrefParts = url.parse(nextHrefFull, true);
+                const globalFlagsParams = {};
+                const filterBlockParams = {};
+                let searchType = null;
+                Object.keys(targetHrefParts.query).forEach(function(k){
+                    if (k === "type") {
+                        searchType = targetHrefParts.query[k];
+                        if (Array.isArray(searchType)) {
+                            // Shouldn't happen, but sometimes we might get 2 type= in URL. E.g. in response 'filters' "remove" property.
+                            console.warn("Received 2 type= URL params.");
+                            [ searchType ] = searchType;
+                        }
+                        return;
                     }
-                    return;
-                }
-                if (k === "sort" || k === "additional_facet") {
-                    globalFlagsParams[k] = targetHrefParts.query[k];
-                } else {
-                    filterBlockParams[k] = targetHrefParts.query[k];
-                }
-            });
+                    if (k === "sort" || k === "additional_facet") {
+                        globalFlagsParams[k] = targetHrefParts.query[k];
+                    } else {
+                        filterBlockParams[k] = targetHrefParts.query[k];
+                    }
+                });
 
-            // If it's a single filter_block requested, we will get back "facets"
-            // and similar things in the response, unlike as for response for real
-            // compound_search request for multiple filter_blocks which would lack those.
+                // If it's a single filter_block requested, we will get back "facets"
+                // and similar things in the response, unlike as for response for real
+                // compound_search request for multiple filter_blocks which would lack those.
 
-            // We can thus perform a 'drop-in' POST compound_search for 1 filter_block
-            // in place of a GET /search/?type=... request.
-            virtualCompoundFilterSet = {
-                "global_flags": queryString.stringify(globalFlagsParams),
-                "search_type": searchType,
-                "filter_blocks": [{
-                    "flags_applied": [],
-                    "query": queryString.stringify(filterBlockParams)
-                }]
-            };
+                // We can thus perform a 'drop-in' POST compound_search for 1 filter_block
+                // in place of a GET /search/?type=... request.
+                virtualCompoundFilterSet = {
+                    "global_flags": queryString.stringify(globalFlagsParams),
+                    "search_type": searchType,
+                    "filter_blocks": [{
+                        "flags_applied": [],
+                        "query": queryString.stringify(filterBlockParams)
+                    }]
+                };
+            }
         } else {
             // Minor validation - let throw errors here.
             const { filter_blocks } = navigationTarget;
@@ -233,6 +237,7 @@ export class VirtualHrefController extends React.PureComponent {
                 this.currRequest = null;
             }
 
+            // We still might perform GET request on 4DN which doesn't yet have /compound_search
             scopedRequest = this.currRequest = ajaxLoad(
                 virtualCompoundFilterSet ? "/compound_search" : nextHrefFull,
                 onLoadResponse,
