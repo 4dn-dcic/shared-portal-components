@@ -58,7 +58,8 @@ export class EmbeddedSearchView extends React.PureComponent {
         'aboveFacetListComponent' : PropTypes.element,
         'facetListComponent' : PropTypes.element,
         'facetColumnClassName' : PropTypes.string,
-        'tableColumnClassName' : PropTypes.string
+        'tableColumnClassName' : PropTypes.string,
+        'allowPostRequest' : PropTypes.bool
     };
 
     static listToObj(hideFacetStrs){
@@ -136,6 +137,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             isClearFiltersBtnVisible,
             facetColumnClassName,               // If undefined, default is set in ControlsAndResults.
             tableColumnClassName: propTableColumnClassName, // If undefined, default is set in ControlsAndResults.
+            allowPostRequest = false,           // This is supported only on CGAP right now, so disabled now here until 4DN supports compound_search.
             ...passProps
         } = this.props;
 
@@ -147,7 +149,7 @@ export class EmbeddedSearchView extends React.PureComponent {
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref || 1}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible, allowPostRequest }} key={searchHref || 1}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
