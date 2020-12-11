@@ -62,7 +62,7 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
       if (oldOptions.length !== 0 && oldOptions.length !== newOptions.length) {
         // TODO: calling setState in componentDidUpdate toggles SAYTAjax dropdown as closed
         // in the first click. We actually prevent entering this block by adding (oldOptions.length !== 0) condition.
-        // We are not sure whether to remove this block at all in the future.
+        // We are not sure whether to remove this block at all in the future. (https://twitter.com/dan_abramov/status/977181473424932864)
         // used to force Popper.js to refresh and reposition the dropdown
         // if the length of results changes (drop may no longer align correctly, esp.
         // if dropping "up" to avoid collision with bottom of window)
