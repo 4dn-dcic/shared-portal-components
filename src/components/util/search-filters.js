@@ -135,14 +135,6 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
                 break;
             }
         }
-        if (found) {
-            parts = url.parse(filter.remove);
-            if (includePathName) {
-                retHref += parts.pathname;
-            }
-            retHref += parts.search;
-            return { status, 'href': retHref };
-        }
     } else {
         // Terms
         for (i = 0; i < filters.length; i++) {
@@ -156,16 +148,17 @@ export function getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(t
                 break;
             }
         }
-        if (found) {
-            parts = url.parse(filter.remove);
-            if (includePathName) {
-                retHref += parts.pathname;
-            }
-            retHref += parts.search;
-            return { status, 'href': retHref };
-        }
-
     }
+
+    if (found) {
+        parts = url.parse(filter.remove);
+        if (includePathName) {
+            retHref += parts.pathname;
+        }
+        retHref += parts.search;
+        return { status, 'href': retHref };
+    }
+
     return { 'status': 'none', 'href': null };
 }
 

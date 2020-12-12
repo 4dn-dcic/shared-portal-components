@@ -1302,8 +1302,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet')), {}, {
+      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet')), {}, {
         context: context,
+        navigate: navigate,
         rowHeight: rowHeight,
         openRowHeight: openRowHeight,
         results: results,

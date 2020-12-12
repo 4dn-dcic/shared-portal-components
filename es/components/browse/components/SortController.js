@@ -86,6 +86,13 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
     };
     return _this;
   }
+  /**
+   * Handles both `href` and `requestedCompoundFilterSet`, will prioritize
+   * operating with just `href` if present and allowing VirtualHrefController
+   * to make into POST request if needed. Else will operate w. `requestedCompoundFilterSet`
+   * for compound filter-blocks requests.
+   */
+
 
   _createClass(SortController, [{
     key: "sortBy",

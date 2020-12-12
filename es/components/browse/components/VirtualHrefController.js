@@ -178,11 +178,13 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           existingContext = _this$state2.virtualContext;
       var nextHrefFull = null;
       var virtualCompoundFilterSet = null;
+      console.log("TTT1", navigationTarget);
 
       if (typeof navigationTarget === "string") {
         // There is (very large) chance that `nextHref` does not have domain name, path, etc.
         // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
         nextHrefFull = url.resolve(currentHref || "/search/", navigationTarget);
+        console.log("TTT2", navigationTarget);
 
         if (allowPostRequest) {
           // Remove this if condition/wrapper/prop once 4DN has a /compound_search
@@ -211,7 +213,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
 
             if (k === "sort" || k === "additional_facet") {
               globalFlagsParams[k] = targetHrefParts.query[k];
-            } else {
+            } else if (!(k === "from" || k === "limit")) {
               filterBlockParams[k] = targetHrefParts.query[k];
             }
           }); // If it's a single filter_block requested, we will get back "facets"
@@ -330,10 +332,17 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       // a compound search request, if using only 1 filter block.
       // In most cases it'd be after using a `href` to navigate which was translated
       // to a POST, so we'd be using a virtual href, but at times might be from a literal
-      // filter set with only 1 filter block. In this case we grab the effectively-searched href
-      // from context["@id"].
+      // filter set request with only 1 filter block, such as selecting filterset block in FilterSetUI.
+      // In this case we grab the effectively-searched href from context["@id"] since `state.virtualHref`
+      // may not be present.
 
-      var targetHref = generateNextHref(virtualHref || virtualContextID, virtualContextFilters, facet, term);
+      var useHref = virtualHref || virtualContextID;
+
+      if (!useHref) {
+        throw new Error("Cannot filter on a compound filter block search response. Prevent this from being possible in UX.");
+      }
+
+      var targetHref = generateNextHref(useHref, virtualContextFilters, facet, term);
       return this.virtualNavigate(targetHref, {
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
@@ -387,8 +396,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         context: context,
         href: href,
-        // Don't pass down requestedCompoundFilterSet if using (or pretending to use) href
-        requestedCompoundFilterSet: href ? null : requestedCompoundFilterSet,
+        requestedCompoundFilterSet: requestedCompoundFilterSet,
         isContextLoading: isContextLoading,
         facets: facets,
         showClearFiltersButton: showClearFiltersButton,
