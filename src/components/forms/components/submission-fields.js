@@ -550,9 +550,21 @@ class ArrayField extends React.Component{
     render(){
         const { schema : propSchema, value : propValue } = this.props;
         const schema = propSchema.items || {};
-        const values = propValue || [];
-        const valuesToRender = _.map( values.length === 0 ? [null] : values , function(v,i){ return [v, schema, i]; });
-        const showAddButton = !isValueNull(values[valuesToRender.length - 1]);
+        let values = propValue || [];
+        const deleteField = _.filter(values, function (v) { return isValueNull(v); });
+        if (propSchema.maxItems) {
+
+            if (values.length ===propSchema.maxItems + 1) {
+                if (deleteField.length > 1) {
+                    values = _.filter(values, function (v) { return !_.isEmpty(v);});
+                }
+                else {
+                    values = _.filter(values, function (v) { return !isValueNull(v); });
+                }
+            }
+        }
+        const valuesToRender = _.map(values.length === 0 ? [null] : values, function (v, i) { return [v, schema, i]; });
+        const showAddButton = (!propSchema.maxItems) & !isValueNull(values[valuesToRender.length - 1]);
 
         return(
             <div className="list-of-array-items">
@@ -763,7 +775,7 @@ class S3FileInput extends React.Component{
             'percentDone': null,
             'sizeUploaded': null,
             'newFile': false,
-            'status': null
+            'status': null,
         };
     }
 
@@ -877,7 +889,7 @@ class S3FileInput extends React.Component{
         this.props.upload.abort();
     }
 
-    deleteField(e){
+    deleteField(e) {
         e.preventDefault();
         this.props.modifyNewContext(this.props.nestedField, null, 'file upload', this.props.linkType, this.props.arrayIdx);
         this.modifyFile(null);
