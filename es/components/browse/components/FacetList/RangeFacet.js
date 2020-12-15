@@ -36,6 +36,8 @@ var _patchedConsole = require("./../../../util/patched-console");
 
 var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
 
+var _FacetTermsList = require("./FacetTermsList");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -230,6 +232,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
     _this = _super.call(this, props);
     _this.handleOpenToggleClick = _this.handleOpenToggleClick.bind(_assertThisInitialized(_this));
+    _this.handleExpandListToggleClick = _this.handleExpandListToggleClick.bind(_assertThisInitialized(_this));
     _this.setFrom = _this.setFrom.bind(_assertThisInitialized(_this));
     _this.setTo = _this.setTo.bind(_assertThisInitialized(_this));
     _this.setToAndFrom = _this.setToAndFrom.bind(_assertThisInitialized(_this));
@@ -247,7 +250,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements)
     };
     _this.state = _objectSpread(_objectSpread({}, RangeFacet.initialStateValues(props)), {}, {
-      "facetClosing": false
+      "facetClosing": false,
+      "expanded": false
     });
     return _this;
   }
@@ -405,6 +409,17 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facetOpen = _this$props5$facetOpe === void 0 ? false : _this$props5$facetOpe;
       onToggleOpen(field, !facetOpen);
     }
+  }, {
+    key: "handleExpandListToggleClick",
+    value: function handleExpandListToggleClick(e) {
+      e.preventDefault();
+      this.setState(function (_ref2) {
+        var expanded = _ref2.expanded;
+        return {
+          'expanded': !expanded
+        };
+      });
+    }
     /**
      * If no other transformations specified, and have a large number, then
      * condense it using `toExponential`.
@@ -457,8 +472,6 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
-
       var _this$props7 = this.props,
           schemas = _this$props7.schemas,
           itemTypeForSchemas = _this$props7.itemTypeForSchemas,
@@ -493,7 +506,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       var _this$state2 = this.state,
           fromVal = _this$state2.fromVal,
-          toVal = _this$state2.toVal;
+          toVal = _this$state2.toVal,
+          expanded = _this$state2.expanded;
 
       var _this$memoized$validI = this.memoized.validIncrements(facet),
           fromIncrements = _this$memoized$validI.fromIncrements,
@@ -608,19 +622,12 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "to_" + field,
         reset: toVal !== null ? this.resetTo : null
-      }))), ranges && ranges.length > 0 ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("hr", {
-        className: "mt-05 mb-05"
-      }), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "facet-list"
-      }, ranges.map(function (range) {
-        return /*#__PURE__*/_react["default"].createElement(RangeTerm, _extends({
-          key: "".concat(range.to, "-").concat(range.from),
-          onClick: _this2.selectRange
-        }, {
-          range: range,
-          facet: facet
-        }));
-      }))) : null)));
+      }))), /*#__PURE__*/_react["default"].createElement(_FacetTermsList.ListOfRanges, _extends({}, this.props, {
+        expanded: expanded
+      }, {
+        onToggleExpanded: this.handleExpandListToggleClick,
+        onTermClick: this.selectRange
+      })))));
     }
   }]);
 
@@ -639,22 +646,22 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
   var _super2 = _createSuper(RangeTerm);
 
   function RangeTerm(props) {
-    var _this3;
+    var _this2;
 
     _classCallCheck(this, RangeTerm);
 
-    _this3 = _super2.call(this, props);
-    _this3.handleClick = _underscore["default"].debounce(_this3.handleClick.bind(_assertThisInitialized(_this3)), 500, true);
-    _this3.state = {
+    _this2 = _super2.call(this, props);
+    _this2.handleClick = _underscore["default"].debounce(_this2.handleClick.bind(_assertThisInitialized(_this2)), 500, true);
+    _this2.state = {
       'filtering': false
     };
-    return _this3;
+    return _this2;
   }
 
   _createClass(RangeTerm, [{
     key: "handleClick",
     value: function handleClick(e) {
-      var _this4 = this;
+      var _this3 = this;
 
       var _this$props8 = this.props,
           range = _this$props8.range,
@@ -668,7 +675,7 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
         'filtering': true
       }, function () {
         onClick(to, from, e, function () {
-          return _this4.setState({
+          return _this3.setState({
             'filtering': false
           });
         });
@@ -746,7 +753,6 @@ RangeTerm.propTypes = {
     'label': _propTypes["default"].string,
     'doc_count': _propTypes["default"].number
   }).isRequired,
-  // 'getTermStatus'     : PropTypes.func.isRequired,
   'onClick': _propTypes["default"].func.isRequired
 };
 
@@ -828,22 +834,22 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
   var _super4 = _createSuper(RangeDropdown);
 
   function RangeDropdown(props) {
-    var _this5;
+    var _this4;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this5 = _super4.call(this, props);
-    _this5.state = {
+    _this4 = _super4.call(this, props);
+    _this4.state = {
       showMenu: false,
       toggling: false
     };
-    _this5.onTextInputChange = _this5.onTextInputChange.bind(_assertThisInitialized(_this5));
-    _this5.onDropdownSelect = _this5.onDropdownSelect.bind(_assertThisInitialized(_this5));
-    _this5.onTextInputFormSubmit = _this5.onTextInputFormSubmit.bind(_assertThisInitialized(_this5));
-    _this5.onTextInputKeyDown = _this5.onTextInputKeyDown.bind(_assertThisInitialized(_this5));
-    _this5.toggleDrop = _this5.toggleDrop.bind(_assertThisInitialized(_this5));
-    _this5.onBlur = _this5.onBlur.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this4.onTextInputChange = _this4.onTextInputChange.bind(_assertThisInitialized(_this4));
+    _this4.onDropdownSelect = _this4.onDropdownSelect.bind(_assertThisInitialized(_this4));
+    _this4.onTextInputFormSubmit = _this4.onTextInputFormSubmit.bind(_assertThisInitialized(_this4));
+    _this4.onTextInputKeyDown = _this4.onTextInputKeyDown.bind(_assertThisInitialized(_this4));
+    _this4.toggleDrop = _this4.toggleDrop.bind(_assertThisInitialized(_this4));
+    _this4.onBlur = _this4.onBlur.bind(_assertThisInitialized(_this4));
+    return _this4;
   }
 
   _createClass(RangeDropdown, [{
@@ -893,11 +899,15 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
         this.onTextInputFormSubmit(evt);
         this.toggleDrop();
       }
+
+      _patchedConsole.patchedConsoleInstance.log("evt.key", evt.key);
+
+      _patchedConsole.patchedConsoleInstance.log("evt.keycode", evt.keyCode);
     }
   }, {
     key: "toggleDrop",
     value: function toggleDrop() {
-      var _this6 = this;
+      var _this5 = this;
 
       var _this$state3 = this.state,
           showMenu = _this$state3.showMenu,
@@ -908,7 +918,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
           showMenu: !showMenu,
           toggling: true
         }, function () {
-          _this6.setState({
+          _this5.setState({
             toggling: false
           });
         });

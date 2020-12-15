@@ -19,6 +19,7 @@ import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
 
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
+import { ListOfRanges } from './FacetTermsList';
 
 
 
@@ -157,6 +158,7 @@ export class RangeFacet extends React.PureComponent {
     constructor(props){
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
+        this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
         this.setFrom = this.setFrom.bind(this);
         this.setTo = this.setTo.bind(this);
         this.setToAndFrom = this.setToAndFrom.bind(this);
@@ -174,7 +176,7 @@ export class RangeFacet extends React.PureComponent {
             validIncrements: memoize(RangeFacet.validIncrements)
         };
 
-        this.state = { ...RangeFacet.initialStateValues(props), "facetClosing": false };
+        this.state = { ...RangeFacet.initialStateValues(props), "facetClosing": false, "expanded": false };
     }
 
     componentDidUpdate(pastProps, pastState) {
@@ -285,6 +287,13 @@ export class RangeFacet extends React.PureComponent {
         onToggleOpen(field, !facetOpen);
     }
 
+    handleExpandListToggleClick(e){
+        e.preventDefault();
+        this.setState(function({ expanded }){
+            return { 'expanded' : !expanded };
+        });
+    }
+
     /**
      * If no other transformations specified, and have a large number, then
      * condense it using `toExponential`.
@@ -348,7 +357,7 @@ export class RangeFacet extends React.PureComponent {
         } = facet;
         const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
         const { description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet.
-        const { fromVal, toVal } = this.state;
+        const { fromVal, toVal, expanded } = this.state;
         const { fromIncrements, toIncrements } = this.memoized.validIncrements(facet);
         const title = propTitle || facetTitle || field;
 
@@ -450,14 +459,15 @@ export class RangeFacet extends React.PureComponent {
                                 */}
                             </div>
                         </div>
-                        { ranges && ranges.length > 0 ?
+                        <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange}/>
+                        {/* { ranges && ranges.length > 0 ?
                             <>
                                 <hr className="mt-05 mb-05"/>
                                 <div className="facet-list">
                                     { ranges.map((range) => <RangeTerm key={`${range.to}-${range.from}`} onClick={this.selectRange} {...{ range, facet }} />)}
                                 </div>
                             </>
-                            : null}
+                            : null} */}
                     </div>
                 </Collapse>
             </div>
@@ -537,7 +547,6 @@ RangeTerm.propTypes = {
         'label'             : PropTypes.string,
         'doc_count'         : PropTypes.number
     }).isRequired,
-    // 'getTermStatus'     : PropTypes.func.isRequired,
     'onClick'           : PropTypes.func.isRequired
 };
 
@@ -645,6 +654,8 @@ class RangeDropdown extends React.PureComponent {
             this.onTextInputFormSubmit(evt);
             this.toggleDrop();
         }
+        console.log("evt.key", evt.key);
+        console.log("evt.keycode", evt.keyCode);
     }
 
     toggleDrop() {

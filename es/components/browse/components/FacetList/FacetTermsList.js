@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.anyTermsSelected = anyTermsSelected;
 exports.countActiveTermsByField = countActiveTermsByField;
 exports.mergeTerms = mergeTerms;
-exports.CountIndicator = exports.FacetTermsList = exports.Term = void 0;
+exports.RangeTerm = exports.ListOfRanges = exports.CountIndicator = exports.FacetTermsList = exports.Term = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -153,7 +153,7 @@ function mergeTerms(facet, filters) {
   return terms.concat(unseenTerms);
 }
 
-function segmentTermComponentsByStatus(termComponents) {
+function segmentComponentsByStatus(termComponents) {
   var groups = {};
   termComponents.forEach(function (t) {
     var status = t.props.status;
@@ -165,6 +165,20 @@ function segmentTermComponentsByStatus(termComponents) {
     groups[status].push(t);
   });
   return groups;
+}
+
+function getRangeStatus(range, toVal, fromVal) {
+  var _ref3 = range || {},
+      _ref3$from = _ref3.from,
+      from = _ref3$from === void 0 ? null : _ref3$from,
+      _ref3$to = _ref3.to,
+      to = _ref3$to === void 0 ? null : _ref3$to;
+
+  if (to === toVal && from === fromVal) {
+    return "selected omitted";
+  }
+
+  return "none";
 }
 /**
  * Used to render individual terms in FacetList.
@@ -340,8 +354,8 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref3) {
-        var expanded = _ref3.expanded;
+      this.setState(function (_ref4) {
+        var expanded = _ref4.expanded;
         return {
           'expanded': !expanded
         };
@@ -373,9 +387,9 @@ var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
 
-      var _ref4 = fieldSchema || {},
-          fieldTitle = _ref4.title,
-          fieldSchemaDescription = _ref4.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
+      var _ref5 = fieldSchema || {},
+          fieldTitle = _ref5.title,
+          fieldSchemaDescription = _ref5.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
 
 
       var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
@@ -468,10 +482,11 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
       onToggleExpanded = props.onToggleExpanded,
       getTermStatus = props.getTermStatus,
       termTransformFxn = props.termTransformFxn;
+  console.log("listOfRanges props", props);
   /** Create term components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = (0, _react.useMemo)(function () {
-    var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
+    var _segmentComponentsByS = segmentComponentsByStatus(terms.map(function (term) {
       return /*#__PURE__*/_react["default"].createElement(Term, _extends({
         facet: facet,
         term: term,
@@ -482,12 +497,12 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
         status: getTermStatus(term, facet)
       }));
     })),
-        _segmentTermComponent2 = _segmentTermComponent.selected,
-        selectedTermComponents = _segmentTermComponent2 === void 0 ? [] : _segmentTermComponent2,
-        _segmentTermComponent3 = _segmentTermComponent.omitted,
-        omittedTermComponents = _segmentTermComponent3 === void 0 ? [] : _segmentTermComponent3,
-        _segmentTermComponent4 = _segmentTermComponent.none,
-        unselectedTermComponents = _segmentTermComponent4 === void 0 ? [] : _segmentTermComponent4;
+        _segmentComponentsByS2 = _segmentComponentsByS.selected,
+        selectedTermComponents = _segmentComponentsByS2 === void 0 ? [] : _segmentComponentsByS2,
+        _segmentComponentsByS3 = _segmentComponentsByS.omitted,
+        omittedTermComponents = _segmentComponentsByS3 === void 0 ? [] : _segmentComponentsByS3,
+        _segmentComponentsByS4 = _segmentComponentsByS.none,
+        unselectedTermComponents = _segmentComponentsByS4 === void 0 ? [] : _segmentComponentsByS4;
 
     var selectedLen = selectedTermComponents.length;
     var omittedLen = omittedTermComponents.length;
@@ -589,21 +604,21 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
   }
 });
 
-var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref5) {
-  var _ref5$count = _ref5.count,
-      count = _ref5$count === void 0 ? 1 : _ref5$count,
-      _ref5$countActive = _ref5.countActive,
-      countActive = _ref5$countActive === void 0 ? 0 : _ref5$countActive,
-      _ref5$height = _ref5.height,
-      height = _ref5$height === void 0 ? 16 : _ref5$height,
-      _ref5$width = _ref5.width,
-      width = _ref5$width === void 0 ? 40 : _ref5$width;
+var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref6) {
+  var _ref6$count = _ref6.count,
+      count = _ref6$count === void 0 ? 1 : _ref6$count,
+      _ref6$countActive = _ref6.countActive,
+      countActive = _ref6$countActive === void 0 ? 0 : _ref6$countActive,
+      _ref6$height = _ref6.height,
+      height = _ref6$height === void 0 ? 16 : _ref6$height,
+      _ref6$width = _ref6.width,
+      width = _ref6$width === void 0 ? 40 : _ref6$width;
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = (0, _utilities.stackDotsInContainer)(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref6, idx) {
-    var _ref7 = _slicedToArray(_ref6, 2),
-        x = _ref7[0],
-        y = _ref7[1];
+  var dots = dotCoords.map(function (_ref7, idx) {
+    var _ref8 = _slicedToArray(_ref7, 2),
+        x = _ref8[0],
+        y = _ref8[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 
@@ -628,3 +643,263 @@ var CountIndicator = /*#__PURE__*/_react["default"].memo(function (_ref5) {
 });
 
 exports.CountIndicator = CountIndicator;
+
+var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
+  var facet = props.facet,
+      facetOpen = props.facetOpen,
+      facetClosing = props.facetClosing,
+      _props$persistentCoun = props.persistentCount,
+      persistentCount = _props$persistentCoun === void 0 ? 2 : _props$persistentCoun,
+      onTermClick = props.onTermClick,
+      expanded = props.expanded,
+      onToggleExpanded = props.onToggleExpanded,
+      termTransformFxn = props.termTransformFxn,
+      toVal = props.toVal,
+      fromVal = props.fromVal;
+  var _facet$ranges = facet.ranges,
+      ranges = _facet$ranges === void 0 ? [] : _facet$ranges;
+  console.log("listOfRanges props", props);
+  console.log("facet", facet);
+  /** Create range components and sort by status (selected->omitted->unselected) */
+
+  var _useMemo2 = (0, _react.useMemo)(function () {
+    var _segmentComponentsByS5 = segmentComponentsByStatus(ranges.map(function (range) {
+      return /*#__PURE__*/_react["default"].createElement(RangeTerm, _extends({
+        facet: facet,
+        range: range,
+        termTransformFxn: termTransformFxn
+      }, {
+        onClick: onTermClick,
+        key: "".concat(range.to, "-").concat(range.from),
+        status: getRangeStatus(range, toVal, fromVal)
+      }));
+    })),
+        _segmentComponentsByS6 = _segmentComponentsByS5.selected,
+        selectedTermComponents = _segmentComponentsByS6 === void 0 ? [] : _segmentComponentsByS6,
+        _segmentComponentsByS7 = _segmentComponentsByS5.omitted,
+        omittedTermComponents = _segmentComponentsByS7 === void 0 ? [] : _segmentComponentsByS7,
+        _segmentComponentsByS8 = _segmentComponentsByS5.none,
+        unselectedTermComponents = _segmentComponentsByS8 === void 0 ? [] : _segmentComponentsByS8;
+
+    var selectedLen = selectedTermComponents.length;
+    var omittedLen = omittedTermComponents.length;
+    var unselectedLen = unselectedTermComponents.length;
+    var totalLen = selectedLen + omittedLen + unselectedLen;
+    var termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
+    var activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
+    var retObj = {
+      termComponents: termComponents,
+      activeTermComponents: activeTermComponents,
+      unselectedTermComponents: unselectedTermComponents,
+      selectedLen: selectedLen,
+      omittedLen: omittedLen,
+      unselectedLen: unselectedLen,
+      totalLen: totalLen
+    };
+
+    if (totalLen <= Math.max(persistentCount, selectedLen + omittedLen)) {
+      return retObj;
+    }
+
+    retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
+
+    var i;
+
+    for (i = selectedLen + omittedLen; i < persistentCount; i++) {
+      retObj.persistentTerms.push(termComponents[i]);
+    }
+
+    retObj.collapsibleTerms = termComponents.slice(i);
+    retObj.collapsibleTermsCount = totalLen - i;
+    retObj.collapsibleTermsItemCount = retObj.collapsibleTerms.reduce(function (m, termComponent) {
+      return m + (termComponent.props.range.doc_count || 0);
+    }, 0);
+    return retObj;
+  }, [ranges, persistentCount, toVal, fromVal]),
+      termComponents = _useMemo2.termComponents,
+      activeTermComponents = _useMemo2.activeTermComponents,
+      unselectedTermComponents = _useMemo2.unselectedTermComponents,
+      totalLen = _useMemo2.totalLen,
+      selectedLen = _useMemo2.selectedLen,
+      omittedLen = _useMemo2.omittedLen,
+      unselectedLen = _useMemo2.unselectedLen,
+      _useMemo2$persistentT = _useMemo2.persistentTerms,
+      persistentTerms = _useMemo2$persistentT === void 0 ? null : _useMemo2$persistentT,
+      _useMemo2$collapsible = _useMemo2.collapsibleTerms,
+      collapsibleTerms = _useMemo2$collapsible === void 0 ? null : _useMemo2$collapsible,
+      _useMemo2$collapsible2 = _useMemo2.collapsibleTermsCount,
+      collapsibleTermsCount = _useMemo2$collapsible2 === void 0 ? 0 : _useMemo2$collapsible2,
+      _useMemo2$collapsible3 = _useMemo2.collapsibleTermsItemCount,
+      collapsibleTermsItemCount = _useMemo2$collapsible3 === void 0 ? 0 : _useMemo2$collapsible3;
+
+  var commonProps = {
+    "data-any-active": !!(selectedLen || omittedLen),
+    "data-all-active": totalLen === selectedLen + omittedLen,
+    "data-open": facetOpen,
+    "className": "facet-list",
+    "key": "facetlist"
+  };
+
+  if (Array.isArray(collapsibleTerms) && collapsibleTerms.length > 0) {
+    var expandButtonTitle;
+
+    if (expanded) {
+      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-minus fas"
+      }), " Collapse");
+    } else {
+      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-plus fas"
+      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/_react["default"].createElement("span", {
+        className: "pull-right"
+      }, collapsibleTermsItemCount));
+    }
+
+    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+        className: "mb-0",
+        open: expanded,
+        persistent: persistentTerms,
+        collapsible: collapsibleTerms
+      }), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "pt-08 pb-0"
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "view-more-button",
+        onClick: onToggleExpanded
+      }, expandButtonTitle)))
+    }));
+  } else {
+    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: unselectedTermComponents
+    }));
+  }
+});
+/**
+ * Used to render a term with range functionality in FacetList. Basically same as FacetTermsList > Term... maybe merge later
+ */
+
+
+exports.ListOfRanges = ListOfRanges;
+
+var RangeTerm = /*#__PURE__*/function (_React$PureComponent3) {
+  _inherits(RangeTerm, _React$PureComponent3);
+
+  var _super3 = _createSuper(RangeTerm);
+
+  function RangeTerm(props) {
+    var _this4;
+
+    _classCallCheck(this, RangeTerm);
+
+    _this4 = _super3.call(this, props);
+    _this4.handleClick = _underscore["default"].debounce(_this4.handleClick.bind(_assertThisInitialized(_this4)), 500, true);
+    _this4.state = {
+      'filtering': false
+    };
+    return _this4;
+  }
+
+  _createClass(RangeTerm, [{
+    key: "handleClick",
+    value: function handleClick(e) {
+      var _this5 = this;
+
+      var _this$props5 = this.props,
+          range = _this$props5.range,
+          onClick = _this$props5.onClick;
+      var _range$to = range.to,
+          to = _range$to === void 0 ? null : _range$to,
+          _range$from = range.from,
+          from = _range$from === void 0 ? null : _range$from;
+      e.preventDefault();
+      this.setState({
+        'filtering': true
+      }, function () {
+        onClick(to, from, e, function () {
+          return _this5.setState({
+            'filtering': false
+          });
+        });
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props6 = this.props,
+          range = _this$props6.range,
+          facet = _this$props6.facet,
+          status = _this$props6.status,
+          termTransformFxn = _this$props6.termTransformFxn;
+      var doc_count = range.doc_count,
+          from = range.from,
+          to = range.to,
+          label = range.label;
+      var filtering = this.state.filtering;
+      var icon = null;
+      var title = (typeof from !== 'undefined' ? from : '< ') + (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') + (typeof to !== 'undefined' ? to : '+ ');
+
+      if (filtering) {
+        icon = /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon fas icon-circle-notch icon-spin icon-fw"
+        });
+      } else if (status === 'selected' || status === 'omitted') {
+        icon = /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-minus-circle icon-fw fas"
+        });
+      } else {
+        icon = /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon icon-circle icon-fw unselected far"
+        });
+      }
+
+      if (!title || title === 'null' || title === 'undefined') {
+        title = 'None';
+      }
+
+      status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
+      return /*#__PURE__*/_react["default"].createElement("li", {
+        className: "facet-list-element "
+        /*+ statusClassName*/
+        ,
+        key: label,
+        "data-key": label
+      }, /*#__PURE__*/_react["default"].createElement("a", {
+        className: "term",
+        "data-selected": status !== 'none',
+        href: "#",
+        onClick: this.handleClick,
+        "data-term": label
+      }, /*#__PURE__*/_react["default"].createElement("span", {
+        className: "facet-selector"
+      }, icon), /*#__PURE__*/_react["default"].createElement("span", {
+        className: "facet-item",
+        "data-tip": title.length > 30 ? title : null
+      }, title, " ", label ? "(".concat(label, ")") : null), /*#__PURE__*/_react["default"].createElement("span", {
+        className: "facet-count"
+      }, doc_count || 0)));
+    }
+  }]);
+
+  return RangeTerm;
+}(_react["default"].PureComponent);
+
+exports.RangeTerm = RangeTerm;
+RangeTerm.propTypes = {
+  'facet': _propTypes["default"].shape({
+    'field': _propTypes["default"].string.isRequired
+  }).isRequired,
+  'range': _propTypes["default"].shape({
+    'from': _propTypes["default"].number,
+    'to': _propTypes["default"].number,
+    'label': _propTypes["default"].string,
+    'doc_count': _propTypes["default"].number
+  }).isRequired,
+  // 'getTermStatus'     : PropTypes.func.isRequired,
+  'onClick': _propTypes["default"].func.isRequired
+};
