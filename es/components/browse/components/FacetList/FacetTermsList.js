@@ -175,7 +175,7 @@ function getRangeStatus(range, toVal, fromVal) {
       to = _ref3$to === void 0 ? null : _ref3$to;
 
   if (to === toVal && from === fromVal) {
-    return "selected omitted";
+    return "selected";
   }
 
   return "none";
@@ -270,11 +270,11 @@ var Term = /*#__PURE__*/function (_React$PureComponent) {
         });
       } else if (status === 'selected' || status === 'omitted') {
         icon = /*#__PURE__*/_react["default"].createElement("i", {
-          className: "icon icon-minus-circle icon-fw fas"
+          className: "icon icon-check-square icon-fw fas"
         });
       } else {
         icon = /*#__PURE__*/_react["default"].createElement("i", {
-          className: "icon icon-circle icon-fw unselected far"
+          className: "icon icon-square icon-fw unselected far"
         });
       }
 
@@ -850,7 +850,7 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent3) {
         });
       } else if (status === 'selected' || status === 'omitted') {
         icon = /*#__PURE__*/_react["default"].createElement("i", {
-          className: "icon icon-minus-circle icon-fw fas"
+          className: "icon icon-dot-circle icon-fw fas"
         });
       } else {
         icon = /*#__PURE__*/_react["default"].createElement("i", {

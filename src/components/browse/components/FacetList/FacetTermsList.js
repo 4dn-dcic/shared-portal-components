@@ -104,7 +104,7 @@ function segmentComponentsByStatus(termComponents){
 function getRangeStatus(range, toVal, fromVal) {
     const { from = null, to = null } = range || {};
     if (to === toVal && from === fromVal) {
-        return "selected omitted";
+        return "selected";
     }
     return "none";
 }
@@ -172,9 +172,9 @@ export class Term extends React.PureComponent {
         if (filtering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
-            icon = <i className="icon icon-minus-circle icon-fw fas" />;
+            icon = <i className="icon icon-check-square icon-fw fas" />;
         } else {
-            icon = <i className="icon icon-circle icon-fw unselected far" />;
+            icon = <i className="icon icon-square icon-fw unselected far" />;
         }
 
         if (!title || title === 'null' || title === 'undefined'){
@@ -559,7 +559,7 @@ export class RangeTerm extends React.PureComponent {
         if (filtering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
-            icon = <i className="icon icon-minus-circle icon-fw fas" />;
+            icon = <i className="icon icon-dot-circle icon-fw fas" />;
         } else {
             icon = <i className="icon icon-circle icon-fw unselected far" />;
         }
