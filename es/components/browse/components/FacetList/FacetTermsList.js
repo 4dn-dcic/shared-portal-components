@@ -865,9 +865,8 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent3) {
         title = 'None';
       }
 
-      var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
       return /*#__PURE__*/_react["default"].createElement("li", {
-        className: "facet-list-element " + statusClassName,
+        className: "facet-list-element ",
         key: label,
         "data-key": label
       }, /*#__PURE__*/_react["default"].createElement("a", {

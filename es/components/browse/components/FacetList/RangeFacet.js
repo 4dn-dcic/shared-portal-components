@@ -535,13 +535,11 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
       }
 
-      var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null; // const isFromValUnapplied = (fromVal !== savedFromVal);
-      // const isToValUnapplied = (toVal !== savedToVal);
-
+      var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
       var fromVariant = savedFromVal === null ? "outline-dark" : "primary";
       var toVariant = savedToVal === null ? "outline-dark" : "primary";
       return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
+        className: "facet range-facet" + (facetOpen ? ' open' : ' closed'),
         "data-field": facet.field
       }, /*#__PURE__*/_react["default"].createElement("h5", {
         className: "facet-title",
@@ -549,7 +547,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/_react["default"].createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
+        className: "icon icon-fw icon-" + (isOpen ? "minus fas" : "plus fas")
       })), /*#__PURE__*/_react["default"].createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/_react["default"].createElement("span", {
@@ -586,7 +584,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         termTransformFxn: this.termTitle,
         resetFrom: fromVal !== null ? this.resetFrom : null,
         resetTo: toVal !== null ? this.resetTo : null
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), !facetOpen ? null : /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
         className: "range-drop-group"
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "range-drop"
@@ -622,13 +620,13 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "to_" + field,
         reset: toVal !== null ? this.resetTo : null
-      }))), /*#__PURE__*/_react["default"].createElement(_FacetTermsList.ListOfRanges, _extends({}, this.props, {
+      }))), ranges && ranges.length > 0 ? /*#__PURE__*/_react["default"].createElement(_FacetTermsList.ListOfRanges, _extends({}, this.props, {
         expanded: expanded
       }, {
         onToggleExpanded: this.handleExpandListToggleClick,
         onTermClick: this.selectRange,
         resetAll: this.resetToAndFrom
-      })))));
+      })) : null))));
     }
   }]);
 
@@ -788,40 +786,51 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
         return null;
       } else if (savedFromVal !== null && savedToVal !== null) {
         // To and From present
-        var invalidRange = savedToVal < savedFromVal;
-        var btnVariant = invalidRange ? "btn-warning" : "btn-primary";
-        return /*#__PURE__*/_react["default"].createElement("button", {
-          className: "range-clear btn btn-block btn-xs mt-05 mb-05 " + btnVariant,
-          type: "button",
-          onClick: resetAll,
-          "data-html": invalidRange,
-          "data-tip": invalidRange ? '<i className="icon fa-exclamation-circle fas"></i>This range is invalid. Adjust range boundaries for better results.' : null
-        }, /*#__PURE__*/_react["default"].createElement("div", {
-          className: "d-flex"
-        }, /*#__PURE__*/_react["default"].createElement("div", {
-          className: "clear-icon-container col-auto clickable d-flex align-items-center",
-          "data-tip": "Click to unset"
+        savedToVal < savedFromVal ? "btn-warning" : "btn-primary";
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "range-clear"
+        }, /*#__PURE__*/_react["default"].createElement("li", {
+          className: "selected facet-list-element clickable"
+        }, /*#__PURE__*/_react["default"].createElement("a", {
+          onClick: resetAll
+        }, /*#__PURE__*/_react["default"].createElement("span", {
+          className: "facet-selector"
         }, /*#__PURE__*/_react["default"].createElement("i", {
           className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/_react["default"].createElement("div", {
-          className: "col px-0"
-        }, savedFromTitle, " < ", facetTitle, " < ", savedToTitle)));
+        })), /*#__PURE__*/_react["default"].createElement("span", {
+          className: "facet-item",
+          style: {
+            textAlign: "center",
+            marginLeft: "-5px"
+          }
+        }, savedFromTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon fas icon-less-than-equal icon-xs px-1"
+        }), " ", facetTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon fas icon-less-than-equal icon-xs px-1"
+        }), " ", savedToTitle))));
       } else {
         // Only To or From present
-        return /*#__PURE__*/_react["default"].createElement("button", {
-          className: "range-clear btn btn-primary btn-block btn-xs mt-05 mb-05",
-          type: "button",
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "range-clear"
+        }, /*#__PURE__*/_react["default"].createElement("li", {
+          className: "selected facet-list-element clickable"
+        }, /*#__PURE__*/_react["default"].createElement("a", {
           onClick: resetTo === null ? resetFrom : resetTo
-        }, /*#__PURE__*/_react["default"].createElement("div", {
-          className: "d-flex"
-        }, /*#__PURE__*/_react["default"].createElement("div", {
-          className: "clear-icon-container col-auto clickable d-flex align-items-center",
-          "data-tip": "Click to unset"
+        }, /*#__PURE__*/_react["default"].createElement("span", {
+          className: "facet-selector"
         }, /*#__PURE__*/_react["default"].createElement("i", {
           className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/_react["default"].createElement("div", {
-          className: "col px-0"
-        }, savedToVal !== null ? "".concat(facetTitle, " < ").concat(savedToTitle) : null, savedFromVal !== null ? "".concat(savedFromTitle, " < ").concat(facetTitle) : null)));
+        })), /*#__PURE__*/_react["default"].createElement("span", {
+          className: "facet-item",
+          style: {
+            textAlign: "center",
+            marginLeft: "-5px"
+          }
+        }, savedToVal !== null ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, facetTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon fas icon-less-than-equal icon-xs px-1"
+        }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, savedFromTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+          className: "icon fas icon-less-than-equal icon-xs px-1"
+        }), " ", facetTitle) : null))));
       }
     }
   }]);

@@ -396,17 +396,15 @@ export class RangeFacet extends React.PureComponent {
 
         const isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
 
-        // const isFromValUnapplied = (fromVal !== savedFromVal);
-        // const isToValUnapplied = (toVal !== savedToVal);
 
         const fromVariant = savedFromVal === null ? "outline-dark" : "primary";
         const toVariant = savedToVal === null ? "outline-dark" : "primary";
 
         return (
-            <div className={"facet range-facet" + (isOpen ? ' open' : ' closed')} data-field={facet.field}>
+            <div className={"facet range-facet" + (facetOpen ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : (isOpen ? "minus fas" : "plus fas"))}/>
+                        <i className={"icon icon-fw icon-" + (isOpen ? "minus fas" : "plus fas")}/>
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-place="right">{ title }</span>
@@ -425,50 +423,45 @@ export class RangeFacet extends React.PureComponent {
                     <div className="inner-panel">
                         <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet }} resetAll={this.resetToAndFrom} termTransformFxn={this.termTitle}
                             resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} />
-                        <div className="range-drop-group">
-                            <div className="range-drop">
-                                <label className="mb-0 small">
-                                    From:
-                                </label>
-                                <RangeDropdown
-                                    title={fromTitle} value={fromVal} savedValue={savedFromVal}
-                                    max={toVal || null} increments={fromIncrements} variant={fromVariant + " btn-xs"}
-                                    onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
-                                    facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
-                                {/*
-                                <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
-                                    onClick={fromVal !== null ? this.resetFrom : null}>
-                                    <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
+                        {!facetOpen ? null :
+                        <>
+                            <div className="range-drop-group">
+                                <div className="range-drop">
+                                    <label className="mb-0 small">
+                                        From:
+                                    </label>
+                                    <RangeDropdown
+                                        title={fromTitle} value={fromVal} savedValue={savedFromVal}
+                                        max={toVal || null} increments={fromIncrements} variant={fromVariant + " btn-xs"}
+                                        onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
+                                        facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
+                                    {/*
+                                    <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
+                                        onClick={fromVal !== null ? this.resetFrom : null}>
+                                        <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
+                                    </div>
+                                    */}
                                 </div>
-                                */}
+                                <div className="range-drop ml-05">
+                                    <label className="mb-0 small">
+                                        To:
+                                    </label>
+                                    <RangeDropdown
+                                        title={toTitle} value={toVal} savedValue={savedToVal}
+                                        min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
+                                        variant={toVariant + " btn-xs"} onSelect={this.setTo} update={this.performUpdateTo}
+                                        facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
+                                    {/*
+                                    <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
+                                        onClick={toVal !== null ? this.resetTo : null}>
+                                        <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
+                                    </div>
+                                    */}
+                                </div>
                             </div>
-                            <div className="range-drop ml-05">
-                                <label className="mb-0 small">
-                                    To:
-                                </label>
-                                <RangeDropdown
-                                    title={toTitle} value={toVal} savedValue={savedToVal}
-                                    min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
-                                    variant={toVariant + " btn-xs"} onSelect={this.setTo} update={this.performUpdateTo}
-                                    facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
-                                {/*
-                                <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
-                                    onClick={toVal !== null ? this.resetTo : null}>
-                                    <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
-                                </div>
-                                */}
-                            </div>
-                        </div>
-                        <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick}
-                            onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/>
-                        {/* { ranges && ranges.length > 0 ?
-                            <>
-                                <hr className="mt-05 mb-05"/>
-                                <div className="facet-list">
-                                    { ranges.map((range) => <RangeTerm key={`${range.to}-${range.from}`} onClick={this.selectRange} {...{ range, facet }} />)}
-                                </div>
-                            </>
-                            : null} */}
+                            {(ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/> : null }
+                        </>
+                        }
                     </div>
                 </Collapse>
             </div>
@@ -576,31 +569,34 @@ class RangeClear extends React.PureComponent {
             const invalidRange = savedToVal < savedFromVal;
             const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
             return (
-                <button className={"range-clear btn btn-block btn-xs mt-05 mb-05 " + btnVariant} type="button" onClick={resetAll} data-html={invalidRange}
-                    data-tip={invalidRange ? '<i className="icon fa-exclamation-circle fas"></i>This range is invalid. Adjust range boundaries for better results.': null}>
-                    <div className="d-flex">
-                        <div className="clear-icon-container col-auto clickable d-flex align-items-center"
-                            data-tip="Click to unset">
-                            <i className="icon icon-fw fas icon-minus-circle"/>
-                        </div>
-                        <div className="col px-0">{savedFromTitle} &lt; {facetTitle} &lt; {savedToTitle}</div>
-                    </div>
-                </button>
+                <div className="range-clear">
+                    <li className="selected facet-list-element clickable">
+                        <a onClick={resetAll}>
+                            <span className="facet-selector">
+                                <i className="icon icon-fw fas icon-minus-circle"/>
+                            </span>
+                            <span className="facet-item" style={{ textAlign: "center", marginLeft: "-5px" }}>
+                                {savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {facetTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}
+                            </span>
+                        </a>
+                    </li>
+                </div>
             );
         } else { // Only To or From present
             return (
-                <button className="range-clear btn btn-primary btn-block btn-xs mt-05 mb-05" type="button" onClick={resetTo === null ? resetFrom : resetTo}>
-                    <div className="d-flex">
-                        <div className="clear-icon-container col-auto clickable d-flex align-items-center"
-                            data-tip="Click to unset">
-                            <i className="icon icon-fw fas icon-minus-circle"/>
-                        </div>
-                        <div className="col px-0">
-                            { savedToVal !== null ? `${facetTitle} < ${savedToTitle}` : null }
-                            { savedFromVal !== null ? `${savedFromTitle} < ${facetTitle}`: null }
-                        </div>
-                    </div>
-                </button>
+                <div className="range-clear">
+                    <li className="selected facet-list-element clickable">
+                        <a onClick={resetTo === null ? resetFrom : resetTo}>
+                            <span className="facet-selector">
+                                <i className="icon icon-fw fas icon-minus-circle"/>
+                            </span>
+                            <span className="facet-item" style={{ textAlign: "center", marginLeft: "-5px" }}>
+                                { savedToVal !== null ? <>{facetTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}</> : null }
+                                { savedFromVal !== null ? <>{savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {facetTitle}</>: null }
+                            </span>
+                        </a>
+                    </li>
+                </div>
             );
         }
     }

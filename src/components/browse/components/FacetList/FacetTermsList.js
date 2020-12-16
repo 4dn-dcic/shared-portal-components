@@ -568,9 +568,8 @@ export class RangeTerm extends React.PureComponent {
             title = 'None';
         }
 
-        const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
         return (
-            <li className={"facet-list-element " + statusClassName } key={label} data-key={label}>
+            <li className={"facet-list-element "} key={label} data-key={label}>
                 <a className="term" data-selected={selected} href="#" onClick={status === "selected" ? resetAll : this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {label ? `(${label})` : null}</span>

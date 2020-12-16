@@ -503,6 +503,7 @@ $facetlist-term-block-height: default !default;
             }
         }
 
+        .range-clear,
         .facet-list {
             margin: 0;
             list-style: none;
@@ -645,7 +646,8 @@ $facetlist-term-block-height: default !default;
             
         }
 
-        &.closed .facet-list {
+        &.closed .facet-list,
+        &.closed .range-clear {
             li {
                 &.selected:last-child:after ,
                 &.omitted:last-child:after {
