@@ -655,7 +655,8 @@ var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
       onToggleExpanded = props.onToggleExpanded,
       termTransformFxn = props.termTransformFxn,
       toVal = props.toVal,
-      fromVal = props.fromVal;
+      fromVal = props.fromVal,
+      resetAll = props.resetAll;
   var _facet$ranges = facet.ranges,
       ranges = _facet$ranges === void 0 ? [] : _facet$ranges;
   console.log("listOfRanges props", props);
@@ -667,7 +668,8 @@ var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
       return /*#__PURE__*/_react["default"].createElement(RangeTerm, _extends({
         facet: facet,
         range: range,
-        termTransformFxn: termTransformFxn
+        termTransformFxn: termTransformFxn,
+        resetAll: resetAll
       }, {
         onClick: onTermClick,
         key: "".concat(range.to, "-").concat(range.from),
@@ -835,7 +837,8 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent3) {
           range = _this$props6.range,
           facet = _this$props6.facet,
           status = _this$props6.status,
-          termTransformFxn = _this$props6.termTransformFxn;
+          termTransformFxn = _this$props6.termTransformFxn,
+          resetAll = _this$props6.resetAll;
       var doc_count = range.doc_count,
           from = range.from,
           to = range.to,
@@ -862,18 +865,16 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent3) {
         title = 'None';
       }
 
-      status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
+      var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
       return /*#__PURE__*/_react["default"].createElement("li", {
-        className: "facet-list-element "
-        /*+ statusClassName*/
-        ,
+        className: "facet-list-element " + statusClassName,
         key: label,
         "data-key": label
       }, /*#__PURE__*/_react["default"].createElement("a", {
         className: "term",
         "data-selected": status !== 'none',
         href: "#",
-        onClick: this.handleClick,
+        onClick: status === "selected" ? resetAll : this.handleClick,
         "data-term": label
       }, /*#__PURE__*/_react["default"].createElement("span", {
         className: "facet-selector"

@@ -626,7 +626,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         expanded: expanded
       }, {
         onToggleExpanded: this.handleExpandListToggleClick,
-        onTermClick: this.selectRange
+        onTermClick: this.selectRange,
+        resetAll: this.resetToAndFrom
       })))));
     }
   }]);

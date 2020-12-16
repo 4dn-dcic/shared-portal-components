@@ -419,7 +419,7 @@ export const CountIndicator = React.memo(function CountIndicator({ count = 1, co
 
 
 export const ListOfRanges = React.memo(function ListOfRanges(props){
-    const { facet, facetOpen, facetClosing, persistentCount = 2, onTermClick, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal } = props;
+    const { facet, facetOpen, facetClosing, persistentCount = 2, onTermClick, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal, resetAll } = props;
     const { ranges = [] } = facet;
     console.log("listOfRanges props", props);
     console.log("facet", facet);
@@ -437,7 +437,7 @@ export const ListOfRanges = React.memo(function ListOfRanges(props){
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
         } = segmentComponentsByStatus(ranges.map(function(range){
-            return <RangeTerm {...{ facet, range, termTransformFxn }} onClick={onTermClick} key={`${range.to}-${range.from}`} status={getRangeStatus(range, toVal, fromVal)} />;
+            return <RangeTerm {...{ facet, range, termTransformFxn, resetAll }} onClick={onTermClick} key={`${range.to}-${range.from}`} status={getRangeStatus(range, toVal, fromVal)} />;
         }));
 
         const selectedLen = selectedTermComponents.length;
@@ -544,7 +544,7 @@ export class RangeTerm extends React.PureComponent {
     }
 
     render() {
-        const { range, facet, status, termTransformFxn } = this.props;
+        const { range, facet, status, termTransformFxn, resetAll } = this.props;
         const { doc_count, from, to, label } = range;
         const { filtering } = this.state;
         const selected = (status !== 'none');
@@ -570,8 +570,8 @@ export class RangeTerm extends React.PureComponent {
 
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
         return (
-            <li className={"facet-list-element " /*+ statusClassName*/} key={label} data-key={label}>
-                <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={label}>
+            <li className={"facet-list-element " + statusClassName } key={label} data-key={label}>
+                <a className="term" data-selected={selected} href="#" onClick={status === "selected" ? resetAll : this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {label ? `(${label})` : null}</span>
                     <span className="facet-count">{doc_count || 0}</span>

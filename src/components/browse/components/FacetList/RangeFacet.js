@@ -459,7 +459,8 @@ export class RangeFacet extends React.PureComponent {
                                 */}
                             </div>
                         </div>
-                        <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange}/>
+                        <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick}
+                            onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/>
                         {/* { ranges && ranges.length > 0 ?
                             <>
                                 <hr className="mt-05 mb-05"/>
