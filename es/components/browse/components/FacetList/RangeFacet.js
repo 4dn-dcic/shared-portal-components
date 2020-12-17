@@ -983,19 +983,8 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
       var showTitle = /*#__PURE__*/_react["default"].createElement("div", {
         className: "d-flex"
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "col px-1 pt-02"
-      }, value !== null ? title : emptyValue)); // if (typeof reset === "function") {
-      //     showTitle = (
-      //         <div className="d-flex">
-      //             <div className="clear-icon-container col-auto clickable d-flex align-items-center" onClick={reset}
-      //                 data-tip="Click to unset">
-      //                 <i className="icon icon-fw fas icon-minus-circle"/>
-      //             </div>
-      //             <div className="col px-0">{ value !== null ? title : emptyValue }</div>
-      //         </div>
-      //     );
-      // }
-
+        className: "col px-0"
+      }, value !== null ? title : emptyValue));
 
       if (field_type === "date") {
         return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({

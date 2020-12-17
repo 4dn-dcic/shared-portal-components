@@ -695,21 +695,9 @@ class RangeDropdown extends React.PureComponent {
         const emptyValue = <span className="mx-1">-</span>;
         let showTitle = (
             <div className="d-flex">
-                <div className="col px-1 pt-02">{ value !== null ? title : emptyValue}</div>
+                <div className="col px-0">{ value !== null ? title : emptyValue}</div>
             </div>
         );
-
-        // if (typeof reset === "function") {
-        //     showTitle = (
-        //         <div className="d-flex">
-        //             <div className="clear-icon-container col-auto clickable d-flex align-items-center" onClick={reset}
-        //                 data-tip="Click to unset">
-        //                 <i className="icon icon-fw fas icon-minus-circle"/>
-        //             </div>
-        //             <div className="col px-0">{ value !== null ? title : emptyValue }</div>
-        //         </div>
-        //     );
-        // }
 
         if (field_type === "date") {
             return (
