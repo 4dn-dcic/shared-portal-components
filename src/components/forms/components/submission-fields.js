@@ -17,7 +17,7 @@ import { Line as ProgressBar } from 'rc-progress';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from './SearchAsYouTypeAjax';
 
-
+import { Alerts } from './../../ui/Alerts';
 /**
  * Individual component for each type of field. Contains the appropriate input
  * if it is a simple number/text/enum, or generates a child component for
@@ -271,12 +271,25 @@ export class BuildField extends React.PureComponent {
         }
         const valueCopy = value ? value.slice() : [];
         if (schema.items && schema.items.type === 'object'){
-            // initialize with empty obj in only this case
-            valueCopy.push({});
-        }else{
+            if ((schema.maxItems) && (valueCopy.length === schema.maxItems)) {
+                valueCopy.push(null);
+            }
+            else { valueCopy.push({}); }
+        } else {
             valueCopy.push(null);
         }
-        modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
+
+        if ((schema.maxItems) && (valueCopy.length > schema.maxItems)) {
+            Alerts.queue({
+                'title': "Multi-select warning ",
+                'message': 'Some of the selections are trimmed since "maxItems: ' + schema.maxItems + '" constraint',
+                'style': 'warning'
+            });
+
+        }
+        else {
+            modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
+        }
     }
 
     /**
@@ -550,19 +563,7 @@ class ArrayField extends React.Component{
     render(){
         const { schema : propSchema, value : propValue } = this.props;
         const schema = propSchema.items || {};
-        let values = propValue || [];
-        const deleteField = _.filter(values, function (v) { return isValueNull(v); });
-        if (propSchema.maxItems) {
-
-            if (values.length ===propSchema.maxItems + 1) {
-                if (deleteField.length > 1) {
-                    values = _.filter(values, function (v) { return !_.isEmpty(v);});
-                }
-                else {
-                    values = _.filter(values, function (v) { return !isValueNull(v); });
-                }
-            }
-        }
+        const values = propValue || [];
         const valuesToRender = _.map(values.length === 0 ? [null] : values, function (v, i) { return [v, schema, i]; });
         const showAddButton = (!propSchema.maxItems) & !isValueNull(values[valuesToRender.length - 1]);
 

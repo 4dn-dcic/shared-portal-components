@@ -36,6 +36,8 @@ var _SearchAsYouTypeLocal = require("./SearchAsYouTypeLocal");
 
 var _SearchAsYouTypeAjax = require("./SearchAsYouTypeAjax");
 
+var _Alerts = require("./../../ui/Alerts");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -481,13 +483,24 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       var valueCopy = value ? value.slice() : [];
 
       if (schema.items && schema.items.type === 'object') {
-        // initialize with empty obj in only this case
-        valueCopy.push({});
+        if (schema.maxItems && valueCopy.length === schema.maxItems) {
+          valueCopy.push(null);
+        } else {
+          valueCopy.push({});
+        }
       } else {
         valueCopy.push(null);
       }
 
-      modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
+      if (schema.maxItems && valueCopy.length > schema.maxItems) {
+        _Alerts.Alerts.queue({
+          'title': "Multi-select warning ",
+          'message': 'Some of the selections are trimmed since "maxItems: ' + schema.maxItems + '" constraint',
+          'style': 'warning'
+        });
+      } else {
+        modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
+      }
     }
     /**
      * Returns an object representing `props` which would be common to any type of input field
@@ -868,24 +881,6 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
           propValue = _this$props15.value;
       var schema = propSchema.items || {};
       var values = propValue || [];
-
-      var deleteField = _underscore["default"].filter(values, function (v) {
-        return isValueNull(v);
-      });
-
-      if (propSchema.maxItems) {
-        if (values.length === propSchema.maxItems + 1) {
-          if (deleteField.length > 1) {
-            values = _underscore["default"].filter(values, function (v) {
-              return !_underscore["default"].isEmpty(v);
-            });
-          } else {
-            values = _underscore["default"].filter(values, function (v) {
-              return !isValueNull(v);
-            });
-          }
-        }
-      }
 
       var valuesToRender = _underscore["default"].map(values.length === 0 ? [null] : values, function (v, i) {
         return [v, schema, i];
