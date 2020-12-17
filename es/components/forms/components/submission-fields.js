@@ -1,45 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.isValueNull = isValueNull;
-exports.AliasInputFieldValidated = exports.AliasInputField = exports.BuildField = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _InputGroup = _interopRequireDefault(require("react-bootstrap/esm/InputGroup"));
-
-var _FormControl = _interopRequireDefault(require("react-bootstrap/esm/FormControl"));
-
-var _DropdownItem = _interopRequireDefault(require("react-bootstrap/esm/DropdownItem"));
-
-var _DropdownButton = _interopRequireDefault(require("react-bootstrap/esm/DropdownButton"));
-
-var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
-
-var _Checkbox = require("./Checkbox");
-
-var _util = require("./../../util");
-
-var _BasicStaticSectionBody = require("./../../static-pages/BasicStaticSectionBody");
-
-var _rcProgress = require("rc-progress");
-
-var _SearchAsYouTypeLocal = require("./SearchAsYouTypeLocal");
-
-var _SearchAsYouTypeAjax = require("./SearchAsYouTypeAjax");
-
-var _Alerts = require("./../../ui/Alerts");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -78,6 +38,22 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import ReactTooltip from 'react-tooltip';
+import InputGroup from 'react-bootstrap/esm/InputGroup';
+import FormControl from 'react-bootstrap/esm/FormControl';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import Fade from 'react-bootstrap/esm/Fade';
+import { Checkbox } from './Checkbox';
+import { ajax, console, object, valueTransforms } from './../../util';
+import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
+import { Line as ProgressBar } from 'rc-progress';
+import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
+import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from './SearchAsYouTypeAjax';
+import { Alerts } from './../../ui/Alerts';
 /**
  * Individual component for each type of field. Contains the appropriate input
  * if it is a simple number/text/enum, or generates a child component for
@@ -86,7 +62,8 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
  *
  * @todo Possibly rename both this class and the containing file to be `SubmissionViewField` or `SubmissionField`.
  */
-var BuildField = /*#__PURE__*/function (_React$PureComponent) {
+
+export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(BuildField, _React$PureComponent);
 
   var _super = _createSuper(BuildField);
@@ -144,19 +121,19 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
 
     _this = _super.call(this, props);
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this), 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
+    _.bindAll(_assertThisInitialized(_this), 'displayField', 'handleDropdownButtonToggle', 'handleAliasChange', 'handleEnumChange', 'buildSuggestedEnumEntry', 'submitSuggestedEnumVal', 'handleChange', 'handleAliasChange', 'deleteField', 'pushArrayValue', 'commonRowProps', 'labelTypeDescriptor', 'wrapWithLabel', 'wrapWithNoLabel');
 
     _this.state = {
       'dropdownOpen': false
     };
-    _this.inputElementRef = /*#__PURE__*/_react["default"].createRef();
+    _this.inputElementRef = /*#__PURE__*/React.createRef();
     return _this;
   }
 
   _createClass(BuildField, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip["default"].rebuild();
+      ReactTooltip.rebuild();
     }
   }, {
     key: "handleDropdownButtonToggle",
@@ -209,7 +186,7 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
         var filetype = currContext && currContext.options && currContext.options.filetype;
 
         if (filetype === 'md' || filetype === 'html') {
-          return /*#__PURE__*/_react["default"].createElement(PreviewField, _extends({}, this.props, {
+          return /*#__PURE__*/React.createElement(PreviewField, _extends({}, this.props, {
             filetype: filetype,
             fieldType: fieldType
           }, {
@@ -222,22 +199,22 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       switch (fieldType) {
         case 'text':
           if (field === 'aliases') {
-            return /*#__PURE__*/_react["default"].createElement("div", {
+            return /*#__PURE__*/React.createElement("div", {
               className: "input-wrapper"
-            }, /*#__PURE__*/_react["default"].createElement(AliasInputField, _extends({}, inputProps, {
+            }, /*#__PURE__*/React.createElement(AliasInputField, _extends({}, inputProps, {
               onAliasChange: this.handleAliasChange,
               currentSubmittingUser: currentSubmittingUser
             })));
           }
 
-          return /*#__PURE__*/_react["default"].createElement("input", _extends({}, inputProps, {
+          return /*#__PURE__*/React.createElement("input", _extends({}, inputProps, {
             type: "text",
             className: "form-control",
             inputMode: "latin"
           }));
 
         case 'textarea':
-          return /*#__PURE__*/_react["default"].createElement("textarea", _extends({}, inputProps, {
+          return /*#__PURE__*/React.createElement("textarea", _extends({}, inputProps, {
             type: "text",
             inputMode: "latin",
             rows: 4,
@@ -246,7 +223,7 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
 
         case 'html':
         case 'code':
-          return /*#__PURE__*/_react["default"].createElement("textarea", _extends({}, inputProps, {
+          return /*#__PURE__*/React.createElement("textarea", _extends({}, inputProps, {
             type: "text",
             inputMode: "latin",
             rows: 8,
@@ -259,21 +236,21 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
           }));
 
         case 'integer':
-          return /*#__PURE__*/_react["default"].createElement(_FormControl["default"], _extends({
+          return /*#__PURE__*/React.createElement(FormControl, _extends({
             type: "number"
           }, inputProps, {
             step: 1
           }));
 
         case 'number':
-          return /*#__PURE__*/_react["default"].createElement(_FormControl["default"], _extends({
+          return /*#__PURE__*/React.createElement(FormControl, _extends({
             type: "number"
           }, inputProps));
 
         case 'boolean':
-          return /*#__PURE__*/_react["default"].createElement(_Checkbox.Checkbox, _extends({}, _underscore["default"].omit(inputProps, 'value', 'placeholder'), {
+          return /*#__PURE__*/React.createElement(Checkbox, _extends({}, _.omit(inputProps, 'value', 'placeholder'), {
             checked: !!value
-          }), /*#__PURE__*/_react["default"].createElement("span", {
+          }), /*#__PURE__*/React.createElement("span", {
             style: {
               'verticalAlign': 'middle',
               'textTransform': 'capitalize'
@@ -281,9 +258,9 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
           }, typeof value === 'boolean' ? value + '' : null));
 
         case 'enum':
-          return /*#__PURE__*/_react["default"].createElement("span", {
+          return /*#__PURE__*/React.createElement("span", {
             className: "input-wrapper"
-          }, /*#__PURE__*/_react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
+          }, /*#__PURE__*/React.createElement(SearchAsYouTypeLocal, {
             searchList: enumValues,
             value: value,
             allowCustomValue: false,
@@ -293,9 +270,9 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
           }));
 
         case 'suggested_enum':
-          return /*#__PURE__*/_react["default"].createElement("span", {
+          return /*#__PURE__*/React.createElement("span", {
             className: "input-wrapper"
-          }, /*#__PURE__*/_react["default"].createElement(_SearchAsYouTypeLocal.SearchAsYouTypeLocal, {
+          }, /*#__PURE__*/React.createElement(SearchAsYouTypeLocal, {
             searchList: enumValues,
             value: value,
             allowCustomValue: true,
@@ -305,9 +282,9 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
           }));
 
         case 'linked object':
-          return /*#__PURE__*/_react["default"].createElement("div", {
+          return /*#__PURE__*/React.createElement("div", {
             className: "input-wrapper"
-          }, /*#__PURE__*/_react["default"].createElement(_SearchAsYouTypeAjax.SubmissionViewSearchAsYouTypeAjax, _extends({
+          }, /*#__PURE__*/React.createElement(SubmissionViewSearchAsYouTypeAjax, _extends({
             value: value,
             allowCustomValue: false
           }, this.props, {
@@ -315,33 +292,33 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
           })));
 
         case 'array':
-          return /*#__PURE__*/_react["default"].createElement(ArrayField, _extends({}, this.props, {
+          return /*#__PURE__*/React.createElement(ArrayField, _extends({}, this.props, {
             pushArrayValue: this.pushArrayValue,
             value: value || null,
             roundTwo: roundTwo
           }));
 
         case 'object':
-          return /*#__PURE__*/_react["default"].createElement(ObjectField, this.props);
+          return /*#__PURE__*/React.createElement(ObjectField, this.props);
 
         case 'attachment':
-          return /*#__PURE__*/_react["default"].createElement("div", {
+          return /*#__PURE__*/React.createElement("div", {
             style: {
               'display': 'inline'
             }
-          }, /*#__PURE__*/_react["default"].createElement(AttachmentInput, this.props));
+          }, /*#__PURE__*/React.createElement(AttachmentInput, this.props));
 
         case 'file upload':
-          return /*#__PURE__*/_react["default"].createElement(S3FileInput, this.props);
+          return /*#__PURE__*/React.createElement(S3FileInput, this.props);
       } // Fallback
 
 
-      return /*#__PURE__*/_react["default"].createElement("div", null, "No field for this case yet.");
+      return /*#__PURE__*/React.createElement("div", null, "No field for this case yet.");
     }
   }, {
     key: "buildSuggestedEnumEntry",
     value: function buildSuggestedEnumEntry(val) {
-      return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
+      return /*#__PURE__*/React.createElement(DropdownItem, {
         key: val,
         title: val || '',
         eventKey: val,
@@ -483,6 +460,7 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       var valueCopy = value ? value.slice() : [];
 
       if (schema.items && schema.items.type === 'object') {
+        // initialize with empty obj in only this case
         if (schema.maxItems && valueCopy.length === schema.maxItems) {
           valueCopy.push(null);
         } else {
@@ -492,13 +470,7 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
         valueCopy.push(null);
       }
 
-      if (schema.maxItems && valueCopy.length > schema.maxItems) {
-        _Alerts.Alerts.queue({
-          'title': "Multi-select warning ",
-          'message': 'Some of the selections are trimmed since "maxItems: ' + schema.maxItems + '" constraint',
-          'style': 'warning'
-        });
-      } else {
+      if (!(schema.maxItems && valueCopy.length > schema.maxItems)) {
         modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
       }
     }
@@ -534,9 +506,9 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
     key: "labelTypeDescriptor",
     value: function labelTypeDescriptor() {
       var required = this.props.required;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "field-descriptor"
-      }, required ? /*#__PURE__*/_react["default"].createElement("span", {
+      }, required ? /*#__PURE__*/React.createElement("span", {
         style: {
           'color': '#a94442'
         }
@@ -552,20 +524,20 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
           title = _this$props9.title,
           fieldType = _this$props9.fieldType,
           schema = _this$props9.schema;
-      return /*#__PURE__*/_react["default"].createElement("div", this.commonRowProps(), /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", this.commonRowProps(), /*#__PURE__*/React.createElement("div", {
         className: "row"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "col-12 col-md-4"
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "submission-field-title text-truncate"
-      }, this.labelTypeDescriptor(), fieldTip ? /*#__PURE__*/_react["default"].createElement(InfoIcon, {
+      }, this.labelTypeDescriptor(), fieldTip ? /*#__PURE__*/React.createElement(InfoIcon, {
         className: "mr-07",
         title: title,
         fieldType: fieldType,
         schema: schema
-      }, fieldTip) : null, /*#__PURE__*/_react["default"].createElement("span", null, title))), /*#__PURE__*/_react["default"].createElement("div", {
+      }, fieldTip) : null, /*#__PURE__*/React.createElement("span", null, title))), /*#__PURE__*/React.createElement("div", {
         className: "col-12 col-md-8"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "row field-container"
       }, Array.prototype.slice.call(arguments)))));
     }
@@ -574,7 +546,7 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "wrapWithNoLabel",
     value: function wrapWithNoLabel() {
-      return /*#__PURE__*/_react["default"].createElement("div", this.commonRowProps(), Array.prototype.slice.call(arguments));
+      return /*#__PURE__*/React.createElement("div", this.commonRowProps(), Array.prototype.slice.call(arguments));
     }
     /**
      * Renders out input for this field. Performs this recursively (through adding own component down in render tree)
@@ -605,7 +577,7 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       // not in hardcoded cannot delete list AND is not an object or
       // non-empty array element (individual values get deleted)
 
-      if (!_underscore["default"].contains(['filename'], field) && fieldType !== 'array') {
+      if (!_.contains(['filename'], field) && fieldType !== 'array') {
         showDelete = true;
       } // if there is no value in the field and non-array, hide delete button
 
@@ -644,13 +616,13 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
         showDelete = false;
       }
 
-      if (fieldType === 'linked object' && _SearchAsYouTypeAjax.LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx)) {
+      if (fieldType === 'linked object' && LinkedObj.isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx)) {
         extClass += ' in-selection-field';
       }
 
-      return wrapFunc( /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
+      return wrapFunc( /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: 'field-column col' + extClass
-      }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null : /*#__PURE__*/_react["default"].createElement(_SearchAsYouTypeAjax.SquareButton, {
+      }, fieldToDisplay), fieldType === 'array' || fieldType === 'file upload' ? null : /*#__PURE__*/React.createElement(SquareButton, {
         show: showDelete,
         disabled: disableDelete,
         tip: isArray ? 'Remove Item' : 'Clear Value',
@@ -660,29 +632,24 @@ var BuildField = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return BuildField;
-}(_react["default"].PureComponent); //var linkedObjChildWindow = null; // Global var
+}(React.PureComponent); //var linkedObjChildWindow = null; // Global var
 
-
-exports.BuildField = BuildField;
-
-var PreviewField = /*#__PURE__*/_react["default"].memo(function (props) {
+var PreviewField = /*#__PURE__*/React.memo(function (props) {
   var value = props.value,
       filetype = props.filetype,
       field = props.field,
       onChange = props.onChange;
-
-  var preview = value && /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("h6", {
+  var preview = value && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h6", {
     className: "mt-1 text-600"
-  }, "Preview:"), /*#__PURE__*/_react["default"].createElement("hr", {
+  }, "Preview:"), /*#__PURE__*/React.createElement("hr", {
     className: "mb-1 mt-05"
-  }), /*#__PURE__*/_react["default"].createElement(_BasicStaticSectionBody.BasicStaticSectionBody, {
+  }), /*#__PURE__*/React.createElement(BasicStaticSectionBody, {
     content: value || '',
     filetype: filetype
   }));
-
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "preview-field-container mt-08 mb-08"
-  }, /*#__PURE__*/_react["default"].createElement(_FormControl["default"], {
+  }, /*#__PURE__*/React.createElement(FormControl, {
     onChange: onChange,
     id: "field_for_" + field,
     name: field,
@@ -703,7 +670,6 @@ var PreviewField = /*#__PURE__*/_react["default"].memo(function (props) {
  * object in the value and use a custom render method. initiateArrayField is
  * unique to ArrayField, since it needs to update the arrayIdx
  */
-
 
 var ArrayField = /*#__PURE__*/function (_React$Component) {
   _inherits(ArrayField, _React$Component);
@@ -755,7 +721,7 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
 
     _this2 = _super2.call(this, props);
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this2), 'initiateArrayField', 'generateAddButton');
+    _.bindAll(_assertThisInitialized(_this2), 'initiateArrayField', 'generateAddButton');
 
     return _this2;
   }
@@ -831,21 +797,21 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
 
       arrayIdxList.push(arrayIdx);
 
-      var childFieldSchema = _underscore["default"].extend({}, fieldSchema, {
+      var childFieldSchema = _.extend({}, fieldSchema, {
         'parentSchema': schema
       });
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         key: arrayIdx,
         className: "array-field-container " + (arrayIdx % 2 === 0 ? 'even' : 'odd'),
         "data-field-type": fieldType
-      }, /*#__PURE__*/_react["default"].createElement(BuildField, _extends({
+      }, /*#__PURE__*/React.createElement(BuildField, _extends({
         value: inArrValue || null,
         fieldTip: fieldTip,
         fieldType: fieldType,
         title: title,
         enumValues: enumValues
-      }, _underscore["default"].pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel', 'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType'), {
+      }, _.pick(this.props, 'field', 'modifyNewContext', 'linkType', 'selectObj', 'selectComplete', 'selectCancel', 'nestedField', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'currentSubmittingUser', 'roundTwo', 'currType'), {
         isArray: true,
         isLastItemInArray: allItems.length - 1 === index,
         arrayIdx: arrayIdxList,
@@ -863,13 +829,13 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
           _this$props14$value = _this$props14.value,
           values = _this$props14$value === void 0 ? [] : _this$props14$value,
           pushArrayValue = _this$props14.pushArrayValue;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "add-array-item-button-container"
-      }, /*#__PURE__*/_react["default"].createElement("button", {
+      }, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-outline-dark btn-" + (values.length > 0 ? "sm" : "md"),
         onClick: pushArrayValue
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw fas icon-plus"
       }), " Add"));
     }
@@ -882,19 +848,19 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
       var schema = propSchema.items || {};
       var values = propValue || [];
 
-      var valuesToRender = _underscore["default"].map(values.length === 0 ? [null] : values, function (v, i) {
+      var valuesToRender = _.map(values.length === 0 ? [null] : values, function (v, i) {
         return [v, schema, i];
       });
 
-      var showAddButton = !propSchema.maxItems & !isValueNull(values[valuesToRender.length - 1]);
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      var showAddButton = !propSchema.maxItems && !isValueNull(values[valuesToRender.length - 1]);
+      return /*#__PURE__*/React.createElement("div", {
         className: "list-of-array-items"
       }, valuesToRender.map(this.initiateArrayField), showAddButton ? this.generateAddButton() : null);
     }
   }]);
 
   return ArrayField;
-}(_react["default"].Component);
+}(React.Component);
 /**
  * Builds a field that represents a sub-object. Essentially serves to hold
  * and coordinate BuildFields that correspond to the fields within the subfield.
@@ -919,16 +885,14 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
 
     _defineProperty(_assertThisInitialized(_this3), "includeField", function (schema, field) {
       if (!schema) return null;
-
-      var schemaVal = _util.object.getNestedProperty(schema, ['properties', field], true);
-
+      var schemaVal = object.getNestedProperty(schema, ['properties', field], true);
       if (!schemaVal) return null; // check to see if this field should be excluded based on exclude_from status
 
-      if (schemaVal.exclude_from && (_underscore["default"].contains(schemaVal.exclude_from, 'FFedit-create') || schemaVal.exclude_from == 'FFedit-create')) {
+      if (schemaVal.exclude_from && (_.contains(schemaVal.exclude_from, 'FFedit-create') || schemaVal.exclude_from == 'FFedit-create')) {
         return null;
       }
 
-      if (schemaVal.exclude_from && (_underscore["default"].contains(schemaVal.exclude_from, 'FF-calculate') || schemaVal.exclude_from == 'FF-calculate')) {
+      if (schemaVal.exclude_from && (_.contains(schemaVal.exclude_from, 'FF-calculate') || schemaVal.exclude_from == 'FF-calculate')) {
         return null;
       } // check to see if this field is a calculated val
 
@@ -966,7 +930,7 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
       var parentObject = this.props.value;
 
       if (pastProps.value !== parentObject) {
-        _util.console.log('CHANGED', pastProps.value, parentObject);
+        console.log('CHANGED', pastProps.value, parentObject);
       }
     }
   }, {
@@ -979,16 +943,16 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
           parentObject = _this$props17.value,
           propNestedField = _this$props17.nestedField,
           isMultiSelect = _this$props17.isMultiSelect;
-      var allFieldsInSchema = objectSchema['properties'] ? _underscore["default"].keys(objectSchema['properties']) : [];
+      var allFieldsInSchema = objectSchema['properties'] ? _.keys(objectSchema['properties']) : [];
 
-      var fieldsToBuild = _underscore["default"].filter(_underscore["default"].map(allFieldsInSchema, function (f) {
+      var fieldsToBuild = _.filter(_.map(allFieldsInSchema, function (f) {
         // List of [field, fieldSchema] pairs.
         var fieldSchemaToUseOrNull = _this4.includeField(objectSchema, f);
 
         return fieldSchemaToUseOrNull && [f, fieldSchemaToUseOrNull] || null;
       }));
 
-      var passProps = _underscore["default"].pick(this.props, 'modifyNewContext', 'linkType', 'setSubmissionState', 'selectObj', 'selectComplete', 'selectCancel', 'arrayIdx', 'keyDisplay', 'keyComplete', 'currType', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx');
+      var passProps = _.pick(this.props, 'modifyNewContext', 'linkType', 'setSubmissionState', 'selectObj', 'selectComplete', 'selectCancel', 'arrayIdx', 'keyDisplay', 'keyComplete', 'currType', 'updateUpload', 'upload', 'uploadStatus', 'md5Progress', 'fieldBeingSelected', 'fieldBeingSelectedArrayIdx');
 
       var builtFields = fieldsToBuild.map(function (_ref2) {
         var _ref3 = _slicedToArray(_ref2, 2),
@@ -1021,7 +985,7 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
         // happens correctly
 
 
-        return /*#__PURE__*/_react["default"].createElement(BuildField, _extends({}, passProps, {
+        return /*#__PURE__*/React.createElement(BuildField, _extends({}, passProps, {
           field: field,
           fieldType: fieldType,
           fieldTip: fieldTip,
@@ -1038,14 +1002,14 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
           isMultiSelect: isMultiSelect || false
         }));
       });
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "object-field-container"
       }, builtFields);
     }
   }]);
 
   return ObjectField;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 /**
  * For version 1. A simple local file upload that gets the name, type,
  * size, and b64 encoded stream in the form of a data url. Upon successful
@@ -1073,7 +1037,7 @@ var AttachmentInput = /*#__PURE__*/function (_React$Component2) {
     value: function acceptedTypes() {
       var schema = this.props.schema; // hardcoded back-up
 
-      var types = _util.object.getNestedProperty(schema, ['properties', 'type', 'enum'], true);
+      var types = object.getNestedProperty(schema, ['properties', 'type', 'enum'], true);
 
       if (!types) {
         // generic backup types
@@ -1131,11 +1095,11 @@ var AttachmentInput = /*#__PURE__*/function (_React$Component2) {
       }
 
       // Is type=submit below correct?
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         style: {
           'display': 'inherit'
         }
-      }, /*#__PURE__*/_react["default"].createElement("input", {
+      }, /*#__PURE__*/React.createElement("input", {
         id: "field_for_" + field,
         type: "file",
         onChange: this.handleChange,
@@ -1143,10 +1107,10 @@ var AttachmentInput = /*#__PURE__*/function (_React$Component2) {
           'display': 'none'
         },
         accept: this.acceptedTypes()
-      }), /*#__PURE__*/_react["default"].createElement("button", {
+      }), /*#__PURE__*/React.createElement("button", {
         type: "submit",
         className: "btn btn-outline-dark"
-      }, /*#__PURE__*/_react["default"].createElement("label", {
+      }, /*#__PURE__*/React.createElement("label", {
         className: "text-400 mb-0",
         htmlFor: "field_for_" + field,
         style: {
@@ -1158,7 +1122,7 @@ var AttachmentInput = /*#__PURE__*/function (_React$Component2) {
   }]);
 
   return AttachmentInput;
-}(_react["default"].Component);
+}(React.Component);
 /**
  * Input for an s3 file upload. Context value set is local value of the filename.
  * Also updates this.state.file for the overall component. Runs file uploads
@@ -1178,7 +1142,7 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
 
     _this6 = _super5.call(this, props);
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this6), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
+    _.bindAll(_assertThisInitialized(_this6), 'modifyFile', 'handleChange', 'handleAsyncUpload', 'modifyRunningUploads', 'cancelUpload', 'deleteField');
 
     _this6.state = {
       'percentDone': null,
@@ -1254,8 +1218,7 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
       }
 
       var extensions = [];
-
-      _util.ajax.promise(fileFormat + '?frame=object').then(function (response) {
+      ajax.promise(fileFormat + '?frame=object').then(function (response) {
         if (response['file_format'] && response['@id']) {
           extensions = response.standard_file_extension ? [response.standard_file_extension] : [];
 
@@ -1264,7 +1227,7 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
           } // Fail if "other" extension is not used and a valid extension is not provided
 
 
-          if (extensions.indexOf("other") === -1 && !_underscore["default"].any(extensions, function (ext) {
+          if (extensions.indexOf("other") === -1 && !_.any(extensions, function (ext) {
             return filename.endsWith(ext);
           })) {
             alert('File extension error! Please enter a file with one of the following extensions: ' + extensions.join(', '));
@@ -1372,7 +1335,7 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
       }
 
       var disableFile = md5Progress !== null || upload !== null;
-      return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("input", {
+      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
         id: "field_for_" + field,
         type: "file",
         onChange: this.handleChange,
@@ -1380,14 +1343,14 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
         style: {
           'display': 'none'
         }
-      }), /*#__PURE__*/_react["default"].createElement("button", {
+      }), /*#__PURE__*/React.createElement("button", {
         type: "submit",
         disabled: disableFile,
         style: {
           'padding': '0px'
         },
         className: "btn btn-outline-dark"
-      }, /*#__PURE__*/_react["default"].createElement("label", {
+      }, /*#__PURE__*/React.createElement("label", {
         className: "text-400",
         htmlFor: "field_for_" + field,
         style: {
@@ -1397,44 +1360,44 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
           'paddingLeft': '12px',
           'marginBottom': '0px'
         }
-      }, filename_text)), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+      }, filename_text)), /*#__PURE__*/React.createElement(Fade, {
         "in": showDelete
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "pull-right"
-      }, /*#__PURE__*/_react["default"].createElement("button", {
+      }, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-danger",
         disabled: !showDelete,
         onClick: this.deleteField,
         tabIndex: 2
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-times fas"
-      }))))), statusTip ? /*#__PURE__*/_react["default"].createElement("div", {
+      }))))), statusTip ? /*#__PURE__*/React.createElement("div", {
         style: {
           'color': '#a94442',
           'paddingTop': '10px'
         }
-      }, statusTip) : null, md5Progress ? /*#__PURE__*/_react["default"].createElement("div", {
+      }, statusTip) : null, md5Progress ? /*#__PURE__*/React.createElement("div", {
         style: {
           'paddingTop': '10px'
         }
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-spin icon-circle-notch",
         style: {
           'opacity': '0.5'
         }
-      }), /*#__PURE__*/_react["default"].createElement("span", {
+      }), /*#__PURE__*/React.createElement("span", {
         style: {
           'paddingLeft': '10px'
         }
-      }, 'Calculating MD5... ' + md5Progress + '%')) : null, percentDone !== null ? /*#__PURE__*/_react["default"].createElement("div", {
+      }, 'Calculating MD5... ' + md5Progress + '%')) : null, percentDone !== null ? /*#__PURE__*/React.createElement("div", {
         className: "row",
         style: {
           'paddingTop': '10px'
         }
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "col-3 col-sm-3 pull-left"
-      }, /*#__PURE__*/_react["default"].createElement("a", {
+      }, /*#__PURE__*/React.createElement("a", {
         href: "",
         style: {
           'color': '#a94442',
@@ -1442,13 +1405,13 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
         },
         onClick: this.cancelUpload,
         title: "Cancel"
-      }, 'Cancel upload')), /*#__PURE__*/_react["default"].createElement("div", {
+      }, 'Cancel upload')), /*#__PURE__*/React.createElement("div", {
         className: "col-9 col-sm-9 pull-right"
-      }, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
         className: "pull-left"
-      }, percentDone + "% complete"), /*#__PURE__*/_react["default"].createElement("div", {
+      }, percentDone + "% complete"), /*#__PURE__*/React.createElement("div", {
         className: "pull-right"
-      }, "Total size: " + sizeUploaded)), /*#__PURE__*/_react["default"].createElement(_rcProgress.Line, {
+      }, "Total size: " + sizeUploaded)), /*#__PURE__*/React.createElement(ProgressBar, {
         percent: percentDone,
         strokeWidth: "1",
         strokeColor: "#388a92"
@@ -1457,7 +1420,7 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
   }]);
 
   return S3FileInput;
-}(_react["default"].Component);
+}(React.Component);
 /**
  * Accepts a 'value' prop (which should contain a colon, at minimum) and present two fields for modifying its two parts.
  *
@@ -1467,7 +1430,7 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
  */
 
 
-var AliasInputField = /*#__PURE__*/function (_React$Component4) {
+export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
   _inherits(AliasInputField, _React$Component4);
 
   var _super6 = _createSuper(AliasInputField);
@@ -1482,15 +1445,14 @@ var AliasInputField = /*#__PURE__*/function (_React$Component4) {
     value: function getInitialSubmitsForFirstPart(submitter) {
       var submits_for_list = submitter && Array.isArray(submitter.submits_for) && submitter.submits_for.length > 0 && submitter.submits_for || null;
       var primaryLab = submitter && submitter.lab || null;
-
-      var primaryLabID = primaryLab && _util.object.itemUtil.atId(primaryLab);
+      var primaryLabID = primaryLab && object.itemUtil.atId(primaryLab);
 
       if (!submits_for_list) {
         // Fallback to using submitter ID.
         return AliasInputField.emailToString(submitter.email);
       }
 
-      if (primaryLabID && primaryLab.name && _underscore["default"].map(submits_for_list, _util.object.itemUtil.atId).indexOf(primaryLabID) > -1) {
+      if (primaryLabID && primaryLab.name && _.map(submits_for_list, object.itemUtil.atId).indexOf(primaryLabID) > -1) {
         return primaryLab.name;
       } else {
         return submits_for_list[0].name;
@@ -1516,7 +1478,7 @@ var AliasInputField = /*#__PURE__*/function (_React$Component4) {
 
     _this9 = _super6.call(this, props);
 
-    _underscore["default"].bindAll(_assertThisInitialized(_this9), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
+    _.bindAll(_assertThisInitialized(_this9), 'onAliasSecondPartChange', 'onAliasFirstPartChange', 'onAliasFirstPartChangeTyped', 'getInitialSubmitsForPart', 'finalizeAliasPartsChange');
 
     return _this9;
   }
@@ -1586,7 +1548,7 @@ var AliasInputField = /*#__PURE__*/function (_React$Component4) {
 
       if (currentSubmittingUser && Array.isArray(currentSubmittingUser.groups) && currentSubmittingUser.groups.indexOf('admin') > -1) {
         // Render an ordinary input box for admins (can specify any lab).
-        firstPartSelect = /*#__PURE__*/_react["default"].createElement("input", {
+        firstPartSelect = /*#__PURE__*/React.createElement("input", {
           type: "text",
           inputMode: "latin",
           id: "firstPartSelect",
@@ -1600,47 +1562,47 @@ var AliasInputField = /*#__PURE__*/function (_React$Component4) {
           className: "form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")
         });
       } else if (submits_for_list && submits_for_list.length > 1) {
-        firstPartSelect = /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], {
+        firstPartSelect = /*#__PURE__*/React.createElement(DropdownButton, {
           className: "alias-lab-select form-control alias-first-part-input" + (errorMessage ? " is-invalid" : ""),
           id: "firstPartSelect",
           variant: "light",
           onSelect: this.onAliasFirstPartChange,
-          as: _InputGroup["default"].Prepend,
-          title: parts.length > 1 && /*#__PURE__*/_react["default"].createElement("span", {
+          as: InputGroup.Prepend,
+          title: parts.length > 1 && /*#__PURE__*/React.createElement("span", {
             className: "text-400 d-flex justify-content-between align-items-center"
-          }, /*#__PURE__*/_react["default"].createElement("small", null, "Lab:\xA0"), /*#__PURE__*/_react["default"].createElement("span", {
+          }, /*#__PURE__*/React.createElement("small", null, "Lab:\xA0"), /*#__PURE__*/React.createElement("span", {
             className: "text-truncate",
             style: {
               maxWidth: '80%'
             }
           }, parts[0] !== '' && parts[0] || this.getInitialSubmitsForPart())) || 'Select a Lab'
-        }, _underscore["default"].map(submits_for_list, function (lab) {
-          return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
+        }, _.map(submits_for_list, function (lab) {
+          return /*#__PURE__*/React.createElement(DropdownItem, {
             key: lab.name,
             eventKey: lab.name
-          }, /*#__PURE__*/_react["default"].createElement("span", {
+          }, /*#__PURE__*/React.createElement("span", {
             className: "text-500"
           }, lab.name), " (", lab.display_title, ")");
         }));
       } else {
         // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
-        firstPartSelect = /*#__PURE__*/_react["default"].createElement(_InputGroup["default"].Prepend, {
+        firstPartSelect = /*#__PURE__*/React.createElement(InputGroup.Prepend, {
           className: "alias-lab-single-option"
-        }, /*#__PURE__*/_react["default"].createElement("span", {
+        }, /*#__PURE__*/React.createElement("span", {
           className: "input-group-text"
         }, currFirstPartValue));
       }
 
       var outerClassName = "mb-0 alias-input-field form-group has-feedback" + (errorMessage ? " is-invalid has-error" : isValid ? " is-valid" : "");
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: outerClassName
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "input-group"
-      }, firstPartSelect, /*#__PURE__*/_react["default"].createElement("div", {
+      }, firstPartSelect, /*#__PURE__*/React.createElement("div", {
         className: "input-group-prepend input-group-append input-group-addon colon-separator"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "input-group-text"
-      }, ":")), /*#__PURE__*/_react["default"].createElement("input", {
+      }, ":")), /*#__PURE__*/React.createElement("input", {
         type: "text",
         id: "aliasInput",
         inputMode: "latin",
@@ -1649,36 +1611,34 @@ var AliasInputField = /*#__PURE__*/function (_React$Component4) {
         placeholder: "Type in a new identifier",
         onChange: this.onAliasSecondPartChange,
         className: "form-control" + (errorMessage ? " is-invalid" : isValid ? " is-valid" : "")
-      })), showErrorMsg && errorMessage ? /*#__PURE__*/_react["default"].createElement("div", {
+      })), showErrorMsg && errorMessage ? /*#__PURE__*/React.createElement("div", {
         className: "invalid-feedback d-block text-right"
       }, errorMessage) : null);
     }
   }]);
 
   return AliasInputField;
-}(_react["default"].Component);
-
-exports.AliasInputField = AliasInputField;
+}(React.Component);
 
 _defineProperty(AliasInputField, "propTypes", {
-  'value': _propTypes["default"].string.isRequired,
-  'onAliasChange': _propTypes["default"].func.isRequired,
-  'currentSubmittingUser': _propTypes["default"].shape({
-    'submits_for': _propTypes["default"].arrayOf(_propTypes["default"].shape({
-      'name': _propTypes["default"].string,
-      'display_title': _propTypes["default"].string
+  'value': PropTypes.string.isRequired,
+  'onAliasChange': PropTypes.func.isRequired,
+  'currentSubmittingUser': PropTypes.shape({
+    'submits_for': PropTypes.arrayOf(PropTypes.shape({
+      'name': PropTypes.string,
+      'display_title': PropTypes.string
     }))
   }).isRequired,
-  'errorMessage': _propTypes["default"].string,
+  'errorMessage': PropTypes.string,
   // String or null
-  'isValid': _propTypes["default"].bool
+  'isValid': PropTypes.bool
 });
 
 _defineProperty(AliasInputField, "defaultProps", {
   'value': ':'
 });
 
-var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponent3) {
+export var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(AliasInputFieldValidated, _React$PureComponent3);
 
   var _super7 = _createSuper(AliasInputFieldValidated);
@@ -1745,7 +1705,7 @@ var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponent3) {
         });
       };
 
-      currReq = this.request = _util.ajax.load("/" + alias, cb, 'GET', cb);
+      currReq = this.request = ajax.load("/" + alias, cb, 'GET', cb);
     }
   }, {
     key: "onAliasChange",
@@ -1821,16 +1781,14 @@ var AliasInputFieldValidated = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "render",
     value: function render() {
-      return /*#__PURE__*/_react["default"].createElement(AliasInputField, _extends({}, this.props, this.state, {
+      return /*#__PURE__*/React.createElement(AliasInputField, _extends({}, this.props, this.state, {
         onAliasChange: this.onAliasChange
       }));
     }
   }]);
 
   return AliasInputFieldValidated;
-}(_react["default"].PureComponent);
-
-exports.AliasInputFieldValidated = AliasInputFieldValidated;
+}(React.PureComponent);
 
 _defineProperty(AliasInputFieldValidated, "defaultProps", {
   errorValue: "ERROR",
@@ -1856,8 +1814,7 @@ var InfoIcon = /*#__PURE__*/function (_React$PureComponent4) {
           fieldType = _this$props25.fieldType,
           schema = _this$props25.schema;
       if (typeof fieldType !== 'string' || fieldType.length === 0) return null;
-
-      var type = _util.valueTransforms.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
+      var type = valueTransforms.capitalizeSentence(fieldType === 'array' ? ArrayField.typeOfItems(schema.items) : fieldType);
 
       if (fieldType === 'array') {
         type = type + ' <span class="array-indicator">[]</span>';
@@ -1884,7 +1841,7 @@ var InfoIcon = /*#__PURE__*/function (_React$PureComponent4) {
         tip += '<h6 class="mt-07 text-300">Field Type: <span class="text-400">' + this.fieldTypeDescriptor() + '</span></h6>';
       }
 
-      return /*#__PURE__*/_react["default"].createElement("i", {
+      return /*#__PURE__*/React.createElement("i", {
         className: "icon icon-info-circle fas" + (className ? ' ' + className : ''),
         "data-tip": tip,
         "data-html": true
@@ -1893,24 +1850,24 @@ var InfoIcon = /*#__PURE__*/function (_React$PureComponent4) {
   }]);
 
   return InfoIcon;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 
-function isValueNull(value) {
+export function isValueNull(value) {
   if (value === null) return true;
   if (typeof value === 'undefined') return true;
   if (typeof value === 'number') return false;
   if (value === '') return true;
 
   if (Array.isArray(value)) {
-    if (value.length === 0) return true;else if (_underscore["default"].every(value, isValueNull)) {
+    if (value.length === 0) return true;else if (_.every(value, isValueNull)) {
       return true;
     } else return false;
   }
 
   if (_typeof(value) === 'object') {
-    var keys = _underscore["default"].keys(value);
+    var keys = _.keys(value);
 
-    if (keys.length === 0) return true;else if (_underscore["default"].every(keys, function (k) {
+    if (keys.length === 0) return true;else if (_.every(keys, function (k) {
       return isValueNull(value[k]);
     })) return true;
   }

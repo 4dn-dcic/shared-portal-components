@@ -16,7 +16,6 @@ import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionB
 import { Line as ProgressBar } from 'rc-progress';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from './SearchAsYouTypeAjax';
-
 import { Alerts } from './../../ui/Alerts';
 /**
  * Individual component for each type of field. Contains the appropriate input
@@ -271,21 +270,22 @@ export class BuildField extends React.PureComponent {
         }
         const valueCopy = value ? value.slice() : [];
         if (schema.items && schema.items.type === 'object'){
-            if ((schema.maxItems) && (valueCopy.length === schema.maxItems)) {
+            // initialize with empty obj in only this case
+            if (schema.maxItems && (valueCopy.length === schema.maxItems)) {
                 valueCopy.push(null);
+            } else {
+                valueCopy.push({});
             }
-            else { valueCopy.push({}); }
         } else {
             valueCopy.push(null);
         }
 
-        if ((schema.maxItems) && (valueCopy.length > schema.maxItems)) {
-            Alerts.queue({
-                'title': "Multi-select warning ",
-                'message': 'Some of the selections are trimmed since "maxItems: ' + schema.maxItems + '" constraint',
-                'style': 'warning'
-            });
-
+        if (schema.maxItems && (valueCopy.length > schema.maxItems)) {
+            // Alerts.queue({
+            //     'title': "Multi-select warning ",
+            //     'message': 'Some of the selections are trimmed since "maxItems: ' + schema.maxItems + '" constraint',
+            //     'style': 'warning'
+            // });
         }
         else {
             modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
@@ -565,7 +565,7 @@ class ArrayField extends React.Component{
         const schema = propSchema.items || {};
         const values = propValue || [];
         const valuesToRender = _.map(values.length === 0 ? [null] : values, function (v, i) { return [v, schema, i]; });
-        const showAddButton = (!propSchema.maxItems) & !isValueNull(values[valuesToRender.length - 1]);
+        const showAddButton = !propSchema.maxItems && !isValueNull(values[valuesToRender.length - 1]);
 
         return(
             <div className="list-of-array-items">
