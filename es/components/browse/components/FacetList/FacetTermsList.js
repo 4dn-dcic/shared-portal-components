@@ -649,7 +649,7 @@ var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
       facetOpen = props.facetOpen,
       facetClosing = props.facetClosing,
       _props$persistentCoun = props.persistentCount,
-      persistentCount = _props$persistentCoun === void 0 ? 2 : _props$persistentCoun,
+      persistentCount = _props$persistentCoun === void 0 ? 10 : _props$persistentCoun,
       onTermClick = props.onTermClick,
       expanded = props.expanded,
       onToggleExpanded = props.onToggleExpanded,
@@ -659,8 +659,6 @@ var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
       resetAll = props.resetAll;
   var _facet$ranges = facet.ranges,
       ranges = _facet$ranges === void 0 ? [] : _facet$ranges;
-  console.log("listOfRanges props", props);
-  console.log("facet", facet);
   /** Create range components and sort by status (selected->omitted->unselected) */
 
   var _useMemo2 = (0, _react.useMemo)(function () {

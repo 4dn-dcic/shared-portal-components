@@ -419,10 +419,8 @@ export const CountIndicator = React.memo(function CountIndicator({ count = 1, co
 
 
 export const ListOfRanges = React.memo(function ListOfRanges(props){
-    const { facet, facetOpen, facetClosing, persistentCount = 2, onTermClick, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal, resetAll } = props;
+    const { facet, facetOpen, facetClosing, persistentCount = 10, onTermClick, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal, resetAll } = props;
     const { ranges = [] } = facet;
-    console.log("listOfRanges props", props);
-    console.log("facet", facet);
 
     /** Create range components and sort by status (selected->omitted->unselected) */
     const { termComponents, activeTermComponents, unselectedTermComponents,
