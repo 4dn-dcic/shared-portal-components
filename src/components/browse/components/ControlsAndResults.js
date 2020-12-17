@@ -184,11 +184,13 @@ export class ControlsAndResults extends React.PureComponent {
  * Paramaterized into own component to allow to swap in different `props.facetListComponent`.
  */
 function DefaultFacetListComponent(props){
-    const { facets, isContextLoading, requestedCompoundFilterSet } = props;
+    const { facets, isContextLoading, requestedCompoundFilterSet, context } = props;
+    const { "@id" : ctxHref = null } = context || {};
+    // If we have an explicit "@id" (ctxHref) then we had a single filter block requested.
     if (Array.isArray(facets) && facets.length > 0) {
         return <FacetList {...props} />;
     }
-    if (requestedCompoundFilterSet) {
+    if (requestedCompoundFilterSet && !ctxHref) {
         // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
         return (
             <div className="facets-container with-header-bg">

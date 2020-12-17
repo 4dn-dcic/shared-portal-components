@@ -147,10 +147,10 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           propTableColumnClassName = _this$props.tableColumnClassName,
           _this$props$allowPost = _this$props.allowPostRequest,
           allowPostRequest = _this$props$allowPost === void 0 ? false : _this$props$allowPost,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"]); // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
 
 
-      var tableColumnClassName = facets === null ? "col-12" : propTableColumnClassName; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
+      var tableColumnClassName = propTableColumnClassName || (facets === null ? "col-12" : undefined); // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
 
       var viewProps = _objectSpread(_objectSpread({}, passProps), {}, {
         aboveTableComponent: aboveTableComponent,

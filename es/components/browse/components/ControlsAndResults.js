@@ -285,13 +285,16 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
 function DefaultFacetListComponent(props) {
   var facets = props.facets,
       isContextLoading = props.isContextLoading,
-      requestedCompoundFilterSet = props.requestedCompoundFilterSet;
+      requestedCompoundFilterSet = props.requestedCompoundFilterSet,
+      context = props.context;
+  var _ref2$Id = (context || {})["@id"],
+      ctxHref = _ref2$Id === void 0 ? null : _ref2$Id; // If we have an explicit "@id" (ctxHref) then we had a single filter block requested.
 
   if (Array.isArray(facets) && facets.length > 0) {
     return /*#__PURE__*/React.createElement(FacetList, props);
   }
 
-  if (requestedCompoundFilterSet) {
+  if (requestedCompoundFilterSet && !ctxHref) {
     // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
     return /*#__PURE__*/React.createElement("div", {
       className: "facets-container with-header-bg"
