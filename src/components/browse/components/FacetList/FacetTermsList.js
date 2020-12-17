@@ -89,6 +89,7 @@ export function mergeTerms(facet, filters){
     return terms.concat(unseenTerms);
 }
 
+/* Used in ListOfTerms and ListOfRanges (RangeFacet) */
 export function segmentComponentsByStatus(termComponents){
     const groups = {};
     termComponents.forEach(function(t){
@@ -195,7 +196,9 @@ Term.propTypes = {
         'doc_count'         : PropTypes.number
     }).isRequired,
     'getTermStatus'     : PropTypes.func.isRequired,
-    'onClick'           : PropTypes.func.isRequired
+    'onClick'           : PropTypes.func.isRequired,
+    'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
+    'termTransformFxn'  : PropTypes.func
 };
 
 
@@ -293,7 +296,6 @@ FacetTermsList.defaultProps = {
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
     const { facet, facetOpen, facetClosing, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn } = props;
-    console.log("listOfRanges props", props);
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
         termComponents, activeTermComponents, unselectedTermComponents,

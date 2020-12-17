@@ -153,6 +153,8 @@ function mergeTerms(facet, filters) {
 
   return terms.concat(unseenTerms);
 }
+/* Used in ListOfTerms and ListOfRanges (RangeFacet) */
+
 
 function segmentComponentsByStatus(termComponents) {
   var groups = {};
@@ -304,7 +306,9 @@ Term.propTypes = {
     'doc_count': _propTypes["default"].number
   }).isRequired,
   'getTermStatus': _propTypes["default"].func.isRequired,
-  'onClick': _propTypes["default"].func.isRequired
+  'onClick': _propTypes["default"].func.isRequired,
+  'status': _propTypes["default"].oneOf(["none", "selected", "omitted"]),
+  'termTransformFxn': _propTypes["default"].func
 };
 
 var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
@@ -469,7 +473,6 @@ var ListOfTerms = /*#__PURE__*/_react["default"].memo(function (props) {
       onToggleExpanded = props.onToggleExpanded,
       getTermStatus = props.getTermStatus,
       termTransformFxn = props.termTransformFxn;
-  console.log("listOfRanges props", props);
   /** Create term components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = (0, _react.useMemo)(function () {
