@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.getRangeValuesFromFiltersByField = getRangeValuesFromFiltersByField;
 exports.RangeTerm = exports.RangeFacet = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
@@ -28,17 +28,23 @@ var _OverlayTrigger = _interopRequireDefault(require("react-bootstrap/esm/Overla
 
 var _LocalizedTime = require("./../../../ui/LocalizedTime");
 
+var _PartialList = require("./../../../ui/PartialList");
+
 var _valueTransforms = require("./../../../util/value-transforms");
 
 var _schemaTransforms = require("./../../../util/schema-transforms");
 
 var _patchedConsole = require("./../../../util/patched-console");
 
-var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
-
 var _FacetTermsList = require("./FacetTermsList");
 
+var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -81,6 +87,20 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function getRangeStatus(range, toVal, fromVal) {
+  var _ref = range || {},
+      _ref$from = _ref.from,
+      from = _ref$from === void 0 ? null : _ref$from,
+      _ref$to = _ref.to,
+      to = _ref$to === void 0 ? null : _ref$to;
+
+  if (to === toVal && from === fromVal) {
+    return "selected";
+  }
+
+  return "none";
+}
 
 function getRangeValuesFromFiltersByField() {
   var facets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
@@ -192,11 +212,11 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         };
       }
 
-      var _ref = increments || {},
-          _ref$from = _ref.from,
-          fromIncrementsOrig = _ref$from === void 0 ? [] : _ref$from,
-          _ref$to = _ref.to,
-          toIncrementsOrig = _ref$to === void 0 ? [] : _ref$to;
+      var _ref2 = increments || {},
+          _ref2$from = _ref2.from,
+          fromIncrementsOrig = _ref2$from === void 0 ? [] : _ref2$from,
+          _ref2$to = _ref2.to,
+          toIncrementsOrig = _ref2$to === void 0 ? [] : _ref2$to;
 
       return {
         "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
@@ -413,8 +433,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref2) {
-        var expanded = _ref2.expanded;
+      this.setState(function (_ref3) {
+        var expanded = _ref3.expanded;
         return {
           'expanded': !expanded
         };
@@ -620,7 +640,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "to_" + field,
         reset: toVal !== null ? this.resetTo : null
-      }))), ranges && ranges.length > 0 ? /*#__PURE__*/_react["default"].createElement(_FacetTermsList.ListOfRanges, _extends({}, this.props, {
+      }))), ranges && ranges.length > 0 ? /*#__PURE__*/_react["default"].createElement(ListOfRanges, _extends({}, this.props, {
         expanded: expanded
       }, {
         onToggleExpanded: this.handleExpandListToggleClick,
@@ -632,12 +652,149 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
   return RangeFacet;
 }(_react["default"].PureComponent);
+
+exports.RangeFacet = RangeFacet;
+
+var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
+  var facet = props.facet,
+      facetOpen = props.facetOpen,
+      facetClosing = props.facetClosing,
+      _props$persistentCoun = props.persistentCount,
+      persistentCount = _props$persistentCoun === void 0 ? 10 : _props$persistentCoun,
+      onTermClick = props.onTermClick,
+      expanded = props.expanded,
+      onToggleExpanded = props.onToggleExpanded,
+      termTransformFxn = props.termTransformFxn,
+      toVal = props.toVal,
+      fromVal = props.fromVal,
+      resetAll = props.resetAll;
+  var _facet$ranges2 = facet.ranges,
+      ranges = _facet$ranges2 === void 0 ? [] : _facet$ranges2;
+  /** Create range components and sort by status (selected->omitted->unselected) */
+
+  var _useMemo = (0, _react.useMemo)(function () {
+    var _segmentComponentsByS = (0, _FacetTermsList.segmentComponentsByStatus)(ranges.map(function (range) {
+      return /*#__PURE__*/_react["default"].createElement(RangeTerm, _extends({
+        facet: facet,
+        range: range,
+        termTransformFxn: termTransformFxn,
+        resetAll: resetAll
+      }, {
+        onClick: onTermClick,
+        key: "".concat(range.to, "-").concat(range.from),
+        status: getRangeStatus(range, toVal, fromVal)
+      }));
+    })),
+        _segmentComponentsByS2 = _segmentComponentsByS.selected,
+        selectedTermComponents = _segmentComponentsByS2 === void 0 ? [] : _segmentComponentsByS2,
+        _segmentComponentsByS3 = _segmentComponentsByS.omitted,
+        omittedTermComponents = _segmentComponentsByS3 === void 0 ? [] : _segmentComponentsByS3,
+        _segmentComponentsByS4 = _segmentComponentsByS.none,
+        unselectedTermComponents = _segmentComponentsByS4 === void 0 ? [] : _segmentComponentsByS4;
+
+    var selectedLen = selectedTermComponents.length;
+    var omittedLen = omittedTermComponents.length;
+    var unselectedLen = unselectedTermComponents.length;
+    var totalLen = selectedLen + omittedLen + unselectedLen;
+    var termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
+    var activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
+    var retObj = {
+      termComponents: termComponents,
+      activeTermComponents: activeTermComponents,
+      unselectedTermComponents: unselectedTermComponents,
+      selectedLen: selectedLen,
+      omittedLen: omittedLen,
+      unselectedLen: unselectedLen,
+      totalLen: totalLen
+    };
+
+    if (totalLen <= Math.max(persistentCount, selectedLen + omittedLen)) {
+      return retObj;
+    }
+
+    retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
+
+    var i;
+
+    for (i = selectedLen + omittedLen; i < persistentCount; i++) {
+      retObj.persistentTerms.push(termComponents[i]);
+    }
+
+    retObj.collapsibleTerms = termComponents.slice(i);
+    retObj.collapsibleTermsCount = totalLen - i;
+    retObj.collapsibleTermsItemCount = retObj.collapsibleTerms.reduce(function (m, termComponent) {
+      return m + (termComponent.props.range.doc_count || 0);
+    }, 0);
+    return retObj;
+  }, [ranges, persistentCount, toVal, fromVal]),
+      termComponents = _useMemo.termComponents,
+      activeTermComponents = _useMemo.activeTermComponents,
+      unselectedTermComponents = _useMemo.unselectedTermComponents,
+      totalLen = _useMemo.totalLen,
+      selectedLen = _useMemo.selectedLen,
+      omittedLen = _useMemo.omittedLen,
+      unselectedLen = _useMemo.unselectedLen,
+      _useMemo$persistentTe = _useMemo.persistentTerms,
+      persistentTerms = _useMemo$persistentTe === void 0 ? null : _useMemo$persistentTe,
+      _useMemo$collapsibleT = _useMemo.collapsibleTerms,
+      collapsibleTerms = _useMemo$collapsibleT === void 0 ? null : _useMemo$collapsibleT,
+      _useMemo$collapsibleT2 = _useMemo.collapsibleTermsCount,
+      collapsibleTermsCount = _useMemo$collapsibleT2 === void 0 ? 0 : _useMemo$collapsibleT2,
+      _useMemo$collapsibleT3 = _useMemo.collapsibleTermsItemCount,
+      collapsibleTermsItemCount = _useMemo$collapsibleT3 === void 0 ? 0 : _useMemo$collapsibleT3;
+
+  var commonProps = {
+    "data-any-active": !!(selectedLen || omittedLen),
+    "data-all-active": totalLen === selectedLen + omittedLen,
+    "data-open": facetOpen,
+    "className": "facet-list",
+    "key": "facetlist"
+  };
+
+  if (Array.isArray(collapsibleTerms) && collapsibleTerms.length > 0) {
+    var expandButtonTitle;
+
+    if (expanded) {
+      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-minus fas"
+      }), " Collapse");
+    } else {
+      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+        className: "icon icon-fw icon-plus fas"
+      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/_react["default"].createElement("span", {
+        className: "pull-right"
+      }, collapsibleTermsItemCount));
+    }
+
+    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+        className: "mb-0",
+        open: expanded,
+        persistent: persistentTerms,
+        collapsible: collapsibleTerms
+      }), /*#__PURE__*/_react["default"].createElement("div", {
+        className: "pt-08 pb-0"
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "view-more-button",
+        onClick: onToggleExpanded
+      }, expandButtonTitle)))
+    }));
+  } else {
+    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: unselectedTermComponents
+    }));
+  }
+});
 /**
  * Used to render a term with range functionality in FacetList. Basically same as FacetTermsList > Term... maybe merge later
  */
 
-
-exports.RangeFacet = RangeFacet;
 
 var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(RangeTerm, _React$PureComponent2);
@@ -687,7 +844,8 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
           range = _this$props9.range,
           facet = _this$props9.facet,
           status = _this$props9.status,
-          termTransformFxn = _this$props9.termTransformFxn;
+          termTransformFxn = _this$props9.termTransformFxn,
+          resetAll = _this$props9.resetAll;
       var doc_count = range.doc_count,
           from = range.from,
           to = range.to,
@@ -702,7 +860,7 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
         });
       } else if (status === 'selected' || status === 'omitted') {
         icon = /*#__PURE__*/_react["default"].createElement("i", {
-          className: "icon icon-minus-circle icon-fw fas"
+          className: "icon icon-dot-circle icon-fw fas"
         });
       } else {
         icon = /*#__PURE__*/_react["default"].createElement("i", {
@@ -714,18 +872,15 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
         title = 'None';
       }
 
-      status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
       return /*#__PURE__*/_react["default"].createElement("li", {
-        className: "facet-list-element "
-        /*+ statusClassName*/
-        ,
+        className: "facet-list-element ",
         key: label,
         "data-key": label
       }, /*#__PURE__*/_react["default"].createElement("a", {
         className: "term",
         "data-selected": status !== 'none',
         href: "#",
-        onClick: this.handleClick,
+        onClick: status === "selected" ? resetAll : this.handleClick,
         "data-term": label
       }, /*#__PURE__*/_react["default"].createElement("span", {
         className: "facet-selector"

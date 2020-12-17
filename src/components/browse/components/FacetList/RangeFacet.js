@@ -1,7 +1,7 @@
 
 'use strict';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
@@ -14,14 +14,21 @@ import Popover from 'react-bootstrap/esm/Popover';
 import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
 
 import { LocalizedTime } from './../../../ui/LocalizedTime';
+import { PartialList } from './../../../ui/PartialList';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
+import { segmentComponentsByStatus } from './FacetTermsList';
 
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
-import { ListOfRanges } from './FacetTermsList';
 
-
+function getRangeStatus(range, toVal, fromVal) {
+    const { from = null, to = null } = range || {};
+    if (to === toVal && from === fromVal) {
+        return "selected";
+    }
+    return "none";
+}
 
 export function getRangeValuesFromFiltersByField(facets = [], filters = []){
     const facetsByFilterField = {};
@@ -471,6 +478,107 @@ export class RangeFacet extends React.PureComponent {
 }
 
 
+const ListOfRanges = React.memo(function ListOfRanges(props){
+    const { facet, facetOpen, facetClosing, persistentCount = 10, onTermClick, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal, resetAll } = props;
+    const { ranges = [] } = facet;
+
+    /** Create range components and sort by status (selected->omitted->unselected) */
+    const { termComponents, activeTermComponents, unselectedTermComponents,
+        totalLen, selectedLen, omittedLen, unselectedLen,
+        persistentTerms = null,
+        collapsibleTerms = null,
+        collapsibleTermsCount = 0,
+        collapsibleTermsItemCount = 0
+    } = useMemo(function(){
+        const {
+            selected: selectedTermComponents    = [],
+            omitted : omittedTermComponents     = [],
+            none    : unselectedTermComponents  = []
+        } = segmentComponentsByStatus(ranges.map(function(range){
+            return <RangeTerm {...{ facet, range, termTransformFxn, resetAll }} onClick={onTermClick} key={`${range.to}-${range.from}`} status={getRangeStatus(range, toVal, fromVal)} />;
+        }));
+
+        const selectedLen = selectedTermComponents.length;
+        const omittedLen = omittedTermComponents.length;
+        const unselectedLen = unselectedTermComponents.length;
+        const totalLen = selectedLen + omittedLen + unselectedLen;
+        const termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
+        const activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
+
+        const retObj = { termComponents, activeTermComponents, unselectedTermComponents, selectedLen, omittedLen, unselectedLen, totalLen };
+
+        if (totalLen <= Math.max(persistentCount, selectedLen + omittedLen)) {
+            return retObj;
+        }
+
+        const unselectedStartIdx = selectedLen + omittedLen;
+        retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
+
+        var i;
+        for (i = unselectedStartIdx; i < persistentCount; i++){
+            retObj.persistentTerms.push(termComponents[i]);
+        }
+
+        retObj.collapsibleTerms = termComponents.slice(i);
+        retObj.collapsibleTermsCount = totalLen - i;
+        retObj.collapsibleTermsItemCount = retObj.collapsibleTerms.reduce(function(m, termComponent){
+            return m + (termComponent.props.range.doc_count || 0);
+        }, 0);
+
+        return retObj;
+
+    }, [ ranges, persistentCount, toVal, fromVal ]);
+
+
+
+    const commonProps = {
+        "data-any-active" : !!(selectedLen || omittedLen),
+        "data-all-active" : totalLen === (selectedLen + omittedLen),
+        "data-open" : facetOpen,
+        "className" : "facet-list",
+        "key" : "facetlist"
+    };
+
+    if (Array.isArray(collapsibleTerms) && collapsibleTerms.length > 0){
+
+        let expandButtonTitle;
+
+        if (expanded){
+            expandButtonTitle = (
+                <span>
+                    <i className="icon icon-fw icon-minus fas"/> Collapse
+                </span>
+            );
+        } else {
+            expandButtonTitle = (
+                <span>
+                    <i className="icon icon-fw icon-plus fas"/> View { collapsibleTermsCount } More
+                    <span className="pull-right">{ collapsibleTermsItemCount }</span>
+                </span>
+            );
+        }
+
+        return (
+            <div {...commonProps}>
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
+                    <React.Fragment>
+                        <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
+                        <div className="pt-08 pb-0">
+                            <div className="view-more-button" onClick={onToggleExpanded}>{ expandButtonTitle }</div>
+                        </div>
+                    </React.Fragment>
+                } />
+            </div>
+        );
+    } else {
+        return (
+            <div {...commonProps}>
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={unselectedTermComponents} />
+            </div>
+        );
+    }
+});
+
 /**
  * Used to render a term with range functionality in FacetList. Basically same as FacetTermsList > Term... maybe merge later
  */
@@ -494,7 +602,7 @@ export class RangeTerm extends React.PureComponent {
     }
 
     render() {
-        const { range, facet, status, termTransformFxn } = this.props;
+        const { range, facet, status, termTransformFxn, resetAll } = this.props;
         const { doc_count, from, to, label } = range;
         const { filtering } = this.state;
         const selected = (status !== 'none');
@@ -509,7 +617,7 @@ export class RangeTerm extends React.PureComponent {
         if (filtering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
-            icon = <i className="icon icon-minus-circle icon-fw fas" />;
+            icon = <i className="icon icon-dot-circle icon-fw fas" />;
         } else {
             icon = <i className="icon icon-circle icon-fw unselected far" />;
         }
@@ -518,10 +626,9 @@ export class RangeTerm extends React.PureComponent {
             title = 'None';
         }
 
-        const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
         return (
-            <li className={"facet-list-element " /*+ statusClassName*/} key={label} data-key={label}>
-                <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={label}>
+            <li className={"facet-list-element "} key={label} data-key={label}>
+                <a className="term" data-selected={selected} href="#" onClick={status === "selected" ? resetAll : this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {label ? `(${label})` : null}</span>
                     <span className="facet-count">{doc_count || 0}</span>
