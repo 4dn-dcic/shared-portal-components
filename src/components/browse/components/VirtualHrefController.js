@@ -194,7 +194,7 @@ export class VirtualHrefController extends React.PureComponent {
                 this.currRequest = null;
 
                 if (typeof total !== "number") {
-                    throw new Error("Did not get back a search response");
+                    throw new Error("Did not get back a search response, request was potentially aborted.");
                 }
 
                 if (typeof globalNavigate.updateUserInfo === "function") {

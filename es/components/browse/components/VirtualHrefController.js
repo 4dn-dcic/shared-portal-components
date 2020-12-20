@@ -269,7 +269,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           _this2.currRequest = null;
 
           if (typeof total !== "number") {
-            throw new Error("Did not get back a search response");
+            throw new Error("Did not get back a search response, request was potentially aborted.");
           }
 
           if (typeof globalNavigate.updateUserInfo === "function") {

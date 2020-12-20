@@ -352,7 +352,8 @@ export var FetchedItem = /*#__PURE__*/function (_React$Component) {
         });
       };
 
-      var onFail = function () {
+      var onFail = function (res) {
+        console.log("CONNECTION ERROR", res);
         Alerts.queue(Alerts.ConnectionError);
         onSuccess(null);
       };
