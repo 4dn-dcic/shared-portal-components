@@ -148,10 +148,11 @@ export var ViewFileButton = /*#__PURE__*/React.memo(function (props) {
     preLink = /*#__PURE__*/React.createElement("i", {
       className: "icon icon-fw icon-file-pdf far"
     });
-  } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx') {
+  } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.xlsx' || fileNameLowerEnds['4'] === '.tgx') {
     action = 'Download';
   }
 
+  var fileType = fileNameLowerEnds['4'];
   var cls = "btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (" btn-" + (bsStyle || variant || "primary"));
 
   var btnProps = _objectSpread(_objectSpread({}, passProps), {}, {
@@ -169,14 +170,21 @@ export var ViewFileButton = /*#__PURE__*/React.memo(function (props) {
     target: target
   });
 
-  return /*#__PURE__*/React.createElement("a", _extends({}, btnProps, {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("a", _extends({}, btnProps, {
     className: cls,
     download: action === 'Download' ? filename || true : null,
     title: filename,
     "data-tip": mimeType
   }), preLink, " ", action, " ", title || filename && /*#__PURE__*/React.createElement("span", {
     className: "text-600"
-  }, filename) || 'File', " ", extLink);
+  }, filename) || 'File', " ", extLink), fileType === '.pdf' ? /*#__PURE__*/React.createElement("a", _extends({}, btnProps, {
+    className: cls,
+    download: true,
+    title: filename,
+    "data-tip": mimeType
+  }), preLink, " ", 'Download', " ", title || filename && /*#__PURE__*/React.createElement("span", {
+    className: "text-600"
+  }, filename) || 'File') : null);
 });
 ViewFileButton.defaultProps = {
   'className': "text-truncate mb-1",

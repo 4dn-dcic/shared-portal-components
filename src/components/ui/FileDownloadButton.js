@@ -105,7 +105,7 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
             extLink = <i className="icon icon-fw icon-external-link fas"/>;
         }
         preLink = <i className="icon icon-fw icon-file-pdf far" />;
-    } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx'){
+    } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' ||  fileNameLowerEnds['4'] === '.xlsx' || fileNameLowerEnds['4'] === '.tgx'){
         action = 'Download';
     }
 
@@ -116,15 +116,24 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
             propClick();
         }
     }
-
+    const fileType=fileNameLowerEnds['4'];
     const useVariant = bsStyle || variant || "primary";
     const cls = ("btn" + (size ? " btn-" + size : "") + (className ? " " + className : "") + (" btn-" + useVariant));
     const btnProps = { ...passProps, onClick, href, mimeType, target };
 
     return (
-        <a {...btnProps} className={cls} download={action === 'Download' ? filename || true : null} title={filename} data-tip={mimeType}>
-            { preLink } { action } { title || (filename && <span className="text-600">{ filename }</span>) || 'File' } { extLink }
-        </a>
+        <React.Fragment>
+            <a {...btnProps} className={cls} download={action === 'Download' ? filename || true : null} title={filename} data-tip={mimeType}>
+                {preLink} {action} {title || (filename && <span className="text-600">{filename}</span>) || 'File'} {extLink}
+            </a>
+            {
+                fileType  === '.pdf' ?
+                    <a {...btnProps} className={cls} download={true} title={filename} data-tip={mimeType}>
+                        {preLink} {'Download'} {title || (filename && <span className="text-600">{filename}</span>) || 'File'}
+                    </a> : null
+            }
+
+        </React.Fragment>
     );
 });
 ViewFileButton.defaultProps = {
