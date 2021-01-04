@@ -149,6 +149,10 @@ export function segmentComponentsByStatus(termComponents) {
  * Used to render individual terms in FacetList.
  */
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
 export var Term = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(Term, _React$PureComponent);
 
@@ -234,11 +238,19 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         });
       } else if (status === 'selected' || status === 'omitted') {
         icon = /*#__PURE__*/React.createElement("i", {
+<<<<<<< HEAD
           className: "icon icon-check-square icon-fw fas"
         });
       } else {
         icon = /*#__PURE__*/React.createElement("i", {
           className: "icon icon-square icon-fw unselected far"
+=======
+          className: "icon icon-minus-circle icon-fw fas"
+        });
+      } else {
+        icon = /*#__PURE__*/React.createElement("i", {
+          className: "icon icon-circle icon-fw unselected far"
+>>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
         });
       }
 
@@ -279,9 +291,13 @@ Term.propTypes = {
     'doc_count': PropTypes.number
   }).isRequired,
   'getTermStatus': PropTypes.func.isRequired,
+<<<<<<< HEAD
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
   'termTransformFxn': PropTypes.func
+=======
+  'onClick': PropTypes.func.isRequired
+>>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
 };
 export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
@@ -445,7 +461,11 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   /** Create term components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = useMemo(function () {
+<<<<<<< HEAD
     var _segmentComponentsByS = segmentComponentsByStatus(terms.map(function (term) {
+=======
+    var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
+>>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
       return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,

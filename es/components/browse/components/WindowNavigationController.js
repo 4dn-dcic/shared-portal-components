@@ -108,6 +108,7 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
           href = _this$props2.href,
           _this$props2$navigate = _this$props2.navigate,
           propNavigate = _this$props2$navigate === void 0 ? navigate : _this$props2$navigate,
+<<<<<<< HEAD
           contextFilters = _this$props2.context.filters;
 
       if (filterObjs.length === 0) {
@@ -144,6 +145,10 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
           propNavigate = _this$props3$navigate === void 0 ? navigate : _this$props3$navigate,
           _this$props3$context$ = _this$props3.context.clear_filters,
           clearFiltersURLOriginal = _this$props3$context$ === void 0 ? null : _this$props3$context$;
+=======
+          _this$props2$context$ = _this$props2.context.clear_filters,
+          clearFiltersURLOriginal = _this$props2$context$ === void 0 ? null : _this$props2$context$;
+>>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
       var clearFiltersURL = clearFiltersURLOriginal;
 
       if (!clearFiltersURL) {
