@@ -1,68 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "ColumnCombiner", {
-  enumerable: true,
-  get: function get() {
-    return _tableCommons.ColumnCombiner;
-  }
-});
-Object.defineProperty(exports, "CustomColumnController", {
-  enumerable: true,
-  get: function get() {
-    return _CustomColumnController.CustomColumnController;
-  }
-});
-Object.defineProperty(exports, "SortController", {
-  enumerable: true,
-  get: function get() {
-    return _SortController.SortController;
-  }
-});
-Object.defineProperty(exports, "SelectedItemsController", {
-  enumerable: true,
-  get: function get() {
-    return _SelectedItemsController.SelectedItemsController;
-  }
-});
-exports.EmbeddedSearchView = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _patchedConsole = require("./../util/patched-console");
-
-var _object = require("./../util/object");
-
-var _tableCommons = require("./components/table-commons");
-
-var _CustomColumnController = require("./components/CustomColumnController");
-
-var _SortController = require("./components/SortController");
-
-var _SelectedItemsController = require("./components/SelectedItemsController");
-
-var _ControlsAndResults = require("./components/ControlsAndResults");
-
-var _typedefs = require("./../util/typedefs");
-
-var _VirtualHrefController = require("./components/VirtualHrefController");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -97,7 +34,23 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
+import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import ReactTooltip from 'react-tooltip';
+import { patchedConsoleInstance as console } from './../util/patched-console';
+import { listToObj as _listToObj } from './../util/object';
+import { basicColumnExtensionMap, ColumnCombiner } from './components/table-commons';
+import { CustomColumnController } from './components/CustomColumnController';
+import { SortController } from './components/SortController';
+import { SelectedItemsController } from './components/SelectedItemsController';
+import { ControlsAndResults } from './components/ControlsAndResults'; // eslint-disable-next-line no-unused-vars
+
+import { SearchResponse, Item, ColumnDefinition, URLParts } from './../util/typedefs';
+import { VirtualHrefController } from './components/VirtualHrefController';
+export { SortController, SelectedItemsController, ColumnCombiner, CustomColumnController };
+export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(EmbeddedSearchView, _React$PureComponent);
 
   var _super = _createSuper(EmbeddedSearchView);
@@ -113,7 +66,7 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
      * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
      */
     value: function listToObj(hideFacetStrs) {
-      return (0, _object.listToObj)(hideFacetStrs.concat(hideFacetStrs.map(function (facetStr) {
+      return _listToObj(hideFacetStrs.concat(hideFacetStrs.map(function (facetStr) {
         return facetStr + "!";
       })));
     }
@@ -127,7 +80,7 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
     _this = _super.call(this, props);
     _this.filterFacetFxn = _this.filterFacetFxn.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      listToObj: (0, _memoizeOne["default"])(EmbeddedSearchView.listToObj)
+      listToObj: memoize(EmbeddedSearchView.listToObj)
     };
     return _this;
   }
@@ -135,7 +88,7 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
   _createClass(EmbeddedSearchView, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _reactTooltip["default"].rebuild();
+      ReactTooltip.rebuild();
     }
   }, {
     key: "filterFacetFxn",
@@ -175,8 +128,9 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           aboveTableComponent = _this$props$aboveTabl === void 0 ? null : _this$props$aboveTabl,
           _this$props$aboveFace = _this$props.aboveFacetListComponent,
           aboveFacetListComponent = _this$props$aboveFace === void 0 ? null : _this$props$aboveFace,
+          facetListComponent = _this$props.facetListComponent,
           _this$props$columnExt = _this$props.columnExtensionMap,
-          columnExtensionMap = _this$props$columnExt === void 0 ? _tableCommons.basicColumnExtensionMap : _this$props$columnExt,
+          columnExtensionMap = _this$props$columnExt === void 0 ? basicColumnExtensionMap : _this$props$columnExt,
           _this$props$onLoad = _this$props.onLoad,
           onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
           _this$props$filterFac = _this$props.filterFacetFxn,
@@ -189,75 +143,87 @@ var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           embeddedTableFooter = _this$props$embeddedT2 === void 0 ? null : _this$props$embeddedT2,
           onClearFiltersVirtual = _this$props.onClearFiltersVirtual,
           isClearFiltersBtnVisible = _this$props.isClearFiltersBtnVisible,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible"]); // If facets are null (hidden/excluded), set table col to be full width of container.
+          facetColumnClassName = _this$props.facetColumnClassName,
+          propTableColumnClassName = _this$props.tableColumnClassName,
+          _this$props$allowPost = _this$props.allowPostRequest,
+          allowPostRequest = _this$props$allowPost === void 0 ? false : _this$props$allowPost,
+          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"]); // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
 
 
-      var tableColumnClassName = facets === null ? "col-12" : undefined; // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
+      var tableColumnClassName = propTableColumnClassName || (facets === null ? "col-12" : undefined); // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
 
       var viewProps = _objectSpread(_objectSpread({}, passProps), {}, {
         aboveTableComponent: aboveTableComponent,
         aboveFacetListComponent: aboveFacetListComponent,
-        tableColumnClassName: tableColumnClassName
+        facetListComponent: facetListComponent,
+        tableColumnClassName: tableColumnClassName,
+        facetColumnClassName: facetColumnClassName
       });
 
       var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "embedded-search-container"
-      }, /*#__PURE__*/_react["default"].createElement(_VirtualHrefController.VirtualHrefController, _extends({
+      }, /*#__PURE__*/React.createElement(VirtualHrefController, _extends({
         searchHref: searchHref,
         facets: facets,
         onLoad: onLoad,
         filterFacetFxn: filterFacetFxn,
         onClearFiltersVirtual: onClearFiltersVirtual,
-        isClearFiltersBtnVisible: isClearFiltersBtnVisible
+        isClearFiltersBtnVisible: isClearFiltersBtnVisible,
+        allowPostRequest: allowPostRequest
       }, {
         key: searchHref || 1
-      }), /*#__PURE__*/_react["default"].createElement(_tableCommons.ColumnCombiner, {
+      }), /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, /*#__PURE__*/_react["default"].createElement(_CustomColumnController.CustomColumnController, _extends({
+      }, /*#__PURE__*/React.createElement(CustomColumnController, _extends({
         windowWidth: windowWidth,
         filterColumnFxn: filterColumnFxn
       }, {
         hiddenColumns: hideColumns
-      }), /*#__PURE__*/_react["default"].createElement(_SortController.SortController, null, embeddedTableHeader, /*#__PURE__*/_react["default"].createElement(_ControlsAndResults.ControlsAndResults, _extends({}, viewProps, {
+      }), /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
       })), embeddedTableFooter)))));
     }
   }]);
 
   return EmbeddedSearchView;
-}(_react["default"].PureComponent);
-
-exports.EmbeddedSearchView = EmbeddedSearchView;
+}(React.PureComponent);
 
 _defineProperty(EmbeddedSearchView, "propTypes", {
   // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
-  'searchHref': _propTypes["default"].string,
+  'searchHref': PropTypes.string,
   // From Redux store; is NOT passed down. Overriden instead.
-  'context': _propTypes["default"].object,
+  'context': PropTypes.object,
   // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
   // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
-  'columns': _propTypes["default"].object,
-  'columnExtensionMap': _propTypes["default"].object,
-  'session': _propTypes["default"].bool.isRequired,
-  'schemas': _propTypes["default"].object,
-  'facets': _propTypes["default"].array,
-  'separateSingleTermFacets': _propTypes["default"].bool.isRequired,
-  'renderDetailPane': _propTypes["default"].func,
-  'detailPane': _propTypes["default"].element,
-  'onLoad': _propTypes["default"].func,
-  'hideFacets': _propTypes["default"].arrayOf(_propTypes["default"].string),
-  'hideColumns': _propTypes["default"].arrayOf(_propTypes["default"].string),
-  'filterFacetFxn': _propTypes["default"].func,
-  'filterColumnFxn': _propTypes["default"].func,
-  'onClearFiltersVirtual': _propTypes["default"].func,
-  'isClearFiltersBtnVisible': _propTypes["default"].func,
-  'embeddedTableHeader': _propTypes["default"].element
+  'columns': PropTypes.object,
+  'columnExtensionMap': PropTypes.object,
+  'session': PropTypes.bool.isRequired,
+  'schemas': PropTypes.object,
+  'facets': PropTypes.array,
+  'separateSingleTermFacets': PropTypes.bool.isRequired,
+  'renderDetailPane': PropTypes.func,
+  'detailPane': PropTypes.element,
+  'onLoad': PropTypes.func,
+  'hideFacets': PropTypes.arrayOf(PropTypes.string),
+  'hideColumns': PropTypes.arrayOf(PropTypes.string),
+  'filterFacetFxn': PropTypes.func,
+  'filterColumnFxn': PropTypes.func,
+  'onClearFiltersVirtual': PropTypes.func,
+  'isClearFiltersBtnVisible': PropTypes.func,
+  'embeddedTableHeader': PropTypes.element,
+  'embeddedTableFooter': PropTypes.element,
+  'aboveTableComponent': PropTypes.element,
+  'aboveFacetListComponent': PropTypes.element,
+  'facetListComponent': PropTypes.element,
+  'facetColumnClassName': PropTypes.string,
+  'tableColumnClassName': PropTypes.string,
+  'allowPostRequest': PropTypes.bool
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {
-  'columnExtensionMap': _tableCommons.basicColumnExtensionMap,
+  'columnExtensionMap': basicColumnExtensionMap,
   'separateSingleTermFacets': true,
   'hideFacets': ["type", "validation_errors.name"],
   'hideColumns': null

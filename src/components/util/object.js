@@ -158,12 +158,20 @@ export function getNestedProperty(object, propertyName, suppressNotFoundError = 
 
             if (Array.isArray(currentNode)){
                 var arrayVals = [];
-                for (var i = 0; i < currentNode.length; i++){
-                    arrayVals.push( findNestedValue(currentNode[i], fieldHierarchyLevels, level) );
+                for (var i = 0; i < currentNode.length; i++) {
+                    if (typeof currentNode[i][fieldHierarchyLevels[level]] !== 'undefined') {
+                        arrayVals.push(findNestedValue(currentNode[i], fieldHierarchyLevels, level));
+                    } else {
+                        arrayVals.push(null);
+                    }
+                }
+                if (!_.any(arrayVals, (val) => val !== null)) {
+                    if (!suppressNotFoundError) throw new Error('Field ' + _.clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
+                    return null;
                 }
                 return arrayVals;
             } else {
-                if (typeof object === 'undefined' || !object) {
+                if (typeof currentNode === 'undefined' || !currentNode) {
                     if (!suppressNotFoundError) throw new Error('Field ' + _.clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
                     return;
                 }

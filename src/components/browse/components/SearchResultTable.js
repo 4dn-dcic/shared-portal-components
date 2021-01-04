@@ -23,7 +23,6 @@ import { getItemTypeTitle } from './../../util/schema-transforms';
 import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style as vizStyle } from './../../viz/utilities';
 import { Alerts } from './../../ui/Alerts';
 
-import { filterOutHiddenCols } from './CustomColumnController';
 import { ResultRowColumnBlockValue } from './table-commons/ResultRowColumnBlockValue';
 import { columnsToColumnDefinitions, getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
 import { HeadersRow } from './table-commons/HeadersRow';
@@ -979,8 +978,8 @@ class DimensioningContainer extends React.PureComponent {
         );
 
         const loadMoreAsYouScrollProps = {
-            ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet'),
-            context, rowHeight, openRowHeight,
+            ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet'),
+            context, navigate, rowHeight, openRowHeight,
             results, openDetailPanes, maxHeight, isOwnPage, fullRowWidth, canLoadMore, anyResults,
             tableContainerWidth, tableContainerScrollLeft, windowWidth, mounted,
             setResults: this.setResults
@@ -988,6 +987,7 @@ class DimensioningContainer extends React.PureComponent {
 
         let headersRow = null;
         let shadowBorderLayer = null;
+        let childrenToShow = null;
 
         if (anyResults) {
             headersRow = <HeadersRow {...headerRowCommonProps} />;
@@ -996,34 +996,35 @@ class DimensioningContainer extends React.PureComponent {
                     setContainerScrollLeft={this.setContainerScrollLeft} fixedPositionArrows={isOwnPage}
                     getScrollContainer={this.getScrollContainer} />
             );
-        }
-
-        const renderChildren = !anyResults ? (
-            <div className="text-center py-5">
-                <h3 className="text-300">No Results</h3>
-            </div>
-        ) : results.map(function(result, idx){
-            const id = itemUtil.atId(result);
-            const detailOpen = openDetailPanes[id] || false;
-            // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
-            // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
-            // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
-            return (
-                <ResultRow {...resultRowCommonProps} {...{ result, id, detailOpen }} rowNumber={idx} key={id}
-                    tableContainerScrollLeft={detailOpen ? tableContainerScrollLeft : 0}/>
-            );
-        });
-
-        if (anyResults && !canLoadMore) {
-            renderChildren.push(
-                <div className="fin search-result-row" key="fin-last-item" style={{
-                    // Account for vertical scrollbar decreasing width of container.
-                    width: tableContainerWidth - (isOwnPage ? 0 : 30),
-                    transform: vizStyle.translate3d(tableContainerScrollLeft)
-                }}>
-                    <div className="inner">
-                        - <span>fin</span> -
+            childrenToShow = results.map(function(result, idx){
+                const id = itemUtil.atId(result);
+                const detailOpen = openDetailPanes[id] || false;
+                // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
+                // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
+                // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
+                return (
+                    <ResultRow {...resultRowCommonProps} {...{ result, id, detailOpen }} rowNumber={idx} key={id}
+                        tableContainerScrollLeft={detailOpen ? tableContainerScrollLeft : 0}/>
+                );
+            });
+            if (!canLoadMore) {
+                childrenToShow.push(
+                    <div className="fin search-result-row" key="fin-last-item" style={{
+                        // Account for vertical scrollbar decreasing width of container.
+                        "width": tableContainerWidth - (isOwnPage ? 0 : 30),
+                        "transform": vizStyle.translate3d(tableContainerScrollLeft)
+                    }}>
+                        <div className="inner">
+                            - <span>fin</span> -
+                        </div>
                     </div>
+                );
+            }
+        } else {
+            childrenToShow = (
+                // If no context, we might not have loaded initial results yet if EmbeddedSearchView
+                <div className="text-center py-5">
+                    <h3 className="text-300">{ context ? "No Results" : "Initializing..." }</h3>
                 </div>
             );
         }
@@ -1034,7 +1035,7 @@ class DimensioningContainer extends React.PureComponent {
                 <div className={"search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')}>
                     { headersRow }
                     <LoadMoreAsYouScroll {...loadMoreAsYouScrollProps}>
-                        { renderChildren }
+                        { childrenToShow }
                     </LoadMoreAsYouScroll>
                     { shadowBorderLayer }
                 </div>
@@ -1115,13 +1116,6 @@ export class SearchResultTable extends React.Component {
         'maxHeight' : 400, // Used only if isOwnPage is false; todo: maybe move this defaultProp definition higher up into EmbeddedSearchView and leave null here.
         'isContextLoading' : false // Used only if isOwnPage is false
     };
-
-    constructor(props){
-        super(props);
-        this.memoized = {
-            filterOutHiddenCols: memoize(filterOutHiddenCols)
-        };
-    }
 
     render(){
         const { context, visibleColumnDefinitions, columnDefinitions, isContextLoading = false, isOwnPage } = this.props;

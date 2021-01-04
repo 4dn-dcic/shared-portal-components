@@ -1,32 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.LogoutController = exports.LoginController = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _reactDom = _interopRequireDefault(require("react-dom"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _Alerts = require("./../../ui/Alerts");
-
-var JWT = _interopRequireWildcard(require("./../../util/json-web-token"));
-
-var _navigate = require("./../../util/navigate");
-
-var _ajax = require("./../../util/ajax");
-
-var _object = require("./../../util/object");
-
-var _analytics = require("./../../util/analytics");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -36,10 +9,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -63,20 +32,22 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import { Alerts } from './../../ui/Alerts';
+import * as JWT from './../../util/json-web-token';
+import { navigate } from './../../util/navigate';
+import { load, fetch } from './../../util/ajax';
+import { itemUtil } from './../../util/object';
+import { event as trackEvent, setUserID } from './../../util/analytics';
 /** Imported in componentDidMount. */
-var Auth0Lock = null; // Manual polyfill for NPM tests, @see https://github.com/facebook/create-react-app/issues/1064
 
-if (!require.ensure) {
-  console.error("No require.ensure present - \nFine if within an NPM test, error if in browser/webpack context.");
-
-  require.ensure = function (deps, cb) {
-    return cb(require);
-  };
-}
+var Auth0Lock = null;
 /** Controls Login process, also shows Registration Modal */
 
-
-var LoginController = /*#__PURE__*/function (_React$PureComponent) {
+export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(LoginController, _React$PureComponent);
 
   var _super = _createSuper(LoginController);
@@ -87,7 +58,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, LoginController);
 
     _this = _super.call(this, props);
-    _this.showLock = _underscore["default"].throttle(_this.showLock.bind(_assertThisInitialized(_this)), 1000, {
+    _this.showLock = _.throttle(_this.showLock.bind(_assertThisInitialized(_this)), 1000, {
       trailing: false
     });
     _this.loginCallback = _this.loginCallback.bind(_assertThisInitialized(_this));
@@ -111,9 +82,11 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           auth0ClientID = _this$props.auth0ClientID,
           auth0Domain = _this$props.auth0Domain,
           auth0Options = _this$props.auth0Options;
-      Promise.resolve().then(function () {
-        return _interopRequireWildcard(require("auth0-lock"));
-      }).then(function (_ref) {
+      import(
+      /* webpackChunkName: "auth0-lock-bundle" */
+
+      /* webpackMode: "lazy" */
+      "auth0-lock").then(function (_ref) {
         var Auth0LockImport = _ref["default"];
         Auth0Lock = Auth0LockImport; // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
         // We import it here in separate bundle instead to avoid issues during server-side render.
@@ -157,7 +130,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         _this3.lock.hide(); // Second stage: get this valid OAuth account (Google or w/e) auth'd from our end.
 
 
-        Promise.race([(0, _ajax.fetch)('/login', {
+        Promise.race([fetch('/login', {
           method: 'POST',
           headers: {
             'Authorization': 'Bearer ' + idToken
@@ -184,7 +157,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 
           console.info('Login completed'); // Fetch user profile and use their primary lab as the eventLabel.
 
-          var profileURL = (_underscore["default"].findWhere(r.user_actions || [], {
+          var profileURL = (_.findWhere(r.user_actions || [], {
             'id': 'profile'
           }) || {}).href;
 
@@ -195,7 +168,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
             // This is used to segment public vs internal audience in Analytics dashboards.
 
 
-            (0, _ajax.load)(profileURL, function (profile) {
+            load(profileURL, function (profile) {
               if (typeof successCallback === 'function') {
                 successCallback(profile);
               }
@@ -208,8 +181,8 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
                   _profile$groups = profile.groups,
                   groups = _profile$groups === void 0 ? null : _profile$groups,
                   lab = profile.lab;
-              (0, _analytics.setUserID)(userId);
-              (0, _analytics.event)('Authentication', 'UILogin', {
+              setUserID(userId);
+              trackEvent('Authentication', 'UILogin', {
                 eventLabel: "Authenticated ClientSide",
                 name: userId,
                 userId: userId,
@@ -219,7 +192,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
               // Attempt to preserve hash, if any, but don't scroll to it.
 
               var windowHash = window && window.location && window.location.hash || '';
-              (0, _navigate.navigate)(windowHash, {
+              navigate(windowHash, {
                 "inPlace": true,
                 "dontScrollToTop": !!windowHash
               });
@@ -239,7 +212,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           }); // Alerts.deQueue(Alerts.LoggedOut);
 
 
-          (0, _analytics.setUserID)(null); // If is programatically called with error CB, let error CB handle everything.
+          setUserID(null); // If is programatically called with error CB, let error CB handle everything.
 
           var errorCallbackFxn = typeof errorCallback === 'function' ? errorCallback : _this3.loginErrorCallback;
           errorCallbackFxn(error);
@@ -251,7 +224,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     value: function loginErrorCallback(error) {
       if (!error.code && error.type === 'timed-out') {
         // Server or network error of some sort most likely.
-        _Alerts.Alerts.queue(_Alerts.Alerts.LoginFailed);
+        Alerts.queue(Alerts.LoginFailed);
       } else if (error.code === 401) {
         // Present a registration form
         //navigate('/error/login-failed');
@@ -259,7 +232,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           'isRegistrationModalVisible': true
         });
       } else {
-        _Alerts.Alerts.queue(_Alerts.Alerts.LoginFailed);
+        Alerts.queue(Alerts.LoginFailed);
       }
     }
   }, {
@@ -275,15 +248,13 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       function (userProfile) {
         var userDetails = JWT.getUserDetails(); // We should have this after /login
 
-        var userProfileURL = userProfile && _object.itemUtil.atId(userProfile);
-
+        var userProfileURL = userProfile && itemUtil.atId(userProfile);
         var userFullName = userDetails.first_name && userDetails.last_name && userDetails.first_name + ' ' + userDetails.last_name || null;
-
-        var msg = /*#__PURE__*/_react["default"].createElement("ul", {
+        var msg = /*#__PURE__*/React.createElement("ul", {
           className: "mb-0"
-        }, /*#__PURE__*/_react["default"].createElement("li", null, "You are now logged in as ", /*#__PURE__*/_react["default"].createElement("span", {
+        }, /*#__PURE__*/React.createElement("li", null, "You are now logged in as ", /*#__PURE__*/React.createElement("span", {
           className: "text-500"
-        }, userFullName, userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email), "."), /*#__PURE__*/_react["default"].createElement("li", null, "Please visit ", /*#__PURE__*/_react["default"].createElement("b", null, /*#__PURE__*/_react["default"].createElement("a", {
+        }, userFullName, userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email), "."), /*#__PURE__*/React.createElement("li", null, "Please visit ", /*#__PURE__*/React.createElement("b", null, /*#__PURE__*/React.createElement("a", {
           href: userProfileURL
         }, "your profile")), " to edit your account settings or information."));
 
@@ -293,7 +264,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         // if component becomes unmounted (which occurs after login).
 
 
-        _Alerts.Alerts.queue({
+        Alerts.queue({
           "title": "Registered & Logged In",
           "message": msg,
           "style": 'success',
@@ -306,9 +277,8 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 
         JWT.remove(); // Cleanup any remaining JWT, just in case.
 
-        (0, _analytics.setUserID)(null);
-
-        _Alerts.Alerts.queue(_Alerts.Alerts.LoginFailed);
+        setUserID(null);
+        Alerts.queue(Alerts.LoginFailed);
       });
     }
   }, {
@@ -332,7 +302,7 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       var showLock = this.showLock,
           onRegistrationCancel = this.onRegistrationCancel,
           onRegistrationComplete = this.onRegistrationComplete;
-      return /*#__PURE__*/_react["default"].cloneElement(children, _objectSpread({
+      return /*#__PURE__*/React.cloneElement(children, _objectSpread({
         isLoading: isLoading,
         isRegistrationModalVisible: isRegistrationModalVisible,
         showLock: showLock,
@@ -343,17 +313,15 @@ var LoginController = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return LoginController;
-}(_react["default"].PureComponent);
-
-exports.LoginController = LoginController;
+}(React.PureComponent);
 
 _defineProperty(LoginController, "propTypes", {
-  'updateUserInfo': _propTypes["default"].func.isRequired,
-  'id': _propTypes["default"].string,
-  'auth0ClientID': _propTypes["default"].string.isRequired,
-  'auth0Domain': _propTypes["default"].string.isRequired,
-  'auth0Options': _propTypes["default"].object,
-  'children': _propTypes["default"].node.isRequired
+  'updateUserInfo': PropTypes.func.isRequired,
+  'id': PropTypes.string,
+  'auth0ClientID': PropTypes.string.isRequired,
+  'auth0Domain': PropTypes.string.isRequired,
+  'auth0Options': PropTypes.object,
+  'children': PropTypes.node.isRequired
 });
 
 _defineProperty(LoginController, "defaultProps", {
@@ -389,7 +357,7 @@ _defineProperty(LoginController, "defaultProps", {
   }
 });
 
-var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
+export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(LogoutController, _React$PureComponent2);
 
   var _super2 = _createSuper(LogoutController);
@@ -428,12 +396,12 @@ var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
 
       JWT.remove(); // Remove from analytics session
 
-      (0, _analytics.setUserID)(null); // Refetch page context without our old JWT to hide any forbidden content.
+      setUserID(null); // Refetch page context without our old JWT to hide any forbidden content.
 
       updateUserInfo(); // Attempt to preserve hash, if any, but don't scroll to it.
 
       var windowHash = window && window.location && window.location.hash || '';
-      (0, _navigate.navigate)(windowHash, {
+      navigate(windowHash, {
         "inPlace": true,
         "dontScrollToTop": !!windowHash
       });
@@ -443,7 +411,7 @@ var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
         document.dispatchEvent(new MouseEvent('click'));
       }
 
-      (0, _analytics.event)('Authentication', 'UILogout', {
+      trackEvent('Authentication', 'UILogout', {
         eventLabel: "Logged Out ClientSide",
         userId: uuid
       });
@@ -455,13 +423,11 @@ var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
           children = _this$props4.children,
           passProps = _objectWithoutProperties(_this$props4, ["children"]);
 
-      return /*#__PURE__*/_react["default"].cloneElement(children, _objectSpread({
+      return /*#__PURE__*/React.cloneElement(children, _objectSpread({
         performLogout: this.performLogout
       }, passProps));
     }
   }]);
 
   return LogoutController;
-}(_react["default"].PureComponent);
-
-exports.LogoutController = LogoutController;
+}(React.PureComponent);

@@ -1,35 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SubmissionViewSearchAsYouTypeAjax = SubmissionViewSearchAsYouTypeAjax;
-exports.SquareButton = exports.LinkedObj = exports.optionCustomizationsByType = exports.SearchAsYouTypeAjax = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
-
-var _util = require("./../../util/");
-
-var _Alerts = require("./../../ui/Alerts");
-
-var _LinkToSelector = require("./LinkToSelector");
-
-var _SearchSelectionMenu = require("./SearchSelectionMenu");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -76,7 +44,16 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
+import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import ReactTooltip from 'react-tooltip';
+import Fade from 'react-bootstrap/esm/Fade';
+import { ajax, object } from './../../util/';
+import { Alerts } from './../../ui/Alerts';
+import { LinkToSelector } from './LinkToSelector';
+import { SearchSelectionMenu } from './SearchSelectionMenu';
+export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchAsYouTypeAjax, _React$PureComponent);
 
   var _super = _createSuper(SearchAsYouTypeAjax);
@@ -96,7 +73,7 @@ var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
     };
     _this.currentRequest = null;
     _this.hasBeenOpened = false;
-    _this.onLoadData = _underscore["default"].debounce(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
+    _this.onLoadData = _.debounce(_this.onLoadData.bind(_assertThisInitialized(_this)), 500, false);
     _this.constructFetchURL = _this.constructFetchURL.bind(_assertThisInitialized(_this));
     _this.onTextInputChange = _this.onTextInputChange.bind(_assertThisInitialized(_this));
     _this.onDropdownSelect = _this.onDropdownSelect.bind(_assertThisInitialized(_this));
@@ -113,7 +90,7 @@ var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       var results = this.state.results;
 
       if (results !== pastResults) {
-        _reactTooltip["default"].rebuild();
+        ReactTooltip.rebuild();
       }
 
       if (pastSelectedID !== selectedID) {
@@ -169,7 +146,7 @@ var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
           _this2.currentRequest.abort && _this2.currentRequest.abort();
         }
 
-        var requestInThisScope = _this2.currentRequest = _util.ajax.load(_this2.constructFetchURL(), function (response) {
+        var requestInThisScope = _this2.currentRequest = ajax.load(_this2.constructFetchURL(), function (response) {
           if (requestInThisScope !== _this2.currentRequest) {
             return false; // some other request has been fired; cancel this one
           }
@@ -270,21 +247,21 @@ var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       });
 
       if (loading && !error) {
-        optionsHeader = /*#__PURE__*/_react["default"].createElement("div", {
+        optionsHeader = /*#__PURE__*/React.createElement("div", {
           className: "text-center py-3"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-spin icon-circle-notch fas"
         }));
       } else {
         if (results.length === 0 && !error) {
           var queryLen = currentTextValue.length;
-          optionsHeader = /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("em", {
+          optionsHeader = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("em", {
             className: "d-block text-center px-4 py-3"
           }, queryLen == 1 ? "Minimum search length is 2 characters" : "No results found"), optionsHeader);
         } else if (error) {
-          optionsHeader = /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("em", {
+          optionsHeader = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("em", {
             className: "d-block text-center px-4 py-3"
-          }, /*#__PURE__*/_react["default"].createElement("i", {
+          }, /*#__PURE__*/React.createElement("i", {
             className: "fas icon-warning icon"
           }), " ", error), optionsHeader);
         }
@@ -293,7 +270,7 @@ var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       var intKey = parseInt(value); // if in the middle of editing a custom linked object for this field
 
       var hideButton = value && !isNaN(value) && !keyComplete[intKey];
-      return hideButton ? null : /*#__PURE__*/_react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
+      return hideButton ? null : /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue
       }, {
@@ -307,31 +284,29 @@ var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return SearchAsYouTypeAjax;
-}(_react["default"].PureComponent);
-
-exports.SearchAsYouTypeAjax = SearchAsYouTypeAjax;
+}(React.PureComponent);
 SearchAsYouTypeAjax.propTypes = {
-  value: _propTypes["default"].any,
-  onChange: _propTypes["default"].func,
+  value: PropTypes.any,
+  onChange: PropTypes.func,
   baseHref: function baseHref(props, propName, componentName) {
     if (props[propName] && !props[propName].match("^/search/?type=(.+)?$")) {
       return new Error("Invalid prop '".concat(propName, "' supplied to ").concat(componentName, ". Validation failed."));
     }
   },
-  fieldsToRequest: _propTypes["default"].arrayOf(_propTypes["default"].string),
-  titleRenderFunction: _propTypes["default"].func
+  fieldsToRequest: PropTypes.arrayOf(PropTypes.string),
+  titleRenderFunction: PropTypes.func
 };
 SearchAsYouTypeAjax.defaultProps = {
   "optionRenderFunction": function optionRenderFunction(result) {
     var title = result.display_title,
         atID = result["@id"],
         description = result.description;
-    return /*#__PURE__*/_react["default"].createElement("div", {
+    return /*#__PURE__*/React.createElement("div", {
       "data-tip": description,
       key: atID
-    }, /*#__PURE__*/_react["default"].createElement("h5", {
+    }, /*#__PURE__*/React.createElement("h5", {
       className: "text-300 text-truncate"
-    }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+    }, title), /*#__PURE__*/React.createElement("h6", {
       className: "text-mono text-400 text-truncate"
     }, atID));
   },
@@ -347,7 +322,7 @@ SearchAsYouTypeAjax.defaultProps = {
  * the LinkedObj component which renders the "Create New" & "Advanced Search" buttons.
  */
 
-function SubmissionViewSearchAsYouTypeAjax(props) {
+export function SubmissionViewSearchAsYouTypeAjax(props) {
   var selectComplete = props.selectComplete,
       nestedField = props.nestedField,
       value = props.value,
@@ -366,7 +341,7 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
   var optionRenderFunction = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].render ? optionCustomizationsByType[itemType].render : null) || SearchAsYouTypeAjax.defaultProps.optionRenderFunction; // Retrieves the appropriate fields based on item type
 
   var fieldsToRequest = (optionCustomizationsByType[itemType] && optionCustomizationsByType[itemType].fieldsToRequest ? optionCustomizationsByType[itemType].fieldsToRequest : null) || SearchAsYouTypeAjax.defaultProps.fieldsToRequest;
-  var onChange = (0, _react.useMemo)(function () {
+  var onChange = useMemo(function () {
     return function (resultItem, valueToReplace) {
       // console.log("calling SubmissionViewSearchAsYouType onchange", arrayIdx);
       return selectComplete(resultItem['@id'], nestedField, itemType, arrayIdx, resultItem.display_title, valueToReplace);
@@ -374,14 +349,14 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
   }, [selectComplete, nestedField, itemType, arrayIdx]); // Uses idToTitleMap (similar to SubmissionView.keyDisplay) to keep track of & render display_titles
   // for previously seen objects
 
-  var titleRenderFunction = (0, _react.useMemo)(function () {
+  var titleRenderFunction = useMemo(function () {
     return function (resultAtID) {
       return idToTitleMap[resultAtID] || resultAtID;
     };
   }, [idToTitleMap]);
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "d-flex flex-wrap"
-  }, /*#__PURE__*/_react["default"].createElement(SearchAsYouTypeAjax, _extends({
+  }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, _extends({
     showTips: true
   }, {
     value: value,
@@ -391,7 +366,7 @@ function SubmissionViewSearchAsYouTypeAjax(props) {
     fieldsToRequest: fieldsToRequest,
     titleRenderFunction: titleRenderFunction,
     selectComplete: selectComplete
-  }, props)), /*#__PURE__*/_react["default"].createElement(LinkedObj, _extends({
+  }, props)), /*#__PURE__*/React.createElement(LinkedObj, _extends({
     key: "linked-item"
   }, props, {
     value: value,
@@ -404,22 +379,22 @@ function sexToIcon(sex, showTip) {
 
   if (sex && typeof sex === "string") {
     if (sex === "f") {
-      sex = /*#__PURE__*/_react["default"].createElement("i", {
+      sex = /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-venus fas",
         "data-tip": showTip ? "Sex: Female" : ""
       });
     } else if (sex === "m") {
-      sex = /*#__PURE__*/_react["default"].createElement("i", {
+      sex = /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-mars fas",
         "data-tip": showTip ? "Sex: Male" : ""
       });
     } else if (sex === "u") {
-      sex = /*#__PURE__*/_react["default"].createElement("i", {
+      sex = /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-genderless fas",
         "data-tip": showTip ? "Sex: Unknown" : ""
       });
     } else {
-      sex = /*#__PURE__*/_react["default"].createElement("i", {
+      sex = /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-question fas",
         "data-tip": showTip ? "Sex: N/A" : ""
       });
@@ -429,7 +404,7 @@ function sexToIcon(sex, showTip) {
   return sex;
 }
 
-var optionCustomizationsByType = {
+export var optionCustomizationsByType = {
   "Institution": {
     // "render" is same as default
     "fieldsToRequest": []
@@ -448,21 +423,21 @@ var optionCustomizationsByType = {
       return (
         /*#__PURE__*/
         // need to better align right col, and adjust relative widths
-        _react["default"].createElement("div", {
+        React.createElement("div", {
           "data-tip": description,
           key: atID,
           className: "d-flex"
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "col"
-        }, /*#__PURE__*/_react["default"].createElement("h5", {
+        }, /*#__PURE__*/React.createElement("h5", {
           className: "text-300"
-        }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+        }, title), /*#__PURE__*/React.createElement("h6", {
           className: "text-mono text-400"
-        }, aliases)), /*#__PURE__*/_react["default"].createElement("div", {
+        }, aliases)), /*#__PURE__*/React.createElement("div", {
           className: "col"
-        }, /*#__PURE__*/_react["default"].createElement("h5", {
+        }, /*#__PURE__*/React.createElement("h5", {
           className: "text-300"
-        }, "Age: ", age || "N/A"), /*#__PURE__*/_react["default"].createElement("h6", {
+        }, "Age: ", age || "N/A"), /*#__PURE__*/React.createElement("h6", {
           className: "text-mono text-400"
         }, " Sex: ", sexToIcon(sex, false), " ")))
       );
@@ -475,12 +450,12 @@ var optionCustomizationsByType = {
           atID = result["@id"],
           description = result.description,
           accession = result.accession;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "text-300 text-truncate"
-      }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+      }, title), /*#__PURE__*/React.createElement("h6", {
         className: "text-mono text-400 text-truncate"
       }, accession));
     },
@@ -495,12 +470,12 @@ var optionCustomizationsByType = {
           role = result.role,
           first_name = result.first_name,
           last_name = result.last_name;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "text-300 w-100"
-      }, title, " (", first_name, " ", last_name, ")"), /*#__PURE__*/_react["default"].createElement("h6", {
+      }, title, " (", first_name, " ", last_name, ")"), /*#__PURE__*/React.createElement("h6", {
         className: "text-mono text-400"
       }, email));
     },
@@ -514,12 +489,12 @@ var optionCustomizationsByType = {
           status = result.status,
           date_created = result.date_created,
           submitted_by = result.submitted_by;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "text-300 text-truncate"
-      }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+      }, title), /*#__PURE__*/React.createElement("h6", {
         className: "text-mono text-400 text-truncate"
       }, atID));
     },
@@ -533,12 +508,12 @@ var optionCustomizationsByType = {
           status = result.status,
           date_created = result.date_created,
           submitted_by = result.submitted_by;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "text-300 text-truncate"
-      }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+      }, title), /*#__PURE__*/React.createElement("h6", {
         className: "text-mono text-400 text-truncate"
       }, atID));
     },
@@ -550,12 +525,12 @@ var optionCustomizationsByType = {
           atID = result["@id"],
           description = result.description,
           hpo_id = result.hpo_id;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         "data-tip": description,
         key: atID
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "text-300 text-truncate"
-      }, title), /*#__PURE__*/_react["default"].createElement("h6", {
+      }, title), /*#__PURE__*/React.createElement("h6", {
         className: "text-mono text-400"
       }, hpo_id));
     },
@@ -564,9 +539,7 @@ var optionCustomizationsByType = {
 };
 /** Case for a linked object. */
 
-exports.optionCustomizationsByType = optionCustomizationsByType;
-
-var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
+export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(LinkedObj, _React$PureComponent2);
 
   var _super2 = _createSuper(LinkedObj);
@@ -591,7 +564,7 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
       }
 
       if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
-        return _underscore["default"].every(arrayIdx, function (arrIdx, arrIdxIdx) {
+        return _.every(arrayIdx, function (arrIdx, arrIdxIdx) {
           return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
         });
       }
@@ -622,7 +595,7 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
   _createClass(LinkedObj, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
-      _reactTooltip["default"].rebuild();
+      ReactTooltip.rebuild();
     }
   }, {
     key: "setSubmissionStateToLinkedToItem",
@@ -663,7 +636,7 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
           selectComplete = _this$props6.selectComplete,
           isMultiSelect = _this$props6.isMultiSelect;
 
-      if (!items || !Array.isArray(items) || items.length === 0 || !_underscore["default"].every(items, function (item) {
+      if (!items || !Array.isArray(items) || items.length === 0 || !_.every(items, function (item) {
         return item.id && typeof item.id === 'string' && item.json;
       })) {
         return;
@@ -683,29 +656,26 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
 
         atIds = [atId];
       } else {
-        atIds = _underscore["default"].pluck(items, "id");
+        atIds = _.pluck(items, "id");
       } // Check validity of item IDs, and handle items with invalid IDs/URLs
 
 
       var invalidTitle = "Invalid Item Selected";
 
-      if (_underscore["default"].every(atIds, function (atId) {
-        var isValidAtId = _util.object.isValidAtIDFormat(atId);
-
+      if (_.every(atIds, function (atId) {
+        var isValidAtId = object.isValidAtIDFormat(atId);
         return atId && isValidAtId;
       })) {
-        _Alerts.Alerts.deQueue({
+        Alerts.deQueue({
           'title': invalidTitle
         });
-
         selectComplete(atIds); // submit the values
       } else {
-        _Alerts.Alerts.queue({
+        Alerts.queue({
           'title': invalidTitle,
           'message': "You have selected an item or link which doesn't have a valid 4DN ID or URL associated with it. Please try again.",
           'style': 'danger'
         });
-
         throw new Error('No valid @id available.');
       }
     }
@@ -754,15 +724,13 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
           isMultiSelect = _this$props8.isMultiSelect;
       var itemType = schema && schema.linkTo;
       var prettyTitle = schema && (schema.parentSchema && schema.parentSchema.title || schema.title);
-
-      var message = /*#__PURE__*/_react["default"].createElement("div", null, !isMultiSelect ? /*#__PURE__*/_react["default"].createElement("p", {
+      var message = /*#__PURE__*/React.createElement("div", null, !isMultiSelect ? /*#__PURE__*/React.createElement("p", {
         className: "mb-0"
-      }, "Please either select an Item below and click ", /*#__PURE__*/_react["default"].createElement("em", null, "Apply"), " or ", /*#__PURE__*/_react["default"].createElement("em", null, "drag and drop"), " an Item (row) from this window into the submissions window.") : /*#__PURE__*/_react["default"].createElement("p", {
+      }, "Please either select an Item below and click ", /*#__PURE__*/React.createElement("em", null, "Apply"), " or ", /*#__PURE__*/React.createElement("em", null, "drag and drop"), " an Item (row) from this window into the submissions window.") : /*#__PURE__*/React.createElement("p", {
         className: "mb-0"
-      }, "Please select the Item(s) you would like and then press ", /*#__PURE__*/_react["default"].createElement("em", null, "Apply"), " below."), /*#__PURE__*/_react["default"].createElement("p", {
+      }, "Please select the Item(s) you would like and then press ", /*#__PURE__*/React.createElement("em", null, "Apply"), " below."), /*#__PURE__*/React.createElement("p", {
         className: "mb-0"
       }, "You may use facets on the left-hand side to narrow down results."));
-
       return {
         title: 'Selecting ' + itemType + ' for field ' + (prettyTitle ? prettyTitle + ' ("' + nestedField + '")' : '"' + nestedField + '"'),
         message: message,
@@ -791,7 +759,7 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
         }
       }
 
-      return /*#__PURE__*/_react["default"].createElement(_LinkToSelector.LinkToSelector, _extends({
+      return /*#__PURE__*/React.createElement(LinkToSelector, _extends({
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
         onCloseChildWindow: selectCancel,
@@ -805,21 +773,21 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "renderButtons",
     value: function renderButtons() {
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "linked-object-buttons-container"
-      }, /*#__PURE__*/_react["default"].createElement("button", {
+      }, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-outline-secondary adv-search",
         "data-tip": "Advanced Search",
         onClick: this.handleStartSelectItem
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-search fas"
-      })), /*#__PURE__*/_react["default"].createElement("button", {
+      })), /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-outline-secondary create-new-obj",
         "data-tip": "Create New",
         onClick: this.handleCreateNewItemClick
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-file-medical fas"
       })));
     }
@@ -843,7 +811,7 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
 
 
       if (value) {
-        var thisDisplay = keyDisplay[value] ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, keyDisplay[value], /*#__PURE__*/_react["default"].createElement("code", null, value)) : /*#__PURE__*/_react["default"].createElement("code", null, value);
+        var thisDisplay = keyDisplay[value] ? /*#__PURE__*/React.createElement(React.Fragment, null, keyDisplay[value], /*#__PURE__*/React.createElement("code", null, value)) : /*#__PURE__*/React.createElement("code", null, value);
 
         if (isNaN(value)) {
           return this.renderButtons();
@@ -854,19 +822,19 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
           // string once the obj is successfully submitted
 
           if (keyComplete[intKey]) {
-            return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("a", {
+            return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("a", {
               href: keyComplete[intKey],
               target: "_blank",
               rel: "noopener noreferrer"
-            }, thisDisplay), /*#__PURE__*/_react["default"].createElement("i", {
+            }, thisDisplay), /*#__PURE__*/React.createElement("i", {
               className: "icon icon-fw icon-external-link-alt ml-05 fas"
             }));
           } else {
-            return /*#__PURE__*/_react["default"].createElement("div", {
+            return /*#__PURE__*/React.createElement("div", {
               className: "incomplete-linked-object-display-container text-truncate"
-            }, /*#__PURE__*/_react["default"].createElement("i", {
+            }, /*#__PURE__*/React.createElement("i", {
               className: "icon icon-fw icon-edit far"
-            }), "\xA0\xA0", /*#__PURE__*/_react["default"].createElement("a", {
+            }), "\xA0\xA0", /*#__PURE__*/React.createElement("a", {
               href: "#",
               onClick: this.setSubmissionStateToLinkedToItem,
               "data-tip": "Continue editing/submitting"
@@ -881,11 +849,8 @@ var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
 
   return LinkedObj;
-}(_react["default"].PureComponent);
-
-exports.LinkedObj = LinkedObj;
-
-var SquareButton = /*#__PURE__*/_react["default"].memo(function (props) {
+}(React.PureComponent);
+export var SquareButton = /*#__PURE__*/React.memo(function (props) {
   var show = props.show,
       disabled = props.disabled,
       onClick = props.onClick,
@@ -902,26 +867,24 @@ var SquareButton = /*#__PURE__*/_react["default"].memo(function (props) {
     btnCls += " btn-" + bsStyle;
   }
 
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "remove-button-column" + (!show ? ' hidden' : ''),
     style: style
-  }, /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+  }, /*#__PURE__*/React.createElement(Fade, {
     "in": show
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: outerCls
-  }, /*#__PURE__*/_react["default"].createElement("button", {
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
     disabled: disabled || !show,
     onClick: onClick,
     "data-tip": tip,
     tabIndex: 2,
     className: btnCls
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-" + icon
   })))));
 });
-
-exports.SquareButton = SquareButton;
 SquareButton.defaultProps = {
   'bsStyle': 'danger',
   'icon': 'times fas',

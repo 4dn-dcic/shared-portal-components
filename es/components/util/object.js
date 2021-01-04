@@ -1,65 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.atIdFromObject = atIdFromObject;
-exports.linkFromItem = linkFromItem;
-exports.mapToObject = mapToObject;
-exports.listToObj = listToObj;
-exports.tipsFromSchema = tipsFromSchema;
-exports.tipsFromSchemaByType = tipsFromSchemaByType;
-exports.listFromTips = listFromTips;
-exports.getNestedProperty = getNestedProperty;
-exports.isValidJSON = isValidJSON;
-exports.generateSparseNestedProperty = generateSparseNestedProperty;
-exports.deepExtend = deepExtend;
-exports.extendChildren = extendChildren;
-exports.deepClone = deepClone;
-exports.htmlToJSX = htmlToJSX;
-exports.isValidAtIDFormat = isValidAtIDFormat;
-exports.isAnItem = isAnItem;
-exports.randomId = randomId;
-exports.assertUUID = assertUUID;
-exports.isUUID = isUUID;
-exports.isAccessionRegex = isAccessionRegex;
-exports.singleTreatment = singleTreatment;
-exports.TooltipInfoIconContainer = TooltipInfoIconContainer;
-exports.TooltipInfoIconContainerAuto = TooltipInfoIconContainerAuto;
-exports.itemUtil = exports.saferMD5 = exports.CopyWrapper = void 0;
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _react = _interopRequireDefault(require("react"));
-
-var _reactDom = _interopRequireDefault(require("react-dom"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _htmlToDomServer = _interopRequireDefault(require("html-dom-parser/lib/html-to-dom-server"));
-
-var _domToReact = _interopRequireDefault(require("html-react-parser/lib/dom-to-react"));
-
-var _jsMd = _interopRequireDefault(require("js-md5"));
-
-var _patchedConsole = require("./patched-console");
-
-var _schemaTransforms = require("./schema-transforms");
-
-var analytics = _interopRequireWildcard(require("./analytics"));
-
-var _url = _interopRequireDefault(require("url"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -106,29 +46,40 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+import _ from 'underscore';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
+import ReactTooltip from 'react-tooltip';
+import memoize from 'memoize-one';
+import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
+import domToReact from 'html-react-parser/lib/dom-to-react';
+import md5 from 'js-md5';
+import { patchedConsoleInstance as console } from './patched-console';
+import { getSchemaProperty } from './schema-transforms';
+import * as analytics from './analytics';
+import url from 'url';
 /**
  * Get '@id' from param 'object' if it exists
  *
  * @param {Object} o - Must have an'@id' property. Else will return null.
  * @returns {string|null} The Item's '@id'.
  */
-function atIdFromObject(o) {
+
+export function atIdFromObject(o) {
   if (!o) return null;
   if (_typeof(o) !== 'object') return null;
   if (typeof o['@id'] === 'string') return o['@id'];
 
   if (typeof o.link_id === 'string') {
     var atId = o.link_id.replace(/~/g, "/");
-
-    _patchedConsole.patchedConsoleInstance.warn("Found a link_id but not an @id for " + atId);
-
+    console.warn("Found a link_id but not an @id for " + atId);
     return atId;
   }
 
   return null;
 }
-
-function linkFromItem(item) {
+export function linkFromItem(item) {
   var addDescriptionTip = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   var propertyForTitle = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'display_title';
   var elementProps = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
@@ -138,15 +89,15 @@ function linkFromItem(item) {
 
   if (!href || !title) {
     if (item && _typeof(item) === 'object' && typeof item.error === 'string') {
-      return /*#__PURE__*/_react["default"].createElement("em", null, item.error);
+      return /*#__PURE__*/React.createElement("em", null, item.error);
     } // Uh oh, probably not an Item
 
 
-    if (!suppressErrors) _patchedConsole.patchedConsoleInstance.error("Could not get atId for Item", item);
+    if (!suppressErrors) console.error("Could not get atId for Item", item);
     return null;
   }
 
-  var propsToInclude = elementProps && _underscore["default"].clone(elementProps);
+  var propsToInclude = elementProps && _.clone(elementProps);
 
   if (typeof propsToInclude.key === 'undefined') {
     propsToInclude.key = href;
@@ -157,7 +108,7 @@ function linkFromItem(item) {
     propsToInclude.className = (propsToInclude.className || '') + ' d-inline-block';
   }
 
-  return /*#__PURE__*/_react["default"].createElement("a", _extends({
+  return /*#__PURE__*/React.createElement("a", _extends({
     href: href
   }, propsToInclude), title);
 }
@@ -166,8 +117,7 @@ function linkFromItem(item) {
  * @see https://gist.github.com/lukehorvat/133e2293ba6ae96a35ba#gistcomment-2655752 re: performance
  */
 
-
-function mapToObject(esMap) {
+export function mapToObject(esMap) {
   var retObj = {};
 
   var _iterator = _createForOfIteratorHelper(esMap),
@@ -193,8 +143,7 @@ function mapToObject(esMap) {
  * Convert an array of strings into {Object<string,bool>}.
  */
 
-
-function listToObj(listOfStrings) {
+export function listToObj(listOfStrings) {
   var listLen = listOfStrings.length;
   var obj = {};
 
@@ -211,8 +160,7 @@ function listToObj(listOfStrings) {
  * @deprecated Use object destructuring from schemas instead, e.g. const { [content['@type'][0]] : { properties: expSetSchemaProperties } } = schemas;
  */
 
-
-function tipsFromSchema(schemas, content) {
+export function tipsFromSchema(schemas, content) {
   if (content['@type'] && Array.isArray(content['@type']) && content['@type'].length > 0) {
     content['@type'][0];
     return tipsFromSchemaByType(schemas, content['@type'][0]);
@@ -225,8 +173,7 @@ function tipsFromSchema(schemas, content) {
  * @deprecated Use object destructuring from schemas instead, e.g. const { ExperimentSet: { properties: expSetSchemaProperties } } = schemas;
  */
 
-
-function tipsFromSchemaByType(schemas) {
+export function tipsFromSchemaByType(schemas) {
   var itemType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ExperimentSet';
   var tips = {};
 
@@ -243,10 +190,9 @@ function tipsFromSchemaByType(schemas) {
  * 'key', 'title', 'description'
  */
 
-
-function listFromTips(tips) {
-  return _underscore["default"].map(_underscore["default"].pairs(tips), function (p) {
-    return _underscore["default"].extend(_underscore["default"].omit(p[1], 'key'), {
+export function listFromTips(tips) {
+  return _.map(_.pairs(tips), function (p) {
+    return _.extend(_.omit(p[1], 'key'), {
       'key': p[0]
     });
   });
@@ -262,25 +208,20 @@ function listFromTips(tips) {
  * @return {?any} Value corresponding to propertyName.
  */
 
-
-function getNestedProperty(object, propertyName) {
+export function getNestedProperty(object, propertyName) {
   var suppressNotFoundError = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   var errorMsg;
   if (typeof propertyName === 'string') propertyName = propertyName.split('.');
 
   if (!Array.isArray(propertyName)) {
     errorMsg = 'Using improper propertyName "' + propertyName + '" in object.getNestedProperty.';
-
-    _patchedConsole.patchedConsoleInstance.error(errorMsg);
-
+    console.error(errorMsg);
     return null;
   }
 
   if (!object || _typeof(object) !== 'object') {
     errorMsg = 'Not valid object.';
-
-    _patchedConsole.patchedConsoleInstance.error(errorMsg);
-
+    console.error(errorMsg);
     return null;
   }
 
@@ -293,13 +234,24 @@ function getNestedProperty(object, propertyName) {
         var arrayVals = [];
 
         for (var i = 0; i < currentNode.length; i++) {
-          arrayVals.push(findNestedValue(currentNode[i], fieldHierarchyLevels, level));
+          if (typeof currentNode[i][fieldHierarchyLevels[level]] !== 'undefined') {
+            arrayVals.push(findNestedValue(currentNode[i], fieldHierarchyLevels, level));
+          } else {
+            arrayVals.push(null);
+          }
+        }
+
+        if (!_.any(arrayVals, function (val) {
+          return val !== null;
+        })) {
+          if (!suppressNotFoundError) throw new Error('Field ' + _.clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
+          return null;
         }
 
         return arrayVals;
       } else {
-        if (typeof object === 'undefined' || !object) {
-          if (!suppressNotFoundError) throw new Error('Field ' + _underscore["default"].clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
+        if (typeof currentNode === 'undefined' || !currentNode) {
+          if (!suppressNotFoundError) throw new Error('Field ' + _.clone(fieldHierarchyLevels).splice(0, level + 1).join('.') + ' not found on object.');
           return;
         }
 
@@ -308,7 +260,7 @@ function getNestedProperty(object, propertyName) {
     }(object, propertyName);
   } catch (e) {
     errorMsg = 'Could not get ' + propertyName.join('.') + ' from nested object.';
-    if (!suppressNotFoundError) _patchedConsole.patchedConsoleInstance.warn(errorMsg);
+    if (!suppressNotFoundError) console.warn(errorMsg);
     return null;
   }
 }
@@ -320,8 +272,7 @@ function getNestedProperty(object, propertyName) {
  * @todo Research if a more performant option might exist for this.
  */
 
-
-function isValidJSON(content) {
+export function isValidJSON(content) {
   var isJson = true;
 
   try {
@@ -345,8 +296,7 @@ function isValidJSON(content) {
  *   { human : { body : { leftArm : { indexFinger : 'Orange' } } } }
  */
 
-
-function generateSparseNestedProperty(field, value) {
+export function generateSparseNestedProperty(field, value) {
   if (typeof field === 'string') field = field.split('.');
   if (!Array.isArray(field)) throw new Error("Could not create nested field in object. Check field name.");
   var currObj = {};
@@ -365,8 +315,7 @@ function generateSparseNestedProperty(field, value) {
  * @returns {boolean} False if failed.
  */
 
-
-function deepExtend(hostObj, nestedObj) {
+export function deepExtend(hostObj, nestedObj) {
   var maxDepth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
   var currentDepth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
   var nKey = Object.keys(nestedObj)[0]; // Should only be 1.
@@ -407,22 +356,21 @@ function deepExtend(hostObj, nestedObj) {
  * All arguments MUST be objects with objects as children.
  */
 
-
-function extendChildren() {
+export function extendChildren() {
   var args = Array.from(arguments),
       argsLen = args.length;
   if (args.length < 2) return args[0];
   var hostObj = args[0] || {},
       // Allow null to be first arg, because why not.
-  allKeys = Array.from(_underscore["default"].reduce(args.slice(1), function (m, obj) {
-    _underscore["default"].forEach(_underscore["default"].keys(obj), function (k) {
+  allKeys = Array.from(_.reduce(args.slice(1), function (m, obj) {
+    _.forEach(_.keys(obj), function (k) {
       m.add(k);
     });
 
     return m;
   }, new Set()));
 
-  _underscore["default"].forEach(allKeys, function (childProperty) {
+  _.forEach(allKeys, function (childProperty) {
     for (var objIndex = 0; objIndex < argsLen; objIndex++) {
       var currObjToCopyFrom = args[objIndex];
 
@@ -431,7 +379,7 @@ function extendChildren() {
           hostObj[childProperty] = {};
         }
 
-        _underscore["default"].extend(hostObj[childProperty], currObjToCopyFrom[childProperty]);
+        _.extend(hostObj[childProperty], currObjToCopyFrom[childProperty]);
       }
     }
   });
@@ -446,12 +394,10 @@ function extendChildren() {
  * @returns {Object|Array} Cloned JSON.
  */
 
-
-function deepClone(obj) {
+export function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
-
-function htmlToJSX(htmlString) {
+export function htmlToJSX(htmlString) {
   var nodes,
       result,
       // Theoretically, esp in modern browsers, almost any tag/element name can be used to create a <div>.
@@ -460,14 +406,13 @@ function htmlToJSX(htmlString) {
   someTags = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 
   try {
-    nodes = (0, _htmlToDomServer["default"])(htmlString, {
+    nodes = parseDOM(htmlString, {
       decodeEntities: true,
       lowerCaseAttributeNames: false
     });
   } catch (e) {
-    _patchedConsole.patchedConsoleInstance.error('HTML parsing error', e);
-
-    return /*#__PURE__*/_react["default"].createElement("div", {
+    console.error('HTML parsing error', e);
+    return /*#__PURE__*/React.createElement("div", {
       className: "error"
     }, "Parsing Error. Check your markup.");
   }
@@ -478,7 +423,7 @@ function htmlToJSX(htmlString) {
 
 
   function filterNodes(nodeList) {
-    return _underscore["default"].filter(_underscore["default"].map(nodeList, function (n) {
+    return _.filter(_.map(nodeList, function (n) {
       if (n.type === 'tag') {
         if (someTags.has(n.name)) return n; // Exclude scripts due to security vulnerability potential.
 
@@ -492,7 +437,7 @@ function htmlToJSX(htmlString) {
 
 
         if (Array.isArray(n.children)) {
-          n = _underscore["default"].extend({}, n, {
+          n = _.extend({}, n, {
             'children': filterNodes(n.children)
           });
         }
@@ -503,11 +448,10 @@ function htmlToJSX(htmlString) {
   }
 
   try {
-    result = (0, _domToReact["default"])(filterNodes(nodes));
+    result = domToReact(filterNodes(nodes));
   } catch (e) {
-    _patchedConsole.patchedConsoleInstance.error('HTML parsing error', e);
-
-    return /*#__PURE__*/_react["default"].createElement("div", {
+    console.error('HTML parsing error', e);
+    return /*#__PURE__*/React.createElement("div", {
       className: "error"
     }, "Parsing Error. Check your markup.");
   }
@@ -521,8 +465,7 @@ function htmlToJSX(htmlString) {
  * @returns {boolean} - Whether is valid-ish.
  */
 
-
-function isValidAtIDFormat(value) {
+export function isValidAtIDFormat(value) {
   return value && typeof value === 'string' && value.length > 3 && value.charAt(0) === '/' && value[value.length - 1] === '/' && (value.match(/\//g) || []).length === 3;
 }
 /**
@@ -533,8 +476,7 @@ function isValidAtIDFormat(value) {
  * @returns {boolean} Whether 'content' param is (likely to be) an Item.
  */
 
-
-function isAnItem(content) {
+export function isAnItem(content) {
   return content && _typeof(content) === 'object' && (typeof content.display_title === 'string' || typeof content.uuid === 'string') && typeof atIdFromObject(content) === 'string';
 }
 /**
@@ -542,10 +484,8 @@ function isAnItem(content) {
  * @private
  */
 
-
 var randomIdIncrement = 0;
-
-function randomId() {
+export function randomId() {
   return 'random-id-' + ++randomIdIncrement;
 }
 /**
@@ -556,8 +496,7 @@ function randomId() {
  * @throws Error if not in valid UUID format.
  */
 
-
-function assertUUID(uuid) {
+export function assertUUID(uuid) {
   if (typeof uuid !== 'string') throw new Error('UUID is not a string!');
   var parts = uuid.split('-');
 
@@ -568,8 +507,7 @@ function assertUUID(uuid) {
   if (parts[0].length !== 8 || parts[1].length !== 4 || parts[2].length !== 4 || parts[3].length !== 4 || parts[4].length !== 12) throw new Error('Incorrect UUID format.');
   return uuid;
 }
-
-function isUUID(uuid) {
+export function isUUID(uuid) {
   try {
     uuid = assertUUID(uuid);
     return true;
@@ -577,16 +515,14 @@ function isUUID(uuid) {
     return false;
   }
 }
-
-function isAccessionRegex(accessionStr) {
+export function isAccessionRegex(accessionStr) {
   if (accessionStr.match(/^4DN(EX|ES|FI|FS|SR|BS|IN|WF)[1-9A-Z]{7}$/)) {
     return true;
   }
 
   return false;
 }
-
-function singleTreatment(treatment) {
+export function singleTreatment(treatment) {
   var treatmentText = '';
 
   if (treatment.concentration) {
@@ -601,22 +537,20 @@ function singleTreatment(treatment) {
 
   return treatmentText;
 }
-
-function TooltipInfoIconContainer(props) {
+export function TooltipInfoIconContainer(props) {
   var elementType = props.elementType,
       title = props.title,
       tooltip = props.tooltip,
       className = props.className,
       children = props.children;
-  return /*#__PURE__*/_react["default"].createElement(elementType || 'div', {
+  return /*#__PURE__*/React.createElement(elementType || 'div', {
     'className': "tooltip-info-container" + (typeof className === 'string' ? ' ' + className : '')
-  }, /*#__PURE__*/_react["default"].createElement("span", null, title || children, "\xA0", typeof tooltip === 'string' ? /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("span", null, title || children, "\xA0", typeof tooltip === 'string' ? /*#__PURE__*/React.createElement("i", {
     "data-tip": tooltip,
     className: "icon fas icon-info-circle"
   }) : null));
 }
-
-function TooltipInfoIconContainerAuto(props) {
+export function TooltipInfoIconContainerAuto(props) {
   var elementType = props.elementType,
       title = props.title,
       property = props.property,
@@ -641,31 +575,30 @@ function TooltipInfoIconContainerAuto(props) {
 
   if (!showTitle || !tooltip) {
     try {
-      schemaProperty = (0, _schemaTransforms.getSchemaProperty)(property, schemas, {}, itemType || result['@type'][0]);
+      schemaProperty = getSchemaProperty(property, schemas, {}, itemType || result['@type'][0]);
     } catch (e) {
-      _patchedConsole.patchedConsoleInstance.warn('Failed to get schemaProperty', itemType, property);
+      console.warn('Failed to get schemaProperty', itemType, property);
     }
 
     tooltip = schemaProperty && schemaProperty.description || null;
     if (!showTitle) showTitle = schemaProperty && schemaProperty.title || null;
   }
 
-  return /*#__PURE__*/_react["default"].createElement(TooltipInfoIconContainer, _extends({}, props, {
+  return /*#__PURE__*/React.createElement(TooltipInfoIconContainer, _extends({}, props, {
     tooltip: tooltip,
     title: showTitle || fallbackTitle || property,
     elementType: elementType
   }));
 }
-
 TooltipInfoIconContainerAuto.propTypes = {
-  'property': _propTypes["default"].string.isRequired,
-  'title': _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].element]),
-  'result': _propTypes["default"].shape({
-    '@type': _propTypes["default"].array.isRequired
+  'property': PropTypes.string.isRequired,
+  'title': PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  'result': PropTypes.shape({
+    '@type': PropTypes.array.isRequired
   }).isRequired,
-  'itemType': _propTypes["default"].string,
-  'schemas': _propTypes["default"].object,
-  'elementType': _propTypes["default"].string
+  'itemType': PropTypes.string,
+  'schemas': PropTypes.object,
+  'elementType': PropTypes.string
 };
 /**
  * Use this Component to generate a 'copy' button.
@@ -676,7 +609,7 @@ TooltipInfoIconContainerAuto.propTypes = {
  * @prop {string|React.Component} [wrapperElement='div'] - Element type to wrap props.children in, if any.
  */
 
-var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
+export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(CopyWrapper, _React$PureComponent);
 
   var _super = _createSuper(CopyWrapper);
@@ -705,8 +638,7 @@ var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
       try {
         var successful = document.execCommand('copy');
         var msg = successful ? 'successful' : 'unsuccessful';
-
-        _patchedConsole.patchedConsoleInstance.log('Copying text command was ' + msg);
+        console.log('Copying text command was ' + msg);
 
         if (typeof successCallback === 'function') {
           return successCallback(value);
@@ -714,7 +646,7 @@ var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
 
         return true;
       } catch (err) {
-        _patchedConsole.patchedConsoleInstance.error('Oops, unable to copy', err);
+        console.error('Oops, unable to copy', err);
 
         if (typeof failCallback === 'function') {
           return failCallback(value);
@@ -739,7 +671,7 @@ var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
       };
     }
 
-    _this.wrapperRef = /*#__PURE__*/_react["default"].createRef();
+    _this.wrapperRef = /*#__PURE__*/React.createRef();
     return _this;
   }
 
@@ -750,13 +682,12 @@ var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
       if (typeof mounted !== 'boolean') this.setState({
         'mounted': true
       });
-
-      _reactTooltip["default"].rebuild();
+      ReactTooltip.rebuild();
     }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
-      _reactTooltip["default"].rebuild();
+      ReactTooltip.rebuild();
     }
   }, {
     key: "flashEffect",
@@ -773,7 +704,7 @@ var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
         // Means we have a React component vs a React/JSX element.
         // This approach will be deprecated soon so we should look into forwarding refs
         // ... I think
-        wrapper = _reactDom["default"].findDOMNode(wrapper);
+        wrapper = ReactDOM.findDOMNode(wrapper);
       }
 
       if (!wrapper) return null;
@@ -808,13 +739,13 @@ var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
       var elemsToWrap = [];
       if (children) elemsToWrap.push(children);
       if (children && isMounted) elemsToWrap.push(' ');
-      if (isMounted && includeIcon) elemsToWrap.push( /*#__PURE__*/_react["default"].createElement("i", _extends({}, iconProps, {
+      if (isMounted && includeIcon) elemsToWrap.push( /*#__PURE__*/React.createElement("i", _extends({}, iconProps, {
         key: "copy-icon",
         className: "icon icon-fw icon-copy far",
         title: "Copy to clipboard"
       })));
 
-      var wrapperProps = _underscore["default"].extend({
+      var wrapperProps = _.extend({
         'ref': this.wrapperRef,
         'style': {
           'transition': 'transform .4s',
@@ -836,16 +767,14 @@ var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
             });
           });
         }
-      }, _underscore["default"].omit.apply(_underscore["default"], [this.props, 'children', 'style', 'value', 'onCopy', 'mounted'].concat(_toConsumableArray(_underscore["default"].keys(CopyWrapper.defaultProps)))));
+      }, _.omit.apply(_, [this.props, 'children', 'style', 'value', 'onCopy', 'mounted'].concat(_toConsumableArray(_.keys(CopyWrapper.defaultProps)))));
 
-      return /*#__PURE__*/_react["default"].createElement(wrapperElement, wrapperProps, elemsToWrap);
+      return /*#__PURE__*/React.createElement(wrapperElement, wrapperProps, elemsToWrap);
     }
   }]);
 
   return CopyWrapper;
-}(_react["default"].PureComponent);
-
-exports.CopyWrapper = CopyWrapper;
+}(React.PureComponent);
 CopyWrapper.defaultProps = {
   'wrapperElement': 'div',
   'className': null,
@@ -859,12 +788,11 @@ CopyWrapper.defaultProps = {
  * md5() sometimes throws an error for some reason. Lets memoize the result and catch exceptions.
  */
 
-var saferMD5 = (0, _memoizeOne["default"])(function (val) {
+export var saferMD5 = memoize(function (val) {
   try {
-    return (0, _jsMd["default"])(val);
+    return md5(val);
   } catch (e) {
-    _patchedConsole.patchedConsoleInstance.error(e);
-
+    console.error(e);
     return 'Error';
   }
 });
@@ -873,8 +801,7 @@ var saferMD5 = (0, _memoizeOne["default"])(function (val) {
  * Contains sections for Aliases, Functions, and Secondary Dictionaries of functions (e.g. for 'User').
  */
 
-exports.saferMD5 = saferMD5;
-var itemUtil = {
+export var itemUtil = {
   // Aliases
   isAnItem: isAnItem,
   generateLink: linkFromItem,
@@ -891,7 +818,7 @@ var itemUtil = {
     var title = itemUtil.getTitleStringFromContext(props.context || {});
 
     if (!title && props.href) {
-      title = _url["default"].parse(props.href).path;
+      title = url.parse(props.href).path;
     }
 
     return title || null;
@@ -951,7 +878,7 @@ var itemUtil = {
    * @returns {Item[]} Uniqued list.
    */
   uniq: function uniq(items) {
-    return _underscore["default"].uniq(items, false, function (o) {
+    return _.uniq(items, false, function (o) {
       return atIdFromObject(o);
     });
   },
@@ -987,7 +914,7 @@ var itemUtil = {
       var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var props = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       var defaultImg = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'retro';
-      return /*#__PURE__*/_react["default"].createElement("img", _extends({
+      return /*#__PURE__*/React.createElement("img", _extends({
         title: "Obtained via Gravatar"
       }, props, {
         src: itemUtil.User.buildGravatarURL(email, size, defaultImg),
@@ -1027,4 +954,3 @@ var itemUtil = {
     }
   }
 };
-exports.itemUtil = itemUtil;

@@ -1,22 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SearchAsYouTypeLocal = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _SearchSelectionMenu = require("./SearchSelectionMenu");
-
-var _util = require("./../../util");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -45,7 +26,12 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import memoize from 'memoize-one';
+import { SearchSelectionMenu } from './SearchSelectionMenu';
+import { valueTransforms } from './../../util';
+export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchAsYouTypeLocal, _React$PureComponent);
 
   var _super = _createSuper(SearchAsYouTypeLocal);
@@ -55,11 +41,11 @@ var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
     value: function getRegexQuery(value, filterMethod) {
       switch (filterMethod) {
         case "includes":
-          return _util.valueTransforms.escapeRegExp(value.toLowerCase());
+          return valueTransforms.escapeRegExp(value.toLowerCase());
 
         case "startsWith":
         default:
-          return "^" + _util.valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)?$";
+          return "^" + valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)?$";
       }
     }
   }, {
@@ -87,7 +73,7 @@ var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
       currentTextValue: props.initializeWithValue ? props.value || "" : ""
     };
     _this.memoized = {
-      filterOptions: (0, _memoizeOne["default"])(SearchAsYouTypeLocal.filterOptions)
+      filterOptions: memoize(SearchAsYouTypeLocal.filterOptions)
     };
     return _this;
   }
@@ -135,22 +121,22 @@ var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
       if (!Array.isArray(searchList)) {
         // Likely, schemas are not yet loaded?
         filteredOptions = [];
-        optionsHeader = /*#__PURE__*/_react["default"].createElement("div", {
+        optionsHeader = /*#__PURE__*/React.createElement("div", {
           className: "text-center py-3"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-spin icon-circle-notch fas"
         }));
       } else {
         filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
 
         if (filteredOptions.length === 0) {
-          optionsHeader = /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("em", {
+          optionsHeader = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("em", {
             className: "d-block text-center px-4 py-3"
           }, allowCustomValue ? "Adding new entry" : "No results found"), optionsHeader);
         }
       }
 
-      return /*#__PURE__*/_react["default"].createElement(_SearchSelectionMenu.SearchSelectionMenu, _extends({}, passProps, {
+      return /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue,
         allowCustomValue: allowCustomValue
@@ -163,15 +149,13 @@ var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return SearchAsYouTypeLocal;
-}(_react["default"].PureComponent);
-
-exports.SearchAsYouTypeLocal = SearchAsYouTypeLocal;
+}(React.PureComponent);
 SearchAsYouTypeLocal.propTypes = {
-  searchList: _propTypes["default"].arrayOf(_propTypes["default"].string).isRequired,
-  value: _propTypes["default"].string,
-  onChange: _propTypes["default"].func.isRequired,
-  filterMethod: _propTypes["default"].string,
+  searchList: PropTypes.arrayOf(PropTypes.string).isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  filterMethod: PropTypes.string,
   // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
-  allowCustomValue: _propTypes["default"].bool,
-  initializeWithValue: _propTypes["default"].bool
+  allowCustomValue: PropTypes.bool,
+  initializeWithValue: PropTypes.bool
 };

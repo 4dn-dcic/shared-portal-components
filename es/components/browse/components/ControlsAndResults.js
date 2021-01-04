@@ -1,32 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ControlsAndResults = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _misc = require("./../../util/misc");
-
-var _schemaTransforms = require("./../../util/schema-transforms");
-
-var _patchedConsole = require("./../../util/patched-console");
-
-var _AboveSearchViewTableControls = require("./above-table-controls/AboveSearchViewTableControls");
-
-var _SearchResultTable = require("./SearchResultTable");
-
-var _FacetList = require("./FacetList");
-
-var _SearchResultDetailPane = require("./SearchResultDetailPane");
-
-var _SelectedItemsController = require("./SelectedItemsController");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -57,7 +30,17 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
+import React from 'react';
+import memoize from 'memoize-one';
+import { isSelectAction } from './../../util/misc';
+import { getAbstractTypeForType, getSchemaTypeFromSearchContext } from './../../util/schema-transforms';
+import { patchedConsoleInstance as console } from './../../util/patched-console';
+import { AboveSearchViewTableControls } from './above-table-controls/AboveSearchViewTableControls';
+import { SearchResultTable } from './SearchResultTable';
+import { FacetList, FacetListHeader } from './FacetList';
+import { SearchResultDetailPane } from './SearchResultDetailPane';
+import { SelectStickyFooter } from './SelectedItemsController';
+export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(ControlsAndResults, _React$PureComponent);
 
   var _super = _createSuper(ControlsAndResults);
@@ -71,10 +54,10 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
     _this.onClearFiltersClick = _this.onClearFiltersClick.bind(_assertThisInitialized(_this));
     _this.renderSearchDetailPane = _this.renderSearchDetailPane.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      getSchemaTypeFromSearchContext: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaTypeFromSearchContext),
-      getAbstractTypeForType: (0, _memoizeOne["default"])(_schemaTransforms.getAbstractTypeForType)
+      getSchemaTypeFromSearchContext: memoize(getSchemaTypeFromSearchContext),
+      getAbstractTypeForType: memoize(getAbstractTypeForType)
     };
-    _this.searchResultTableRef = /*#__PURE__*/_react["default"].createRef();
+    _this.searchResultTableRef = /*#__PURE__*/React.createRef();
     return _this;
   }
 
@@ -102,7 +85,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         }));
       }
 
-      return /*#__PURE__*/_react["default"].createElement(_SearchResultDetailPane.SearchResultDetailPane, {
+      return /*#__PURE__*/React.createElement(SearchResultDetailPane, {
         result: result,
         rowNumber: rowNumber,
         containerWidth: containerWidth,
@@ -137,20 +120,22 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           _this$props2$tableCol = _this$props2.tableColumnClassName,
           tableColumnClassName = _this$props2$tableCol === void 0 ? "col-12 col-sm-7 col-lg-8 col-xl-9" : _this$props2$tableCol,
           _this$props2$aboveTab = _this$props2.aboveTableComponent,
-          aboveTableComponent = _this$props2$aboveTab === void 0 ? /*#__PURE__*/_react["default"].createElement(_AboveSearchViewTableControls.AboveSearchViewTableControls, null) : _this$props2$aboveTab,
+          aboveTableComponent = _this$props2$aboveTab === void 0 ? /*#__PURE__*/React.createElement(AboveSearchViewTableControls, null) : _this$props2$aboveTab,
           _this$props2$aboveFac = _this$props2.aboveFacetListComponent,
-          aboveFacetListComponent = _this$props2$aboveFac === void 0 ? /*#__PURE__*/_react["default"].createElement("div", {
+          aboveFacetListComponent = _this$props2$aboveFac === void 0 ? /*#__PURE__*/React.createElement("div", {
         className: "above-results-table-row"
       }) : _this$props2$aboveFac,
+          _this$props2$facetLis = _this$props2.facetListComponent,
+          facetListComponent = _this$props2$facetLis === void 0 ? /*#__PURE__*/React.createElement(DefaultFacetListComponent, null) : _this$props2$facetLis,
           _this$props2$defaultO = _this$props2.defaultOpenIndices,
           defaultOpenIndices = _this$props2$defaultO === void 0 ? null : _this$props2$defaultO,
           _this$props2$detailPa = _this$props2.detailPane,
           detailPane = _this$props2$detailPa === void 0 ? null : _this$props2$detailPa,
           context = _this$props2.context,
           href = _this$props2.href,
+          requestedCompoundFilterSet = _this$props2.requestedCompoundFilterSet,
           onFilter = _this$props2.onFilter,
           onFilterMultiple = _this$props2.onFilterMultiple,
-          requestedCompoundFilterSet = _this$props2.requestedCompoundFilterSet,
           _this$props2$showClea = _this$props2.showClearFiltersButton,
           showClearFiltersButton = _this$props2$showClea === void 0 ? false : _this$props2$showClea,
           _this$props2$isOwnPag = _this$props2.isOwnPage,
@@ -158,7 +143,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           _this$props2$isContex = _this$props2.isContextLoading,
           isContextLoading = _this$props2$isContex === void 0 ? false : _this$props2$isContex,
           _this$props2$maxHeigh = _this$props2.maxHeight,
-          maxHeight = _this$props2$maxHeigh === void 0 ? _SearchResultTable.SearchResultTable.defaultProps.maxHeight : _this$props2$maxHeigh,
+          maxHeight = _this$props2$maxHeigh === void 0 ? SearchResultTable.defaultProps.maxHeight : _this$props2$maxHeigh,
           hiddenColumns = _this$props2.hiddenColumns,
           addHiddenColumn = _this$props2.addHiddenColumn,
           removeHiddenColumn = _this$props2.removeHiddenColumn,
@@ -180,83 +165,79 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
 
       var searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
       var searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
-      var facetListProps = {
-        facets: facets,
-        filters: filters,
-        schemas: schemas,
-        currentAction: currentAction,
-        showClearFiltersButton: showClearFiltersButton,
-        isContextLoading: isContextLoading,
-        session: session,
-        onFilter: onFilter,
-        onFilterMultiple: onFilterMultiple,
-        windowWidth: windowWidth,
-        windowHeight: windowHeight,
-        termTransformFxn: termTransformFxn,
-        separateSingleTermFacets: separateSingleTermFacets,
-        itemTypeForSchemas: searchItemType,
-        maxBodyHeight: !isOwnPage && maxHeight || null,
-        onClearFilters: this.onClearFiltersClick,
-        addToBodyClassList: addToBodyClassList,
-        removeFromBodyClassList: removeFromBodyClassList
-      };
-      var aboveTableControlsProps = {
+
+      /**
+       * To Consider:
+       * We could have 1 collection/object of props that is combination of
+       * `aboveTableControlsProps` + `facetListProps` and gets passed down
+       * to all children. This would allow more flexibility to put elements
+       * or controls in various places around table, such as FacetList in
+       * table header.
+       */
+      var commonChildProps = {
+        // Props which don't change too frequently and/or are useful to many components -
         context: context,
-        columnDefinitions: columnDefinitions,
         navigate: navigate,
-        // TODO: compoundSearchNavigate,
+        // <- search response context, prop navigate (could be virtual or global)
+        schemas: schemas,
+        session: session,
+        columnDefinitions: columnDefinitions,
+        facets: facets,
         hiddenColumns: hiddenColumns,
         addHiddenColumn: addHiddenColumn,
         removeHiddenColumn: removeHiddenColumn,
         currentAction: currentAction,
         windowWidth: windowWidth,
-        windowHeight: windowHeight
+        windowHeight: windowHeight,
+        isContextLoading: isContextLoading,
+        onFilter: onFilter,
+        onFilterMultiple: onFilterMultiple,
+        onClearFilters: this.onClearFiltersClick,
+        termTransformFxn: termTransformFxn,
+        itemTypeForSchemas: searchItemType,
+        addToBodyClassList: addToBodyClassList,
+        removeFromBodyClassList: removeFromBodyClassList
       };
-      var extendedAboveTableComponent, extendedAboveFacetListComponent;
+      var extendedAboveTableComponent;
+      var extendedAboveFacetListComponent;
+      var extendedFacetListComponent;
 
-      var extendChild = function (child) {
-        if (! /*#__PURE__*/_react["default"].isValidElement(child) || typeof child.type === "string") {
+      var extendChild = function (propsToPass, child) {
+        if (! /*#__PURE__*/React.isValidElement(child) || typeof child.type === "string") {
           return child;
         }
 
-        return /*#__PURE__*/_react["default"].cloneElement(child, aboveTableControlsProps);
+        return /*#__PURE__*/React.cloneElement(child, propsToPass);
       };
 
       if (aboveTableComponent) {
-        extendedAboveTableComponent = _react["default"].Children.map(aboveTableComponent, extendChild);
+        extendedAboveTableComponent = React.Children.map(aboveTableComponent, extendChild.bind(null, commonChildProps));
       }
 
       if (aboveFacetListComponent) {
-        extendedAboveFacetListComponent = _react["default"].Children.map(aboveFacetListComponent, extendChild);
+        extendedAboveFacetListComponent = React.Children.map(aboveFacetListComponent, extendChild.bind(null, commonChildProps));
       }
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      if (facets !== null && facetListComponent) {
+        var facetListProps = _objectSpread(_objectSpread({}, commonChildProps), {}, {
+          showClearFiltersButton: showClearFiltersButton,
+          separateSingleTermFacets: separateSingleTermFacets,
+          requestedCompoundFilterSet: requestedCompoundFilterSet,
+          maxBodyHeight: !isOwnPage && maxHeight || null
+        });
+
+        extendedFacetListComponent = React.Children.map(facetListComponent, extendChild.bind(null, facetListProps));
+      }
+
+      return /*#__PURE__*/React.createElement("div", {
         className: "row search-view-controls-and-results",
         "data-search-item-type": searchItemType,
         "data-search-abstract-type": searchAbstractItemType
-      }, facets === null ? null :
-      /*#__PURE__*/
-      // TODO: Hide if using `requestedCompoundFilterSet` instead of `href`
-      _react["default"].createElement("div", {
+      }, facets === null ? null : /*#__PURE__*/React.createElement("div", {
         className: facetColumnClassName
-      }, extendedAboveFacetListComponent, requestedCompoundFilterSet ?
-      /*#__PURE__*/
-      // Compound search used, FacetList UI cannot be used -
-      _react["default"].createElement("div", {
-        className: "facets-container with-header-bg"
-      }, /*#__PURE__*/_react["default"].createElement(_FacetList.FacetListHeader, null), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "py-4"
-      }, /*#__PURE__*/_react["default"].createElement("h4", {
-        className: "text-400 text-center"
-      }, "Compound Filter"))) : Array.isArray(facets) && facets.length > 0 ? /*#__PURE__*/_react["default"].createElement(_FacetList.FacetList, facetListProps) : isContextLoading ? /*#__PURE__*/_react["default"].createElement("div", {
-        className: "facets-container with-header-bg"
-      }, /*#__PURE__*/_react["default"].createElement(_FacetList.FacetListHeader, null), /*#__PURE__*/_react["default"].createElement("div", {
-        className: "text-center py-4 text-secondary"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
-        className: "icon icon-spin icon-circle-notch fas icon-2x"
-      }))) : null), /*#__PURE__*/_react["default"].createElement("div", {
+      }, extendedAboveFacetListComponent, extendedFacetListComponent), /*#__PURE__*/React.createElement("div", {
         className: tableColumnClassName
-      }, extendedAboveTableComponent, /*#__PURE__*/_react["default"].createElement(_SearchResultTable.SearchResultTable, _extends({}, {
+      }, extendedAboveTableComponent, /*#__PURE__*/React.createElement(SearchResultTable, _extends({}, {
         context: context,
         href: href,
         requestedCompoundFilterSet: requestedCompoundFilterSet,
@@ -284,7 +265,7 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       }, {
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane
-      })), (0, _misc.isSelectAction)(currentAction) && selectedItems !== null ? /*#__PURE__*/_react["default"].createElement(_SelectedItemsController.SelectStickyFooter, _extends({
+      })), isSelectAction(currentAction) && selectedItems !== null ? /*#__PURE__*/React.createElement(SelectStickyFooter, _extends({
         context: context,
         schemas: schemas,
         selectedItems: selectedItems,
@@ -297,6 +278,44 @@ var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return ControlsAndResults;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
+/**
+ * Should handle most if not all cases.
+ * Paramaterized into own component to allow to swap in different `props.facetListComponent`.
+ */
 
-exports.ControlsAndResults = ControlsAndResults;
+function DefaultFacetListComponent(props) {
+  var facets = props.facets,
+      isContextLoading = props.isContextLoading,
+      requestedCompoundFilterSet = props.requestedCompoundFilterSet,
+      context = props.context;
+  var _ref2$Id = (context || {})["@id"],
+      ctxHref = _ref2$Id === void 0 ? null : _ref2$Id; // If we have an explicit "@id" (ctxHref) then we had a single filter block requested.
+
+  if (Array.isArray(facets) && facets.length > 0) {
+    return /*#__PURE__*/React.createElement(FacetList, props);
+  }
+
+  if (requestedCompoundFilterSet && !ctxHref) {
+    // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
+    return /*#__PURE__*/React.createElement("div", {
+      className: "facets-container with-header-bg"
+    }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
+      className: "py-4"
+    }, /*#__PURE__*/React.createElement("h4", {
+      className: "text-400 text-center"
+    }, "Compound Filter")));
+  }
+
+  if (isContextLoading) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "facets-container with-header-bg"
+    }, /*#__PURE__*/React.createElement(FacetListHeader, null), /*#__PURE__*/React.createElement("div", {
+      className: "text-center py-4 text-secondary"
+    }, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-spin icon-circle-notch fas icon-2x"
+    })));
+  }
+
+  return null;
+}

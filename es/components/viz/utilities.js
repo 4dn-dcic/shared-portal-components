@@ -1,30 +1,11 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.stringToColor = stringToColor;
-exports.requestAnimationFrame = requestAnimationFrame;
-exports.cancelAnimationFrame = cancelAnimationFrame;
-exports.stackDotsInContainer = stackDotsInContainer;
-exports.extendStyleOptions = extendStyleOptions;
-exports.transformBarPlotAggregationsToD3CompatibleHierarchy = transformBarPlotAggregationsToD3CompatibleHierarchy;
-exports.highlightTerm = highlightTerm;
-exports.unhighlightTerms = unhighlightTerms;
-exports.style = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _misc = require("./../util/misc");
-
-var _patchedConsole = require("./../util/patched-console");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+import React from 'react';
+import _ from 'underscore';
+import { isServerSide } from './../util/misc';
+import { patchedConsoleInstance as console } from './../util/patched-console';
 /**
  * Utility functions for aiding with visualizations.
  *
@@ -39,7 +20,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
  * @param {string} str - String to generate a color from. Any string.
  * @returns {string} A CSS color.
  */
-function stringToColor(str) {
+
+export function stringToColor(str) {
   var hash = 0,
       color = '#',
       i;
@@ -62,9 +44,8 @@ function stringToColor(str) {
  * @returns {undefined|string} Undefined or timeout ID if falling back to setTimeout.
  */
 
-
-function requestAnimationFrame(cb) {
-  if (!(0, _misc.isServerSide)() && typeof window !== 'undefined') {
+export function requestAnimationFrame(cb) {
+  if (!isServerSide() && typeof window !== 'undefined') {
     if (typeof window.requestAnimationFrame !== 'undefined') return window.requestAnimationFrame(cb);
     if (typeof window.webkitRequestAnimationFrame !== 'undefined') return window.webkitRequestAnimationFrame(cb);
     if (typeof window.mozRequestAnimationFrame !== 'undefined') return window.mozRequestAnimationFrame(cb);
@@ -72,9 +53,8 @@ function requestAnimationFrame(cb) {
 
   return setTimeout(cb, 0); // Mock it for old browsers and server-side.
 }
-
-function cancelAnimationFrame(identifier) {
-  if (!(0, _misc.isServerSide)() && typeof window !== 'undefined') {
+export function cancelAnimationFrame(identifier) {
+  if (!isServerSide() && typeof window !== 'undefined') {
     if (typeof window.cancelAnimationFrame !== 'undefined') return window.cancelAnimationFrame(identifier);
     if (typeof window.webkitCancelAnimationFrame !== 'undefined') return window.webkitCancelAnimationFrame(identifier);
     if (typeof window.mozCancelAnimationFrame !== 'undefined') return window.mozCancelAnimationFrame(identifier);
@@ -82,8 +62,7 @@ function cancelAnimationFrame(identifier) {
 
   return clearTimeout(identifier); // Mock it for old browsers and server-side.
 }
-
-function stackDotsInContainer(count) {
+export function stackDotsInContainer(count) {
   var height = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 16;
   var dotSize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 4;
   var dotSpacing = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 2;
@@ -142,15 +121,14 @@ function stackDotsInContainer(count) {
  * @returns {Object} Returns `styleOptsToExtend` with key vals overriden from `styleOptsToExtendFrom`.
  */
 
-
-function extendStyleOptions(styleOptsToExtendFrom, styleOptsToExtend) {
+export function extendStyleOptions(styleOptsToExtendFrom, styleOptsToExtend) {
   if (!styleOptsToExtend) throw new Error("No default style options provided.");
   if (!styleOptsToExtendFrom) return styleOptsToExtend;else {
-    _underscore["default"].keys(styleOptsToExtend).forEach(function (styleProp) {
+    _.keys(styleOptsToExtend).forEach(function (styleProp) {
       if (typeof styleOptsToExtendFrom[styleProp] === 'undefined') return;
 
       if (_typeof(styleOptsToExtendFrom[styleProp]) === 'object' && styleOptsToExtendFrom[styleProp]) {
-        _underscore["default"].extend(styleOptsToExtend[styleProp], styleOptsToExtendFrom[styleProp]);
+        _.extend(styleOptsToExtend[styleProp], styleOptsToExtendFrom[styleProp]);
       } else {
         styleOptsToExtend[styleProp] = styleOptsToExtendFrom[styleProp];
       }
@@ -159,12 +137,11 @@ function extendStyleOptions(styleOptsToExtendFrom, styleOptsToExtend) {
     return styleOptsToExtend;
   }
 }
-
-function transformBarPlotAggregationsToD3CompatibleHierarchy(rootField) {
+export function transformBarPlotAggregationsToD3CompatibleHierarchy(rootField) {
   var aggregateType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'experiment_sets';
 
   function genChildren(currField) {
-    return _underscore["default"].map(_underscore["default"].pairs(currField.terms), function (term_pair) {
+    return _.map(_.pairs(currField.terms), function (term_pair) {
       var termName = term_pair[0];
       var termObj = term_pair[1];
       var isLeafTerm = typeof termObj.experiment_sets === 'number' && typeof termObj.field === 'undefined';
@@ -200,8 +177,7 @@ function transformBarPlotAggregationsToD3CompatibleHierarchy(rootField) {
  * @constant
  */
 
-
-var style = {
+export var style = {
   translate3d: function translate3d() {
     var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
     var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -227,11 +203,11 @@ var style = {
     if (typeof axes === 'string') axes = axes.split(',').map(function (axis) {
       return axis.trim();
     });
-    if (Array.isArray(axes)) axes = _underscore["default"].extend({
+    if (Array.isArray(axes)) axes = _.extend({
       'x': 0,
       'y': 0,
       'z': 0
-    }, _underscore["default"].object(axes.map(function (axis) {
+    }, _.object(axes.map(function (axis) {
       return [axis, 1];
     })));
     return 'rotate3d(' + axes.x + ',' + axes.y + ',' + axes.z + ',' + rotation + 'deg)';
@@ -245,13 +221,12 @@ var style = {
     return 'scale3d(' + x + ',' + y + ',' + z + ')';
   }
 };
-exports.style = style;
 
-var highlightTermFxn = _underscore["default"].debounce(function () {
+var highlightTermFxn = _.debounce(function () {
   var field = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'experiments_in_set.biosample.biosource.individual.organism.name';
   var term = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'human';
   var color = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-  if ((0, _misc.isServerSide)()) return false;
+  if (isServerSide()) return false;
   if (!document.querySelectorAll) return false;
 
   function setHighlightClass(el) {
@@ -284,18 +259,18 @@ var highlightTermFxn = _underscore["default"].debounce(function () {
   requestAnimationFrame(function () {
     var colorIsSet = color === null || color === false ? false : typeof color === 'string' ? color.length > 0 : _typeof(color) === 'object' ? true : false;
 
-    _underscore["default"].each(document.querySelectorAll('[data-field]:not(.no-highlight)'), function (fieldContainerElement) {
+    _.each(document.querySelectorAll('[data-field]:not(.no-highlight)'), function (fieldContainerElement) {
       setHighlightClass(fieldContainerElement, true);
     });
 
     if (colorIsSet) {
-      _underscore["default"].each(document.querySelectorAll('[data-field' + (field ? '="' + field + '"' : '') + ']:not(.no-highlight)'), function (fieldContainerElement) {
+      _.each(document.querySelectorAll('[data-field' + (field ? '="' + field + '"' : '') + ']:not(.no-highlight)'), function (fieldContainerElement) {
         setHighlightClass(fieldContainerElement, false);
       });
     } // unhighlight previously selected terms, if any.
 
 
-    _underscore["default"].each(document.querySelectorAll('[data-term]:not(.no-highlight)'), function (termElement) {
+    _.each(document.querySelectorAll('[data-term]:not(.no-highlight)'), function (termElement) {
       var dataField = termElement.getAttribute('data-field');
       if (field && dataField && dataField === field) return; // Skip, we need to leave as highlighted as also our field container.
 
@@ -304,7 +279,7 @@ var highlightTermFxn = _underscore["default"].debounce(function () {
     });
 
     if (colorIsSet) {
-      _underscore["default"].each(document.querySelectorAll('[data-term="' + term + '"]:not(.no-highlight)'), function (termElement) {
+      _.each(document.querySelectorAll('[data-term="' + term + '"]:not(.no-highlight)'), function (termElement) {
         var isSVG = setHighlightClass(termElement, false);
         if (!isSVG && termElement.className.indexOf('no-highlight-color') === -1) termElement.style.backgroundColor = color;
       });
@@ -320,7 +295,7 @@ var highlightTermFxn = _underscore["default"].debounce(function () {
  */
 
 
-function highlightTerm() {
+export function highlightTerm() {
   arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'experiments_in_set.biosample.biosource.individual.organism.name';
   arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'human';
   arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
@@ -330,8 +305,7 @@ function highlightTerm() {
  * Resets background color of terms.
  */
 
-
-function unhighlightTerms() {
+export function unhighlightTerms() {
   var field = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
   return highlightTermFxn(field, null, '');
 }

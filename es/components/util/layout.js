@@ -1,41 +1,11 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getElementTop = getElementTop;
-exports.getElementOffset = getElementOffset;
-exports.getElementOffsetFine = getElementOffsetFine;
-exports.gridContainerWidth = gridContainerWidth;
-exports.getScrollingOuterElement = getScrollingOuterElement;
-exports.getPageVerticalScrollPosition = getPageVerticalScrollPosition;
-exports.animateScrollTo = animateScrollTo;
-exports.toggleBodyClass = toggleBodyClass;
-exports.isDOMElementChildOfElementWithClass = isDOMElementChildOfElementWithClass;
-exports.findParentElement = findParentElement;
-exports.BrowserFeat = exports.elementIsChildOfLink = exports.textContentWidth = exports.textHeight = exports.textWidth = exports.responsiveGridState = exports.shortenString = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _misc = require("./misc");
-
-var d3 = _interopRequireWildcard(require("d3"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-// TODO change to only import d3.select and d3.interpolateNumber
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import { isServerSide } from './misc';
+import * as d3 from 'd3'; // TODO change to only import d3.select and d3.interpolateNumber
 
 /**
  * Most of these functions should not be run from a component until it has mounted as they do not work
@@ -43,15 +13,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  */
 
 /** Get distance from top of browser viewport to an element's top. */
-function getElementTop(el) {
+
+export function getElementTop(el) {
   if (!(typeof window !== 'undefined' && window && document && document.body)) return null;
   if (!el || typeof el.getBoundingClientRect !== 'function') return null;
   var bodyRect = document.body.getBoundingClientRect();
   var boundingRect = el.getBoundingClientRect();
   return boundingRect.top - bodyRect.top;
 }
-
-function getElementOffset(el) {
+export function getElementOffset(el) {
   if (!(typeof window !== 'undefined' && window && document && document.body)) return null;
   if (!el || typeof el.getBoundingClientRect !== 'function') return null;
   var bodyRect = document.body.getBoundingClientRect();
@@ -61,8 +31,7 @@ function getElementOffset(el) {
     'left': boundingRect.left - bodyRect.left
   };
 }
-
-function getElementOffsetFine(el) {
+export function getElementOffsetFine(el) {
   var x = 0;
   var y = 0;
 
@@ -88,8 +57,7 @@ function getElementOffsetFine(el) {
  * @param {string}  [splitOn=' ']
  */
 
-
-var shortenString = (0, _memoizeOne["default"])(function (originalText) {
+export var shortenString = memoize(function (originalText) {
   var maxChars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 28;
   var addEllipsis = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
   var splitOn = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ' ';
@@ -125,8 +93,7 @@ var shortenString = (0, _memoizeOne["default"])(function (originalText) {
  * @return {string} - Abbreviation for column/grid Bootstrap size, e.g. 'lg', 'md', 'sm', or 'xs'.
  */
 
-exports.shortenString = shortenString;
-var responsiveGridState = (0, _memoizeOne["default"])(function () {
+export var responsiveGridState = memoize(function () {
   var width = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
   if (typeof width !== 'number') {
@@ -157,9 +124,7 @@ var responsiveGridState = (0, _memoizeOne["default"])(function () {
  * @return {integer}
  */
 
-exports.responsiveGridState = responsiveGridState;
-
-function gridContainerWidth() {
+export function gridContainerWidth() {
   var windowWidth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
   // Subtract 20 for padding/margins.
@@ -177,7 +142,7 @@ function gridContainerWidth() {
       return 520;
 
     case 'xs':
-      if ((0, _misc.isServerSide)()) return 400;
+      if (isServerSide()) return 400;
       return (windowWidth || window.innerWidth) - 20;
   }
 }
@@ -191,8 +156,7 @@ function gridContainerWidth() {
  * @return {integer} - Width of text if whitespace style set to nowrap, or object containing 'containerHeight' & 'textWidth' if widthForHeightCheck is set.
  */
 
-
-var textWidth = (0, _memoizeOne["default"])(function (textContent) {
+export var textWidth = memoize(function (textContent) {
   var font = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "1rem 'Work Sans'";
   var roundToPixel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   var canvas, context, width;
@@ -218,8 +182,7 @@ var textWidth = (0, _memoizeOne["default"])(function (textContent) {
     return width;
   }
 });
-exports.textWidth = textWidth;
-var textHeight = (0, _memoizeOne["default"])(function () {
+export var textHeight = memoize(function () {
   var textContent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "Some String";
   var width = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 200;
   var containerClassName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -237,7 +200,7 @@ var textHeight = (0, _memoizeOne["default"])(function () {
   contElem.innerHTML = textContent;
 
   if (style) {
-    _underscore["default"].extend(contElem.style, style);
+    _.extend(contElem.style, style);
   }
 
   contElem.style.display = "block";
@@ -266,8 +229,7 @@ var textHeight = (0, _memoizeOne["default"])(function () {
  * @return {integer|{ containerHeight: number, textWidth: number }} Width of text if whitespace style set to nowrap, or object containing 'containerHeight' & 'textWidth' if widthForHeightCheck is set.
  */
 
-exports.textHeight = textHeight;
-var textContentWidth = (0, _memoizeOne["default"])(function (textContent) {
+export var textContentWidth = memoize(function (textContent) {
   var containerElementType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'div';
   var containerClassName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var widthForHeightCheck = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -307,9 +269,7 @@ var textContentWidth = (0, _memoizeOne["default"])(function (textContent) {
  * @returns {HTMLElement}
  */
 
-exports.textContentWidth = textContentWidth;
-
-function getScrollingOuterElement() {
+export function getScrollingOuterElement() {
   if (!window || !document) return null; // Best. Chrome will return document.body automatically here.
 
   if (typeof document.scrollingElement !== 'undefined' && document.scrollingElement) {
@@ -326,9 +286,8 @@ function getScrollingOuterElement() {
 
   return document.body;
 }
-
-function getPageVerticalScrollPosition() {
-  if ((0, _misc.isServerSide)() || !window || !document) return null;
+export function getPageVerticalScrollPosition() {
+  if (isServerSide() || !window || !document) return null;
   return window.pageYOffset || document.scrollingElement && document.scrollingElement.scrollTop || document.documentElement && document.documentElement.scrollTop || document.body.scrollTop;
 }
 /**
@@ -341,8 +300,7 @@ function getPageVerticalScrollPosition() {
  * @returns {void}
  */
 
-
-function animateScrollTo(to) {
+export function animateScrollTo(to) {
   var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 750;
   var offsetBeforeTarget = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 112;
   var callback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -383,8 +341,7 @@ function animateScrollTo(to) {
     animation.on('end', callback);
   }
 }
-
-function toggleBodyClass(className) {
+export function toggleBodyClass(className) {
   var toggleTo = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var bodyElement = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   bodyElement = bodyElement || window && document && document.body || null;
@@ -397,7 +354,7 @@ function toggleBodyClass(className) {
   if (bodyElement) {
     var bodyClasses = bodyElement.className.split(' ');
 
-    _underscore["default"].forEach(allClasses, function (classToToggle, i) {
+    _.forEach(allClasses, function (classToToggle, i) {
       var willSet;
 
       if (typeof toggleTo === 'boolean') {
@@ -410,12 +367,12 @@ function toggleBodyClass(className) {
 
       if (willSet) {
         bodyClasses.push(classToToggle);
-        bodyClasses = _underscore["default"].uniq(bodyClasses);
+        bodyClasses = _.uniq(bodyClasses);
       } else {
         var indexToRemove = bodyClasses.indexOf(classToToggle);
 
         if (indexToRemove > -1) {
-          bodyClasses = _underscore["default"].uniq(bodyClasses.slice(0, indexToRemove).concat(bodyClasses.slice(indexToRemove + 1)));
+          bodyClasses = _.uniq(bodyClasses.slice(0, indexToRemove).concat(bodyClasses.slice(indexToRemove + 1)));
         }
       }
     });
@@ -423,8 +380,7 @@ function toggleBodyClass(className) {
     bodyElement.className = bodyClasses.length > 0 ? bodyClasses.length === 1 ? bodyClasses[0] : bodyClasses.join(' ') : null;
   }
 }
-
-function isDOMElementChildOfElementWithClass(elem, className) {
+export function isDOMElementChildOfElementWithClass(elem, className) {
   var maxDepth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
   var depth = 0;
   var currElem = elem;
@@ -451,8 +407,7 @@ function isDOMElementChildOfElementWithClass(elem, className) {
  * @returns {HTMLElement|undefined} Ancestor (or self) element for which searchFxn returns true, if any.
  */
 
-
-function findParentElement(startElement, searchFxn) {
+export function findParentElement(startElement, searchFxn) {
   var domElem = startElement;
 
   while (domElem) {
@@ -470,8 +425,7 @@ function findParentElement(startElement, searchFxn) {
  * event bubble chain (same event bubbles up).
  */
 
-
-var elementIsChildOfLink = (0, _memoizeOne["default"])(function (initDomElement) {
+export var elementIsChildOfLink = memoize(function (initDomElement) {
   var foundElem = findParentElement(initDomElement, function (domElem) {
     // SVG anchor elements have tagName == 'a' while HTML anchor elements have tagName == 'A'
     return domElem.tagName.toLowerCase() === "a" || domElem.getAttribute('data-href');
@@ -489,8 +443,7 @@ var elementIsChildOfLink = (0, _memoizeOne["default"])(function (initDomElement)
  * @constant
  */
 
-exports.elementIsChildOfLink = elementIsChildOfLink;
-var BrowserFeat = {
+export var BrowserFeat = {
   'feat': {},
 
   /**
@@ -556,4 +509,3 @@ var BrowserFeat = {
     document.documentElement.className = htmlclass.join(' ');
   }
 };
-exports.BrowserFeat = BrowserFeat;

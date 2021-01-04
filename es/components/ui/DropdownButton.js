@@ -1,16 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.DropdownMenu = exports.DropdownButton = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _WindowClickEventDelegator = require("./../util/WindowClickEventDelegator");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -35,13 +22,16 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-// THIS IS A WORK IN PROGRESS
+/* eslint-disable no-invalid-this */
+import React from 'react';
+import { WindowClickEventDelegator } from './../util/WindowClickEventDelegator'; // THIS IS A WORK IN PROGRESS
 // TODO: create a "DropdownWindowClickManager" or similarly-named global singleton class
 // Will keep track of all DropdownButtons mounted in view to ensure only one open ever at once.
 // Will be similar to WindowClickEventDelegator BUT should be more performant
 // (else can just use WindowClickEventDelegator directly, as is in code below now)
 // by only iterating over clicked element's ancestors (to see if clicked elem is child of _the only_ open dropdown menu) once re: all dropdowns.
-var DropdownButton = /*#__PURE__*/function (_React$PureComponent) {
+
+export var DropdownButton = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(DropdownButton, _React$PureComponent);
 
   var _super = _createSuper(DropdownButton);
@@ -62,12 +52,12 @@ var DropdownButton = /*#__PURE__*/function (_React$PureComponent) {
   _createClass(DropdownButton, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      _WindowClickEventDelegator.WindowClickEventDelegator.addHandler(this.onWindowClick);
+      WindowClickEventDelegator.addHandler(this.onWindowClick);
     }
   }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
-      _WindowClickEventDelegator.WindowClickEventDelegator.removeHandler(this.onWindowClick);
+      WindowClickEventDelegator.removeHandler(this.onWindowClick);
     }
     /** Close dropdown on window click unless click within menu. */
 
@@ -85,9 +75,9 @@ var DropdownButton = /*#__PURE__*/function (_React$PureComponent) {
           variant = _this$props.variant,
           size = _this$props.size;
       var open = this.state.open;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "dropdown"
-      }, /*#__PURE__*/_react["default"].createElement("button", {
+      }, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: // TODO finish handling other props
         "dropdown-toggle btn" + ("btn-" + (variant || "primary")) + ("btn-" + (size || "md")),
@@ -95,7 +85,7 @@ var DropdownButton = /*#__PURE__*/function (_React$PureComponent) {
         "data-toggle": "dropdown",
         "aria-haspopup": "true",
         "aria-expanded": "false"
-      }, title), /*#__PURE__*/_react["default"].createElement(DropdownMenu, {
+      }, title), /*#__PURE__*/React.createElement(DropdownMenu, {
         children: children,
         open: open
       }));
@@ -103,20 +93,18 @@ var DropdownButton = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return DropdownButton;
-}(_react["default"].PureComponent);
-
-exports.DropdownButton = DropdownButton;
+}(React.PureComponent);
 
 _defineProperty(DropdownButton, "defaultProps", {
-  'children': [/*#__PURE__*/_react["default"].createElement("a", {
+  'children': [/*#__PURE__*/React.createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 1
-  }, "Action"), /*#__PURE__*/_react["default"].createElement("a", {
+  }, "Action"), /*#__PURE__*/React.createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 2
-  }, "Another action"), /*#__PURE__*/_react["default"].createElement("a", {
+  }, "Another action"), /*#__PURE__*/React.createElement("a", {
     className: "dropdown-item",
     href: "#",
     key: 3
@@ -124,14 +112,11 @@ _defineProperty(DropdownButton, "defaultProps", {
   'title': "Hello World"
 });
 
-var DropdownMenu = /*#__PURE__*/_react["default"].memo(function (props) {
+export var DropdownMenu = /*#__PURE__*/React.memo(function (props) {
   var children = props.children,
       open = props.open;
   if (!open) return null;
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "dropdown-menu show"
   }, children);
 }); // TODO create plain Dropdown. Or not. Idk. Can easily create (more) custom Dropdown togglers and whatnot by emulating the above DropdownButton so not sure is worth adding more complexity...
-
-
-exports.DropdownMenu = DropdownMenu;

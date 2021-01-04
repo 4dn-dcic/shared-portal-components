@@ -1,26 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.TermsFacet = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _schemaTransforms = require("./../../../util/schema-transforms");
-
-var _FacetTermsList = require("./FacetTermsList");
-
-var _StaticSingleTerm = require("./StaticSingleTerm");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -45,6 +24,13 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import { getSchemaProperty } from './../../../util/schema-transforms';
+import { FacetTermsList } from './FacetTermsList';
+import { StaticSingleTerm } from './StaticSingleTerm';
 /**
  * Component to render out the FacetList for the Browse and ExperimentSet views.
  * It can work with AJAX-ed in back-end data, as is used for the Browse page, or
@@ -58,7 +44,8 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 /**
  * Used to render individual facet fields and their available terms in FacetList.
  */
-var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
+
+export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(TermsFacet, _React$PureComponent);
 
   var _super = _createSuper(TermsFacet);
@@ -75,7 +62,7 @@ var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
       'filtering': false
     };
     _this.memoized = {
-      fieldSchema: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaProperty)
+      fieldSchema: memoize(getSchemaProperty)
     };
     return _this;
   }
@@ -142,7 +129,7 @@ var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       if (separateSingleTermFacets && isStatic) {
         // Only one term exists.
-        return /*#__PURE__*/_react["default"].createElement(_StaticSingleTerm.StaticSingleTerm, _extends({
+        return /*#__PURE__*/React.createElement(StaticSingleTerm, _extends({
           fieldSchema: fieldSchema,
           facet: facet,
           filtering: filtering,
@@ -154,7 +141,7 @@ var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
           onClick: this.handleStaticClick
         }));
       } else {
-        return /*#__PURE__*/_react["default"].createElement(_FacetTermsList.FacetTermsList, _extends({}, this.props, {
+        return /*#__PURE__*/React.createElement(FacetTermsList, _extends({}, this.props, {
           fieldSchema: fieldSchema,
           onTermClick: this.handleTermClick
         }));
@@ -163,29 +150,26 @@ var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return TermsFacet;
-}(_react["default"].PureComponent);
-
-exports.TermsFacet = TermsFacet;
+}(React.PureComponent);
 TermsFacet.propTypes = {
-  'facet': _propTypes["default"].shape({
-    'field': _propTypes["default"].string.isRequired,
+  'facet': PropTypes.shape({
+    'field': PropTypes.string.isRequired,
     // Name of nested field property in experiment objects, using dot-notation.
-    'title': _propTypes["default"].string,
+    'title': PropTypes.string,
     // Human-readable Facet Term
-    'total': _propTypes["default"].number,
+    'total': PropTypes.number,
     // Total experiments (or terms??) w/ field
-    'terms': _propTypes["default"].array.isRequired,
+    'terms': PropTypes.array.isRequired,
     // Possible terms,
-    'description': _propTypes["default"].string,
-    'aggregation_type': _propTypes["default"].oneOf(["stats", "terms"])
+    'description': PropTypes.string,
+    'aggregation_type': PropTypes.oneOf(["stats", "terms"])
   }),
-  'defaultFacetOpen': _propTypes["default"].bool,
-  'onFilter': _propTypes["default"].func,
+  'defaultFacetOpen': PropTypes.bool,
+  'onFilter': PropTypes.func,
   // Executed on term click
-  'extraClassname': _propTypes["default"].string,
-  'schemas': _propTypes["default"].object,
-  'getTermStatus': _propTypes["default"].func.isRequired,
-  'href': _propTypes["default"].string.isRequired,
-  'filters': _propTypes["default"].arrayOf(_propTypes["default"].object).isRequired,
-  'windowWidth': _propTypes["default"].number
+  'extraClassname': PropTypes.string,
+  'schemas': PropTypes.object,
+  'getTermStatus': PropTypes.func.isRequired,
+  'href': PropTypes.string.isRequired,
+  'windowWidth': PropTypes.number
 };

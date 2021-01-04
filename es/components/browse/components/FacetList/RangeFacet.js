@@ -1,51 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getRangeValuesFromFiltersByField = getRangeValuesFromFiltersByField;
-exports.RangeTerm = exports.RangeFacet = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
-
-var _DropdownButton = _interopRequireDefault(require("react-bootstrap/esm/DropdownButton"));
-
-var _DropdownItem = _interopRequireDefault(require("react-bootstrap/esm/DropdownItem"));
-
-var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
-
-var _Popover = _interopRequireDefault(require("react-bootstrap/esm/Popover"));
-
-var _OverlayTrigger = _interopRequireDefault(require("react-bootstrap/esm/OverlayTrigger"));
-
-var _LocalizedTime = require("./../../../ui/LocalizedTime");
-
-var _PartialList = require("./../../../ui/PartialList");
-
-var _valueTransforms = require("./../../../util/value-transforms");
-
-var _schemaTransforms = require("./../../../util/schema-transforms");
-
-var _patchedConsole = require("./../../../util/patched-console");
-
-var _FacetTermsList = require("./FacetTermsList");
-
-var _ExtendedDescriptionPopoverIcon = require("./ExtendedDescriptionPopoverIcon");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -88,6 +42,24 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import Fade from 'react-bootstrap/esm/Fade';
+import Popover from 'react-bootstrap/esm/Popover';
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
+import { LocalizedTime } from './../../../ui/LocalizedTime';
+import { PartialList } from './../../../ui/PartialList';
+import { decorateNumberWithCommas } from './../../../util/value-transforms';
+import { getSchemaProperty } from './../../../util/schema-transforms';
+import { patchedConsoleInstance as console } from './../../../util/patched-console';
+import { segmentComponentsByStatus } from './FacetTermsList';
+import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
+
 function getRangeStatus(range, toVal, fromVal) {
   var _ref = range || {},
       _ref$from = _ref.from,
@@ -102,7 +74,7 @@ function getRangeStatus(range, toVal, fromVal) {
   return "none";
 }
 
-function getRangeValuesFromFiltersByField() {
+export function getRangeValuesFromFiltersByField() {
   var facets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var filters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
   var facetsByFilterField = {};
@@ -139,8 +111,7 @@ function getRangeValuesFromFiltersByField() {
   });
   return valuesByField;
 }
-
-var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
+export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(RangeFacet, _React$PureComponent);
 
   var _super = _createSuper(RangeFacet);
@@ -175,8 +146,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       if (typeof number_step !== "number" || isNaN(number_step) || number_step <= 0) {
-        _patchedConsole.patchedConsoleInstance.error("Expected number_step to be a positive number");
-
+        console.error("Expected number_step to be a positive number");
         return numVal;
       } // Remove trailing decimals (if any) (round down)
       // Be careful re: float operations (imprecise) and favor integers
@@ -266,8 +236,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this.performUpdateToAndFrom = _this.performUpdateToAndFrom.bind(_assertThisInitialized(_this));
     _this.termTitle = _this.termTitle.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      fieldSchema: (0, _memoizeOne["default"])(_schemaTransforms.getSchemaProperty),
-      validIncrements: (0, _memoizeOne["default"])(RangeFacet.validIncrements)
+      fieldSchema: memoize(getSchemaProperty),
+      validIncrements: memoize(RangeFacet.validIncrements)
     };
     _this.state = _objectSpread(_objectSpread({}, RangeFacet.initialStateValues(props)), {}, {
       "facetClosing": false,
@@ -306,7 +276,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           fromVal: fromVal
         }, callback);
       } catch (e) {
-        _patchedConsole.patchedConsoleInstance.error("Couldn't set value", e);
+        console.error("Couldn't set value", e);
       }
     }
   }, {
@@ -320,7 +290,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           toVal: toVal
         }, callback);
       } catch (e) {
-        _patchedConsole.patchedConsoleInstance.error("Couldn't set value", e);
+        console.error("Couldn't set value", e);
       }
     }
   }, {
@@ -336,7 +306,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           fromVal: fromVal
         }, callback);
       } catch (e) {
-        _patchedConsole.patchedConsoleInstance.error("Couldn't set value", e);
+        console.error("Couldn't set value", e);
       }
     }
   }, {
@@ -456,7 +426,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           termTransformFxn = _this$props6.termTransformFxn;
 
       if (field_type === "date") {
-        return /*#__PURE__*/_react["default"].createElement(_LocalizedTime.LocalizedTime, {
+        return /*#__PURE__*/React.createElement(LocalizedTime, {
           timestamp: value,
           localize: false
         });
@@ -477,7 +447,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       if (absVal.toString().length <= 6) {
         // Else is too long and will go thru toPrecision or toExponential.
         if (absVal >= 1000) {
-          return (0, _valueTransforms.decorateNumberWithCommas)(transformedValue);
+          return decorateNumberWithCommas(transformedValue);
         } else {
           return transformedValue;
         }
@@ -537,20 +507,19 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       if (field_type === "number" || field_type === "integer") {
         if (aggregation_type === "stats") {
-          fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/_react["default"].createElement("em", null, "-Infinite");
-          toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/_react["default"].createElement("em", null, "Infinite");
+          fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
+          toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/React.createElement("em", null, "Infinite");
         } else if (aggregation_type === "range") {
           var _ranges$ = ranges[0],
               firstRange = _ranges$ === void 0 ? null : _ranges$;
           var lastRange = ranges[ranges.length - 1] || {};
-          fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof firstRange.from === "number" ? this.termTitle(facet.field, firstRange.from) : /*#__PURE__*/_react["default"].createElement("em", null, "-Infinite");
-          toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof lastRange.to === "number" ? this.termTitle(facet.field, lastRange.to) : /*#__PURE__*/_react["default"].createElement("em", null, "Infinite");
+          fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof firstRange.from === "number" ? this.termTitle(facet.field, firstRange.from) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
+          toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof lastRange.to === "number" ? this.termTitle(facet.field, lastRange.to) : /*#__PURE__*/React.createElement("em", null, "Infinite");
         }
       } else if (field_type === "date") {
         fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
-        toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/_react["default"].createElement("em", null, "None");
-
-        _patchedConsole.patchedConsoleInstance.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
+        toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/React.createElement("em", null, "None");
+        console.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
       } else {
         throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
       }
@@ -558,42 +527,42 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
       var fromVariant = savedFromVal === null ? "outline-dark" : "primary";
       var toVariant = savedToVal === null ? "outline-dark" : "primary";
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "facet range-facet" + (facetOpen ? ' open' : ' closed'),
         "data-field": facet.field
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "facet-title",
         onClick: this.handleOpenToggleClick
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (isOpen ? "minus fas" : "plus fas")
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-place": "right"
-      }, propTitle || facetTitle || field), /*#__PURE__*/_react["default"].createElement(_ExtendedDescriptionPopoverIcon.ExtendedDescriptionPopoverIcon, {
+      }, propTitle || facetTitle || field), /*#__PURE__*/React.createElement(ExtendedDescriptionPopoverIcon, {
         fieldSchema: fieldSchema,
         facet: facet,
         openPopover: openPopover,
         setOpenPopover: setOpenPopover
-      })), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+      })), /*#__PURE__*/React.createElement(Fade, {
         "in": !isOpen
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
-      }, isStatic ? /*#__PURE__*/_react["default"].createElement("i", {
+      }, isStatic ? /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-" + (savedFromVal !== null || savedToVal !== null ? "circle" : "minus-circle"),
         style: {
           opacity: savedFromVal !== null || savedToVal !== null ? 0.75 : 0.25
         }
-      }) : /*#__PURE__*/_react["default"].createElement("i", {
+      }) : /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas"
-      })))), /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+      })))), /*#__PURE__*/React.createElement(Collapse, {
         "in": isOpen
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "inner-panel"
-      }, /*#__PURE__*/_react["default"].createElement(RangeClear, _extends({
+      }, /*#__PURE__*/React.createElement(RangeClear, _extends({
         fromTitle: fromTitle,
         toTitle: toTitle,
         savedFromVal: savedFromVal,
@@ -604,13 +573,13 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         termTransformFxn: this.termTitle,
         resetFrom: fromVal !== null ? this.resetFrom : null,
         resetTo: toVal !== null ? this.resetTo : null
-      })), !facetOpen ? null : /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
+      })), !facetOpen ? null : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: "range-drop-group"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "range-drop"
-      }, /*#__PURE__*/_react["default"].createElement("label", {
+      }, /*#__PURE__*/React.createElement("label", {
         className: "mb-0 small"
-      }, "From:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
+      }, "From:"), /*#__PURE__*/React.createElement(RangeDropdown, {
         title: fromTitle,
         value: fromVal,
         savedValue: savedFromVal,
@@ -623,11 +592,11 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "from_" + field,
         reset: fromVal !== null ? this.resetFrom : null
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
         className: "range-drop ml-05"
-      }, /*#__PURE__*/_react["default"].createElement("label", {
+      }, /*#__PURE__*/React.createElement("label", {
         className: "mb-0 small"
-      }, "To:"), /*#__PURE__*/_react["default"].createElement(RangeDropdown, {
+      }, "To:"), /*#__PURE__*/React.createElement(RangeDropdown, {
         title: toTitle,
         value: toVal,
         savedValue: savedToVal,
@@ -640,7 +609,7 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         facet: facet,
         id: "to_" + field,
         reset: toVal !== null ? this.resetTo : null
-      }))), ranges && ranges.length > 0 ? /*#__PURE__*/_react["default"].createElement(ListOfRanges, _extends({}, this.props, {
+      }))), ranges && ranges.length > 0 ? /*#__PURE__*/React.createElement(ListOfRanges, _extends({}, this.props, {
         expanded: expanded
       }, {
         onToggleExpanded: this.handleExpandListToggleClick,
@@ -651,11 +620,8 @@ var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return RangeFacet;
-}(_react["default"].PureComponent);
-
-exports.RangeFacet = RangeFacet;
-
-var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
+}(React.PureComponent);
+var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
       facetClosing = props.facetClosing,
@@ -672,9 +638,9 @@ var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
       ranges = _facet$ranges2 === void 0 ? [] : _facet$ranges2;
   /** Create range components and sort by status (selected->omitted->unselected) */
 
-  var _useMemo = (0, _react.useMemo)(function () {
-    var _segmentComponentsByS = (0, _FacetTermsList.segmentComponentsByStatus)(ranges.map(function (range) {
-      return /*#__PURE__*/_react["default"].createElement(RangeTerm, _extends({
+  var _useMemo = useMemo(function () {
+    var _segmentComponentsByS = segmentComponentsByStatus(ranges.map(function (range) {
+      return /*#__PURE__*/React.createElement(RangeTerm, _extends({
         facet: facet,
         range: range,
         termTransformFxn: termTransformFxn,
@@ -755,35 +721,35 @@ var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
     var expandButtonTitle;
 
     if (expanded) {
-      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-minus fas"
       }), " Collapse");
     } else {
-      expandButtonTitle = /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-plus fas"
-      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/_react["default"].createElement("span", {
+      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/React.createElement("span", {
         className: "pull-right"
       }, collapsibleTermsItemCount));
     }
 
-    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
-      collapsible: /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0",
         open: expanded,
         persistent: persistentTerms,
         collapsible: collapsibleTerms
-      }), /*#__PURE__*/_react["default"].createElement("div", {
+      }), /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "view-more-button",
         onClick: onToggleExpanded
       }, expandButtonTitle)))
     }));
   } else {
-    return /*#__PURE__*/_react["default"].createElement("div", commonProps, /*#__PURE__*/_react["default"].createElement(_PartialList.PartialList, {
+    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
@@ -795,8 +761,7 @@ var ListOfRanges = /*#__PURE__*/_react["default"].memo(function (props) {
  * Used to render a term with range functionality in FacetList. Basically same as FacetTermsList > Term... maybe merge later
  */
 
-
-var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
+export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(RangeTerm, _React$PureComponent2);
 
   var _super2 = _createSuper(RangeTerm);
@@ -807,7 +772,7 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
     _classCallCheck(this, RangeTerm);
 
     _this2 = _super2.call(this, props);
-    _this2.handleClick = _underscore["default"].debounce(_this2.handleClick.bind(_assertThisInitialized(_this2)), 500, true);
+    _this2.handleClick = _.debounce(_this2.handleClick.bind(_assertThisInitialized(_this2)), 500, true);
     _this2.state = {
       'filtering': false
     };
@@ -855,15 +820,15 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       var title = (typeof from !== 'undefined' ? from : '< ') + (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') + (typeof to !== 'undefined' ? to : '+ ');
 
       if (filtering) {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon = /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
       } else if (status === 'selected' || status === 'omitted') {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon = /*#__PURE__*/React.createElement("i", {
           className: "icon icon-dot-circle icon-fw fas"
         });
       } else {
-        icon = /*#__PURE__*/_react["default"].createElement("i", {
+        icon = /*#__PURE__*/React.createElement("i", {
           className: "icon icon-circle icon-fw unselected far"
         });
       }
@@ -872,42 +837,40 @@ var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
         title = 'None';
       }
 
-      return /*#__PURE__*/_react["default"].createElement("li", {
+      return /*#__PURE__*/React.createElement("li", {
         className: "facet-list-element ",
         key: label,
         "data-key": label
-      }, /*#__PURE__*/_react["default"].createElement("a", {
+      }, /*#__PURE__*/React.createElement("a", {
         className: "term",
         "data-selected": status !== 'none',
         href: "#",
         onClick: status === "selected" ? resetAll : this.handleClick,
         "data-term": label
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "facet-selector"
-      }, icon), /*#__PURE__*/_react["default"].createElement("span", {
+      }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item",
         "data-tip": title.length > 30 ? title : null
-      }, title, " ", label ? "(".concat(label, ")") : null), /*#__PURE__*/_react["default"].createElement("span", {
+      }, title, " ", label ? "(".concat(label, ")") : null), /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
       }, doc_count || 0)));
     }
   }]);
 
   return RangeTerm;
-}(_react["default"].PureComponent);
-
-exports.RangeTerm = RangeTerm;
+}(React.PureComponent);
 RangeTerm.propTypes = {
-  'facet': _propTypes["default"].shape({
-    'field': _propTypes["default"].string.isRequired
+  'facet': PropTypes.shape({
+    'field': PropTypes.string.isRequired
   }).isRequired,
-  'range': _propTypes["default"].shape({
-    'from': _propTypes["default"].number,
-    'to': _propTypes["default"].number,
-    'label': _propTypes["default"].string,
-    'doc_count': _propTypes["default"].number
+  'range': PropTypes.shape({
+    'from': PropTypes.number,
+    'to': PropTypes.number,
+    'label': PropTypes.string,
+    'doc_count': PropTypes.number
   }).isRequired,
-  'onClick': _propTypes["default"].func.isRequired
+  'onClick': PropTypes.func.isRequired
 };
 
 var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
@@ -942,48 +905,48 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
       } else if (savedFromVal !== null && savedToVal !== null) {
         // To and From present
         savedToVal < savedFromVal ? "btn-warning" : "btn-primary";
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: "range-clear"
-        }, /*#__PURE__*/_react["default"].createElement("li", {
+        }, /*#__PURE__*/React.createElement("li", {
           className: "selected facet-list-element clickable"
-        }, /*#__PURE__*/_react["default"].createElement("a", {
+        }, /*#__PURE__*/React.createElement("a", {
           onClick: resetAll
-        }, /*#__PURE__*/_react["default"].createElement("span", {
+        }, /*#__PURE__*/React.createElement("span", {
           className: "facet-selector"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/_react["default"].createElement("span", {
+        })), /*#__PURE__*/React.createElement("span", {
           className: "facet-item",
           style: {
             textAlign: "center",
             marginLeft: "-5px"
           }
-        }, savedFromTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+        }, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-less-than-equal icon-xs px-1"
-        }), " ", facetTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+        }), " ", facetTitle, " ", /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-less-than-equal icon-xs px-1"
         }), " ", savedToTitle))));
       } else {
         // Only To or From present
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: "range-clear"
-        }, /*#__PURE__*/_react["default"].createElement("li", {
+        }, /*#__PURE__*/React.createElement("li", {
           className: "selected facet-list-element clickable"
-        }, /*#__PURE__*/_react["default"].createElement("a", {
+        }, /*#__PURE__*/React.createElement("a", {
           onClick: resetTo === null ? resetFrom : resetTo
-        }, /*#__PURE__*/_react["default"].createElement("span", {
+        }, /*#__PURE__*/React.createElement("span", {
           className: "facet-selector"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/_react["default"].createElement("span", {
+        })), /*#__PURE__*/React.createElement("span", {
           className: "facet-item",
           style: {
             textAlign: "center",
             marginLeft: "-5px"
           }
-        }, savedToVal !== null ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, facetTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+        }, savedToVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, facetTitle, " ", /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-less-than-equal icon-xs px-1"
-        }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, savedFromTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+        }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-less-than-equal icon-xs px-1"
         }), " ", facetTitle) : null))));
       }
@@ -991,7 +954,7 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
   }]);
 
   return RangeClear;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 
 var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
   _inherits(RangeDropdown, _React$PureComponent4);
@@ -1065,9 +1028,8 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
         this.toggleDrop();
       }
 
-      _patchedConsole.patchedConsoleInstance.log("evt.key", evt.key);
-
-      _patchedConsole.patchedConsoleInstance.log("evt.keycode", evt.keyCode);
+      console.log("evt.key", evt.key);
+      console.log("evt.keycode", evt.keyCode);
     }
   }, {
     key: "toggleDrop",
@@ -1130,19 +1092,17 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
           fMax = facet.max,
           _facet$number_step2 = facet.number_step,
           step = _facet$number_step2 === void 0 ? "any" : _facet$number_step2;
-
-      var emptyValue = /*#__PURE__*/_react["default"].createElement("span", {
+      var emptyValue = /*#__PURE__*/React.createElement("span", {
         className: "mx-1"
       }, "-");
-
-      var showTitle = /*#__PURE__*/_react["default"].createElement("div", {
+      var showTitle = /*#__PURE__*/React.createElement("div", {
         className: "d-flex"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "col px-0"
       }, value !== null ? title : emptyValue));
 
       if (field_type === "date") {
-        return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
+        return /*#__PURE__*/React.createElement(DropdownButton, _extends({
           variant: variant,
           disabled: disabled,
           className: className,
@@ -1156,23 +1116,23 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
           onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
-        }), /*#__PURE__*/_react["default"].createElement("form", {
+        }), /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container pb-0 mb-0 border-0",
           onSubmit: this.onTextInputFormSubmit
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "input-element-container"
-        }, /*#__PURE__*/_react["default"].createElement("input", {
+        }, /*#__PURE__*/React.createElement("input", {
           type: "date",
           className: "form-control",
           value: value,
           "data-value": value,
           onKeyDown: this.onTextInputKeyDown,
           onChange: this.onTextInputChange
-        })), /*#__PURE__*/_react["default"].createElement("button", {
+        })), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
           className: "btn"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-check fas"
         }))));
       } else if (field_type === "number" || field_type === "integer") {
@@ -1192,15 +1152,15 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
         }, new Set());
 
         var menuOptions = _toConsumableArray(menuOptsSet).map(function (increment) {
-          return /*#__PURE__*/_react["default"].createElement(_DropdownItem["default"], {
+          return /*#__PURE__*/React.createElement(DropdownItem, {
             disabled: disabled,
             key: increment,
             eventKey: increment === 0 ? increment.toString() : increment,
             active: increment === savedValue
-          }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/_react["default"].createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/_react["default"].createElement("small", null, " (max)") : null);
+          }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/React.createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/React.createElement("small", null, " (max)") : null);
         });
 
-        return /*#__PURE__*/_react["default"].createElement(_DropdownButton["default"], _extends({
+        return /*#__PURE__*/React.createElement(DropdownButton, _extends({
           variant: variant,
           disabled: disabled,
           className: className,
@@ -1215,12 +1175,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
           onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
-        }), /*#__PURE__*/_react["default"].createElement("form", {
+        }), /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container",
           onSubmit: this.onTextInputFormSubmit
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "input-element-container"
-        }, /*#__PURE__*/_react["default"].createElement("input", _extends({
+        }, /*#__PURE__*/React.createElement("input", _extends({
           type: "number",
           className: "form-control"
         }, {
@@ -1230,11 +1190,11 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
         }, {
           onKeyDown: this.onTextInputKeyDown,
           onChange: this.onTextInputChange
-        }))), /*#__PURE__*/_react["default"].createElement("button", {
+        }))), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
           className: "btn"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-check fas"
         }))), menuOptions);
       } else {
@@ -1244,4 +1204,4 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
   }]);
 
   return RangeDropdown;
-}(_react["default"].PureComponent);
+}(React.PureComponent);

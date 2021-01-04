@@ -1,6 +1,6 @@
 import React from 'react';
 // import PropTypes from 'prop-types';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/esm/Dropdown';
 import { VerticalScrollContainer } from './VerticalScrollContainer';
 
 

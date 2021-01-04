@@ -53,6 +53,13 @@ export class EmbeddedSearchView extends React.PureComponent {
         'onClearFiltersVirtual' : PropTypes.func,
         'isClearFiltersBtnVisible' : PropTypes.func,
         'embeddedTableHeader' : PropTypes.element,
+        'embeddedTableFooter' : PropTypes.element,
+        'aboveTableComponent' : PropTypes.element,
+        'aboveFacetListComponent' : PropTypes.element,
+        'facetListComponent' : PropTypes.element,
+        'facetColumnClassName' : PropTypes.string,
+        'tableColumnClassName' : PropTypes.string,
+        'allowPostRequest' : PropTypes.bool
     };
 
     static listToObj(hideFacetStrs){
@@ -104,7 +111,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             href,                   // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             context,                // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             currentAction = null,   // From App.js; is NOT passed down. Always should be null for embedded search views.
-            searchHref,
+            searchHref,             // Initial search href; if blank, then no initial request is made.
             // schemas = null,       // Passed down in passProps
             navigate: propNavigate,  // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
             columns = null,
@@ -112,6 +119,7 @@ export class EmbeddedSearchView extends React.PureComponent {
             facets,
             aboveTableComponent = null,         // Override default default to be null.
             aboveFacetListComponent = null,     // Override default default to be null.
+            facetListComponent,                 // Preserve/use default value (DefaultFaceetListComponent) set by ControlsAndResults unless overriden by parent UI requirements.
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
             filterFacetFxn: propFacetFilterFxn = null,
@@ -127,18 +135,21 @@ export class EmbeddedSearchView extends React.PureComponent {
             // Must be static function that accepts currentSearchHref as first parameter and original searchHref as second one.
             // (On other hand, `SearchView` component accepts boolean `showClearFiltersButton`, as we have `context` etc available there.)
             isClearFiltersBtnVisible,
+            facetColumnClassName,               // If undefined, default is set in ControlsAndResults.
+            tableColumnClassName: propTableColumnClassName, // If undefined, default is set in ControlsAndResults.
+            allowPostRequest = false,           // This is supported only on CGAP right now, so disabled now here until 4DN supports compound_search.
             ...passProps
         } = this.props;
 
-        // If facets are null (hidden/excluded), set table col to be full width of container.
-        const tableColumnClassName = facets === null ? "col-12" : undefined;
+        // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
+        const tableColumnClassName = propTableColumnClassName || (facets === null ? "col-12" : undefined);
         // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
-        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, tableColumnClassName };
+        const viewProps = { ...passProps, aboveTableComponent, aboveFacetListComponent, facetListComponent, tableColumnClassName, facetColumnClassName };
         const filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
 
         return (
             <div className="embedded-search-container">
-                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible }} key={searchHref || 1}>
+                <VirtualHrefController {...{ searchHref, facets, onLoad, filterFacetFxn, onClearFiltersVirtual, isClearFiltersBtnVisible, allowPostRequest }} key={searchHref || 1}>
                     <ColumnCombiner {...{ columns, columnExtensionMap }}>
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>

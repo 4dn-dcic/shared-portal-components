@@ -1,25 +1,15 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.isServerSide = isServerSide;
-exports.isSelectAction = isSelectAction;
-exports.memoizedUrlParse = void 0;
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _url = _interopRequireDefault(require("url"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
+import memoize from 'memoize-one';
+import url from 'url';
 /**
  * Check if JS is processing on serverside, vs in browser (clientside).
  * Adapted from react/node_modules/fbjs/lib/ExecutionEnvironment.canUseDOM()
  *
  * @return {boolean} - True if processing on serverside.
  */
-function isServerSide() {
+
+export function isServerSide() {
   if (typeof SERVERSIDE === 'boolean') {
     // See webpack.config.js of CGAP & 4DN portals, set via `webPack.definePlugin`.
     // Will _NOT_ be available in unit tests (as these import raw JSX afaik).
@@ -45,20 +35,17 @@ function isServerSide() {
  * @param {string} href - Current href.
  */
 
-
-var memoizedUrlParse = (0, _memoizeOne["default"])(function (href) {
+export var memoizedUrlParse = memoize(function (href) {
   // This warn message should appear once per unique page/href.
   console.warn("memoizedUrlParse called with", href);
-  return _url["default"].parse(href, true);
+  return url.parse(href, true);
 });
 /**
  * Check if actionType is one of the select (selection/multiselect) action types
  * @param {string?} actionType - current action type (if any)
  */
 
-exports.memoizedUrlParse = memoizedUrlParse;
-
-function isSelectAction() {
+export function isSelectAction() {
   var actionType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
   if (!actionType || typeof actionType !== "string") {
@@ -67,7 +54,6 @@ function isSelectAction() {
 
   return isSelectAction.selectionActionMap[actionType] || false;
 }
-
 isSelectAction.selectionActionMap = {
   "selection": true,
   "multiselect": true

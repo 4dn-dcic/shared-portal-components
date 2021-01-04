@@ -1,27 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.correctRelativeLinks = correctRelativeLinks;
-exports.StaticPageBase = exports.StaticEntry = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
-
-var _TableOfContents = require("./TableOfContents");
-
-var _util = require("./../util");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -48,6 +26,13 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import { TableOfContents, HeaderWithLink } from './TableOfContents';
+import { layout, console } from './../util';
 /**
  * Converts links to other files into links to sections from a React element and its children (recursively).
  *
@@ -56,7 +41,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
  * @param {number} [depth=0]                            Current depth.
  * @returns {JSX.Element} Copy of original 'elem' param with corrected links.
  */
-function correctRelativeLinks(elem, context) {
+
+export function correctRelativeLinks(elem, context) {
   var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   if (_typeof(elem) !== 'object' || !elem) return elem; // Could be a string, or null.
 
@@ -76,7 +62,7 @@ function correctRelativeLinks(elem, context) {
         // Check if is name of a section, and if so, correct.
         var filenameWithoutExtension = href.split('.').slice(0, -1).join('.');
 
-        if (typeof _underscore["default"].find(context.content, {
+        if (typeof _.find(context.content, {
           'name': filenameWithoutExtension
         }) !== 'undefined') {
           href = '#' + filenameWithoutExtension;
@@ -85,23 +71,21 @@ function correctRelativeLinks(elem, context) {
     }
 
     if (href !== elem.props.href || href.charAt(0) === '#') {
-      return /*#__PURE__*/_react["default"].cloneElement(elem, _underscore["default"].extend(_underscore["default"].omit(elem.props, 'children'), {
+      return /*#__PURE__*/React.cloneElement(elem, _.extend(_.omit(elem.props, 'children'), {
         'href': href,
         'onClick': href.charAt(0) !== '#' ? null : function (e) {
           e.preventDefault();
-
-          _util.layout.animateScrollTo(href.slice(1));
+          layout.animateScrollTo(href.slice(1));
         }
       }), elem.props.children || null);
     } else return elem;
   } else if (elem.props.children && typeof elem.type === 'string') {
-    return /*#__PURE__*/_react["default"].cloneElement(elem, _underscore["default"].omit(elem.props, 'children'), _react["default"].Children.map(elem.props.children, function (child) {
+    return /*#__PURE__*/React.cloneElement(elem, _.omit(elem.props, 'children'), React.Children.map(elem.props.children, function (child) {
       return correctRelativeLinks(child, context, depth + 1);
     }));
   } else return elem;
 }
-
-var Wrapper = /*#__PURE__*/_react["default"].memo(function (props) {
+var Wrapper = /*#__PURE__*/React.memo(function (props) {
   var children = props.children,
       tableOfContents = props.tableOfContents,
       title = props.title,
@@ -109,32 +93,30 @@ var Wrapper = /*#__PURE__*/_react["default"].memo(function (props) {
   var toc = context && context['table-of-contents'] || (tableOfContents && _typeof(tableOfContents) === 'object' ? tableOfContents : null);
   var pageTitle = title || context && context.title || null;
   var tocExists = toc && toc.enabled !== false;
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "container",
     id: "content"
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "static-page row",
     key: "wrapper"
-  }, tocExists ? /*#__PURE__*/_react["default"].createElement("div", {
+  }, tocExists ? /*#__PURE__*/React.createElement("div", {
     key: "toc-wrapper",
     className: "col-12 col-xl-3 order-1 order-xl-3"
-  }, /*#__PURE__*/_react["default"].createElement(_TableOfContents.TableOfContents, _extends({
+  }, /*#__PURE__*/React.createElement(TableOfContents, _extends({
     pageTitle: pageTitle,
     fixedGridWidth: 3,
     maxHeaderDepth: toc['header-depth'] || 6
-  }, _underscore["default"].pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')))) : null, /*#__PURE__*/_react["default"].createElement("div", {
+  }, _.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')))) : null, /*#__PURE__*/React.createElement("div", {
     key: "main-column",
     className: "order-2 col-12 col-xl-" + (tocExists ? '9' : '12')
   }, children)));
 });
-
 Wrapper.defaultProps = {
   //'contentColSize' : 12,
   'tableOfContents': false,
   'tocListStyles': ['decimal', 'lower-alpha', 'lower-roman']
 };
-
-var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
+export var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(StaticEntry, _React$PureComponent);
 
   var _super = _createSuper(StaticEntry);
@@ -145,7 +127,7 @@ var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, StaticEntry);
 
     _this = _super.call(this, props);
-    _this.toggleOpen = _underscore["default"].throttle(_this.toggleOpen.bind(_assertThisInitialized(_this)), 1000);
+    _this.toggleOpen = _.throttle(_this.toggleOpen.bind(_assertThisInitialized(_this)), 1000);
     var options = props.section && props.section.options || {};
     _this.state = {
       'open': options.default_open,
@@ -196,37 +178,34 @@ var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
       var _this$state = this.state,
           open = _this$state.open,
           closing = _this$state.closing;
-
-      var id = _TableOfContents.TableOfContents.elementIDFromSectionName(sectionName);
-
+      var id = TableOfContents.elementIDFromSectionName(sectionName);
       var options = section && section.options || {};
       var outerClassName = entryType + "-entry static-section-entry";
-
-      var renderedChildComponent = /*#__PURE__*/_react["default"].createElement(childComponent, this.props);
+      var renderedChildComponent = /*#__PURE__*/React.createElement(childComponent, this.props);
 
       if (options.collapsible) {
         outerClassName += ' can-collapse ' + (open ? 'open' : 'closed');
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: outerClassName,
           id: id
-        }, section && section.title ? /*#__PURE__*/_react["default"].createElement(_TableOfContents.HeaderWithLink, {
+        }, section && section.title ? /*#__PURE__*/React.createElement(HeaderWithLink, {
           className: "section-title can-collapse " + (open ? 'open' : 'closed'),
           link: id,
           context: context,
           onClick: this.toggleOpen
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw fas icon-" + (open ? 'minus' : 'plus')
-        }), "\xA0\xA0", section.title) : null, /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+        }), "\xA0\xA0", section.title) : null, /*#__PURE__*/React.createElement(Collapse, {
           "in": open
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "inner"
         }, open || closing ? renderedChildComponent : null)));
       }
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: outerClassName,
         id: id
-      }, section && section.title ? /*#__PURE__*/_react["default"].createElement(_TableOfContents.HeaderWithLink, {
+      }, section && section.title ? /*#__PURE__*/React.createElement(HeaderWithLink, {
         className: "section-title",
         link: id,
         context: context
@@ -235,15 +214,12 @@ var StaticEntry = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return StaticEntry;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 /**
  * This component shows an alert on mount if have been redirected from a different page, and
  * then renders out a list of StaticEntry components within a Wrapper in its render() method.
  * May be used by extending and then overriding the render() method.
  */
-
-
-exports.StaticEntry = StaticEntry;
 
 _defineProperty(StaticEntry, "defaultProps", {
   'section': null,
@@ -253,10 +229,10 @@ _defineProperty(StaticEntry, "defaultProps", {
 });
 
 _defineProperty(StaticEntry, "propTypes", {
-  'childComponent': _propTypes["default"].elementType
+  'childComponent': PropTypes.elementType
 });
 
-var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
+export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(StaticPageBase, _React$PureComponent2);
 
   var _super2 = _createSuper(StaticPageBase);
@@ -279,9 +255,8 @@ var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
       try {
         parsedContent = contentParseFxn(context);
       } catch (e) {
-        _util.console.dir(e);
-
-        parsedContent = _underscore["default"].extend({}, context, {
+        console.dir(e);
+        parsedContent = _.extend({}, context, {
           'content': [{
             'content': '<h4>Error - ' + e.message + '</h4>Check Page content/sections.',
             'name': 'error'
@@ -290,7 +265,7 @@ var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
       }
 
       var tableOfContents = parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled ? parsedContent['table-of-contents'] : false;
-      return /*#__PURE__*/_react["default"].createElement(Wrapper, _extends({}, _underscore["default"].pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href'), {
+      return /*#__PURE__*/React.createElement(Wrapper, _extends({}, _.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href'), {
         key: "page-wrapper",
         title: parsedContent.title,
         tableOfContents: tableOfContents,
@@ -301,21 +276,18 @@ var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
     key: "renderSections",
     value: function renderSections(renderMethod, parsedContent, props) {
       if (!parsedContent || !parsedContent.content || !Array.isArray(parsedContent.content)) {
-        _util.console.error('No content defined for page', parsedContent);
-
+        console.error('No content defined for page', parsedContent);
         return null;
       }
 
-      return _underscore["default"].map(parsedContent.content, function (section) {
+      return _.map(parsedContent.content, function (section) {
         return renderMethod(section.id || section.name, section, props);
       });
     }
   }]);
 
   return StaticPageBase;
-}(_react["default"].PureComponent);
-
-exports.StaticPageBase = StaticPageBase;
+}(React.PureComponent);
 
 _defineProperty(StaticPageBase, "Wrapper", Wrapper);
 
@@ -345,8 +317,8 @@ _defineProperty(StaticPageBase, "defaultProps", {
    * @param {{ content : string|JSX.Element }} section - Object with parsed content, title, etc.
    * @param {Object} props - Collection of props passed down from BodyElement.
    */
-  'entryRenderFxn': (0, _memoizeOne["default"])(function (sectionName, section, props) {
-    return /*#__PURE__*/_react["default"].createElement(StaticEntry, _extends({}, props, {
+  'entryRenderFxn': memoize(function (sectionName, section, props) {
+    return /*#__PURE__*/React.createElement(StaticEntry, _extends({}, props, {
       key: sectionName,
       sectionName: sectionName,
       section: section
@@ -355,12 +327,12 @@ _defineProperty(StaticPageBase, "defaultProps", {
 });
 
 _defineProperty(StaticPageBase, "propTypes", {
-  'context': _propTypes["default"].shape({
-    "title": _propTypes["default"].string,
-    "content": _propTypes["default"].any.isRequired,
-    "table-of-contents": _propTypes["default"].object
+  'context': PropTypes.shape({
+    "title": PropTypes.string,
+    "content": PropTypes.any.isRequired,
+    "table-of-contents": PropTypes.object
   }).isRequired,
-  'entryRenderFxn': _propTypes["default"].func.isRequired,
-  'contentParseFxn': _propTypes["default"].func.isRequired,
-  'href': _propTypes["default"].string
+  'entryRenderFxn': PropTypes.func.isRequired,
+  'contentParseFxn': PropTypes.func.isRequired,
+  'href': PropTypes.string
 });

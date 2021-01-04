@@ -1,22 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.DragAndDropZone = exports.DragAndDropFileUploadController = exports.DragAndDropUploadSubmissionViewController = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _reactBootstrap = require("react-bootstrap");
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _util = require("./../../util");
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -43,7 +24,12 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Component) {
+import React from 'react';
+import Modal from 'react-bootstrap/esm/Modal';
+import PropTypes from 'prop-types';
+import { ajax } from './../../util';
+import _ from 'underscore';
+export var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Component) {
   _inherits(DragAndDropUploadSubmissionViewController, _React$Component);
 
   var _super = _createSuper(DragAndDropUploadSubmissionViewController);
@@ -55,7 +41,7 @@ var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Co
   }
 
   return DragAndDropUploadSubmissionViewController;
-}(_react["default"].Component);
+}(React.Component);
 /**
  * Main component for independent drag and drop file upload. May eventually be updated to take a prop
  * for onUploadStart... OR patchToParent, to update SV SAYTAJAX interface via SV-onchange or SV-selectcomplete.
@@ -67,10 +53,7 @@ var DragAndDropUploadSubmissionViewController = /*#__PURE__*/function (_React$Co
  * Heavily reworked from this reference: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
  */
 
-
-exports.DragAndDropUploadSubmissionViewController = DragAndDropUploadSubmissionViewController;
-
-var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) {
+export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) {
   _inherits(DragAndDropFileUploadController, _React$Component2);
 
   var _super2 = _createSuper(DragAndDropFileUploadController);
@@ -118,7 +101,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
 
           var acceptableFileTypes = fileSchema.properties.attachment.properties.type["enum"];
 
-          if (_underscore["default"].indexOf(acceptableFileTypes, file.type) === -1) {
+          if (_.indexOf(acceptableFileTypes, file.type) === -1) {
             var listOfTypes = acceptableFileTypes.toString();
             alert("FILE NOT ADDED: File \"".concat(file.name, "\" is not of the correct file type for this field.\n\nMust be of type: ").concat(listOfTypes, "."));
             return "continue";
@@ -159,7 +142,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
 
         var allFiles = currFiles.concat(fileArr); // Filter out duplicates (based on just filename for now; may need more criteria in future)
 
-        var dedupedFiles = _underscore["default"].uniq(allFiles, false, function (file) {
+        var dedupedFiles = _.uniq(allFiles, false, function (file) {
           return file.download;
         });
 
@@ -255,7 +238,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
 
       var payloadObj = this.generatePayload(file, true);
       var payload = JSON.stringify(payloadObj);
-      return _util.ajax.promise(destination, 'POST', {}, payload).then(function (response) {
+      return ajax.promise(destination, 'POST', {}, payload).then(function (response) {
         console.log("validateItem response", response); // for testing
 
         return response;
@@ -299,8 +282,8 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
 
       current_docs.push(submitted_at_id); // Ensure no duplicates (obviously more relevant in multiselect cases)
 
-      current_docs = _underscore["default"].uniq(current_docs);
-      return _util.ajax.promise(individualId, "PATCH", {}, JSON.stringify(_defineProperty({}, fieldType, current_docs)));
+      current_docs = _.uniq(current_docs);
+      return ajax.promise(individualId, "PATCH", {}, JSON.stringify(_defineProperty({}, fieldType, current_docs)));
     }
   }, {
     key: "onUploadStart",
@@ -352,7 +335,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
       this.setState({
         isLoading: true
       }, function () {
-        var promiseQueue = new _util.ajax.PromiseQueue();
+        var promiseQueue = new ajax.PromiseQueue();
         var allPromises = []; // Add each file submission chain to the queue, so each file uploads sequentially
 
         files.forEach(function (file) {
@@ -382,7 +365,7 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
       var _this$state = this.state,
           files = _this$state.files,
           isLoading = _this$state.isLoading;
-      return /*#__PURE__*/_react["default"].createElement(DragAndDropUploadButton, _extends({
+      return /*#__PURE__*/React.createElement(DragAndDropUploadButton, _extends({
         cls: cls,
         fieldDisplayTitle: fieldDisplayTitle,
         fieldName: fieldName,
@@ -398,26 +381,24 @@ var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Component2) 
   }]);
 
   return DragAndDropFileUploadController;
-}(_react["default"].Component);
-
-exports.DragAndDropFileUploadController = DragAndDropFileUploadController;
+}(React.Component);
 
 _defineProperty(DragAndDropFileUploadController, "propTypes", {
-  files: _propTypes["default"].array.isRequired,
+  files: PropTypes.array.isRequired,
   // File objects containing already-linked files (will eventually be updated via websockets)
-  fileSchema: _propTypes["default"].object.isRequired,
+  fileSchema: PropTypes.object.isRequired,
   // Used to validate extension types on drop
-  individualId: _propTypes["default"].string.isRequired,
+  individualId: PropTypes.string.isRequired,
   // AtID of the parent item to link the new File object to
-  fieldType: _propTypes["default"].string.isRequired,
+  fieldType: PropTypes.string.isRequired,
   // Item field type (e.g. "related_documents", "images")
-  fieldName: _propTypes["default"].string.isRequired,
+  fieldName: PropTypes.string.isRequired,
   // Item name (e.g. "Documents")
-  fieldDisplayTitle: _propTypes["default"].string,
+  fieldDisplayTitle: PropTypes.string,
   // Display title of field (e.g. "Related Documents")
-  cls: _propTypes["default"].string,
+  cls: PropTypes.string,
   // Classes to apply to the main "Quick Upload" button
-  multiselect: _propTypes["default"].bool // Can field link multiple files at once?/Is array field?
+  multiselect: PropTypes.bool // Can field link multiple files at once?/Is array field?
   // award: PropTypes.string,                    // Will be required for 4DN SV
   // lab: PropTypes.string,                      // Will be required for 4DN SV
   // institution: PropTypes.object,              // Will be required for CGAP SV
@@ -498,7 +479,7 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
           fieldDisplayTitle = _this$props5.fieldDisplayTitle,
           files = _this$props5.files,
           isLoading = _this$props5.isLoading;
-      return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement(DragAndDropModal, _extends({
+      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DragAndDropModal, _extends({
         handleHideModal: this.handleHideModal
       }, {
         multiselect: multiselect,
@@ -511,39 +492,39 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
         handleClearAllFiles: handleClearAllFiles,
         files: files,
         isLoading: isLoading
-      })), /*#__PURE__*/_react["default"].createElement("button", {
+      })), /*#__PURE__*/React.createElement("button", {
         type: "button",
         onClick: this.onShow,
         className: cls
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-upload fas"
       }), " Quick Upload a new ", fieldName));
     }
   }]);
 
   return DragAndDropUploadButton;
-}(_react["default"].Component);
+}(React.Component);
 
 _defineProperty(DragAndDropUploadButton, "propTypes", {
-  onUploadStart: _propTypes["default"].func.isRequired,
+  onUploadStart: PropTypes.func.isRequired,
   // Actions to take upon upload; exact status of upload controlled by data controller wrapper
-  handleAddFile: _propTypes["default"].func.isRequired,
+  handleAddFile: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for adding multiple files
-  handleRemoveFile: _propTypes["default"].func.isRequired,
+  handleRemoveFile: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for removing single files
-  handleClearAllFiles: _propTypes["default"].func.isRequired,
+  handleClearAllFiles: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for removing all files
-  files: _propTypes["default"].array,
+  files: PropTypes.array,
   // File objects containing files currently in the dropzone workspace
-  fieldName: _propTypes["default"].string,
+  fieldName: PropTypes.string,
   // Human readable type (Ex. Item, Document, Image, etc)
-  fieldDisplayTitle: _propTypes["default"].string,
+  fieldDisplayTitle: PropTypes.string,
   // Name of specific field (Ex. Related Documents)
-  multiselect: _propTypes["default"].bool,
+  multiselect: PropTypes.bool,
   // Can field link multiple files at once?/Is array field?
-  cls: _propTypes["default"].string,
+  cls: PropTypes.string,
   // Classes to apply to the main "Quick Upload" button
-  isLoading: _propTypes["default"].bool // Are items currently being uploaded?
+  isLoading: PropTypes.bool // Are items currently being uploaded?
 
 });
 
@@ -583,66 +564,66 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
           handleHideModal = _this$props6.handleHideModal,
           isLoading = _this$props6.isLoading;
       console.log("isLoading:", isLoading);
-      return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal, _extends({
+      return /*#__PURE__*/React.createElement(Modal, _extends({
         centered: true
       }, {
         show: show
       }, {
         onHide: handleHideModal,
         className: "submission-view-modal drag-and-drop-upload"
-      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal.Header, {
+      }), /*#__PURE__*/React.createElement(Modal.Header, {
         closeButton: true
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal.Title, {
+      }, /*#__PURE__*/React.createElement(Modal.Title, {
         className: "text-500"
-      }, "Upload a ", fieldName, " ", fieldDisplayTitle && fieldName !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal.Body, null, isLoading ? /*#__PURE__*/_react["default"].createElement("div", {
+      }, "Upload a ", fieldName, " ", fieldDisplayTitle && fieldName !== fieldDisplayTitle ? "for " + fieldDisplayTitle : null)), /*#__PURE__*/React.createElement(Modal.Body, null, isLoading ? /*#__PURE__*/React.createElement("div", {
         className: "is-loading-overlay-cont"
-      }, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
-      })))) : null, /*#__PURE__*/_react["default"].createElement(DragAndDropZone, _extends({
+      })))) : null, /*#__PURE__*/React.createElement(DragAndDropZone, _extends({
         files: files
       }, {
         handleAddFile: handleAddFile,
         handleRemoveFile: handleRemoveFile
-      }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Modal.Footer, null, /*#__PURE__*/_react["default"].createElement("button", {
+      }))), /*#__PURE__*/React.createElement(Modal.Footer, null, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-danger",
         onClick: handleHideModal
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-close"
-      }), " Cancel"), /*#__PURE__*/_react["default"].createElement("button", {
+      }), " Cancel"), /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-primary",
         onClick: onUploadStart,
         disabled: files.length === 0
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-upload"
       }), " Upload ", fieldDisplayTitle)));
     }
   }]);
 
   return DragAndDropModal;
-}(_react["default"].Component);
+}(React.Component);
 
 _defineProperty(DragAndDropModal, "propTypes", {
-  handleAddFile: _propTypes["default"].func.isRequired,
+  handleAddFile: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for adding multiple files
-  handleRemoveFile: _propTypes["default"].func.isRequired,
+  handleRemoveFile: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for removing single files
-  handleClearAllFiles: _propTypes["default"].func.isRequired,
+  handleClearAllFiles: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for removing all files
-  onUploadStart: _propTypes["default"].func.isRequired,
+  onUploadStart: PropTypes.func.isRequired,
   // DragAndDropUploadFileUploadController method for starting upload promise chain
-  handleHideModal: _propTypes["default"].func.isRequired,
+  handleHideModal: PropTypes.func.isRequired,
   // DragAndDropUploadButton method for editing show state of modal
-  files: _propTypes["default"].array,
+  files: PropTypes.array,
   // Files currently in the dropzone workspace. Controlled by DragAndDropFileUploadController
-  show: _propTypes["default"].bool,
+  show: PropTypes.bool,
   // Show state of modal; edited in DragAndDropUploadButton
-  fieldName: _propTypes["default"].string,
+  fieldName: PropTypes.string,
   // Human readable type (Ex. Item, Document, Image, etc)
-  fieldDisplayTitle: _propTypes["default"].string,
+  fieldDisplayTitle: PropTypes.string,
   // Name of specific field (Ex. Related Documents)
-  isLoading: _propTypes["default"].bool // Are items currently being uploaded?
+  isLoading: PropTypes.bool // Are items currently being uploaded?
 
 });
 
@@ -651,7 +632,7 @@ _defineProperty(DragAndDropModal, "defaultProps", {
   isLoading: false
 });
 
-var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
+export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
 
   var _super5 = _createSuper(DragAndDropZone);
@@ -665,8 +646,8 @@ var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
     _this5.state = {
       dragging: false
     };
-    _this5.dropZoneRef = /*#__PURE__*/_react["default"].createRef();
-    _this5.fileUploadRef = /*#__PURE__*/_react["default"].createRef();
+    _this5.dropZoneRef = /*#__PURE__*/React.createRef();
+    _this5.fileUploadRef = /*#__PURE__*/React.createRef();
     _this5.cleanUpEventListeners = _this5.cleanUpEventListeners.bind(_assertThisInitialized(_this5));
     _this5.setUpEventListeners = _this5.setUpEventListeners.bind(_assertThisInitialized(_this5));
     _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
@@ -764,11 +745,11 @@ var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
       var _this$props7 = this.props,
           files = _this$props7.files,
           handleRemoveFile = _this$props7.handleRemoveFile;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "dropzone panel text-center d-flex flex-row justify-content-center",
         ref: this.dropZoneRef,
         onClick: this.handleDropzoneClick
-      }, /*#__PURE__*/_react["default"].createElement("input", {
+      }, /*#__PURE__*/React.createElement("input", {
         type: "file",
         ref: this.fileUploadRef,
         multiple: true,
@@ -777,17 +758,17 @@ var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
         },
         name: "filesFromBrowse",
         className: "d-none"
-      }), /*#__PURE__*/_react["default"].createElement("span", {
+      }), /*#__PURE__*/React.createElement("span", {
         style: {
           alignSelf: "center"
         }
-      }, files.length === 0 ? "Click or drag a file here to upload" : null), /*#__PURE__*/_react["default"].createElement("ul", {
+      }, files.length === 0 ? "Click or drag a file here to upload" : null), /*#__PURE__*/React.createElement("ul", {
         className: "d-flex flex-wrap m-0 pt-1 pl-0 justify-content-center"
       }, files.map(function (file) {
-        return /*#__PURE__*/_react["default"].createElement("li", {
+        return /*#__PURE__*/React.createElement("li", {
           key: file.download,
           className: "m-1"
-        }, /*#__PURE__*/_react["default"].createElement(FileIcon, _extends({
+        }, /*#__PURE__*/React.createElement(FileIcon, _extends({
           fileName: file.download,
           fileSize: file.size,
           fileType: file.type
@@ -799,15 +780,13 @@ var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   }]);
 
   return DragAndDropZone;
-}(_react["default"].Component);
-
-exports.DragAndDropZone = DragAndDropZone;
+}(React.Component);
 
 _defineProperty(DragAndDropZone, "propTypes", {
   /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
-  'handleAddFile': _propTypes["default"].func.isRequired,
-  'handleRemoveFile': _propTypes["default"].func.isRequired,
-  'files': _propTypes["default"].array
+  'handleAddFile': PropTypes.func.isRequired,
+  'handleRemoveFile': PropTypes.func.isRequired,
+  'files': PropTypes.array
 });
 
 _defineProperty(DragAndDropZone, "defaultProps", {
@@ -822,20 +801,20 @@ function FileIcon(props) {
       handleRemoveFile = props.handleRemoveFile,
       _props$thisUploading = props.thisUploading,
       thisUploading = _props$thisUploading === void 0 ? false : _props$thisUploading;
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "d-flex flex-column",
     style: {
       width: "150px"
     }
-  }, thisUploading ? /*#__PURE__*/_react["default"].createElement("i", {
+  }, thisUploading ? /*#__PURE__*/React.createElement("i", {
     className: "icon icon-spin icon-circle-notch fas"
-  }) : /*#__PURE__*/_react["default"].createElement("i", {
+  }) : /*#__PURE__*/React.createElement("i", {
     onClick: function onClick(e) {
       e.stopPropagation();
       handleRemoveFile(fileName);
     },
     className: "icon fas icon-window-close text-danger"
-  }), /*#__PURE__*/_react["default"].createElement("i", {
+  }), /*#__PURE__*/React.createElement("i", {
     className: "icon far icon-2x icon-".concat(function (mimetype) {
       if (mimetype.match('^image/')) {
         return 'file-image';
@@ -865,9 +844,9 @@ function FileIcon(props) {
       marginBottom: "5px",
       color: "#444444"
     }
-  }), /*#__PURE__*/_react["default"].createElement("span", {
+  }), /*#__PURE__*/React.createElement("span", {
     className: "filename"
-  }, fileName), /*#__PURE__*/_react["default"].createElement("span", {
+  }, fileName), /*#__PURE__*/React.createElement("span", {
     className: "filesize"
   }, fileSize, " bytes"));
 }

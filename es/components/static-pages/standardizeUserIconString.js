@@ -1,12 +1,5 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.standardizeUserIconString = standardizeUserIconString;
-
 /** Transform e.g. 'info' to 'info fas' if fas|fab|far missing. */
-function standardizeUserIconString() {
+export function standardizeUserIconString() {
   var iconStr = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
   var defaultStyle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "fas";
   var icon = iconStr; // Add " fas" if fas|fab|far not present in icon.

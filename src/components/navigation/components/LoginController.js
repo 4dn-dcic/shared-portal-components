@@ -15,12 +15,6 @@ import { event as trackEvent, setUserID } from './../../util/analytics';
 /** Imported in componentDidMount. */
 let Auth0Lock = null;
 
-// Manual polyfill for NPM tests, @see https://github.com/facebook/create-react-app/issues/1064
-if (!require.ensure) {
-    console.error("No require.ensure present - \nFine if within an NPM test, error if in browser/webpack context.");
-    require.ensure = (deps, cb) => cb(require);
-}
-
 /** Controls Login process, also shows Registration Modal */
 export class LoginController extends React.PureComponent {
 

@@ -1,48 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.initializeGoogleAnalytics = initializeGoogleAnalytics;
-exports.registerPageView = registerPageView;
-exports.eventObjectFromCtx = eventObjectFromCtx;
-exports.event = event;
-exports.setUserID = setUserID;
-exports.productClick = productClick;
-exports.productsAddToCart = productsAddToCart;
-exports.productsRemoveFromCart = productsRemoveFromCart;
-exports.productsCheckout = productsCheckout;
-exports.productAddDetailViewed = productAddDetailViewed;
-exports.exception = exception;
-exports.eventLabelFromChartNode = eventLabelFromChartNode;
-exports.eventLabelFromChartNodes = eventLabelFromChartNodes;
-exports.getStringifiedCurrentFilters = getStringifiedCurrentFilters;
-exports.getGoogleAnalyticsTrackingData = getGoogleAnalyticsTrackingData;
-exports.hrefToListName = hrefToListName;
-exports.impressionListOfItems = impressionListOfItems;
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var _queryString = _interopRequireDefault(require("query-string"));
-
-var _misc = require("./misc");
-
-var _patchedConsole = require("./patched-console");
-
-var _searchFilters = require("./search-filters");
-
-var object = _interopRequireWildcard(require("./object"));
-
-var JWT = _interopRequireWildcard(require("./json-web-token"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -67,6 +24,14 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+import _ from 'underscore';
+import url from 'url';
+import queryString from 'query-string';
+import { isServerSide } from './misc';
+import { patchedConsoleInstance as console } from './patched-console';
+import { contextFiltersToExpSetFilters, expSetFiltersToJSON } from './search-filters';
+import * as object from './object';
+import * as JWT from './json-web-token';
 var defaultOptions = {
   "enabled": true,
   "isAnalyticsScriptOnPage": true,
@@ -159,7 +124,7 @@ function ga2() {
   try {
     return window.ga.apply(window.ga, Array.from(arguments));
   } catch (e) {
-    _patchedConsole.patchedConsoleInstance.error('Could not track event. Fine if this is a test.', e, Array.from(arguments));
+    console.error('Could not track event. Fine if this is a test.', e, Array.from(arguments));
   }
 }
 /**
@@ -173,7 +138,7 @@ function ga2() {
  */
 
 
-function initializeGoogleAnalytics() {
+export function initializeGoogleAnalytics() {
   var trackingID = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
   var appOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -181,7 +146,7 @@ function initializeGoogleAnalytics() {
     throw new Error("No tracking ID provided");
   }
 
-  if ((0, _misc.isServerSide)()) return false;
+  if (isServerSide()) return false;
 
   var _appOptions$initialCo = appOptions.initialContext,
       initialContext = _appOptions$initialCo === void 0 ? null : _appOptions$initialCo,
@@ -209,11 +174,10 @@ function initializeGoogleAnalytics() {
     })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
   }
 
-  state = _underscore["default"].clone(options); // TODO check localStorage for device-scoped 'do not track' flag, set state.enabled=false
+  state = _.clone(options); // TODO check localStorage for device-scoped 'do not track' flag, set state.enabled=false
 
   if (!shouldTrack()) {
-    _patchedConsole.patchedConsoleInstance.error("EXITING ANALYTICS INITIALIZATION.");
-
+    console.error("EXITING ANALYTICS INITIALIZATION.");
     return false;
   }
 
@@ -226,22 +190,20 @@ function initializeGoogleAnalytics() {
       JWT.cookieStore.set('clientIdentifier', clientID, {
         path: '/'
       });
-
-      _patchedConsole.patchedConsoleInstance.info("GA: Loaded Tracker & Updated Client ID Cookie");
+      console.info("GA: Loaded Tracker & Updated Client ID Cookie");
     }
   });
 
   if (options.enhancedEcommercePlugin) {
     ga2('require', 'ec');
-
-    _patchedConsole.patchedConsoleInstance.info("GA: Enhanced ECommerce Plugin");
+    console.info("GA: Enhanced ECommerce Plugin");
   }
 
   if (userUUID) {
     setUserID(userUUID);
   }
 
-  _patchedConsole.patchedConsoleInstance.info("GA: Initialized");
+  console.info("GA: Initialized");
 
   if (initialContext) {
     registerPageView(initialHref, initialContext);
@@ -249,7 +211,6 @@ function initializeGoogleAnalytics() {
 
   return true;
 }
-
 var lastRegisteredPageViewRealPathNameAndSearch = null;
 /**
  * Register a pageview.
@@ -261,20 +222,19 @@ var lastRegisteredPageViewRealPathNameAndSearch = null;
  * @returns {boolean} True if success.
  */
 
-function registerPageView() {
+export function registerPageView() {
   var href = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
   var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   if (!shouldTrack()) return false; // Take heed of this notice if it is visible somewhere.
 
   if (!href) {
     href = window.location && window.location.href;
-
-    _patchedConsole.patchedConsoleInstance.error("No HREF provided, check.. something. Will still send pageview event to window href", href);
+    console.error("No HREF provided, check.. something. Will still send pageview event to window href", href);
   }
 
   context = context || state.reduxStore && state.reduxStore.getState().context || null; // Options to send with GA pageview event.
 
-  var parts = _url["default"].parse(href, true);
+  var parts = url.parse(href, true);
 
   var pageViewObject = _objectSpread(_objectSpread({}, eventObjectFromCtx(context)), {}, {
     hitType: 'pageview'
@@ -342,11 +302,10 @@ function registerPageView() {
 
 
     if (parts.query && (parts.query.q || parts.query.type)) {
-      var qs = _queryString["default"].stringify({
+      var qs = queryString.stringify({
         'q': parts.query.q,
         'type': parts.query.type
       });
-
       newPathName = pathName + (qs ? '?' + qs : '');
     }
 
@@ -365,8 +324,7 @@ function registerPageView() {
     if (!shouldTrack()) return false;
 
     if (state.enhancedEcommercePlugin !== true) {
-      _patchedConsole.patchedConsoleInstance.warn("Enhanced ECommerce is not enabled. Will -not- register product views.");
-
+      console.warn("Enhanced ECommerce is not enabled. Will -not- register product views.");
       return false;
     }
 
@@ -386,9 +344,7 @@ function registerPageView() {
     } else if (itemType.indexOf("Item") > -1) {
       // We got an Item view, lets track some details about it.
       var productObj = itemToProductTransform(context);
-
-      _patchedConsole.patchedConsoleInstance.info("Item Page View (probably). Will track as product:", productObj);
-
+      console.info("Item Page View (probably). Will track as product:", productObj);
       ga2('ec:addProduct', productObj);
       ga2('ec:setAction', 'detail', productObj);
       return productObj;
@@ -399,8 +355,7 @@ function registerPageView() {
   var adjustedPathName = adjustPageViewPath(parts.pathname); // Ensure is not the same page but with a new hash or something (RARE - should only happen for Help page table of contents navigation).
 
   if (lastRegisteredPageViewRealPathNameAndSearch === parts.pathname + parts.search) {
-    _patchedConsole.patchedConsoleInstance.warn('Page did not change, canceling PageView tracking for this navigation.');
-
+    console.warn('Page did not change, canceling PageView tracking for this navigation.');
     return false;
   }
 
@@ -414,10 +369,10 @@ function registerPageView() {
 
   pageViewObject.page = adjustedPathName; // Don't need to do re: 'set' 'page', but redundant for safety.
 
-  pageViewObject.location = _url["default"].resolve(href, adjustedPathName);
+  pageViewObject.location = url.resolve(href, adjustedPathName);
 
   pageViewObject.hitCallback = function () {
-    _patchedConsole.patchedConsoleInstance.info('Successfuly sent pageview event.', adjustedPathName, pageViewObject);
+    console.info('Successfuly sent pageview event.', adjustedPathName, pageViewObject);
   };
 
   registerProductView();
@@ -432,8 +387,7 @@ function registerPageView() {
 
   return true;
 }
-
-function eventObjectFromCtx(context) {
+export function eventObjectFromCtx(context) {
   if (!context) return {};
 
   var _ref3 = context || {},
@@ -487,20 +441,19 @@ function eventObjectFromCtx(context) {
  * @param {string} [fields.term] - Name of term being acted on or changed, if any.
  */
 
-
-function event(category, action) {
+export function event(category, action) {
   var fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   var useTimeout = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
   if (!shouldTrack()) return false;
 
-  var eventObj = _underscore["default"].extend({}, fields, {
+  var eventObj = _.extend({}, fields, {
     'hitType': 'event',
     'eventCategory': category,
     'eventAction': action
   }); // Convert internal dimension names to Google Analytics ones.
 
 
-  _underscore["default"].pairs(eventObj).forEach(function (_ref4) {
+  _.pairs(eventObj).forEach(function (_ref4) {
     var _ref5 = _slicedToArray(_ref4, 2),
         key = _ref5[0],
         value = _ref5[1];
@@ -515,7 +468,7 @@ function event(category, action) {
   });
 
   eventObj.hitCallback = function () {
-    _patchedConsole.patchedConsoleInstance.info('Successfuly sent UI event.', eventObj);
+    console.info('Successfuly sent UI event.', eventObj);
   };
 
   if (useTimeout) {
@@ -526,20 +479,16 @@ function event(category, action) {
     ga2('send', eventObj);
   }
 }
-
-function setUserID(userUUID) {
+export function setUserID(userUUID) {
   if (!shouldTrack()) {
     return false;
   }
 
   ga2('set', 'userId', userUUID);
-
-  _patchedConsole.patchedConsoleInstance.info("Set analytics user id to", userUUID);
-
+  console.info("Set analytics user id to", userUUID);
   return true;
 }
-
-function productClick(item) {
+export function productClick(item) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var callback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var context = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -551,7 +500,7 @@ function productClick(item) {
 
   context = context || state.reduxStore && state.reduxStore.getState().context || null;
 
-  var pObj = _underscore["default"].extend(itemToProductTransform(item), extraData);
+  var pObj = _.extend(itemToProductTransform(item), extraData);
 
   var href = extraData.href || window.location.href;
   var evtFromCtx = eventObjectFromCtx(context);
@@ -562,7 +511,7 @@ function productClick(item) {
     'eventAction': 'click',
     'eventLabel': pObj.id || pObj.name,
     'hitCallback': function hitCallback() {
-      _patchedConsole.patchedConsoleInstance.info('Successfully sent product click event.', eventObj, pObj);
+      console.info('Successfully sent product click event.', eventObj, pObj);
 
       if (typeof callback === 'function') {
         callback();
@@ -575,9 +524,9 @@ function productClick(item) {
   }
 
   ga2('ec:addProduct', pObj);
-  ga2('ec:setAction', 'click', _underscore["default"].pick(pObj, 'list')); // Convert internal dimension names to Google Analytics ones.
+  ga2('ec:setAction', 'click', _.pick(pObj, 'list')); // Convert internal dimension names to Google Analytics ones.
 
-  _underscore["default"].forEach(_underscore["default"].pairs(eventObj), function (_ref6) {
+  _.forEach(_.pairs(eventObj), function (_ref6) {
     var _ref7 = _slicedToArray(_ref6, 2),
         key = _ref7[0],
         value = _ref7[1];
@@ -599,32 +548,26 @@ function productClick(item) {
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
 
-
-function productsAddToCart(items) {
+export function productsAddToCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   if (!shouldTrack()) return false;
   var count = addProductsEE(items, extraData);
-
-  _patchedConsole.patchedConsoleInstance.info("Adding ".concat(count, " items to cart."));
-
+  console.info("Adding ".concat(count, " items to cart."));
   ga2('ec:setAction', 'add');
 }
-
-function productsRemoveFromCart(items) {
+export function productsRemoveFromCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   if (!shouldTrack()) return false;
   var count = addProductsEE(items, extraData);
   ga2('ec:setAction', 'remove');
-
-  _patchedConsole.patchedConsoleInstance.info("Removing ".concat(count, " items from cart."));
+  console.info("Removing ".concat(count, " items from cart."));
 }
 /**
  * Can be used needed. E.g. in 4DN is used for metadata.tsv download.
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
 
-
-function productsCheckout(items) {
+export function productsCheckout(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   if (!shouldTrack()) return false;
 
@@ -640,18 +583,16 @@ function productsCheckout(items) {
     step: step,
     option: option
   });
-
-  _patchedConsole.patchedConsoleInstance.info("Checked out ".concat(count, " items."));
+  console.info("Checked out ".concat(count, " items."));
 }
-
-function productAddDetailViewed(item) {
+export function productAddDetailViewed(item) {
   var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var extraData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   if (!shouldTrack()) return false;
 
-  var productObj = _underscore["default"].extend(itemToProductTransform(item), extraData);
+  var productObj = _.extend(itemToProductTransform(item), extraData);
 
-  _patchedConsole.patchedConsoleInstance.info("Item Details Viewed. Will track as product:", productObj);
+  console.info("Item Details Viewed. Will track as product:", productObj);
 
   if (context && context.filters && state.dimensionNameMap.currentFilters) {
     productObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
@@ -664,8 +605,7 @@ function productAddDetailViewed(item) {
  * @see https://developers.google.com/analytics/devguides/collection/analyticsjs/exceptions
  */
 
-
-function exception(message) {
+export function exception(message) {
   var fatal = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   // Doesn't test whether should track or not -- assume always track errors.
   var excObj = {
@@ -675,7 +615,7 @@ function exception(message) {
   };
 
   excObj.hitCallback = function () {
-    _patchedConsole.patchedConsoleInstance.info('Successfully sent exception', excObj);
+    console.info('Successfully sent exception', excObj);
   };
 
   ga2('send', excObj);
@@ -689,8 +629,7 @@ function exception(message) {
  * @returns {string} Label for analytics event.
  */
 
-
-function eventLabelFromChartNode(node) {
+export function eventLabelFromChartNode(node) {
   var includeParentInfo = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   if (!node || _typeof(node) !== 'object') return null;
   var labelData = [];
@@ -700,8 +639,7 @@ function eventLabelFromChartNode(node) {
   if (includeParentInfo && node.parent && node.parent.term) labelData.push('Parent Term: ' + node.parent.term);
   return labelData.join(', ');
 }
-
-function eventLabelFromChartNodes(nodes) {
+export function eventLabelFromChartNodes(nodes) {
   return nodes.map(eventLabelFromChartNode).join('; ');
 }
 /**
@@ -711,23 +649,20 @@ function eventLabelFromChartNodes(nodes) {
  * @returns {string} Stringified JSON to be saved to analytics.
  */
 
-
-function getStringifiedCurrentFilters(contextFilters) {
+export function getStringifiedCurrentFilters(contextFilters) {
   if (!contextFilters) return null; // Deprecated naming and data structure; we can refactor to get rid of notion of expset filters.
 
-  var expSetFilters = (0, _searchFilters.contextFiltersToExpSetFilters)(contextFilters);
-  return JSON.stringify((0, _searchFilters.expSetFiltersToJSON)(expSetFilters), _underscore["default"].keys(expSetFilters).sort());
+  var expSetFilters = contextFiltersToExpSetFilters(contextFilters);
+  return JSON.stringify(expSetFiltersToJSON(expSetFilters), _.keys(expSetFilters).sort());
 }
-
-function getGoogleAnalyticsTrackingData() {
+export function getGoogleAnalyticsTrackingData() {
   var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
   var allData = null;
 
   try {
     allData = window.ga.getAll()[0].b.data.values;
   } catch (e) {
-    _patchedConsole.patchedConsoleInstance.error('Could not get data from current GA tracker.');
-
+    console.error('Could not get data from current GA tracker.');
     return null;
   }
 
@@ -737,8 +672,7 @@ function getGoogleAnalyticsTrackingData() {
     try {
       return allData[':' + key];
     } catch (e) {
-      _patchedConsole.patchedConsoleInstance.error(e);
-
+      console.error(e);
       return null;
     }
   }
@@ -747,10 +681,8 @@ function getGoogleAnalyticsTrackingData() {
  * Generates a list name for analytics "list" property based on href pathname.
  */
 
-
-function hrefToListName(href) {
-  var hrefParts = _url["default"].parse(href, false);
-
+export function hrefToListName(href) {
+  var hrefParts = url.parse(href, false);
   var strippedPathName = hrefParts.pathname;
 
   if (strippedPathName.charAt(0) === "/") {
@@ -771,30 +703,25 @@ function hrefToListName(href) {
  * Private Functions *
  *********************/
 
-
 function shouldTrack() {
   // 1. Ensure we're initialized
   if (!state) {
-    _patchedConsole.patchedConsoleInstance.error("Google Analytics is not initialized. Fine if this appears in a test.");
-
+    console.error("Google Analytics is not initialized. Fine if this appears in a test.");
     return false;
   }
 
   if (!state.enabled) {
-    _patchedConsole.patchedConsoleInstance.warn("Google Analytics is not enabled. Fine if expected, else check config.");
-
+    console.warn("Google Analytics is not enabled. Fine if expected, else check config.");
     return false;
   }
 
-  if ((0, _misc.isServerSide)()) {
-    _patchedConsole.patchedConsoleInstance.warn("Google Analytics will not be sent events while serverside. Fine if this appears in a test.");
-
+  if (isServerSide()) {
+    console.warn("Google Analytics will not be sent events while serverside. Fine if this appears in a test.");
     return false;
   }
 
   if (typeof window.ga === 'undefined') {
-    _patchedConsole.patchedConsoleInstance.error("Google Analytics library is not loaded/available. Fine if disabled via AdBlocker, else check `analytics.js` loading.");
-
+    console.error("Google Analytics library is not loaded/available. Fine if disabled via AdBlocker, else check `analytics.js` loading.");
     return false;
   } // 2. TODO: Check if User wants to be excluded from tracking
   // 2. TODO: Make sure not logged in as admin on a production site.
@@ -869,9 +796,7 @@ function addProductsEE(items) {
 
       var errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
       exception(errMsg);
-
-      _patchedConsole.patchedConsoleInstance.error(errMsg, item);
-
+      console.error(errMsg, item);
       return false;
     }
 
@@ -881,11 +806,10 @@ function addProductsEE(items) {
 
     seen[id] = true;
 
-    var pObj = _underscore["default"].extend(itemToProductTransform(item), extData);
+    var pObj = _.extend(itemToProductTransform(item), extData);
 
     if (typeof pObj.id !== "string") {
-      _patchedConsole.patchedConsoleInstance.error("No product id available, cannot track", pObj);
-
+      console.error("No product id available, cannot track", pObj);
       return;
     }
 
@@ -903,7 +827,7 @@ function addProductsEE(items) {
  */
 
 
-function impressionListOfItems(itemList) {
+export function impressionListOfItems(itemList) {
   var href = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var listName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var context = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -913,7 +837,7 @@ function impressionListOfItems(itemList) {
 
   if (typeof href === 'string') {
     // Convert to URL parts.
-    href = _url["default"].parse(href, true);
+    href = url.parse(href, true);
     if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
   }
 
@@ -942,23 +866,19 @@ function impressionListOfItems(itemList) {
 
       var errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
       exception(errMsg);
-
-      _patchedConsole.patchedConsoleInstance.error(errMsg, item);
-
+      console.error(errMsg, item);
       return false;
     }
 
     return true;
   }).map(function (item, i) {
-    var pObj = _underscore["default"].extend(itemToProductTransform(item), commonProductObj, {
+    var pObj = _.extend(itemToProductTransform(item), commonProductObj, {
       'position': from + i + 1
     });
 
     ga2('ec:addImpression', pObj);
     return pObj;
   });
-
-  _patchedConsole.patchedConsoleInstance.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1, " in list \"").concat(commonProductObj.list, "\""));
-
+  console.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1, " in list \"").concat(commonProductObj.list, "\""));
   return resultsImpressioned;
 }

@@ -1,34 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.HeaderWithLink = exports.MarkdownHeading = exports.NextPreviousPageSection = exports.TableOfContents = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var d3 = _interopRequireWildcard(require("d3"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
-
-var _layout = require("./../util/layout");
-
-var _navigate = require("./../util/navigate");
-
-var _misc = require("./../util/misc");
-
-var _object = require("./../util/object");
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -55,6 +26,16 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import React from 'react';
+import * as d3 from 'd3';
+import _ from 'underscore';
+import memoize from 'memoize-one';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import { getElementTop, animateScrollTo, getScrollingOuterElement, getPageVerticalScrollPosition } from './../util/layout';
+import { navigate } from './../util/navigate';
+import { isServerSide } from './../util/misc';
+import { CopyWrapper, itemUtil } from './../util/object';
+
 var TableEntry = /*#__PURE__*/function (_React$Component) {
   _inherits(TableEntry, _React$Component);
 
@@ -69,7 +50,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     _this.shouldComponentUpdate = _this.shouldComponentUpdate.bind(_assertThisInitialized(_this));
     _this.getTargetElement = _this.getTargetElement.bind(_assertThisInitialized(_this));
     _this.getNextHeaderElement = _this.getNextHeaderElement.bind(_assertThisInitialized(_this));
-    _this.handleClick = _underscore["default"].throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 300);
+    _this.handleClick = _.throttle(_this.handleClick.bind(_assertThisInitialized(_this)), 300);
     _this.determineIfActive = _this.determineIfActive.bind(_assertThisInitialized(_this));
     _this.toggleOpen = _this.toggleOpen.bind(_assertThisInitialized(_this));
     _this.targetElement = null; // Header element we scroll to is cached here. Not in state as does not change.
@@ -134,7 +115,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     value: function determineIfActive() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
       if (!props.mounted) return false;
-      var scrollingOuterElement = (0, _layout.getScrollingOuterElement)(),
+      var scrollingOuterElement = getScrollingOuterElement(),
           targetElem,
           elemTop;
 
@@ -142,7 +123,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         elemTop = 0;
       } else {
         targetElem = this.getTargetElement(props.link);
-        elemTop = (0, _layout.getElementTop)(targetElem);
+        elemTop = getElementTop(targetElem);
 
         if (props.mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight) {
           // Try to prevent from trying to scroll past max scrollable height.
@@ -159,7 +140,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
           nextHeaderTop = props.nextHeader;
         } else {
           var nextHeaderElement = this.getNextHeaderElement(props);
-          if (nextHeaderElement) nextHeaderTop = (0, _layout.getElementTop)(nextHeaderElement);
+          if (nextHeaderElement) nextHeaderTop = getElementTop(nextHeaderElement);
         }
 
         if (nextHeaderTop && props.pageScrollTop >= Math.max(props.depth > 0 ? 40 : 0, elemTop - props.offsetBeforeTarget - 120) && props.pageScrollTop < nextHeaderTop - props.offsetBeforeTarget - 120) return true;else return false;
@@ -212,16 +193,16 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
       var collapsibleButton;
 
       if (collapsible && childHeaders.length > 0) {
-        collapsibleButton = /*#__PURE__*/_react["default"].createElement("i", {
+        collapsibleButton = /*#__PURE__*/React.createElement("i", {
           className: "d-inline-block icon icon-fw fas icon-" + (open ? 'minus' : 'plus'),
           onClick: this.toggleOpen
         });
       }
 
       if (typeof link === 'string' && link.length > 0) {
-        title = /*#__PURE__*/_react["default"].createElement("div", {
+        title = /*#__PURE__*/React.createElement("div", {
           className: "title-link-wrapper"
-        }, collapsibleButton, /*#__PURE__*/_react["default"].createElement("a", {
+        }, collapsibleButton, /*#__PURE__*/React.createElement("a", {
           className: depth === 0 ? 'text-500' : 'text-400',
           href: (link.charAt(0) === '/' ? '' : '#') + link,
           onClick: function onClick(e) {
@@ -233,21 +214,21 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
       }
 
       if (depth === 0) {
-        title = /*#__PURE__*/_react["default"].createElement("span", {
+        title = /*#__PURE__*/React.createElement("span", {
           title: "Up to page listing",
           className: "top-of-page visible-lg-block visible-lg"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-angle-up"
         }), title);
       }
 
-      return /*#__PURE__*/_react["default"].createElement("li", {
+      return /*#__PURE__*/React.createElement("li", {
         className: "table-content-entry" + (className ? ' ' + className : '') + (depth === 0 ? ' top' : '') + (active ? ' active' : ''),
         "data-depth": depth,
         "data-recursion-depth": recurDepth
-      }, title, /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+      }, title, /*#__PURE__*/React.createElement(Collapse, {
         "in": !this.state || open && mounted
-      }, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement(TableEntryChildren, _extends({
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(TableEntryChildren, _extends({
         navigate: propNavigate,
         parentClosed: this.state && !open
       }, {
@@ -269,11 +250,11 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
   }]);
 
   return TableEntry;
-}(_react["default"].Component);
+}(React.Component);
 
-_defineProperty(TableEntry, "getChildHeaders", (0, _memoizeOne["default"])(function (content, maxHeaderDepth, currentDepth) {
+_defineProperty(TableEntry, "getChildHeaders", memoize(function (content, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
-  return _underscore["default"].filter(content.props.children, function (child) {
+  return _.filter(content.props.children, function (child) {
     return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (currentDepth + 1);
   });
 }));
@@ -314,11 +295,11 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
           recurDepth = opts.recurDepth;
 
       if (Array.isArray(childHeaders) && childHeaders.length > 0) {
-        return _underscore["default"].map(childHeaders, function (h) {
+        return _.map(childHeaders, function (h) {
           var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
 
           if (skipDepth > currentDepth) {
-            return TableEntryChildren.renderChildrenElements(childHeaders, currentDepth + 1, childContent.content, _underscore["default"].extend({}, opts, {
+            return TableEntryChildren.renderChildrenElements(childHeaders, currentDepth + 1, childContent.content, _.extend({}, opts, {
               'nextHeader': childContent.nextMajorHeader || nextHeader || null
             }));
           }
@@ -337,7 +318,7 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
 
           if (!link) link = TableOfContents.slugify(linkTitle); // Fallback -- attempt to not use -- may fail.
 
-          return /*#__PURE__*/_react["default"].createElement(TableEntry, {
+          return /*#__PURE__*/React.createElement(TableEntry, {
             link: link,
             title: linkTitle,
             key: link,
@@ -347,7 +328,7 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
             mounted: mounted,
             content: childContent.content,
             nextHeader: childContent.nextMajorHeader || nextHeader || null,
-            navigate: _navigate.navigate,
+            navigate: navigate,
             maxHeaderDepth: maxHeaderDepth,
             collapsible: currentDepth >= 1 + skipDepth,
             skipDepth: skipDepth,
@@ -396,7 +377,7 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
           childDepth = _this$getHeadersFromC.childDepth;
 
       if (childHeaders && childHeaders.length) {
-        var opts = _underscore["default"].pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
+        var opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
 
         var _this$props2 = this.props,
             content = _this$props2.content,
@@ -413,7 +394,7 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
       //if (this.props.depth >= 3 && !this.props.active) return null;
       var children = this.children();
       if (!children) return null;
-      return /*#__PURE__*/_react["default"].createElement("ol", {
+      return /*#__PURE__*/React.createElement("ol", {
         className: "inner",
         style: {
           'listStyleType': this.props.listStyleTypes[(this.props.depth || 0) + 1]
@@ -424,15 +405,15 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
   }]);
 
   return TableEntryChildren;
-}(_react["default"].Component);
+}(React.Component);
 
-_defineProperty(TableEntryChildren, "getHeadersFromContent", (0, _memoizeOne["default"])(function (jsxContent, maxHeaderDepth, currentDepth) {
+_defineProperty(TableEntryChildren, "getHeadersFromContent", memoize(function (jsxContent, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(jsxContent)) return [];
   var depthToFind = currentDepth;
   var childrenForDepth = [];
 
   while (depthToFind <= Math.min(maxHeaderDepth, 5) && childrenForDepth.length === 0) {
-    childrenForDepth = _underscore["default"].filter(jsxContent.props.children, function (child) {
+    childrenForDepth = _.filter(jsxContent.props.children, function (child) {
       return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (depthToFind + 1);
     });
 
@@ -447,12 +428,12 @@ _defineProperty(TableEntryChildren, "getHeadersFromContent", (0, _memoizeOne["de
   };
 }));
 
-_defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne["default"])(function (header, jsxContent, maxHeaderDepth, currentDepth) {
+_defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(function (header, jsxContent, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(jsxContent)) return null;
   var getNext = null;
   var nextMajorHeader = null;
 
-  var nextHeaderComponents = _underscore["default"].reduce(jsxContent.props.children, function (m, child) {
+  var nextHeaderComponents = _.reduce(jsxContent.props.children, function (m, child) {
     if (getNext === null && child === header) {
       getNext = true;
       return m;
@@ -473,12 +454,12 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", (0, _memoizeOne
   []);
 
   return {
-    'content': /*#__PURE__*/_react["default"].cloneElement(jsxContent, {}, nextHeaderComponents),
+    'content': /*#__PURE__*/React.cloneElement(jsxContent, {}, nextHeaderComponents),
     'nextMajorHeader': nextMajorHeader
   };
 }));
 
-var TableOfContents = /*#__PURE__*/function (_React$Component3) {
+export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   _inherits(TableOfContents, _React$Component3);
 
   var _super3 = _createSuper(TableOfContents);
@@ -510,18 +491,18 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       if (children && _typeof(children) === 'object' && children.props && children.props.children) return TableOfContents.textFromReactChildren(children.props.children);
 
       if (Array.isArray(children) && children.length > 0) {
-        var childrenWithChildren = _underscore["default"].filter(children, function (c) {
+        var childrenWithChildren = _.filter(children, function (c) {
           return typeof c === 'string' || c && c.props && c.props.children;
         });
 
-        var childPrimaryElemIfAny = _underscore["default"].find(childrenWithChildren, function (c) {
+        var childPrimaryElemIfAny = _.find(childrenWithChildren, function (c) {
           return c && _typeof(c) === 'object' && c.props && (c.type === 'code' || c.type === 'strong' || c.type === 'b');
         });
 
         if (childPrimaryElemIfAny) {
           return TableOfContents.textFromReactChildren(childPrimaryElemIfAny);
         } else {
-          return _underscore["default"].map(children, TableOfContents.textFromReactChildren).join('');
+          return _.map(children, TableOfContents.textFromReactChildren).join('');
         }
       }
 
@@ -531,14 +512,14 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     key: "isHeaderComponent",
     value: function isHeaderComponent(c) {
       var maxHeaderDepth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
-      return c && c.props && typeof c.props.type === 'string' && c.props.type.charAt(0).toLowerCase() === 'h' && _underscore["default"].range(1, maxHeaderDepth + 1).indexOf(parseInt(c.props.type.charAt(1))) > -1;
+      return c && c.props && typeof c.props.type === 'string' && c.props.type.charAt(0).toLowerCase() === 'h' && _.range(1, maxHeaderDepth + 1).indexOf(parseInt(c.props.type.charAt(1))) > -1;
     }
   }, {
     key: "isContentJSX",
     value: function isContentJSX(content) {
       if (!content || _typeof(content) !== 'object') return false;
       var proto = Object.getPrototypeOf(content);
-      return proto && proto.isPrototypeOf(_react["default"].Component.prototype);
+      return proto && proto.isPrototypeOf(React.Component.prototype);
     }
   }, {
     key: "elementIDFromSectionName",
@@ -559,7 +540,7 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     key: "scrollToLink",
     value: function scrollToLink(link) {
       var offsetBeforeTarget = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 72;
-      var navigateFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _navigate.navigate;
+      var navigateFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : navigate;
       var targetElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
       var pageScrollTop, elementTop;
 
@@ -570,14 +551,14 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           navigateFunc(link);
           return;
         } else {
-          elementTop = (0, _layout.getElementTop)(targetElement || document.getElementById(link));
+          elementTop = getElementTop(targetElement || document.getElementById(link));
         }
       } else {
         return null;
       }
 
-      pageScrollTop = (0, _layout.getPageVerticalScrollPosition)();
-      (0, _layout.animateScrollTo)(elementTop, 750, offsetBeforeTarget, function () {
+      pageScrollTop = getPageVerticalScrollPosition();
+      animateScrollTo(elementTop, 750, offsetBeforeTarget, function () {
         if (typeof navigateFunc === 'function') {
           setTimeout(function () {
             if (link === 'top' || link === 'bottom') link = '';
@@ -610,10 +591,10 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   _createClass(TableOfContents, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      if (window && !(0, _misc.isServerSide)()) {
+      if (window && !isServerSide()) {
         this.setState({
           'mounted': true,
-          'scrollTop': parseInt((0, _layout.getPageVerticalScrollPosition)())
+          'scrollTop': parseInt(getPageVerticalScrollPosition())
         });
         this.unsubFromScrollEventsFxn = this.props.registerWindowOnScrollHandler(this.onPageScroll);
       }
@@ -642,7 +623,7 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         this.updateQueued = true;
         setTimeout(function () {
           _this5.setState({
-            'scrollTop': parseInt((0, _layout.getPageVerticalScrollPosition)())
+            'scrollTop': parseInt(getPageVerticalScrollPosition())
           });
         }, 0);
       }
@@ -677,37 +658,37 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       var context = this.props.context;
       var widthBound = this.state.widthBound;
       var cols = [];
-      cols.push( /*#__PURE__*/_react["default"].createElement("div", {
+      cols.push( /*#__PURE__*/React.createElement("div", {
         key: "parent-link",
         className: "col col-xs-" + (windowInnerWidth && windowInnerWidth >= 1600 ? '9' : '12')
-      }, /*#__PURE__*/_react["default"].createElement("a", {
+      }, /*#__PURE__*/React.createElement("a", {
         className: "text-500",
         href: context.parent['@id']
       }, context.parent['display_title'])));
 
       if (windowInnerWidth && windowInnerWidth >= 1600) {
-        cols.push( /*#__PURE__*/_react["default"].createElement("div", {
+        cols.push( /*#__PURE__*/React.createElement("div", {
           key: "expand-btn",
           className: "col col-xs-3 text-right expand-button-container"
-        }, /*#__PURE__*/_react["default"].createElement("button", {
+        }, /*#__PURE__*/React.createElement("button", {
           type: "button",
           className: "btn btn-xs btn-outline-dark",
           onClick: this.onToggleWidthBound
-        }, widthBound ? /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+        }, widthBound ? /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw fas icon-angle-left"
-        })) : /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+        })) : /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw fas icon-angle-right"
         })))));
       }
 
-      return /*#__PURE__*/_react["default"].createElement("li", {
+      return /*#__PURE__*/React.createElement("li", {
         className: "table-content-entry parent-entry",
         "data-depth": "0",
         key: "parent-link"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         title: "Up to page listing",
         className: "top-of-page with-border-bottom visible-lg-block visible-lg"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "row"
       }, cols)));
     }
@@ -735,10 +716,10 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
 
       var sectionEntries = function () {
         var lastSection = null;
-        var excludeSectionsFromTOC = _underscore["default"].filter(context.content, function (section) {
+        var excludeSectionsFromTOC = _.filter(context.content, function (section) {
           return section.title || section['toc-title'];
         }).length < 2;
-        return (0, _underscore["default"])(context.content).chain().sortBy(function (s) {
+        return _(context.content).chain().sortBy(function (s) {
           return s.order || 99;
         }).map(function (s, i, all) {
           s.link = TableOfContents.elementIDFromSectionName(s.name);
@@ -754,7 +735,7 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
                 childHeaders = _TableEntryChildren$g.childHeaders,
                 childDepth = _TableEntryChildren$g.childDepth;
 
-            var opts = _underscore["default"].extend({
+            var opts = _.extend({
               childHeaders: childHeaders,
               maxHeaderDepth: maxHeaderDepth,
               listStyleTypes: listStyleTypes,
@@ -768,9 +749,9 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
             return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, s.content, opts);
           }
 
-          return /*#__PURE__*/_react["default"].createElement(TableEntry, {
+          return /*#__PURE__*/React.createElement(TableEntry, {
             link: s.link,
-            title: s['toc-title'] || s.title || _underscore["default"].map(s.link.split('-'), function (w) {
+            title: s['toc-title'] || s.title || _.map(s.link.split('-'), function (w) {
               return w.charAt(0).toUpperCase() + w.slice(1);
             }).join(' '),
             key: s.link,
@@ -792,7 +773,7 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       }
 
       var renderedSections = sectionEntries();
-      contents.push( /*#__PURE__*/_react["default"].createElement(TableEntry, {
+      contents.push( /*#__PURE__*/React.createElement(TableEntry, {
         link: "top",
         title: context['display_title'] || 'Top of Page' || null,
         key: "top",
@@ -816,8 +797,8 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         }
       }
 
-      var isEmpty = Array.isArray(contents) && !_underscore["default"].filter(contents).length || !contents;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      var isEmpty = Array.isArray(contents) && !_.filter(contents).length || !contents;
+      return /*#__PURE__*/React.createElement("div", {
         key: "toc",
         className: "table-of-contents" + (widthBound ? ' width-bounded' : ''),
         style: {
@@ -827,13 +808,13 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           'height': windowWidth && windowHeight ? windowWidth >= 1200 ? maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 : null : 1000,
           marginTop: marginTop
         }
-      }, !isEmpty ? /*#__PURE__*/_react["default"].createElement("ol", {
+      }, !isEmpty ? /*#__PURE__*/React.createElement("ol", {
         className: "inner",
         style: {
           'listStyleType': listStyleTypes[0],
           'paddingLeft': 0
         }
-      }, contents) : null, includeNextPreviousPages ? /*#__PURE__*/_react["default"].createElement(NextPreviousPageSection, {
+      }, contents) : null, includeNextPreviousPages ? /*#__PURE__*/React.createElement(NextPreviousPageSection, {
         context: context,
         windowInnerWidth: windowWidth
       }) : null);
@@ -841,9 +822,7 @@ var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   }]);
 
   return TableOfContents;
-}(_react["default"].Component);
-
-exports.TableOfContents = TableOfContents;
+}(React.Component);
 
 _defineProperty(TableOfContents, "defaultProps", {
   "context": {
@@ -872,7 +851,7 @@ _defineProperty(TableOfContents, "defaultProps", {
   'maxHeaderDepth': 3
 });
 
-var NextPreviousPageSection = /*#__PURE__*/_react["default"].memo(function (props) {
+export var NextPreviousPageSection = /*#__PURE__*/React.memo(function (props) {
   var context = props.context,
       className = props.className,
       previousTitle = props.previousTitle,
@@ -881,40 +860,37 @@ var NextPreviousPageSection = /*#__PURE__*/_react["default"].memo(function (prop
       previous = context.previous;
   if (!next && !previous) return null;
   var colSize = previous && next ? 6 : 12;
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "next-previous-pages-section" + (className && ' ' + className || '')
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "row"
-  }, previous ? /*#__PURE__*/_react["default"].createElement("div", {
+  }, previous ? /*#__PURE__*/React.createElement("div", {
     className: "previous-section text-right col-" + colSize
-  }, /*#__PURE__*/_react["default"].createElement("h6", {
+  }, /*#__PURE__*/React.createElement("h6", {
     className: "text-400 mb-02 mt-12"
-  }, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw fas icon-angle-left"
-  }), " ", previousTitle), /*#__PURE__*/_react["default"].createElement("h6", {
+  }), " ", previousTitle), /*#__PURE__*/React.createElement("h6", {
     className: "text-500 mt-0"
-  }, /*#__PURE__*/_react["default"].createElement("a", {
+  }, /*#__PURE__*/React.createElement("a", {
     href: previous['@id'] || '/' + previous.name
-  }, previous.display_title))) : null, next ? /*#__PURE__*/_react["default"].createElement("div", {
+  }, previous.display_title))) : null, next ? /*#__PURE__*/React.createElement("div", {
     className: "next-section col-" + colSize
-  }, /*#__PURE__*/_react["default"].createElement("h6", {
+  }, /*#__PURE__*/React.createElement("h6", {
     className: "text-400 mb-02 mt-12"
-  }, nextTitle, " ", /*#__PURE__*/_react["default"].createElement("i", {
+  }, nextTitle, " ", /*#__PURE__*/React.createElement("i", {
     className: "icon fas icon-fw icon-angle-right"
-  })), /*#__PURE__*/_react["default"].createElement("h6", {
+  })), /*#__PURE__*/React.createElement("h6", {
     className: "text-500 mt-0"
-  }, /*#__PURE__*/_react["default"].createElement("a", {
+  }, /*#__PURE__*/React.createElement("a", {
     href: next['@id'] || '/' + next.name
   }, next.display_title))) : null));
 });
-
-exports.NextPreviousPageSection = NextPreviousPageSection;
 NextPreviousPageSection.defaultProps = {
   'previousTitle': 'Previous',
   'nextTitle': 'Next'
 };
-
-var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
+export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(MarkdownHeading, _React$PureComponent);
 
   var _super4 = _createSuper(MarkdownHeading);
@@ -929,7 +905,7 @@ var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
         'matchedString': null
       };
 
-      var childrenOuterText = _underscore["default"].filter(children, function (c) {
+      var childrenOuterText = _.filter(children, function (c) {
         return typeof c === 'string';
       }).join(' ');
 
@@ -999,7 +975,7 @@ var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
       var attributes = MarkdownHeading.getAttributes(children);
 
       if (attributes && attributes.matchedString) {
-        propsToPass.children = _underscore["default"].map(children, function (c) {
+        propsToPass.children = _.map(children, function (c) {
           if (typeof c === 'string') return c.replace(attributes.matchedString, '');
           return c;
         });
@@ -1014,21 +990,19 @@ var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       if (!propsToPass.id) propsToPass.id = this.getID(true);
-      return /*#__PURE__*/_react["default"].createElement(HeaderWithLink, propsToPass); //return React.createElement(type, propsToPass);
+      return /*#__PURE__*/React.createElement(HeaderWithLink, propsToPass); //return React.createElement(type, propsToPass);
     }
   }]);
 
   return MarkdownHeading;
-}(_react["default"].PureComponent);
-
-exports.MarkdownHeading = MarkdownHeading;
+}(React.PureComponent);
 
 _defineProperty(MarkdownHeading, "defaultProps", {
   'type': 'h1',
   'id': null
 });
 
-var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
+export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(HeaderWithLink, _React$PureComponent2);
 
   var _super5 = _createSuper(HeaderWithLink);
@@ -1046,17 +1020,15 @@ var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   _createClass(HeaderWithLink, [{
     key: "handleLinkClick",
     value: function handleLinkClick() {
-      if (!(!(0, _misc.isServerSide)() && typeof window !== 'undefined' && document)) return null;
+      if (!(!isServerSide() && typeof window !== 'undefined' && document)) return null;
       var id = this.props.link || this.props.id,
           itemAtID;
-      if (this.props.context) itemAtID = _object.itemUtil.atId(this.props.context);else itemAtID = window.location.pathname;
+      if (this.props.context) itemAtID = itemUtil.atId(this.props.context);else itemAtID = window.location.pathname;
 
       if (itemAtID) {
         var linkToCopy = itemAtID + '#' + id;
         linkToCopy = window.location.protocol + '//' + window.location.host + linkToCopy;
-
-        _object.CopyWrapper.copyToClipboard(linkToCopy);
-
+        CopyWrapper.copyToClipboard(linkToCopy);
         TableOfContents.scrollToLink(id);
       }
     }
@@ -1064,7 +1036,7 @@ var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
     key: "render",
     value: function render() {
       if (!this.props.id && !this.props.link) throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
-      return /*#__PURE__*/_react["default"].createElement(this.props.type || 'h2', _underscore["default"].omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children, /*#__PURE__*/_react["default"].createElement("i", {
+      return /*#__PURE__*/React.createElement(this.props.type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children, /*#__PURE__*/React.createElement("i", {
         key: "icon-link",
         className: "icon icon-fw icon-link fas",
         onClick: this.handleLinkClick,
@@ -1074,6 +1046,4 @@ var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
 
   return HeaderWithLink;
-}(_react["default"].PureComponent);
-
-exports.HeaderWithLink = HeaderWithLink;
+}(React.PureComponent);

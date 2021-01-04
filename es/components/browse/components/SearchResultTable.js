@@ -1,65 +1,6 @@
 'use strict';
 /* @flow */
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SearchResultTable = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _querystring = _interopRequireDefault(require("querystring"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _reactInfinite = _interopRequireDefault(require("react-infinite"));
-
-var _ItemDetailList = require("./../../ui/ItemDetailList");
-
-var analytics = _interopRequireWildcard(require("./../../util/analytics"));
-
-var _patchedConsole = require("./../../util/patched-console");
-
-var _misc = require("./../../util/misc");
-
-var _navigate = require("./../../util/navigate");
-
-var _object = require("./../../util/object");
-
-var _ajax = require("./../../util/ajax");
-
-var _layout = require("./../../util/layout");
-
-var _schemaTransforms = require("./../../util/schema-transforms");
-
-var _utilities = require("./../../viz/utilities");
-
-var _Alerts = require("./../../ui/Alerts");
-
-var _CustomColumnController = require("./CustomColumnController");
-
-var _ResultRowColumnBlockValue = require("./table-commons/ResultRowColumnBlockValue");
-
-var _ColumnCombiner = require("./table-commons/ColumnCombiner");
-
-var _HeadersRow = require("./table-commons/HeadersRow");
-
-var _basicColumnExtensionMap = require("./table-commons/basicColumnExtensionMap");
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -90,7 +31,30 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-var ResultRowColumnBlock = /*#__PURE__*/_react["default"].memo(function (props) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import url from 'url';
+import _ from 'underscore';
+import queryString from 'querystring';
+import memoize from 'memoize-one';
+import ReactTooltip from 'react-tooltip';
+import Infinite from 'react-infinite';
+import { Detail } from './../../ui/ItemDetailList';
+import * as analytics from './../../util/analytics';
+import { patchedConsoleInstance as console } from './../../util/patched-console';
+import { isServerSide, isSelectAction } from './../../util/misc';
+import { navigate as globalPageNavigate } from './../../util/navigate';
+import { itemUtil } from './../../util/object';
+import { load } from './../../util/ajax';
+import { getPageVerticalScrollPosition, getElementOffset, responsiveGridState } from './../../util/layout';
+import { getItemTypeTitle } from './../../util/schema-transforms';
+import { requestAnimationFrame as raf, cancelAnimationFrame as caf, style as vizStyle } from './../../viz/utilities';
+import { Alerts } from './../../ui/Alerts';
+import { ResultRowColumnBlockValue } from './table-commons/ResultRowColumnBlockValue';
+import { columnsToColumnDefinitions, getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
+import { HeadersRow } from './table-commons/HeadersRow';
+import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap';
+var ResultRowColumnBlock = /*#__PURE__*/React.memo(function (props) {
   var columnDefinition = props.columnDefinition,
       columnNumber = props.columnNumber,
       mounted = props.mounted,
@@ -101,15 +65,15 @@ var ResultRowColumnBlock = /*#__PURE__*/_react["default"].memo(function (props) 
   var blockWidth;
 
   if (mounted) {
-    blockWidth = columnWidths[field] || (0, _ColumnCombiner.getColumnWidthFromDefinition)(columnDefinition, mounted, windowWidth);
+    blockWidth = columnWidths[field] || getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
   } else {
-    blockWidth = (0, _ColumnCombiner.getColumnWidthFromDefinition)(columnDefinition, mounted, windowWidth);
+    blockWidth = getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
   }
 
   return (
     /*#__PURE__*/
     // props includes result
-    _react["default"].createElement("div", {
+    React.createElement("div", {
       className: "search-result-column-block",
       style: {
         "width": blockWidth
@@ -117,7 +81,7 @@ var ResultRowColumnBlock = /*#__PURE__*/_react["default"].memo(function (props) 
       "data-field": field,
       "data-first-visible-column": columnNumber === 0 ? true : undefined,
       "data-column-even": columnNumber % 2 === 0
-    }, /*#__PURE__*/_react["default"].createElement(_ResultRowColumnBlockValue.ResultRowColumnBlockValue, _extends({}, props, {
+    }, /*#__PURE__*/React.createElement(ResultRowColumnBlockValue, _extends({}, props, {
       width: blockWidth,
       schemas: schemas
     })))
@@ -125,16 +89,15 @@ var ResultRowColumnBlock = /*#__PURE__*/_react["default"].memo(function (props) 
 });
 /** Not used anywhere (?) */
 
-
-var DefaultDetailPane = /*#__PURE__*/_react["default"].memo(function (_ref) {
+var DefaultDetailPane = /*#__PURE__*/React.memo(function (_ref) {
   var result = _ref.result;
-  return /*#__PURE__*/_react["default"].createElement("div", null, result.description ? /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", null, result.description ? /*#__PURE__*/React.createElement("div", {
     className: "flexible-description-box result-table-result-heading"
-  }, result.description) : null, /*#__PURE__*/_react["default"].createElement("div", {
+  }, result.description) : null, /*#__PURE__*/React.createElement("div", {
     className: "item-page-detail"
-  }, /*#__PURE__*/_react["default"].createElement("h4", {
+  }, /*#__PURE__*/React.createElement("h4", {
     className: "text-300"
-  }, "Details"), /*#__PURE__*/_react["default"].createElement(_ItemDetailList.Detail, {
+  }, "Details"), /*#__PURE__*/React.createElement(Detail, {
     context: result,
     open: false
   })));
@@ -155,7 +118,7 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
     _this.state = {
       'closing': false
     };
-    _this.detailRef = /*#__PURE__*/_react["default"].createRef(); // Unsure if worth keeping/using still?
+    _this.detailRef = /*#__PURE__*/React.createRef(); // Unsure if worth keeping/using still?
     // Is potentially relevant but not ideally-implemented for BrowseView
     // which has DetailPane which itself has collapsible areas and the height
     // can thus vary outside of the open/closed toggle state in this table.
@@ -251,48 +214,48 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
         detailPaneHeight: detailPaneHeight,
         setDetailHeightFromPane: this.setDetailHeightFromPane
       };
-      var detailPane = /*#__PURE__*/_react["default"].isValidElement(propDetailPane) ? /*#__PURE__*/_react["default"].cloneElement(propDetailPane, {
+      var detailPane = /*#__PURE__*/React.isValidElement(propDetailPane) ? /*#__PURE__*/React.cloneElement(propDetailPane, {
         result: result,
         rowNumber: rowNumber,
         containerWidth: containerWidth,
         propsFromTable: propsFromTable
       }) : typeof renderDetailPane === "function" ? renderDetailPane(result, rowNumber, containerWidth, propsFromTable) : null;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "result-table-detail-container detail-" + (open || closing ? 'open' : 'closed'),
         style: {
           minHeight: detailPaneHeight
         }
-      }, open ? /*#__PURE__*/_react["default"].createElement("div", {
+      }, open ? /*#__PURE__*/React.createElement("div", {
         className: "result-table-detail",
         ref: this.detailRef,
         style: {
           width: containerWidth,
-          transform: _utilities.style.translate3d(tableContainerScrollLeft)
+          transform: vizStyle.translate3d(tableContainerScrollLeft)
         }
-      }, detailPane, /*#__PURE__*/_react["default"].createElement("div", {
+      }, detailPane, /*#__PURE__*/React.createElement("div", {
         className: "close-button-container text-center",
         onClick: toggleDetailOpen,
         "data-tip": "Collapse Details"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-angle-up fas"
-      }))) : /*#__PURE__*/_react["default"].createElement("div", null));
+      }))) : /*#__PURE__*/React.createElement("div", null));
     }
   }]);
 
   return ResultDetail;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 
 _defineProperty(ResultDetail, "propTypes", {
-  'result': _propTypes["default"].object.isRequired,
-  'open': _propTypes["default"].bool.isRequired,
-  'renderDetailPane': _propTypes["default"].func.isRequired,
-  'rowNumber': _propTypes["default"].number,
-  'toggleDetailOpen': _propTypes["default"].func.isRequired,
-  'setDetailHeight': _propTypes["default"].func.isRequired,
-  'tableContainerWidth': _propTypes["default"].number,
-  'tableContainerScrollLeft': _propTypes["default"].number,
-  'id': _propTypes["default"].string,
-  'detailPaneHeight': _propTypes["default"].number
+  'result': PropTypes.object.isRequired,
+  'open': PropTypes.bool.isRequired,
+  'renderDetailPane': PropTypes.func.isRequired,
+  'rowNumber': PropTypes.number,
+  'toggleDetailOpen': PropTypes.func.isRequired,
+  'setDetailHeight': PropTypes.func.isRequired,
+  'tableContainerWidth': PropTypes.number,
+  'tableContainerScrollLeft': PropTypes.number,
+  'id': PropTypes.string,
+  'detailPaneHeight': PropTypes.number
 });
 
 var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
@@ -331,11 +294,11 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
     _classCallCheck(this, ResultRow);
 
     _this2 = _super2.call(this, props);
-    _this2.toggleDetailOpen = _underscore["default"].throttle(_this2.toggleDetailOpen.bind(_assertThisInitialized(_this2)), 250);
+    _this2.toggleDetailOpen = _.throttle(_this2.toggleDetailOpen.bind(_assertThisInitialized(_this2)), 250);
     _this2.setDetailHeight = _this2.setDetailHeight.bind(_assertThisInitialized(_this2));
     _this2.handleDragStart = _this2.handleDragStart.bind(_assertThisInitialized(_this2));
     _this2.memoized = {
-      getStyles: (0, _memoizeOne["default"])(ResultRow.getStyles)
+      getStyles: memoize(ResultRow.getStyles)
     };
     return _this2;
   } // componentDidUpdate(pastProps){
@@ -377,10 +340,8 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
 
       evt.dataTransfer.setData('text/4dn-item-json', JSON.stringify(result)); // Result URL and @id.
 
-      var hrefParts = typeof href === "string" ? _url["default"].parse(href) : window.location;
-
-      var atId = _object.itemUtil.atId(result);
-
+      var hrefParts = typeof href === "string" ? url.parse(href) : window.location;
+      var atId = itemUtil.atId(result);
       var formedURL = (hrefParts.protocol || '') + (hrefParts.hostname ? '//' + hrefParts.hostname + (hrefParts.port ? ':' + hrefParts.port : '') : '') + atId;
       evt.dataTransfer.setData('text/plain', formedURL);
       evt.dataTransfer.setData('text/uri-list', formedURL);
@@ -395,7 +356,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       innerBoldElem.appendChild(document.createTextNode(innerText));
       element.appendChild(innerBoldElem);
       element.appendChild(document.createElement('br'));
-      innerText = (0, _schemaTransforms.getItemTypeTitle)(result, schemas); // document.createTextNode('')
+      innerText = getItemTypeTitle(result, schemas); // document.createTextNode('')
 
       element.appendChild(document.createTextNode(innerText));
       document.body.appendChild(element);
@@ -412,7 +373,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
       // TODO (?) prop func to do this to control which columns get which props.
       var columnDefinitions = this.props.columnDefinitions; // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction', 'detailOpen'
 
-      var commonProps = _underscore["default"].omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
+      var commonProps = _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
 
       return columnDefinitions.map(function (columnDefinition, columnNumber) {
         // todo: rename columnNumber to columnIndex
@@ -425,7 +386,7 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
           'toggleDetailOpen': columnNumber === 0 ? _this3.toggleDetailOpen : null
         });
 
-        return /*#__PURE__*/_react["default"].createElement(ResultRowColumnBlock, _extends({}, passedProps, {
+        return /*#__PURE__*/React.createElement(ResultRowColumnBlock, _extends({}, passedProps, {
           key: field
         }));
       });
@@ -439,17 +400,17 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
           rowHeight = _this$props6.rowHeight,
           rowWidth = _this$props6.rowWidth,
           detailOpen = _this$props6.detailOpen;
-      var isDraggable = (0, _misc.isSelectAction)(currentAction);
+      var isDraggable = isSelectAction(currentAction);
       var styles = this.memoized.getStyles(rowWidth, rowHeight);
       /**
        * Props passed to ResultDetail include:
        * `result`, `renderDetailPane`, `rowNumber`, `tableContainerWidth`, `tableContainerScrollLeft`.
        */
 
-      var detailProps = _underscore["default"].omit(this.props, 'mounted', 'columnDefinitions', 'detailOpen', 'setDetailHeight', 'columnWidths', 'setColumnWidths');
+      var detailProps = _.omit(this.props, 'mounted', 'columnDefinitions', 'detailOpen', 'setDetailHeight', 'columnWidths', 'setColumnWidths');
 
       var cls = "search-result-row" + " detail-" + (detailOpen ? 'open' : 'closed') + (isDraggable ? ' is-draggable' : '');
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: cls,
         "data-row-number": rowNumber,
         style: styles.outer
@@ -461,13 +422,13 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
         }
         }}*/
 
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "columns clearfix result-table-row",
         draggable: isDraggable,
         style: styles.inner // Account for 1px border bottom on parent div
         ,
         onDragStart: isDraggable ? this.handleDragStart : null
-      }, this.renderColumns()), /*#__PURE__*/_react["default"].createElement(ResultDetail, _extends({}, detailProps, {
+      }, this.renderColumns()), /*#__PURE__*/React.createElement(ResultDetail, _extends({}, detailProps, {
         open: !!detailOpen,
         detailPaneHeight: typeof detailOpen === "number" ? detailOpen : undefined,
         toggleDetailOpen: this.toggleDetailOpen,
@@ -477,28 +438,28 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
   }]);
 
   return ResultRow;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 
 _defineProperty(ResultRow, "propTypes", {
-  'result': _propTypes["default"].shape({
-    '@type': _propTypes["default"].arrayOf(_propTypes["default"].string).isRequired,
-    '@id': _propTypes["default"].string,
-    'lab': _propTypes["default"].object,
-    'display_title': _propTypes["default"].string.isRequired,
-    'status': _propTypes["default"].string,
-    'date_created': _propTypes["default"].string.isRequired
+  'result': PropTypes.shape({
+    '@type': PropTypes.arrayOf(PropTypes.string).isRequired,
+    '@id': PropTypes.string,
+    'lab': PropTypes.object,
+    'display_title': PropTypes.string.isRequired,
+    'status': PropTypes.string,
+    'date_created': PropTypes.string.isRequired
   }).isRequired,
-  'rowNumber': _propTypes["default"].number.isRequired,
-  'rowHeight': _propTypes["default"].number,
-  'mounted': _propTypes["default"].bool.isRequired,
-  'columnDefinitions': _HeadersRow.HeadersRow.propTypes.columnDefinitions,
-  'columnWidths': _propTypes["default"].objectOf(_propTypes["default"].number),
-  'renderDetailPane': _propTypes["default"].func.isRequired,
-  'detailPane': _propTypes["default"].element,
-  'detailOpen': _propTypes["default"].bool.isRequired,
-  'setDetailHeight': _propTypes["default"].func.isRequired,
-  'id': _propTypes["default"].string.isRequired,
-  'context': _propTypes["default"].object.isRequired
+  'rowNumber': PropTypes.number.isRequired,
+  'rowHeight': PropTypes.number,
+  'mounted': PropTypes.bool.isRequired,
+  'columnDefinitions': HeadersRow.propTypes.columnDefinitions,
+  'columnWidths': PropTypes.objectOf(PropTypes.number),
+  'renderDetailPane': PropTypes.func.isRequired,
+  'detailPane': PropTypes.element,
+  'detailOpen': PropTypes.bool.isRequired,
+  'setDetailHeight': PropTypes.func.isRequired,
+  'id': PropTypes.string.isRequired,
+  'context': PropTypes.object.isRequired
 });
 
 var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
@@ -532,7 +493,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "getElementHeight",
     value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeight) {
-      return Object.keys(openDetailPanes).length === 0 ? rowHeight : _react["default"].Children.map(children, function (c) {
+      return Object.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function (c) {
         // openRowHeight + openDetailPane height
         var savedHeight = openDetailPanes[c.props.id];
 
@@ -551,7 +512,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     _classCallCheck(this, LoadMoreAsYouScroll);
 
     _this4 = _super3.call(this, props);
-    _this4.handleLoad = _underscore["default"].throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000);
+    _this4.handleLoad = _.throttle(_this4.handleLoad.bind(_assertThisInitialized(_this4)), 3000);
     _this4.state = {
       'isLoading': false
     };
@@ -561,11 +522,11 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     }
 
     _this4.memoized = {
-      getStyles: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getStyles),
-      getElementHeight: (0, _memoizeOne["default"])(LoadMoreAsYouScroll.getElementHeight)
+      getStyles: memoize(LoadMoreAsYouScroll.getStyles),
+      getElementHeight: memoize(LoadMoreAsYouScroll.getElementHeight)
     };
     _this4.lastIsScrolling = false;
-    _this4.infiniteComponentRef = /*#__PURE__*/_react["default"].createRef();
+    _this4.infiniteComponentRef = /*#__PURE__*/React.createRef();
     _this4.currRequest = null;
     return _this4;
   }
@@ -595,20 +556,19 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           onDuplicateResultsFoundCallback = _this$props7.onDuplicateResultsFoundCallback,
           setResults = _this$props7.setResults,
           _this$props7$navigate = _this$props7.navigate,
-          navigate = _this$props7$navigate === void 0 ? _navigate.navigate : _this$props7$navigate;
+          navigate = _this$props7$navigate === void 0 ? globalPageNavigate : _this$props7$navigate;
       var nextFromValue = existingResults.length;
       var nextHref = null;
       var nextCompoundFilterSetRequest = null;
 
       if (!origCompoundFilterSet) {
         // Assumed href/string request
-        var parts = _url["default"].parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
-
+        var parts = url.parse(origHref, true); // memoizedUrlParse not used in case is EmbeddedSearchView.
 
         var query = parts.query;
         query.from = nextFromValue;
-        parts.search = '?' + _querystring["default"].stringify(query);
-        nextHref = _url["default"].format(parts);
+        parts.search = '?' + queryString.stringify(query);
+        nextHref = url.format(parts);
       } else {
         nextCompoundFilterSetRequest = _objectSpread(_objectSpread({}, origCompoundFilterSet), {}, {
           "from": nextFromValue
@@ -624,8 +584,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
       var loadCallback = function (resp) {
         if (requestInThisScope !== _this5.currRequest) {
           // Shouldn't occur - extra redundancy
-          _patchedConsole.patchedConsoleInstance.warn("Throwing out outdated load-more-as-you-scroll request.");
-
+          console.warn("Throwing out outdated load-more-as-you-scroll request.");
           return false;
         }
 
@@ -635,15 +594,14 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
 
         if (nextResultsLen > 0) {
           // Check if have same result, if so, refresh all results (something has changed on back-end)
-          var oldKeys = _underscore["default"].map(existingResults, _object.itemUtil.atId);
+          var oldKeys = _.map(existingResults, itemUtil.atId);
 
-          var newKeys = _underscore["default"].map(nextResults, _object.itemUtil.atId);
+          var newKeys = _.map(nextResults, itemUtil.atId);
 
-          var keyIntersection = _underscore["default"].intersection(oldKeys.sort(), newKeys.sort());
+          var keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
 
           if (keyIntersection.length > 0) {
-            _patchedConsole.patchedConsoleInstance.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys); // We can refresh current page to get newest results.
-
+            console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys); // We can refresh current page to get newest results.
 
             _this5.setState({
               'isLoading': false
@@ -683,7 +641,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
       this.setState({
         'isLoading': true
       }, function () {
-        _this5.currRequest = requestInThisScope = (0, _ajax.load)(nextCompoundFilterSetRequest ? "/compound_search" : nextHref, loadCallback, nextCompoundFilterSetRequest ? "POST" : "GET", loadCallback, nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null);
+        _this5.currRequest = requestInThisScope = load(nextCompoundFilterSetRequest ? "/compound_search" : nextHref, loadCallback, nextCompoundFilterSetRequest ? "POST" : "GET", loadCallback, nextCompoundFilterSetRequest ? JSON.stringify(nextCompoundFilterSetRequest) : null);
       });
     }
   }, {
@@ -705,13 +663,13 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           isLoading = _this$state.isLoading;
 
       if (!(propMounted || stateMounted)) {
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: "react-infinite-container"
-        }, /*#__PURE__*/_react["default"].createElement("div", null, children));
+        }, /*#__PURE__*/React.createElement("div", null, children));
       }
 
       var elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight);
-      return /*#__PURE__*/_react["default"].createElement(_reactInfinite["default"], {
+      return /*#__PURE__*/React.createElement(Infinite, {
         className: "react-infinite-container",
         ref: this.infiniteComponentRef,
         elementHeight: elementHeight,
@@ -721,51 +679,51 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         isInfiniteLoading: isLoading,
         timeScrollStateLastsForAfterUserScrolls: 250 //onChangeScrollState={this.handleScrollingStateChange}
         ,
-        loadingSpinnerDelegate: /*#__PURE__*/_react["default"].createElement(LoadingSpinner, {
+        loadingSpinnerDelegate: /*#__PURE__*/React.createElement(LoadingSpinner, {
           width: tableContainerWidth,
           scrollLeft: tableContainerScrollLeft
         }),
         infiniteLoadBeginEdgeOffset: canLoadMore ? 200 : undefined,
-        preloadAdditionalHeight: _reactInfinite["default"].containerHeightScaleFactor(1.5),
-        preloadBatchSize: _reactInfinite["default"].containerHeightScaleFactor(1.5),
+        preloadAdditionalHeight: Infinite.containerHeightScaleFactor(1.5),
+        preloadBatchSize: Infinite.containerHeightScaleFactor(1.5),
         styles: isOwnPage ? null : this.memoized.getStyles(maxHeight)
       }, children);
     }
   }]);
 
   return LoadMoreAsYouScroll;
-}(_react["default"].Component);
+}(React.Component);
 
 _defineProperty(LoadMoreAsYouScroll, "propTypes", {
-  'href': _propTypes["default"].string,
-  'requestedCompoundFilterSet': _propTypes["default"].object,
-  'results': _propTypes["default"].array.isRequired,
+  'href': PropTypes.string,
+  'requestedCompoundFilterSet': PropTypes.object,
+  'results': PropTypes.array.isRequired,
   // From parent
-  'rowHeight': _propTypes["default"].number.isRequired,
-  'isOwnPage': _propTypes["default"].bool.isRequired,
-  'maxHeight': _propTypes["default"].number,
-  'tableContainerScrollLeft': _propTypes["default"].number.isRequired,
+  'rowHeight': PropTypes.number.isRequired,
+  'isOwnPage': PropTypes.bool.isRequired,
+  'maxHeight': PropTypes.number,
+  'tableContainerScrollLeft': PropTypes.number.isRequired,
   // From parent
-  'tableContainerWidth': _propTypes["default"].number.isRequired,
+  'tableContainerWidth': PropTypes.number.isRequired,
   // From parent
-  'setResults': _propTypes["default"].func.isRequired,
+  'setResults': PropTypes.func.isRequired,
   // From parent
-  'openDetailPanes': _propTypes["default"].objectOf(_propTypes["default"].oneOfType([_propTypes["default"].number, _propTypes["default"].bool])).isRequired,
+  'openDetailPanes': PropTypes.objectOf(PropTypes.oneOfType([PropTypes.number, PropTypes.bool])).isRequired,
   // From parent
-  'canLoadMore': _propTypes["default"].bool.isRequired,
+  'canLoadMore': PropTypes.bool.isRequired,
   // From parent
-  'children': _propTypes["default"].arrayOf(_propTypes["default"].element).isRequired,
+  'children': PropTypes.arrayOf(PropTypes.element).isRequired,
   // From parent
-  'mounted': _propTypes["default"].bool,
-  'onDuplicateResultsFoundCallback': _propTypes["default"].func,
-  'navigate': _propTypes["default"].func,
-  'openRowHeight': _propTypes["default"].number.isRequired
+  'mounted': PropTypes.bool,
+  'onDuplicateResultsFoundCallback': PropTypes.func,
+  'navigate': PropTypes.func,
+  'openRowHeight': PropTypes.number.isRequired
 });
 
 _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   'debouncePointerEvents': 150,
   'onDuplicateResultsFoundCallback': function onDuplicateResultsFoundCallback() {
-    _Alerts.Alerts.queue({
+    Alerts.queue({
       'title': 'Results Refreshed',
       'message': 'Results have changed while loading and have been refreshed.',
       'navigateDisappearThreshold': 1
@@ -774,18 +732,18 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
   'isOwnPage': true
 });
 
-var LoadingSpinner = /*#__PURE__*/_react["default"].memo(function (_ref3) {
+var LoadingSpinner = /*#__PURE__*/React.memo(function (_ref3) {
   var maxWidth = _ref3.width,
       _ref3$scrollLeft = _ref3.scrollLeft,
       scrollLeft = _ref3$scrollLeft === void 0 ? 0 : _ref3$scrollLeft;
   var style = {
     maxWidth: maxWidth,
-    'transform': _utilities.style.translate3d(scrollLeft)
+    'transform': vizStyle.translate3d(scrollLeft)
   };
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "search-result-row loading text-center d-flex align-items-center justify-content-center",
     style: style
-  }, /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+  }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-circle-notch icon-spin fas"
   }), "\xA0 Loading..."));
 });
@@ -839,7 +797,7 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
     _this6.handleRightScrollButtonMouseDown = _this6.handleScrollButtonMouseDown.bind(_assertThisInitialized(_this6), 'right');
     _this6.handleScrollButtonUp = _this6.handleScrollButtonUp.bind(_assertThisInitialized(_this6));
     _this6.memoized = {
-      edgeHiddenContentWidths: (0, _memoizeOne["default"])(ShadowBorderLayer.edgeHiddenContentWidths)
+      edgeHiddenContentWidths: memoize(ShadowBorderLayer.edgeHiddenContentWidths)
     };
     return _this6;
   }
@@ -895,13 +853,12 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
         setContainerScrollLeft(leftOffset);
 
         if (depth >= 10000) {
-          _patchedConsole.patchedConsoleInstance.error("Reached depth 10k on a recursive function 'performScrollAction.'");
-
+          console.error("Reached depth 10k on a recursive function 'performScrollAction.'");
           return;
         }
 
         if (_this7.scrolling) {
-          (0, _utilities.requestAnimationFrame)(function () {
+          raf(function () {
             scrollAction(depth + 1);
           });
         }
@@ -927,28 +884,28 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
       if (fullRowWidth <= tableContainerWidth) return null;
       var edges = this.memoized.edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth);
       var cls = "shadow-border-layer hidden-xs" + ShadowBorderLayer.shadowStateClass(edges.left, edges.right) + (fixedPositionArrows ? ' fixed-position-arrows' : '');
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: cls
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "edge-scroll-button left-edge" + (typeof edges.left !== 'number' || edges.left === 0 ? " faded-out" : ""),
         onMouseDown: this.handleLeftScrollButtonMouseDown,
         onMouseUp: this.handleScrollButtonUp,
         onMouseOut: this.handleScrollButtonUp
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-caret-left fas"
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
         className: "edge-scroll-button right-edge" + (typeof edges.right !== 'number' || edges.right === 0 ? " faded-out" : ""),
         onMouseDown: this.handleRightScrollButtonMouseDown,
         onMouseUp: this.handleScrollButtonUp,
         onMouseOut: this.handleScrollButtonUp
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-caret-right fas"
       })));
     }
   }]);
 
   return ShadowBorderLayer;
-}(_react["default"].Component);
+}(React.Component);
 
 _defineProperty(ShadowBorderLayer, "defaultProps", {
   'horizontalScrollRateOnEdgeButton': 10
@@ -966,9 +923,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var cb = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
       if (detailPanes && detailPanes.length > 0) {
-        var transformStyle = _utilities.style.translate3d(leftOffset);
+        var transformStyle = vizStyle.translate3d(leftOffset);
 
-        _underscore["default"].forEach(detailPanes, function (d) {
+        _.forEach(detailPanes, function (d) {
           d.style.transform = transformStyle;
         });
       }
@@ -990,13 +947,13 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       var dynamicWidths = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var windowWidth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      return _underscore["default"].reduce(visibleColumnDefinitions, function (fw, colDef) {
+      return _.reduce(visibleColumnDefinitions, function (fw, colDef) {
         var w;
 
         if (dynamicWidths && typeof dynamicWidths[colDef.field] === "number") {
           w = dynamicWidths[colDef.field];
         } else {
-          w = (0, _ColumnCombiner.getColumnWidthFromDefinition)(colDef, mounted, windowWidth);
+          w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
         }
 
         if (isNaN(w)) {
@@ -1049,11 +1006,11 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     _this8 = _super5.call(this, props);
     _this8.getScrollContainer = _this8.getScrollContainer.bind(_assertThisInitialized(_this8));
     _this8.getScrollableElement = _this8.getScrollableElement.bind(_assertThisInitialized(_this8));
-    _this8.throttledUpdate = _underscore["default"].debounce(_this8.forceUpdate.bind(_assertThisInitialized(_this8)), 500);
-    _this8.toggleDetailPaneOpen = _underscore["default"].throttle(_this8.toggleDetailPaneOpen.bind(_assertThisInitialized(_this8)), 500);
+    _this8.throttledUpdate = _.debounce(_this8.forceUpdate.bind(_assertThisInitialized(_this8)), 500);
+    _this8.toggleDetailPaneOpen = _.throttle(_this8.toggleDetailPaneOpen.bind(_assertThisInitialized(_this8)), 500);
     _this8.setDetailHeight = _this8.setDetailHeight.bind(_assertThisInitialized(_this8)); //this.setContainerScrollLeft = this.setContainerScrollLeft.bind(this);
 
-    _this8.setContainerScrollLeft = _underscore["default"].throttle(_this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8)), 250);
+    _this8.setContainerScrollLeft = _.throttle(_this8.setContainerScrollLeft.bind(_assertThisInitialized(_this8)), 250);
     _this8.onHorizontalScroll = _this8.onHorizontalScroll.bind(_assertThisInitialized(_this8));
     _this8.setResults = _this8.setResults.bind(_assertThisInitialized(_this8));
     _this8.canLoadMore = _this8.canLoadMore.bind(_assertThisInitialized(_this8));
@@ -1071,14 +1028,14 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     };
 
     if (_this8.state.results.length > 0 && Array.isArray(props.defaultOpenIndices) && props.defaultOpenIndices.length > 0) {
-      _this8.state.openDetailPanes[_object.itemUtil.atId(_this8.state.results[0])] = true;
+      _this8.state.openDetailPanes[itemUtil.atId(_this8.state.results[0])] = true;
     }
 
-    _this8.outerRef = /*#__PURE__*/_react["default"].createRef();
+    _this8.outerRef = /*#__PURE__*/React.createRef();
     _this8.outerContainerSizeInterval = null;
     _this8.scrollHandlerUnsubscribeFxn = null;
     _this8.memoized = {
-      fullRowWidth: (0, _memoizeOne["default"])(DimensioningContainer.fullRowWidth)
+      fullRowWidth: memoize(DimensioningContainer.fullRowWidth)
     };
     return _this8;
   }
@@ -1141,7 +1098,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       }, 5000);
       this.setState({
         'mounted': true
-      }, _reactTooltip["default"].rebuild);
+      }, ReactTooltip.rebuild);
     }
   }, {
     key: "componentWillUnmount",
@@ -1171,7 +1128,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var pastWindowWidth = pastProps.windowWidth;
 
       if (pastLoadedResults !== loadedResults) {
-        _reactTooltip["default"].rebuild();
+        ReactTooltip.rebuild();
       }
 
       var didMount = !pastMounted && mounted;
@@ -1181,7 +1138,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         // which doesn't appear until after mount
         var scrollContainer = this.getScrollContainer();
         var nextState = DimensioningContainer.getTableDims(scrollContainer, windowWidth);
-        this.setState(nextState, didMount ? _reactTooltip["default"].rebuild : null);
+        this.setState(nextState, didMount ? ReactTooltip.rebuild : null);
 
         if (didMount && scrollContainer) {
           scrollContainer.addEventListener('scroll', this.onHorizontalScroll);
@@ -1194,7 +1151,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       this.setState(function (_ref8) {
         var openDetailPanes = _ref8.openDetailPanes;
-        openDetailPanes = _underscore["default"].clone(openDetailPanes);
+        openDetailPanes = _.clone(openDetailPanes);
 
         if (openDetailPanes[rowKey]) {
           delete openDetailPanes[rowKey];
@@ -1212,7 +1169,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     value: function setDetailHeight(rowKey, height, cb) {
       this.setState(function (_ref9) {
         var openDetailPanes = _ref9.openDetailPanes;
-        openDetailPanes = _underscore["default"].clone(openDetailPanes);
+        openDetailPanes = _.clone(openDetailPanes);
 
         if (typeof openDetailPanes[rowKey] === 'undefined') {
           return null;
@@ -1246,10 +1203,10 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       // );
 
       if (this.horizScrollRAF) {
-        (0, _utilities.cancelAnimationFrame)(this.horizScrollRAF);
+        caf(this.horizScrollRAF);
       }
 
-      this.horizScrollRAF = (0, _utilities.requestAnimationFrame)(function () {
+      this.horizScrollRAF = raf(function () {
         var tableContainerScrollLeft = _this10.state.tableContainerScrollLeft;
         var nextScrollLeft = innerElem.scrollLeft;
 
@@ -1273,7 +1230,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     key: "setResults",
     value: function setResults(results, cb) {
       this.setState({
-        'results': _underscore["default"].uniq(results, false, _object.itemUtil.atId)
+        'results': _.uniq(results, false, itemUtil.atId)
       }, cb);
     }
   }, {
@@ -1320,7 +1277,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var canLoadMore = this.canLoadMore();
       var anyResults = results.length > 0;
 
-      var headerRowCommonProps = _objectSpread(_objectSpread({}, _underscore["default"].pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
+      var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
         mounted: mounted,
         results: results,
         rowHeight: rowHeight,
@@ -1329,7 +1286,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         tableContainerScrollLeft: tableContainerScrollLeft
       });
 
-      var resultRowCommonProps = _underscore["default"].extend(_underscore["default"].pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn'), {
+      var resultRowCommonProps = _.extend(_.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn'), {
         context: context,
         rowHeight: rowHeight,
         navigate: navigate,
@@ -1345,8 +1302,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _underscore["default"].pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet')), {}, {
+      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet')), {}, {
         context: context,
+        navigate: navigate,
         rowHeight: rowHeight,
         openRowHeight: openRowHeight,
         results: results,
@@ -1365,10 +1323,11 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
 
       var headersRow = null;
       var shadowBorderLayer = null;
+      var childrenToShow = null;
 
       if (anyResults) {
-        headersRow = /*#__PURE__*/_react["default"].createElement(_HeadersRow.HeadersRow, headerRowCommonProps);
-        shadowBorderLayer = /*#__PURE__*/_react["default"].createElement(ShadowBorderLayer, _extends({
+        headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
+        shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, _extends({
           tableContainerScrollLeft: tableContainerScrollLeft,
           tableContainerWidth: tableContainerWidth,
           fullRowWidth: fullRowWidth
@@ -1377,56 +1336,59 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           fixedPositionArrows: isOwnPage,
           getScrollContainer: this.getScrollContainer
         }));
+        childrenToShow = results.map(function (result, idx) {
+          var id = itemUtil.atId(result);
+          var detailOpen = openDetailPanes[id] || false; // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
+          // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
+          // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
+
+          return /*#__PURE__*/React.createElement(ResultRow, _extends({}, resultRowCommonProps, {
+            result: result,
+            id: id,
+            detailOpen: detailOpen
+          }, {
+            rowNumber: idx,
+            key: id,
+            tableContainerScrollLeft: detailOpen ? tableContainerScrollLeft : 0
+          }));
+        });
+
+        if (!canLoadMore) {
+          childrenToShow.push( /*#__PURE__*/React.createElement("div", {
+            className: "fin search-result-row",
+            key: "fin-last-item",
+            style: {
+              // Account for vertical scrollbar decreasing width of container.
+              "width": tableContainerWidth - (isOwnPage ? 0 : 30),
+              "transform": vizStyle.translate3d(tableContainerScrollLeft)
+            }
+          }, /*#__PURE__*/React.createElement("div", {
+            className: "inner"
+          }, "- ", /*#__PURE__*/React.createElement("span", null, "fin"), " -")));
+        }
+      } else {
+        childrenToShow =
+        /*#__PURE__*/
+        // If no context, we might not have loaded initial results yet if EmbeddedSearchView
+        React.createElement("div", {
+          className: "text-center py-5"
+        }, /*#__PURE__*/React.createElement("h3", {
+          className: "text-300"
+        }, context ? "No Results" : "Initializing..."));
       }
 
-      var renderChildren = !anyResults ? /*#__PURE__*/_react["default"].createElement("div", {
-        className: "text-center py-5"
-      }, /*#__PURE__*/_react["default"].createElement("h3", {
-        className: "text-300"
-      }, "No Results")) : results.map(function (result, idx) {
-        var id = _object.itemUtil.atId(result);
-
-        var detailOpen = openDetailPanes[id] || false; // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
-        // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
-        // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
-
-        return /*#__PURE__*/_react["default"].createElement(ResultRow, _extends({}, resultRowCommonProps, {
-          result: result,
-          id: id,
-          detailOpen: detailOpen
-        }, {
-          rowNumber: idx,
-          key: id,
-          tableContainerScrollLeft: detailOpen ? tableContainerScrollLeft : 0
-        }));
-      });
-
-      if (anyResults && !canLoadMore) {
-        renderChildren.push( /*#__PURE__*/_react["default"].createElement("div", {
-          className: "fin search-result-row",
-          key: "fin-last-item",
-          style: {
-            // Account for vertical scrollbar decreasing width of container.
-            width: tableContainerWidth - (isOwnPage ? 0 : 30),
-            transform: _utilities.style.translate3d(tableContainerScrollLeft)
-          }
-        }, /*#__PURE__*/_react["default"].createElement("div", {
-          className: "inner"
-        }, "- ", /*#__PURE__*/_react["default"].createElement("span", null, "fin"), " -")));
-      }
-
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page"),
         ref: this.outerRef,
         "data-context-loading": isContextLoading
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
-      }, headersRow, /*#__PURE__*/_react["default"].createElement(LoadMoreAsYouScroll, loadMoreAsYouScrollProps, renderChildren), shadowBorderLayer));
+      }, headersRow, /*#__PURE__*/React.createElement(LoadMoreAsYouScroll, loadMoreAsYouScrollProps, childrenToShow), shadowBorderLayer));
     }
   }]);
 
   return DimensioningContainer;
-}(_react["default"].PureComponent);
+}(React.PureComponent);
 /**
  * Reusable table for displaying search results according to column definitions.
  *
@@ -1445,28 +1407,15 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
  */
 
 
-var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
+export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
   _inherits(SearchResultTable, _React$Component3);
 
   var _super6 = _createSuper(SearchResultTable);
 
-  _createClass(SearchResultTable, null, [{
-    key: "isDesktopClientside",
-    value: function isDesktopClientside(windowWidth) {
-      return !(0, _misc.isServerSide)() && (0, _layout.responsiveGridState)(windowWidth) !== 'xs';
-    }
-  }]);
-
-  function SearchResultTable(props) {
-    var _this11;
-
+  function SearchResultTable() {
     _classCallCheck(this, SearchResultTable);
 
-    _this11 = _super6.call(this, props);
-    _this11.memoized = {
-      filterOutHiddenCols: (0, _memoizeOne["default"])(_CustomColumnController.filterOutHiddenCols)
-    };
-    return _this11;
+    return _super6.apply(this, arguments);
   }
 
   _createClass(SearchResultTable, [{
@@ -1484,11 +1433,11 @@ var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
         // Initial context (pre-sort, filter, etc) loading.
         // Only applicable for EmbeddedSearchView
         // Maybe move up to ControlsAndResults?
-        return /*#__PURE__*/_react["default"].createElement("div", {
+        return /*#__PURE__*/React.createElement("div", {
           className: "search-results-outer-container text-center" + (isOwnPage ? " is-own-page" : " is-within-page")
-        }, /*#__PURE__*/_react["default"].createElement("div", {
+        }, /*#__PURE__*/React.createElement("div", {
           className: "search-results-container text-center text-secondary py-5"
-        }, /*#__PURE__*/_react["default"].createElement("i", {
+        }, /*#__PURE__*/React.createElement("i", {
           className: "icon icon-fw icon-spin icon-circle-notch fas icon-2x"
         })));
       } // We filter down the columnDefinitions here (rather than in CustomColumnController)
@@ -1496,66 +1445,69 @@ var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
       // in SearchView/ControlsAndResults/AboveSearchViewTableControls/....
 
 
-      return /*#__PURE__*/_react["default"].createElement(DimensioningContainer, _extends({}, _underscore["default"].omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap'), {
+      return /*#__PURE__*/React.createElement(DimensioningContainer, _extends({}, _.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap'), {
         columnDefinitions: visibleColumnDefinitions || columnDefinitions
       }));
+    }
+  }], [{
+    key: "isDesktopClientside",
+    value: function isDesktopClientside(windowWidth) {
+      return !isServerSide() && responsiveGridState(windowWidth) !== 'xs';
     }
   }]);
 
   return SearchResultTable;
-}(_react["default"].Component);
-
-exports.SearchResultTable = SearchResultTable;
+}(React.Component);
 
 _defineProperty(SearchResultTable, "propTypes", {
-  'results': _propTypes["default"].arrayOf(ResultRow.propTypes.result).isRequired,
+  'results': PropTypes.arrayOf(ResultRow.propTypes.result).isRequired,
   // Either href or requestedCompoundFilterSet should be present:
-  'href': _propTypes["default"].string,
-  'requestedCompoundFilterSet': _propTypes["default"].object,
-  'columnDefinitions': _propTypes["default"].arrayOf(_propTypes["default"].object),
-  'defaultWidthMap': _propTypes["default"].shape({
-    'lg': _propTypes["default"].number.isRequired,
-    'md': _propTypes["default"].number.isRequired,
-    'sm': _propTypes["default"].number.isRequired
+  'href': PropTypes.string,
+  'requestedCompoundFilterSet': PropTypes.object,
+  'columnDefinitions': PropTypes.arrayOf(PropTypes.object),
+  'defaultWidthMap': PropTypes.shape({
+    'lg': PropTypes.number.isRequired,
+    'md': PropTypes.number.isRequired,
+    'sm': PropTypes.number.isRequired
   }).isRequired,
-  'hiddenColumns': _propTypes["default"].objectOf(_propTypes["default"].bool),
+  'hiddenColumns': PropTypes.objectOf(PropTypes.bool),
   // One of the following 2 is recommended for custom detail panes:
-  'renderDetailPane': _propTypes["default"].func,
-  'detailPane': _propTypes["default"].element,
-  'context': _propTypes["default"].shape({
-    'total': _propTypes["default"].number.isRequired
+  'renderDetailPane': PropTypes.func,
+  'detailPane': PropTypes.element,
+  'context': PropTypes.shape({
+    'total': PropTypes.number.isRequired
   }).isRequired,
-  'windowWidth': _propTypes["default"].number.isRequired,
-  'registerWindowOnScrollHandler': _propTypes["default"].func.isRequired,
-  'columnExtensionMap': _propTypes["default"].objectOf(_propTypes["default"].shape({
-    "title": _propTypes["default"].string.isRequired,
-    "widthMap": _propTypes["default"].shape({
-      'lg': _propTypes["default"].number,
-      'md': _propTypes["default"].number,
-      'sm': _propTypes["default"].number
+  'windowWidth': PropTypes.number.isRequired,
+  'registerWindowOnScrollHandler': PropTypes.func.isRequired,
+  'columnExtensionMap': PropTypes.objectOf(PropTypes.shape({
+    "title": PropTypes.string.isRequired,
+    "widthMap": PropTypes.shape({
+      'lg': PropTypes.number,
+      'md': PropTypes.number,
+      'sm': PropTypes.number
     }),
-    "minColumnWidth": _propTypes["default"].number,
-    "order": _propTypes["default"].number,
-    "render": _propTypes["default"].func,
-    "noSort": _propTypes["default"].bool
+    "minColumnWidth": PropTypes.number,
+    "order": PropTypes.number,
+    "render": PropTypes.func,
+    "noSort": PropTypes.bool
   })),
-  'termTransformFxn': _propTypes["default"].func.isRequired,
-  'isOwnPage': _propTypes["default"].bool,
-  'maxHeight': _propTypes["default"].number,
+  'termTransformFxn': PropTypes.func.isRequired,
+  'isOwnPage': PropTypes.bool,
+  'maxHeight': PropTypes.number,
   //PropTypes.oneOfType([PropTypes.number, PropTypes.string]) // Used only if isOwnPage is false
-  'isContextLoading': _propTypes["default"].bool
+  'isContextLoading': PropTypes.bool
 });
 
 _defineProperty(SearchResultTable, "defaultProps", {
   //'columnExtensionMap' : basicColumnExtensionMap,
-  'columnDefinitions': (0, _ColumnCombiner.columnsToColumnDefinitions)({
+  'columnDefinitions': columnsToColumnDefinitions({
     'display_title': {
       'title': 'Title'
     }
-  }, _basicColumnExtensionMap.basicColumnExtensionMap),
+  }, basicColumnExtensionMap),
   // Fallback - just title column.
   'renderDetailPane': function renderDetailPane(result, rowNumber, width, props) {
-    return /*#__PURE__*/_react["default"].createElement(DefaultDetailPane, _extends({}, props, {
+    return /*#__PURE__*/React.createElement(DefaultDetailPane, _extends({}, props, {
       result: result,
       rowNumber: rowNumber,
       width: width

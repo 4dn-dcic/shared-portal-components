@@ -1,28 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.AboveTableControlsBase = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _reactTooltip = _interopRequireDefault(require("react-tooltip"));
-
-var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
-
-var _AboveTablePanelWrapper = require("./AboveTablePanelWrapper");
-
-var _RightButtonsSection = require("./RightButtonsSection");
-
-var _CustomColumnController = require("./../CustomColumnController");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -47,11 +24,20 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React from 'react';
+import memoize from 'memoize-one';
+import _ from 'underscore';
+import ReactTooltip from 'react-tooltip';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import { AboveTablePanelWrapper } from './AboveTablePanelWrapper';
+import { RightButtonsSection } from './RightButtonsSection';
+import { CustomColumnSelector } from './../CustomColumnController';
 /**
  * This component must be fed props from CustomColumnController (for columns UI), SelectedFilesController (for selected files read-out).
  * Some may need to be transformed to exclude certain non-user-controlled columns (e.g. @type) and such.
  */
-var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
+
+export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(AboveTableControlsBase, _React$PureComponent);
 
   var _super = _createSuper(AboveTableControlsBase);
@@ -62,12 +48,12 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
     value: function getCustomColumnSelectorPanelMapDefinition(props) {
       return {
         "customColumns": {
-          "title": /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("i", {
+          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
             className: "icon icon-fw icon-cog fas"
-          }), /*#__PURE__*/_react["default"].createElement("span", {
+          }), /*#__PURE__*/React.createElement("span", {
             className: "title-contents"
           }, "Configure Visible Columns")),
-          "body": /*#__PURE__*/_react["default"].createElement(_CustomColumnController.CustomColumnSelector, _underscore["default"].pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')),
+          "body": /*#__PURE__*/React.createElement(CustomColumnSelector, _.pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')),
           "className": "visible-columns-selector-panel"
         }
       };
@@ -97,7 +83,7 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, AboveTableControlsBase);
 
     _this = _super.call(this, props);
-    _this.handleOpenToggle = _underscore["default"].throttle(_this.handleOpenToggle.bind(_assertThisInitialized(_this)), 350);
+    _this.handleOpenToggle = _.throttle(_this.handleOpenToggle.bind(_assertThisInitialized(_this)), 350);
     _this.handleClose = _this.handleOpenToggle.bind(_assertThisInitialized(_this), false);
     _this.handleOpenColumnsSelectionPanel = _this.handleOpenToggle.bind(_assertThisInitialized(_this), 'customColumns');
     _this.panelToggleFxns = {};
@@ -123,7 +109,7 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
       var open = this.state.open;
 
       if (open && prevState.open !== open) {
-        _reactTooltip["default"].rebuild();
+        ReactTooltip.rebuild();
       }
     }
   }, {
@@ -155,7 +141,7 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
         var _this2$state = _this2.state,
             open = _this2$state.open,
             reallyOpen = _this2$state.reallyOpen;
-        setTimeout(_reactTooltip["default"].rebuild, 100);
+        setTimeout(ReactTooltip.rebuild, 100);
 
         if (!open && reallyOpen) {
           _this2.timeout = setTimeout(function () {
@@ -178,11 +164,10 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
       var _this$state = this.state,
           open = _this$state.open,
           reallyOpen = _this$state.reallyOpen;
-
-      var extendedChildren = _react["default"].Children.map(children, function (child) {
-        if ( /*#__PURE__*/_react["default"].isValidElement(child)) {
+      var extendedChildren = React.Children.map(children, function (child) {
+        if ( /*#__PURE__*/React.isValidElement(child)) {
           if (typeof child.type !== "string") {
-            return /*#__PURE__*/_react["default"].cloneElement(child, {
+            return /*#__PURE__*/React.cloneElement(child, {
               "panelToggleFxns": _this3.panelToggleFxns,
               "onClosePanel": _this3.handleClose,
               "currentOpenPanel": open || reallyOpen
@@ -192,7 +177,6 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
 
         return child;
       });
-
       var panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
 
       var _ref2 = panelDefinition || {},
@@ -200,17 +184,17 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
           panelBody = _ref2.body,
           panelCls = _ref2.className;
 
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "above-results-table-row"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "row align-items-center"
-      }, extendedChildren, /*#__PURE__*/_react["default"].createElement(_RightButtonsSection.RightButtonsSection, _extends({}, _underscore["default"].pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
+      }, extendedChildren, /*#__PURE__*/React.createElement(RightButtonsSection, _extends({}, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
         currentOpenPanel: open || reallyOpen,
         onColumnsBtnClick: this.panelToggleFxns.customColumns
-      }))), panelDefinition ? /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+      }))), panelDefinition ? /*#__PURE__*/React.createElement(Collapse, {
         "in": !!open,
         appear: true
-      }, /*#__PURE__*/_react["default"].createElement(_AboveTablePanelWrapper.AboveTablePanelWrapper, {
+      }, /*#__PURE__*/React.createElement(AboveTablePanelWrapper, {
         className: panelCls,
         onClose: this.handleClose,
         title: panelTitle
@@ -219,14 +203,12 @@ var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return AboveTableControlsBase;
-}(_react["default"].PureComponent);
-
-exports.AboveTableControlsBase = AboveTableControlsBase;
+}(React.PureComponent);
 AboveTableControlsBase.defaultProps = {
   "panelMap": {
     // Fake -- form correct component and pass down from `getCustomColumnSelectorPanelMapDefinition`
     "customColumns": {
-      "title": /*#__PURE__*/_react["default"].createElement("span", null, /*#__PURE__*/_react["default"].createElement("i", {
+      "title": /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-cog fas"
       }), " hello world"),
       "body": "Hello World",

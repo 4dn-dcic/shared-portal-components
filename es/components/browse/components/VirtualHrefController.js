@@ -1,38 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VirtualHrefController = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _underscore = _interopRequireDefault(require("underscore"));
-
-var _url = _interopRequireDefault(require("url"));
-
-var analytics = _interopRequireWildcard(require("./../../util/analytics"));
-
-var _ajax = require("./../../util/ajax");
-
-var _navigate = require("./../../util/navigate");
-
-var _searchFilters = require("./../../util/search-filters");
-
-var _patchedConsole = require("./../../util/patched-console");
-
-var _FacetList = require("./FacetList");
-
-var _typedefs = require("./../../util/typedefs");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -44,6 +11,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -65,13 +44,27 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React, { useMemo } from 'react';
+import memoize from 'memoize-one';
+import _ from 'underscore';
+import url from 'url';
+import queryString from 'query-string';
+import * as analytics from './../../util/analytics';
+import { load as ajaxLoad } from './../../util/ajax';
+import { navigate as globalNavigate } from './../../util/navigate';
+import { getTermFacetStatus } from './../../util/search-filters';
+import { patchedConsoleInstance as console } from './../../util/patched-console';
+import { generateNextHref } from './FacetList'; // eslint-disable-next-line no-unused-vars
+
+import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/typedefs';
 /**
  * Accepts and parses the `href` from Redux / App.
  * Passes `href` downstream to descendant components,
  * as well as onFilter and onClearFilters functions which
  * navigate to new href.
  */
-var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
+
+export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(VirtualHrefController, _React$PureComponent);
 
   var _super = _createSuper(VirtualHrefController);
@@ -107,9 +100,9 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
         return false;
       }
 
-      var virtualHrefPartsQuery = _url["default"].parse(virtualHref || "", true).query || {};
-      var origHrefQuery = _url["default"].parse(originalSearchHref || "", true).query || {};
-      return !_underscore["default"].isEqual(origHrefQuery, virtualHrefPartsQuery);
+      var virtualHrefPartsQuery = url.parse(virtualHref || "", true).query || {};
+      var origHrefQuery = url.parse(originalSearchHref || "", true).query || {};
+      return !_.isEqual(origHrefQuery, virtualHrefPartsQuery);
     }
   }]);
 
@@ -125,8 +118,8 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.virtualNavigate = _this.virtualNavigate.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      transformedFacets: (0, _memoizeOne["default"])(VirtualHrefController.transformedFacets),
-      isClearFiltersBtnVisible: (0, _memoizeOne["default"])(props.isClearFiltersBtnVisible || function (currentVirtualSearcHref) {
+      transformedFacets: memoize(VirtualHrefController.transformedFacets),
+      isClearFiltersBtnVisible: memoize(props.isClearFiltersBtnVisible || function (currentVirtualSearcHref) {
         // We assume props.searchHref doesn't ever change (we don't handle a change of this in any case)
         VirtualHrefController.isClearFiltersBtnVisible(currentVirtualSearcHref, props.searchHref);
       })
@@ -175,19 +168,70 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     value: function virtualNavigate(navigationTarget, navOpts, callback) {
       var _this2 = this;
 
-      var _this$props$onLoad = this.props.onLoad,
-          onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad;
+      var _this$props = this.props,
+          _this$props$onLoad = _this$props.onLoad,
+          onLoad = _this$props$onLoad === void 0 ? null : _this$props$onLoad,
+          _this$props$allowPost = _this$props.allowPostRequest,
+          allowPostRequest = _this$props$allowPost === void 0 ? false : _this$props$allowPost;
       var _this$state2 = this.state,
           _this$state2$virtualH = _this$state2.virtualHref,
           currentHref = _this$state2$virtualH === void 0 ? null : _this$state2$virtualH,
           existingContext = _this$state2.virtualContext;
       var nextHrefFull = null;
       var virtualCompoundFilterSet = null;
+      console.log("TTT1", navigationTarget);
 
       if (typeof navigationTarget === "string") {
         // There is (very large) chance that `nextHref` does not have domain name, path, etc.
         // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
-        nextHrefFull = _url["default"].resolve(currentHref || "/search/", navigationTarget);
+        nextHrefFull = url.resolve(currentHref || "/search/", navigationTarget);
+        console.log("TTT2", navigationTarget);
+
+        if (allowPostRequest) {
+          // Remove this if condition/wrapper/prop once 4DN has a /compound_search
+          // Divide URL into parts and put into a virtualCompoundFilterSet, in effect making all virtual search
+          // requests into POST requests.
+          var targetHrefParts = url.parse(nextHrefFull, true);
+          var globalFlagsParams = {};
+          var filterBlockParams = {};
+          var searchType = null;
+          Object.keys(targetHrefParts.query).forEach(function (k) {
+            if (k === "type") {
+              searchType = targetHrefParts.query[k];
+
+              if (Array.isArray(searchType)) {
+                // Shouldn't happen, but sometimes we might get 2 type= in URL. E.g. in response 'filters' "remove" property.
+                console.warn("Received 2 type= URL params.");
+                var _searchType = searchType;
+
+                var _searchType2 = _slicedToArray(_searchType, 1);
+
+                searchType = _searchType2[0];
+              }
+
+              return;
+            }
+
+            if (k === "sort" || k === "additional_facet") {
+              globalFlagsParams[k] = targetHrefParts.query[k];
+            } else if (!(k === "from" || k === "limit")) {
+              filterBlockParams[k] = targetHrefParts.query[k];
+            }
+          }); // If it's a single filter_block requested, we will get back "facets"
+          // and similar things in the response, unlike as for response for real
+          // compound_search request for multiple filter_blocks which would lack those.
+          // We can thus perform a 'drop-in' POST compound_search for 1 filter_block
+          // in place of a GET /search/?type=... request.
+
+          virtualCompoundFilterSet = {
+            "global_flags": queryString.stringify(globalFlagsParams),
+            "search_type": searchType,
+            "filter_blocks": [{
+              "flags_applied": [],
+              "query": queryString.stringify(filterBlockParams)
+            }]
+          };
+        }
       } else {
         // Minor validation - let throw errors here.
         var filter_blocks = navigationTarget.filter_blocks;
@@ -196,7 +240,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           throw new Error("Must have 1+ filter blocks");
         }
 
-        var anyWithoutQueries = _underscore["default"].any(filter_blocks, function (_ref) {
+        var anyWithoutQueries = _.any(filter_blocks, function (_ref) {
           var query = _ref.query;
           if (typeof query !== "string") return true;
           return false;
@@ -210,9 +254,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var scopedRequest;
-
-      _patchedConsole.patchedConsoleInstance.warn('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
-
+      console.warn('VIRTUAL NAVIGATE CALLED', navigationTarget, nextHrefFull, navOpts);
       this.setState({
         "isContextLoading": true
       }, function () {
@@ -221,27 +263,23 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
               initialResults = nextContext['@graph'];
 
           if (scopedRequest !== _this2.currRequest) {
-            _patchedConsole.patchedConsoleInstance.warn("This is no longer the current request", scopedRequest, _this2.currRequest);
-
+            console.warn("This is no longer the current request", scopedRequest, _this2.currRequest);
             return false;
           }
 
           _this2.currRequest = null;
 
           if (typeof total !== "number") {
-            throw new Error("Did not get back a search response");
+            throw new Error("Did not get back a search response, request was potentially aborted.");
           }
 
-          if (typeof _navigate.navigate.updateUserInfo === "function") {
-            _navigate.navigate.updateUserInfo();
+          if (typeof globalNavigate.updateUserInfo === "function") {
+            globalNavigate.updateUserInfo();
           } // Get correct URL from XHR, in case we hit a redirect during the request.
+          // (Only for requests with single href, as cannot treat real compound_search multi-filter-block request as href)
 
 
-          var responseHref = null;
-
-          if (!virtualCompoundFilterSet) {
-            responseHref = scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL || nextHrefFull;
-          }
+          var responseHref = !nextHrefFull ? null : !virtualCompoundFilterSet ? scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL || nextHrefFull : nextHrefFull;
 
           if (typeof existingContext === "undefined") {
             // First time we've loaded response context. Register analytics event.
@@ -254,7 +292,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
             }
           }
 
-          _patchedConsole.patchedConsoleInstance.info("Loaded Next Context", nextContext);
+          console.info("Loaded Next Context", nextContext);
 
           _this2.setState({
             "virtualContext": nextContext,
@@ -277,9 +315,10 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           _this2.currRequest.abort();
 
           _this2.currRequest = null;
-        }
+        } // We still might perform GET request on 4DN which doesn't yet have /compound_search
 
-        scopedRequest = _this2.currRequest = (0, _ajax.load)(nextHrefFull ? nextHrefFull : "/compound_search", onLoadResponse, nextHrefFull ? "GET" : "POST", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
+
+        scopedRequest = _this2.currRequest = ajaxLoad(virtualCompoundFilterSet ? "/compound_search" : nextHrefFull, onLoadResponse, virtualCompoundFilterSet ? "POST" : "GET", onLoadResponse, virtualCompoundFilterSet ? JSON.stringify(virtualCompoundFilterSet) : null);
       });
       return scopedRequest;
     }
@@ -288,8 +327,24 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     value: function onFilter(facet, term, callback) {
       var _this$state3 = this.state,
           virtualHref = _this$state3.virtualHref,
-          virtualContextFilters = _this$state3.virtualContext.filters;
-      return this.virtualNavigate((0, _FacetList.generateNextHref)(virtualHref, virtualContextFilters, facet, term), {
+          _this$state3$virtualC = _this$state3.virtualContext,
+          virtualContextFilters = _this$state3$virtualC.filters,
+          virtualContextID = _this$state3$virtualC["@id"]; // There are is a scenario or 2 in which case we might get facets visible after
+      // a compound search request, if using only 1 filter block.
+      // In most cases it'd be after using a `href` to navigate which was translated
+      // to a POST, so we'd be using a virtual href, but at times might be from a literal
+      // filter set request with only 1 filter block, such as selecting filterset block in FilterSetUI.
+      // In this case we grab the effectively-searched href from context["@id"] since `state.virtualHref`
+      // may not be present.
+
+      var useHref = virtualHref || virtualContextID;
+
+      if (!useHref) {
+        throw new Error("Cannot filter on a compound filter block search response. Prevent this from being possible in UX.");
+      }
+
+      var targetHref = generateNextHref(useHref, virtualContextFilters, facet, term);
+      return this.virtualNavigate(targetHref, {
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
     }
@@ -309,8 +364,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
           virtualContextFilters = _this$state4.virtualContext.filters;
 
       if (filterObjs.length === 0) {
-        _patchedConsole.patchedConsoleInstance.log("Attempted multi-filter, but no objects passed in!");
-
+        console.log("Attempted multi-filter, but no objects passed in!");
         return null;
       }
 
@@ -322,7 +376,7 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
         var facet = obj.facet,
             term = obj.term,
             thisCallback = obj.callback;
-        var thisHref = (0, _FacetList.generateNextHref)(newHref, virtualContextFilters, facet, term);
+        var thisHref = generateNextHref(newHref, virtualContextFilters, facet, term);
         newHref = thisHref;
 
         if (i === 0) {
@@ -339,9 +393,9 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     key: "onClearFilters",
     value: function onClearFilters() {
       var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var _this$props = this.props,
-          searchHref = _this$props.searchHref,
-          onClearFiltersVirtual = _this$props.onClearFiltersVirtual;
+      var _this$props2 = this.props,
+          searchHref = _this$props2.searchHref,
+          onClearFiltersVirtual = _this$props2.onClearFiltersVirtual;
 
       if (typeof onClearFiltersVirtual === "function") {
         // If custom function is passed, let it reset filters.
@@ -355,20 +409,20 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
     key: "getTermStatus",
     value: function getTermStatus(term, facet) {
       var virtualContextFilters = this.state.virtualContext.filters;
-      return (0, _searchFilters.getTermFacetStatus)(term, facet, virtualContextFilters);
+      return getTermFacetStatus(term, facet, virtualContextFilters);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          children = _this$props2.children,
-          propFacets = _this$props2.facets,
-          _this$props2$filterFa = _this$props2.filterFacetFxn,
-          filterFacetFxn = _this$props2$filterFa === void 0 ? null : _this$props2$filterFa,
-          _this$props2$columns = _this$props2.columns,
-          propColumns = _this$props2$columns === void 0 ? null : _this$props2$columns,
-          originalSearchHref = _this$props2.searchHref,
-          passProps = _objectWithoutProperties(_this$props2, ["children", "facets", "filterFacetFxn", "columns", "searchHref"]);
+      var _this$props3 = this.props,
+          children = _this$props3.children,
+          propFacets = _this$props3.facets,
+          _this$props3$filterFa = _this$props3.filterFacetFxn,
+          filterFacetFxn = _this$props3$filterFa === void 0 ? null : _this$props3$filterFa,
+          _this$props3$columns = _this$props3.columns,
+          propColumns = _this$props3$columns === void 0 ? null : _this$props3$columns,
+          originalSearchHref = _this$props3.searchHref,
+          passProps = _objectWithoutProperties(_this$props3, ["children", "facets", "filterFacetFxn", "columns", "searchHref"]);
 
       var _this$state5 = this.state,
           href = _this$state5.virtualHref,
@@ -381,9 +435,8 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         context: context,
+        href: href,
         requestedCompoundFilterSet: requestedCompoundFilterSet,
-        // Don't pass down href if using requestedCompoundFilterSet
-        href: requestedCompoundFilterSet ? null : href,
         isContextLoading: isContextLoading,
         facets: facets,
         showClearFiltersButton: showClearFiltersButton,
@@ -394,14 +447,12 @@ var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) {
         getTermStatus: this.getTermStatus
       });
 
-      return _react["default"].Children.map(children, function (child) {
-        if (! /*#__PURE__*/_react["default"].isValidElement(child)) return child;
-        return /*#__PURE__*/_react["default"].cloneElement(child, propsToPass);
+      return React.Children.map(children, function (child) {
+        if (! /*#__PURE__*/React.isValidElement(child)) return child;
+        return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
     }
   }]);
 
   return VirtualHrefController;
-}(_react["default"].PureComponent);
-
-exports.VirtualHrefController = VirtualHrefController;
+}(React.PureComponent);

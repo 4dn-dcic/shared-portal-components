@@ -1,22 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FacetOfFacets = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _memoizeOne = _interopRequireDefault(require("memoize-one"));
-
-var _Collapse = _interopRequireDefault(require("react-bootstrap/esm/Collapse"));
-
-var _Fade = _interopRequireDefault(require("react-bootstrap/esm/Fade"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -39,10 +22,16 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import memoize from 'memoize-one';
+import Collapse from 'react-bootstrap/esm/Collapse';
+import Fade from 'react-bootstrap/esm/Fade';
 /**
  * Used to render individual facet fields and their available terms in FacetList.
  */
-var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
+
+export var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(FacetOfFacets, _React$PureComponent);
 
   var _super = _createSuper(FacetOfFacets);
@@ -72,7 +61,7 @@ var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
     _this = _super.call(this, props);
     _this.handleOpenToggleClick = _this.handleOpenToggleClick.bind(_assertThisInitialized(_this));
     _this.memoized = {
-      anyFacetsHaveSelection: (0, _memoizeOne["default"])(FacetOfFacets.anyFacetsHaveSelection)
+      anyFacetsHaveSelection: memoize(FacetOfFacets.anyFacetsHaveSelection)
     };
     return _this;
   }
@@ -103,7 +92,7 @@ var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
       // Ensure all facets within group are not "static single terms".
       // Pass in facetOpen prop.
 
-      var extendedFacets = _react["default"].Children.map(renderedFacets, function (renderedFacet, i) {
+      var extendedFacets = React.Children.map(renderedFacets, function (renderedFacet, i) {
         var _renderedFacet$props$ = renderedFacet.props.facet,
             field = _renderedFacet$props$.field,
             childTitle = _renderedFacet$props$.title;
@@ -112,59 +101,55 @@ var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
           tooltip += (i === 0 ? "" : ", ") + childTitle;
         }
 
-        return /*#__PURE__*/_react["default"].cloneElement(renderedFacet, {
+        return /*#__PURE__*/React.cloneElement(renderedFacet, {
           isStatic: false,
           facetOpen: openFacets[field]
         });
       });
-
-      return /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: "facet" + (facetOpen || anySelections ? ' open' : ' closed'),
         "data-group": title
-      }, /*#__PURE__*/_react["default"].createElement("h5", {
+      }, /*#__PURE__*/React.createElement("h5", {
         className: "facet-title",
         onClick: this.handleOpenToggleClick
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (anySelections ? "dot-circle far" : facetOpen ? "minus fas" : "plus fas")
-      })), /*#__PURE__*/_react["default"].createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         "data-tip": tooltip,
         "data-place": "right"
-      }, title)), /*#__PURE__*/_react["default"].createElement(_Fade["default"], {
+      }, title)), /*#__PURE__*/React.createElement(Fade, {
         "in": !facetOpen && !anySelections
-      }, /*#__PURE__*/_react["default"].createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "closed-terms-count col-auto px-0" + (anySelections ? " some-selected" : ""),
         "data-place": "right",
         "data-tip": "Group of ".concat(extendedFacets.length, " facets ").concat(anySelections ? " with at least 1 having a selection." : "")
-      }, /*#__PURE__*/_react["default"].createElement("i", {
+      }, /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-layer-group"
-      })))), /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+      })))), /*#__PURE__*/React.createElement(Collapse, {
         "in": facetOpen || anySelections
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "facet-group-list-container"
       }, extendedFacets)));
     }
   }]);
 
   return FacetOfFacets;
-}(_react["default"].PureComponent);
-
-exports.FacetOfFacets = FacetOfFacets;
+}(React.PureComponent);
 FacetOfFacets.propTypes = {
-  'defaultGroupOpen': _propTypes["default"].bool,
-  'facets': _propTypes["default"].arrayOf(_propTypes["default"].element),
-  'filters': _propTypes["default"].arrayOf(_propTypes["default"].object).isRequired,
-  'isStatic': _propTypes["default"].bool,
-  'itemTypeForSchemas': _propTypes["default"].string,
-  'mounted': _propTypes["default"].bool,
-  'onFilter': _propTypes["default"].func,
+  'defaultGroupOpen': PropTypes.bool,
+  'facets': PropTypes.arrayOf(PropTypes.element),
+  'isStatic': PropTypes.bool,
+  'itemTypeForSchemas': PropTypes.string,
+  'mounted': PropTypes.bool,
+  'onFilter': PropTypes.func,
   // Executed on term click
-  'schemas': _propTypes["default"].object,
-  'separateSingleTermFacets': _propTypes["default"].bool,
-  'termTransformFxn': _propTypes["default"].func,
-  'title': _propTypes["default"].string,
-  'extraClassname': _propTypes["default"].string
+  'schemas': PropTypes.object,
+  'separateSingleTermFacets': PropTypes.bool,
+  'termTransformFxn': PropTypes.func,
+  'title': PropTypes.string,
+  'extraClassname': PropTypes.string
 };
