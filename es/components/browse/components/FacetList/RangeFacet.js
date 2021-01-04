@@ -42,11 +42,7 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-<<<<<<< HEAD
 import React, { useMemo } from 'react';
-=======
-import React from 'react';
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
@@ -57,7 +53,6 @@ import Fade from 'react-bootstrap/esm/Fade';
 import Popover from 'react-bootstrap/esm/Popover';
 import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
 import { LocalizedTime } from './../../../ui/LocalizedTime';
-<<<<<<< HEAD
 import { PartialList } from './../../../ui/PartialList';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { getSchemaProperty } from './../../../util/schema-transforms';
@@ -79,12 +74,6 @@ function getRangeStatus(range, toVal, fromVal) {
   return "none";
 }
 
-=======
-import { decorateNumberWithCommas } from './../../../util/value-transforms';
-import { getSchemaProperty } from './../../../util/schema-transforms';
-import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
 export function getRangeValuesFromFiltersByField() {
   var facets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var filters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -302,7 +291,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         }, callback);
       } catch (e) {
         console.error("Couldn't set value", e);
-<<<<<<< HEAD
       }
     }
   }, {
@@ -319,8 +307,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         }, callback);
       } catch (e) {
         console.error("Couldn't set value", e);
-=======
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
       }
     }
   }, {
@@ -520,7 +506,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var fromTitle, toTitle;
 
       if (field_type === "number" || field_type === "integer") {
-<<<<<<< HEAD
         if (aggregation_type === "stats") {
           fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
           toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/React.createElement("em", null, "Infinite");
@@ -531,10 +516,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof firstRange.from === "number" ? this.termTitle(facet.field, firstRange.from) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
           toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof lastRange.to === "number" ? this.termTitle(facet.field, lastRange.to) : /*#__PURE__*/React.createElement("em", null, "Infinite");
         }
-=======
-        fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
-        toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/React.createElement("em", null, "Infinite");
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
       } else if (field_type === "date") {
         fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
         toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/React.createElement("em", null, "None");
@@ -544,15 +525,10 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
-<<<<<<< HEAD
       var fromVariant = savedFromVal === null ? "outline-dark" : "primary";
       var toVariant = savedToVal === null ? "outline-dark" : "primary";
       return /*#__PURE__*/React.createElement("div", {
         className: "facet range-facet" + (facetOpen ? ' open' : ' closed'),
-=======
-      return /*#__PURE__*/React.createElement("div", {
-        className: "facet range-facet" + (isOpen ? ' open' : ' closed'),
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
         "data-field": facet.field
       }, /*#__PURE__*/React.createElement("h5", {
         className: "facet-title",
@@ -560,11 +536,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, /*#__PURE__*/React.createElement("i", {
-<<<<<<< HEAD
         className: "icon icon-fw icon-" + (isOpen ? "minus fas" : "plus fas")
-=======
-        className: "icon icon-fw icon-" + (savedFromVal !== null || savedToVal !== null ? "dot-circle far" : isOpen ? "minus fas" : "plus fas")
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
       })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/React.createElement("span", {
@@ -590,7 +562,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         "in": isOpen
       }, /*#__PURE__*/React.createElement("div", {
         className: "inner-panel"
-<<<<<<< HEAD
       }, /*#__PURE__*/React.createElement(RangeClear, _extends({
         fromTitle: fromTitle,
         toTitle: toTitle,
@@ -609,15 +580,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement("label", {
         className: "mb-0 small"
       }, "From:"), /*#__PURE__*/React.createElement(RangeDropdown, {
-=======
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "row"
-      }, /*#__PURE__*/React.createElement("label", {
-        className: "col-auto mb-0"
-      }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-greater-than-equal fas small"
-      })), /*#__PURE__*/React.createElement(RangeDropdown, {
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
         title: fromTitle,
         value: fromVal,
         savedValue: savedFromVal,
@@ -631,19 +593,10 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         id: "from_" + field,
         reset: fromVal !== null ? this.resetFrom : null
       })), /*#__PURE__*/React.createElement("div", {
-<<<<<<< HEAD
         className: "range-drop ml-05"
       }, /*#__PURE__*/React.createElement("label", {
         className: "mb-0 small"
       }, "To:"), /*#__PURE__*/React.createElement(RangeDropdown, {
-=======
-        className: "row"
-      }, /*#__PURE__*/React.createElement("label", {
-        className: "col-auto mb-0"
-      }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-less-than-equal fas small"
-      })), /*#__PURE__*/React.createElement(RangeDropdown, {
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
         title: toTitle,
         value: toVal,
         savedValue: savedToVal,
@@ -668,7 +621,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
   return RangeFacet;
 }(React.PureComponent);
-<<<<<<< HEAD
 var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
@@ -725,8 +677,6 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
     if (totalLen <= Math.max(persistentCount, selectedLen + omittedLen)) {
       return retObj;
     }
-=======
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
 
     retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
 
@@ -1142,7 +1092,6 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
           fMax = facet.max,
           _facet$number_step2 = facet.number_step,
           step = _facet$number_step2 === void 0 ? "any" : _facet$number_step2;
-<<<<<<< HEAD
       var emptyValue = /*#__PURE__*/React.createElement("span", {
         className: "mx-1"
       }, "-");
@@ -1151,23 +1100,6 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
       }, /*#__PURE__*/React.createElement("div", {
         className: "col px-0"
       }, value !== null ? title : emptyValue));
-=======
-      var showTitle = title;
-
-      if (typeof reset === "function") {
-        showTitle = /*#__PURE__*/React.createElement("div", {
-          className: "d-flex"
-        }, /*#__PURE__*/React.createElement("div", {
-          className: "clear-icon-container col-auto clickable d-flex align-items-center",
-          onClick: reset,
-          "data-tip": "Click to unset"
-        }, /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/React.createElement("div", {
-          className: "col px-0"
-        }, title));
-      }
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
 
       if (field_type === "date") {
         return /*#__PURE__*/React.createElement(DropdownButton, _extends({
@@ -1178,16 +1110,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
           id: id
         }, {
           alignRight: true,
-<<<<<<< HEAD
           title: showTitle,
           show: showMenu,
           onToggle: this.toggleDrop,
           onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
-=======
-          title: showTitle
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
         }), /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container pb-0 mb-0 border-0",
           onSubmit: this.onTextInputFormSubmit
@@ -1241,16 +1169,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
         }, {
           alignRight: true,
           onSelect: this.onDropdownSelect,
-<<<<<<< HEAD
           title: showTitle,
           show: showMenu,
           onToggle: this.toggleDrop,
           onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
-=======
-          title: showTitle
->>>>>>> 968ae37f2d41f8bbf2872e2595ce291c377a96f0
         }), /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container",
           onSubmit: this.onTextInputFormSubmit
