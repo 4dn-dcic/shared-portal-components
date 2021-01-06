@@ -169,99 +169,97 @@ $facetlist-term-block-height: default !default;
         }
 
         &.range-facet {
-            &:not(.closed) { /* allows for side by side display without interfering with open/closed state */
-                > .inner-panel .range-drop-group {
-                    display: flex;
-                    justify-content: center;
-                    background-color: #eeeeee;
-                }
-            }
-            > .inner-panel {
-                padding-top: 5px;
-                padding-bottom: 5px;
 
-                &.collapsing {
-                    > .range-drop-group {
-                        display: flex;
-                        justify-content: center;
-                        background-color: #eeeeee;
-                    }
-                }
+            > .inner-panel.expandable-list {
+                margin-bottom: 0;
 
-                > button.range-clear.btn {
+                button.range-clear.btn {
                     &.btn-warning {
                         color: #ffffff;
                     }
                 }
 
-                > div.range-drop-group div.range-drop {
-                    padding-top: 5px;
-                    padding-bottom: 5px;
+                .range-drop-group {
+                    /* allows for side by side display without interfering with open/closed state */
                     display: flex;
-                    align-items: center;
+                    justify-content: center;
+                    background-color: #eeeeee;
+                    
+                    div.range-drop {
 
-                    .range-dropdown-container {
-                        padding-left: 5px;
-                        padding-right: 10px;
-                        > button {
-                            &.btn-warning {
-                                color: #ffffff;
-                            }
-                            width: 100%;
-                            text-align: right;
-                            padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
+                        padding-top: 5px;
+                        padding-bottom: 5px;
+                        display: flex;
+                        align-items: center;
 
-                            .clear-icon-container { // Not always present in DOM.
-                                margin-left: -.5rem; // Cancel out parent's padding for larger click area
-                                padding: 0 .5rem;
-                                opacity: 1;
-                                &.disabled {
-                                    opacity: 0.25;
-                                }
-                                &:hover:not(.disabled) {
-                                    opacity: 1;
-                                    > i {
-                                        text-shadow: 0 0px 4px #0009;
-                                    }
-                                }
-                                > i { // Same as for .facet-list term icon (below here)
-                                    transform: scale(0.9);
-                                    transform-origin: 50% 50%;
-                                }
-                            }
-                        }
-                    }
-
-                    .dropdown > .dropdown-menu {
-                        .inline-input-container {
-                            padding-left: 10px;
-                            padding-bottom: 10px;
-                            border-bottom: 1px solid #ddd;
-                            margin-bottom: 8px;
-                            display: flex;
-                            align-items: center;
-                            > .input-element-container {
-                                flex: 1;
-                            }
+                        .range-dropdown-container {
+                            padding-left: 5px;
+                            padding-right: 10px;
                             > button {
-                                padding-right: 10px;
-                                padding-left: 10px;
-                                opacity: 0.7;
-                                &:hover:not(&:disabled){
+                                &.btn-warning {
+                                    color: #ffffff;
+                                }
+                                width: 100%;
+                                text-align: right;
+                                padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
+
+                                .clear-icon-container { // Not always present in DOM.
+                                    margin-left: -.5rem; // Cancel out parent's padding for larger click area
+                                    padding: 0 .5rem;
                                     opacity: 1;
-                                }
-                                &:disabled {
-                                    opacity: 0.3;
-                                }
-                                > i.icon {
                                     &.disabled {
-                                        opacity: 0.33;
+                                        opacity: 0.25;
+                                    }
+                                    &:hover:not(.disabled) {
+                                        opacity: 1;
+                                        > i {
+                                            text-shadow: 0 0px 4px #0009;
+                                        }
+                                    }
+                                    > i { // Same as for .facet-list term icon (below here)
+                                        transform: scale(0.9);
+                                        transform-origin: 50% 50%;
                                     }
                                 }
                             }
-                            
                         }
+
+                        .dropdown > .dropdown-menu {
+                            .inline-input-container {
+                                padding-left: 10px;
+                                padding-bottom: 10px;
+                                border-bottom: 1px solid #ddd;
+                                margin-bottom: 8px;
+                                display: flex;
+                                align-items: center;
+                                > .input-element-container {
+                                    flex: 1;
+                                }
+                                > button {
+                                    padding-right: 10px;
+                                    padding-left: 10px;
+                                    opacity: 0.7;
+                                    &:hover:not(&:disabled){
+                                        opacity: 1;
+                                    }
+                                    &:disabled {
+                                        opacity: 0.3;
+                                    }
+                                    > i.icon {
+                                        &.disabled {
+                                            opacity: 0.33;
+                                        }
+                                    }
+                                }
+                                
+                            }
+                        }
+                        
                     }
+                }
+
+                div.range-drop-group div.range-drop {
+                    
                 }
 
             }

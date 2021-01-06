@@ -524,7 +524,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
       }
 
-      var isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
       var fromVariant = savedFromVal === null ? "outline-dark" : "primary";
       var toVariant = savedToVal === null ? "outline-dark" : "primary";
       return /*#__PURE__*/React.createElement("div", {
@@ -536,7 +535,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-" + (isOpen ? "minus fas" : "plus fas")
+        className: "icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")
       })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/React.createElement("span", {
@@ -548,7 +547,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         openPopover: openPopover,
         setOpenPopover: setOpenPopover
       })), /*#__PURE__*/React.createElement(Fade, {
-        "in": !isOpen
+        "in": !(facetOpen || savedFromVal !== null || savedToVal !== null)
       }, /*#__PURE__*/React.createElement("span", {
         className: "closed-terms-count col-auto px-0" + (savedFromVal !== null || savedToVal !== null ? " some-selected" : "")
       }, isStatic ? /*#__PURE__*/React.createElement("i", {
@@ -558,64 +557,67 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         }
       }) : /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas"
-      })))), /*#__PURE__*/React.createElement(Collapse, {
-        "in": isOpen
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "inner-panel"
-      }, /*#__PURE__*/React.createElement(RangeClear, _extends({
-        fromTitle: fromTitle,
-        toTitle: toTitle,
-        savedFromVal: savedFromVal,
-        savedToVal: savedToVal,
-        facet: facet
-      }, {
-        resetAll: this.resetToAndFrom,
-        termTransformFxn: this.termTitle,
-        resetFrom: fromVal !== null ? this.resetFrom : null,
-        resetTo: toVal !== null ? this.resetTo : null
-      })), !facetOpen ? null : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-        className: "range-drop-group"
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "range-drop"
-      }, /*#__PURE__*/React.createElement("label", {
-        className: "mb-0 small"
-      }, "From:"), /*#__PURE__*/React.createElement(RangeDropdown, {
-        title: fromTitle,
-        value: fromVal,
-        savedValue: savedFromVal,
-        max: toVal || null,
-        increments: fromIncrements,
-        variant: fromVariant + " btn-xs",
-        onSelect: this.setFrom,
-        update: this.performUpdateFrom,
-        termTransformFxn: this.termTitle,
-        facet: facet,
-        id: "from_" + field,
-        reset: fromVal !== null ? this.resetFrom : null
-      })), /*#__PURE__*/React.createElement("div", {
-        className: "range-drop ml-05"
-      }, /*#__PURE__*/React.createElement("label", {
-        className: "mb-0 small"
-      }, "To:"), /*#__PURE__*/React.createElement(RangeDropdown, {
-        title: toTitle,
-        value: toVal,
-        savedValue: savedToVal,
-        min: fromVal || null,
-        increments: toIncrements,
-        termTransformFxn: this.termTitle,
-        variant: toVariant + " btn-xs",
-        onSelect: this.setTo,
-        update: this.performUpdateTo,
-        facet: facet,
-        id: "to_" + field,
-        reset: toVal !== null ? this.resetTo : null
-      }))), ranges && ranges.length > 0 ? /*#__PURE__*/React.createElement(ListOfRanges, _extends({}, this.props, {
-        expanded: expanded
-      }, {
-        onToggleExpanded: this.handleExpandListToggleClick,
-        onTermClick: this.selectRange,
-        resetAll: this.resetToAndFrom
-      })) : null))));
+      })))), /*#__PURE__*/React.createElement(PartialList, {
+        className: "inner-panel",
+        open: facetOpen,
+        persistent: [/*#__PURE__*/React.createElement(RangeClear, _extends({
+          fromTitle: fromTitle,
+          toTitle: toTitle,
+          savedFromVal: savedFromVal,
+          savedToVal: savedToVal,
+          facet: facet
+        }, {
+          resetAll: this.resetToAndFrom,
+          termTransformFxn: this.termTitle,
+          resetFrom: fromVal !== null ? this.resetFrom : null,
+          resetTo: toVal !== null ? this.resetTo : null,
+          key: 0
+        }))],
+        collapsible: [/*#__PURE__*/React.createElement("div", {
+          className: "range-drop-group",
+          key: 0
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "range-drop"
+        }, /*#__PURE__*/React.createElement("label", {
+          className: "mb-0 small"
+        }, "From:"), /*#__PURE__*/React.createElement(RangeDropdown, {
+          title: fromTitle,
+          value: fromVal,
+          savedValue: savedFromVal,
+          max: toVal || null,
+          increments: fromIncrements,
+          variant: fromVariant + " btn-xs",
+          onSelect: this.setFrom,
+          update: this.performUpdateFrom,
+          termTransformFxn: this.termTitle,
+          facet: facet,
+          id: "from_" + field,
+          reset: fromVal !== null ? this.resetFrom : null
+        })), /*#__PURE__*/React.createElement("div", {
+          className: "range-drop ml-05"
+        }, /*#__PURE__*/React.createElement("label", {
+          className: "mb-0 small"
+        }, "To:"), /*#__PURE__*/React.createElement(RangeDropdown, {
+          title: toTitle,
+          value: toVal,
+          savedValue: savedToVal,
+          min: fromVal || null,
+          increments: toIncrements,
+          termTransformFxn: this.termTitle,
+          variant: toVariant + " btn-xs",
+          onSelect: this.setTo,
+          update: this.performUpdateTo,
+          facet: facet,
+          id: "to_" + field,
+          reset: toVal !== null ? this.resetTo : null
+        }))), ranges && ranges.length > 0 ? /*#__PURE__*/React.createElement(ListOfRanges, _extends({}, this.props, {
+          expanded: expanded
+        }, {
+          onToggleExpanded: this.handleExpandListToggleClick,
+          onTermClick: this.selectRange,
+          resetAll: this.resetToAndFrom
+        })) : null]
+      }));
     }
   }]);
 

@@ -295,7 +295,7 @@ FacetTermsList.defaultProps = {
 
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, facetClosing, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn } = props;
+    const { facet, facetOpen, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn } = props;
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
         termComponents, activeTermComponents, unselectedTermComponents,

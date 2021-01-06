@@ -411,7 +411,7 @@ export class RangeFacet extends React.PureComponent {
             <div className={"facet range-facet" + (facetOpen ? ' open' : ' closed')} data-field={facet.field}>
                 <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
-                        <i className={"icon icon-fw icon-" + (isOpen ? "minus fas" : "plus fas")}/>
+                        <i className={"icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")}/>
                     </span>
                     <div className="col px-0 line-height-1">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-place="right">{ title }</span>
@@ -426,51 +426,49 @@ export class RangeFacet extends React.PureComponent {
                         </span>
                     </Fade>
                 </h5>
-                <Collapse in={isOpen}>
-                    <div className="inner-panel">
+
+                <PartialList className="inner-panel" open={facetOpen}
+                    persistent={[
                         <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet }} resetAll={this.resetToAndFrom} termTransformFxn={this.termTitle}
-                            resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} />
-                        {!facetOpen ? null :
-                        <>
-                            <div className="range-drop-group">
-                                <div className="range-drop">
-                                    <label className="mb-0 small">
-                                        From:
-                                    </label>
-                                    <RangeDropdown
-                                        title={fromTitle} value={fromVal} savedValue={savedFromVal}
-                                        max={toVal || null} increments={fromIncrements} variant={fromVariant + " btn-xs"}
-                                        onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
-                                        facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
-                                    {/*
-                                    <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
-                                        onClick={fromVal !== null ? this.resetFrom : null}>
-                                        <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
-                                    </div>
-                                    */}
+                            resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} key={0} />
+                    ]}
+                    collapsible={[
+                        <div className="range-drop-group" key={0}>
+                            <div className="range-drop">
+                                <label className="mb-0 small">
+                                    From:
+                                </label>
+                                <RangeDropdown
+                                    title={fromTitle} value={fromVal} savedValue={savedFromVal}
+                                    max={toVal || null} increments={fromIncrements} variant={fromVariant + " btn-xs"}
+                                    onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
+                                    facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
+                                {/*
+                                <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
+                                    onClick={fromVal !== null ? this.resetFrom : null}>
+                                    <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
                                 </div>
-                                <div className="range-drop ml-05">
-                                    <label className="mb-0 small">
-                                        To:
-                                    </label>
-                                    <RangeDropdown
-                                        title={toTitle} value={toVal} savedValue={savedToVal}
-                                        min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
-                                        variant={toVariant + " btn-xs"} onSelect={this.setTo} update={this.performUpdateTo}
-                                        facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
-                                    {/*
-                                    <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
-                                        onClick={toVal !== null ? this.resetTo : null}>
-                                        <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
-                                    </div>
-                                    */}
-                                </div>
+                                */}
                             </div>
-                            {(ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/> : null }
-                        </>
-                        }
-                    </div>
-                </Collapse>
+                            <div className="range-drop ml-05">
+                                <label className="mb-0 small">
+                                    To:
+                                </label>
+                                <RangeDropdown
+                                    title={toTitle} value={toVal} savedValue={savedToVal}
+                                    min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
+                                    variant={toVariant + " btn-xs"} onSelect={this.setTo} update={this.performUpdateTo}
+                                    facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
+                                {/*
+                                <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
+                                    onClick={toVal !== null ? this.resetTo : null}>
+                                    <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
+                                </div>
+                                */}
+                            </div>
+                        </div>,
+                        (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/> : null
+                    ]} />
             </div>
         );
     }

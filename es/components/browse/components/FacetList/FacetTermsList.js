@@ -434,7 +434,6 @@ FacetTermsList.defaultProps = {
 var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
-      facetClosing = props.facetClosing,
       terms = props.terms,
       persistentCount = props.persistentCount,
       onTermClick = props.onTermClick,
