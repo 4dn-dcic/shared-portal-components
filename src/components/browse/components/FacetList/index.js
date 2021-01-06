@@ -531,8 +531,7 @@ export class FacetList extends React.PureComponent {
 
         filterObjArray.forEach((filterObj) => {
             const { facet, term } = filterObj;
-            const lol = FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
-            console.log("results from sendAnalytics", lol);
+            FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
         });
 
         return onFilterMultiple(...arguments);
