@@ -8,7 +8,9 @@ import Fade from 'react-bootstrap/esm/Fade';
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
-
+import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from '../../../forms/components/SearchAsYouTypeAjax';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 
 /**
  * Used in FacetList
@@ -155,12 +157,20 @@ export class Term extends React.PureComponent {
     */
 
     render() {
-        const { term, facet, status, termTransformFxn } = this.props;
+        const { term, facet, status, termTransformFxn, searchItem } = this.props;
         const { filtering } = this.state;
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
+
+
+        let termArr = [];
+        if (searchItem && typeof searchItem === 'string' && searchItem.length > 0) {
+            termArr = facet.terms.filter((o) =>
+                _.pick(o, 'key').key.toLocaleLowerCase().includes(searchItem.toLocaleLowerCase())
+            );
+        }
 
         if (filtering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
@@ -175,15 +185,30 @@ export class Term extends React.PureComponent {
         }
 
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
-        return (
-            <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
-                <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                    <span className="facet-selector">{icon}</span>
-                    <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
-                    <span className="facet-count">{count}</span>
-                </a>
-            </li>
-        );
+        const termItemSearchControl = _.find(termArr, function (item) { return item.key === term.key; });
+        if (searchItem) {
+            return (
+
+                (termItemSearchControl !== undefined || status !== 'none' ?  (
+                    <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
+                        <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
+                            <span className="facet-selector">{icon}</span>
+                            <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
+                            <span className="facet-count">{count}</span>
+                        </a>
+                    </li>) : null)
+            );
+        }
+        else {
+            return (
+                <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
+                    <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
+                        <span className="facet-selector">{icon}</span>
+                        <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
+                        <span className="facet-count">{count}</span>
+                    </a>
+                </li>)
+        }
     }
 
 }
@@ -206,7 +231,8 @@ export class FacetTermsList extends React.PureComponent {
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
-        this.state = { 'expanded' : false };
+        this.handleSearchInfacetItem = this.handleSearchInfacetItem.bind(this);
+        this.state = { 'expanded': false, 'searchItem': '', };
     }
 
     handleOpenToggleClick(e) {
@@ -221,7 +247,11 @@ export class FacetTermsList extends React.PureComponent {
             return { 'expanded' : !expanded };
         });
     }
-
+    handleSearchInfacetItem(e) {
+        e.preventDefault();
+        const newValue = e.target.value;
+        this.setState({ 'searchItem': newValue });
+    }
     render(){
         const {
             facet,
@@ -235,16 +265,18 @@ export class FacetTermsList extends React.PureComponent {
             termTransformFxn,
             facetOpen,
             openPopover,
-            setOpenPopover
+            setOpenPopover,
+            context,
         } = this.props;
         const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [] } = facet;
-        const { expanded } = this.state;
+        const { expanded, searchItem } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
         const { title: fieldTitle, description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
         const title = facetTitle || fieldTitle || field;
 
         let indicator;
+        console.log('xxxx event tetiklendi context',context);
 
         // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
         if (isStatic || termsLen === 1){
@@ -282,7 +314,7 @@ export class FacetTermsList extends React.PureComponent {
                     </div>
                     { indicator }
                 </h5>
-                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn }} onToggleExpanded={this.handleExpandListToggleClick} />
+                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn, searchItem }} onSearch={this.handleSearchInfacetItem} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
@@ -291,9 +323,8 @@ FacetTermsList.defaultProps = {
     'persistentCount' : 10
 };
 
-
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, facetClosing, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn } = props;
+    const { facet, facetOpen, facetClosing, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, onSearch, searchItem } = props;
 
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
@@ -309,7 +340,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
         } = segmentTermComponentsByStatus(terms.map(function(term){
-            return <Term {...{ facet, term, termTransformFxn }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            return <Term {...{ facet, term, termTransformFxn, searchItem }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
         const selectedLen = selectedTermComponents.length;
         const omittedLen = omittedTermComponents.length;
@@ -340,7 +371,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 
         return retObj;
 
-    }, [ terms, persistentCount ]);
+    }, [ terms, persistentCount, searchItem ]);
 
     const commonProps = {
         "data-any-active" : !!(selectedLen || omittedLen),
@@ -368,14 +399,20 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 </span>
             );
         }
-
         return (
             <div {...commonProps}>
                 <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
                     <React.Fragment>
+                        <div className="form-inputs-container" style={{ 'padding': '10px' }}>
+                            <input className="form-control search-query" id="navbar-search" autoComplete="off" type="search" placeholder="Search"
+                                name="q" onChange={onSearch} key="search-input" />
+                        </div>
+                        {/* <div className="input-wrapper">
+                            <SubmissionViewSearchAsYouTypeAjax schema={{ linkTo: 'Lab' }} linkTo = "experiment_set" value={'value'} allowCustomValue={false} />
+                        </div> */}
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
                         <div className="pt-08 pb-0">
-                            <div className="view-more-button" onClick={onToggleExpanded}>{ expandButtonTitle }</div>
+                            <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
                         </div>
                     </React.Fragment>
                 } />
@@ -404,8 +441,7 @@ export const CountIndicator = React.memo(function CountIndicator({ count = 1, co
     });
     return (
         <svg className="svg-count-indicator" viewBox={`0 0 ${width + 2} ${height + 2}`} width={width + 2} height={height + 2}>
-            { dots }
+            { dots}
         </svg>
     );
 });
-

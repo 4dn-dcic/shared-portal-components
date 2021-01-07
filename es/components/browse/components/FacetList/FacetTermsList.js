@@ -43,6 +43,9 @@ import Fade from 'react-bootstrap/esm/Fade';
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
+import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from '../../../forms/components/SearchAsYouTypeAjax';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 /**
  * Used in FacetList
  * @deprecated
@@ -222,11 +225,20 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           term = _this$props2.term,
           facet = _this$props2.facet,
           status = _this$props2.status,
-          termTransformFxn = _this$props2.termTransformFxn;
+          termTransformFxn = _this$props2.termTransformFxn,
+          searchItem = _this$props2.searchItem;
       var filtering = this.state.filtering;
+      var selected = status !== 'none';
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
+      var termArr = [];
+
+      if (searchItem && typeof searchItem === 'string' && searchItem.length > 0) {
+        termArr = facet.terms.filter(function (o) {
+          return _.pick(o, 'key').key.toLocaleLowerCase().includes(searchItem.toLocaleLowerCase());
+        });
+      }
 
       if (filtering) {
         icon = /*#__PURE__*/React.createElement("i", {
@@ -247,24 +259,50 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
-      return /*#__PURE__*/React.createElement("li", {
-        className: "facet-list-element " + statusClassName,
-        key: term.key,
-        "data-key": term.key
-      }, /*#__PURE__*/React.createElement("a", {
-        className: "term",
-        "data-selected": status !== 'none',
-        href: "#",
-        onClick: this.handleClick,
-        "data-term": term.key
-      }, /*#__PURE__*/React.createElement("span", {
-        className: "facet-selector"
-      }, icon), /*#__PURE__*/React.createElement("span", {
-        className: "facet-item",
-        "data-tip": title.length > 30 ? title : null
-      }, title), /*#__PURE__*/React.createElement("span", {
-        className: "facet-count"
-      }, count)));
+
+      var termItemSearchControl = _.find(termArr, function (item) {
+        return item.key === term.key;
+      });
+
+      if (searchItem) {
+        return termItemSearchControl !== undefined || status !== 'none' ? /*#__PURE__*/React.createElement("li", {
+          className: "facet-list-element " + statusClassName,
+          key: term.key,
+          "data-key": term.key
+        }, /*#__PURE__*/React.createElement("a", {
+          className: "term",
+          "data-selected": selected,
+          href: "#",
+          onClick: this.handleClick,
+          "data-term": term.key
+        }, /*#__PURE__*/React.createElement("span", {
+          className: "facet-selector"
+        }, icon), /*#__PURE__*/React.createElement("span", {
+          className: "facet-item",
+          "data-tip": title.length > 30 ? title : null
+        }, title), /*#__PURE__*/React.createElement("span", {
+          className: "facet-count"
+        }, count))) : null;
+      } else {
+        return /*#__PURE__*/React.createElement("li", {
+          className: "facet-list-element " + statusClassName,
+          key: term.key,
+          "data-key": term.key
+        }, /*#__PURE__*/React.createElement("a", {
+          className: "term",
+          "data-selected": selected,
+          href: "#",
+          onClick: this.handleClick,
+          "data-term": term.key
+        }, /*#__PURE__*/React.createElement("span", {
+          className: "facet-selector"
+        }, icon), /*#__PURE__*/React.createElement("span", {
+          className: "facet-item",
+          "data-tip": title.length > 30 ? title : null
+        }, title), /*#__PURE__*/React.createElement("span", {
+          className: "facet-count"
+        }, count)));
+      }
     }
   }]);
 
@@ -294,8 +332,10 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     _this3 = _super2.call(this, props);
     _this3.handleOpenToggleClick = _this3.handleOpenToggleClick.bind(_assertThisInitialized(_this3));
     _this3.handleExpandListToggleClick = _this3.handleExpandListToggleClick.bind(_assertThisInitialized(_this3));
+    _this3.handleSearchInfacetItem = _this3.handleSearchInfacetItem.bind(_assertThisInitialized(_this3));
     _this3.state = {
-      'expanded': false
+      'expanded': false,
+      'searchItem': ''
     };
     return _this3;
   }
@@ -323,6 +363,15 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       });
     }
   }, {
+    key: "handleSearchInfacetItem",
+    value: function handleSearchInfacetItem(e) {
+      e.preventDefault();
+      var newValue = e.target.value;
+      this.setState({
+        'searchItem': newValue
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props4 = this.props,
@@ -337,14 +386,17 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           termTransformFxn = _this$props4.termTransformFxn,
           facetOpen = _this$props4.facetOpen,
           openPopover = _this$props4.openPopover,
-          setOpenPopover = _this$props4.setOpenPopover;
+          setOpenPopover = _this$props4.setOpenPopover,
+          context = _this$props4.context;
       var _facet$description = facet.description,
           facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
           field = facet.field,
           facetTitle = facet.title,
           _facet$terms = facet.terms,
           terms = _facet$terms === void 0 ? [] : _facet$terms;
-      var expanded = this.state.expanded;
+      var _this$state = this.state,
+          expanded = _this$state.expanded,
+          searchItem = _this$state.searchItem;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
 
@@ -353,7 +405,8 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           fieldSchemaDescription = _ref4.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
 
 
-      var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
+      var indicator;
+      console.log('xxxx event tetiklendi context', context); // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
 
       if (isStatic || termsLen === 1) {
         indicator =
@@ -417,8 +470,10 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         onTermClick: onTermClick,
         expanded: expanded,
         getTermStatus: getTermStatus,
-        termTransformFxn: termTransformFxn
+        termTransformFxn: termTransformFxn,
+        searchItem: searchItem
       }, {
+        onSearch: this.handleSearchInfacetItem,
         onToggleExpanded: this.handleExpandListToggleClick
       })));
     }
@@ -439,7 +494,9 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       expanded = props.expanded,
       onToggleExpanded = props.onToggleExpanded,
       getTermStatus = props.getTermStatus,
-      termTransformFxn = props.termTransformFxn;
+      termTransformFxn = props.termTransformFxn,
+      onSearch = props.onSearch,
+      searchItem = props.searchItem;
   /** Create term components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = useMemo(function () {
@@ -447,7 +504,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
-        termTransformFxn: termTransformFxn
+        termTransformFxn: termTransformFxn,
+        searchItem: searchItem
       }, {
         onClick: onTermClick,
         key: term.key,
@@ -495,7 +553,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       return m + (termComponent.props.term.doc_count || 0);
     }, 0);
     return retObj;
-  }, [terms, persistentCount]),
+  }, [terms, persistentCount, searchItem]),
       termComponents = _useMemo.termComponents,
       activeTermComponents = _useMemo.activeTermComponents,
       unselectedTermComponents = _useMemo.unselectedTermComponents,
@@ -539,7 +597,21 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
-      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(PartialList, {
+      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+        className: "form-inputs-container",
+        style: {
+          'padding': '10px'
+        }
+      }, /*#__PURE__*/React.createElement("input", {
+        className: "form-control search-query",
+        id: "navbar-search",
+        autoComplete: "off",
+        type: "search",
+        placeholder: "Search",
+        name: "q",
+        onChange: onSearch,
+        key: "search-input"
+      })), /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0",
         open: expanded,
         persistent: persistentTerms,
