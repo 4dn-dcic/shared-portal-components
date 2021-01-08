@@ -89,7 +89,8 @@ export function mergeTerms(facet, filters){
     return terms.concat(unseenTerms);
 }
 
-function segmentTermComponentsByStatus(termComponents){
+/* Used in ListOfTerms and ListOfRanges (RangeFacet) */
+export function segmentComponentsByStatus(termComponents){
     const groups = {};
     termComponents.forEach(function(t){
         const { props: { status } } = t;
@@ -100,7 +101,6 @@ function segmentTermComponentsByStatus(termComponents){
     });
     return groups;
 }
-
 
 
 /**
@@ -165,9 +165,9 @@ export class Term extends React.PureComponent {
         if (filtering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
-            icon = <i className="icon icon-minus-circle icon-fw fas" />;
+            icon = <i className="icon icon-check-square icon-fw fas" />;
         } else {
-            icon = <i className="icon icon-circle icon-fw unselected far" />;
+            icon = <i className="icon icon-square icon-fw unselected far" />;
         }
 
         if (!title || title === 'null' || title === 'undefined'){
@@ -196,7 +196,9 @@ Term.propTypes = {
         'doc_count'         : PropTypes.number
     }).isRequired,
     'getTermStatus'     : PropTypes.func.isRequired,
-    'onClick'           : PropTypes.func.isRequired
+    'onClick'           : PropTypes.func.isRequired,
+    'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
+    'termTransformFxn'  : PropTypes.func
 };
 
 
@@ -293,8 +295,7 @@ FacetTermsList.defaultProps = {
 
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, facetClosing, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn } = props;
-
+    const { facet, facetOpen, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn } = props;
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
         termComponents, activeTermComponents, unselectedTermComponents,
@@ -308,7 +309,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             selected: selectedTermComponents    = [],
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
-        } = segmentTermComponentsByStatus(terms.map(function(term){
+        } = segmentComponentsByStatus(terms.map(function(term){
             return <Term {...{ facet, term, termTransformFxn }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
         const selectedLen = selectedTermComponents.length;
@@ -408,4 +409,3 @@ export const CountIndicator = React.memo(function CountIndicator({ count = 1, co
         </svg>
     );
 });
-

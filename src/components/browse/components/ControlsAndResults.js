@@ -67,9 +67,10 @@ export class ControlsAndResults extends React.PureComponent {
             defaultOpenIndices = null,
             detailPane = null,
 
-            // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href & context)
+            // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
             context, href, requestedCompoundFilterSet,
-            onFilter, showClearFiltersButton = false,
+            onFilter, onFilterMultiple,
+            showClearFiltersButton = false,
             isOwnPage = true,         // <- False when rendered by EmbeddedSearchView, else is true when from a SearchView
             isContextLoading = false, // <- Only applicable for EmbeddedSearchView, passed in by VirtualHrefController only, else is false always since we initialize immediately over search-response context that already has first 25 results
 
@@ -120,7 +121,7 @@ export class ControlsAndResults extends React.PureComponent {
             hiddenColumns, addHiddenColumn, removeHiddenColumn,
             currentAction, windowWidth, windowHeight,
             isContextLoading,
-            onFilter,
+            onFilter, onFilterMultiple,
             onClearFilters: this.onClearFiltersClick,
             termTransformFxn,
             itemTypeForSchemas: searchItemType,
