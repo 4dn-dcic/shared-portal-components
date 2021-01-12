@@ -565,7 +565,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           toTitle: toTitle,
           savedFromVal: savedFromVal,
           savedToVal: savedToVal,
-          facet: facet
+          facet: facet,
+          fieldSchema: fieldSchema
         }, {
           resetAll: this.resetToAndFrom,
           termTransformFxn: this.termTitle,
@@ -819,7 +820,7 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
           label = range.label;
       var filtering = this.state.filtering;
       var icon = null;
-      var title = (typeof from !== 'undefined' ? from : '< ') + (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') + (typeof to !== 'undefined' ? to : '+ ');
+      var title = (typeof from !== 'undefined' ? from : "≤ ") + (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') + (typeof to !== 'undefined' ? to : '+ ');
 
       if (filtering) {
         icon = /*#__PURE__*/React.createElement("i", {
@@ -839,6 +840,17 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
         title = 'None';
       }
 
+      var displayLabel;
+
+      if (label && label.includes("(")) {
+        // if there are parenthesis, don't add another set
+        displayLabel = label;
+      } else if (label) {
+        displayLabel = "(" + label + ")";
+      } else {
+        displayLabel = null;
+      }
+
       return /*#__PURE__*/React.createElement("li", {
         className: "facet-list-element ",
         key: label,
@@ -854,7 +866,7 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item",
         "data-tip": title.length > 30 ? title : null
-      }, title, " ", label ? "(".concat(label, ")") : null), /*#__PURE__*/React.createElement("span", {
+      }, title, " ", displayLabel), /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
       }, doc_count || 0)));
     }
@@ -874,101 +886,89 @@ RangeTerm.propTypes = {
   }).isRequired,
   'onClick': PropTypes.func.isRequired
 };
+var RangeClear = /*#__PURE__*/React.memo(function (props) {
+  var savedFromVal = props.savedFromVal,
+      savedToVal = props.savedToVal,
+      resetTo = props.resetTo,
+      resetFrom = props.resetFrom,
+      resetAll = props.resetAll,
+      facet = props.facet,
+      termTransformFxn = props.termTransformFxn,
+      _props$fieldSchema = props.fieldSchema,
+      fieldSchema = _props$fieldSchema === void 0 ? null : _props$fieldSchema;
+  var facetField = facet.field,
+      facetTitle = facet.title,
+      _facet$abbreviation = facet.abbreviation,
+      facetAbbreviation = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
+  var _ref5$abbreviation = (fieldSchema || {}).abbreviation,
+      fieldAbbreviation = _ref5$abbreviation === void 0 ? null : _ref5$abbreviation;
+  var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || facetTitle;
+  var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
+  var savedToTitle = termTransformFxn(facetField, savedToVal, true);
 
-var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
-  _inherits(RangeClear, _React$PureComponent3);
-
-  var _super3 = _createSuper(RangeClear);
-
-  function RangeClear() {
-    _classCallCheck(this, RangeClear);
-
-    return _super3.apply(this, arguments);
-  }
-
-  _createClass(RangeClear, [{
-    key: "render",
-    value: function render() {
-      var _this$props10 = this.props,
-          savedFromVal = _this$props10.savedFromVal,
-          savedToVal = _this$props10.savedToVal,
-          resetTo = _this$props10.resetTo,
-          resetFrom = _this$props10.resetFrom,
-          resetAll = _this$props10.resetAll,
-          facet = _this$props10.facet,
-          termTransformFxn = _this$props10.termTransformFxn;
-      var facetField = facet.field,
-          facetTitle = facet.title;
-      var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
-      var savedToTitle = termTransformFxn(facetField, savedToVal, true);
-
-      if (savedFromVal === null && savedToVal === null) {
-        return null;
-      } else if (savedFromVal !== null && savedToVal !== null) {
-        // To and From present
-        savedToVal < savedFromVal ? "btn-warning" : "btn-primary";
-        return /*#__PURE__*/React.createElement("div", {
-          className: "range-clear"
-        }, /*#__PURE__*/React.createElement("li", {
-          className: "selected facet-list-element clickable"
-        }, /*#__PURE__*/React.createElement("a", {
-          onClick: resetAll
-        }, /*#__PURE__*/React.createElement("span", {
-          className: "facet-selector"
-        }, /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/React.createElement("span", {
-          className: "facet-item",
-          style: {
-            textAlign: "center",
-            marginLeft: "-5px"
-          }
-        }, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
-          className: "icon fas icon-less-than-equal icon-xs px-1"
-        }), " ", facetTitle, " ", /*#__PURE__*/React.createElement("i", {
-          className: "icon fas icon-less-than-equal icon-xs px-1"
-        }), " ", savedToTitle))));
-      } else {
-        // Only To or From present
-        return /*#__PURE__*/React.createElement("div", {
-          className: "range-clear"
-        }, /*#__PURE__*/React.createElement("li", {
-          className: "selected facet-list-element clickable"
-        }, /*#__PURE__*/React.createElement("a", {
-          onClick: resetTo === null ? resetFrom : resetTo
-        }, /*#__PURE__*/React.createElement("span", {
-          className: "facet-selector"
-        }, /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw fas icon-minus-circle"
-        })), /*#__PURE__*/React.createElement("span", {
-          className: "facet-item",
-          style: {
-            textAlign: "center",
-            marginLeft: "-5px"
-          }
-        }, savedToVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, facetTitle, " ", /*#__PURE__*/React.createElement("i", {
-          className: "icon fas icon-less-than-equal icon-xs px-1"
-        }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
-          className: "icon fas icon-less-than-equal icon-xs px-1"
-        }), " ", facetTitle) : null))));
+  if (savedFromVal === null && savedToVal === null) {
+    return null;
+  } else if (savedFromVal !== null && savedToVal !== null) {
+    // To and From present
+    // Commented out b.c. not used atm:
+    // const invalidRange = savedToVal < savedFromVal;
+    // const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
+    return /*#__PURE__*/React.createElement("div", {
+      className: "range-clear"
+    }, /*#__PURE__*/React.createElement("li", {
+      className: "selected facet-list-element clickable"
+    }, /*#__PURE__*/React.createElement("a", {
+      onClick: resetAll
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "facet-selector"
+    }, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-fw fas icon-minus-circle"
+    })), /*#__PURE__*/React.createElement("span", {
+      className: "facet-item text-center",
+      style: {
+        marginLeft: "-5px"
       }
-    }
-  }]);
+    }, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
+      className: "icon fas icon-less-than-equal icon-xs px-1"
+    }), " ", abbreviatedTitle, " ", /*#__PURE__*/React.createElement("i", {
+      className: "icon fas icon-less-than-equal icon-xs px-1"
+    }), " ", savedToTitle))));
+  } else {
+    // Only To or From present
+    return /*#__PURE__*/React.createElement("div", {
+      className: "range-clear"
+    }, /*#__PURE__*/React.createElement("li", {
+      className: "selected facet-list-element clickable"
+    }, /*#__PURE__*/React.createElement("a", {
+      onClick: resetTo === null ? resetFrom : resetTo
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "facet-selector"
+    }, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-fw fas icon-minus-circle"
+    })), /*#__PURE__*/React.createElement("span", {
+      className: "facet-item text-center",
+      style: {
+        marginLeft: "-5px"
+      }
+    }, savedToVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, abbreviatedTitle, " ", /*#__PURE__*/React.createElement("i", {
+      className: "icon fas icon-less-than-equal icon-xs px-1"
+    }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
+      className: "icon fas icon-less-than-equal icon-xs px-1"
+    }), " ", abbreviatedTitle) : null))));
+  }
+});
 
-  return RangeClear;
-}(React.PureComponent);
+var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
+  _inherits(RangeDropdown, _React$PureComponent3);
 
-var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
-  _inherits(RangeDropdown, _React$PureComponent4);
-
-  var _super4 = _createSuper(RangeDropdown);
+  var _super3 = _createSuper(RangeDropdown);
 
   function RangeDropdown(props) {
     var _this4;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this4 = _super4.call(this, props);
+    _this4 = _super3.call(this, props);
     _this4.state = {
       showMenu: false,
       toggling: false
@@ -994,10 +994,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
   }, {
     key: "onDropdownSelect",
     value: function onDropdownSelect(evtKey) {
-      var _this$props11 = this.props,
-          onSelect = _this$props11.onSelect,
-          update = _this$props11.update,
-          savedValue = _this$props11.savedValue;
+      var _this$props10 = this.props,
+          onSelect = _this$props10.onSelect,
+          update = _this$props10.update,
+          savedValue = _this$props10.savedValue;
 
       if (parseFloat(evtKey) === savedValue) {
         return false;
@@ -1008,10 +1008,10 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
   }, {
     key: "onTextInputFormSubmit",
     value: function onTextInputFormSubmit(evt) {
-      var _this$props12 = this.props,
-          update = _this$props12.update,
-          savedValue = _this$props12.savedValue,
-          value = _this$props12.value;
+      var _this$props11 = this.props,
+          update = _this$props11.update,
+          savedValue = _this$props11.savedValue,
+          value = _this$props11.value;
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -1063,30 +1063,30 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent4) {
     key: "render",
     value: function render() {
       var showMenu = this.state.showMenu;
-      var _this$props13 = this.props,
-          _this$props13$variant = _this$props13.variant,
-          variant = _this$props13$variant === void 0 ? "outline-dark" : _this$props13$variant,
-          _this$props13$size = _this$props13.size,
-          size = _this$props13$size === void 0 ? "sm" : _this$props13$size,
-          _this$props13$disable = _this$props13.disabled,
-          disabled = _this$props13$disable === void 0 ? false : _this$props13$disable,
-          _this$props13$classNa = _this$props13.className,
-          className = _this$props13$classNa === void 0 ? "range-dropdown-container col" : _this$props13$classNa,
-          propMin = _this$props13.min,
-          propMax = _this$props13.max,
-          value = _this$props13.value,
-          savedValue = _this$props13.savedValue,
-          _this$props13$placeho = _this$props13.placeholder,
-          placeholder = _this$props13$placeho === void 0 ? "Type..." : _this$props13$placeho,
-          title = _this$props13.title,
-          termTransformFxn = _this$props13.termTransformFxn,
-          id = _this$props13.id,
-          facet = _this$props13.facet,
-          _this$props13$increme = _this$props13.increments,
-          increments = _this$props13$increme === void 0 ? [] : _this$props13$increme,
-          _this$props13$reset = _this$props13.reset,
-          reset = _this$props13$reset === void 0 ? null : _this$props13$reset,
-          tooltip = _this$props13.tooltip;
+      var _this$props12 = this.props,
+          _this$props12$variant = _this$props12.variant,
+          variant = _this$props12$variant === void 0 ? "outline-dark" : _this$props12$variant,
+          _this$props12$size = _this$props12.size,
+          size = _this$props12$size === void 0 ? "sm" : _this$props12$size,
+          _this$props12$disable = _this$props12.disabled,
+          disabled = _this$props12$disable === void 0 ? false : _this$props12$disable,
+          _this$props12$classNa = _this$props12.className,
+          className = _this$props12$classNa === void 0 ? "range-dropdown-container col" : _this$props12$classNa,
+          propMin = _this$props12.min,
+          propMax = _this$props12.max,
+          value = _this$props12.value,
+          savedValue = _this$props12.savedValue,
+          _this$props12$placeho = _this$props12.placeholder,
+          placeholder = _this$props12$placeho === void 0 ? "Type..." : _this$props12$placeho,
+          title = _this$props12.title,
+          termTransformFxn = _this$props12.termTransformFxn,
+          id = _this$props12.id,
+          facet = _this$props12.facet,
+          _this$props12$increme = _this$props12.increments,
+          increments = _this$props12$increme === void 0 ? [] : _this$props12$increme,
+          _this$props12$reset = _this$props12.reset,
+          reset = _this$props12$reset === void 0 ? null : _this$props12$reset,
+          tooltip = _this$props12.tooltip;
       var updateAble = savedValue !== value;
       var _facet$field_type4 = facet.field_type,
           field_type = _facet$field_type4 === void 0 ? "number" : _facet$field_type4,
