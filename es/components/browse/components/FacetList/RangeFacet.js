@@ -839,6 +839,17 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
         title = 'None';
       }
 
+      var displayLabel;
+
+      if (label && label.includes("(")) {
+        // if there are parenthesis, don't add another set
+        displayLabel = label;
+      } else if (label) {
+        displayLabel = "(" + label + ")";
+      } else {
+        displayLabel = null;
+      }
+
       return /*#__PURE__*/React.createElement("li", {
         className: "facet-list-element ",
         key: label,
@@ -854,7 +865,7 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item",
         "data-tip": title.length > 30 ? title : null
-      }, title, " ", label ? "(".concat(label, ")") : null), /*#__PURE__*/React.createElement("span", {
+      }, title, " ", displayLabel), /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
       }, doc_count || 0)));
     }

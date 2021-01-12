@@ -624,11 +624,20 @@ export class RangeTerm extends React.PureComponent {
             title = 'None';
         }
 
+        let displayLabel;
+        if (label && label.includes("(")) { // if there are parenthesis, don't add another set
+            displayLabel = label;
+        } else if (label) {
+            displayLabel = "(" + label + ")";
+        } else {
+            displayLabel = null;
+        }
+
         return (
             <li className={"facet-list-element "} key={label} data-key={label}>
                 <a className="term" data-selected={selected} href="#" onClick={status === "selected" ? resetAll : this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
-                    <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {label ? `(${label})` : null}</span>
+                    <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {displayLabel}</span>
                     <span className="facet-count">{doc_count || 0}</span>
                 </a>
             </li>
