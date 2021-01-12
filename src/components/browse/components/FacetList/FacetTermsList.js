@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import memoize from 'memoize-one';
 import Fade from 'react-bootstrap/esm/Fade';
 
 import { stackDotsInContainer } from './../../../viz/utilities';
@@ -113,6 +114,9 @@ export class Term extends React.PureComponent {
         this.state = {
             'filtering' : false
         };
+        this.memoized = {
+            getFilteredTerms: memoize(Term.getFilteredTerms)
+        };
     }
 
     handleClick(e) {
@@ -153,20 +157,35 @@ export class Term extends React.PureComponent {
     }
     */
 
+    /**
+     * @param {*} facetTerms : facet's terms array
+     * @param {*} searchText : search text from basic search input
+     */
+    static getFilteredTerms(facetTerms, searchText) {
+        if (!facetTerms || !Array.isArray(facetTerms)) {
+            return [];
+        }
+
+        let filteredTerms = _.clone(facetTerms);
+        if (searchText && typeof searchText === 'string' && searchText.length > 0) {
+            const lcSearchText = searchText.toLocaleLowerCase();
+            filteredTerms = _.filter(facetTerms, function (term) {
+                return term.key && typeof term.key === 'string' && term.key.toLocaleLowerCase().includes(lcSearchText);
+            });
+        }
+
+        return filteredTerms;
+    }
+
     render() {
-        const { term, facet, status, termTransformFxn, searchItem, searchType } = this.props;
+        const { term, facet, status, termTransformFxn, searchText, searchType } = this.props;
         const { filtering } = this.state;
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
 
-        let termArr = [];
-        if (searchItem && typeof searchItem === 'string' && searchItem.length > 0) {
-            termArr = facet.terms.filter((o) =>
-                _.pick(o, 'key').key.toLocaleLowerCase().includes(searchItem.toLocaleLowerCase())
-            );
-        }
+        const filteredTerms = (searchType === 'basic') ? this.memoized.getFilteredTerms(facet.terms, searchText) : [];
 
         if (filtering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
@@ -181,31 +200,24 @@ export class Term extends React.PureComponent {
         }
 
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
-        const termItemSearchControl = _.find(termArr, function (item) { return item.key === term.key; });
-        if (searchItem) {
-            return (
+        const facetListItem = (
+            <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
+                <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
+                    <span className="facet-selector">{icon}</span>
+                    <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
+                    <span className="facet-count">{count}</span>
+                </a>
+            </li>
+        );
 
-                (termItemSearchControl !== undefined || status !== 'none' ? (
-                    <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
-                        <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                            <span className="facet-selector">{icon}</span>
-                            <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
-                            <span className="facet-count">{count}</span>
-                        </a>
-                    </li>) : null)
-            );
-        }
-        else {
-            return (
-                (searchType !== 'sayt_without_terms' || status !== 'none'? (
-                    <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
-                        <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                            <span className="facet-selector">{icon}</span>
-                            <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
-                            <span className="facet-count">{count}</span>
-                        </a>
-                    </li>) : null)
-            );
+        if (searchType === 'basic') {
+            // if (!searchText) { return facetListItem; }
+            const termAlreadyFiltered = _.any(filteredTerms, function (item) { return item.key === term.key; });
+            return termAlreadyFiltered || status !== 'none' ? facetListItem : null;
+        } else if (searchType === 'sayt_without_terms') {
+            return status !== 'none' ? facetListItem : null;
+        } else {
+            return facetListItem;
         }
     }
 
@@ -231,9 +243,9 @@ export class FacetTermsList extends React.PureComponent {
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
-        this.handleSearchInfacetItem = this.handleSearchInfacetItem.bind(this);
-        this.handleSearchTerm = this.handleSearchTerm.bind(this);
-        this.state = { 'expanded': false, 'searchItem': '', };
+        this.handleBasicTermSearch = this.handleBasicTermSearch.bind(this);
+        this.handleSaytTermSearch = this.handleSaytTermSearch.bind(this);
+        this.state = { 'expanded': false, 'searchText': '', };
     }
 
     handleOpenToggleClick(e) {
@@ -248,16 +260,19 @@ export class FacetTermsList extends React.PureComponent {
             return { 'expanded' : !expanded };
         });
     }
-    handleSearchInfacetItem(e) {
+
+    handleBasicTermSearch(e) {
         e.preventDefault();
         const newValue = e.target.value;
-        this.setState({ 'searchItem': newValue });
+        this.setState({ 'searchText': newValue });
     }
-    handleSearchTerm(e) {
+
+    handleSaytTermSearch(e) {
         var { facet,onTermClick } = this.props;
         const key = { 'key': e.display_title };
         onTermClick(facet,key);
     }
+
     render(){
         const {
             facet,
@@ -276,7 +291,7 @@ export class FacetTermsList extends React.PureComponent {
             schemas,
         } = this.props;
         const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [] } = facet;
-        const { expanded, searchItem } = this.state;
+        const { expanded, searchText } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
         const { title: fieldTitle, description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
@@ -319,7 +334,7 @@ export class FacetTermsList extends React.PureComponent {
                     </div>
                     { indicator }
                 </h5>
-                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn, searchItem, schemas }} onSearchTerm={this.handleSearchTerm} onSearch={this.handleSearchInfacetItem} onToggleExpanded={this.handleExpandListToggleClick} />
+                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas }} onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
@@ -329,7 +344,7 @@ FacetTermsList.defaultProps = {
 };
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, onSearch, searchItem, schemas ,onSearchTerm } = props;
+    const { facet, facetOpen, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, searchText, onBasicTermSearch, onSaytTermSearch } = props;
     const searchType = facet.search_type || '';
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
@@ -345,7 +360,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
         } = segmentComponentsByStatus(terms.map(function(term){
-            return <Term {...{ facet, term, termTransformFxn, searchItem,searchType }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            return <Term {...{ facet, term, termTransformFxn, searchText, searchType }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
         const selectedLen = selectedTermComponents.length;
         const omittedLen = omittedTermComponents.length;
@@ -376,7 +391,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 
         return retObj;
 
-    }, [ terms, persistentCount, searchItem ]);
+    }, [ terms, persistentCount, searchText ]);
 
     const commonProps = {
         "data-any-active" : !!(selectedLen || omittedLen),
@@ -405,19 +420,21 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             );
         }
 
+        // show simple text input for basic search (search within returned values)
+        // or show SAYT control if item search is available
         let facetSearch = null;
         if (searchType === 'basic') {
             facetSearch = (
                 <div style={{ 'padding': '10px', 'fontSize': '0.875rem' }}>
                     <input className="form-control" autoComplete="off" type="search" placeholder="Search"
-                        name="q" onChange={onSearch} key="facet-search-input" />
+                        name="q" onChange={onBasicTermSearch} key="facet-search-input" />
                 </div>);
-        } else if ((searchType === 'sayt')||(searchType === 'sayt_without_terms')) {
+        } else if ((searchType === 'sayt') || (searchType === 'sayt_without_terms')) {
             const itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
             const baseHref = "/search/?type=" + itemType;
             facetSearch = (
                 <div className="d-flex flex-wrap" style={{ 'padding': '10px', 'fontSize': '0.875rem' }}>
-                    <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSearchTerm} key={itemType} />
+                    <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
                 </div>);
         }
 
@@ -429,7 +446,6 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
                         {(searchType !== 'sayt_without_terms' ? (
                             <div className="pt-08 pb-0">
-
                                 <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
                             </div>) : null)}
                     </React.Fragment>
