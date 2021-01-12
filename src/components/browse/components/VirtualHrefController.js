@@ -54,6 +54,7 @@ export class VirtualHrefController extends React.PureComponent {
     constructor(props){
         super(props);
         this.onFilter = this.onFilter.bind(this);
+        this.onFilterMultiple = this.onFilterMultiple.bind(this);
         this.onClearFilters = this.onClearFilters.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
         this.virtualNavigate = this.virtualNavigate.bind(this);
@@ -289,6 +290,38 @@ export class VirtualHrefController extends React.PureComponent {
         );
     }
 
+    /**
+     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term, callback)}) and generates a composite href before navigating
+     * @param {Array} filterObjs An object containing {facet, term, callback}
+     * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
+     * desired functionality.
+     */
+    onFilterMultiple(filterObjs = []) {
+        const { virtualHref, virtualContext : { filters: virtualContextFilters } } = this.state;
+
+        if (filterObjs.length === 0) { console.log("Attempted multi-filter, but no objects passed in!"); return null; }
+
+        let newHref = virtualHref; // initialize to href
+        let callback;
+
+        // Update href to include facet/term query pairs for each new item
+        filterObjs.forEach((obj, i) => {
+            const { facet, term, callback: thisCallback } = obj;
+            const thisHref = generateNextHref(newHref, virtualContextFilters, facet, term);
+            newHref = thisHref;
+            if (i === 0) {
+                callback = thisCallback;
+            }
+        });
+
+        return this.virtualNavigate(
+            newHref,
+            { 'dontScrollToTop' : true },
+            typeof callback === "function" ? callback : null
+        );
+    }
+
+
     /** Unlike in case of SearchView, which defaults to response's clear filters URL, this defaults to original searchHref */
     onClearFilters(callback = null){
         const { searchHref, onClearFiltersVirtual } = this.props;
@@ -339,6 +372,7 @@ export class VirtualHrefController extends React.PureComponent {
             isContextLoading, facets, showClearFiltersButton,
             navigate: this.virtualNavigate,
             onFilter: this.onFilter,
+            onFilterMultiple: this.onFilterMultiple,
             onClearFilters: this.onClearFilters,
             getTermStatus: this.getTermStatus,
         };

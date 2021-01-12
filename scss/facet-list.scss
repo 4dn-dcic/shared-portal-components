@@ -169,73 +169,97 @@ $facetlist-term-block-height: default !default;
         }
 
         &.range-facet {
-            > .inner-panel {
 
-                padding-top: 5px;
+            > .inner-panel.expandable-list {
+                margin-bottom: 0;
 
-                > div.row {
-                    align-items: center;
-                    padding-bottom: 5px;
-
-                    .range-dropdown-container {
-                        padding-left: 0;
-                        padding-right: 10px;
-                        > button {
-                            width: 100%;
-                            text-align: right;
-                            padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
-
-                            .clear-icon-container { // Not always present in DOM.
-                                margin-left: -.5rem; // Cancel out parent's padding for larger click area
-                                padding: 0 .5rem;
-                                opacity: 1;
-                                &.disabled {
-                                    opacity: 0.25;
-                                }
-                                &:hover:not(.disabled) {
-                                    opacity: 1;
-                                    > i {
-                                        text-shadow: 0 0px 4px #0009;
-                                    }
-                                }
-                                > i { // Same as for .facet-list term icon (below here)
-                                    transform: scale(0.9);
-                                    transform-origin: 50% 50%;
-                                }
-                            }
-                        }
+                button.range-clear.btn {
+                    &.btn-warning {
+                        color: #ffffff;
                     }
+                }
 
-                    .dropdown > .dropdown-menu {
-                        .inline-input-container {
-                            padding-left: 10px;
-                            padding-bottom: 10px;
-                            border-bottom: 1px solid #ddd;
-                            margin-bottom: 8px;
-                            display: flex;
-                            align-items: center;
-                            > .input-element-container {
-                                flex: 1;
-                            }
+                .range-drop-group {
+                    /* allows for side by side display without interfering with open/closed state */
+                    display: flex;
+                    justify-content: center;
+                    background-color: #eeeeee;
+                    
+                    div.range-drop {
+
+                        padding-top: 5px;
+                        padding-bottom: 5px;
+                        display: flex;
+                        align-items: center;
+
+                        .range-dropdown-container {
+                            padding-left: 5px;
+                            padding-right: 10px;
                             > button {
-                                padding-right: 10px;
-                                padding-left: 10px;
-                                opacity: 0.7;
-                                &:hover:not(&:disabled){
+                                &.btn-warning {
+                                    color: #ffffff;
+                                }
+                                width: 100%;
+                                text-align: right;
+                                padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
+
+                                .clear-icon-container { // Not always present in DOM.
+                                    margin-left: -.5rem; // Cancel out parent's padding for larger click area
+                                    padding: 0 .5rem;
                                     opacity: 1;
-                                }
-                                &:disabled {
-                                    opacity: 0.3;
-                                }
-                                > i.icon {
                                     &.disabled {
-                                        opacity: 0.33;
+                                        opacity: 0.25;
+                                    }
+                                    &:hover:not(.disabled) {
+                                        opacity: 1;
+                                        > i {
+                                            text-shadow: 0 0px 4px #0009;
+                                        }
+                                    }
+                                    > i { // Same as for .facet-list term icon (below here)
+                                        transform: scale(0.9);
+                                        transform-origin: 50% 50%;
                                     }
                                 }
                             }
-                            
                         }
+
+                        .dropdown > .dropdown-menu {
+                            .inline-input-container {
+                                padding-left: 10px;
+                                padding-bottom: 10px;
+                                border-bottom: 1px solid #ddd;
+                                margin-bottom: 8px;
+                                display: flex;
+                                align-items: center;
+                                > .input-element-container {
+                                    flex: 1;
+                                }
+                                > button {
+                                    padding-right: 10px;
+                                    padding-left: 10px;
+                                    opacity: 0.7;
+                                    &:hover:not(&:disabled){
+                                        opacity: 1;
+                                    }
+                                    &:disabled {
+                                        opacity: 0.3;
+                                    }
+                                    > i.icon {
+                                        &.disabled {
+                                            opacity: 0.33;
+                                        }
+                                    }
+                                }
+                                
+                            }
+                        }
+                        
                     }
+                }
+
+                div.range-drop-group div.range-drop {
+                    
                 }
 
             }
@@ -477,6 +501,7 @@ $facetlist-term-block-height: default !default;
             }
         }
 
+        .range-clear,
         .facet-list {
             margin: 0;
             list-style: none;
@@ -619,7 +644,8 @@ $facetlist-term-block-height: default !default;
             
         }
 
-        &.closed .facet-list {
+        &.closed .facet-list,
+        &.closed .range-clear {
             li {
                 &.selected:last-child:after ,
                 &.omitted:last-child:after {

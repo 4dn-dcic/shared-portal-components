@@ -34,6 +34,7 @@ export class WindowNavigationController extends React.PureComponent {
     constructor(props){
         super(props);
         this.onFilter = this.onFilter.bind(this);
+        this.onFilterMultiple = this.onFilterMultiple.bind(this);
         this.onClearFilters = this.onClearFilters.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
         this.memoized = {
@@ -50,6 +51,40 @@ export class WindowNavigationController extends React.PureComponent {
 
         return propNavigate(
             generateNextHref(href, contextFilters, facet, term),
+            { 'dontScrollToTop' : true },
+            typeof callback === "function" ? callback : null
+        );
+    }
+
+    /**
+     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term, callback)}) and generates a composite href before navigating
+     * @param {Array} filterObjs An object containing {facet, term, callback}
+     * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
+     * desired functionality.
+     */
+    onFilterMultiple(filterObjs = []) {
+        const {
+            href, navigate: propNavigate = navigate,
+            context: { filters : contextFilters }
+        } = this.props;
+
+        if (filterObjs.length === 0) { console.log("Attempted multi-filter, but no objects passed in!"); return null; }
+
+        let newHref = href; // initialize to href
+        let callback;
+
+        // Update href to include facet/term query pairs for each new item
+        filterObjs.forEach((obj, i) => {
+            const { facet, term, callback: thisCallback } = obj;
+            const thisHref = generateNextHref(newHref, contextFilters, facet, term);
+            newHref = thisHref;
+            if (i === 0) {
+                callback = thisCallback;
+            }
+        });
+
+        return propNavigate(
+            newHref,
             { 'dontScrollToTop' : true },
             typeof callback === "function" ? callback : null
         );
@@ -97,6 +132,7 @@ export class WindowNavigationController extends React.PureComponent {
             ...passProps,
             showClearFiltersButton,
             onFilter: this.onFilter,
+            onFilterMultiple: this.onFilterMultiple,
             onClearFilters: this.onClearFilters,
             getTermStatus: this.getTermStatus,
         };
