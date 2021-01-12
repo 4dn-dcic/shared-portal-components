@@ -224,7 +224,8 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           facet = _this$props2.facet,
           status = _this$props2.status,
           termTransformFxn = _this$props2.termTransformFxn,
-          searchItem = _this$props2.searchItem;
+          searchItem = _this$props2.searchItem,
+          searchType = _this$props2.searchType;
       var filtering = this.state.filtering;
       var selected = status !== 'none';
       var count = term && term.doc_count || 0;
@@ -282,7 +283,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           className: "facet-count"
         }, count))) : null;
       } else {
-        return /*#__PURE__*/React.createElement("li", {
+        return searchType !== 'saytWithoutTermList' ? /*#__PURE__*/React.createElement("li", {
           className: "facet-list-element " + statusClassName,
           key: term.key,
           "data-key": term.key
@@ -299,7 +300,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           "data-tip": title.length > 30 ? title : null
         }, title), /*#__PURE__*/React.createElement("span", {
           className: "facet-count"
-        }, count)));
+        }, count))) : null;
       }
     }
   }]);
@@ -512,6 +513,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       searchItem = props.searchItem,
       schemas = props.schemas,
       onSearchTerm = props.onSearchTerm;
+  var searchType = facet.search_type || '';
   /** Create term components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = useMemo(function () {
@@ -520,7 +522,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         facet: facet,
         term: term,
         termTransformFxn: termTransformFxn,
-        searchItem: searchItem
+        searchItem: searchItem,
+        searchType: searchType
       }, {
         onClick: onTermClick,
         key: term.key,
@@ -608,7 +611,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       }, collapsibleTermsItemCount));
     }
 
-    var searchType = facet.search_type || '';
     var facetSearch = null;
 
     if (searchType === 'basic') {
@@ -626,7 +628,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         onChange: onSearch,
         key: "facet-search-input"
       }));
-    } else if (searchType === 'sayt') {
+    } else if (searchType === 'sayt' || searchType === 'saytWithoutTermList') {
       var itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
       facetSearch = /*#__PURE__*/React.createElement("div", {
         className: "d-flex flex-wrap",
@@ -651,12 +653,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         open: expanded,
         persistent: persistentTerms,
         collapsible: collapsibleTerms
-      }), /*#__PURE__*/React.createElement("div", {
+      }), searchType !== 'saytWithoutTermList' ? /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
       }, /*#__PURE__*/React.createElement("div", {
         className: "view-more-button",
         onClick: onToggleExpanded
-      }, expandButtonTitle)))
+      }, expandButtonTitle)) : null)
     }));
   } else {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {

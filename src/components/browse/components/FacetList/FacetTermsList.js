@@ -154,7 +154,7 @@ export class Term extends React.PureComponent {
     */
 
     render() {
-        const { term, facet, status, termTransformFxn, searchItem } = this.props;
+        const { term, facet, status, termTransformFxn, searchItem, searchType } = this.props;
         const { filtering } = this.state;
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
@@ -176,7 +176,7 @@ export class Term extends React.PureComponent {
             icon = <i className="icon icon-square icon-fw unselected far" />;
         }
 
-        if (!title || title === 'null' || title === 'undefined'){
+        if (!title || title === 'null' || title === 'undefined') {
             title = 'None';
         }
 
@@ -185,7 +185,7 @@ export class Term extends React.PureComponent {
         if (searchItem) {
             return (
 
-                (termItemSearchControl !== undefined || status !== 'none' ?  (
+                (termItemSearchControl !== undefined || status !== 'none' ? (
                     <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
                         <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                             <span className="facet-selector">{icon}</span>
@@ -197,13 +197,15 @@ export class Term extends React.PureComponent {
         }
         else {
             return (
-                <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
-                    <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
-                        <span className="facet-selector">{icon}</span>
-                        <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
-                        <span className="facet-count">{count}</span>
-                    </a>
-                </li>)
+                (searchType !== 'saytWithoutTermList' ? (
+                    <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
+                        <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
+                            <span className="facet-selector">{icon}</span>
+                            <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title}</span>
+                            <span className="facet-count">{count}</span>
+                        </a>
+                    </li>) : null)
+            );
         }
     }
 
@@ -328,7 +330,7 @@ FacetTermsList.defaultProps = {
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
     const { facet, facetOpen, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, onSearch, searchItem, schemas ,onSearchTerm } = props;
-
+    const searchType = facet.search_type || '';
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
         termComponents, activeTermComponents, unselectedTermComponents,
@@ -343,7 +345,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
         } = segmentComponentsByStatus(terms.map(function(term){
-            return <Term {...{ facet, term, termTransformFxn, searchItem }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            return <Term {...{ facet, term, termTransformFxn, searchItem,searchType }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
         const selectedLen = selectedTermComponents.length;
         const omittedLen = omittedTermComponents.length;
@@ -403,7 +405,6 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             );
         }
 
-        const searchType = facet.search_type || '';
         let facetSearch = null;
         if (searchType === 'basic') {
             facetSearch = (
@@ -411,7 +412,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                     <input className="form-control" autoComplete="off" type="search" placeholder="Search"
                         name="q" onChange={onSearch} key="facet-search-input" />
                 </div>);
-        } else if (searchType === 'sayt') {
+        } else if ((searchType === 'sayt')||(searchType === 'saytWithoutTermList')) {
             const itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
             const baseHref = "/search/?type=" + itemType;
             facetSearch = (
@@ -424,11 +425,13 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             <div {...commonProps}>
                 <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
                     <React.Fragment>
-                        { facetSearch }
+                        {facetSearch}
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
-                        <div className="pt-08 pb-0">
-                            <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
-                        </div>
+                        {(searchType !== 'saytWithoutTermList' ? (
+                            <div className="pt-08 pb-0">
+
+                                <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
+                            </div>) : null)}
                     </React.Fragment>
                 } />
             </div>
