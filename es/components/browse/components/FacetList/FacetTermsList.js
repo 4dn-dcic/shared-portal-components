@@ -43,9 +43,7 @@ import Fade from 'react-bootstrap/esm/Fade';
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
-import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from '../../../forms/components/SearchAsYouTypeAjax';
-import DropdownItem from 'react-bootstrap/esm/DropdownItem';
-import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import { SearchAsYouTypeAjax } from '../../../forms/components/SearchAsYouTypeAjax';
 /**
  * Used in FacetList
  * @deprecated
@@ -333,6 +331,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     _this3.handleOpenToggleClick = _this3.handleOpenToggleClick.bind(_assertThisInitialized(_this3));
     _this3.handleExpandListToggleClick = _this3.handleExpandListToggleClick.bind(_assertThisInitialized(_this3));
     _this3.handleSearchInfacetItem = _this3.handleSearchInfacetItem.bind(_assertThisInitialized(_this3));
+    _this3.handleSearchTerm = _this3.handleSearchTerm.bind(_assertThisInitialized(_this3));
     _this3.state = {
       'expanded': false,
       'searchItem': ''
@@ -372,22 +371,34 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       });
     }
   }, {
-    key: "render",
-    value: function render() {
+    key: "handleSearchTerm",
+    value: function handleSearchTerm(e) {
       var _this$props4 = this.props,
           facet = _this$props4.facet,
-          fieldSchema = _this$props4.fieldSchema,
-          isStatic = _this$props4.isStatic,
-          anySelected = _this$props4.anyTermsSelected,
-          termsSelectedCount = _this$props4.termsSelectedCount,
-          persistentCount = _this$props4.persistentCount,
-          onTermClick = _this$props4.onTermClick,
-          getTermStatus = _this$props4.getTermStatus,
-          termTransformFxn = _this$props4.termTransformFxn,
-          facetOpen = _this$props4.facetOpen,
-          openPopover = _this$props4.openPopover,
-          setOpenPopover = _this$props4.setOpenPopover,
-          context = _this$props4.context;
+          onTermClick = _this$props4.onTermClick;
+      var key = {
+        'key': e.display_title
+      };
+      onTermClick(facet, key);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props5 = this.props,
+          facet = _this$props5.facet,
+          fieldSchema = _this$props5.fieldSchema,
+          isStatic = _this$props5.isStatic,
+          anySelected = _this$props5.anyTermsSelected,
+          termsSelectedCount = _this$props5.termsSelectedCount,
+          persistentCount = _this$props5.persistentCount,
+          onTermClick = _this$props5.onTermClick,
+          getTermStatus = _this$props5.getTermStatus,
+          termTransformFxn = _this$props5.termTransformFxn,
+          facetOpen = _this$props5.facetOpen,
+          openPopover = _this$props5.openPopover,
+          setOpenPopover = _this$props5.setOpenPopover,
+          context = _this$props5.context,
+          schemas = _this$props5.schemas;
       var _facet$description = facet.description,
           facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
           field = facet.field,
@@ -405,8 +416,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           fieldSchemaDescription = _ref4.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
 
 
-      var indicator;
-      console.log('xxxx event tetiklendi context', context); // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
+      var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
 
       if (isStatic || termsLen === 1) {
         indicator =
@@ -471,8 +481,10 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         expanded: expanded,
         getTermStatus: getTermStatus,
         termTransformFxn: termTransformFxn,
-        searchItem: searchItem
+        searchItem: searchItem,
+        schemas: schemas
       }, {
+        onSearchTerm: this.handleSearchTerm,
         onSearch: this.handleSearchInfacetItem,
         onToggleExpanded: this.handleExpandListToggleClick
       })));
@@ -496,8 +508,17 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       getTermStatus = props.getTermStatus,
       termTransformFxn = props.termTransformFxn,
       onSearch = props.onSearch,
-      searchItem = props.searchItem;
+      searchItem = props.searchItem,
+      schemas = props.schemas,
+      onSearchTerm = props.onSearchTerm;
+  var saytItem = facet.sayt_item_type;
+  var baseHref = '';
+
+  if (saytItem !== '' && saytItem) {
+    baseHref = "/search/?type=" + saytItem;
+  }
   /** Create term components and sort by status (selected->omitted->unselected) */
+
 
   var _useMemo = useMemo(function () {
     var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
@@ -593,25 +614,44 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       }, collapsibleTermsItemCount));
     }
 
-    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
-      className: "mb-0 active-terms-pl",
-      open: facetOpen,
-      persistent: activeTermComponents,
-      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-        className: "form-inputs-container",
+    var searchType = facet.search_type || '';
+    var facetSearch = null;
+
+    if (searchType === 'basic') {
+      facetSearch = /*#__PURE__*/React.createElement("div", {
         style: {
-          'padding': '10px'
+          'padding': '10px',
+          'fontSize': '0.875rem'
         }
       }, /*#__PURE__*/React.createElement("input", {
-        className: "form-control search-query",
-        id: "navbar-search",
+        className: "form-control",
         autoComplete: "off",
         type: "search",
         placeholder: "Search",
         name: "q",
         onChange: onSearch,
-        key: "search-input"
-      })), /*#__PURE__*/React.createElement(PartialList, {
+        key: "facet-search-input"
+      }));
+    } else if (searchType === 'sayt') {
+      facetSearch = /*#__PURE__*/React.createElement("div", {
+        className: "d-flex flex-wrap",
+        style: {
+          'padding': '10px',
+          'fontSize': '0.875rem'
+        }
+      }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
+        baseHref: baseHref,
+        showTips: true,
+        onChange: onSearchTerm,
+        key: saytItem
+      }));
+    }
+
+    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
+      className: "mb-0 active-terms-pl",
+      open: facetOpen,
+      persistent: activeTermComponents,
+      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, facetSearch, /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0",
         open: expanded,
         persistent: persistentTerms,

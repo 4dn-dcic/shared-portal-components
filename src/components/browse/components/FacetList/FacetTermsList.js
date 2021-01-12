@@ -8,10 +8,7 @@ import Fade from 'react-bootstrap/esm/Fade';
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
-import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from '../../../forms/components/SearchAsYouTypeAjax';
-import DropdownItem from 'react-bootstrap/esm/DropdownItem';
-import DropdownButton from 'react-bootstrap/esm/DropdownButton';
-
+import { SearchAsYouTypeAjax } from '../../../forms/components/SearchAsYouTypeAjax';
 /**
  * Used in FacetList
  * @deprecated
@@ -164,7 +161,6 @@ export class Term extends React.PureComponent {
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
 
-
         let termArr = [];
         if (searchItem && typeof searchItem === 'string' && searchItem.length > 0) {
             termArr = facet.terms.filter((o) =>
@@ -232,6 +228,7 @@ export class FacetTermsList extends React.PureComponent {
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
         this.handleSearchInfacetItem = this.handleSearchInfacetItem.bind(this);
+        this.handleSearchTerm = this.handleSearchTerm.bind(this);
         this.state = { 'expanded': false, 'searchItem': '', };
     }
 
@@ -252,6 +249,11 @@ export class FacetTermsList extends React.PureComponent {
         const newValue = e.target.value;
         this.setState({ 'searchItem': newValue });
     }
+    handleSearchTerm(e) {
+        var { facet,onTermClick } = this.props;
+        const key = { 'key': e.display_title };
+        onTermClick(facet,key);
+    }
     render(){
         const {
             facet,
@@ -267,6 +269,7 @@ export class FacetTermsList extends React.PureComponent {
             openPopover,
             setOpenPopover,
             context,
+            schemas,
         } = this.props;
         const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [] } = facet;
         const { expanded, searchItem } = this.state;
@@ -276,8 +279,6 @@ export class FacetTermsList extends React.PureComponent {
         const title = facetTitle || fieldTitle || field;
 
         let indicator;
-        console.log('xxxx event tetiklendi context',context);
-
         // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
         if (isStatic || termsLen === 1){
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
@@ -314,7 +315,7 @@ export class FacetTermsList extends React.PureComponent {
                     </div>
                     { indicator }
                 </h5>
-                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn, searchItem }} onSearch={this.handleSearchInfacetItem} onToggleExpanded={this.handleExpandListToggleClick} />
+                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn, searchItem, schemas }} onSearchTerm={this.handleSearchTerm} onSearch={this.handleSearchInfacetItem} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
@@ -324,7 +325,11 @@ FacetTermsList.defaultProps = {
 };
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, facetClosing, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, onSearch, searchItem } = props;
+    const { facet, facetOpen, facetClosing, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, onSearch, searchItem, schemas ,onSearchTerm } = props;
+
+    const saytItem = facet.sayt_item_type;
+    let baseHref = '';
+    if (saytItem !== '' && saytItem) {baseHref ="/search/?type=" + saytItem;}
 
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
@@ -399,17 +404,27 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 </span>
             );
         }
+
+        const searchType = facet.search_type || '';
+        let facetSearch = null;
+        if (searchType === 'basic') {
+            facetSearch = (
+                <div style={{ 'padding': '10px', 'fontSize': '0.875rem' }}>
+                    <input className="form-control" autoComplete="off" type="search" placeholder="Search"
+                        name="q" onChange={onSearch} key="facet-search-input" />
+                </div>);
+        } else if (searchType === 'sayt') {
+            facetSearch = (
+                <div className="d-flex flex-wrap" style={{ 'padding': '10px', 'fontSize': '0.875rem' }}>
+                    <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSearchTerm} key={saytItem} />
+                </div>);
+        }
+
         return (
             <div {...commonProps}>
                 <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
                     <React.Fragment>
-                        <div className="form-inputs-container" style={{ 'padding': '10px' }}>
-                            <input className="form-control search-query" id="navbar-search" autoComplete="off" type="search" placeholder="Search"
-                                name="q" onChange={onSearch} key="search-input" />
-                        </div>
-                        {/* <div className="input-wrapper">
-                            <SubmissionViewSearchAsYouTypeAjax schema={{ linkTo: 'Lab' }} linkTo = "experiment_set" value={'value'} allowCustomValue={false} />
-                        </div> */}
+                        { facetSearch }
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
                         <div className="pt-08 pb-0">
                             <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
