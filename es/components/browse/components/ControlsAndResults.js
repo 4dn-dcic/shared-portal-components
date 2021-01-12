@@ -135,6 +135,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           href = _this$props2.href,
           requestedCompoundFilterSet = _this$props2.requestedCompoundFilterSet,
           onFilter = _this$props2.onFilter,
+          onFilterMultiple = _this$props2.onFilterMultiple,
           _this$props2$showClea = _this$props2.showClearFiltersButton,
           showClearFiltersButton = _this$props2$showClea === void 0 ? false : _this$props2$showClea,
           _this$props2$isOwnPag = _this$props2.isOwnPage,
@@ -190,6 +191,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         windowHeight: windowHeight,
         isContextLoading: isContextLoading,
         onFilter: onFilter,
+        onFilterMultiple: onFilterMultiple,
         onClearFilters: this.onClearFiltersClick,
         termTransformFxn: termTransformFxn,
         itemTypeForSchemas: searchItemType,
@@ -285,13 +287,16 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
 function DefaultFacetListComponent(props) {
   var facets = props.facets,
       isContextLoading = props.isContextLoading,
-      requestedCompoundFilterSet = props.requestedCompoundFilterSet;
+      requestedCompoundFilterSet = props.requestedCompoundFilterSet,
+      context = props.context;
+  var _ref2$Id = (context || {})["@id"],
+      ctxHref = _ref2$Id === void 0 ? null : _ref2$Id; // If we have an explicit "@id" (ctxHref) then we had a single filter block requested.
 
   if (Array.isArray(facets) && facets.length > 0) {
     return /*#__PURE__*/React.createElement(FacetList, props);
   }
 
-  if (requestedCompoundFilterSet) {
+  if (requestedCompoundFilterSet && !ctxHref) {
     // 'real' (multiple filter blocks) compound search used, FacetList UI cannot be used -
     return /*#__PURE__*/React.createElement("div", {
       className: "facets-container with-header-bg"

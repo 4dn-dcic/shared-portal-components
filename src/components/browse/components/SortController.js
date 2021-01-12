@@ -56,6 +56,12 @@ export class SortController extends React.PureComponent {
         };
     }
 
+    /**
+     * Handles both `href` and `requestedCompoundFilterSet`, will prioritize
+     * operating with just `href` if present and allowing VirtualHrefController
+     * to make into POST request if needed. Else will operate w. `requestedCompoundFilterSet`
+     * for compound filter-blocks requests.
+     */
     sortBy(key, reverse) {
         const {
             navigate: propNavigate,

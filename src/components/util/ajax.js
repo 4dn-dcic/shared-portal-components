@@ -262,6 +262,7 @@ export class FetchedItem extends React.Component {
         };
 
         const onFail = (res) => {
+            console.log("CONNECTION ERROR", res);
             Alerts.queue(Alerts.ConnectionError);
             onSuccess(null);
         };

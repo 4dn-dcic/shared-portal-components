@@ -1302,8 +1302,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         'setDetailHeight': this.setDetailHeight
       });
 
-      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'navigate', 'requestedCompoundFilterSet')), {}, {
+      var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet')), {}, {
         context: context,
+        navigate: navigate,
         rowHeight: rowHeight,
         openRowHeight: openRowHeight,
         results: results,
@@ -1322,6 +1323,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
 
       var headersRow = null;
       var shadowBorderLayer = null;
+      var childrenToShow = null;
 
       if (anyResults) {
         headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
@@ -1334,41 +1336,45 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           fixedPositionArrows: isOwnPage,
           getScrollContainer: this.getScrollContainer
         }));
-      }
+        childrenToShow = results.map(function (result, idx) {
+          var id = itemUtil.atId(result);
+          var detailOpen = openDetailPanes[id] || false; // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
+          // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
+          // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
 
-      var renderChildren = !anyResults ? /*#__PURE__*/React.createElement("div", {
-        className: "text-center py-5"
-      }, /*#__PURE__*/React.createElement("h3", {
-        className: "text-300"
-      }, "No Results")) : results.map(function (result, idx) {
-        var id = itemUtil.atId(result);
-        var detailOpen = openDetailPanes[id] || false; // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
-        // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
-        // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
+          return /*#__PURE__*/React.createElement(ResultRow, _extends({}, resultRowCommonProps, {
+            result: result,
+            id: id,
+            detailOpen: detailOpen
+          }, {
+            rowNumber: idx,
+            key: id,
+            tableContainerScrollLeft: detailOpen ? tableContainerScrollLeft : 0
+          }));
+        });
 
-        return /*#__PURE__*/React.createElement(ResultRow, _extends({}, resultRowCommonProps, {
-          result: result,
-          id: id,
-          detailOpen: detailOpen
-        }, {
-          rowNumber: idx,
-          key: id,
-          tableContainerScrollLeft: detailOpen ? tableContainerScrollLeft : 0
-        }));
-      });
-
-      if (anyResults && !canLoadMore) {
-        renderChildren.push( /*#__PURE__*/React.createElement("div", {
-          className: "fin search-result-row",
-          key: "fin-last-item",
-          style: {
-            // Account for vertical scrollbar decreasing width of container.
-            width: tableContainerWidth - (isOwnPage ? 0 : 30),
-            transform: vizStyle.translate3d(tableContainerScrollLeft)
-          }
-        }, /*#__PURE__*/React.createElement("div", {
-          className: "inner"
-        }, "- ", /*#__PURE__*/React.createElement("span", null, "fin"), " -")));
+        if (!canLoadMore) {
+          childrenToShow.push( /*#__PURE__*/React.createElement("div", {
+            className: "fin search-result-row",
+            key: "fin-last-item",
+            style: {
+              // Account for vertical scrollbar decreasing width of container.
+              "width": tableContainerWidth - (isOwnPage ? 0 : 30),
+              "transform": vizStyle.translate3d(tableContainerScrollLeft)
+            }
+          }, /*#__PURE__*/React.createElement("div", {
+            className: "inner"
+          }, "- ", /*#__PURE__*/React.createElement("span", null, "fin"), " -")));
+        }
+      } else {
+        childrenToShow =
+        /*#__PURE__*/
+        // If no context, we might not have loaded initial results yet if EmbeddedSearchView
+        React.createElement("div", {
+          className: "text-center py-5"
+        }, /*#__PURE__*/React.createElement("h3", {
+          className: "text-300"
+        }, context ? "No Results" : "Initializing..."));
       }
 
       return /*#__PURE__*/React.createElement("div", {
@@ -1377,7 +1383,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         "data-context-loading": isContextLoading
       }, /*#__PURE__*/React.createElement("div", {
         className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
-      }, headersRow, /*#__PURE__*/React.createElement(LoadMoreAsYouScroll, loadMoreAsYouScrollProps, renderChildren), shadowBorderLayer));
+      }, headersRow, /*#__PURE__*/React.createElement(LoadMoreAsYouScroll, loadMoreAsYouScrollProps, childrenToShow), shadowBorderLayer));
     }
   }]);
 

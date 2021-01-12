@@ -60,7 +60,7 @@ export function generateNextHref(currentHref, contextFilters, facet, term){
     if (willUnselect) {
         targetSearchHref = unselectHref;
     } else {
-        if (aggregation_type === "stats") {
+        if (aggregation_type === "stats" || aggregation_type === "range") {
             // Keep only 1, delete previous occurences
             // This is only for "range" facets (aggregation_type=stats) where want to ensure that have multiple "date_created.to" values in URL for example.
             const parts = url.parse(currentHref, true);
@@ -137,6 +137,7 @@ export class FacetList extends React.PureComponent {
         'className' : PropTypes.string,     // Extra class
         'href' : PropTypes.string,
         'onFilter' : PropTypes.func,        // What happens when Term is clicked.
+        'onFilterMultiple': PropTypes.func, // Same as onFilter, but processes multiple filter changes in one go
         'separateSingleTermFacets' : PropTypes.bool,
         'maxBodyHeight' : PropTypes.number
     };
@@ -153,6 +154,18 @@ export class FacetList extends React.PureComponent {
             if (typeof callback === 'function'){
                 setTimeout(callback, 1000);
             }
+        },
+        'onFilterMultiple' : function(filterObjArr) {
+            console.log('FacetList: props.onFilterMultiple(');
+            filterObjArr.forEach((filterObj, i) => {
+                const { facet, term, callback } = filterObj;
+                console.log('Item #' + i + ": (" + facet.field, ", " + term.key + ', callback)');
+                console.log(facet, term);
+                if (i === 0 && typeof callback === 'function') {
+                    setTimeout(callback, 1000);
+                }
+            });
+            console.log(")");
         },
         'onClearFilters'    : function(e, callback){
             // Clear Redux filters, or go base search url.
@@ -213,8 +226,12 @@ export class FacetList extends React.PureComponent {
         let facetIndexWherePastXTerms;
         let currTermCount = 0;
         for (facetIndexWherePastXTerms = 0; facetIndexWherePastXTerms < facetLen; facetIndexWherePastXTerms++) {
-            if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") { // Range Facet (shows 2 'terms' or fields)
+            if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") {
+                // Range facet with stats aggregation Facet (shows 2 'terms' or fields)
                 currTermCount += 2;
+            } else if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "range") {
+                // Range facet with range list (see comment for Terms in else)
+                currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.ranges.length, persistentCount);
             } else {
                 // Terms; Take into account 'view more' button
                 // Slightly deprecated as doesn;t take into account 'mergeTerms'.
@@ -259,13 +276,13 @@ export class FacetList extends React.PureComponent {
                 aggregation_type = "terms"
             } = facet;
 
-            if (aggregation_type === "stats") {
+            if (aggregation_type === "stats" || aggregation_type === "range") {
                 const { fromVal = null, toVal = null } = rangeValuesByField[facetField] || {};
                 const anySelected = fromVal !== null || toVal !== null;
                 const isStatic = facet.min === facet.max;
                 // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
                 // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
-                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet }} key={`${facetField}:${fromVal}:${toVal}`} anyTermsSelected={anySelected}  />;
+                return <RangeFacet {...props} {...{ isStatic, grouping, fromVal, toVal, facet }} key={facetField} anyTermsSelected={anySelected}  />;
             }
 
             if (aggregation_type === "terms"){
@@ -374,9 +391,32 @@ export class FacetList extends React.PureComponent {
         });
     }
 
+    /**
+     * Used by this.onFilterExtended and this.onFilterMultipleExtended to send google analytics on a selected facet before filtering
+     */
+    static sendAnalyticsPreFilter(facet, term, contextFilters) {
+        const { field } = facet;
+        const { key: termKey } = term;
+
+        const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+        const isUnselecting = !!(statusAndHref.href);
+
+        return analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
+            field,
+            'term'              : termKey,
+            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
+            'currentFilters'    : analytics.getStringifiedCurrentFilters(
+                contextFiltersToExpSetFilters(contextFilters || null)
+            ), // 'Existing' filters, or filters at time of action, go here.
+        });
+    }
+
     constructor(props){
         super(props);
+
+        console.log("FacetList props,", props);
         this.onFilterExtended = this.onFilterExtended.bind(this);
+        this.onFilterMultipleExtended = this.onFilterMultipleExtended.bind(this);
         this.getTermStatus = this.getTermStatus.bind(this);
         this.handleToggleFacetOpen = this.handleToggleFacetOpen.bind(this);
         this.handleCollapseAllFacets = this.handleCollapseAllFacets.bind(this);
@@ -482,22 +522,19 @@ export class FacetList extends React.PureComponent {
      */
     onFilterExtended(facet, term, callback){
         const { onFilter, context: { filters: contextFilters } } = this.props;
-        const { field } = facet;
-        const { key: termKey } = term;
+        FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
+        return onFilter(...arguments);
+    }
 
-        const statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
-        const isUnselecting = !!(statusAndHref.href);
+    onFilterMultipleExtended(filterObjArray) {
+        const { onFilterMultiple, context: { filters: contextFilters } } = this.props;
 
-        analytics.event('FacetList', (isUnselecting ? 'Unset Filter' : 'Set Filter'), {
-            field,
-            'term'              : termKey,
-            'eventLabel'        : analytics.eventLabelFromChartNode({ field, 'term' : termKey }),
-            'currentFilters'    : analytics.getStringifiedCurrentFilters(
-                contextFiltersToExpSetFilters(contextFilters || null)
-            ), // 'Existing' filters, or filters at time of action, go here.
+        filterObjArray.forEach((filterObj) => {
+            const { facet, term } = filterObj;
+            FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
         });
 
-        return onFilter(...arguments);
+        return onFilterMultiple(...arguments);
     }
 
     getTermStatus(term, facet){
@@ -559,6 +596,7 @@ export class FacetList extends React.PureComponent {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
             openPopover,
             onFilter:       this.onFilterExtended,
+            onFilterMultiple: this.onFilterMultipleExtended,
             getTermStatus:  this.getTermStatus,
             onToggleOpen:   this.handleToggleFacetOpen,
             setOpenPopover: this.setOpenPopover,
