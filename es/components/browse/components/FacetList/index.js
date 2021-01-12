@@ -622,8 +622,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       filterObjArray.forEach(function (filterObj) {
         var facet = filterObj.facet,
             term = filterObj.term;
-        var lol = FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
-        console.log("results from sendAnalytics", lol);
+        FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
       });
       return onFilterMultiple.apply(void 0, arguments);
     }
