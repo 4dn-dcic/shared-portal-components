@@ -909,7 +909,9 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
           facet = _this$props10.facet,
           termTransformFxn = _this$props10.termTransformFxn;
       var facetField = facet.field,
-          facetTitle = facet.title;
+          facetTitle = facet.title,
+          _facet$abbreviation = facet.abbreviation,
+          abbrev = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
       var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
       var savedToTitle = termTransformFxn(facetField, savedToVal, true);
 
@@ -936,7 +938,7 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
           }
         }, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-less-than-equal icon-xs px-1"
-        }), " ", facetTitle, " ", /*#__PURE__*/React.createElement("i", {
+        }), " ", abbrev || facetTitle, " ", /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-less-than-equal icon-xs px-1"
         }), " ", savedToTitle))));
       } else {
@@ -957,11 +959,11 @@ var RangeClear = /*#__PURE__*/function (_React$PureComponent3) {
             textAlign: "center",
             marginLeft: "-5px"
           }
-        }, savedToVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, facetTitle, " ", /*#__PURE__*/React.createElement("i", {
+        }, savedToVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, abbrev || facetTitle, " ", /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-less-than-equal icon-xs px-1"
         }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-less-than-equal icon-xs px-1"
-        }), " ", facetTitle) : null))));
+        }), " ", abbrev || facetTitle) : null))));
       }
     }
   }]);

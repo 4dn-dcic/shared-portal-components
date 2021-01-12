@@ -671,7 +671,8 @@ class RangeClear extends React.PureComponent {
         } = this.props;
         const {
             field: facetField,
-            title: facetTitle
+            title: facetTitle,
+            abbreviation: abbrev = null
         } = facet;
 
         const savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
@@ -690,7 +691,7 @@ class RangeClear extends React.PureComponent {
                                 <i className="icon icon-fw fas icon-minus-circle"/>
                             </span>
                             <span className="facet-item" style={{ textAlign: "center", marginLeft: "-5px" }}>
-                                {savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {facetTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}
+                                {savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbrev || facetTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}
                             </span>
                         </a>
                     </li>
@@ -705,8 +706,8 @@ class RangeClear extends React.PureComponent {
                                 <i className="icon icon-fw fas icon-minus-circle"/>
                             </span>
                             <span className="facet-item" style={{ textAlign: "center", marginLeft: "-5px" }}>
-                                { savedToVal !== null ? <>{facetTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}</> : null }
-                                { savedFromVal !== null ? <>{savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {facetTitle}</>: null }
+                                { savedToVal !== null ? <>{abbrev || facetTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}</> : null }
+                                { savedFromVal !== null ? <>{savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbrev || facetTitle}</>: null }
                             </span>
                         </a>
                     </li>
