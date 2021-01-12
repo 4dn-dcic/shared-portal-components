@@ -197,7 +197,7 @@ export class Term extends React.PureComponent {
         }
         else {
             return (
-                (searchType !== 'saytWithoutTermList' ? (
+                (searchType !== 'sayt_without_terms' ? (
                     <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
                         <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                             <span className="facet-selector">{icon}</span>
@@ -412,7 +412,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                     <input className="form-control" autoComplete="off" type="search" placeholder="Search"
                         name="q" onChange={onSearch} key="facet-search-input" />
                 </div>);
-        } else if ((searchType === 'sayt')||(searchType === 'saytWithoutTermList')) {
+        } else if ((searchType === 'sayt')||(searchType === 'sayt_without_terms')) {
             const itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
             const baseHref = "/search/?type=" + itemType;
             facetSearch = (
@@ -427,7 +427,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                     <React.Fragment>
                         {facetSearch}
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
-                        {(searchType !== 'saytWithoutTermList' ? (
+                        {(searchType !== 'sayt_without_terms' ? (
                             <div className="pt-08 pb-0">
 
                                 <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>

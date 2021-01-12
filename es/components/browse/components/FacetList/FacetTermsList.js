@@ -283,7 +283,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           className: "facet-count"
         }, count))) : null;
       } else {
-        return searchType !== 'saytWithoutTermList' ? /*#__PURE__*/React.createElement("li", {
+        return searchType !== 'sayt_without_terms' ? /*#__PURE__*/React.createElement("li", {
           className: "facet-list-element " + statusClassName,
           key: term.key,
           "data-key": term.key
@@ -628,7 +628,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         onChange: onSearch,
         key: "facet-search-input"
       }));
-    } else if (searchType === 'sayt' || searchType === 'saytWithoutTermList') {
+    } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
       var itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
       facetSearch = /*#__PURE__*/React.createElement("div", {
         className: "d-flex flex-wrap",
@@ -653,7 +653,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         open: expanded,
         persistent: persistentTerms,
         collapsible: collapsibleTerms
-      }), searchType !== 'saytWithoutTermList' ? /*#__PURE__*/React.createElement("div", {
+      }), searchType !== 'sayt_without_terms' ? /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
       }, /*#__PURE__*/React.createElement("div", {
         className: "view-more-button",
