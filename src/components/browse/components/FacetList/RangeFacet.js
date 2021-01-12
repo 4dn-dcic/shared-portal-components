@@ -676,7 +676,7 @@ const RangeClear = React.memo(function RangeClear(props){
         abbreviation: facetAbbreviation = null
     } = facet;
 
-    const { abbreviation: fieldAbbreviation } = fieldSchema;
+    const { abbreviation: fieldAbbreviation = null } = fieldSchema || {};
     const abbreviatedTitle = facetAbbreviation || fieldAbbreviation || facetTitle;
 
     const savedFromTitle = termTransformFxn(facetField, savedFromVal, true);

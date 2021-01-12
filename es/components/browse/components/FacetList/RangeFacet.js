@@ -900,7 +900,8 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       facetTitle = facet.title,
       _facet$abbreviation = facet.abbreviation,
       facetAbbreviation = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
-  var fieldAbbreviation = fieldSchema.abbreviation;
+  var _ref5$abbreviation = (fieldSchema || {}).abbreviation,
+      fieldAbbreviation = _ref5$abbreviation === void 0 ? null : _ref5$abbreviation;
   var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || facetTitle;
   var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
   var savedToTitle = termTransformFxn(facetField, savedToVal, true);
