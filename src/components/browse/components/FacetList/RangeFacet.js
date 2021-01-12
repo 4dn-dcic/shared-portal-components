@@ -429,7 +429,7 @@ export class RangeFacet extends React.PureComponent {
 
                 <PartialList className="inner-panel" open={facetOpen}
                     persistent={[
-                        <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet }} resetAll={this.resetToAndFrom} termTransformFxn={this.termTitle}
+                        <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet, fieldSchema }} resetAll={this.resetToAndFrom} termTransformFxn={this.termTitle}
                             resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} key={0} />
                     ]}
                     collapsible={[
@@ -658,64 +658,73 @@ RangeTerm.propTypes = {
     'onClick'           : PropTypes.func.isRequired
 };
 
-class RangeClear extends React.PureComponent {
-    render() {
-        const {
-            savedFromVal,
-            savedToVal,
-            resetTo,
-            resetFrom,
-            resetAll,
-            facet,
-            termTransformFxn
-        } = this.props;
-        const {
-            field: facetField,
-            title: facetTitle,
-            abbreviation: abbrev = null
-        } = facet;
+const RangeClear = React.memo(function RangeClear(props){
+    const {
+        savedFromVal,
+        savedToVal,
+        resetTo,
+        resetFrom,
+        resetAll,
+        facet,
+        termTransformFxn,
+        fieldSchema = null
+    } = props;
 
-        const savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
-        const savedToTitle = termTransformFxn(facetField, savedToVal, true);
+    const {
+        field: facetField,
+        title: facetTitle,
+        abbreviation: facetAbbreviation = null
+    } = facet;
 
-        if (savedFromVal === null && savedToVal === null) {
-            return null;
-        } else if (savedFromVal !== null && savedToVal !== null) { // To and From present
-            const invalidRange = savedToVal < savedFromVal;
-            const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
-            return (
-                <div className="range-clear">
-                    <li className="selected facet-list-element clickable">
-                        <a onClick={resetAll}>
-                            <span className="facet-selector">
-                                <i className="icon icon-fw fas icon-minus-circle"/>
-                            </span>
-                            <span className="facet-item" style={{ textAlign: "center", marginLeft: "-5px" }}>
-                                {savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbrev || facetTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}
-                            </span>
-                        </a>
-                    </li>
-                </div>
-            );
-        } else { // Only To or From present
-            return (
-                <div className="range-clear">
-                    <li className="selected facet-list-element clickable">
-                        <a onClick={resetTo === null ? resetFrom : resetTo}>
-                            <span className="facet-selector">
-                                <i className="icon icon-fw fas icon-minus-circle"/>
-                            </span>
-                            <span className="facet-item" style={{ textAlign: "center", marginLeft: "-5px" }}>
-                                { savedToVal !== null ? <>{abbrev || facetTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}</> : null }
-                                { savedFromVal !== null ? <>{savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbrev || facetTitle}</>: null }
-                            </span>
-                        </a>
-                    </li>
-                </div>
-            );
-        }
+    const { abbreviation: fieldAbbreviation } = fieldSchema;
+    const abbreviatedTitle = facetAbbreviation || fieldAbbreviation || facetTitle;
+
+    const savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
+    const savedToTitle = termTransformFxn(facetField, savedToVal, true);
+
+    if (savedFromVal === null && savedToVal === null) {
+        return null;
+    } else if (savedFromVal !== null && savedToVal !== null) { // To and From present
+        // Commented out b.c. not used atm:
+        // const invalidRange = savedToVal < savedFromVal;
+        // const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
+        return (
+            <div className="range-clear">
+                <li className="selected facet-list-element clickable">
+                    <a onClick={resetAll}>
+                        <span className="facet-selector">
+                            <i className="icon icon-fw fas icon-minus-circle"/>
+                        </span>
+                        <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
+                            {savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}
+                        </span>
+                    </a>
+                </li>
+            </div>
+        );
+    } else { // Only To or From present
+        return (
+            <div className="range-clear">
+                <li className="selected facet-list-element clickable">
+                    <a onClick={resetTo === null ? resetFrom : resetTo}>
+                        <span className="facet-selector">
+                            <i className="icon icon-fw fas icon-minus-circle"/>
+                        </span>
+                        <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
+                            { savedToVal !== null ?
+                                <React.Fragment>{abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}</React.Fragment>
+                                : null }
+                            { savedFromVal !== null ?
+                                <React.Fragment>{savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle}</React.Fragment>
+                                : null }
+                        </span>
+                    </a>
+                </li>
+            </div>
+        );
     }
-}
+});
+
 
 class RangeDropdown extends React.PureComponent {
 
@@ -808,7 +817,7 @@ class RangeDropdown extends React.PureComponent {
         } = facet;
 
         const emptyValue = <span className="mx-1">-</span>;
-        let showTitle = (
+        const showTitle = (
             <div className="d-flex">
                 <div className="col px-0">{ value !== null ? title : emptyValue}</div>
             </div>
