@@ -197,7 +197,7 @@ export class Term extends React.PureComponent {
         }
         else {
             return (
-                (searchType !== 'sayt_without_terms' ? (
+                (searchType !== 'sayt_without_terms' || status !== 'none'? (
                     <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
                         <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                             <span className="facet-selector">{icon}</span>

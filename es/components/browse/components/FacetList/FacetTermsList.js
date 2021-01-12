@@ -283,7 +283,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           className: "facet-count"
         }, count))) : null;
       } else {
-        return searchType !== 'sayt_without_terms' ? /*#__PURE__*/React.createElement("li", {
+        return searchType !== 'sayt_without_terms' || status !== 'none' ? /*#__PURE__*/React.createElement("li", {
           className: "facet-list-element " + statusClassName,
           key: term.key,
           "data-key": term.key
