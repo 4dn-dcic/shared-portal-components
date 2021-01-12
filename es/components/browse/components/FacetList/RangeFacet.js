@@ -820,7 +820,7 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
           label = range.label;
       var filtering = this.state.filtering;
       var icon = null;
-      var title = (typeof from !== 'undefined' ? from : '<= ') + (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') + (typeof to !== 'undefined' ? to : '+ ');
+      var title = (typeof from !== 'undefined' ? from : "≤ ") + (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') + (typeof to !== 'undefined' ? to : '+ ');
 
       if (filtering) {
         icon = /*#__PURE__*/React.createElement("i", {

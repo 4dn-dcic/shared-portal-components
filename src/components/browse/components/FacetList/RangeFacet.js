@@ -607,7 +607,7 @@ export class RangeTerm extends React.PureComponent {
         let icon = null;
 
         let title = (
-            (typeof from !== 'undefined' ? from : '<= ') +
+            (typeof from !== 'undefined' ? from : "≤ ") +
             (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') +
             (typeof to !== 'undefined' ? to : '+ ')
         );
