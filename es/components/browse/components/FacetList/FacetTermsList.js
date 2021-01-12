@@ -512,14 +512,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       searchItem = props.searchItem,
       schemas = props.schemas,
       onSearchTerm = props.onSearchTerm;
-  var saytItem = facet.sayt_item_type;
-  var baseHref = '';
-
-  if (saytItem !== '' && saytItem) {
-    baseHref = "/search/?type=" + saytItem;
-  }
   /** Create term components and sort by status (selected->omitted->unselected) */
-
 
   var _useMemo = useMemo(function () {
     var _segmentComponentsByS = segmentComponentsByStatus(terms.map(function (term) {
@@ -634,6 +627,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         key: "facet-search-input"
       }));
     } else if (searchType === 'sayt') {
+      var itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
       facetSearch = /*#__PURE__*/React.createElement("div", {
         className: "d-flex flex-wrap",
         style: {
@@ -641,10 +635,10 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           'fontSize': '0.875rem'
         }
       }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
-        baseHref: baseHref,
+        baseHref: "/search/?type=" + itemType,
         showTips: true,
         onChange: onSearchTerm,
-        key: saytItem
+        key: itemType
       }));
     }
 

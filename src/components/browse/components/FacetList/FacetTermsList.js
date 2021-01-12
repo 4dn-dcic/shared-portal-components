@@ -329,10 +329,6 @@ FacetTermsList.defaultProps = {
 const ListOfTerms = React.memo(function ListOfTerms(props){
     const { facet, facetOpen, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, onSearch, searchItem, schemas ,onSearchTerm } = props;
 
-    const saytItem = facet.sayt_item_type;
-    let baseHref = '';
-    if (saytItem !== '' && saytItem) {baseHref ="/search/?type=" + saytItem;}
-
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
         termComponents, activeTermComponents, unselectedTermComponents,
@@ -416,9 +412,11 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                         name="q" onChange={onSearch} key="facet-search-input" />
                 </div>);
         } else if (searchType === 'sayt') {
+            const itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
+            const baseHref = "/search/?type=" + itemType;
             facetSearch = (
                 <div className="d-flex flex-wrap" style={{ 'padding': '10px', 'fontSize': '0.875rem' }}>
-                    <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSearchTerm} key={saytItem} />
+                    <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSearchTerm} key={itemType} />
                 </div>);
         }
 
