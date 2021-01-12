@@ -346,7 +346,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             selected: selectedTermComponents    = [],
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
-        } = segmentTermComponentsByStatus(terms.map(function(term){
+        } = segmentComponentsByStatus(terms.map(function(term){
             return <Term {...{ facet, term, termTransformFxn, searchItem }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
         const selectedLen = selectedTermComponents.length;

@@ -522,7 +522,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
 
 
   var _useMemo = useMemo(function () {
-    var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
+    var _segmentComponentsByS = segmentComponentsByStatus(terms.map(function (term) {
       return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
@@ -534,12 +534,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         status: getTermStatus(term, facet)
       }));
     })),
-        _segmentTermComponent2 = _segmentTermComponent.selected,
-        selectedTermComponents = _segmentTermComponent2 === void 0 ? [] : _segmentTermComponent2,
-        _segmentTermComponent3 = _segmentTermComponent.omitted,
-        omittedTermComponents = _segmentTermComponent3 === void 0 ? [] : _segmentTermComponent3,
-        _segmentTermComponent4 = _segmentTermComponent.none,
-        unselectedTermComponents = _segmentTermComponent4 === void 0 ? [] : _segmentTermComponent4;
+        _segmentComponentsByS2 = _segmentComponentsByS.selected,
+        selectedTermComponents = _segmentComponentsByS2 === void 0 ? [] : _segmentComponentsByS2,
+        _segmentComponentsByS3 = _segmentComponentsByS.omitted,
+        omittedTermComponents = _segmentComponentsByS3 === void 0 ? [] : _segmentComponentsByS3,
+        _segmentComponentsByS4 = _segmentComponentsByS.none,
+        unselectedTermComponents = _segmentComponentsByS4 === void 0 ? [] : _segmentComponentsByS4;
 
     var selectedLen = selectedTermComponents.length;
     var omittedLen = omittedTermComponents.length;
