@@ -57,7 +57,7 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
           oldOptions = _prevProps$options === void 0 ? [] : _prevProps$options;
       var _this$props$options = this.props.options,
           newOptions = _this$props$options === void 0 ? [] : _this$props$options;
-      var refreshKey = this.state.refreshKey;
+      this.state.refreshKey;
 
       if (oldOptions.length !== 0 && oldOptions.length !== newOptions.length) {
         // TODO: calling setState in componentDidUpdate toggles SAYTAjax dropdown as closed
@@ -68,8 +68,12 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         // if dropping "up" to avoid collision with bottom of window)
         // TODO: add some more checks to make this more specific to ONLY cases
         // where the drop no longer aligns w/button
-        this.setState({
-          refreshKey: refreshKey + 1
+        this.setState(function (existingState) {
+          var refreshKey = existingState.refreshKey; // todo: maybe read existingProps here as well and then cancel-out (return null) if no update needed.
+
+          return {
+            "refreshKey": refreshKey + 1
+          };
         });
       }
     }

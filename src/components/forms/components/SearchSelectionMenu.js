@@ -39,7 +39,12 @@ export class SearchSelectionMenu extends React.PureComponent {
             // if dropping "up" to avoid collision with bottom of window)
             // TODO: add some more checks to make this more specific to ONLY cases
             // where the drop no longer aligns w/button
-            this.setState({ refreshKey: refreshKey + 1 });
+
+            this.setState(function (existingState, existingProps) {
+                const { refreshKey } = existingState;
+                // todo: maybe read existingProps here as well and then cancel-out (return null) if no update needed.
+                return { "refreshKey": refreshKey + 1 };
+            });
         }
     }
 
