@@ -600,7 +600,40 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     "data-open": facetOpen,
     "className": "facet-list",
     "key": "facetlist"
-  };
+  }; // show simple text input for basic search (search within returned values)
+  // or show SAYT control if item search is available
+
+  var facetSearch = null;
+
+  if (searchType === 'basic') {
+    facetSearch = /*#__PURE__*/React.createElement("div", {
+      className: "text-small",
+      style: {
+        'padding': '10px'
+      }
+    }, /*#__PURE__*/React.createElement("input", {
+      className: "form-control",
+      autoComplete: "off",
+      type: "search",
+      placeholder: "Search",
+      name: "q",
+      onChange: onBasicTermSearch,
+      key: "facet-search-input"
+    }));
+  } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
+    var itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
+    facetSearch = /*#__PURE__*/React.createElement("div", {
+      className: "d-flex flex-wrap text-small",
+      style: {
+        'padding': '10px'
+      }
+    }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
+      baseHref: "/search/?type=" + itemType,
+      showTips: true,
+      onChange: onSaytTermSearch,
+      key: itemType
+    }));
+  }
 
   if (Array.isArray(collapsibleTerms)) {
     var expandButtonTitle;
@@ -615,41 +648,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/React.createElement("span", {
         className: "pull-right"
       }, collapsibleTermsItemCount));
-    } // show simple text input for basic search (search within returned values)
-    // or show SAYT control if item search is available
-
-
-    var facetSearch = null;
-
-    if (searchType === 'basic') {
-      facetSearch = /*#__PURE__*/React.createElement("div", {
-        style: {
-          'padding': '10px',
-          'fontSize': '0.875rem'
-        }
-      }, /*#__PURE__*/React.createElement("input", {
-        className: "form-control",
-        autoComplete: "off",
-        type: "search",
-        placeholder: "Search",
-        name: "q",
-        onChange: onBasicTermSearch,
-        key: "facet-search-input"
-      }));
-    } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-      var itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
-      facetSearch = /*#__PURE__*/React.createElement("div", {
-        className: "d-flex flex-wrap",
-        style: {
-          'padding': '10px',
-          'fontSize': '0.875rem'
-        }
-      }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
-        baseHref: "/search/?type=" + itemType,
-        showTips: true,
-        onChange: onSaytTermSearch,
-        key: itemType
-      }));
     }
 
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
@@ -673,7 +671,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
-      collapsible: unselectedTermComponents
+      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, facetSearch, unselectedTermComponents)
     }));
   }
 });

@@ -401,7 +401,24 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         "key" : "facetlist"
     };
 
-    if (Array.isArray(collapsibleTerms)){
+    // show simple text input for basic search (search within returned values)
+    // or show SAYT control if item search is available
+    let facetSearch = null;
+    if (searchType === 'basic') {
+        facetSearch = (
+            <div className="text-small" style={{ 'padding': '10px' }}>
+                <input className="form-control" autoComplete="off" type="search" placeholder="Search"
+                    name="q" onChange={onBasicTermSearch} key="facet-search-input" />
+            </div>);
+    } else if ((searchType === 'sayt') || (searchType === 'sayt_without_terms')) {
+        const itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
+        const baseHref = "/search/?type=" + itemType;
+        facetSearch = (
+            <div className="d-flex flex-wrap text-small" style={{ 'padding': '10px' }}>
+                <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
+            </div>);
+    }
+    if (Array.isArray(collapsibleTerms)) {
 
         let expandButtonTitle;
 
@@ -420,23 +437,6 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             );
         }
 
-        // show simple text input for basic search (search within returned values)
-        // or show SAYT control if item search is available
-        let facetSearch = null;
-        if (searchType === 'basic') {
-            facetSearch = (
-                <div style={{ 'padding': '10px', 'fontSize': '0.875rem' }}>
-                    <input className="form-control" autoComplete="off" type="search" placeholder="Search"
-                        name="q" onChange={onBasicTermSearch} key="facet-search-input" />
-                </div>);
-        } else if ((searchType === 'sayt') || (searchType === 'sayt_without_terms')) {
-            const itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
-            const baseHref = "/search/?type=" + itemType;
-            facetSearch = (
-                <div className="d-flex flex-wrap" style={{ 'padding': '10px', 'fontSize': '0.875rem' }}>
-                    <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
-                </div>);
-        }
 
         return (
             <div {...commonProps}>
@@ -455,7 +455,12 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     } else {
         return (
             <div {...commonProps}>
-                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={unselectedTermComponents} />
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
+                    <React.Fragment>
+                        {facetSearch}
+                        {unselectedTermComponents}
+                    </React.Fragment>
+                } />
             </div>
         );
     }
