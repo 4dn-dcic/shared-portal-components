@@ -170,7 +170,8 @@ export class Term extends React.PureComponent {
         if (searchText && typeof searchText === 'string' && searchText.length > 0) {
             const lcSearchText = searchText.toLocaleLowerCase();
             filteredTerms = _.filter(facetTerms, function (term) {
-                return term.key && typeof term.key === 'string' && term.key.toLocaleLowerCase().includes(lcSearchText);
+                const { key = '' } = term || {};
+                return typeof key === 'string' && key.length > 0 && term.key.toLocaleLowerCase().includes(lcSearchText);
             });
         }
 
@@ -406,20 +407,21 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     let facetSearch = null;
     if (searchType === 'basic') {
         facetSearch = (
-            <div className="text-small" style={{ 'padding': '10px' }}>
+            <div className="text-small p-2">
                 <input className="form-control" autoComplete="off" type="search" placeholder="Search"
                     name="q" onChange={onBasicTermSearch} key="facet-search-input" />
             </div>);
     } else if ((searchType === 'sayt') || (searchType === 'sayt_without_terms')) {
-        const itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
+        let { sayt_item_type: itemType = '' } = facet || {};
+        itemType = typeof itemType === 'string' && (itemType.length > 0) ? itemType : 'Item';
         const baseHref = "/search/?type=" + itemType;
         facetSearch = (
-            <div className="d-flex flex-wrap text-small" style={{ 'padding': '10px' }}>
+            <div className="d-flex flex-wrap text-small p-2">
                 <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
             </div>);
     }
-    if (Array.isArray(collapsibleTerms)) {
 
+    if (Array.isArray(collapsibleTerms)) {
         let expandButtonTitle;
 
         if (expanded){
@@ -436,7 +438,6 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 </span>
             );
         }
-
 
         return (
             <div {...commonProps}>

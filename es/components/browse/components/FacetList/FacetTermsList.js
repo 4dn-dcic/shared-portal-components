@@ -304,7 +304,9 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       if (searchText && typeof searchText === 'string' && searchText.length > 0) {
         var lcSearchText = searchText.toLocaleLowerCase();
         filteredTerms = _.filter(facetTerms, function (term) {
-          return term.key && typeof term.key === 'string' && term.key.toLocaleLowerCase().includes(lcSearchText);
+          var _ref3$key = (term || {}).key,
+              key = _ref3$key === void 0 ? '' : _ref3$key;
+          return typeof key === 'string' && key.length > 0 && term.key.toLocaleLowerCase().includes(lcSearchText);
         });
       }
 
@@ -364,8 +366,8 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref3) {
-        var expanded = _ref3.expanded;
+      this.setState(function (_ref4) {
+        var expanded = _ref4.expanded;
         return {
           'expanded': !expanded
         };
@@ -421,9 +423,9 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
 
-      var _ref4 = fieldSchema || {},
-          fieldTitle = _ref4.title,
-          fieldSchemaDescription = _ref4.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
+      var _ref5 = fieldSchema || {},
+          fieldTitle = _ref5.title,
+          fieldSchemaDescription = _ref5.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
 
 
       var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
@@ -607,10 +609,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
 
   if (searchType === 'basic') {
     facetSearch = /*#__PURE__*/React.createElement("div", {
-      className: "text-small",
-      style: {
-        'padding': '10px'
-      }
+      className: "text-small p-2"
     }, /*#__PURE__*/React.createElement("input", {
       className: "form-control",
       autoComplete: "off",
@@ -621,14 +620,14 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       key: "facet-search-input"
     }));
   } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-    var itemType = facet.sayt_item_type && typeof facet.sayt_item_type === 'string' && facet.sayt_item_type !== '' ? facet.sayt_item_type : 'Item';
+    var _ref6$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref6$sayt_item_type === void 0 ? '' : _ref6$sayt_item_type;
+    itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
+    var baseHref = "/search/?type=" + itemType;
     facetSearch = /*#__PURE__*/React.createElement("div", {
-      className: "d-flex flex-wrap text-small",
-      style: {
-        'padding': '10px'
-      }
+      className: "d-flex flex-wrap text-small p-2"
     }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
-      baseHref: "/search/?type=" + itemType,
+      baseHref: baseHref,
       showTips: true,
       onChange: onSaytTermSearch,
       key: itemType
@@ -675,21 +674,21 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     }));
   }
 });
-export var CountIndicator = /*#__PURE__*/React.memo(function (_ref5) {
-  var _ref5$count = _ref5.count,
-      count = _ref5$count === void 0 ? 1 : _ref5$count,
-      _ref5$countActive = _ref5.countActive,
-      countActive = _ref5$countActive === void 0 ? 0 : _ref5$countActive,
-      _ref5$height = _ref5.height,
-      height = _ref5$height === void 0 ? 16 : _ref5$height,
-      _ref5$width = _ref5.width,
-      width = _ref5$width === void 0 ? 40 : _ref5$width;
+export var CountIndicator = /*#__PURE__*/React.memo(function (_ref7) {
+  var _ref7$count = _ref7.count,
+      count = _ref7$count === void 0 ? 1 : _ref7$count,
+      _ref7$countActive = _ref7.countActive,
+      countActive = _ref7$countActive === void 0 ? 0 : _ref7$countActive,
+      _ref7$height = _ref7.height,
+      height = _ref7$height === void 0 ? 16 : _ref7$height,
+      _ref7$width = _ref7.width,
+      width = _ref7$width === void 0 ? 40 : _ref7$width;
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref6, idx) {
-    var _ref7 = _slicedToArray(_ref6, 2),
-        x = _ref7[0],
-        y = _ref7[1];
+  var dots = dotCoords.map(function (_ref8, idx) {
+    var _ref9 = _slicedToArray(_ref8, 2),
+        x = _ref9[0],
+        y = _ref9[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 
