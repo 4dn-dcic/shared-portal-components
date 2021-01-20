@@ -171,6 +171,9 @@ $facetlist-term-block-height: default !default;
         &.range-facet {
 
             > .inner-panel.expandable-list {
+                &.open {
+                    padding-bottom: 5px;
+                }
                 margin-bottom: 0;
 
                 button.range-clear.btn {
@@ -182,24 +185,21 @@ $facetlist-term-block-height: default !default;
                 .range-drop-group {
                     /* allows for side by side display without interfering with open/closed state */
                     display: flex;
-                    justify-content: center;
-                    background-color: #eeeeee;
+                    text-align-last: center;
                     
                     div.range-drop {
 
-                        padding-top: 5px;
-                        padding-bottom: 5px;
                         display: flex;
                         align-items: center;
+                        width: 130px;
+
+                        label {
+                            display: inline-block;
+                        }
 
                         .range-dropdown-container {
-                            padding-left: 5px;
-                            padding-right: 10px;
                             > button {
-                                &.btn-warning {
-                                    color: #ffffff;
-                                }
-                                width: 100%;
+                                width: 90px;
                                 text-align: right;
                                 padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
 
