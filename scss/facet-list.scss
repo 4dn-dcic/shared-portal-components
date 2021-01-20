@@ -169,10 +169,15 @@ $facetlist-term-block-height: default !default;
         }
 
         &.range-facet {
+            &.closed {
+                .range-clear {
+                    padding: 10px 0;
+                }
+            }
 
             > .inner-panel.expandable-list {
                 &.open {
-                    padding-bottom: 5px;
+                    padding: 5px 0;
                 }
                 margin-bottom: 0;
 
