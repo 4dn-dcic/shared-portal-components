@@ -186,6 +186,7 @@ $facetlist-term-block-height: default !default;
                     /* allows for side by side display without interfering with open/closed state */
                     display: flex;
                     text-align-last: center;
+                    justify-content: space-between;
                     
                     div.range-drop {
 
