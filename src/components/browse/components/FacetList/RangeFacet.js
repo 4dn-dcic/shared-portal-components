@@ -440,7 +440,7 @@ export class RangeFacet extends React.PureComponent {
                                 </label>
                                 <RangeDropdown
                                     title={fromTitle} value={fromVal} savedValue={savedFromVal}
-                                    max={toVal || null} increments={fromIncrements} variant={fromVariant + " btn-xs"}
+                                    max={toVal || null} increments={fromIncrements} variant={fromVariant}
                                     onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
                                     facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
                                 {/*
@@ -457,7 +457,7 @@ export class RangeFacet extends React.PureComponent {
                                 <RangeDropdown
                                     title={toTitle} value={toVal} savedValue={savedToVal}
                                     min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
-                                    variant={toVariant + " btn-xs"} onSelect={this.setTo} update={this.performUpdateTo}
+                                    variant={toVariant} onSelect={this.setTo} update={this.performUpdateTo}
                                     facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
                                 {/*
                                 <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
@@ -796,7 +796,7 @@ class RangeDropdown extends React.PureComponent {
     render(){
         const { showMenu } = this.state;
         const {
-            variant = "outline-dark", size = "sm", disabled = false,
+            variant = "outline-dark", size = "xs", disabled = false,
             className = "range-dropdown-container col",
             min: propMin, max: propMax,
             value, savedValue,
