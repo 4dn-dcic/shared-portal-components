@@ -434,7 +434,7 @@ export class RangeFacet extends React.PureComponent {
                     ]}
                     collapsible={[
                         <div className="range-drop-group row" key={0}>
-                            <div className="range-drop col-12 col-md-6">
+                            <div className="range-drop col-12 col-sm-6">
                                 <label className="mb-0 small mr-07">
                                     From:
                                 </label>
@@ -450,7 +450,7 @@ export class RangeFacet extends React.PureComponent {
                                 </div>
                                 */}
                             </div>
-                            <div className="range-drop col-12 col-md-6">
+                            <div className="range-drop col-12 col-sm-6">
                                 <label className="mb-0 small ml-05 mr-07">
                                     To:
                                 </label>
