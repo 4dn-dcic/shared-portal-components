@@ -433,9 +433,9 @@ export class RangeFacet extends React.PureComponent {
                             resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} key={0} />
                     ]}
                     collapsible={[
-                        <div className="range-drop-group" key={0}>
-                            <div className="range-drop">
-                                <label className="mb-0 small">
+                        <div className="range-drop-group row" key={0}>
+                            <div className="range-drop col-12 col-md-6">
+                                <label className="mb-0 small mr-07">
                                     From:
                                 </label>
                                 <RangeDropdown
@@ -450,8 +450,8 @@ export class RangeFacet extends React.PureComponent {
                                 </div>
                                 */}
                             </div>
-                            <div className="range-drop ml-05">
-                                <label className="mb-0 small">
+                            <div className="range-drop col-12 col-md-6">
+                                <label className="mb-0 small ml-05 mr-07">
                                     To:
                                 </label>
                                 <RangeDropdown
@@ -796,8 +796,8 @@ class RangeDropdown extends React.PureComponent {
     render(){
         const { showMenu } = this.state;
         const {
-            variant = "outline-dark", size = "xs", disabled = false,
-            className = "range-dropdown-container col",
+            variant = "outline-dark w-100", size = "xs", disabled = false,
+            className = "rcol dropdown flex-grow-1",
             min: propMin, max: propMax,
             value, savedValue,
             placeholder = "Type...",

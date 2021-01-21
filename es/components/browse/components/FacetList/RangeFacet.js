@@ -575,12 +575,12 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           key: 0
         }))],
         collapsible: [/*#__PURE__*/React.createElement("div", {
-          className: "range-drop-group",
+          className: "range-drop-group row",
           key: 0
         }, /*#__PURE__*/React.createElement("div", {
-          className: "range-drop"
+          className: "range-drop col-12 col-md-6"
         }, /*#__PURE__*/React.createElement("label", {
-          className: "mb-0 small"
+          className: "mb-0 small mr-07"
         }, "From:"), /*#__PURE__*/React.createElement(RangeDropdown, {
           title: fromTitle,
           value: fromVal,
@@ -595,9 +595,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           id: "from_" + field,
           reset: fromVal !== null ? this.resetFrom : null
         })), /*#__PURE__*/React.createElement("div", {
-          className: "range-drop ml-05"
+          className: "range-drop col-12 col-md-6"
         }, /*#__PURE__*/React.createElement("label", {
-          className: "mb-0 small"
+          className: "mb-0 small ml-05 mr-07"
         }, "To:"), /*#__PURE__*/React.createElement(RangeDropdown, {
           title: toTitle,
           value: toVal,
@@ -1065,13 +1065,13 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
       var showMenu = this.state.showMenu;
       var _this$props12 = this.props,
           _this$props12$variant = _this$props12.variant,
-          variant = _this$props12$variant === void 0 ? "outline-dark" : _this$props12$variant,
+          variant = _this$props12$variant === void 0 ? "outline-dark w-100" : _this$props12$variant,
           _this$props12$size = _this$props12.size,
           size = _this$props12$size === void 0 ? "xs" : _this$props12$size,
           _this$props12$disable = _this$props12.disabled,
           disabled = _this$props12$disable === void 0 ? false : _this$props12$disable,
           _this$props12$classNa = _this$props12.className,
-          className = _this$props12$classNa === void 0 ? "range-dropdown-container col" : _this$props12$classNa,
+          className = _this$props12$classNa === void 0 ? "rcol dropdown flex-grow-1" : _this$props12$classNa,
           propMin = _this$props12.min,
           propMax = _this$props12.max,
           value = _this$props12.value,
