@@ -194,18 +194,16 @@ $facetlist-term-block-height: default !default;
                     justify-content: space-between;
                     
                     div.range-drop {
-
                         display: flex;
                         align-items: center;
-                        width: 130px;
 
                         label {
                             display: inline-block;
                         }
 
-                        .range-dropdown-container {
+                        .rcol {
                             > button {
-                                width: 90px;
+                                width: 100%;
                                 text-align: right;
                                 padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
 
@@ -263,11 +261,6 @@ $facetlist-term-block-height: default !default;
                         
                     }
                 }
-
-                div.range-drop-group div.range-drop {
-                    
-                }
-
             }
         }
 
