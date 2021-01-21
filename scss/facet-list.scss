@@ -188,10 +188,7 @@ $facetlist-term-block-height: default !default;
                 }
 
                 .range-drop-group {
-                    /* allows for side by side display without interfering with open/closed state */
-                    display: flex;
                     text-align-last: center;
-                    justify-content: space-between;
                     
                     div.range-drop {
                         display: flex;
