@@ -2,18 +2,6 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -27,6 +15,18 @@ function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symb
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -48,7 +48,7 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
@@ -103,10 +103,9 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
 
     _this = _super.call(this, props);
     _this.handleSelectItem = _this.handleSelectItem.bind(_assertThisInitialized(_this));
-    _this.handleSelectItemCompleteClick = _this.handleSelectItemCompleteClick.bind(_assertThisInitialized(_this));
-    _this.handleSelectCancelClick = _this.handleSelectCancelClick.bind(_assertThisInitialized(_this));
+    _this.handleResetSelectedItems = _this.handleResetSelectedItems.bind(_assertThisInitialized(_this));
     _this.state = {
-      selectedItems: new Map()
+      "selectedItems": new Map()
     };
     return _this;
   }
@@ -139,73 +138,22 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
         };
       });
     }
-    /**
-     * This function sends selected items to parent window for if `props.currentAction` is set to "multiselect" or "singleselect".
-     */
-
   }, {
-    key: "handleSelectItemCompleteClick",
-    value: function handleSelectItemCompleteClick() {
-      var selectedItems = this.state.selectedItems;
-      var itemsWrappedWithID = [];
-
-      var _iterator = _createForOfIteratorHelper(selectedItems),
-          _step;
-
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var _step$value = _slicedToArray(_step.value, 2),
-              key = _step$value[0],
-              value = _step$value[1];
-
-          itemsWrappedWithID.push({
-            id: key,
-            json: value
-          });
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-
-      sendDataToParentWindow(itemsWrappedWithID);
+    key: "handleResetSelectedItems",
+    value: function handleResetSelectedItems() {
+      var initialResults = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var selectedItems = !Array.isArray(initialResults) ? new Map() : initialResults.map(function (result) {
+        var atId = itemUtil.atId(result);
+        return [atId, result];
+      });
+      this.setState({
+        selectedItems: selectedItems
+      });
     }
     /**
-     * This function cancels the selection if `props.currentAction` is set to "multiselect".
-     */
-
-  }, {
-    key: "handleSelectCancelClick",
-    value: function handleSelectCancelClick() {
-      var selectedItems = this.state.selectedItems;
-
-      if (selectedItems.size > 0) {
-        if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
-          return;
-        }
-      }
-
-      window.dispatchEvent(new Event('fourfrontcancelclick')); // CURRENT: If we have parent window, post a message to it as well.
-
-      if (window.opener) {
-        window.opener.postMessage({
-          'eventType': 'fourfrontcancelclick'
-        }, '*');
-      } else {
-        console.error("Couldn't access opener window.");
-      }
-    }
-    /**
-     * Extends columnExtensionMap's display_title render function.
+     * If in selection mode and a `props.columnExtensionMap` is present,
+     * extends columnExtensionMap's display_title render function.
      * Adds in a checkbox element which controls selectedItems state entry.
-     *
-     * @todo
-     * Allow a boolean prop which controls whether we're extending columnExtensionMap
-     * or columnDefinitions, which would allow us to put this below ColumnCombiner also
-     * if desired.
-     * Alternatively, attempt to detect based on presence of props.columnDefinitions
-     * or props.columnExtensionMap, throwing error if neither available.
      */
 
   }, {
@@ -216,65 +164,61 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
       var _this$props = this.props,
           originalColumnExtensionMap = _this$props.columnExtensionMap,
           _this$props$currentAc = _this$props.currentAction,
-          currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc;
+          currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc; // Check if `currentAction` is one of "selection" | "multiselect"
+
       var inSelectionMode = isSelectAction(currentAction);
 
       if (!inSelectionMode || !originalColumnExtensionMap) {
         return originalColumnExtensionMap;
       } // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
       //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
+      // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
+      // Also add the popLink/target=_blank functionality to links
+      // Remove lab.display_title and type columns on selection
 
 
-      if (inSelectionMode) {
-        // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
-        // Also add the popLink/target=_blank functionality to links
-        // Remove lab.display_title and type columns on selection
-        var newColumnExtensionMap = _.clone(originalColumnExtensionMap);
+      var newColumnExtensionMap = _.clone(originalColumnExtensionMap);
 
-        newColumnExtensionMap.display_title = _objectSpread(_objectSpread({}, newColumnExtensionMap.display_title), {}, {
-          'minColumnWidth': (originalColumnExtensionMap.display_title.minColumnWidth || 100) + 20,
-          'render': function render(result, parentProps) {
-            var selectedItems = _this2.state.selectedItems;
-            var rowNumber = parentProps.rowNumber,
-                detailOpen = parentProps.detailOpen,
-                toggleDetailOpen = parentProps.toggleDetailOpen,
-                href = parentProps.href,
-                context = parentProps.context;
-            return /*#__PURE__*/React.createElement(DisplayTitleColumnWrapper, {
-              result: result,
-              href: href,
-              context: context,
-              rowNumber: rowNumber,
-              detailOpen: detailOpen,
-              toggleDetailOpen: toggleDetailOpen
-            }, /*#__PURE__*/React.createElement(SelectionItemCheckbox, _extends({
-              selectedItems: selectedItems,
-              isMultiSelect: currentAction === 'multiselect'
-            }, {
-              handleSelectItem: _this2.handleSelectItem
-            })), /*#__PURE__*/React.createElement(DisplayTitleColumnDefault, null));
-          }
-        });
-        return newColumnExtensionMap;
-      }
-
-      return originalColumnExtensionMap;
+      newColumnExtensionMap.display_title = _objectSpread(_objectSpread({}, newColumnExtensionMap.display_title), {}, {
+        'minColumnWidth': (originalColumnExtensionMap.display_title.minColumnWidth || 100) + 20,
+        'render': function render(result, parentProps) {
+          var selectedItems = _this2.state.selectedItems;
+          var rowNumber = parentProps.rowNumber,
+              detailOpen = parentProps.detailOpen,
+              toggleDetailOpen = parentProps.toggleDetailOpen,
+              href = parentProps.href,
+              context = parentProps.context;
+          return /*#__PURE__*/React.createElement(DisplayTitleColumnWrapper, {
+            result: result,
+            href: href,
+            context: context,
+            rowNumber: rowNumber,
+            detailOpen: detailOpen,
+            toggleDetailOpen: toggleDetailOpen
+          }, /*#__PURE__*/React.createElement(SelectionItemCheckbox, _extends({
+            selectedItems: selectedItems
+          }, {
+            handleSelectItem: _this2.handleSelectItem,
+            isMultiSelect: currentAction === 'multiselect'
+          })), /*#__PURE__*/React.createElement(DisplayTitleColumnDefault, null));
+        }
+      });
+      return newColumnExtensionMap;
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props2 = this.props,
           children = _this$props2.children,
-          propsToPass = _objectWithoutProperties(_this$props2, ["children"]);
+          remainingProps = _objectWithoutProperties(_this$props2, ["children"]);
 
       var selectedItems = this.state.selectedItems;
 
-      _.extend(propsToPass, {
+      var propsToPass = _objectSpread(_objectSpread({}, remainingProps), {}, {
         selectedItems: selectedItems,
         columnExtensionMap: this.columnExtensionMapWithSelectButton(),
-        onSelectItem: this.handleSelectItemClick,
-        onCancelSelection: this.handleSelectCancelClick,
-        onCompleteSelection: this.handleSelectItemCompleteClick
+        onSelectItem: this.handleSelectItem,
+        onResetSelectedItems: this.handleResetSelectedItems
       });
 
       return React.Children.map(children, function (child) {
@@ -289,7 +233,7 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
 
   return SelectedItemsController;
 }(React.PureComponent);
-var SelectionItemCheckbox = /*#__PURE__*/React.memo(function (props) {
+export var SelectionItemCheckbox = /*#__PURE__*/React.memo(function (props) {
   var selectedItems = props.selectedItems,
       result = props.result,
       isMultiSelect = props.isMultiSelect,
@@ -311,9 +255,51 @@ export var SelectStickyFooter = /*#__PURE__*/React.memo(function (props) {
   var context = props.context,
       schemas = props.schemas,
       selectedItems = props.selectedItems,
-      onComplete = props.onComplete,
-      onCancel = props.onCancel,
       currentAction = props.currentAction;
+  /** This function sends selected items to parent window. */
+
+  var onComplete = useCallback(function () {
+    var itemsWrappedWithID = [];
+
+    var _iterator = _createForOfIteratorHelper(selectedItems),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var _step$value = _slicedToArray(_step.value, 2),
+            key = _step$value[0],
+            value = _step$value[1];
+
+        itemsWrappedWithID.push({
+          "id": key,
+          "json": value
+        });
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+
+    sendDataToParentWindow(itemsWrappedWithID);
+  }, [selectedItems]);
+  var onCancel = useCallback(function () {
+    if (selectedItems.size > 0) {
+      if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
+        return;
+      }
+    }
+
+    window.dispatchEvent(new Event('fourfrontcancelclick')); // CURRENT: If we have parent window, post a message to it as well.
+
+    if (window.opener) {
+      window.opener.postMessage({
+        'eventType': 'fourfrontcancelclick'
+      }, '*');
+    } else {
+      console.error("Couldn't access opener window.");
+    }
+  }, [selectedItems]);
   var itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context), schemas);
   var selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
   return /*#__PURE__*/React.createElement(StickyFooter, null, /*#__PURE__*/React.createElement("div", {

@@ -151,8 +151,6 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           setColumnWidths = _this$props2.setColumnWidths,
           columnWidths = _this$props2.columnWidths,
           columnDefinitions = _this$props2.columnDefinitions,
-          onCompleteSelection = _this$props2.onCompleteSelection,
-          onCancelSelection = _this$props2.onCancelSelection,
           _this$props2$selected = _this$props2.selectedItems,
           selectedItems = _this$props2$selected === void 0 ? null : _this$props2$selected,
           sortBy = _this$props2.sortBy,
@@ -265,15 +263,12 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       }, {
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane
-      })), isSelectAction(currentAction) && selectedItems !== null ? /*#__PURE__*/React.createElement(SelectStickyFooter, _extends({
+      })), isSelectAction(currentAction) && selectedItems !== null ? /*#__PURE__*/React.createElement(SelectStickyFooter, {
         context: context,
         schemas: schemas,
         selectedItems: selectedItems,
         currentAction: currentAction
-      }, {
-        onComplete: onCompleteSelection,
-        onCancel: onCancelSelection
-      })) : null));
+      }) : null));
     }
   }]);
 
