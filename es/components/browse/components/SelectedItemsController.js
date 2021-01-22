@@ -198,7 +198,7 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
           }, /*#__PURE__*/React.createElement(SelectionItemCheckbox, _extends({
             selectedItems: selectedItems
           }, {
-            handleSelectItem: _this2.handleSelectItem,
+            onSelectItem: _this2.handleSelectItem,
             isMultiSelect: currentAction === 'multiselect'
           })), /*#__PURE__*/React.createElement(DisplayTitleColumnDefault, null));
         }
@@ -237,11 +237,11 @@ export var SelectionItemCheckbox = /*#__PURE__*/React.memo(function (props) {
   var selectedItems = props.selectedItems,
       result = props.result,
       isMultiSelect = props.isMultiSelect,
-      handleSelectItem = props.handleSelectItem;
+      onSelectItem = props.onSelectItem;
   var isChecked = selectedItems.has(itemUtil.atId(result));
   var onChange = useMemo(function () {
-    return handleSelectItem.bind(handleSelectItem, result, isMultiSelect);
-  }, [handleSelectItem, result, isMultiSelect]);
+    return onSelectItem.bind(onSelectItem, result, isMultiSelect);
+  }, [onSelectItem, result, isMultiSelect]);
   return /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     checked: isChecked,

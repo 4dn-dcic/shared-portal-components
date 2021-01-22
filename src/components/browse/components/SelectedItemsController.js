@@ -116,7 +116,7 @@ export class SelectedItemsController extends React.PureComponent {
                 const { rowNumber, detailOpen, toggleDetailOpen, href, context } = parentProps;
                 return (
                     <DisplayTitleColumnWrapper {...{ result, href, context, rowNumber, detailOpen, toggleDetailOpen }}>
-                        <SelectionItemCheckbox {...{ selectedItems }} handleSelectItem={this.handleSelectItem}
+                        <SelectionItemCheckbox {...{ selectedItems }} onSelectItem={this.handleSelectItem}
                             isMultiSelect={currentAction === 'multiselect'} />
                         <DisplayTitleColumnDefault />
                     </DisplayTitleColumnWrapper>
@@ -148,11 +148,11 @@ export class SelectedItemsController extends React.PureComponent {
 }
 
 export const SelectionItemCheckbox = React.memo(function SelectionItemCheckbox(props){
-    const { selectedItems, result, isMultiSelect, handleSelectItem } = props;
+    const { selectedItems, result, isMultiSelect, onSelectItem } = props;
     const isChecked = selectedItems.has(itemUtil.atId(result));
     const onChange = useMemo(function(){
-        return handleSelectItem.bind(handleSelectItem, result, isMultiSelect);
-    }, [ handleSelectItem, result, isMultiSelect ]);
+        return onSelectItem.bind(onSelectItem, result, isMultiSelect);
+    }, [ onSelectItem, result, isMultiSelect ]);
     return <input type="checkbox" checked={isChecked} onChange={onChange} className="mr-2" />;
 });
 
