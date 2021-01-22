@@ -225,6 +225,6 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
 _defineProperty(EmbeddedSearchView, "defaultProps", {
   'columnExtensionMap': basicColumnExtensionMap,
   'separateSingleTermFacets': true,
-  'hideFacets': ["type", "validation_errors.name"],
+  'hideFacets': ["type"],
   'hideColumns': null
 });

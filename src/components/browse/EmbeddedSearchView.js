@@ -73,7 +73,7 @@ export class EmbeddedSearchView extends React.PureComponent {
     static defaultProps = {
         'columnExtensionMap' : basicColumnExtensionMap,
         'separateSingleTermFacets' : true,
-        'hideFacets': ["type", "validation_errors.name"],
+        'hideFacets': ["type"],
         'hideColumns': null
     };
 
