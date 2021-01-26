@@ -2501,7 +2501,8 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
     _this10.state = {
       'selectType': null,
       'selectField': null,
-      'selectArrayIdx': null
+      'selectArrayIdx': null,
+      'selectItems': null
     };
     return _this10;
   } // componentDidUpdate(pastProps, pastState) {
@@ -2772,7 +2773,10 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
       var selectArrayIdx = customArrayIdx || stateSelectArrayIdx;
       var isInArray = selectArrayIdx && Array.isArray(selectArrayIdx);
       var nextArrayIndices = isInArray ? _toConsumableArray(selectArrayIdx) : null;
-      var isMultiSelect = Array.isArray(atIds) && atIds.length > 1; // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
+      var isMultiSelect = Array.isArray(atIds) && atIds.length > 1;
+      this.setState({
+        'selectItems': atIds
+      }); // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
       // Can be adjusted in either direction (either have LinkedObj call with 1 item if only 1; or have Search-As-You-Type
       // pass in array as well).
 
@@ -2952,6 +2956,7 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
         disabled: false,
         arrayIdx: null,
         required: _.contains(currSchema.required, field),
+        atIds: this.state.selectItems,
         modifyNewContext: this.modifyNewContext,
         selectObj: this.selectObj,
         selectComplete: this.selectComplete,

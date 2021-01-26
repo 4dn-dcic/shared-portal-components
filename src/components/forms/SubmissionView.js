@@ -1901,7 +1901,8 @@ class IndividualObjectView extends React.Component {
         this.state = {
             'selectType'    : null,
             'selectField'   : null,
-            'selectArrayIdx': null
+            'selectArrayIdx': null,
+            'selectItems':null,
         };
     }
 
@@ -2131,6 +2132,7 @@ class IndividualObjectView extends React.Component {
         const nextArrayIndices = isInArray ? [...selectArrayIdx] : null;
         const isMultiSelect = Array.isArray(atIds) && atIds.length > 1;
 
+        this.setState({ 'selectItems': atIds });
         // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
         // Can be adjusted in either direction (either have LinkedObj call with 1 item if only 1; or have Search-As-You-Type
         // pass in array as well).
@@ -2177,6 +2179,7 @@ class IndividualObjectView extends React.Component {
 
     /** Exit out of the selection process and clean up state */
     selectCancel(previousValue){
+
         var { selectField, selectArrayIdx } = this.state;
 
         this.modifyNewContext(selectField, previousValue || null, 'existing linked object', null, selectArrayIdx);
@@ -2266,7 +2269,7 @@ class IndividualObjectView extends React.Component {
                 {...{ field, fieldType, fieldTip, enumValues, isLinked, currType, currContext }}
                 {..._.pick(this.props, 'md5Progress', 'edit', 'create', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'upload', 'uploadStatus', 'updateUpload', 'currentSubmittingUser', 'roundTwo')}
                 value={fieldValue} key={field} schema={fieldSchema} nestedField={field} title={fieldTitle} modifyFile={null} linkType={linked} disabled={false}
-                arrayIdx={null} required={_.contains(currSchema.required, field)}
+                arrayIdx={null} required={_.contains(currSchema.required, field)} atIds={this.state.selectItems}
                 modifyNewContext={this.modifyNewContext} selectObj={this.selectObj} selectComplete={this.selectComplete} selectCancel={this.selectCancel}
                 fieldBeingSelected={this.state.selectField} fieldBeingSelectedArrayIdx={this.state.selectArrayIdx} />
         );

@@ -450,7 +450,8 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
           modifyNewContext = _this$props7.modifyNewContext,
           nestedField = _this$props7.nestedField,
           linkType = _this$props7.linkType,
-          arrayIdx = _this$props7.arrayIdx;
+          arrayIdx = _this$props7.arrayIdx,
+          atIds = _this$props7.atIds;
       e && e.preventDefault();
 
       if (fieldType !== 'array') {
@@ -470,7 +471,13 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
         valueCopy.push(null);
       }
 
-      if (!(schema.maxItems && valueCopy.length > schema.maxItems)) {
+      if (schema.maxItems && valueCopy.length > schema.maxItems) {
+        if (schema.maxItems < atIds.length) Alerts.queue({
+          'title': "Multi-select warning ",
+          'message': 'Some of the selections are trimmed since "maxItems: ' + schema.maxItems + '" constraint',
+          'style': 'warning'
+        });
+      } else {
         modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
       }
     }

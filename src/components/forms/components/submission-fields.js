@@ -263,7 +263,7 @@ export class BuildField extends React.PureComponent {
 
     // this needs to live in BuildField for styling purposes
     pushArrayValue(e){
-        const { fieldType, value, schema, modifyNewContext, nestedField, linkType, arrayIdx } = this.props;
+        const { fieldType, value, schema, modifyNewContext, nestedField, linkType, arrayIdx, atIds } = this.props;
         e && e.preventDefault();
         if (fieldType !== 'array') {
             return;
@@ -279,13 +279,13 @@ export class BuildField extends React.PureComponent {
         } else {
             valueCopy.push(null);
         }
-
         if (schema.maxItems && (valueCopy.length > schema.maxItems)) {
-            // Alerts.queue({
-            //     'title': "Multi-select warning ",
-            //     'message': 'Some of the selections are trimmed since "maxItems: ' + schema.maxItems + '" constraint',
-            //     'style': 'warning'
-            // });
+            if (schema.maxItems < atIds.length)
+                Alerts.queue({
+                    'title': "Multi-select warning ",
+                    'message': 'Some of the selections are trimmed since "maxItems: ' + schema.maxItems + '" constraint',
+                    'style': 'warning'
+                });
         }
         else {
             modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
