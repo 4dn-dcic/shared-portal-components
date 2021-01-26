@@ -169,30 +169,15 @@ $facetlist-term-block-height: default !default;
         }
 
         &.range-facet {
-            &.closed {
-                .range-clear {
-                    padding: 10px 0;
-                }
-            }
-
-            > .inner-panel.expandable-list {
-                &.open {
-                    padding: 5px 0;
-                }
+            .facet-list > .inner-panel.expandable-list {
                 margin-bottom: 0;
-
-                button.range-clear.btn {
-                    &.btn-warning {
-                        color: #ffffff;
-                    }
-                }
 
                 .range-drop-group {
                     text-align-last: center;
                     
                     div.range-drop {
                         display: flex;
-                        align-items: center;
+                        align-items: center;                    
 
                         label {
                             display: inline-block;
@@ -497,7 +482,6 @@ $facetlist-term-block-height: default !default;
             }
         }
 
-        .range-clear,
         .facet-list {
             margin: 0;
             list-style: none;
@@ -640,8 +624,7 @@ $facetlist-term-block-height: default !default;
             
         }
 
-        &.closed .facet-list,
-        &.closed .range-clear {
+        &.closed .facet-list {
             li {
                 &.selected:last-child:after ,
                 &.omitted:last-child:after {
