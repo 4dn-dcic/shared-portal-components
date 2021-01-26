@@ -108,14 +108,10 @@ export class VirtualHrefController extends React.PureComponent {
         let nextHrefFull = null;
         let virtualCompoundFilterSet = null;
 
-        console.log("TTT1", navigationTarget);
-
         if (typeof navigationTarget === "string") {
             // There is (very large) chance that `nextHref` does not have domain name, path, etc.
             // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
             nextHrefFull = url.resolve((currentHref || "/search/"), navigationTarget);
-
-            console.log("TTT2", navigationTarget);
 
             if (allowPostRequest) {
                 // Remove this if condition/wrapper/prop once 4DN has a /compound_search
