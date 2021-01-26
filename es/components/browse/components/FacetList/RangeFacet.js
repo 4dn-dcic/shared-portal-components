@@ -524,8 +524,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
       }
 
-      var fromVariant = savedFromVal === null ? "outline-dark" : "primary";
-      var toVariant = savedToVal === null ? "outline-dark" : "primary";
       return /*#__PURE__*/React.createElement("div", {
         className: "facet range-facet" + (facetOpen ? ' open' : ' closed'),
         "data-field": facet.field
@@ -557,7 +555,11 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         }
       }) : /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas"
-      })))), /*#__PURE__*/React.createElement(PartialList, {
+      })))), /*#__PURE__*/React.createElement("div", {
+        className: "facet-list",
+        "data-open": facetOpen,
+        "data-any-active": savedFromVal || savedToVal ? true : false
+      }, /*#__PURE__*/React.createElement(PartialList, {
         className: "inner-panel",
         open: facetOpen,
         persistent: [/*#__PURE__*/React.createElement(RangeClear, _extends({
@@ -587,7 +589,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           savedValue: savedFromVal,
           max: toVal || null,
           increments: fromIncrements,
-          variant: fromVariant,
+          variant: "outline-secondary",
           onSelect: this.setFrom,
           update: this.performUpdateFrom,
           termTransformFxn: this.termTitle,
@@ -605,7 +607,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           min: fromVal || null,
           increments: toIncrements,
           termTransformFxn: this.termTitle,
-          variant: toVariant,
+          variant: "outline-secondary",
           onSelect: this.setTo,
           update: this.performUpdateTo,
           facet: facet,
@@ -618,7 +620,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           onTermClick: this.selectRange,
           resetAll: this.resetToAndFrom
         })) : null]
-      }));
+      })));
     }
   }]);
 
@@ -913,9 +915,7 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
     // Commented out b.c. not used atm:
     // const invalidRange = savedToVal < savedFromVal;
     // const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
-    return /*#__PURE__*/React.createElement("div", {
-      className: "range-clear"
-    }, /*#__PURE__*/React.createElement("li", {
+    return /*#__PURE__*/React.createElement("li", {
       className: "selected facet-list-element clickable"
     }, /*#__PURE__*/React.createElement("a", {
       onClick: resetAll
@@ -932,12 +932,10 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       className: "icon fas icon-less-than-equal icon-xs px-1"
     }), " ", abbreviatedTitle, " ", /*#__PURE__*/React.createElement("i", {
       className: "icon fas icon-less-than-equal icon-xs px-1"
-    }), " ", savedToTitle))));
+    }), " ", savedToTitle)));
   } else {
     // Only To or From present
-    return /*#__PURE__*/React.createElement("div", {
-      className: "range-clear"
-    }, /*#__PURE__*/React.createElement("li", {
+    return /*#__PURE__*/React.createElement("li", {
       className: "selected facet-list-element clickable"
     }, /*#__PURE__*/React.createElement("a", {
       onClick: resetTo === null ? resetFrom : resetTo
@@ -954,7 +952,7 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       className: "icon fas icon-less-than-equal icon-xs px-1"
     }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
       className: "icon fas icon-less-than-equal icon-xs px-1"
-    }), " ", abbreviatedTitle) : null))));
+    }), " ", abbreviatedTitle) : null)));
   }
 });
 

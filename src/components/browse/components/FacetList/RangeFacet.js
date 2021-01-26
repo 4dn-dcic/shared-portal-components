@@ -404,8 +404,8 @@ export class RangeFacet extends React.PureComponent {
         const isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
 
 
-        const fromVariant = savedFromVal === null ? "outline-dark" : "primary";
-        const toVariant = savedToVal === null ? "outline-dark" : "primary";
+        const fromVariant = "outline-secondary";
+        const toVariant = "outline-secondary";
 
         return (
             <div className={"facet range-facet" + (facetOpen ? ' open' : ' closed')} data-field={facet.field}>
@@ -426,49 +426,50 @@ export class RangeFacet extends React.PureComponent {
                         </span>
                     </Fade>
                 </h5>
-
-                <PartialList className="inner-panel" open={facetOpen}
-                    persistent={[
-                        <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet, fieldSchema }} resetAll={this.resetToAndFrom} termTransformFxn={this.termTitle}
-                            resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} key={0} />
-                    ]}
-                    collapsible={[
-                        <div className="range-drop-group row" key={0}>
-                            <div className="range-drop col-12 col-sm-6">
-                                <label className="mb-0 small mr-07">
-                                    From:
-                                </label>
-                                <RangeDropdown
-                                    title={fromTitle} value={fromVal} savedValue={savedFromVal}
-                                    max={toVal || null} increments={fromIncrements} variant={fromVariant}
-                                    onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
-                                    facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
-                                {/*
-                                <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
-                                    onClick={fromVal !== null ? this.resetFrom : null}>
-                                    <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
+                <div className="facet-list" data-open={facetOpen} data-any-active={(savedFromVal || savedToVal) ? true : false}>
+                    <PartialList className="inner-panel" open={facetOpen}
+                        persistent={[
+                            <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet, fieldSchema }} resetAll={this.resetToAndFrom} termTransformFxn={this.termTitle}
+                                resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} key={0} />
+                        ]}
+                        collapsible={[
+                            <div className="range-drop-group row" key={0}>
+                                <div className="range-drop col-12 col-sm-6">
+                                    <label className="mb-0 small mr-07">
+                                        From:
+                                    </label>
+                                    <RangeDropdown
+                                        title={fromTitle} value={fromVal} savedValue={savedFromVal}
+                                        max={toVal || null} increments={fromIncrements} variant={fromVariant}
+                                        onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
+                                        facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
+                                    {/*
+                                    <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
+                                        onClick={fromVal !== null ? this.resetFrom : null}>
+                                        <i className={"icon icon-fw fas icon-" + (fromVal === null ? "pencil" : "times-circle")}/>
+                                    </div>
+                                    */}
                                 </div>
-                                */}
-                            </div>
-                            <div className="range-drop col-12 col-sm-6">
-                                <label className="mb-0 small ml-05 mr-07">
-                                    To:
-                                </label>
-                                <RangeDropdown
-                                    title={toTitle} value={toVal} savedValue={savedToVal}
-                                    min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
-                                    variant={toVariant} onSelect={this.setTo} update={this.performUpdateTo}
-                                    facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
-                                {/*
-                                <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
-                                    onClick={toVal !== null ? this.resetTo : null}>
-                                    <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
+                                <div className="range-drop col-12 col-sm-6">
+                                    <label className="mb-0 small ml-05 mr-07">
+                                        To:
+                                    </label>
+                                    <RangeDropdown
+                                        title={toTitle} value={toVal} savedValue={savedToVal}
+                                        min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
+                                        variant={toVariant} onSelect={this.setTo} update={this.performUpdateTo}
+                                        facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
+                                    {/*
+                                    <div className={"clear-icon-container col-auto" + (toVal === null ? " disabled" : " clickable")}
+                                        onClick={toVal !== null ? this.resetTo : null}>
+                                        <i className={"icon icon-fw fas icon-" + (toVal === null ? "pencil-alt" : "times-circle")}/>
+                                    </div>
+                                    */}
                                 </div>
-                                */}
-                            </div>
-                        </div>,
-                        (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/> : null
-                    ]} />
+                            </div>,
+                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/> : null
+                        ]} />
+                </div>
             </div>
         );
     }
@@ -689,38 +690,34 @@ const RangeClear = React.memo(function RangeClear(props){
         // const invalidRange = savedToVal < savedFromVal;
         // const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
         return (
-            <div className="range-clear">
-                <li className="selected facet-list-element clickable">
-                    <a onClick={resetAll}>
-                        <span className="facet-selector">
-                            <i className="icon icon-fw fas icon-minus-circle"/>
-                        </span>
-                        <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
-                            {savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}
-                        </span>
-                    </a>
-                </li>
-            </div>
+            <li className="selected facet-list-element clickable">
+                <a onClick={resetAll}>
+                    <span className="facet-selector">
+                        <i className="icon icon-fw fas icon-minus-circle"/>
+                    </span>
+                    <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
+                        {savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}
+                    </span>
+                </a>
+            </li>
         );
     } else { // Only To or From present
         return (
-            <div className="range-clear">
-                <li className="selected facet-list-element clickable">
-                    <a onClick={resetTo === null ? resetFrom : resetTo}>
-                        <span className="facet-selector">
-                            <i className="icon icon-fw fas icon-minus-circle"/>
-                        </span>
-                        <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
-                            { savedToVal !== null ?
-                                <React.Fragment>{abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}</React.Fragment>
-                                : null }
-                            { savedFromVal !== null ?
-                                <React.Fragment>{savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle}</React.Fragment>
-                                : null }
-                        </span>
-                    </a>
-                </li>
-            </div>
+            <li className="selected facet-list-element clickable">
+                <a onClick={resetTo === null ? resetFrom : resetTo}>
+                    <span className="facet-selector">
+                        <i className="icon icon-fw fas icon-minus-circle"/>
+                    </span>
+                    <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
+                        { savedToVal !== null ?
+                            <React.Fragment>{abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}</React.Fragment>
+                            : null }
+                        { savedFromVal !== null ?
+                            <React.Fragment>{savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle}</React.Fragment>
+                            : null }
+                    </span>
+                </a>
+            </li>
         );
     }
 });
