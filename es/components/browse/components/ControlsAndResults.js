@@ -135,6 +135,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           href = _this$props2.href,
           requestedCompoundFilterSet = _this$props2.requestedCompoundFilterSet,
           onFilter = _this$props2.onFilter,
+          onFilterMultiple = _this$props2.onFilterMultiple,
           _this$props2$showClea = _this$props2.showClearFiltersButton,
           showClearFiltersButton = _this$props2$showClea === void 0 ? false : _this$props2$showClea,
           _this$props2$isOwnPag = _this$props2.isOwnPage,
@@ -150,8 +151,6 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           setColumnWidths = _this$props2.setColumnWidths,
           columnWidths = _this$props2.columnWidths,
           columnDefinitions = _this$props2.columnDefinitions,
-          onCompleteSelection = _this$props2.onCompleteSelection,
-          onCancelSelection = _this$props2.onCancelSelection,
           _this$props2$selected = _this$props2.selectedItems,
           selectedItems = _this$props2$selected === void 0 ? null : _this$props2$selected,
           sortBy = _this$props2.sortBy,
@@ -190,6 +189,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         windowHeight: windowHeight,
         isContextLoading: isContextLoading,
         onFilter: onFilter,
+        onFilterMultiple: onFilterMultiple,
         onClearFilters: this.onClearFiltersClick,
         termTransformFxn: termTransformFxn,
         itemTypeForSchemas: searchItemType,
@@ -263,15 +263,12 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
       }, {
         ref: this.searchResultTableRef,
         renderDetailPane: this.renderSearchDetailPane
-      })), isSelectAction(currentAction) && selectedItems !== null ? /*#__PURE__*/React.createElement(SelectStickyFooter, _extends({
+      })), isSelectAction(currentAction) && selectedItems !== null ? /*#__PURE__*/React.createElement(SelectStickyFooter, {
         context: context,
         schemas: schemas,
         selectedItems: selectedItems,
         currentAction: currentAction
-      }, {
-        onComplete: onCompleteSelection,
-        onCancel: onCancelSelection
-      })) : null));
+      }) : null));
     }
   }]);
 

@@ -114,7 +114,7 @@ export function generateNextHref(currentHref, contextFilters, facet, term) {
   if (willUnselect) {
     targetSearchHref = unselectHref;
   } else {
-    if (aggregation_type === "stats") {
+    if (aggregation_type === "stats" || aggregation_type === "range") {
       // Keep only 1, delete previous occurences
       // This is only for "range" facets (aggregation_type=stats) where want to ensure that have multiple "date_created.to" values in URL for example.
       var parts = url.parse(currentHref, true);
@@ -218,8 +218,11 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
       for (facetIndexWherePastXTerms = 0; facetIndexWherePastXTerms < facetLen; facetIndexWherePastXTerms++) {
         if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") {
-          // Range Facet (shows 2 'terms' or fields)
+          // Range facet with stats aggregation Facet (shows 2 'terms' or fields)
           currTermCount += 2;
+        } else if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "range") {
+          // Range facet with range list (see comment for Terms in else)
+          currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.ranges.length, persistentCount);
         } else {
           // Terms; Take into account 'view more' button
           // Slightly deprecated as doesn;t take into account 'mergeTerms'.
@@ -267,7 +270,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             _facet$aggregation_ty2 = facet.aggregation_type,
             aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
 
-        if (aggregation_type === "stats") {
+        if (aggregation_type === "stats" || aggregation_type === "range") {
           var _ref = rangeValuesByField[facetField] || {},
               _ref$fromVal = _ref.fromVal,
               fromVal = _ref$fromVal === void 0 ? null : _ref$fromVal,
@@ -284,7 +287,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             toVal: toVal,
             facet: facet
           }, {
-            key: "".concat(facetField, ":").concat(fromVal, ":").concat(toVal),
+            key: facetField,
             anyTermsSelected: fromVal !== null || toVal !== null
           }));
         }
@@ -432,6 +435,28 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         }
       });
     }
+    /**
+     * Used by this.onFilterExtended and this.onFilterMultipleExtended to send google analytics on a selected facet before filtering
+     */
+
+  }, {
+    key: "sendAnalyticsPreFilter",
+    value: function sendAnalyticsPreFilter(facet, term, contextFilters) {
+      var field = facet.field;
+      var termKey = term.key;
+      var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+      var isUnselecting = !!statusAndHref.href;
+      return analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
+        field: field,
+        'term': termKey,
+        'eventLabel': analytics.eventLabelFromChartNode({
+          field: field,
+          'term': termKey
+        }),
+        'currentFilters': analytics.getStringifiedCurrentFilters(contextFiltersToExpSetFilters(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
+
+      });
+    }
   }]);
 
   function FacetList(props) {
@@ -440,7 +465,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, FacetList);
 
     _this = _super.call(this, props);
+    console.log("FacetList props,", props);
     _this.onFilterExtended = _this.onFilterExtended.bind(_assertThisInitialized(_this));
+    _this.onFilterMultipleExtended = _this.onFilterMultipleExtended.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.handleToggleFacetOpen = _this.handleToggleFacetOpen.bind(_assertThisInitialized(_this));
     _this.handleCollapseAllFacets = _this.handleCollapseAllFacets.bind(_assertThisInitialized(_this));
@@ -583,21 +610,21 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props3 = this.props,
           onFilter = _this$props3.onFilter,
           contextFilters = _this$props3.context.filters;
-      var field = facet.field;
-      var termKey = term.key;
-      var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
-      var isUnselecting = !!statusAndHref.href;
-      analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
-        field: field,
-        'term': termKey,
-        'eventLabel': analytics.eventLabelFromChartNode({
-          field: field,
-          'term': termKey
-        }),
-        'currentFilters': analytics.getStringifiedCurrentFilters(contextFiltersToExpSetFilters(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
-
-      });
+      FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
       return onFilter.apply(void 0, arguments);
+    }
+  }, {
+    key: "onFilterMultipleExtended",
+    value: function onFilterMultipleExtended(filterObjArray) {
+      var _this$props4 = this.props,
+          onFilterMultiple = _this$props4.onFilterMultiple,
+          contextFilters = _this$props4.context.filters;
+      filterObjArray.forEach(function (filterObj) {
+        var facet = filterObj.facet,
+            term = filterObj.term;
+        FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
+      });
+      return onFilterMultiple.apply(void 0, arguments);
     }
   }, {
     key: "getTermStatus",
@@ -677,17 +704,17 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "renderFacetComponents",
     value: function renderFacetComponents() {
-      var _this$props4 = this.props,
-          _this$props4$facets = _this$props4.facets,
-          facets = _this$props4$facets === void 0 ? null : _this$props4$facets,
-          _this$props4$separate = _this$props4.separateSingleTermFacets,
-          separateSingleTermFacets = _this$props4$separate === void 0 ? false : _this$props4$separate,
-          context = _this$props4.context,
-          href = _this$props4.href,
-          schemas = _this$props4.schemas,
-          itemTypeForSchemas = _this$props4.itemTypeForSchemas,
-          termTransformFxn = _this$props4.termTransformFxn,
-          persistentCount = _this$props4.persistentCount;
+      var _this$props5 = this.props,
+          _this$props5$facets = _this$props5.facets,
+          facets = _this$props5$facets === void 0 ? null : _this$props5$facets,
+          _this$props5$separate = _this$props5.separateSingleTermFacets,
+          separateSingleTermFacets = _this$props5$separate === void 0 ? false : _this$props5$separate,
+          context = _this$props5.context,
+          href = _this$props5.href,
+          schemas = _this$props5.schemas,
+          itemTypeForSchemas = _this$props5.itemTypeForSchemas,
+          termTransformFxn = _this$props5.termTransformFxn,
+          persistentCount = _this$props5.persistentCount;
       var filters = context.filters;
       var _this$state2 = this.state,
           openFacets = _this$state2.openFacets,
@@ -702,6 +729,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         separateSingleTermFacets: separateSingleTermFacets,
         openPopover: openPopover,
         onFilter: this.onFilterExtended,
+        onFilterMultiple: this.onFilterMultipleExtended,
         getTermStatus: this.getTermStatus,
         onToggleOpen: this.handleToggleFacetOpen,
         setOpenPopover: this.setOpenPopover
@@ -721,18 +749,18 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props5 = this.props,
-          _this$props5$facets = _this$props5.facets,
-          facets = _this$props5$facets === void 0 ? null : _this$props5$facets,
-          title = _this$props5.title,
-          _this$props5$onClearF = _this$props5.onClearFilters,
-          onClearFilters = _this$props5$onClearF === void 0 ? null : _this$props5$onClearF,
-          _this$props5$showClea = _this$props5.showClearFiltersButton,
-          showClearFiltersButton = _this$props5$showClea === void 0 ? false : _this$props5$showClea,
-          _this$props5$maxBodyH = _this$props5.maxBodyHeight,
-          maxHeight = _this$props5$maxBodyH === void 0 ? null : _this$props5$maxBodyH,
-          _this$props5$isContex = _this$props5.isContextLoading,
-          isContextLoading = _this$props5$isContex === void 0 ? false : _this$props5$isContex;
+      var _this$props6 = this.props,
+          _this$props6$facets = _this$props6.facets,
+          facets = _this$props6$facets === void 0 ? null : _this$props6$facets,
+          title = _this$props6.title,
+          _this$props6$onClearF = _this$props6.onClearFilters,
+          onClearFilters = _this$props6$onClearF === void 0 ? null : _this$props6$onClearF,
+          _this$props6$showClea = _this$props6.showClearFiltersButton,
+          showClearFiltersButton = _this$props6$showClea === void 0 ? false : _this$props6$showClea,
+          _this$props6$maxBodyH = _this$props6.maxBodyHeight,
+          maxHeight = _this$props6$maxBodyH === void 0 ? null : _this$props6$maxBodyH,
+          _this$props6$isContex = _this$props6.isContextLoading,
+          isContextLoading = _this$props6$isContex === void 0 ? false : _this$props6$isContex;
       var _this$state3 = this.state,
           openFacets = _this$state3.openFacets,
           openPopover = _this$state3.openPopover;
@@ -830,6 +858,8 @@ _defineProperty(FacetList, "propTypes", {
   'href': PropTypes.string,
   'onFilter': PropTypes.func,
   // What happens when Term is clicked.
+  'onFilterMultiple': PropTypes.func,
+  // Same as onFilter, but processes multiple filter changes in one go
   'separateSingleTermFacets': PropTypes.bool,
   'maxBodyHeight': PropTypes.number
 });
@@ -847,6 +877,21 @@ _defineProperty(FacetList, "defaultProps", {
     if (typeof callback === 'function') {
       setTimeout(callback, 1000);
     }
+  },
+  'onFilterMultiple': function onFilterMultiple(filterObjArr) {
+    console.log('FacetList: props.onFilterMultiple(');
+    filterObjArr.forEach(function (filterObj, i) {
+      var facet = filterObj.facet,
+          term = filterObj.term,
+          callback = filterObj.callback;
+      console.log('Item #' + i + ": (" + facet.field, ", " + term.key + ', callback)');
+      console.log(facet, term);
+
+      if (i === 0 && typeof callback === 'function') {
+        setTimeout(callback, 1000);
+      }
+    });
+    console.log(")");
   },
   'onClearFilters': function onClearFilters(e, callback) {
     // Clear Redux filters, or go base search url.

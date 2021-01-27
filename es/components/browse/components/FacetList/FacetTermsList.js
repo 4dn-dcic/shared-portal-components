@@ -130,8 +130,9 @@ export function mergeTerms(facet, filters) {
 
   return terms.concat(unseenTerms);
 }
+/* Used in ListOfTerms and ListOfRanges (RangeFacet) */
 
-function segmentTermComponentsByStatus(termComponents) {
+export function segmentComponentsByStatus(termComponents) {
   var groups = {};
   termComponents.forEach(function (t) {
     var status = t.props.status;
@@ -147,7 +148,6 @@ function segmentTermComponentsByStatus(termComponents) {
 /**
  * Used to render individual terms in FacetList.
  */
-
 
 export var Term = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(Term, _React$PureComponent);
@@ -234,11 +234,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         });
       } else if (status === 'selected' || status === 'omitted') {
         icon = /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-minus-circle icon-fw fas"
+          className: "icon icon-check-square icon-fw fas"
         });
       } else {
         icon = /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-circle icon-fw unselected far"
+          className: "icon icon-square icon-fw unselected far"
         });
       }
 
@@ -279,7 +279,9 @@ Term.propTypes = {
     'doc_count': PropTypes.number
   }).isRequired,
   'getTermStatus': PropTypes.func.isRequired,
-  'onClick': PropTypes.func.isRequired
+  'onClick': PropTypes.func.isRequired,
+  'status': PropTypes.oneOf(["none", "selected", "omitted"]),
+  'termTransformFxn': PropTypes.func
 };
 export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
@@ -432,7 +434,6 @@ FacetTermsList.defaultProps = {
 var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
-      facetClosing = props.facetClosing,
       terms = props.terms,
       persistentCount = props.persistentCount,
       onTermClick = props.onTermClick,
@@ -443,7 +444,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   /** Create term components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = useMemo(function () {
-    var _segmentTermComponent = segmentTermComponentsByStatus(terms.map(function (term) {
+    var _segmentComponentsByS = segmentComponentsByStatus(terms.map(function (term) {
       return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
@@ -454,12 +455,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         status: getTermStatus(term, facet)
       }));
     })),
-        _segmentTermComponent2 = _segmentTermComponent.selected,
-        selectedTermComponents = _segmentTermComponent2 === void 0 ? [] : _segmentTermComponent2,
-        _segmentTermComponent3 = _segmentTermComponent.omitted,
-        omittedTermComponents = _segmentTermComponent3 === void 0 ? [] : _segmentTermComponent3,
-        _segmentTermComponent4 = _segmentTermComponent.none,
-        unselectedTermComponents = _segmentTermComponent4 === void 0 ? [] : _segmentTermComponent4;
+        _segmentComponentsByS2 = _segmentComponentsByS.selected,
+        selectedTermComponents = _segmentComponentsByS2 === void 0 ? [] : _segmentComponentsByS2,
+        _segmentComponentsByS3 = _segmentComponentsByS.omitted,
+        omittedTermComponents = _segmentComponentsByS3 === void 0 ? [] : _segmentComponentsByS3,
+        _segmentComponentsByS4 = _segmentComponentsByS.none,
+        unselectedTermComponents = _segmentComponentsByS4 === void 0 ? [] : _segmentComponentsByS4;
 
     var selectedLen = selectedTermComponents.length;
     var omittedLen = omittedTermComponents.length;

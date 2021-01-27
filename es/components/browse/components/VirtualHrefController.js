@@ -113,6 +113,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
 
     _this = _super.call(this, props);
     _this.onFilter = _this.onFilter.bind(_assertThisInitialized(_this));
+    _this.onFilterMultiple = _this.onFilterMultiple.bind(_assertThisInitialized(_this));
     _this.onClearFilters = _this.onClearFilters.bind(_assertThisInitialized(_this));
     _this.getTermStatus = _this.getTermStatus.bind(_assertThisInitialized(_this));
     _this.virtualNavigate = _this.virtualNavigate.bind(_assertThisInitialized(_this));
@@ -178,13 +179,11 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           existingContext = _this$state2.virtualContext;
       var nextHrefFull = null;
       var virtualCompoundFilterSet = null;
-      console.log("TTT1", navigationTarget);
 
       if (typeof navigationTarget === "string") {
         // There is (very large) chance that `nextHref` does not have domain name, path, etc.
         // Resolve based on current virtualHref (else AJAX call may auto-resolve relative to browser URL).
         nextHrefFull = url.resolve(currentHref || "/search/", navigationTarget);
-        console.log("TTT2", navigationTarget);
 
         if (allowPostRequest) {
           // Remove this if condition/wrapper/prop once 4DN has a /compound_search
@@ -269,7 +268,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           _this2.currRequest = null;
 
           if (typeof total !== "number") {
-            throw new Error("Did not get back a search response");
+            throw new Error("Did not get back a search response, request was potentially aborted.");
           }
 
           if (typeof globalNavigate.updateUserInfo === "function") {
@@ -347,6 +346,45 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
         'dontScrollToTop': true
       }, typeof callback === "function" ? callback : null);
     }
+    /**
+     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term, callback)}) and generates a composite href before navigating
+     * @param {Array} filterObjs An object containing {facet, term, callback}
+     * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
+     * desired functionality.
+     */
+
+  }, {
+    key: "onFilterMultiple",
+    value: function onFilterMultiple() {
+      var filterObjs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var _this$state4 = this.state,
+          virtualHref = _this$state4.virtualHref,
+          virtualContextFilters = _this$state4.virtualContext.filters;
+
+      if (filterObjs.length === 0) {
+        console.log("Attempted multi-filter, but no objects passed in!");
+        return null;
+      }
+
+      var newHref = virtualHref; // initialize to href
+
+      var callback; // Update href to include facet/term query pairs for each new item
+
+      filterObjs.forEach(function (obj, i) {
+        var facet = obj.facet,
+            term = obj.term,
+            thisCallback = obj.callback;
+        var thisHref = generateNextHref(newHref, virtualContextFilters, facet, term);
+        newHref = thisHref;
+
+        if (i === 0) {
+          callback = thisCallback;
+        }
+      });
+      return this.virtualNavigate(newHref, {
+        'dontScrollToTop': true
+      }, typeof callback === "function" ? callback : null);
+    }
     /** Unlike in case of SearchView, which defaults to response's clear filters URL, this defaults to original searchHref */
 
   }, {
@@ -384,11 +422,11 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           originalSearchHref = _this$props3.searchHref,
           passProps = _objectWithoutProperties(_this$props3, ["children", "facets", "filterFacetFxn", "columns", "searchHref"]);
 
-      var _this$state4 = this.state,
-          href = _this$state4.virtualHref,
-          context = _this$state4.virtualContext,
-          requestedCompoundFilterSet = _this$state4.virtualCompoundFilterSet,
-          isContextLoading = _this$state4.isContextLoading; // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
+      var _this$state5 = this.state,
+          href = _this$state5.virtualHref,
+          context = _this$state5.virtualContext,
+          requestedCompoundFilterSet = _this$state5.virtualCompoundFilterSet,
+          isContextLoading = _this$state5.isContextLoading; // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
 
       var facets = propFacets === null ? null : this.memoized.transformedFacets(propFacets || context && context.facets || null, filterFacetFxn);
       var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href);
@@ -402,6 +440,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
         showClearFiltersButton: showClearFiltersButton,
         navigate: this.virtualNavigate,
         onFilter: this.onFilter,
+        onFilterMultiple: this.onFilterMultiple,
         onClearFilters: this.onClearFilters,
         getTermStatus: this.getTermStatus
       });
