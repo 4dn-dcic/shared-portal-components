@@ -1902,7 +1902,7 @@ class IndividualObjectView extends React.Component {
             'selectType'    : null,
             'selectField'   : null,
             'selectArrayIdx': null,
-            'selectItems':null,
+            'selectItems':null
         };
     }
 
@@ -2179,7 +2179,6 @@ class IndividualObjectView extends React.Component {
 
     /** Exit out of the selection process and clean up state */
     selectCancel(previousValue){
-
         var { selectField, selectArrayIdx } = this.state;
 
         this.modifyNewContext(selectField, previousValue || null, 'existing linked object', null, selectArrayIdx);

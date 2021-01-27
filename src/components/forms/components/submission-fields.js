@@ -573,7 +573,7 @@ class ArrayField extends React.Component{
         const { schema : propSchema, value : propValue } = this.props;
         const schema = propSchema.items || {};
         const values = propValue || [];
-        const valuesToRender = _.map( values.length === 0 ? [null] : values , function (v, i){ return [v, schema, i]; });
+        const valuesToRender = _.map( values.length === 0 ? [null] : values , function(v,i){ return [v, schema, i]; });
         const showAddButton = !propSchema.maxItems && !isValueNull(values[valuesToRender.length - 1]);
 
         return(
