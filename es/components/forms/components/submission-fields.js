@@ -472,21 +472,23 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       if (schema.maxItems && valueCopy.length > schema.maxItems) {
-        _.each(value, function (i) {
-          var item = _.find(atIds, function (it) {
-            return it == _.values(i);
+        if (atIds) {
+          _.each(value, function (i) {
+            var item = _.find(atIds, function (it) {
+              return it == _.values(i);
+            });
+
+            if (!item) {
+              atIds.push(_.values(i));
+            }
           });
 
-          if (!item) {
-            atIds.push(_.values(i));
-          }
-        });
-
-        if (schema.maxItems < atIds.length) Alerts.queue({
-          'title': "Multi-select warning ",
-          'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + schema.maxItems + '"',
-          'style': 'warning'
-        });
+          if (schema.maxItems < atIds.length) Alerts.queue({
+            'title': "Multi-select warning 2",
+            'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + schema.maxItems + '"',
+            'style': 'warning'
+          });
+        }
       } else {
         modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
       }
