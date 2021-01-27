@@ -177,6 +177,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				position: absolute;
 				top: 0;
 				bottom: 0;
+				z-index: 60; /* header row has zindex=50, we keep this a little bit above that */
 				background: $search-results-edge-background-color;
 				width: 15px;
 				pointer-events: all;
@@ -206,18 +207,18 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				&.right-edge {
 					right: -15px;
 					border-radius: 0 4px 4px 0;
-					box-shadow: inset -5px 0 10px #fff2, -5px 0 10px -5px $search-results-edge-shadow-color;
-					&:hover {
-						box-shadow: -5px 0 10px -5px $search-results-edge-shadow-color;
-					}
+					box-shadow: inset -5px 0 10px #fff2, -10px 0 15px -5px $search-results-edge-shadow-color;
+					// &:hover {
+					// 	box-shadow: -5px 0 10px -5px $search-results-edge-shadow-color;
+					// }
 				}
 				&.left-edge {
 					left: -15px;
 					border-radius: 4px 0 0 4px;
-					box-shadow: inset 5px 0 10px #fff2, 5px 0 10px -5px $search-results-edge-shadow-color;
-					&:hover {
-						box-shadow: 5px 0 10px -5px $search-results-edge-shadow-color;
-					}
+					box-shadow: inset 5px 0 10px #fff2, 10px 0 15px -5px $search-results-edge-shadow-color;
+					// &:hover {
+					// 	box-shadow: 5px 0 10px -5px $search-results-edge-shadow-color;
+					// }
 				}
 			}
 
