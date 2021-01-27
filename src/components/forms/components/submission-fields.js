@@ -280,19 +280,20 @@ export class BuildField extends React.PureComponent {
             valueCopy.push(null);
         }
         if (schema.maxItems && (valueCopy.length > schema.maxItems)) {
-            if (atIds) {
+            if (atIds && Array.isArray(atIds)) {
                 _.each(value, function (i) {
                     const item = _.find(atIds, (it) => it == _.values(i));
                     if (!item) {
                         atIds.push(_.values(i));
                     }
                 });
-                if (schema.maxItems < atIds.length)
+                if (schema.maxItems < atIds.length) {
                     Alerts.queue({
-                        'title': "Multi-select warning ",
+                        'title': "Multi-select warning " + linkType,
                         'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + schema.maxItems + '"',
                         'style': 'warning'
                     });
+                }
             }
         }
         else {
@@ -572,7 +573,7 @@ class ArrayField extends React.Component{
         const { schema : propSchema, value : propValue } = this.props;
         const schema = propSchema.items || {};
         const values = propValue || [];
-        const valuesToRender = _.map(values.length === 0 ? [null] : values, function (v, i) { return [v, schema, i]; });
+        const valuesToRender = _.map( values.length === 0 ? [null] : values , function (v, i){ return [v, schema, i]; });
         const showAddButton = !propSchema.maxItems && !isValueNull(values[valuesToRender.length - 1]);
 
         return(
@@ -784,7 +785,7 @@ class S3FileInput extends React.Component{
             'percentDone': null,
             'sizeUploaded': null,
             'newFile': false,
-            'status': null,
+            'status': null
         };
     }
 
@@ -898,7 +899,7 @@ class S3FileInput extends React.Component{
         this.props.upload.abort();
     }
 
-    deleteField(e) {
+    deleteField(e){
         e.preventDefault();
         this.props.modifyNewContext(this.props.nestedField, null, 'file upload', this.props.linkType, this.props.arrayIdx);
         this.modifyFile(null);
