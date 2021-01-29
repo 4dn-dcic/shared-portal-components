@@ -547,6 +547,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
         return dict[term.key];
       });
+    } else if (searchType === 'sayt_without_terms') {
+      unselectedTermComponents = [];
     }
 
     var selectedLen = selectedTermComponents.length;

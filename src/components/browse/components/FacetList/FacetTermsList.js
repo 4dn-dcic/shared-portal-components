@@ -364,6 +364,8 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
             const dict = getFilteredTerms(terms, searchText);
             unselectedTermComponents = _.filter(unselectedTermComponents, function (term) { return dict[term.key]; });
+        } else if (searchType === 'sayt_without_terms') {
+            unselectedTermComponents = [];
         }
 
         const selectedLen = selectedTermComponents.length;
