@@ -303,11 +303,12 @@ SearchAsYouTypeAjax.defaultProps = {
         description = result.description;
     return /*#__PURE__*/React.createElement("div", {
       "data-tip": description,
-      key: atID
+      key: atID,
+      className: "py-1"
     }, /*#__PURE__*/React.createElement("h5", {
-      className: "text-300 text-truncate"
+      className: "text-300 text-truncate my-0"
     }, title), /*#__PURE__*/React.createElement("h6", {
-      className: "text-mono text-400 text-truncate"
+      className: "text-mono text-400 text-truncate my-0"
     }, atID));
   },
   "titleRenderFunction": function titleRenderFunction(result) {
