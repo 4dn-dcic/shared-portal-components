@@ -100,14 +100,15 @@ export var basicColumnExtensionMap = {
   },
   'date_created': {
     'title': 'Date Created',
-    'colTitle': 'Created',
+    'colTitle': 'Date Created',
     'widthMap': {
       'lg': 140,
       'md': 120,
       'sm': 120
     },
     'render': function (result) {
-      if (!result.date_created) return null;
+      var date_created = result.date_created;
+      if (!date_created) return null;
       return /*#__PURE__*/React.createElement("span", {
         className: "value text-right"
       }, /*#__PURE__*/React.createElement(LocalizedTime, {
@@ -119,6 +120,7 @@ export var basicColumnExtensionMap = {
   },
   'last_modified.date_modified': {
     'title': 'Date Modified',
+    'colTitle': 'Date Modified',
     'widthMap': {
       'lg': 140,
       'md': 120,

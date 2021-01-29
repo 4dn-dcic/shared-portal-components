@@ -83,7 +83,6 @@ export class ControlsAndResults extends React.PureComponent {
             // From ColumnCombiner or CustomColumnController (if props.hideColumns present):
             columnDefinitions,
             // From SelectedItemsController:
-            onCompleteSelection, onCancelSelection,
             selectedItems = null,
             // From SortController:
             sortBy, sortColumn, sortReverse
@@ -170,8 +169,7 @@ export class ControlsAndResults extends React.PureComponent {
                     { extendedAboveTableComponent }
                     <SearchResultTable {...searchResultTableProps} ref={this.searchResultTableRef} renderDetailPane={this.renderSearchDetailPane} />
                     { isSelectAction(currentAction) && selectedItems !== null ?
-                        <SelectStickyFooter {...{ context, schemas, selectedItems, currentAction }}
-                            onComplete={onCompleteSelection} onCancel={onCancelSelection} />
+                        <SelectStickyFooter {...{ context, schemas, selectedItems, currentAction }} />
                         : null}
                 </div>
             </div>

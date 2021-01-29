@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
@@ -49,10 +49,8 @@ export class SelectedItemsController extends React.PureComponent {
     constructor(props){
         super(props);
         this.handleSelectItem = this.handleSelectItem.bind(this);
-        this.handleSelectItemCompleteClick = this.handleSelectItemCompleteClick.bind(this);
-        this.handleSelectCancelClick = this.handleSelectCancelClick.bind(this);
-
-        this.state = { selectedItems : new Map() };
+        this.handleResetSelectedItems = this.handleResetSelectedItems.bind(this);
+        this.state = { "selectedItems": new Map() };
     }
 
     /**
@@ -75,23 +73,105 @@ export class SelectedItemsController extends React.PureComponent {
         });
     }
 
-    /**
-     * This function sends selected items to parent window for if `props.currentAction` is set to "multiselect" or "singleselect".
-     */
-    handleSelectItemCompleteClick(evt){
-        const { selectedItems } = this.state;
-        const itemsWrappedWithID = [];
-        for (const [key, value] of selectedItems){
-            itemsWrappedWithID.push({ id: key, json: value });
-        }
-        sendDataToParentWindow(itemsWrappedWithID);
+    handleResetSelectedItems(initialResults = null){
+        const selectedItems = !Array.isArray(initialResults) ? new Map()
+            : initialResults.map(function(result){
+                const atId = itemUtil.atId(result);
+                return [ atId, result ];
+            });
+        this.setState({ selectedItems });
     }
 
+
     /**
-     * This function cancels the selection if `props.currentAction` is set to "multiselect".
+     * If in selection mode and a `props.columnExtensionMap` is present,
+     * extends columnExtensionMap's display_title render function.
+     * Adds in a checkbox element which controls selectedItems state entry.
      */
-    handleSelectCancelClick(evt){
+    columnExtensionMapWithSelectButton(){
+        const {
+            columnExtensionMap: originalColumnExtensionMap,
+            currentAction = null
+        } = this.props;
+
+        // Check if `currentAction` is one of "selection" | "multiselect"
+        const inSelectionMode = isSelectAction(currentAction);
+
+        if (!inSelectionMode || !originalColumnExtensionMap){
+            return originalColumnExtensionMap;
+        }
+
+        // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
+        //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
+
+        // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
+        // Also add the popLink/target=_blank functionality to links
+        // Remove lab.display_title and type columns on selection
+        const newColumnExtensionMap = _.clone(originalColumnExtensionMap);
+        newColumnExtensionMap.display_title = {
+            ...newColumnExtensionMap.display_title,
+            'minColumnWidth' : (originalColumnExtensionMap.display_title.minColumnWidth || 100) + 20,
+            'render' : (result, parentProps) => {
+                const { selectedItems } = this.state;
+                const { rowNumber, detailOpen, toggleDetailOpen, href, context } = parentProps;
+                return (
+                    <DisplayTitleColumnWrapper {...{ result, href, context, rowNumber, detailOpen, toggleDetailOpen }}>
+                        <SelectionItemCheckbox {...{ selectedItems }} onSelectItem={this.handleSelectItem}
+                            isMultiSelect={currentAction === 'multiselect'} />
+                        <DisplayTitleColumnDefault />
+                    </DisplayTitleColumnWrapper>
+                );
+            }
+        };
+        return newColumnExtensionMap;
+    }
+
+    render(){
+        const { children, ...remainingProps } = this.props;
         const { selectedItems } = this.state;
+        const propsToPass = {
+            ...remainingProps,
+            selectedItems,
+            columnExtensionMap      : this.columnExtensionMapWithSelectButton(),
+            onSelectItem            : this.handleSelectItem,
+            onResetSelectedItems    : this.handleResetSelectedItems
+        };
+
+        return React.Children.map(children, function(child){
+            if (!React.isValidElement(child)){
+                throw new Error('SelectedItemsSearchController expects props.children to be a valid React component instance(s).');
+            }
+            return React.cloneElement(child, propsToPass);
+        });
+    }
+
+}
+
+export const SelectionItemCheckbox = React.memo(function SelectionItemCheckbox(props){
+    const { selectedItems, result, isMultiSelect, onSelectItem } = props;
+    const isChecked = selectedItems.has(itemUtil.atId(result));
+    const onChange = useMemo(function(){
+        return onSelectItem.bind(onSelectItem, result, isMultiSelect);
+    }, [ onSelectItem, result, isMultiSelect ]);
+    return <input type="checkbox" checked={isChecked} onChange={onChange} className="mr-2" />;
+});
+
+/** Move to own file later maybe. Especially if functionality expands. */
+export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
+    const { context, schemas, selectedItems, currentAction } = props;
+
+
+    /** This function sends selected items to parent window. */
+    const onComplete = useCallback(function(){
+        const itemsWrappedWithID = [];
+        for (const [key, value] of selectedItems){
+            itemsWrappedWithID.push({ "id": key, "json": value });
+        }
+        sendDataToParentWindow(itemsWrappedWithID);
+    }, [ selectedItems ]);
+
+
+    const onCancel = useCallback(function(){
         if (selectedItems.size > 0) {
             if (!window.confirm('Leaving will cause all selected item(s) to be lost. Are you sure you want to proceed?')) {
                 return;
@@ -105,92 +185,8 @@ export class SelectedItemsController extends React.PureComponent {
         } else {
             console.error("Couldn't access opener window.");
         }
-    }
+    }, [ selectedItems ]);
 
-    /**
-     * Extends columnExtensionMap's display_title render function.
-     * Adds in a checkbox element which controls selectedItems state entry.
-     *
-     * @todo
-     * Allow a boolean prop which controls whether we're extending columnExtensionMap
-     * or columnDefinitions, which would allow us to put this below ColumnCombiner also
-     * if desired.
-     * Alternatively, attempt to detect based on presence of props.columnDefinitions
-     * or props.columnExtensionMap, throwing error if neither available.
-     */
-    columnExtensionMapWithSelectButton(){
-        const { columnExtensionMap: originalColumnExtensionMap, currentAction = null } = this.props;
-        const inSelectionMode = isSelectAction(currentAction);
-
-        if (!inSelectionMode || !originalColumnExtensionMap){
-            return originalColumnExtensionMap;
-        }
-
-        // Kept for reference in case we want to re-introduce constrain that for 'select' button(s) to be visible in search result rows, there must be parent window.
-        //var isThereParentWindow = inSelectionMode && typeof window !== 'undefined' && window.opener && window.opener.fourfront && window.opener !== window;
-
-        if (inSelectionMode) {
-            const isMultiSelect = (currentAction === 'multiselect');
-            // Render out button and add to title render output for "Select" if we have a 'selection' currentAction.
-            // Also add the popLink/target=_blank functionality to links
-            // Remove lab.display_title and type columns on selection
-            const newColumnExtensionMap = _.clone(originalColumnExtensionMap);
-            newColumnExtensionMap.display_title = {
-                ...newColumnExtensionMap.display_title,
-                'minColumnWidth' : (originalColumnExtensionMap.display_title.minColumnWidth || 100) + 20,
-                'render' : (result, parentProps) => {
-                    const { selectedItems } = this.state;
-                    const { rowNumber, detailOpen, toggleDetailOpen, href, context } = parentProps;
-                    return (
-                        <DisplayTitleColumnWrapper {...{ result, href, context, rowNumber, detailOpen, toggleDetailOpen }}>
-                            <SelectionItemCheckbox {...{ selectedItems, isMultiSelect }} handleSelectItem={this.handleSelectItem} />
-                            <DisplayTitleColumnDefault />
-                        </DisplayTitleColumnWrapper>
-                    );
-                }
-            };
-            return newColumnExtensionMap;
-        }
-        return originalColumnExtensionMap;
-    }
-
-    render(){
-        const { children, ...propsToPass } = this.props;
-        const { selectedItems } = this.state;
-
-        _.extend(propsToPass, {
-            selectedItems,
-            columnExtensionMap      : this.columnExtensionMapWithSelectButton(),
-            onSelectItem            : this.handleSelectItemClick,
-            onCancelSelection       : this.handleSelectCancelClick,
-            onCompleteSelection     : this.handleSelectItemCompleteClick
-        });
-
-        return React.Children.map(children, function(child){
-            if (!React.isValidElement(child)){
-                throw new Error('SelectedItemsSearchController expects props.children to be a valid React component instance(s).');
-            }
-            return React.cloneElement(child, propsToPass);
-        });
-    }
-
-}
-
-const SelectionItemCheckbox = React.memo(function SelectionItemCheckbox(props){
-    const { selectedItems, result, isMultiSelect, handleSelectItem } = props;
-    const isChecked = selectedItems.has(itemUtil.atId(result));
-    const onChange = useMemo(function(){
-        return handleSelectItem.bind(handleSelectItem, result, isMultiSelect);
-    }, [ handleSelectItem, result, isMultiSelect ]);
-    return <input type="checkbox" checked={isChecked} onChange={onChange} className="mr-2" />;
-});
-
-/** Move to own file later maybe. Especially if functionality expands. */
-export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
-    const {
-        context, schemas, selectedItems,
-        onComplete, onCancel, currentAction
-    } = props;
     const itemTypeFriendlyName = getTitleForType(getSchemaTypeFromSearchContext(context), schemas);
     const selectedItemDisplayTitle = currentAction === 'selection' && selectedItems.size === 1 ? selectedItems.entries().next().value[1].display_title : "Nothing";
     return (
