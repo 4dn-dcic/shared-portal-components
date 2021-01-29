@@ -39,10 +39,12 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import memoize from 'memoize-one';
 import Fade from 'react-bootstrap/esm/Fade';
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
+import { SearchAsYouTypeAjax } from '../../../forms/components/SearchAsYouTypeAjax';
 /**
  * Used in FacetList
  * @deprecated
@@ -283,6 +285,35 @@ Term.propTypes = {
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
   'termTransformFxn': PropTypes.func
 };
+/**
+ * @param {*} facetTerms : facet's terms array
+ * @param {*} searchText : search text from basic search input
+ */
+
+export function getFilteredTerms(facetTerms, searchText) {
+  var retDict = {};
+
+  if (!facetTerms || !Array.isArray(facetTerms)) {
+    return retDict;
+  }
+
+  var lcSearchText = searchText && typeof searchText === 'string' && searchText.length > 0 ? searchText.toLocaleLowerCase() : '';
+
+  _.forEach(facetTerms, function (term) {
+    var _ref3$key = (term || {}).key,
+        key = _ref3$key === void 0 ? '' : _ref3$key;
+
+    if (typeof key === 'string' && key.length > 0) {
+      var isFiltered = lcSearchText.length > 0 ? key.toLocaleLowerCase().includes(lcSearchText) : true;
+
+      if (isFiltered) {
+        retDict[key] = true;
+      }
+    }
+  });
+
+  return retDict;
+}
 export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
 
@@ -296,8 +327,11 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     _this3 = _super2.call(this, props);
     _this3.handleOpenToggleClick = _this3.handleOpenToggleClick.bind(_assertThisInitialized(_this3));
     _this3.handleExpandListToggleClick = _this3.handleExpandListToggleClick.bind(_assertThisInitialized(_this3));
+    _this3.handleBasicTermSearch = _this3.handleBasicTermSearch.bind(_assertThisInitialized(_this3));
+    _this3.handleSaytTermSearch = _this3.handleSaytTermSearch.bind(_assertThisInitialized(_this3));
     _this3.state = {
-      'expanded': false
+      'expanded': false,
+      'searchText': ''
     };
     return _this3;
   }
@@ -317,42 +351,67 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref3) {
-        var expanded = _ref3.expanded;
+      this.setState(function (_ref4) {
+        var expanded = _ref4.expanded;
         return {
           'expanded': !expanded
         };
       });
     }
   }, {
-    key: "render",
-    value: function render() {
+    key: "handleBasicTermSearch",
+    value: function handleBasicTermSearch(e) {
+      e.preventDefault();
+      var newValue = e.target.value;
+      this.setState({
+        'searchText': newValue
+      });
+    }
+  }, {
+    key: "handleSaytTermSearch",
+    value: function handleSaytTermSearch(e) {
       var _this$props4 = this.props,
           facet = _this$props4.facet,
-          fieldSchema = _this$props4.fieldSchema,
-          isStatic = _this$props4.isStatic,
-          anySelected = _this$props4.anyTermsSelected,
-          termsSelectedCount = _this$props4.termsSelectedCount,
-          persistentCount = _this$props4.persistentCount,
-          onTermClick = _this$props4.onTermClick,
-          getTermStatus = _this$props4.getTermStatus,
-          termTransformFxn = _this$props4.termTransformFxn,
-          facetOpen = _this$props4.facetOpen,
-          openPopover = _this$props4.openPopover,
-          setOpenPopover = _this$props4.setOpenPopover;
+          onTermClick = _this$props4.onTermClick;
+      var key = {
+        'key': e.display_title
+      };
+      onTermClick(facet, key);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props5 = this.props,
+          facet = _this$props5.facet,
+          fieldSchema = _this$props5.fieldSchema,
+          isStatic = _this$props5.isStatic,
+          anySelected = _this$props5.anyTermsSelected,
+          termsSelectedCount = _this$props5.termsSelectedCount,
+          persistentCount = _this$props5.persistentCount,
+          defaultBasicSearchAutoDisplayThreshold = _this$props5.defaultBasicSearchAutoDisplayThreshold,
+          onTermClick = _this$props5.onTermClick,
+          getTermStatus = _this$props5.getTermStatus,
+          termTransformFxn = _this$props5.termTransformFxn,
+          facetOpen = _this$props5.facetOpen,
+          openPopover = _this$props5.openPopover,
+          setOpenPopover = _this$props5.setOpenPopover,
+          context = _this$props5.context,
+          schemas = _this$props5.schemas;
       var _facet$description = facet.description,
           facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
           field = facet.field,
           facetTitle = facet.title,
           _facet$terms = facet.terms,
           terms = _facet$terms === void 0 ? [] : _facet$terms;
-      var expanded = this.state.expanded;
+      var _this$state = this.state,
+          expanded = _this$state.expanded,
+          searchText = _this$state.searchText;
       var termsLen = terms.length;
       var allTermsSelected = termsSelectedCount === termsLen;
 
-      var _ref4 = fieldSchema || {},
-          fieldTitle = _ref4.title,
-          fieldSchemaDescription = _ref4.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
+      var _ref5 = fieldSchema || {},
+          fieldTitle = _ref5.title,
+          fieldSchemaDescription = _ref5.description; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
 
 
       var indicator; // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
@@ -415,12 +474,17 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         facet: facet,
         facetOpen: facetOpen,
         terms: terms,
-        persistentCount: persistentCount,
         onTermClick: onTermClick,
         expanded: expanded,
         getTermStatus: getTermStatus,
-        termTransformFxn: termTransformFxn
+        termTransformFxn: termTransformFxn,
+        searchText: searchText,
+        schemas: schemas,
+        persistentCount: persistentCount,
+        defaultBasicSearchAutoDisplayThreshold: defaultBasicSearchAutoDisplayThreshold
       }, {
+        onSaytTermSearch: this.handleSaytTermSearch,
+        onBasicTermSearch: this.handleBasicTermSearch,
         onToggleExpanded: this.handleExpandListToggleClick
       })));
     }
@@ -429,22 +493,38 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   return FacetTermsList;
 }(React.PureComponent);
 FacetTermsList.defaultProps = {
-  'persistentCount': 10
+  'persistentCount': 10,
+  'defaultBasicSearchAutoDisplayThreshold': 15
 };
 var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
       terms = props.terms,
-      persistentCount = props.persistentCount,
       onTermClick = props.onTermClick,
       expanded = props.expanded,
       onToggleExpanded = props.onToggleExpanded,
       getTermStatus = props.getTermStatus,
-      termTransformFxn = props.termTransformFxn;
+      termTransformFxn = props.termTransformFxn,
+      searchText = props.searchText,
+      onBasicTermSearch = props.onBasicTermSearch,
+      onSaytTermSearch = props.onSaytTermSearch,
+      persistentCount = props.persistentCount,
+      defaultBasicSearchAutoDisplayThreshold = props.defaultBasicSearchAutoDisplayThreshold;
+  var _facet$search_type = facet.search_type,
+      searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
+  /**
+   * even if search type is not defined, display basic search option when terms count
+   * is greater than defaultBasicSearchAutoDisplayThreshold
+   */
+
+  if (searchType === 'none' && terms.length >= defaultBasicSearchAutoDisplayThreshold) {
+    searchType = 'basic';
+  }
   /** Create term components and sort by status (selected->omitted->unselected) */
 
+
   var _useMemo = useMemo(function () {
-    var _segmentComponentsByS = segmentComponentsByStatus(terms.map(function (term) {
+    var segments = segmentComponentsByStatus(terms.map(function (term) {
       return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
@@ -454,13 +534,22 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         key: term.key,
         status: getTermStatus(term, facet)
       }));
-    })),
-        _segmentComponentsByS2 = _segmentComponentsByS.selected,
-        selectedTermComponents = _segmentComponentsByS2 === void 0 ? [] : _segmentComponentsByS2,
-        _segmentComponentsByS3 = _segmentComponentsByS.omitted,
-        omittedTermComponents = _segmentComponentsByS3 === void 0 ? [] : _segmentComponentsByS3,
-        _segmentComponentsByS4 = _segmentComponentsByS.none,
-        unselectedTermComponents = _segmentComponentsByS4 === void 0 ? [] : _segmentComponentsByS4;
+    }));
+    var _segments$selected = segments.selected,
+        selectedTermComponents = _segments$selected === void 0 ? [] : _segments$selected,
+        _segments$omitted = segments.omitted,
+        omittedTermComponents = _segments$omitted === void 0 ? [] : _segments$omitted;
+    var _segments$none = segments.none,
+        unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none; //filter unselected terms
+
+    if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
+      var dict = getFilteredTerms(terms, searchText);
+      unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
+        return dict[term.key];
+      });
+    } else if (searchType === 'sayt_without_terms') {
+      unselectedTermComponents = [];
+    }
 
     var selectedLen = selectedTermComponents.length;
     var omittedLen = omittedTermComponents.length;
@@ -496,7 +585,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       return m + (termComponent.props.term.doc_count || 0);
     }, 0);
     return retObj;
-  }, [terms, persistentCount]),
+  }, [terms, persistentCount, searchText]),
       termComponents = _useMemo.termComponents,
       activeTermComponents = _useMemo.activeTermComponents,
       unselectedTermComponents = _useMemo.unselectedTermComponents,
@@ -519,7 +608,37 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     "data-open": facetOpen,
     "className": "facet-list",
     "key": "facetlist"
-  };
+  }; // show simple text input for basic search (search within returned values)
+  // or show SAYT control if item search is available
+
+  var facetSearch = null;
+
+  if (searchType === 'basic') {
+    facetSearch = /*#__PURE__*/React.createElement("div", {
+      className: "text-small p-2"
+    }, /*#__PURE__*/React.createElement("input", {
+      className: "form-control",
+      autoComplete: "off",
+      type: "search",
+      placeholder: "Search",
+      name: "q",
+      onChange: onBasicTermSearch,
+      key: "facet-search-input"
+    }));
+  } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
+    var _ref6$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref6$sayt_item_type === void 0 ? '' : _ref6$sayt_item_type;
+    itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
+    var baseHref = "/search/?type=" + itemType;
+    facetSearch = /*#__PURE__*/React.createElement("div", {
+      className: "d-flex flex-wrap text-small p-2"
+    }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
+      baseHref: baseHref,
+      showTips: true,
+      onChange: onSaytTermSearch,
+      key: itemType
+    }));
+  }
 
   if (Array.isArray(collapsibleTerms)) {
     var expandButtonTitle;
@@ -540,42 +659,42 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
-      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(PartialList, {
+      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, facetSearch, /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0",
         open: expanded,
         persistent: persistentTerms,
         collapsible: collapsibleTerms
-      }), /*#__PURE__*/React.createElement("div", {
+      }), searchType !== 'sayt_without_terms' ? /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
       }, /*#__PURE__*/React.createElement("div", {
         className: "view-more-button",
         onClick: onToggleExpanded
-      }, expandButtonTitle)))
+      }, expandButtonTitle)) : null)
     }));
   } else {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
       persistent: activeTermComponents,
-      collapsible: unselectedTermComponents
+      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, facetSearch, unselectedTermComponents)
     }));
   }
 });
-export var CountIndicator = /*#__PURE__*/React.memo(function (_ref5) {
-  var _ref5$count = _ref5.count,
-      count = _ref5$count === void 0 ? 1 : _ref5$count,
-      _ref5$countActive = _ref5.countActive,
-      countActive = _ref5$countActive === void 0 ? 0 : _ref5$countActive,
-      _ref5$height = _ref5.height,
-      height = _ref5$height === void 0 ? 16 : _ref5$height,
-      _ref5$width = _ref5.width,
-      width = _ref5$width === void 0 ? 40 : _ref5$width;
+export var CountIndicator = /*#__PURE__*/React.memo(function (_ref7) {
+  var _ref7$count = _ref7.count,
+      count = _ref7$count === void 0 ? 1 : _ref7$count,
+      _ref7$countActive = _ref7.countActive,
+      countActive = _ref7$countActive === void 0 ? 0 : _ref7$countActive,
+      _ref7$height = _ref7.height,
+      height = _ref7$height === void 0 ? 16 : _ref7$height,
+      _ref7$width = _ref7.width,
+      width = _ref7$width === void 0 ? 40 : _ref7$width;
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref6, idx) {
-    var _ref7 = _slicedToArray(_ref6, 2),
-        x = _ref7[0],
-        y = _ref7[1];
+  var dots = dotCoords.map(function (_ref8, idx) {
+    var _ref9 = _slicedToArray(_ref8, 2),
+        x = _ref9[0],
+        y = _ref9[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 

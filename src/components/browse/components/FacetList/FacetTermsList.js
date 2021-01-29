@@ -3,13 +3,13 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import memoize from 'memoize-one';
 import Fade from 'react-bootstrap/esm/Fade';
 
 import { stackDotsInContainer } from './../../../viz/utilities';
 import { PartialList } from './../../../ui/PartialList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
-
-
+import { SearchAsYouTypeAjax } from '../../../forms/components/SearchAsYouTypeAjax';
 /**
  * Used in FacetList
  * @deprecated
@@ -201,6 +201,28 @@ Term.propTypes = {
     'termTransformFxn'  : PropTypes.func
 };
 
+/**
+ * @param {*} facetTerms : facet's terms array
+ * @param {*} searchText : search text from basic search input
+ */
+export function getFilteredTerms(facetTerms, searchText) {
+    const retDict = {};
+    if (!facetTerms || !Array.isArray(facetTerms)) {
+        return retDict;
+    }
+
+    const lcSearchText = searchText && typeof searchText === 'string' && searchText.length > 0 ? searchText.toLocaleLowerCase() : '';
+
+    _.forEach(facetTerms, function (term) {
+        const { key = '' } = term || {};
+        if (typeof key === 'string' && key.length > 0) {
+            const isFiltered = lcSearchText.length > 0 ? key.toLocaleLowerCase().includes(lcSearchText) : true;
+            if (isFiltered) { retDict[key] = true; }
+        }
+    });
+
+    return retDict;
+}
 
 export class FacetTermsList extends React.PureComponent {
 
@@ -208,7 +230,9 @@ export class FacetTermsList extends React.PureComponent {
         super(props);
         this.handleOpenToggleClick = this.handleOpenToggleClick.bind(this);
         this.handleExpandListToggleClick = this.handleExpandListToggleClick.bind(this);
-        this.state = { 'expanded' : false };
+        this.handleBasicTermSearch = this.handleBasicTermSearch.bind(this);
+        this.handleSaytTermSearch = this.handleSaytTermSearch.bind(this);
+        this.state = { 'expanded': false, 'searchText': '', };
     }
 
     handleOpenToggleClick(e) {
@@ -224,6 +248,18 @@ export class FacetTermsList extends React.PureComponent {
         });
     }
 
+    handleBasicTermSearch(e) {
+        e.preventDefault();
+        const newValue = e.target.value;
+        this.setState({ 'searchText': newValue });
+    }
+
+    handleSaytTermSearch(e) {
+        var { facet,onTermClick } = this.props;
+        const key = { 'key': e.display_title };
+        onTermClick(facet,key);
+    }
+
     render(){
         const {
             facet,
@@ -232,22 +268,24 @@ export class FacetTermsList extends React.PureComponent {
             anyTermsSelected: anySelected,
             termsSelectedCount,
             persistentCount,
+            defaultBasicSearchAutoDisplayThreshold,
             onTermClick,
             getTermStatus,
             termTransformFxn,
             facetOpen,
             openPopover,
-            setOpenPopover
+            setOpenPopover,
+            context,
+            schemas,
         } = this.props;
         const { description: facetSchemaDescription = null, field, title: facetTitle, terms = [] } = facet;
-        const { expanded } = this.state;
+        const { expanded, searchText } = this.state;
         const termsLen = terms.length;
         const allTermsSelected = termsSelectedCount === termsLen;
         const { title: fieldTitle, description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet or if fake/calculated 'field'/column.
         const title = facetTitle || fieldTitle || field;
 
         let indicator;
-
         // @todo: much of this code (including mergeTerms and anyTermsSelected above) were moved to index; consider moving these too
         if (isStatic || termsLen === 1){
             indicator = ( // Small indicator to help represent how many terms there are available for this Facet.
@@ -284,18 +322,27 @@ export class FacetTermsList extends React.PureComponent {
                     </div>
                     { indicator }
                 </h5>
-                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn }} onToggleExpanded={this.handleExpandListToggleClick} />
+                <ListOfTerms {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold }} onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
 }
 FacetTermsList.defaultProps = {
-    'persistentCount' : 10
+    'persistentCount' : 10,
+    'defaultBasicSearchAutoDisplayThreshold': 15
 };
 
-
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn } = props;
+    const { facet, facetOpen, terms, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, searchText, onBasicTermSearch, onSaytTermSearch, persistentCount, defaultBasicSearchAutoDisplayThreshold } = props;
+    let { search_type: searchType = 'none' } = facet;
+
+    /**
+     * even if search type is not defined, display basic search option when terms count
+     * is greater than defaultBasicSearchAutoDisplayThreshold
+     */
+    if (searchType === 'none' && terms.length >= defaultBasicSearchAutoDisplayThreshold) {
+        searchType = 'basic';
+    }
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
         termComponents, activeTermComponents, unselectedTermComponents,
@@ -305,13 +352,22 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         collapsibleTermsCount = 0,
         collapsibleTermsItemCount = 0
     } = useMemo(function(){
-        const {
-            selected: selectedTermComponents    = [],
-            omitted : omittedTermComponents     = [],
-            none    : unselectedTermComponents  = []
-        } = segmentComponentsByStatus(terms.map(function(term){
+
+        const segments = segmentComponentsByStatus(terms.map(function(term){
             return <Term {...{ facet, term, termTransformFxn }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
+
+        const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;
+        let { none : unselectedTermComponents  = [] } = segments;
+
+        //filter unselected terms
+        if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
+            const dict = getFilteredTerms(terms, searchText);
+            unselectedTermComponents = _.filter(unselectedTermComponents, function (term) { return dict[term.key]; });
+        } else if (searchType === 'sayt_without_terms') {
+            unselectedTermComponents = [];
+        }
+
         const selectedLen = selectedTermComponents.length;
         const omittedLen = omittedTermComponents.length;
         const unselectedLen = unselectedTermComponents.length;
@@ -341,7 +397,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 
         return retObj;
 
-    }, [ terms, persistentCount ]);
+    }, [ terms, persistentCount, searchText ]);
 
     const commonProps = {
         "data-any-active" : !!(selectedLen || omittedLen),
@@ -351,8 +407,26 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         "key" : "facetlist"
     };
 
-    if (Array.isArray(collapsibleTerms)){
+    // show simple text input for basic search (search within returned values)
+    // or show SAYT control if item search is available
+    let facetSearch = null;
+    if (searchType === 'basic') {
+        facetSearch = (
+            <div className="text-small p-2">
+                <input className="form-control" autoComplete="off" type="search" placeholder="Search"
+                    name="q" onChange={onBasicTermSearch} key="facet-search-input" />
+            </div>);
+    } else if ((searchType === 'sayt') || (searchType === 'sayt_without_terms')) {
+        let { sayt_item_type: itemType = '' } = facet || {};
+        itemType = typeof itemType === 'string' && (itemType.length > 0) ? itemType : 'Item';
+        const baseHref = "/search/?type=" + itemType;
+        facetSearch = (
+            <div className="d-flex flex-wrap text-small p-2">
+                <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
+            </div>);
+    }
 
+    if (Array.isArray(collapsibleTerms)) {
         let expandButtonTitle;
 
         if (expanded){
@@ -374,10 +448,12 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             <div {...commonProps}>
                 <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
                     <React.Fragment>
+                        {facetSearch}
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
-                        <div className="pt-08 pb-0">
-                            <div className="view-more-button" onClick={onToggleExpanded}>{ expandButtonTitle }</div>
-                        </div>
+                        {(searchType !== 'sayt_without_terms' ? (
+                            <div className="pt-08 pb-0">
+                                <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
+                            </div>) : null)}
                     </React.Fragment>
                 } />
             </div>
@@ -385,7 +461,12 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     } else {
         return (
             <div {...commonProps}>
-                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={unselectedTermComponents} />
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
+                    <React.Fragment>
+                        {facetSearch}
+                        {unselectedTermComponents}
+                    </React.Fragment>
+                } />
             </div>
         );
     }
@@ -405,7 +486,7 @@ export const CountIndicator = React.memo(function CountIndicator({ count = 1, co
     });
     return (
         <svg className="svg-count-indicator" viewBox={`0 0 ${width + 2} ${height + 2}`} width={width + 2} height={height + 2}>
-            { dots }
+            { dots}
         </svg>
     );
 });

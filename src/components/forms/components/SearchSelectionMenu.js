@@ -40,11 +40,12 @@ export class SearchSelectionMenu extends React.PureComponent {
             // TODO: add some more checks to make this more specific to ONLY cases
             // where the drop no longer aligns w/button
 
-            this.setState(function (existingState, existingProps) {
-                const { refreshKey } = existingState;
-                // todo: maybe read existingProps here as well and then cancel-out (return null) if no update needed.
-                return { "refreshKey": refreshKey + 1 };
-            });
+            // IMO, removing this block at all would be a better approach.
+            // this.setState(function (existingState, existingProps) {
+            //     const { refreshKey } = existingState;
+            //     // todo: maybe read existingProps here as well and then cancel-out (return null) if no update needed.
+            //     return { "refreshKey": refreshKey + 1 };
+            // });
         }
     }
 

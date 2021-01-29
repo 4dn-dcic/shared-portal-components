@@ -199,9 +199,9 @@ SearchAsYouTypeAjax.defaultProps = {
     "optionRenderFunction" : function(result){
         const { display_title: title, "@id" : atID, description } = result;
         return (
-            <div data-tip={description} key={atID}>
-                <h5 className="text-300 text-truncate">{ title }</h5>
-                <h6 className="text-mono text-400 text-truncate">{ atID }</h6>
+            <div data-tip={description} key={atID} className="py-1">
+                <h5 className="text-300 text-truncate my-0">{ title }</h5>
+                <h6 className="text-mono text-400 text-truncate my-0">{ atID }</h6>
             </div>
         );
     },
