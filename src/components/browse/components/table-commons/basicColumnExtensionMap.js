@@ -66,10 +66,11 @@ export const basicColumnExtensionMap = {
     },
     'date_created' : {
         'title' : 'Date Created',
-        'colTitle' : 'Created',
+        'colTitle' : 'Date Created',
         'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
         'render' : function dateCreatedTitle(result, props){
-            if (!result.date_created) return null;
+            const { date_created } = result;
+            if (!date_created) return null;
             return (
                 <span className="value text-right">
                     <LocalizedTime timestamp={result.date_created} formatType="date-sm" />
@@ -80,6 +81,7 @@ export const basicColumnExtensionMap = {
     },
     'last_modified.date_modified' : {
         'title' : 'Date Modified',
+        'colTitle' : 'Date Modified',
         'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
         'render' : function lastModifiedDate(result, props){
             const { last_modified : { date_modified = null } = {} } = result;
