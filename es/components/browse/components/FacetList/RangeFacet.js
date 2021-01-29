@@ -524,8 +524,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
       }
 
-      var fromVariant = savedFromVal === null ? "outline-dark" : "primary";
-      var toVariant = savedToVal === null ? "outline-dark" : "primary";
       return /*#__PURE__*/React.createElement("div", {
         className: "facet range-facet" + (facetOpen ? ' open' : ' closed'),
         "data-field": facet.field
@@ -557,7 +555,11 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         }
       }) : /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-greater-than-equal fas"
-      })))), /*#__PURE__*/React.createElement(PartialList, {
+      })))), /*#__PURE__*/React.createElement("div", {
+        className: "facet-list",
+        "data-open": facetOpen,
+        "data-any-active": savedFromVal || savedToVal ? true : false
+      }, /*#__PURE__*/React.createElement(PartialList, {
         className: "inner-panel",
         open: facetOpen,
         persistent: [/*#__PURE__*/React.createElement(RangeClear, _extends({
@@ -575,19 +577,19 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           key: 0
         }))],
         collapsible: [/*#__PURE__*/React.createElement("div", {
-          className: "range-drop-group",
+          className: "range-drop-group row",
           key: 0
         }, /*#__PURE__*/React.createElement("div", {
-          className: "range-drop"
+          className: "range-drop col-12 col-sm-6"
         }, /*#__PURE__*/React.createElement("label", {
-          className: "mb-0 small"
+          className: "mb-0 small mr-07"
         }, "From:"), /*#__PURE__*/React.createElement(RangeDropdown, {
           title: fromTitle,
           value: fromVal,
           savedValue: savedFromVal,
           max: toVal || null,
           increments: fromIncrements,
-          variant: fromVariant + " btn-xs",
+          variant: "outline-secondary",
           onSelect: this.setFrom,
           update: this.performUpdateFrom,
           termTransformFxn: this.termTitle,
@@ -595,9 +597,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           id: "from_" + field,
           reset: fromVal !== null ? this.resetFrom : null
         })), /*#__PURE__*/React.createElement("div", {
-          className: "range-drop ml-05"
+          className: "range-drop col-12 col-sm-6"
         }, /*#__PURE__*/React.createElement("label", {
-          className: "mb-0 small"
+          className: "mb-0 small ml-05 mr-07"
         }, "To:"), /*#__PURE__*/React.createElement(RangeDropdown, {
           title: toTitle,
           value: toVal,
@@ -605,7 +607,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           min: fromVal || null,
           increments: toIncrements,
           termTransformFxn: this.termTitle,
-          variant: toVariant + " btn-xs",
+          variant: "outline-secondary",
           onSelect: this.setTo,
           update: this.performUpdateTo,
           facet: facet,
@@ -618,7 +620,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           onTermClick: this.selectRange,
           resetAll: this.resetToAndFrom
         })) : null]
-      }));
+      })));
     }
   }]);
 
@@ -913,9 +915,7 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
     // Commented out b.c. not used atm:
     // const invalidRange = savedToVal < savedFromVal;
     // const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
-    return /*#__PURE__*/React.createElement("div", {
-      className: "range-clear"
-    }, /*#__PURE__*/React.createElement("li", {
+    return /*#__PURE__*/React.createElement("li", {
       className: "selected facet-list-element clickable"
     }, /*#__PURE__*/React.createElement("a", {
       onClick: resetAll
@@ -932,12 +932,10 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       className: "icon fas icon-less-than-equal icon-xs px-1"
     }), " ", abbreviatedTitle, " ", /*#__PURE__*/React.createElement("i", {
       className: "icon fas icon-less-than-equal icon-xs px-1"
-    }), " ", savedToTitle))));
+    }), " ", savedToTitle)));
   } else {
     // Only To or From present
-    return /*#__PURE__*/React.createElement("div", {
-      className: "range-clear"
-    }, /*#__PURE__*/React.createElement("li", {
+    return /*#__PURE__*/React.createElement("li", {
       className: "selected facet-list-element clickable"
     }, /*#__PURE__*/React.createElement("a", {
       onClick: resetTo === null ? resetFrom : resetTo
@@ -954,7 +952,7 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       className: "icon fas icon-less-than-equal icon-xs px-1"
     }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
       className: "icon fas icon-less-than-equal icon-xs px-1"
-    }), " ", abbreviatedTitle) : null))));
+    }), " ", abbreviatedTitle) : null)));
   }
 });
 
@@ -1065,13 +1063,13 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
       var showMenu = this.state.showMenu;
       var _this$props12 = this.props,
           _this$props12$variant = _this$props12.variant,
-          variant = _this$props12$variant === void 0 ? "outline-dark" : _this$props12$variant,
+          variant = _this$props12$variant === void 0 ? "outline-dark w-100" : _this$props12$variant,
           _this$props12$size = _this$props12.size,
-          size = _this$props12$size === void 0 ? "sm" : _this$props12$size,
+          size = _this$props12$size === void 0 ? "xs" : _this$props12$size,
           _this$props12$disable = _this$props12.disabled,
           disabled = _this$props12$disable === void 0 ? false : _this$props12$disable,
           _this$props12$classNa = _this$props12.className,
-          className = _this$props12$classNa === void 0 ? "range-dropdown-container col" : _this$props12$classNa,
+          className = _this$props12$classNa === void 0 ? "rcol dropdown flex-grow-1" : _this$props12$classNa,
           propMin = _this$props12.min,
           propMax = _this$props12.max,
           value = _this$props12.value,

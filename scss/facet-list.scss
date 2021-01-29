@@ -169,36 +169,22 @@ $facetlist-term-block-height: default !default;
         }
 
         &.range-facet {
-
-            > .inner-panel.expandable-list {
+            .facet-list > .inner-panel.expandable-list {
                 margin-bottom: 0;
 
-                button.range-clear.btn {
-                    &.btn-warning {
-                        color: #ffffff;
-                    }
-                }
-
                 .range-drop-group {
-                    /* allows for side by side display without interfering with open/closed state */
-                    display: flex;
-                    justify-content: center;
-                    background-color: #eeeeee;
+                    text-align-last: center;
                     
                     div.range-drop {
-
-                        padding-top: 5px;
-                        padding-bottom: 5px;
                         display: flex;
-                        align-items: center;
+                        align-items: center;                    
 
-                        .range-dropdown-container {
-                            padding-left: 5px;
-                            padding-right: 10px;
+                        label {
+                            display: inline-block;
+                        }
+
+                        .rcol {
                             > button {
-                                &.btn-warning {
-                                    color: #ffffff;
-                                }
                                 width: 100%;
                                 text-align: right;
                                 padding-left: .5rem; // Same as default button rather than dropdown's button increased 10px. TODO: Get from bootstrap variable if possible.
@@ -257,11 +243,6 @@ $facetlist-term-block-height: default !default;
                         
                     }
                 }
-
-                div.range-drop-group div.range-drop {
-                    
-                }
-
             }
         }
 
@@ -501,7 +482,6 @@ $facetlist-term-block-height: default !default;
             }
         }
 
-        .range-clear,
         .facet-list {
             margin: 0;
             list-style: none;
@@ -644,8 +624,7 @@ $facetlist-term-block-height: default !default;
             
         }
 
-        &.closed .facet-list,
-        &.closed .range-clear {
+        &.closed .facet-list {
             li {
                 &.selected:last-child:after ,
                 &.omitted:last-child:after {
