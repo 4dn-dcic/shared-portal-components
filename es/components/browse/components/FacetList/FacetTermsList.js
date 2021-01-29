@@ -220,11 +220,6 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
     }
     */
 
-    /**
-     * @param {*} facetTerms : facet's terms array
-     * @param {*} searchText : search text from basic search input
-     */
-
   }, {
     key: "render",
     value: function render() {
@@ -232,14 +227,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           term = _this$props2.term,
           facet = _this$props2.facet,
           status = _this$props2.status,
-          termTransformFxn = _this$props2.termTransformFxn,
-          searchText = _this$props2.searchText,
-          searchType = _this$props2.searchType;
+          termTransformFxn = _this$props2.termTransformFxn;
       var filtering = this.state.filtering;
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
-      var filteredTerms = searchType === 'basic' ? this.memoized.getFilteredTerms(facet.terms, searchText) : [];
 
       if (filtering) {
         icon = /*#__PURE__*/React.createElement("i", {
@@ -260,7 +252,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var statusClassName = status !== 'none' ? status === 'selected' ? " selected" : " omitted" : '';
-      var facetListItem = /*#__PURE__*/React.createElement("li", {
+      return /*#__PURE__*/React.createElement("li", {
         className: "facet-list-element " + statusClassName,
         key: term.key,
         "data-key": term.key
@@ -278,39 +270,6 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       }, title), /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
       }, count)));
-
-      if (searchType === 'basic') {
-        // if (!searchText) { return facetListItem; }
-        var termAlreadyFiltered = _.any(filteredTerms, function (item) {
-          return item.key === term.key;
-        });
-
-        return termAlreadyFiltered || status !== 'none' ? facetListItem : null;
-      } else if (searchType === 'sayt_without_terms') {
-        return status !== 'none' ? facetListItem : null;
-      } else {
-        return facetListItem;
-      }
-    }
-  }], [{
-    key: "getFilteredTerms",
-    value: function getFilteredTerms(facetTerms, searchText) {
-      if (!facetTerms || !Array.isArray(facetTerms)) {
-        return [];
-      }
-
-      var filteredTerms = _.clone(facetTerms);
-
-      if (searchText && typeof searchText === 'string' && searchText.length > 0) {
-        var lcSearchText = searchText.toLocaleLowerCase();
-        filteredTerms = _.filter(facetTerms, function (term) {
-          var _ref3$key = (term || {}).key,
-              key = _ref3$key === void 0 ? '' : _ref3$key;
-          return typeof key === 'string' && key.length > 0 && term.key.toLocaleLowerCase().includes(lcSearchText);
-        });
-      }
-
-      return filteredTerms;
     }
   }]);
 
@@ -327,8 +286,39 @@ Term.propTypes = {
   'getTermStatus': PropTypes.func.isRequired,
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
+  'searchType': PropTypes.oneOf(["none", "basic", "sayt", "sayt_without_terms"]),
+  'filteredTerms': PropTypes.object,
   'termTransformFxn': PropTypes.func
 };
+/**
+ * @param {*} facetTerms : facet's terms array
+ * @param {*} searchText : search text from basic search input
+ */
+
+export function getFilteredTerms(facetTerms, searchText) {
+  var retDict = {};
+
+  if (!facetTerms || !Array.isArray(facetTerms)) {
+    return retDict;
+  }
+
+  var lcSearchText = searchText && typeof searchText === 'string' && searchText.length > 0 ? searchText.toLocaleLowerCase() : '';
+
+  _.forEach(facetTerms, function (term) {
+    var _ref3$key = (term || {}).key,
+        key = _ref3$key === void 0 ? '' : _ref3$key;
+
+    if (typeof key === 'string' && key.length > 0) {
+      var isFiltered = lcSearchText.length > 0 ? key.toLocaleLowerCase().includes(lcSearchText) : true;
+
+      if (isFiltered) {
+        retDict[key] = true;
+      }
+    }
+  });
+
+  return retDict;
+}
 export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(FacetTermsList, _React$PureComponent2);
 
@@ -403,6 +393,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           anySelected = _this$props5.anyTermsSelected,
           termsSelectedCount = _this$props5.termsSelectedCount,
           persistentCount = _this$props5.persistentCount,
+          defaultBasicSearchAutoDisplayThreshold = _this$props5.defaultBasicSearchAutoDisplayThreshold,
           onTermClick = _this$props5.onTermClick,
           getTermStatus = _this$props5.getTermStatus,
           termTransformFxn = _this$props5.termTransformFxn,
@@ -488,13 +479,14 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         facet: facet,
         facetOpen: facetOpen,
         terms: terms,
-        persistentCount: persistentCount,
         onTermClick: onTermClick,
         expanded: expanded,
         getTermStatus: getTermStatus,
         termTransformFxn: termTransformFxn,
         searchText: searchText,
-        schemas: schemas
+        schemas: schemas,
+        persistentCount: persistentCount,
+        defaultBasicSearchAutoDisplayThreshold: defaultBasicSearchAutoDisplayThreshold
       }, {
         onSaytTermSearch: this.handleSaytTermSearch,
         onBasicTermSearch: this.handleBasicTermSearch,
@@ -506,13 +498,13 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   return FacetTermsList;
 }(React.PureComponent);
 FacetTermsList.defaultProps = {
-  'persistentCount': 10
+  'persistentCount': 10,
+  'defaultBasicSearchAutoDisplayThreshold': 15
 };
 var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
       terms = props.terms,
-      persistentCount = props.persistentCount,
       onTermClick = props.onTermClick,
       expanded = props.expanded,
       onToggleExpanded = props.onToggleExpanded,
@@ -520,30 +512,47 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       termTransformFxn = props.termTransformFxn,
       searchText = props.searchText,
       onBasicTermSearch = props.onBasicTermSearch,
-      onSaytTermSearch = props.onSaytTermSearch;
-  var searchType = facet.search_type || '';
+      onSaytTermSearch = props.onSaytTermSearch,
+      persistentCount = props.persistentCount,
+      defaultBasicSearchAutoDisplayThreshold = props.defaultBasicSearchAutoDisplayThreshold;
+  var _facet$search_type = facet.search_type,
+      searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
+  /**
+   * even if search type is not defined, display basic search option when terms count
+   * is greater than defaultBasicSearchAutoDisplayThreshold
+   */
+
+  if (searchType === 'none' && terms.length >= defaultBasicSearchAutoDisplayThreshold) {
+    searchType = 'basic';
+  }
   /** Create term components and sort by status (selected->omitted->unselected) */
 
+
   var _useMemo = useMemo(function () {
-    var _segmentComponentsByS = segmentComponentsByStatus(terms.map(function (term) {
+    var segments = segmentComponentsByStatus(terms.map(function (term) {
       return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
-        termTransformFxn: termTransformFxn,
-        searchText: searchText,
-        searchType: searchType
+        termTransformFxn: termTransformFxn
       }, {
         onClick: onTermClick,
         key: term.key,
         status: getTermStatus(term, facet)
       }));
-    })),
-        _segmentComponentsByS2 = _segmentComponentsByS.selected,
-        selectedTermComponents = _segmentComponentsByS2 === void 0 ? [] : _segmentComponentsByS2,
-        _segmentComponentsByS3 = _segmentComponentsByS.omitted,
-        omittedTermComponents = _segmentComponentsByS3 === void 0 ? [] : _segmentComponentsByS3,
-        _segmentComponentsByS4 = _segmentComponentsByS.none,
-        unselectedTermComponents = _segmentComponentsByS4 === void 0 ? [] : _segmentComponentsByS4;
+    }));
+    var _segments$selected = segments.selected,
+        selectedTermComponents = _segments$selected === void 0 ? [] : _segments$selected,
+        _segments$omitted = segments.omitted,
+        omittedTermComponents = _segments$omitted === void 0 ? [] : _segments$omitted;
+    var _segments$none = segments.none,
+        unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none; //filter unselected terms
+
+    if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
+      var dict = getFilteredTerms(terms, searchText);
+      unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
+        return dict[term.key];
+      });
+    }
 
     var selectedLen = selectedTermComponents.length;
     var omittedLen = omittedTermComponents.length;

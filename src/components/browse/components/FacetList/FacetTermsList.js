@@ -157,36 +157,13 @@ export class Term extends React.PureComponent {
     }
     */
 
-    /**
-     * @param {*} facetTerms : facet's terms array
-     * @param {*} searchText : search text from basic search input
-     */
-    static getFilteredTerms(facetTerms, searchText) {
-        if (!facetTerms || !Array.isArray(facetTerms)) {
-            return [];
-        }
-
-        let filteredTerms = _.clone(facetTerms);
-        if (searchText && typeof searchText === 'string' && searchText.length > 0) {
-            const lcSearchText = searchText.toLocaleLowerCase();
-            filteredTerms = _.filter(facetTerms, function (term) {
-                const { key = '' } = term || {};
-                return typeof key === 'string' && key.length > 0 && term.key.toLocaleLowerCase().includes(lcSearchText);
-            });
-        }
-
-        return filteredTerms;
-    }
-
     render() {
-        const { term, facet, status, termTransformFxn, searchText, searchType } = this.props;
+        const { term, facet, status, termTransformFxn } = this.props;
         const { filtering } = this.state;
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
-
-        const filteredTerms = (searchType === 'basic') ? this.memoized.getFilteredTerms(facet.terms, searchText) : [];
 
         if (filtering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
@@ -201,7 +178,7 @@ export class Term extends React.PureComponent {
         }
 
         const statusClassName = (status !== 'none' ? (status === 'selected' ? " selected" : " omitted") : '');
-        const facetListItem = (
+        return (
             <li className={"facet-list-element " + statusClassName} key={term.key} data-key={term.key}>
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={term.key}>
                     <span className="facet-selector">{icon}</span>
@@ -210,16 +187,6 @@ export class Term extends React.PureComponent {
                 </a>
             </li>
         );
-
-        if (searchType === 'basic') {
-            // if (!searchText) { return facetListItem; }
-            const termAlreadyFiltered = _.any(filteredTerms, function (item) { return item.key === term.key; });
-            return termAlreadyFiltered || status !== 'none' ? facetListItem : null;
-        } else if (searchType === 'sayt_without_terms') {
-            return status !== 'none' ? facetListItem : null;
-        } else {
-            return facetListItem;
-        }
     }
 
 }
@@ -234,9 +201,33 @@ Term.propTypes = {
     'getTermStatus'     : PropTypes.func.isRequired,
     'onClick'           : PropTypes.func.isRequired,
     'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
+    'searchType'        : PropTypes.oneOf(["none", "basic", "sayt", "sayt_without_terms"]),
+    'filteredTerms'     : PropTypes.object,
     'termTransformFxn'  : PropTypes.func
 };
 
+/**
+ * @param {*} facetTerms : facet's terms array
+ * @param {*} searchText : search text from basic search input
+ */
+export function getFilteredTerms(facetTerms, searchText) {
+    const retDict = {};
+    if (!facetTerms || !Array.isArray(facetTerms)) {
+        return retDict;
+    }
+
+    const lcSearchText = searchText && typeof searchText === 'string' && searchText.length > 0 ? searchText.toLocaleLowerCase() : '';
+
+    _.forEach(facetTerms, function (term) {
+        const { key = '' } = term || {};
+        if (typeof key === 'string' && key.length > 0) {
+            const isFiltered = lcSearchText.length > 0 ? key.toLocaleLowerCase().includes(lcSearchText) : true;
+            if (isFiltered) { retDict[key] = true; }
+        }
+    });
+
+    return retDict;
+}
 
 export class FacetTermsList extends React.PureComponent {
 
@@ -282,6 +273,7 @@ export class FacetTermsList extends React.PureComponent {
             anyTermsSelected: anySelected,
             termsSelectedCount,
             persistentCount,
+            defaultBasicSearchAutoDisplayThreshold,
             onTermClick,
             getTermStatus,
             termTransformFxn,
@@ -335,18 +327,27 @@ export class FacetTermsList extends React.PureComponent {
                     </div>
                     { indicator }
                 </h5>
-                <ListOfTerms {...{ facet, facetOpen, terms, persistentCount, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas }} onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
+                <ListOfTerms {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold }} onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
 }
 FacetTermsList.defaultProps = {
-    'persistentCount' : 10
+    'persistentCount' : 10,
+    'defaultBasicSearchAutoDisplayThreshold': 15
 };
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, terms, persistentCount, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, searchText, onBasicTermSearch, onSaytTermSearch } = props;
-    const searchType = facet.search_type || '';
+    const { facet, facetOpen, terms, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, searchText, onBasicTermSearch, onSaytTermSearch, persistentCount, defaultBasicSearchAutoDisplayThreshold } = props;
+    let { search_type: searchType = 'none' } = facet;
+
+    /**
+     * even if search type is not defined, display basic search option when terms count
+     * is greater than defaultBasicSearchAutoDisplayThreshold
+     */
+    if (searchType === 'none' && terms.length >= defaultBasicSearchAutoDisplayThreshold) {
+        searchType = 'basic';
+    }
     /** Create term components and sort by status (selected->omitted->unselected) */
     const {
         termComponents, activeTermComponents, unselectedTermComponents,
@@ -356,13 +357,20 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         collapsibleTermsCount = 0,
         collapsibleTermsItemCount = 0
     } = useMemo(function(){
-        const {
-            selected: selectedTermComponents    = [],
-            omitted : omittedTermComponents     = [],
-            none    : unselectedTermComponents  = []
-        } = segmentComponentsByStatus(terms.map(function(term){
-            return <Term {...{ facet, term, termTransformFxn, searchText, searchType }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+
+        const segments = segmentComponentsByStatus(terms.map(function(term){
+            return <Term {...{ facet, term, termTransformFxn }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
+
+        const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;
+        let { none : unselectedTermComponents  = [] } = segments;
+
+        //filter unselected terms
+        if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
+            const dict = getFilteredTerms(terms, searchText);
+            unselectedTermComponents = _.filter(unselectedTermComponents, function (term) { return dict[term.key]; });
+        }
+
         const selectedLen = selectedTermComponents.length;
         const omittedLen = omittedTermComponents.length;
         const unselectedLen = unselectedTermComponents.length;
