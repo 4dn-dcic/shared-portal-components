@@ -114,9 +114,6 @@ export class Term extends React.PureComponent {
         this.state = {
             'filtering' : false
         };
-        this.memoized = {
-            getFilteredTerms: memoize(Term.getFilteredTerms)
-        };
     }
 
     handleClick(e) {
@@ -173,7 +170,7 @@ export class Term extends React.PureComponent {
             icon = <i className="icon icon-square icon-fw unselected far" />;
         }
 
-        if (!title || title === 'null' || title === 'undefined') {
+        if (!title || title === 'null' || title === 'undefined'){
             title = 'None';
         }
 
@@ -201,8 +198,6 @@ Term.propTypes = {
     'getTermStatus'     : PropTypes.func.isRequired,
     'onClick'           : PropTypes.func.isRequired,
     'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
-    'searchType'        : PropTypes.oneOf(["none", "basic", "sayt", "sayt_without_terms"]),
-    'filteredTerms'     : PropTypes.object,
     'termTransformFxn'  : PropTypes.func
 };
 

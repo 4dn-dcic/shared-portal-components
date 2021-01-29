@@ -166,9 +166,6 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
     _this.state = {
       'filtering': false
     };
-    _this.memoized = {
-      getFilteredTerms: memoize(Term.getFilteredTerms)
-    };
     return _this;
   }
 
@@ -286,8 +283,6 @@ Term.propTypes = {
   'getTermStatus': PropTypes.func.isRequired,
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
-  'searchType': PropTypes.oneOf(["none", "basic", "sayt", "sayt_without_terms"]),
-  'filteredTerms': PropTypes.object,
   'termTransformFxn': PropTypes.func
 };
 /**
