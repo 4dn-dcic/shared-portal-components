@@ -349,7 +349,7 @@ class ColumnSorterIcon extends React.PureComponent {
 
     static propTypes = {
         'active' : PropTypes.any,
-        'columnDefinition' : HeadersRow.propTypes.columnDefinitions,
+        'columnDefinition' : PropTypes.object, // See HeadersRow.proptypes.columnDefinitions
         'sortByField' : PropTypes.func.isRequired,
         'showingSortOptionsMenu' : PropTypes.bool,
         'setShowingSortFieldsFor' : PropTypes.func,

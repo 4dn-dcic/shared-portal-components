@@ -38,9 +38,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import _ from 'underscore';
+import ReactTooltip from 'react-tooltip';
 import { Checkbox } from './../../forms/components/Checkbox';
 import { listToObj } from './../../util/object';
-import { getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
 /**
  * This component stores an object of `hiddenColumns` in state which contains field names as keys and booleans as values.
  * This, along with functions `addHiddenColumn(field: string)` and `removeHiddenColumn(field: string)`, are passed down to
@@ -104,13 +104,20 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
 
   _createClass(CustomColumnController, [{
     key: "componentDidUpdate",
-    value: function componentDidUpdate(pastProps) {
+    value: function componentDidUpdate(pastProps, pastState) {
       var defaultHiddenColumns = this.props.defaultHiddenColumns;
+      var hiddenColumns = this.state.hiddenColumns;
 
       if (pastProps.defaultHiddenColumns !== defaultHiddenColumns) {
         this.setState({
           "hiddenColumns": _.clone(defaultHiddenColumns || {})
         }); // Reset state.hiddenColumns.
+
+        return;
+      }
+
+      if (hiddenColumns !== pastState.hiddenColumns) {
+        setTimeout(ReactTooltip.rebuild, 0);
       }
     }
   }, {
@@ -195,11 +202,11 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
 }(React.Component);
 
 _defineProperty(CustomColumnController, "propTypes", {
-  'children': PropTypes.instanceOf(React.Component),
-  'columnDefinitions': PropTypes.arrayOf(PropTypes.shape({
+  "children": PropTypes.instanceOf(React.Component),
+  "columnDefinitions": PropTypes.arrayOf(PropTypes.shape({
     'field': PropTypes.string
   })),
-  'hiddenColumns': PropTypes.array
+  "defaultHiddenColumns": PropTypes.array
 });
 
 export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
