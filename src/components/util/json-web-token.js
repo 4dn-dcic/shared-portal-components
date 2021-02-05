@@ -155,7 +155,8 @@ export function save(idToken){
         {
             "path": '/',
             "sameSite": "strict",
-            // "secure": true // TODO: enable eventually when/if all test environments go to HTTPS
+            // "httpOnly": true,        // Will be enabled/tested soon.
+            // "secure": true           // TODO: enable eventually when/if all test environments go to HTTPS
         }
     );
     return true;
@@ -222,23 +223,6 @@ export function remove(){
     return true;
 }
 
-/**
- * Adds an Authorization key/value representing current JWT token to an object representing
- * request headers to be used in AJAX requests.
- *
- * Called by setHeaders in /utils/ajax.js.
- *
- * @public
- * @param {string} [source='all'] Specify what to delete, if desired. Default is all.
- * @returns {{ removedCookie: boolean, removedLocalStorage: boolean }} Removal results
- */
-export function addToHeaders(headers = {}){
-    var idToken = get('cookie');
-    if (idToken && typeof headers.Authorization === 'undefined'){
-        headers.Authorization = 'Bearer ' + idToken;
-    }
-    return headers;
-}
 
 /**
  * Helper function to determine if current user is an admin according

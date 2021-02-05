@@ -24,14 +24,15 @@ const defaultHeaders = {
  * @returns {XMLHttpRequest} XHR object with set headers.
  */
 function setHeaders(xhr, headers = {}, deleteHeaders = []) {
-    headers = JWT.addToHeaders(_.extend({}, defaultHeaders, headers)); // Set defaults, add JWT if set
+    headers = { ...defaultHeaders, ...headers };
+    var i;
+    for (i = 0; i < deleteHeaders.length; i++){
+        delete headers[deleteHeaders[i]];
+    }
 
     // Put everything in the header
-    var headerKeys = _.keys(headers);
-    for (var i=0; i < headerKeys.length; i++){
-        if (deleteHeaders.indexOf(headerKeys[i]) > -1){
-            continue;
-        }
+    const headerKeys = Object.keys(headers);
+    for (i = 0; i < headerKeys.length; i++){
         xhr.setRequestHeader(headerKeys[i], headers[headerKeys[i]]);
     }
 
