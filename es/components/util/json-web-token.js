@@ -149,7 +149,9 @@ export function saveUserDetails(details) {
 
 export function save(idToken) {
   cookieStore.set(COOKIE_ID, idToken, {
-    path: '/'
+    "path": '/',
+    "sameSite": "strict" // "secure": true // TODO: enable eventually when/if all test environments go to HTTPS
+
   });
   return true;
 }
@@ -257,8 +259,3 @@ export function isLoggedInAsAdmin() {
 
   return false;
 }
-/** Memoized clone of jwt.decode, for performance */
-
-export var decode = memoize(function (jwtToken) {
-  return jwtToken && jwt.decode(jwtToken);
-});
