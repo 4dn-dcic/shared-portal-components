@@ -7,7 +7,6 @@ import { NavigateOpts } from './typedefs';
 
 // let cachedAppRootComponentInstance = null;
 let cachedNavFunction = null;
-let cachedUpdateUserInfoFunction = null;
 let callbackFunctions = [];
 
 
@@ -57,7 +56,6 @@ navigate.initializeFromApp = function(rootAppComponentInstance){
     if (typeof rootAppComponentInstance.navigate !== 'function') throw new Error("`rootAppComponentInstance.navigate` is not a function.");
     // cachedAppRootComponentInstance = rootAppComponentInstance; // <-- Super anti-pattern...
     cachedNavFunction = rootAppComponentInstance.navigate;
-    cachedUpdateUserInfoFunction = rootAppComponentInstance.updateUserInfo;
 };
 
 /**
@@ -70,10 +68,6 @@ navigate.initializeFromApp = function(rootAppComponentInstance){
 navigate.setNavigateFunction = function(navFxn){
     if (typeof navFxn !== 'function') throw new Error("Not a function.");
     cachedNavFunction = navFxn;
-};
-
-navigate.updateUserInfo = function(){
-    return cachedUpdateUserInfoFunction(...arguments);
 };
 
 

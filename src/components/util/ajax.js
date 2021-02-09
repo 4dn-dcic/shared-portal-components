@@ -44,7 +44,7 @@ export const AJAXSettings = Object.freeze((function(){
             JWT.remove();
             console.warn("User session has expired or been unset");
             onSessionExpiredCallbacks.forEach(function(callback){
-                // One of these should be App's updateUserInfo
+                // One of these should be App's `this.updateAppSessionState`
                 callback(xhr);
             });
         }

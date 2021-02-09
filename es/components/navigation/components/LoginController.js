@@ -129,7 +129,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var _this$props2 = this.props,
-          updateUserInfo = _this$props2.updateUserInfo,
+          updateAppSessionState = _this$props2.updateAppSessionState,
           _this$props2$onLogin = _this$props2.onLogin,
           onLogin = _this$props2$onLogin === void 0 ? null : _this$props2$onLogin;
       this.setState({
@@ -190,7 +190,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
             });
 
             JWT.saveUserInfoLocalStorage(userInfoResponse);
-            updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
+            updateAppSessionState(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
 
             console.info('Login completed'); // Register an analytics event for UI login.
             // This is used to segment public vs internal audience in Analytics dashboards.
@@ -390,7 +390,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
  */
 
 _defineProperty(LoginController, "propTypes", {
-  'updateUserInfo': PropTypes.func.isRequired,
+  'updateAppSessionState': PropTypes.func.isRequired,
   'id': PropTypes.string,
   'auth0ClientID': PropTypes.string.isRequired,
   'auth0Domain': PropTypes.string.isRequired,

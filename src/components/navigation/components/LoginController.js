@@ -19,7 +19,7 @@ let Auth0Lock = null;
 export class LoginController extends React.PureComponent {
 
     static propTypes = {
-        'updateUserInfo'      : PropTypes.func.isRequired,
+        'updateAppSessionState' : PropTypes.func.isRequired,
         'id'                  : PropTypes.string,
         'auth0ClientID'       : PropTypes.string.isRequired,
         'auth0Domain'         : PropTypes.string.isRequired,
@@ -108,7 +108,7 @@ export class LoginController extends React.PureComponent {
     }
 
     validateCookieAndObtainAdditionalUserInfo(token, successCallback = null, errorCallback = null){
-        const { updateUserInfo, onLogin = null } = this.props;
+        const { updateAppSessionState, onLogin = null } = this.props;
 
         this.setState({ "isLoading" : true }, ()=>{
 
@@ -155,7 +155,7 @@ export class LoginController extends React.PureComponent {
                         this.setState({ "isLoading" : false });
 
                         JWT.saveUserInfoLocalStorage(userInfoResponse);
-                        updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
+                        updateAppSessionState(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
                         console.info('Login completed');
 
                         // Register an analytics event for UI login.
