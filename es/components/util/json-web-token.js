@@ -6,7 +6,6 @@ import memoize from 'memoize-one';
 import { isServerSide } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
 import { getNestedProperty } from './object';
-var COOKIE_ID = 'jwtToken';
 /** Interface to grab cookies. We can move to own util file later for re-use if necessary. */
 
 export var cookieStore = new Cookies();
@@ -90,54 +89,6 @@ export function getUserDetails() {
   var userDetails = userInfo && userInfo.details || null;
   if (userDetails === 'null') userDetails = null;
   return userDetails;
-}
-/**
- * Saves User Details to localStorage.
- * This should only be used to update frontend if doing concurrent
- * update to the back-end.
- *
- * For example, on User profile page, someone may edit their name
- * which is then sent off as a PATCH to the server and concurrently we want
- * to update the name on front-end display, as well.
- *
- * @public
- * @param {Object} details - Object containing user details. Should be clone/extension of existing user details.
- * @returns {boolean} True if success. False if no user info.
- */
-
-export function saveUserDetails(details) {
-  var userInfo = getUserInfo();
-
-  if (typeof userInfo !== 'undefined' && userInfo) {
-    userInfo.details = details;
-    saveUserInfoLocalStorage(userInfo);
-    return true;
-  } else {
-    return false;
-  }
-}
-/**
- * Saves JWT token to cookie or localStorage.
- * Called upon user login.
- *
- * This function (and cookieStore) works server-side
- * as well however the data does not get transferred down with request
- * in a cookie.
- *
- * @deprecated
- * @public
- * @param {string} idToken - The JWT token.
- * @returns {boolean} True if success.
- */
-
-export function save(idToken) {
-  cookieStore.set(COOKIE_ID, idToken, {
-    "path": '/',
-    "sameSite": "strict" // "httpOnly": true,        // Will be enabled/tested soon.
-    // "secure": true           // TODO: enable eventually when/if all test environments go to HTTPS
-
-  });
-  return true;
 }
 /**
  * Saves supplementary user info to localStorage so it might be available

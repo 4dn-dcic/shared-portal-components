@@ -253,9 +253,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 
       // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
       // to see if this is a valid user account or some random person who just logged into their Google account.
-      var idToken = authResult.idToken; // We just got token from Auth0 so probably isn't outdated.
-      // JWT.save(idToken);
-      // Server will ensure that we have a validly signed JWT token/cookie and that the user account exists in system.
+      var idToken = authResult.idToken; // Server will ensure that we have a validly signed JWT token/cookie and that the user account exists in system.
 
       this.validateCookieAndObtainAdditionalUserInfo(idToken, null, function (error) {
         console.error(error);

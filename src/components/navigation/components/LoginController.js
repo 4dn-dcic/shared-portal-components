@@ -213,9 +213,6 @@ export class LoginController extends React.PureComponent {
         // to see if this is a valid user account or some random person who just logged into their Google account.
         const { idToken } = authResult;
 
-        // We just got token from Auth0 so probably isn't outdated.
-        // JWT.save(idToken);
-
         // Server will ensure that we have a validly signed JWT token/cookie and that the user account exists in system.
         this.validateCookieAndObtainAdditionalUserInfo(
             idToken,
