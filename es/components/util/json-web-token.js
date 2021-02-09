@@ -6,31 +6,13 @@ import memoize from 'memoize-one';
 import { isServerSide } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
 import { getNestedProperty } from './object';
-import jwt from 'jsonwebtoken';
 var COOKIE_ID = 'jwtToken';
 /** Interface to grab cookies. We can move to own util file later for re-use if necessary. */
 
 export var cookieStore = new Cookies();
+/** Used for serverside */
+
 var dummyStorage = {};
-/**
- * Get the current JWT token string from cookie or localStorage.
- *
- * @public
- * @param {string} [source='cookie'] Specify whether to get from cookie or localStorage.
- * @returns {string} The token.
- */
-
-export function get() {
-  var idToken = null;
-
-  if (isServerSide()) {
-    idToken = null;
-  } else {
-    idToken = cookieStore.get(COOKIE_ID) || null;
-  }
-
-  return idToken;
-}
 /**
  * Check to see if localStorage is supported by the browser or environment.
  *
@@ -142,6 +124,7 @@ export function saveUserDetails(details) {
  * as well however the data does not get transferred down with request
  * in a cookie.
  *
+ * @deprecated
  * @public
  * @param {string} idToken - The JWT token.
  * @returns {boolean} True if success.
@@ -177,38 +160,15 @@ export function saveUserInfoLocalStorage(user_info) {
   return true;
 }
 /**
- * Saves user info object into localStorage and JWT token (available in user info object) into cookie.
- * Can be called as part of user login. User info should be returned by API endpoint /login or /session-properties.
- *
- * @see saveUserInfoLocalStorage
- * @see save
- *
- * @export
- * @param {Object} user_info - User info object as might be received from the /session-properties or /login endpoint.
- * @returns {boolean} True if success.
- */
-
-export function saveUserInfo(user_info) {
-  // Delegate JWT token to cookie, keep extended user_info obj (w/ copy of token) in localStorage.
-  save(user_info.idToken || user_info.id_token, 'cookie');
-  saveUserInfoLocalStorage(user_info);
-}
-/**
- * Removes JWT token from cookies and user info from localStorage.
+ * Removes ~~JWT token from cookies and~~ user info from localStorage.
  * May be called as part of logout.
  *
  * @public
+ * @todo Rename to 'removeUserInfo' to match updated functionality.
  */
 
 export function remove() {
-  console.warn("REMOVING JWT!!");
-  var savedIdToken = cookieStore.get(COOKIE_ID) || null;
-
-  if (savedIdToken) {
-    cookieStore.remove(COOKIE_ID, {
-      path: '/'
-    });
-  }
+  console.warn("Removing UserInfo from localStorage");
 
   if (!storeExists()) {
     delete dummyStorage.user_info;
@@ -216,7 +176,7 @@ export function remove() {
     localStorage.removeItem("user_info");
   }
 
-  console.info('Removed JWT: ' + savedIdToken);
+  console.info('Removed UserInfo');
   return true;
 }
 /**

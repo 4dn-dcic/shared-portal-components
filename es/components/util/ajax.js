@@ -32,21 +32,87 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 import React, { useState, useEffect } from 'react';
 import { Alerts } from './../ui/Alerts';
 import _ from 'underscore';
 import * as JWT from './json-web-token';
 import { patchedConsoleInstance as console } from './patched-console';
-/**
- * @private
- */
+export var AJAXSettings = Object.freeze(function () {
+  // Returned from anonymous function since server-side rendering can re-use global state.
+  // Also a singleton class b.c. might as well.
+  var defaultHeaders = Object.freeze({
+    "Content-Type": "application/json; charset=UTF-8",
+    "Accept": "application/json",
+    "X-Requested-With": "XMLHttpRequest" // Allows some server-side libs (incl. pyramid) to identify using `request.is_xhr`.
 
-var defaultHeaders = {
-  "Content-Type": "application/json; charset=UTF-8",
-  "Accept": "application/json",
-  "X-Requested-With": "XMLHttpRequest" // Allows some server-side libs (incl. pyramid) to identify using `request.is_xhr`.
+  });
+  var onSessionExpiredCallbacks = new Set(); // const onLoadCallbacks = new Set();
 
-};
+  function didSessionExpire(xhr) {
+    // Derived from https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders#example
+    var headersArr = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
+    var headersLen = headersArr.length;
+
+    for (var i = 0; i < headersLen; i++) {
+      var _headersArr$i$split = headersArr[i].split(': '),
+          _headersArr$i$split2 = _slicedToArray(_headersArr$i$split, 2),
+          header = _headersArr$i$split2[0],
+          value = _headersArr$i$split2[1];
+
+      if (header.toLowerCase() === "www-authenticate") {
+        if (value.indexOf('title="Session Expired"') > -1) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+  /** Called by all app AJAX requests */
+
+
+  return {
+    onLoad: function (xhr) {
+      var sessionExpired = xhr.status === 401 && didSessionExpire(xhr);
+
+      if (sessionExpired) {
+        // Remove existing localStorage userInfo
+        JWT.remove();
+        console.warn("User session has expired or been unset");
+        onSessionExpiredCallbacks.forEach(function (callback) {
+          // One of these should be App's updateUserInfo
+          callback(xhr);
+        });
+      }
+    },
+    defaultHeaders: defaultHeaders,
+    addSessionExpiredCallback: function addSessionExpiredCallback(callback) {
+      onSessionExpiredCallbacks.add(callback);
+    },
+    removeSessionExpiredCallback: function removeSessionExpiredCallback(callback) {
+      onSessionExpiredCallbacks["delete"](callback);
+    } // Disabled for now until/unless need for this in future.
+    // addOnLoadCallback(callback){
+    //     onLoadCallbacks.add(callback);
+    // },
+    // removeOnLoadCallback(callback){
+    //     onLoadCallbacks.delete(callback);
+    // }
+
+  };
+}());
 /**
  * @private
  * @function
@@ -59,7 +125,7 @@ var defaultHeaders = {
 function setHeaders(xhr) {
   var headers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var deleteHeaders = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-  headers = _objectSpread(_objectSpread({}, defaultHeaders), headers);
+  headers = _objectSpread(_objectSpread({}, AJAXSettings.defaultHeaders), headers);
   var i;
 
   for (i = 0; i < deleteHeaders.length; i++) {
@@ -75,6 +141,13 @@ function setHeaders(xhr) {
 
   return xhr;
 }
+/**
+ * Detect if session has expired in this request.
+ * This must be called for every AJAX call.
+ */
+
+
+function hasSessionExpired() {}
 
 export function load(url, callback) {
   var method = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'GET';
@@ -87,6 +160,8 @@ export function load(url, callback) {
 
   xhr.onreadystatechange = function () {
     if (xhr.readyState === XMLHttpRequest.DONE) {
+      AJAXSettings.onLoad(xhr);
+
       if ([200, 201, 202, 203].indexOf(xhr.status) > -1) {
         if (typeof callback === 'function') {
           callback(JSON.parse(xhr.responseText), xhr);
@@ -129,12 +204,14 @@ export function promise(url) {
   var headers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   var data = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
   var cache = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-  var debugResponse = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
+  var deleteHeaders = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : [];
+  var debugResponse = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : false;
   var xhr;
   var promiseInstance = new Promise(function (resolve, reject) {
     xhr = new XMLHttpRequest();
 
     xhr.onload = function () {
+      AJAXSettings.onLoad(xhr);
       var response = null; // response SHOULD be json
 
       try {
@@ -152,12 +229,12 @@ export function promise(url) {
 
     xhr.onerror = reject;
 
-    if (cache === false && url.indexOf('format=json') > -1) {
+    if (cache === false) {
       url += '&ts=' + parseInt(Date.now());
     }
 
     xhr.open(method, url, true);
-    xhr = setHeaders(xhr, headers);
+    xhr = setHeaders(xhr, headers, deleteHeaders || []);
 
     if (data) {
       xhr.send(data);
@@ -179,18 +256,26 @@ export function promise(url) {
  * Wrapper around function promise() which is slightly more relevant for navigation.
  * Strips hash from URL, sets same origin policy.
  *
- * @export
- * @param {any} url
- * @param {any} options
+ * @param {string} url
+ * @param {{}} options
  */
 
-export function fetch(targetURL, options) {
-  options = _.extend({
+export function fetch(targetURL) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  options = _objectSpread({
     'credentials': 'same-origin'
   }, options);
-  var http_method = options.method || 'GET';
+  var _options = options,
+      _options$method = _options.method,
+      method = _options$method === void 0 ? "GET" : _options$method,
+      _options$headers = _options.headers,
+      origHeaders = _options$headers === void 0 ? {} : _options$headers,
+      _options$body = _options.body,
+      data = _options$body === void 0 ? null : _options$body,
+      _options$cache = _options.cache,
+      cache = _options$cache === void 0 ? true : _options$cache;
 
-  var headers = options.headers = _.extend({}, options.headers || {}); // Strip url fragment.
+  var headers = _objectSpread({}, origHeaders); // Strip url fragment.
 
 
   var hashIndex = targetURL.indexOf('#');
@@ -199,8 +284,7 @@ export function fetch(targetURL, options) {
     targetURL = targetURL.slice(0, hashIndex);
   }
 
-  var data = options.body ? options.body : null;
-  var request = promise(targetURL, http_method, headers, data, options.cache === false ? false : true);
+  var request = promise(targetURL, method, headers, data, cache);
   request.targetURL = targetURL;
   request.xhr_begin = 1 * new Date();
   request.then(function () {
