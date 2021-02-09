@@ -177,12 +177,8 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
 
           if (!userEmail) {
             throw new Error("Did not receive user details from /session-properties, login failed.");
-          }
+          } // Fetch user profile and (outdated/to-revisit-later) use their primary lab as the eventLabel.
 
-          JWT.saveUserInfoLocalStorage(userInfoResponse);
-          updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
-
-          console.info('Login completed'); // Fetch user profile and (outdated/to-revisit-later) use their primary lab as the eventLabel.
 
           var profileURL = (_.findWhere(user_actions, {
             'id': 'profile'
@@ -191,9 +187,13 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           if (profileURL) {
             _this3.setState({
               "isLoading": false
-            }); // Register an analytics event for UI login.
-            // This is used to segment public vs internal audience in Analytics dashboards.
+            });
 
+            JWT.saveUserInfoLocalStorage(userInfoResponse);
+            updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
+
+            console.info('Login completed'); // Register an analytics event for UI login.
+            // This is used to segment public vs internal audience in Analytics dashboards.
 
             load(profileURL, function (profile) {
               if (typeof successCallback === 'function') {
@@ -495,7 +495,6 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
       var _this7 = this;
 
       var evt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      this.props.updateUserInfo;
 
       if (evt && evt.preventDefault) {
         evt.preventDefault();
@@ -506,9 +505,12 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
         "isLoading": true
       }, function () {
         performLogout().then(function () {
-          // Remove from analytics session
-          setUserID(null); // updateUserInfo();
-          // Attempt to preserve hash, if any, but don't scroll to it.
+          _this7.setState({
+            "isLoading": false
+          }); // Remove from analytics session
+
+
+          setUserID(null); // Attempt to preserve hash, if any, but don't scroll to it.
 
           var windowHash = window && window.location && window.location.hash || '';
           navigate(windowHash, {
@@ -520,10 +522,6 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
             // Dummy click event to close dropdown menu, bypasses document.body.onClick handler (app.js -> App.prototype.handeClick)
             document.dispatchEvent(new MouseEvent('click'));
           }
-
-          _this7.setState({
-            "isLoading": false
-          });
         });
       });
     }

@@ -147,15 +147,16 @@ export class LoginController extends React.PureComponent {
                         throw new Error("Did not receive user details from /session-properties, login failed.");
                     }
 
-                    JWT.saveUserInfoLocalStorage(userInfoResponse);
-                    updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
-                    console.info('Login completed');
 
                     // Fetch user profile and (outdated/to-revisit-later) use their primary lab as the eventLabel.
                     const profileURL = (_.findWhere(user_actions, { 'id' : 'profile' }) || {}).href;
 
                     if (profileURL){
                         this.setState({ "isLoading" : false });
+
+                        JWT.saveUserInfoLocalStorage(userInfoResponse);
+                        updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
+                        console.info('Login completed');
 
                         // Register an analytics event for UI login.
                         // This is used to segment public vs internal audience in Analytics dashboards.
@@ -379,7 +380,6 @@ export class LogoutController extends React.PureComponent {
      * @param {Event} [evt] - Not needed. Will prevent default / stopPropagation if present.
      */
     performLogoutUI(evt = null){
-        const { updateUserInfo } = this.props;
 
         if (evt && evt.preventDefault){
             evt.preventDefault();
@@ -389,10 +389,10 @@ export class LogoutController extends React.PureComponent {
         this.setState({ "isLoading": true }, ()=>{
             performLogout().then(()=>{
 
+                this.setState({ "isLoading" : false });
+
                 // Remove from analytics session
                 setUserID(null);
-
-                // updateUserInfo();
 
                 // Attempt to preserve hash, if any, but don't scroll to it.
                 const windowHash = (window && window.location && window.location.hash) || '';
@@ -403,7 +403,6 @@ export class LogoutController extends React.PureComponent {
                     document.dispatchEvent(new MouseEvent('click'));
                 }
 
-                this.setState({ "isLoading" : false });
             });
         });
 
