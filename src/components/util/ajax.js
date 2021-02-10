@@ -94,17 +94,6 @@ function setHeaders(xhr, headers = {}, deleteHeaders = []) {
 }
 
 
-
-/**
- * Detect if session has expired in this request.
- * This must be called for every AJAX call.
- */
-function hasSessionExpired(){
-
-}
-
-
-
 export function load(url, callback, method = 'GET', fallback = null, data = null, headers = {}, deleteHeaders = []){
     if (typeof window === 'undefined') return null;
 
