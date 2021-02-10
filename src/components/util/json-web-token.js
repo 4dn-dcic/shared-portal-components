@@ -1,14 +1,11 @@
 'use strict';
 
 import _ from 'underscore';
-import Cookies from 'universal-cookie';
 import memoize from 'memoize-one';
 import { isServerSide } from './misc';
 import { patchedConsoleInstance as console } from './patched-console';
 import { getNestedProperty } from './object';
 
-/** Interface to grab cookies. We can move to own util file later for re-use if necessary. */
-export const cookieStore = new Cookies();
 
 /** Used for serverside */
 const dummyStorage = {};
