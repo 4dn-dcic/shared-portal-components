@@ -153,19 +153,21 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
             });
           }, 90000);
           /* 90 seconds */
-        })]).then(function (response) {
-          // Add'l Error Check (will throw to be caught)
-          if (response.code || response.status) throw response;
-          return response;
-        }).then(function (_ref2) {
+        })]).then(function (_ref2) {
           var _ref2$saved_cookie = _ref2.saved_cookie,
               saved_cookie = _ref2$saved_cookie === void 0 ? false : _ref2$saved_cookie;
 
           if (!saved_cookie) {
             throw new Error("Couldn't set session in /login");
-          }
+          } // This should return a 401 error if user not found, to caught and handled as 'unregistered user'
+
 
           return fetch("/session-properties");
+        }).then(function (response) {
+          // Add'l Error Check (will throw to be caught by errorCallback)
+          // (HTTPExceptions from Pyramid generally have a code and status in response body)
+          if (response.code || response.status) throw response;
+          return response;
         }).then(function (userInfoResponse) {
           console.info('Received info from server about user via /session-properties endpoint', userInfoResponse);
           var _userInfoResponse$det = userInfoResponse.details;

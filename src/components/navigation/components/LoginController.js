@@ -123,16 +123,18 @@ export class LoginController extends React.PureComponent {
                     setTimeout(function(){ reject({ 'description' : 'timed out', 'type' : 'timed-out' }); }, 90000); /* 90 seconds */
                 })
             ])
-                .then((response) => {
-                    // Add'l Error Check (will throw to be caught)
-                    if (response.code || response.status) throw response;
-                    return response;
-                })
                 .then(({ saved_cookie = false }) => {
                     if (!saved_cookie) {
                         throw new Error("Couldn't set session in /login");
                     }
+                    // This should return a 401 error if user not found, to caught and handled as 'unregistered user'
                     return fetch("/session-properties");
+                })
+                .then((response) => {
+                    // Add'l Error Check (will throw to be caught by errorCallback)
+                    // (HTTPExceptions from Pyramid generally have a code and status in response body)
+                    if (response.code || response.status) throw response;
+                    return response;
                 })
                 .then((userInfoResponse) => {
                     console.info('Received info from server about user via /session-properties endpoint', userInfoResponse);
