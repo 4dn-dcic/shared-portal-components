@@ -1,0 +1,216 @@
+'use strict';
+
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'underscore';
+import { console, ajax } from './../../util';
+import { requestAnimationFrame } from './../utilities';
+import { default as installedPackageLockJson } from './../../../../package-lock.json';
+
+
+/**
+ * Functional component to display loading indicator.
+ *
+ * @param {{ icon: string, title: JSX.Element|string }} props Props passed into this Component.
+ */
+export function HiGlassLoadingIndicator(props) {
+    const { icon, title } = props;
+    return (
+        <React.Fragment>
+            <h3>
+                <i className={"icon icon-lg icon-" + (icon || "tv fas")}/>
+            </h3>
+            { title || "Initializing" }
+        </React.Fragment>
+    );
+}
+
+/** Loaded upon componentDidMount; HiGlassComponent is not supported server-side. */
+let HiGlassComponent = null;
+let StackedBarTrack = null;
+let higlassRegister = null;
+
+export class HiGlassPlainContainer extends React.PureComponent {
+
+    static correctTrackDimensions(hiGlassComponent){
+        requestAnimationFrame(()=>{
+            _.forEach(hiGlassComponent.tiledPlots, (tp) => tp && tp.measureSize());
+        });
+    }
+
+    static propTypes = {
+        'viewConfig' : PropTypes.object.isRequired,
+        'isValidating' : PropTypes.bool,
+        'height' : PropTypes.number,
+        'mountDelay' : PropTypes.number.isRequired,
+        'onViewConfigUpdated': PropTypes.func
+    };
+
+    static defaultProps = {
+        'options' : { 'bounded' : true },
+        'isValidating' : false,
+        'disabled' : false,
+        'height' : 500,
+        'viewConfig' : null,
+        'mountDelay' : 500,
+        'placeholder' : <HiGlassLoadingIndicator/>,
+    };
+
+    constructor(props){
+        super(props);
+        this.instanceContainerRefFunction = this.instanceContainerRefFunction.bind(this);
+        this.correctTrackDimensions = this.correctTrackDimensions.bind(this);
+        this.getHiGlassComponent = this.getHiGlassComponent.bind(this);
+
+        this.state = {
+            'mounted' : false,
+            'mountCount' : 0,
+            'hasRuntimeError' : false
+        };
+
+        this.hgcRef = React.createRef();
+    }
+
+    componentDidMount(){
+        const { mountDelay, onViewConfigUpdated } = this.props;
+        const finish = () => {
+            this.setState(function(currState){
+                return { 'mounted' : true, 'mountCount' : currState.mountCount + 1 };
+            }, () => {
+                setTimeout(this.correctTrackDimensions, 500);
+                if (onViewConfigUpdated && typeof onViewConfigUpdated === 'function') {
+                    const hgc = this.getHiGlassComponent();
+                    if (hgc) {
+                        hgc.api.on("viewConfig", onViewConfigUpdated);
+                    }
+                }
+            });
+        };
+
+        setTimeout(()=>{ // Allow tab CSS transition to finish (the render afterwards lags browser a little bit).
+            if (!HiGlassComponent) {
+                window.fetch = window.fetch || ajax.fetchPolyfill; // Browser compatibility polyfill
+
+                // Load in HiGlass libraries as separate JS file due to large size.
+                // @see https://webpack.js.org/api/module-methods/#requireensure
+                // TODO figure out how to use import() syntax to load multiple dependencies, to keep HiGlass working.
+                require.ensure(['higlass/dist/hglib', 'higlass-register', 'higlass-multivec/es/StackedBarTrack'], (require) => {
+                    HiGlassComponent = require('higlass/dist/hglib').HiGlassComponent;
+                    higlassRegister = require('higlass-register').default;
+                    StackedBarTrack = require('higlass-multivec/es/StackedBarTrack').default;
+                    console.log("LOADED\na:\n", HiGlassComponent, "\n:b\n", higlassRegister, "\nc:\n", StackedBarTrack);
+                    // Possible todo: use pluginTracks prop to pass `"horizontal-stacked-bar" : StackedBarTrack`
+                    // in render method instead.
+                    higlassRegister({
+                        name: 'StackedBarTrack',
+                        track: StackedBarTrack,
+                        config: StackedBarTrack.config,
+                    });
+                    finish();
+                }, "higlass-utils-bundle");
+
+            } else {
+                finish();
+            }
+
+        }, mountDelay || 500);
+
+    }
+
+    correctTrackDimensions(){
+        var hgc = this.getHiGlassComponent();
+        if (hgc){
+            HiGlassPlainContainer.correctTrackDimensions(hgc);
+        } else {
+            console.error('NO HGC');
+        }
+    }
+
+    componentWillUnmount(){
+        this.setState({ 'mounted' : false });
+    }
+
+    componentDidCatch(){
+        this.setState({ 'hasRuntimeError' : true });
+    }
+
+    /**
+     * Fade in div element containing HiGlassComponent after HiGlass initiates & loads in first tile etc. (about 500ms).
+     * For prettiness only.
+     */
+    instanceContainerRefFunction(element){
+        if (element){
+            setTimeout(function(){
+                requestAnimationFrame(function(){
+                    element.style.transition = null; // Use transition as defined in stylesheet
+                    element.style.opacity = 1;
+                });
+            }, 500);
+        }
+    }
+
+    getHiGlassComponent(){
+        return (this && this.hgcRef && this.hgcRef.current) || null;
+    }
+
+    /**
+     * This returns the viewconfig currently stored in PlainContainer _state_.
+     * We should adjust this to instead return `JSON.parse(hgc.api.exportViewConfigAsString())`,
+     * most likely, to be of any use because HiGlassComponent keeps its own representation of the
+     * viewConfig.
+     *
+     * @todo Change to the above once needed. Don't rely on until then.
+     */
+    getCurrentViewConfig(){
+        var hgc = this.getHiGlassComponent();
+        return (hgc && hgc.state.viewConfig) || null;
+    }
+
+    render(){
+        const { disabled, isValidating, tilesetUid, height, width, options, style, className, viewConfig, placeholder } = this.props;
+        const { mounted, mountCount, hasRuntimeError } = this.state;
+        const { dependencies : { higlass : { version: higlassVersionUsed } } } = installedPackageLockJson;
+        let hiGlassInstance = null;
+        const outerKey = "mount-number-" + mountCount;
+
+        if (isValidating || !mounted){
+            var placeholderStyle = {};
+            if (typeof height === 'number' && height >= 140){
+                placeholderStyle.height = height;
+                placeholderStyle.paddingTop = (height / 2) - 40;
+            }
+            hiGlassInstance = <div className="text-center" style={placeholderStyle} key={outerKey}>{ placeholder }</div>;
+        } else if (disabled) {
+            hiGlassInstance = (
+                <div className="text-center" key={outerKey} style={placeholderStyle}>
+                    <h4 className="text-400">Not Available</h4>
+                </div>
+            );
+        } else if (hasRuntimeError) {
+            hiGlassInstance = (
+                <div className="text-center" key={outerKey} style={placeholderStyle}>
+                    <h4 className="text-400">Runtime Error</h4>
+                </div>
+            );
+        } else {
+            hiGlassInstance = (
+                <div key={outerKey} className="higlass-instance" style={{ 'transition' : 'none', height, 'width' : width || null }} ref={this.instanceContainerRefFunction}>
+                    <HiGlassComponent {...{ options, viewConfig, width, height }} ref={this.hgcRef} />
+                </div>
+            );
+        }
+
+        /**
+         * TODO: Some state + UI functions to make higlass view full screen.
+         * Should try to make as common as possible between one for workflow tab & this. Won't be 100% compatible since adjust workflow detail tab inner elem styles, but maybe some common func for at least width, height, etc.
+         */
+        return (
+            <div className={"higlass-view-container" + (className ? ' ' + className : '')} style={style}>
+                <link type="text/css" rel="stylesheet" href={`https://unpkg.com/higlass@${higlassVersionUsed}/dist/hglib.css`} crossOrigin="true" />
+                {/*<script src="https://unpkg.com/higlass@0.10.19/dist/scripts/hglib.js"/>*/}
+                <div className="higlass-wrapper">{ hiGlassInstance }</div>
+            </div>
+        );
+    }
+
+}
