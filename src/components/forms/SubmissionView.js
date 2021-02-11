@@ -1901,8 +1901,7 @@ class IndividualObjectView extends React.Component {
         this.state = {
             'selectType'    : null,
             'selectField'   : null,
-            'selectArrayIdx': null,
-            'selectItems':null
+            'selectArrayIdx': null
         };
     }
 
@@ -2112,11 +2111,6 @@ class IndividualObjectView extends React.Component {
      * @param {number} customArrayIdx
      */
     selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null) {
-        // console.log(`calling selectComplete(
-        //     atIds=${atIds},
-        //     customSelectField=${customSelectField},
-        //     customSelectType=${customSelectType},
-        //     customArrayIdx=${customArrayIdx}`);
         const { currContext } = this.props;
         const {
             selectField: stateSelectField,
@@ -2132,7 +2126,6 @@ class IndividualObjectView extends React.Component {
         const nextArrayIndices = isInArray ? [...selectArrayIdx] : null;
         const isMultiSelect = Array.isArray(atIds) && atIds.length > 1;
 
-        this.setState({ 'selectItems': atIds });
         // LinkedObj will always call with array, while Search-As-You-Type will call with single value.
         // Can be adjusted in either direction (either have LinkedObj call with 1 item if only 1; or have Search-As-You-Type
         // pass in array as well).
@@ -2144,15 +2137,10 @@ class IndividualObjectView extends React.Component {
             throw new Error('No field being selected for');
         }
 
-
         atIds.forEach((atId)=>{
             const currentlySelectedIds = selectField && currContext[selectField];
             const isRepeat = (Array.isArray(currentlySelectedIds) && _.contains(currentlySelectedIds, atId));
-            // console.log("current: ", selectField);
-            // console.log("currentlySelectedIds", currentlySelectedIds);
-            // console.log("currContext: ", currContext);
-            // console.log("currContext[selectField]: ", currContext[selectField]);
-            // console.log("isInArray: ", isInArray);
+
             if (!isRepeat) {
                 this.fetchAndValidateItem(atId, selectField, selectType, isInArray ? nextArrayIndices.slice() : null, null);
                 if (isMultiSelect) { // Sets up nextArrayIndices for next Item being added in multiselect
@@ -2263,14 +2251,15 @@ class IndividualObjectView extends React.Component {
                 fieldType = 'file upload';
             }
         }
+        const { selectField, selectArrayIdx } = this.state;
         return (
             <BuildField
                 {...{ field, fieldType, fieldTip, enumValues, isLinked, currType, currContext }}
                 {..._.pick(this.props, 'md5Progress', 'edit', 'create', 'keyDisplay', 'keyComplete', 'setSubmissionState', 'upload', 'uploadStatus', 'updateUpload', 'currentSubmittingUser', 'roundTwo')}
                 value={fieldValue} key={field} schema={fieldSchema} nestedField={field} title={fieldTitle} modifyFile={null} linkType={linked} disabled={false}
-                arrayIdx={null} required={_.contains(currSchema.required, field)} atIds={this.state.selectItems}
+                arrayIdx={null} required={_.contains(currSchema.required, field)}
                 modifyNewContext={this.modifyNewContext} selectObj={this.selectObj} selectComplete={this.selectComplete} selectCancel={this.selectCancel}
-                fieldBeingSelected={this.state.selectField} fieldBeingSelectedArrayIdx={this.state.selectArrayIdx} />
+                fieldBeingSelected={selectField} fieldBeingSelectedArrayIdx={selectArrayIdx} />
         );
     }
 

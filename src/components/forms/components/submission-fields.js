@@ -263,40 +263,25 @@ export class BuildField extends React.PureComponent {
 
     // this needs to live in BuildField for styling purposes
     pushArrayValue(e){
-        const { fieldType, value, schema, modifyNewContext, nestedField, linkType, arrayIdx, atIds } = this.props;
+        const { fieldType, value, schema, modifyNewContext, nestedField, linkType, arrayIdx } = this.props;
         e && e.preventDefault();
         if (fieldType !== 'array') {
             return;
         }
         const valueCopy = value ? value.slice() : [];
+        const { maxItems } = schema;
+
         if (schema.items && schema.items.type === 'object'){
-            // initialize with empty obj in only this case
-            if (schema.maxItems && (valueCopy.length === schema.maxItems)) {
-                valueCopy.push(null);
-            } else {
-                valueCopy.push({});
-            }
+            // initialize with empty obj and stop adding new if maxItems count is reached
+            valueCopy.push(maxItems && (valueCopy.length === maxItems) ? null : {});
         } else {
             valueCopy.push(null);
         }
-        if (schema.maxItems && (valueCopy.length > schema.maxItems)) {
-            if (atIds && Array.isArray(atIds)) {
-                _.each(value, function (i) {
-                    const item = _.find(atIds, (it) => it == _.values(i));
-                    if (!item) {
-                        atIds.push(_.values(i));
-                    }
-                });
-                if (schema.maxItems < atIds.length) {
-                    Alerts.queue({
-                        'title': "Multi-select warning " + linkType,
-                        'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + schema.maxItems + '"',
-                        'style': 'warning'
-                    });
-                }
-            }
-        }
-        else {
+
+        //if maxItems is defined in schema then check whether items' count not exceed the maxItems
+        if (maxItems && (valueCopy.length > maxItems)) {
+            //skip
+        } else {
             modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
         }
     }
@@ -511,12 +496,22 @@ class ArrayField extends React.Component{
 
     componentDidUpdate(prevProps, prevState){ // We can't do a comparison of props.value here because parent property mutates yet stays part of same obj.
         const { value, field, pushArrayValue, modifyNewContext, nestedField, schema, linkType } = this.props;
+
         if (ArrayField.shouldPushArrayValue(value, field)){
             pushArrayValue();
         } else {
             if (Array.isArray(value) && value.length >= 2){
                 if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])){
                     modifyNewContext(nestedField, null, ArrayField.typeOfItems(schema.items || {}), linkType, [value.length - 2]);
+                } else {
+                    const { maxItems } = schema;
+                    if (maxItems && value.length == maxItems && !_.isEmpty(value[value.length - 1])) {
+                        Alerts.queue({
+                            'title': "Multi-select warning (\"" + linkType + "\")",
+                            'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + maxItems + '"',
+                            'style': 'warning'
+                        });
+                    }
                 }
             }
         }

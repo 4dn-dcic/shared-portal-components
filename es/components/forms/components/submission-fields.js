@@ -450,8 +450,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
           modifyNewContext = _this$props7.modifyNewContext,
           nestedField = _this$props7.nestedField,
           linkType = _this$props7.linkType,
-          arrayIdx = _this$props7.arrayIdx,
-          atIds = _this$props7.atIds;
+          arrayIdx = _this$props7.arrayIdx;
       e && e.preventDefault();
 
       if (fieldType !== 'array') {
@@ -459,39 +458,17 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var valueCopy = value ? value.slice() : [];
+      var maxItems = schema.maxItems;
 
       if (schema.items && schema.items.type === 'object') {
-        // initialize with empty obj in only this case
-        if (schema.maxItems && valueCopy.length === schema.maxItems) {
-          valueCopy.push(null);
-        } else {
-          valueCopy.push({});
-        }
+        // initialize with empty obj and stop adding new if maxItems count is reached
+        valueCopy.push(maxItems && valueCopy.length === maxItems ? null : {});
       } else {
         valueCopy.push(null);
-      }
+      } //if maxItems is defined in schema then check whether items' count not exceed the maxItems
 
-      if (schema.maxItems && valueCopy.length > schema.maxItems) {
-        if (atIds && Array.isArray(atIds)) {
-          _.each(value, function (i) {
-            var item = _.find(atIds, function (it) {
-              return it == _.values(i);
-            });
 
-            if (!item) {
-              atIds.push(_.values(i));
-            }
-          });
-
-          if (schema.maxItems < atIds.length) {
-            Alerts.queue({
-              'title': "Multi-select warning " + linkType,
-              'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + schema.maxItems + '"',
-              'style': 'warning'
-            });
-          }
-        }
-      } else {
+      if (!(maxItems && valueCopy.length > maxItems)) {
         modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
       }
     }
@@ -782,6 +759,16 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
         if (Array.isArray(value) && value.length >= 2) {
           if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])) {
             modifyNewContext(nestedField, null, ArrayField.typeOfItems(schema.items || {}), linkType, [value.length - 2]);
+          } else {
+            var maxItems = schema.maxItems;
+
+            if (maxItems && value.length == maxItems && !_.isEmpty(value[value.length - 1])) {
+              Alerts.queue({
+                'title': "Multi-select warning (\"" + linkType + "\")",
+                'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + maxItems + '"',
+                'style': 'warning'
+              });
+            }
           }
         }
       }
