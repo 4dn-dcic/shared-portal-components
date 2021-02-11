@@ -59,8 +59,7 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
           newOptions = _this$props$options === void 0 ? [] : _this$props$options;
       this.state.refreshKey;
 
-      if (oldOptions.length !== 0 && oldOptions.length !== newOptions.length) {
-        // TODO: calling setState in componentDidUpdate toggles SAYTAjax dropdown as closed
+      if (oldOptions.length !== 0 && oldOptions.length !== newOptions.length) {// TODO: calling setState in componentDidUpdate toggles SAYTAjax dropdown as closed
         // in the first click. We actually prevent entering this block by adding (oldOptions.length !== 0) condition.
         // We are not sure whether to remove this block at all in the future. (https://twitter.com/dan_abramov/status/977181473424932864)
         // used to force Popper.js to refresh and reposition the dropdown
@@ -68,13 +67,12 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         // if dropping "up" to avoid collision with bottom of window)
         // TODO: add some more checks to make this more specific to ONLY cases
         // where the drop no longer aligns w/button
-        this.setState(function (existingState) {
-          var refreshKey = existingState.refreshKey; // todo: maybe read existingProps here as well and then cancel-out (return null) if no update needed.
-
-          return {
-            "refreshKey": refreshKey + 1
-          };
-        });
+        // IMO, removing this block at all would be a better approach.
+        // this.setState(function (existingState, existingProps) {
+        //     const { refreshKey } = existingState;
+        //     // todo: maybe read existingProps here as well and then cancel-out (return null) if no update needed.
+        //     return { "refreshKey": refreshKey + 1 };
+        // });
       }
     }
   }, {

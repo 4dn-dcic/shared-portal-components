@@ -5,9 +5,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import _ from 'underscore';
+import ReactTooltip from 'react-tooltip';
 import { Checkbox } from './../../forms/components/Checkbox';
 import { listToObj } from './../../util/object';
-import { getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
 
 /**
  * This component stores an object of `hiddenColumns` in state which contains field names as keys and booleans as values.
@@ -36,11 +36,11 @@ export class CustomColumnController extends React.Component {
     }
 
     static propTypes = {
-        'children' : PropTypes.instanceOf(React.Component),
-        'columnDefinitions' : PropTypes.arrayOf(PropTypes.shape({
+        "children" : PropTypes.instanceOf(React.Component),
+        "columnDefinitions" : PropTypes.arrayOf(PropTypes.shape({
             'field' : PropTypes.string
         })),
-        'hiddenColumns' : PropTypes.array
+        "defaultHiddenColumns" : PropTypes.array
     };
 
     constructor(props){
@@ -60,10 +60,15 @@ export class CustomColumnController extends React.Component {
         };
     }
 
-    componentDidUpdate(pastProps){
+    componentDidUpdate(pastProps, pastState){
         const { defaultHiddenColumns } = this.props;
+        const { hiddenColumns } = this.state;
         if (pastProps.defaultHiddenColumns !== defaultHiddenColumns){
             this.setState({ "hiddenColumns" : _.clone(defaultHiddenColumns || {}) }); // Reset state.hiddenColumns.
+            return;
+        }
+        if (hiddenColumns !== pastState.hiddenColumns) {
+            setTimeout(ReactTooltip.rebuild, 0);
         }
     }
 
