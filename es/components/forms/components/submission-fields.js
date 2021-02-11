@@ -458,19 +458,15 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var valueCopy = value ? value.slice() : [];
-      var maxItems = schema.maxItems;
 
       if (schema.items && schema.items.type === 'object') {
-        // initialize with empty obj and stop adding new if maxItems count is reached
-        valueCopy.push(maxItems && valueCopy.length === maxItems ? null : {});
+        // initialize with empty obj
+        valueCopy.push({});
       } else {
         valueCopy.push(null);
-      } //if maxItems is defined in schema then check whether items' count not exceed the maxItems
-
-
-      if (!(maxItems && valueCopy.length > maxItems)) {
-        modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
       }
+
+      modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
     }
     /**
      * Returns an object representing `props` which would be common to any type of input field
@@ -752,16 +748,16 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
           nestedField = _this$props12.nestedField,
           schema = _this$props12.schema,
           linkType = _this$props12.linkType;
+      var maxItems = schema.maxItems;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
+        if (maxItems && value.length == maxItems) return;
         pushArrayValue();
       } else {
         if (Array.isArray(value) && value.length >= 2) {
           if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])) {
             modifyNewContext(nestedField, null, ArrayField.typeOfItems(schema.items || {}), linkType, [value.length - 2]);
           } else {
-            var maxItems = schema.maxItems;
-
             if (maxItems && value.length == maxItems && !_.isEmpty(value[value.length - 1])) {
               Alerts.queue({
                 'title': "Multi-select warning (\"" + linkType + "\")",

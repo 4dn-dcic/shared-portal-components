@@ -269,21 +269,15 @@ export class BuildField extends React.PureComponent {
             return;
         }
         const valueCopy = value ? value.slice() : [];
-        const { maxItems } = schema;
 
         if (schema.items && schema.items.type === 'object'){
-            // initialize with empty obj and stop adding new if maxItems count is reached
-            valueCopy.push(maxItems && (valueCopy.length === maxItems) ? null : {});
-        } else {
+            // initialize with empty obj
+            valueCopy.push({});
+        }else{
             valueCopy.push(null);
         }
 
-        //if maxItems is defined in schema then check whether items' count not exceed the maxItems
-        if (maxItems && (valueCopy.length > maxItems)) {
-            //skip
-        } else {
-            modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
-        }
+        modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
     }
 
     /**
@@ -496,15 +490,17 @@ class ArrayField extends React.Component{
 
     componentDidUpdate(prevProps, prevState){ // We can't do a comparison of props.value here because parent property mutates yet stays part of same obj.
         const { value, field, pushArrayValue, modifyNewContext, nestedField, schema, linkType } = this.props;
+        const { maxItems } = schema;
 
         if (ArrayField.shouldPushArrayValue(value, field)){
+            if (maxItems && value.length == maxItems)
+                return;
             pushArrayValue();
         } else {
             if (Array.isArray(value) && value.length >= 2){
                 if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])){
                     modifyNewContext(nestedField, null, ArrayField.typeOfItems(schema.items || {}), linkType, [value.length - 2]);
                 } else {
-                    const { maxItems } = schema;
                     if (maxItems && value.length == maxItems && !_.isEmpty(value[value.length - 1])) {
                         Alerts.queue({
                             'title': "Multi-select warning (\"" + linkType + "\")",
