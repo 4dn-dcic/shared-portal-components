@@ -302,8 +302,10 @@ export class FetchedItem extends React.Component {
  * @param {function} onSuccessCallback  Function to call when request succeeds (should accept xhr.response as first argument)
  * May at some point integrate with ajax.promise (workaround)
  */
-export function postMultipartFormdata(postURL, formData, onErrorCallback, onSuccessCallback) {
+export function postMultipartFormData(postURL = null, formData = null, onErrorCallback = null, onSuccessCallback = null) {
     console.log(`Attempting multipart/form-data Ingestion. \n\nPosting to: ${postURL}`);
+
+    if (!postURL || !formData || !onErrorCallback || !onSuccessCallback) { throw new Error ("All arguments required. See SPC util/ajax.js for spec."); }
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", postURL, true);

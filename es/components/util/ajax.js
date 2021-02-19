@@ -412,8 +412,17 @@ _defineProperty(FetchedItem, "defaultProps", {
   "isFetchingItemPropName": "isFetchingItem"
 });
 
-export function postMultipartFormdata(postURL, formData, onErrorCallback, onSuccessCallback) {
+export function postMultipartFormData() {
+  var postURL = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  var formData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  var onErrorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+  var onSuccessCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
   console.log("Attempting multipart/form-data Ingestion. \n\nPosting to: ".concat(postURL));
+
+  if (!postURL || !formData || !onErrorCallback || !onSuccessCallback) {
+    throw new Error("All arguments required. See SPC util/ajax.js for spec.");
+  }
+
   var xhr = new XMLHttpRequest();
   xhr.open("POST", postURL, true);
 
