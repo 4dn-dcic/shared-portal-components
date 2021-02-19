@@ -293,3 +293,29 @@ export class FetchedItem extends React.Component {
     }
 
 }
+
+/**
+ * Method for submitting multipart/form-data without dealing with bugs caused by explicitly set headers in Ajax.promise
+ * @param {string} postURL              Endpoint to post data to (e.g. /ingestion-submissions/<uuid>/submit_for_ingestion)
+ * @param {FormData object} formData    An instance of FormData with data .append()ed
+ * @param {function} onErrorCallback    Function to call when request fails (should accept xhr.response as first argument)
+ * @param {function} onSuccessCallback  Function to call when request succeeds (should accept xhr.response as first argument)
+ * May at some point integrate with ajax.promise (workaround)
+ */
+export function postMultipartFormdata(postURL, formData, onErrorCallback, onSuccessCallback) {
+    console.log(`Attempting multipart/form-data Ingestion. \n\nPosting to: ${postURL}`);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", postURL, true);
+
+    xhr.onreadystatechange = function() { // Called when the state changes.
+        if (xhr.readyState !== 4) return;
+        if (xhr.readyState === xhr.DONE && xhr.status === 200) { // Request finished successfully
+            onSuccessCallback(xhr.response);
+        } else {
+            onErrorCallback(xhr.response);
+        }
+    };
+
+    xhr.send(formData);
+}
