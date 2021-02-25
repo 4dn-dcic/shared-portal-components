@@ -2111,11 +2111,6 @@ class IndividualObjectView extends React.Component {
      * @param {number} customArrayIdx
      */
     selectComplete(atIds, customSelectField = null, customSelectType = null, customArrayIdx = null) {
-        // console.log(`calling selectComplete(
-        //     atIds=${atIds},
-        //     customSelectField=${customSelectField},
-        //     customSelectType=${customSelectType},
-        //     customArrayIdx=${customArrayIdx}`);
         const { currContext } = this.props;
         const {
             selectField: stateSelectField,
@@ -2142,15 +2137,10 @@ class IndividualObjectView extends React.Component {
             throw new Error('No field being selected for');
         }
 
-
         atIds.forEach((atId)=>{
             const currentlySelectedIds = selectField && currContext[selectField];
             const isRepeat = (Array.isArray(currentlySelectedIds) && _.contains(currentlySelectedIds, atId));
-            // console.log("current: ", selectField);
-            // console.log("currentlySelectedIds", currentlySelectedIds);
-            // console.log("currContext: ", currContext);
-            // console.log("currContext[selectField]: ", currContext[selectField]);
-            // console.log("isInArray: ", isInArray);
+
             if (!isRepeat) {
                 this.fetchAndValidateItem(atId, selectField, selectType, isInArray ? nextArrayIndices.slice() : null, null);
                 if (isMultiSelect) { // Sets up nextArrayIndices for next Item being added in multiselect
@@ -2261,6 +2251,7 @@ class IndividualObjectView extends React.Component {
                 fieldType = 'file upload';
             }
         }
+        const { selectField, selectArrayIdx } = this.state;
         return (
             <BuildField
                 {...{ field, fieldType, fieldTip, enumValues, isLinked, currType, currContext }}
@@ -2268,7 +2259,7 @@ class IndividualObjectView extends React.Component {
                 value={fieldValue} key={field} schema={fieldSchema} nestedField={field} title={fieldTitle} modifyFile={null} linkType={linked} disabled={false}
                 arrayIdx={null} required={_.contains(currSchema.required, field)}
                 modifyNewContext={this.modifyNewContext} selectObj={this.selectObj} selectComplete={this.selectComplete} selectCancel={this.selectCancel}
-                fieldBeingSelected={this.state.selectField} fieldBeingSelectedArrayIdx={this.state.selectArrayIdx} />
+                fieldBeingSelected={selectField} fieldBeingSelectedArrayIdx={selectArrayIdx} />
         );
     }
 

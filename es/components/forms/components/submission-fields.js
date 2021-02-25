@@ -53,6 +53,7 @@ import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionB
 import { Line as ProgressBar } from 'rc-progress';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from './SearchAsYouTypeAjax';
+import { Alerts } from './../../ui/Alerts';
 /**
  * Individual component for each type of field. Contains the appropriate input
  * if it is a simple number/text/enum, or generates a child component for
@@ -459,7 +460,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
       var valueCopy = value ? value.slice() : [];
 
       if (schema.items && schema.items.type === 'object') {
-        // initialize with empty obj in only this case
+        // initialize with empty obj
         valueCopy.push({});
       } else {
         valueCopy.push(null);
@@ -747,8 +748,18 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
           nestedField = _this$props12.nestedField,
           schema = _this$props12.schema,
           linkType = _this$props12.linkType;
+      var maxItems = schema.maxItems;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
+        if (maxItems && typeof maxItems === "number" && value.length === maxItems) {
+          Alerts.queue({
+            'title': "Warning (\"" + linkType + "\")",
+            'message': 'You have reached the limit for the field "' + linkType + '" constrained to "maxItems: ' + maxItems + '".',
+            'style': 'warning'
+          });
+          return;
+        }
+
         pushArrayValue();
       } else {
         if (Array.isArray(value) && value.length >= 2) {
@@ -845,7 +856,7 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
         return [v, schema, i];
       });
 
-      var showAddButton = !isValueNull(values[valuesToRender.length - 1]);
+      var showAddButton = typeof propSchema.maxItems !== "number" && !isValueNull(values[valuesToRender.length - 1]);
       return /*#__PURE__*/React.createElement("div", {
         className: "list-of-array-items"
       }, valuesToRender.map(this.initiateArrayField), showAddButton ? this.generateAddButton() : null);
