@@ -751,20 +751,20 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
       var maxItems = schema.maxItems;
 
       if (ArrayField.shouldPushArrayValue(value, field)) {
-        if (maxItems && value.length == maxItems) return;
+        if (maxItems && typeof maxItems === "number" && value.length === maxItems) {
+          Alerts.queue({
+            'title': "Warning (\"" + linkType + "\")",
+            'message': 'You have reached the limit for the field "' + linkType + '" constrained to "maxItems: ' + maxItems + '".',
+            'style': 'warning'
+          });
+          return;
+        }
+
         pushArrayValue();
       } else {
         if (Array.isArray(value) && value.length >= 2) {
           if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])) {
             modifyNewContext(nestedField, null, ArrayField.typeOfItems(schema.items || {}), linkType, [value.length - 2]);
-          } else {
-            if (maxItems && value.length == maxItems && !_.isEmpty(value[value.length - 1])) {
-              Alerts.queue({
-                'title': "Multi-select warning (\"" + linkType + "\")",
-                'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + maxItems + '"',
-                'style': 'warning'
-              });
-            }
           }
         }
       }
@@ -856,7 +856,7 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
         return [v, schema, i];
       });
 
-      var showAddButton = !propSchema.maxItems && !isValueNull(values[valuesToRender.length - 1]);
+      var showAddButton = typeof propSchema.maxItems !== "number" && !isValueNull(values[valuesToRender.length - 1]);
       return /*#__PURE__*/React.createElement("div", {
         className: "list-of-array-items"
       }, valuesToRender.map(this.initiateArrayField), showAddButton ? this.generateAddButton() : null);

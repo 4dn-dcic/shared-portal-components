@@ -493,21 +493,19 @@ class ArrayField extends React.Component{
         const { maxItems } = schema;
 
         if (ArrayField.shouldPushArrayValue(value, field)){
-            if (maxItems && value.length == maxItems)
+            if (maxItems && typeof maxItems === "number" && value.length === maxItems) {
+                Alerts.queue({
+                    'title': "Warning (\"" + linkType + "\")",
+                    'message': 'You have reached the limit for the field "' + linkType + '" constrained to "maxItems: ' + maxItems + '".',
+                    'style': 'warning'
+                });
                 return;
+            }
             pushArrayValue();
         } else {
             if (Array.isArray(value) && value.length >= 2){
-                if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])){
+                if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])) {
                     modifyNewContext(nestedField, null, ArrayField.typeOfItems(schema.items || {}), linkType, [value.length - 2]);
-                } else {
-                    if (maxItems && value.length == maxItems && !_.isEmpty(value[value.length - 1])) {
-                        Alerts.queue({
-                            'title': "Multi-select warning (\"" + linkType + "\")",
-                            'message': 'Some of your selections have been trimmed because field "' + linkType + '" is constrained to "maxItems: ' + maxItems + '"',
-                            'style': 'warning'
-                        });
-                    }
                 }
             }
         }
@@ -565,7 +563,7 @@ class ArrayField extends React.Component{
         const schema = propSchema.items || {};
         const values = propValue || [];
         const valuesToRender = _.map( values.length === 0 ? [null] : values , function(v,i){ return [v, schema, i]; });
-        const showAddButton = !propSchema.maxItems && !isValueNull(values[valuesToRender.length - 1]);
+        const showAddButton = (typeof propSchema.maxItems !== "number") && !isValueNull(values[valuesToRender.length - 1]);
 
         return(
             <div className="list-of-array-items">
