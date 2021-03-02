@@ -44,6 +44,7 @@ export const patchedConsoleInstance = (function(){
 
         if (typeof console === 'undefined' || typeof console.log === 'undefined' || typeof console.log.bind === 'undefined') { // Check for seldomly incompatible browsers
             this._available = false;
+            this._enabled = false;
         }
 
         if (!this.isDebugging()) {
@@ -52,45 +53,37 @@ export const patchedConsoleInstance = (function(){
 
         this._nativeMethods = ['log', 'assert', 'dir', 'error', 'info', 'warn', 'clear', 'profile', 'profileEnd'];
         this._nativeConsole = console;
-        this._dummyFunc = function(){return false;};
 
-        this._setCustomMethods = () => {
-            if (this._enabled && this._available && typeof this._nativeConsole.log !== 'undefined'){
-                this.timeLog = () => {
-                    // eslint-disable-next-line prefer-spread
-                    this._nativeConsole.log.apply(
-                        this._nativeConsole,
-                        ['%c(' + moment().format('h:mm:ss.SSS') + ') %c%s'].concat(
-                            'color: darkcyan',
-                            'color: black',
-                            Array.prototype.slice.apply(arguments)
-                        )
-                    );
-                };
-            } else {
-                this.timeLog = this._dummyFunc;
-            }
+        this._dummyFunc = function(){
+            return false;
         };
 
         this._patchMethods = () => {
             this._nativeMethods.forEach((methodName) => {
-                if (!this._enabled || !this._available || typeof this._nativeConsole[methodName] === 'undefined') {
+                if (!this._enabled) {
                     this[methodName] = this._dummyFunc;
+                } else if (!this._nativeConsole[methodName]) {
+                    this[methodName] = this._nativeConsole.log.bind(this._nativeConsole);
                 } else {
                     this[methodName] = this._nativeConsole[methodName].bind(this._nativeConsole);
                 }
             });
-            this._setCustomMethods();
             return this;
         };
 
         // Ability to override, e.g. on production.
         this.on = () => {
+            if (!this._available || this._enabled) {
+                return false;
+            }
             this._enabled = true;
             return this._patchMethods();
         };
 
         this.off = () => {
+            if (!this._enabled) {
+                return false;
+            }
             this._enabled = false;
             return this._patchMethods();
         };

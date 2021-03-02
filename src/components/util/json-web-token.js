@@ -121,7 +121,7 @@ export function saveUserInfoLocalStorage(user_info){
  */
 export function remove(){
 
-    console.warn("Removing UserInfo from localStorage");
+    if (!isServerSide()) console.warn("Removing UserInfo from localStorage");
 
     if (!storeExists()) {
         delete dummyStorage.user_info;
@@ -129,7 +129,7 @@ export function remove(){
         localStorage.removeItem("user_info");
     }
 
-    console.info('Removed UserInfo');
+    if (!isServerSide()) console.info("Removed UserInfo");
     return true;
 }
 

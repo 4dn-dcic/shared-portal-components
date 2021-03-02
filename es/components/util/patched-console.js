@@ -19,8 +19,7 @@ export var patchedConsoleInstance = function () {
   if (!isServerSide() && window.patchedConsole) return window.patchedConsole; // Re-use instance if available.
 
   var patchedConsole = new function PatchedConsole() {
-    var _arguments = arguments,
-        _this = this;
+    var _this = this;
 
     /**
      * Check if `BUILDTYPE` constant is not on 'production'.
@@ -50,6 +49,7 @@ export var patchedConsoleInstance = function () {
     if (typeof console === 'undefined' || typeof console.log === 'undefined' || typeof console.log.bind === 'undefined') {
       // Check for seldomly incompatible browsers
       this._available = false;
+      this._enabled = false;
     }
 
     if (!this.isDebugging()) {
@@ -63,38 +63,35 @@ export var patchedConsoleInstance = function () {
       return false;
     };
 
-    this._setCustomMethods = function () {
-      if (_this._enabled && _this._available && typeof _this._nativeConsole.log !== 'undefined') {
-        _this.timeLog = function () {
-          // eslint-disable-next-line prefer-spread
-          _this._nativeConsole.log.apply(_this._nativeConsole, ['%c(' + moment().format('h:mm:ss.SSS') + ') %c%s'].concat('color: darkcyan', 'color: black', Array.prototype.slice.apply(_arguments)));
-        };
-      } else {
-        _this.timeLog = _this._dummyFunc;
-      }
-    };
-
     this._patchMethods = function () {
       _this._nativeMethods.forEach(function (methodName) {
-        if (!_this._enabled || !_this._available || typeof _this._nativeConsole[methodName] === 'undefined') {
+        if (!_this._enabled) {
           _this[methodName] = _this._dummyFunc;
+        } else if (!_this._nativeConsole[methodName]) {
+          _this[methodName] = _this._nativeConsole.log.bind(_this._nativeConsole);
         } else {
           _this[methodName] = _this._nativeConsole[methodName].bind(_this._nativeConsole);
         }
       });
-
-      _this._setCustomMethods();
 
       return _this;
     }; // Ability to override, e.g. on production.
 
 
     this.on = function () {
+      if (!_this._available || _this._enabled) {
+        return false;
+      }
+
       _this._enabled = true;
       return _this._patchMethods();
     };
 
     this.off = function () {
+      if (!_this._enabled) {
+        return false;
+      }
+
       _this._enabled = false;
       return _this._patchMethods();
     };

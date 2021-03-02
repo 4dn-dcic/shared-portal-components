@@ -1,5 +1,6 @@
 /* eslint-disable no-invalid-this */
 import { isServerSide } from './../util/misc';
+import { patchedConsoleInstance as console } from './patched-console';
 
 
 /**
@@ -14,11 +15,6 @@ import { isServerSide } from './../util/misc';
  * @todo maybe handle more events rather than just click.
  */
 export const WindowClickEventDelegator = new (function(){
-
-    if (isServerSide()){
-        console.warn("WindowClickEventDelegator is not supported server-side.");
-        return;
-    }
 
     // Private inaccessible variables
 
@@ -39,6 +35,11 @@ export const WindowClickEventDelegator = new (function(){
 
     this.addHandler = function(eventName, eventHandlerFxn){
 
+        if (isServerSide()){
+            console.warn("WindowClickEventDelegator is not supported server-side.");
+            return false;
+        }
+
         if (typeof windowEventHandlersByEvent[eventName] === "undefined") {
             windowEventHandlersByEvent[eventName] = onWindowEvent.bind(null, eventName);
         }
@@ -56,6 +57,12 @@ export const WindowClickEventDelegator = new (function(){
     };
 
     this.removeHandler = function(eventName, eventHandlerFxn){
+
+        if (isServerSide()){
+            console.warn("WindowClickEventDelegator is not supported server-side.");
+            return false;
+        }
+
         handlersByEvent[eventName].delete(eventHandlerFxn);
         if (handlersByEvent[eventName].size === 0) {
             window.removeEventListener(eventName, windowEventHandlersByEvent[eventName]);
