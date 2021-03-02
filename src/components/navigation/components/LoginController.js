@@ -69,7 +69,7 @@ export class LoginController extends React.PureComponent {
         this.onRegistrationCancel = this.onRegistrationCancel.bind(this);
         this.state = {
             // Contains email of Auth0-authenticated user but not in-system user
-            "unverifiedUserEmail" : false,
+            "unverifiedUserEmail" : null,
             // Whether the code-split JS library for Auth0 has loaded yet.
             // If false, is used to make Login/Register Button disabled temporarily.
             "isAuth0LibraryLoaded": false,
@@ -100,6 +100,10 @@ export class LoginController extends React.PureComponent {
                 this.setState({ "isAuth0LibraryLoaded": true });
             }, 200);
         });
+    }
+
+    componentWillUnmount(){
+
     }
 
     showLock(){
@@ -228,11 +232,14 @@ export class LoginController extends React.PureComponent {
                     // User account not in system -- present a registration form
                     const decodedToken = jwt.decode(idToken);
                     const { email: unverifiedUserEmail } = decodedToken || {};
-                    this.setState({ unverifiedUserEmail });
-
-                    // Somewhat weird/hacky approach to mask the idToken in private func enclosure
-                    // and not leave potentially-more-exposed in state
-                    this.onRegistrationCompleteBoundWithToken = this.onRegistrationComplete.bind(this, idToken);
+                    if (unverifiedUserEmail) {
+                        // Somewhat weird/hacky approach to mask the idToken in private func enclosure
+                        // and not leave potentially-more-exposed in state
+                        this.onRegistrationCompleteBoundWithToken = this.onRegistrationComplete.bind(this, idToken);
+                        this.setState({ unverifiedUserEmail });
+                    } else {
+                        throw new Error("Expected to receive unverified user email.");
+                    }
                 } else {
                     Alerts.queue(Alerts.LoginFailed);
                 }
@@ -281,7 +288,6 @@ export class LoginController extends React.PureComponent {
                 this.setState({ "unverifiedUserEmail": null });
             },
             (err) => {
-                delete this.onRegistrationCompleteBoundWithToken;
                 this.setState({ "unverifiedUserEmail": null });
 
                 // Cleanup any remaining JWT (deprecated re: httpOnly cookie)

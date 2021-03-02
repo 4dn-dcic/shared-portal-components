@@ -67,7 +67,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     _this.onRegistrationCancel = _this.onRegistrationCancel.bind(_assertThisInitialized(_this));
     _this.state = {
       // Contains email of Auth0-authenticated user but not in-system user
-      "unverifiedUserEmail": false,
+      "unverifiedUserEmail": null,
       // Whether the code-split JS library for Auth0 has loaded yet.
       // If false, is used to make Login/Register Button disabled temporarily.
       "isAuth0LibraryLoaded": false,
@@ -114,6 +114,9 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
         }, 200);
       });
     }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {}
   }, {
     key: "showLock",
     value: function showLock() {
@@ -270,13 +273,17 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           var _ref3 = decodedToken || {},
               unverifiedUserEmail = _ref3.email;
 
-          _this4.setState({
-            unverifiedUserEmail: unverifiedUserEmail
-          }); // Somewhat weird/hacky approach to mask the idToken in private func enclosure
-          // and not leave potentially-more-exposed in state
+          if (unverifiedUserEmail) {
+            // Somewhat weird/hacky approach to mask the idToken in private func enclosure
+            // and not leave potentially-more-exposed in state
+            _this4.onRegistrationCompleteBoundWithToken = _this4.onRegistrationComplete.bind(_this4, idToken);
 
-
-          _this4.onRegistrationCompleteBoundWithToken = _this4.onRegistrationComplete.bind(_this4, idToken);
+            _this4.setState({
+              unverifiedUserEmail: unverifiedUserEmail
+            });
+          } else {
+            throw new Error("Expected to receive unverified user email.");
+          }
         } else {
           Alerts.queue(Alerts.LoginFailed);
         }
@@ -325,8 +332,6 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           "unverifiedUserEmail": null
         });
       }, function () {
-        delete _this5.onRegistrationCompleteBoundWithToken;
-
         _this5.setState({
           "unverifiedUserEmail": null
         }); // Cleanup any remaining JWT (deprecated re: httpOnly cookie)
