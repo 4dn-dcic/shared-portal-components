@@ -115,9 +115,6 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
       });
     }
   }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {}
-  }, {
     key: "showLock",
     value: function showLock() {
       if (!this.lock || !this.lock.show) return; // Not yet mounted

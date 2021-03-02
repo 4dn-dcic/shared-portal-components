@@ -102,10 +102,6 @@ export class LoginController extends React.PureComponent {
         });
     }
 
-    componentWillUnmount(){
-
-    }
-
     showLock(){
         if (!this.lock || !this.lock.show) return; // Not yet mounted
         this.lock.show();
