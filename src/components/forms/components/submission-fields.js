@@ -16,8 +16,7 @@ import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionB
 import { Line as ProgressBar } from 'rc-progress';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from './SearchAsYouTypeAjax';
-
-
+import { Alerts } from './../../ui/Alerts';
 /**
  * Individual component for each type of field. Contains the appropriate input
  * if it is a simple number/text/enum, or generates a child component for
@@ -270,12 +269,14 @@ export class BuildField extends React.PureComponent {
             return;
         }
         const valueCopy = value ? value.slice() : [];
+
         if (schema.items && schema.items.type === 'object'){
-            // initialize with empty obj in only this case
+            // initialize with empty obj
             valueCopy.push({});
         }else{
             valueCopy.push(null);
         }
+
         modifyNewContext(nestedField, valueCopy, fieldType, linkType, arrayIdx);
     }
 
@@ -489,11 +490,21 @@ class ArrayField extends React.Component{
 
     componentDidUpdate(prevProps, prevState){ // We can't do a comparison of props.value here because parent property mutates yet stays part of same obj.
         const { value, field, pushArrayValue, modifyNewContext, nestedField, schema, linkType } = this.props;
+        const { maxItems } = schema;
+
         if (ArrayField.shouldPushArrayValue(value, field)){
+            if (maxItems && typeof maxItems === "number" && value.length === maxItems) {
+                Alerts.queue({
+                    'title': "Warning (\"" + linkType + "\")",
+                    'message': 'You have reached the limit for the field "' + linkType + '" constrained to "maxItems: ' + maxItems + '".',
+                    'style': 'warning'
+                });
+                return;
+            }
             pushArrayValue();
         } else {
             if (Array.isArray(value) && value.length >= 2){
-                if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])){
+                if (isValueNull(value[value.length - 1]) && isValueNull(value[value.length - 2])) {
                     modifyNewContext(nestedField, null, ArrayField.typeOfItems(schema.items || {}), linkType, [value.length - 2]);
                 }
             }
@@ -552,7 +563,7 @@ class ArrayField extends React.Component{
         const schema = propSchema.items || {};
         const values = propValue || [];
         const valuesToRender = _.map( values.length === 0 ? [null] : values , function(v,i){ return [v, schema, i]; });
-        const showAddButton = !isValueNull(values[valuesToRender.length - 1]);
+        const showAddButton = (typeof propSchema.maxItems !== "number") && !isValueNull(values[valuesToRender.length - 1]);
 
         return(
             <div className="list-of-array-items">
