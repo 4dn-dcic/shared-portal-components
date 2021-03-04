@@ -246,6 +246,10 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
     };
   }, [link, rowNumber]);
   var renderChildren = React.Children.map(children, function (child) {
+    if (! /*#__PURE__*/React.isValidElement(child) || typeof child.type === "string") {
+      return child;
+    }
+
     return /*#__PURE__*/React.cloneElement(child, {
       link: link,
       onClick: onClick,

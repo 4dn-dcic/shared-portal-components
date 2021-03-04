@@ -158,7 +158,9 @@ export function initializeGoogleAnalytics() {
 
 
   var _ref = JWT.getUserDetails() || {},
-      userUUID = _ref.uuid;
+      userUUID = _ref.uuid,
+      _ref$groups = _ref.groups,
+      userGroups = _ref$groups === void 0 ? [] : _ref$groups;
 
   if (!options.isAnalyticsScriptOnPage) {
     // If true, we already have <script src="...analytics.js">, e.g. in app.js so should skip this.
@@ -184,12 +186,12 @@ export function initializeGoogleAnalytics() {
   ga2('create', trackingID, 'auto');
   ga2(function (tracker) {
     var clientID = tracker.get('clientId');
+    console.log("Got client id", clientID);
 
     if (clientID) {
       // Used on backend to associate downloads with user sessions when possible.
-      JWT.cookieStore.set('clientIdentifier', clientID, {
-        path: '/'
-      });
+      // (previous cookies are *not* overwritten)
+      document.cookie = "clientIdentifier=" + clientID + "; path=/";
       console.info("GA: Loaded Tracker & Updated Client ID Cookie");
     }
   });
@@ -201,6 +203,12 @@ export function initializeGoogleAnalytics() {
 
   if (userUUID) {
     setUserID(userUUID);
+    event('Authentication', 'ExistingSessionLogin', {
+      userUUID: userUUID,
+      name: userUUID,
+      userGroups: userGroups && JSON.stringify(userGroups.slice().sort()),
+      eventLabel: 'Authenticated ServerSide'
+    });
   }
 
   console.info("GA: Initialized");

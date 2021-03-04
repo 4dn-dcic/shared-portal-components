@@ -46,7 +46,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import Draggable from 'react-draggable';
 import { getColumnWidthFromDefinition } from './ColumnCombiner';
-import { WindowClickEventDelegator } from './../../../util/WindowClickEventDelegator';
+import { WindowEventDelegator } from './../../../util/WindowEventDelegator';
 import { findParentElement } from './../../../util/layout';
 import { requestAnimationFrame as raf } from './../../../viz/utilities';
 /**
@@ -171,11 +171,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           pastScrollLeft = pastProps.tableContainerScrollLeft;
 
       if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn) {
-        WindowClickEventDelegator.addHandler("click", this.onWindowClick, {
-          passive: true
-        });
+        WindowEventDelegator.addHandler("click", this.onWindowClick);
       } else if (!showingSortFieldsForColumn && pastState.showingSortFieldsForColumn) {
-        WindowClickEventDelegator.removeHandler("click", this.onWindowClick);
+        WindowEventDelegator.removeHandler("click", this.onWindowClick);
       }
 
       var nextState = {};

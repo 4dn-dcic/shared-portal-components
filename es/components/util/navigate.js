@@ -6,7 +6,6 @@ import _ from 'underscore';
 import { NavigateOpts } from './typedefs'; // let cachedAppRootComponentInstance = null;
 
 var cachedNavFunction = null;
-var cachedUpdateUserInfoFunction = null;
 var callbackFunctions = [];
 /**
  * All of this is very much of a React anti-pattern...
@@ -64,7 +63,6 @@ navigate.initializeFromApp = function (rootAppComponentInstance) {
   if (typeof rootAppComponentInstance.navigate !== 'function') throw new Error("`rootAppComponentInstance.navigate` is not a function."); // cachedAppRootComponentInstance = rootAppComponentInstance; // <-- Super anti-pattern...
 
   cachedNavFunction = rootAppComponentInstance.navigate;
-  cachedUpdateUserInfoFunction = rootAppComponentInstance.updateUserInfo;
 };
 /**
  * This is called in app initialization to alias app.navigate into this global module/function.
@@ -78,10 +76,6 @@ navigate.initializeFromApp = function (rootAppComponentInstance) {
 navigate.setNavigateFunction = function (navFxn) {
   if (typeof navFxn !== 'function') throw new Error("Not a function.");
   cachedNavFunction = navFxn;
-};
-
-navigate.updateUserInfo = function () {
-  return cachedUpdateUserInfoFunction.apply(void 0, arguments);
 };
 
 navigate.determineSeparatorChar = function (href) {

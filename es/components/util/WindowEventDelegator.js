@@ -6,6 +6,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
 /* eslint-disable no-invalid-this */
 import { isServerSide } from './../util/misc';
+import { patchedConsoleInstance as console } from './patched-console';
 /**
  * Global singleton.
  *
@@ -18,15 +19,10 @@ import { isServerSide } from './../util/misc';
  * @todo maybe handle more events rather than just click.
  */
 
-export var WindowClickEventDelegator = new function () {
-  if (isServerSide()) {
-    console.warn("WindowClickEventDelegator is not supported server-side.");
-    return;
-  } // Private inaccessible variables
+export var WindowEventDelegator = new function () {
+  // Private inaccessible variables
 
   /** @type {Object.<string,Set<function>>} */
-
-
   var handlersByEvent = {};
   /** @type {Object.<string,function>} */
 
@@ -34,6 +30,15 @@ export var WindowClickEventDelegator = new function () {
   /** @type {Object.<string,boolean>} */
 
   var isInitializedByEvent = {};
+  var passiveEvents = {
+    "scroll": true,
+    "mousemove": true,
+    "resize": true,
+    "wheel": true,
+    "mousewheel": true,
+    "touchstart": true,
+    "touchmove": true
+  };
 
   function onWindowEvent(eventName, eventObject) {
     var _iterator = _createForOfIteratorHelper(handlersByEvent[eventName]),
@@ -53,6 +58,11 @@ export var WindowClickEventDelegator = new function () {
 
 
   this.addHandler = function (eventName, eventHandlerFxn) {
+    if (isServerSide()) {
+      console.warn("WindowEventDelegator is not supported server-side.");
+      return false;
+    }
+
     if (typeof windowEventHandlersByEvent[eventName] === "undefined") {
       windowEventHandlersByEvent[eventName] = onWindowEvent.bind(null, eventName);
     }
@@ -65,13 +75,19 @@ export var WindowClickEventDelegator = new function () {
 
     if (!isInitializedByEvent[eventName]) {
       isInitializedByEvent[eventName] = true;
-      window.addEventListener(eventName, windowEventHandlersByEvent[eventName], {
-        passive: true
+      window.addEventListener(eventName, windowEventHandlersByEvent[eventName], // See: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#improving_scrolling_performance_with_passive_listeners
+      {
+        passive: passiveEvents[eventName]
       });
     }
   };
 
   this.removeHandler = function (eventName, eventHandlerFxn) {
+    if (isServerSide()) {
+      console.warn("WindowEventDelegator is not supported server-side.");
+      return false;
+    }
+
     handlersByEvent[eventName]["delete"](eventHandlerFxn);
 
     if (handlersByEvent[eventName].size === 0) {

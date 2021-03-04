@@ -6,14 +6,68 @@ import _ from 'underscore';
 import * as JWT from './json-web-token';
 import { patchedConsoleInstance as console } from './patched-console';
 
-/**
- * @private
- */
-const defaultHeaders = {
-    "Content-Type"      : "application/json; charset=UTF-8",
-    "Accept"            : "application/json",
-    "X-Requested-With"  : "XMLHttpRequest" // Allows some server-side libs (incl. pyramid) to identify using `request.is_xhr`.
-};
+
+
+export const AJAXSettings = Object.freeze((function(){
+    // Returned from anonymous function since server-side rendering can re-use global state.
+    // Also a singleton class b.c. might as well.
+
+    const defaultHeaders = Object.freeze({
+        "Content-Type"      : "application/json; charset=UTF-8",
+        "Accept"            : "application/json",
+        "X-Requested-With"  : "XMLHttpRequest" // Allows some server-side libs (incl. pyramid) to identify using `request.is_xhr`.
+    });
+
+    const onSessionExpiredCallbacks = new Set();
+    // const onLoadCallbacks = new Set();
+
+    function didSessionExpire(xhr){
+        // Derived from https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders#example
+        const headersArr = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
+        const headersLen = headersArr.length;
+        for (var i = 0; i < headersLen; i++) {
+            const [ header, value ] = headersArr[i].split(': ');
+            if (header.toLowerCase() === "www-authenticate"){
+                if (value.indexOf('title="Session Expired"') > -1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Called by all app AJAX requests */
+    function onLoad(xhr){
+        const sessionExpired = (xhr.status === 401 && didSessionExpire(xhr));
+        if (sessionExpired) {
+            // Remove existing localStorage userInfo
+            JWT.remove();
+            console.warn("User session has expired or been unset");
+            onSessionExpiredCallbacks.forEach(function(callback){
+                // One of these should be App's `this.updateAppSessionState`
+                callback(xhr);
+            });
+        }
+    }
+
+    return {
+        onLoad,
+        defaultHeaders,
+        addSessionExpiredCallback: function(callback){
+            onSessionExpiredCallbacks.add(callback);
+        },
+        removeSessionExpiredCallback: function(callback){
+            onSessionExpiredCallbacks.delete(callback);
+        },
+        // Disabled for now until/unless need for this in future.
+        // addOnLoadCallback(callback){
+        //     onLoadCallbacks.add(callback);
+        // },
+        // removeOnLoadCallback(callback){
+        //     onLoadCallbacks.delete(callback);
+        // }
+    };
+})());
 
 /**
  * @private
@@ -24,14 +78,15 @@ const defaultHeaders = {
  * @returns {XMLHttpRequest} XHR object with set headers.
  */
 function setHeaders(xhr, headers = {}, deleteHeaders = []) {
-    headers = JWT.addToHeaders(_.extend({}, defaultHeaders, headers)); // Set defaults, add JWT if set
+    headers = { ...AJAXSettings.defaultHeaders, ...headers };
+    var i;
+    for (i = 0; i < deleteHeaders.length; i++){
+        delete headers[deleteHeaders[i]];
+    }
 
     // Put everything in the header
-    var headerKeys = _.keys(headers);
-    for (var i=0; i < headerKeys.length; i++){
-        if (deleteHeaders.indexOf(headerKeys[i]) > -1){
-            continue;
-        }
+    const headerKeys = Object.keys(headers);
+    for (i = 0; i < headerKeys.length; i++){
         xhr.setRequestHeader(headerKeys[i], headers[headerKeys[i]]);
     }
 
@@ -45,6 +100,7 @@ export function load(url, callback, method = 'GET', fallback = null, data = null
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if (xhr.readyState === XMLHttpRequest.DONE) {
+            AJAXSettings.onLoad(xhr);
             if ([200,201,202,203].indexOf(xhr.status) > -1) {
                 if (typeof callback === 'function'){
                     callback(JSON.parse(xhr.responseText), xhr);
@@ -80,11 +136,12 @@ export function load(url, callback, method = 'GET', fallback = null, data = null
  * but adds support for `abort` and all other nice features of the XMLHttpRequest
  * interface.
  */
-export function promise(url, method = 'GET', headers = {}, data = null, cache = true, debugResponse = false){
+export function promise(url, method = 'GET', headers = {}, data = null, cache = true, deleteHeaders = [], debugResponse = false){
     var xhr;
     var promiseInstance = new Promise(function(resolve, reject) {
         xhr = new XMLHttpRequest();
         xhr.onload = function() {
+            AJAXSettings.onLoad(xhr);
             var response = null;
             // response SHOULD be json
             try {
@@ -99,11 +156,11 @@ export function promise(url, method = 'GET', headers = {}, data = null, cache = 
             resolve(response);
         };
         xhr.onerror = reject;
-        if (cache === false && url.indexOf('format=json') > -1){
+        if (cache === false){
             url += '&ts=' + parseInt(Date.now());
         }
         xhr.open(method, url, true);
-        xhr = setHeaders(xhr, headers);
+        xhr = setHeaders(xhr, headers, deleteHeaders || []);
 
         if (data) {
             xhr.send(data);
@@ -123,22 +180,25 @@ export function promise(url, method = 'GET', headers = {}, data = null, cache = 
  * Wrapper around function promise() which is slightly more relevant for navigation.
  * Strips hash from URL, sets same origin policy.
  *
- * @export
- * @param {any} url
- * @param {any} options
+ * @param {string} url
+ * @param {{}} options
  */
-export function fetch(targetURL, options){
-    options = _.extend({ 'credentials' : 'same-origin' }, options);
-    const http_method = options.method || 'GET';
-    const headers = options.headers = _.extend({}, options.headers || {});
+export function fetch(targetURL, options = {}){
+    options = { 'credentials' : 'same-origin', ...options };
+    const {
+        method = "GET",
+        headers: origHeaders = {},
+        body: data = null,
+        cache = true
+    } = options;
+    const headers = { ...origHeaders };
 
     // Strip url fragment.
     const hashIndex = targetURL.indexOf('#');
     if (hashIndex > -1) {
         targetURL = targetURL.slice(0, hashIndex);
     }
-    const data = options.body ? options.body : null;
-    const request = promise(targetURL, http_method, headers, data, options.cache === false ? false : true);
+    const request = promise(targetURL, method, headers, data, cache);
     request.targetURL = targetURL;
     request.xhr_begin = 1 * new Date();
     request.then((response) => {

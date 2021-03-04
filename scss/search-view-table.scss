@@ -358,11 +358,6 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					background-color: rgba(255,255,255,0.75);
 					box-shadow: 0 1px 6px rgba(0,0,0,0.33);
 					> .search-result-column-block {
-						> .inner {
-							padding-top: 20px;
-							padding-bottom: 20px;
-							height : 56px;
-						}
 
 						&[data-first-visible-column] {
 							@include search-result-toggle-open-button-container-open;
@@ -371,8 +366,6 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 								opacity: 1;
 							}
 						}
-
-
 
 					}
 				}
