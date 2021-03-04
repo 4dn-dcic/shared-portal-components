@@ -30,6 +30,14 @@ export var WindowEventDelegator = new function () {
   /** @type {Object.<string,boolean>} */
 
   var isInitializedByEvent = {};
+  var passiveEvents = {
+    "scroll": true,
+    "mousemove": true,
+    "wheel": true,
+    "mousewheel": true,
+    "touchstart": true,
+    "touchmove": true
+  };
 
   function onWindowEvent(eventName, eventObject) {
     var _iterator = _createForOfIteratorHelper(handlersByEvent[eventName]),
@@ -66,8 +74,9 @@ export var WindowEventDelegator = new function () {
 
     if (!isInitializedByEvent[eventName]) {
       isInitializedByEvent[eventName] = true;
-      window.addEventListener(eventName, windowEventHandlersByEvent[eventName], {
-        passive: true
+      window.addEventListener(eventName, windowEventHandlersByEvent[eventName], // See: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#improving_scrolling_performance_with_passive_listeners
+      {
+        passive: passiveEvents[eventName]
       });
     }
   };
