@@ -28,6 +28,7 @@ export const WindowEventDelegator = new (function(){
     const passiveEvents = {
         "scroll": true,
         "mousemove": true,
+        "resize": true,
         "wheel": true,
         "mousewheel": true,
         "touchstart": true,
