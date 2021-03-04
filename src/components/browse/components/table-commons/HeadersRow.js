@@ -128,7 +128,7 @@ export class HeadersRow extends React.PureComponent {
         const { sortColumn: pastColumn, sortReverse: pastReverse, tableContainerScrollLeft: pastScrollLeft } = pastProps;
 
         if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn){
-            WindowEventDelegator.addHandler("click", this.onWindowClick, { passive: true });
+            WindowEventDelegator.addHandler("click", this.onWindowClick);
         } else if (!showingSortFieldsForColumn && pastState.showingSortFieldsForColumn) {
             WindowEventDelegator.removeHandler("click", this.onWindowClick);
         }

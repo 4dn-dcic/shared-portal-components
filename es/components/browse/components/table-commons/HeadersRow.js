@@ -171,9 +171,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           pastScrollLeft = pastProps.tableContainerScrollLeft;
 
       if (showingSortFieldsForColumn && !pastState.showingSortFieldsForColumn) {
-        WindowEventDelegator.addHandler("click", this.onWindowClick, {
-          passive: true
-        });
+        WindowEventDelegator.addHandler("click", this.onWindowClick);
       } else if (!showingSortFieldsForColumn && pastState.showingSortFieldsForColumn) {
         WindowEventDelegator.removeHandler("click", this.onWindowClick);
       }
