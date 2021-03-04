@@ -14,7 +14,7 @@ import { patchedConsoleInstance as console } from './patched-console';
  *
  * @todo maybe handle more events rather than just click.
  */
-export const WindowClickEventDelegator = new (function(){
+export const WindowEventDelegator = new (function(){
 
     // Private inaccessible variables
 
@@ -36,7 +36,7 @@ export const WindowClickEventDelegator = new (function(){
     this.addHandler = function(eventName, eventHandlerFxn){
 
         if (isServerSide()){
-            console.warn("WindowClickEventDelegator is not supported server-side.");
+            console.warn("WindowEventDelegator is not supported server-side.");
             return false;
         }
 
@@ -52,14 +52,18 @@ export const WindowClickEventDelegator = new (function(){
 
         if (!isInitializedByEvent[eventName]) {
             isInitializedByEvent[eventName] = true;
-            window.addEventListener(eventName, windowEventHandlersByEvent[eventName], { passive: true });
+            window.addEventListener(
+                eventName,
+                windowEventHandlersByEvent[eventName],
+                { passive: true }
+            );
         }
     };
 
     this.removeHandler = function(eventName, eventHandlerFxn){
 
         if (isServerSide()){
-            console.warn("WindowClickEventDelegator is not supported server-side.");
+            console.warn("WindowEventDelegator is not supported server-side.");
             return false;
         }
 

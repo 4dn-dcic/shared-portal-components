@@ -117,7 +117,10 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
     const options = { ...defaultOptions, ...appOpts };
 
     // TODO: Check for user-scoped 'do not track' flag, set state.enabled=false
-    const { uuid: userUUID } = JWT.getUserDetails() || {};
+    const {
+        uuid: userUUID,
+        groups: userGroups = []
+    } = JWT.getUserDetails() || {};
 
     if (!options.isAnalyticsScriptOnPage){
         // If true, we already have <script src="...analytics.js">, e.g. in app.js so should skip this.
@@ -155,6 +158,12 @@ export function initializeGoogleAnalytics(trackingID = null, appOptions = {}){
 
     if (userUUID) {
         setUserID(userUUID);
+        event('Authentication', 'ExistingSessionLogin', {
+            userUUID,
+            name: userUUID,
+            userGroups: userGroups && JSON.stringify(userGroups.slice().sort()),
+            eventLabel: 'Authenticated ServerSide'
+        });
     }
 
     console.info("GA: Initialized");

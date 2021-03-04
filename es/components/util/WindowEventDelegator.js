@@ -32,8 +32,6 @@ export var WindowEventDelegator = new function () {
   var isInitializedByEvent = {};
 
   function onWindowEvent(eventName, eventObject) {
-    console.log("TTT2", eventName, eventObject);
-
     var _iterator = _createForOfIteratorHelper(handlersByEvent[eventName]),
         _step;
 
@@ -51,8 +49,6 @@ export var WindowEventDelegator = new function () {
 
 
   this.addHandler = function (eventName, eventHandlerFxn) {
-    console.log("TTT3", eventName, eventHandlerFxn, isInitializedByEvent);
-
     if (isServerSide()) {
       console.warn("WindowEventDelegator is not supported server-side.");
       return false;

@@ -80,4 +80,4 @@ export const commonFileUtil = fileUtilities;
 import * as submissionViewUtilities from './submission-view';
 export const submissionStateUtil = submissionViewUtilities;
 
-export { WindowClickEventDelegator } from './WindowClickEventDelegator';
+export { WindowEventDelegator } from './WindowEventDelegator';
