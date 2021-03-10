@@ -312,7 +312,7 @@ export class RangeFacet extends React.PureComponent {
         } = this.props;
 
         if (field_type === "date"){
-            return <LocalizedTime timestamp={value} localize={false} />;
+            return <LocalizedTime timestamp={value} localize={false} formatType="date-xs"/>;
         }
 
         if (field_type !== "number" && field_type !== "integer") {

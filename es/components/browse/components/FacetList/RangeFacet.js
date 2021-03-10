@@ -428,7 +428,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       if (field_type === "date") {
         return /*#__PURE__*/React.createElement(LocalizedTime, {
           timestamp: value,
-          localize: false
+          localize: false,
+          formatType: "date-xs"
         });
       }
 
