@@ -506,6 +506,7 @@ export function postMultipartFormData() {
 
   xhr.onreadystatechange = function () {
     // Called when the state changes.
+    AJAXSettings.onLoad(xhr);
     if (xhr.readyState !== 4) return;
 
     if (xhr.readyState === xhr.DONE && xhr.status === 200) {

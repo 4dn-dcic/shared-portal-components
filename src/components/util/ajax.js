@@ -371,6 +371,7 @@ export function postMultipartFormData(postURL = null, formData = null, onErrorCa
     xhr.open("POST", postURL, true);
 
     xhr.onreadystatechange = function() { // Called when the state changes.
+        AJAXSettings.onLoad(xhr);
         if (xhr.readyState !== 4) return;
         if (xhr.readyState === xhr.DONE && xhr.status === 200) { // Request finished successfully
             onSuccessCallback(xhr.response);
