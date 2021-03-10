@@ -80,18 +80,20 @@ export function buildContext(context, itemSchema) {
     // if creating or value not present, set to null
 
 
+    var value = context[field];
+
     if (edit) {
-      if (context[field] === null || fieldSchema.ff_flag && fieldSchema.ff_flag === "clear edit") {
+      if (value === null || fieldSchema.ff_flag && fieldSchema.ff_flag === "clear edit") {
         built[field] = null;
       } else {
-        built[field] = context[field] || null;
+        built[field] = typeof value === "number" ? value || 0 : value || null;
       }
     } else if (!create) {
       //clone
-      if (context[field] === null || fieldSchema.ff_flag && fieldSchema.ff_flag === "clear clone") {
+      if (value === null || fieldSchema.ff_flag && fieldSchema.ff_flag === "clear clone") {
         built[field] = null;
       } else {
-        built[field] = context[field] || null;
+        built[field] = typeof value === "number" ? value || 0 : value || null;
       }
     } else {
       built[field] = null;

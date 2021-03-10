@@ -200,6 +200,9 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
     }, [ link, rowNumber ]);
 
     const renderChildren = React.Children.map(children, function(child){
+        if (!React.isValidElement(child) || typeof child.type === "string") {
+            return child;
+        }
         return React.cloneElement(child, { link, onClick, result });
     });
 

@@ -4,12 +4,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import jwt from 'jsonwebtoken';
 
 import { Alerts } from './../../ui/Alerts';
 import * as JWT from './../../util/json-web-token';
 import { navigate } from './../../util/navigate';
-import { load, fetch } from './../../util/ajax';
-import { itemUtil } from './../../util/object';
+import { load, fetch, promise as ajaxPromise } from './../../util/ajax';
 import { event as trackEvent, setUserID } from './../../util/analytics';
 
 /** Imported in componentDidMount. */
@@ -19,7 +19,7 @@ let Auth0Lock = null;
 export class LoginController extends React.PureComponent {
 
     static propTypes = {
-        'updateUserInfo'      : PropTypes.func.isRequired,
+        'updateAppSessionState' : PropTypes.func.isRequired,
         'id'                  : PropTypes.string,
         'auth0ClientID'       : PropTypes.string.isRequired,
         'auth0Domain'         : PropTypes.string.isRequired,
@@ -63,86 +63,102 @@ export class LoginController extends React.PureComponent {
     constructor(props){
         super(props);
         this.showLock = _.throttle(this.showLock.bind(this), 1000, { trailing: false });
-        this.loginCallback = this.loginCallback.bind(this);
-        this.loginErrorCallback = this.loginErrorCallback.bind(this);
+        this.validateCookieAndObtainAdditionalUserInfo = this.validateCookieAndObtainAdditionalUserInfo.bind(this);
+        this.auth0LoginCallback = this.auth0LoginCallback.bind(this);
         this.onRegistrationComplete = this.onRegistrationComplete.bind(this);
         this.onRegistrationCancel = this.onRegistrationCancel.bind(this);
         this.state = {
-            "isRegistrationModalVisible" : false,
-            "isLoading" : false // Whether are currently performing login/registration request.
+            // Contains email of Auth0-authenticated user but not in-system user
+            "unverifiedUserEmail" : null,
+            // Whether the code-split JS library for Auth0 has loaded yet.
+            // If false, is used to make Login/Register Button disabled temporarily.
+            "isAuth0LibraryLoaded": false,
+            // Whether are currently performing login/registration request.
+            "isLoading" : false,
+            // Held in here temporarily for user registration purposes.
+            // Should be deleted by time user can authenticate
+            "jwtToken": null
         };
     }
 
     componentDidMount () {
         const { auth0ClientID, auth0Domain, auth0Options } = this.props;
-
+        // prefetch & preload enabled here since is likely that user might want to click Login very quickly after loading webpage.
         import(
             /* webpackChunkName: "auth0-lock-bundle" */
             /* webpackMode: "lazy" */
+            /* webpackPrefetch: true */
+            /* webpackPreload: true */
             "auth0-lock"
         ).then(({ default: Auth0LockImport })=>{
             Auth0Lock = Auth0LockImport;
             // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
             // We import it here in separate bundle instead to avoid issues during server-side render.
             this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
-            this.lock.on("authenticated", this.loginCallback);
+            this.lock.on("authenticated", this.auth0LoginCallback);
+            setTimeout(()=>{
+                this.setState({ "isAuth0LibraryLoaded": true });
+            }, 200);
         });
-
-        // require.ensure(["auth0-lock"], (require) => {
-        //     // As of 9.11.0, auth0-js (dependency of Auth0Lock) cannot work outside of browser context.
-        //     // We import it here in separate bundle instead to avoid issues during server-side render.
-        //     Auth0Lock = require("auth0-lock").default;
-        //     this.lock = new Auth0Lock(auth0ClientID, auth0Domain, auth0Options);
-        //     this.lock.on("authenticated", this.loginCallback);
-        // }, "auth0-lock-bundle");
     }
 
-    showLock(evtKey, e){
+    showLock(){
         if (!this.lock || !this.lock.show) return; // Not yet mounted
         this.lock.show();
     }
 
-    loginCallback(authResult, successCallback, errorCallback){
-        const { updateUserInfo, onLogin } = this.props;
-
-        // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
-        // to see if this is a valid user account or some random person who just logged into their Google account.
-        const { idToken } = authResult; //JWT
-        if (!idToken) return;
-
-        JWT.save(idToken); // We just got token from Auth0 so probably isn't outdated.
+    validateCookieAndObtainAdditionalUserInfo(token, successCallback = null, errorCallback = null){
+        const { updateAppSessionState, onLogin = null } = this.props;
 
         this.setState({ "isLoading" : true }, ()=>{
 
             this.lock.hide();
 
             // Second stage: get this valid OAuth account (Google or w/e) auth'd from our end.
+            // We probably can get rid of this Promise.race wrapper, since request/server will likely time out in 30s, idk..
             Promise.race([
-                fetch('/login', {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Bearer '+idToken },
-                    body: JSON.stringify({ id_token: idToken })
-                }),
+                // Server will save as httpOnly cookie.
+                fetch('/login', { method: "POST", body: JSON.stringify({ "id_token": token }) }),
                 new Promise(function(resolve, reject){
                     setTimeout(function(){ reject({ 'description' : 'timed out', 'type' : 'timed-out' }); }, 90000); /* 90 seconds */
                 })
             ])
+                .then(({ saved_cookie = false }) => {
+                    if (!saved_cookie) {
+                        throw new Error("Couldn't set session in /login");
+                    }
+                    // This should return a 401 error if user not found, to caught and handled as 'unregistered user'
+                    return fetch("/session-properties");
+                })
                 .then((response) => {
-                    // Add'l Error Check (will throw to be caught)
+                    // Add'l Error Check (will throw to be caught by errorCallback)
+                    // (HTTPExceptions from Pyramid generally have a code and status in response body)
                     if (response.code || response.status) throw response;
                     return response;
                 })
-                .then((r) => {
-                    console.info('Received info from server about user via /login endpoint', r);
+                .then((userInfoResponse) => {
+                    console.info('Received info from server about user via /session-properties endpoint', userInfoResponse);
+                    const {
+                        details: {
+                            email: userEmail = null
+                        } = {},
+                        user_actions = []
+                    } = userInfoResponse;
 
-                    JWT.saveUserInfoLocalStorage(r);
-                    updateUserInfo(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
-                    console.info('Login completed');
+                    if (!userEmail) {
+                        throw new Error("Did not receive user details from /session-properties, login failed.");
+                    }
 
-                    // Fetch user profile and use their primary lab as the eventLabel.
-                    const profileURL = (_.findWhere(r.user_actions || [], { 'id' : 'profile' }) || {}).href;
+
+                    // Fetch user profile and (outdated/to-revisit-later) use their primary lab as the eventLabel.
+                    const profileURL = (_.findWhere(user_actions, { 'id' : 'profile' }) || {}).href;
+
                     if (profileURL){
                         this.setState({ "isLoading" : false });
+
+                        JWT.saveUserInfoLocalStorage(userInfoResponse);
+                        updateAppSessionState(); // <- this function (in App.js) is now expected to call `Alerts.deQueue(Alerts.LoggedOut);`
+                        console.info('Login completed');
 
                         // Register an analytics event for UI login.
                         // This is used to segment public vs internal audience in Analytics dashboards.
@@ -154,8 +170,10 @@ export class LoginController extends React.PureComponent {
                                 onLogin(profile);
                             }
 
-                            const { uuid: userId, groups = null, lab } = profile;
+                            const { uuid: userId, groups = null } = profile;
+
                             setUserID(userId);
+
                             trackEvent('Authentication', 'UILogin', {
                                 eventLabel : "Authenticated ClientSide",
                                 name: userId,
@@ -184,49 +202,76 @@ export class LoginController extends React.PureComponent {
                     // Alerts.deQueue(Alerts.LoggedOut);
                     setUserID(null);
 
-                    // If is programatically called with error CB, let error CB handle everything.
-                    var errorCallbackFxn = typeof errorCallback === 'function' ? errorCallback : this.loginErrorCallback;
-                    errorCallbackFxn(error);
+                    if (typeof errorCallback === "function") {
+                        errorCallback(error);
+                    }
                 });
 
         });
-
     }
 
-    loginErrorCallback(error){
-        if (!error.code && error.type === 'timed-out'){
-            // Server or network error of some sort most likely.
-            Alerts.queue(Alerts.LoginFailed);
-        } else if (error.code === 401) {
-            // Present a registration form
-            //navigate('/error/login-failed');
-            this.setState({ 'isRegistrationModalVisible' : true });
-        } else {
-            Alerts.queue(Alerts.LoginFailed);
+    auth0LoginCallback(authResult){
+        // First stage: we just have gotten JWT from the Auth0 widget but have not auth'd it against it our own system
+        // to see if this is a valid user account or some random person who just logged into their Google account.
+        const { idToken } = authResult;
+
+        // Server will ensure that we have a validly signed JWT token/cookie and that the user account exists in system.
+        this.validateCookieAndObtainAdditionalUserInfo(
+            idToken,
+            null,
+            (error) => {
+                console.error(error);
+                if (!error.code && error.type === 'timed-out'){
+                    // Server or network error of some sort most likely.
+                    Alerts.queue(Alerts.LoginFailed);
+                } else if (error.code === 401) {
+                    // User account not in system -- present a registration form
+                    const decodedToken = jwt.decode(idToken);
+                    const { email: unverifiedUserEmail } = decodedToken || {};
+                    if (unverifiedUserEmail) {
+                        // Somewhat weird/hacky approach to mask the idToken in private func enclosure
+                        // and not leave potentially-more-exposed in state
+                        this.onRegistrationCompleteBoundWithToken = this.onRegistrationComplete.bind(this, idToken);
+                        this.setState({ unverifiedUserEmail });
+                    } else {
+                        throw new Error("Expected to receive unverified user email.");
+                    }
+                } else {
+                    Alerts.queue(Alerts.LoginFailed);
+                }
+            }
+        );
+    }
+
+    /** This function must be bound to an idToken before it can be used. */
+    onRegistrationComplete(idToken){
+        const { unverifiedUserEmail } = this.state;
+
+        if (!idToken) {
+            throw Error("Expected an idToken");
         }
-    }
 
-    onRegistrationComplete(){
-        const token = JWT.get();
-        const decodedToken = JWT.decode(token);
+        // Delete bound version of self
+        delete this.onRegistrationCompleteBoundWithToken;
 
-        this.loginCallback(
-            { 'idToken' : token },
+        this.validateCookieAndObtainAdditionalUserInfo(
+            idToken,
             // Success callback -- shows "Success" Alert msg.
             (userProfile) => {
                 const userDetails = JWT.getUserDetails(); // We should have this after /login
-                const userProfileURL = userProfile && itemUtil.atId(userProfile);
+                const { uuid: userUUID, first_name, last_name } = userDetails;
                 const userFullName = (
-                    userDetails.first_name && userDetails.last_name &&
-                    (userDetails.first_name + ' ' + userDetails.last_name)
-                ) || null;
+                    first_name && last_name ? first_name + " " + last_name
+                        : (first_name || last_name || null)
+                );
+
                 const msg = (
                     <ul className="mb-0">
-                        <li>You are now logged in as <span className="text-500">{ userFullName }{ userFullName ? ' (' + decodedToken.email + ')' : decodedToken.email }</span>.</li>
-                        <li>Please visit <b><a href={userProfileURL}>your profile</a></b> to edit your account settings or information.</li>
+                        <li>You are now logged in as <span className="text-500">{ userFullName }{ userFullName ? ' (' + unverifiedUserEmail + ')' : unverifiedUserEmail }</span>.</li>
+                        <li>Please visit <b><a href={`/users/${userUUID}/`}>your profile</a></b> to edit your account settings or information.</li>
                     </ul>
                 );
-                this.setState({ 'isRegistrationModalVisible' : false });
+
                 // Moved out of setState callback because no guarantee that setState callback is fired
                 // if component becomes unmounted (which occurs after login).
                 Alerts.queue({
@@ -235,10 +280,14 @@ export class LoginController extends React.PureComponent {
                     "style"     : 'success',
                     'navigateDisappearThreshold' : 2
                 });
+
+                this.setState({ "unverifiedUserEmail": null });
             },
             (err) => {
-                this.setState({ 'isRegistrationModalVisible' : false });
-                JWT.remove(); // Cleanup any remaining JWT, just in case.
+                this.setState({ "unverifiedUserEmail": null });
+
+                // Cleanup any remaining JWT (deprecated re: httpOnly cookie)
+                JWT.remove();
                 setUserID(null);
                 Alerts.queue(Alerts.LoginFailed);
             }
@@ -246,20 +295,74 @@ export class LoginController extends React.PureComponent {
     }
 
     onRegistrationCancel(){
-        // TODO:
-        this.setState({ 'isRegistrationModalVisible' : false });
+        delete this.onRegistrationCompleteBoundWithToken;
+
+        // Cleanup any remaining JWT (deprecated re: httpOnly cookie)
+        JWT.remove();
+        this.setState({ "unverifiedUserEmail": null });
     }
 
     render(){
         const { children, ...passProps } = this.props;
-        const { isLoading, isRegistrationModalVisible } = this.state;
-        const { showLock, onRegistrationCancel, onRegistrationComplete } = this;
-        return React.cloneElement(
-            children,
-            { isLoading, isRegistrationModalVisible, showLock, onRegistrationCancel, onRegistrationComplete, ...passProps }
-        );
+        const { isLoading, isAuth0LibraryLoaded, unverifiedUserEmail } = this.state;
+
+        const childProps = {
+            ...passProps,
+            isLoading, unverifiedUserEmail, isAuth0LibraryLoaded,
+            "showLock": this.showLock
+        };
+
+        if (unverifiedUserEmail) {
+            // aka in registration mode.
+            childProps.onRegistrationComplete = this.onRegistrationCompleteBoundWithToken;
+            childProps.onRegistrationCancel = this.onRegistrationCancel;
+        }
+
+        return React.Children.map(children, function(child){
+            if (!React.isValidElement(child) || typeof child.type === "string") {
+                return child;
+            }
+            return React.cloneElement(child, childProps);
+        });
     }
 
+}
+
+/**
+ * Deletes cookies from our app server and Auth0
+ * @todo Grab hms-dbmi.auth0.com from somewhere in ini files or similar.
+ *
+ * @returns a Promise that can keep attaching callbacks to.
+ */
+export function performLogout(
+    auth0Domain = "hms-dbmi.auth0.com",
+    auth0ClientID = "DPxEwsZRnKDpk0VfVAxrStRKukN14ILB"
+){
+    // Grab here, gets deleted at end of response.
+    const { uuid } = JWT.getUserDetails() || {};
+
+    return fetch("/logout").then(function(response){
+        const { deleted_cookie = false } = response;
+        if (!deleted_cookie) {
+            throw new Error("Couldn't delete cookie, check network");
+        }
+
+        // Removes userInfo (localStorage)
+        JWT.remove();
+
+        // Maybe todo, if can this window to autoclose in some amount of time..
+        // AJAX doesn't work for that Auth0 endpoint.
+        // See https://auth0.com/docs/api/authentication#logout
+
+        // window.open(`https://${auth0Domain}/v2/logout?client_id=${auth0ClientID}`);
+        return response;
+    }).then(function(auth0LogoutResponse){
+        console.log("Logged out", auth0LogoutResponse);
+        trackEvent('Authentication', 'UILogout', {
+            eventLabel : "Logged Out ClientSide",
+            userId: uuid
+        });
+    });
 }
 
 
@@ -267,7 +370,8 @@ export class LogoutController extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.performLogout = this.performLogout.bind(this);
+        this.performLogoutUI = this.performLogoutUI.bind(this);
+        this.state = { "isLoading": false };
     }
 
     /**
@@ -276,42 +380,46 @@ export class LogoutController extends React.PureComponent {
      *
      * @param {Event} [evt] - Not needed. Will prevent default / stopPropagation if present.
      */
-    performLogout(evt = null){
-        const { updateUserInfo } = this.props;
-        const { uuid } = JWT.getUserDetails() || {};
+    performLogoutUI(evt = null){
 
         if (evt && evt.preventDefault){
             evt.preventDefault();
             evt.stopPropagation();
         }
 
-        // Removes both idToken (cookie) and userInfo (localStorage)
-        JWT.remove();
+        this.setState({ "isLoading": true }, ()=>{
+            performLogout().then(()=>{
 
-        // Remove from analytics session
-        setUserID(null);
+                this.setState({ "isLoading" : false });
 
-        // Refetch page context without our old JWT to hide any forbidden content.
-        updateUserInfo();
+                // Remove from analytics session
+                setUserID(null);
 
-        // Attempt to preserve hash, if any, but don't scroll to it.
-        const windowHash = (window && window.location && window.location.hash) || '';
-        navigate(windowHash, { "inPlace" : true, "dontScrollToTop" : !!(windowHash) });
+                // Attempt to preserve hash, if any, but don't scroll to it.
+                const windowHash = (window && window.location && window.location.hash) || '';
+                navigate(windowHash, { "inPlace" : true, "dontScrollToTop" : !!(windowHash) });
 
-        if (typeof document !== 'undefined'){
-            // Dummy click event to close dropdown menu, bypasses document.body.onClick handler (app.js -> App.prototype.handeClick)
-            document.dispatchEvent(new MouseEvent('click'));
-        }
+                if (typeof document !== 'undefined'){
+                    // Dummy click event to close dropdown menu, bypasses document.body.onClick handler (app.js -> App.prototype.handeClick)
+                    document.dispatchEvent(new MouseEvent('click'));
+                }
 
-        trackEvent('Authentication', 'UILogout', {
-            eventLabel : "Logged Out ClientSide",
-            userId: uuid
+            });
         });
+
     }
 
     render(){
         const { children, ...passProps } = this.props;
-        return React.cloneElement(children, { performLogout : this.performLogout, ...passProps });
+        const { isLoading } = this.state;
+        return React.cloneElement(
+            children,
+            {
+                ...passProps,
+                isLoading,
+                performLogout: this.performLogoutUI
+            }
+        );
     }
 
 }

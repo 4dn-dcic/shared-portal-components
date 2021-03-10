@@ -49,4 +49,4 @@ export var commonFileUtil = fileUtilities; //import * as SearchEngineOptimizatio
 
 import * as submissionViewUtilities from './submission-view';
 export var submissionStateUtil = submissionViewUtilities;
-export { WindowClickEventDelegator } from './WindowClickEventDelegator';
+export { WindowEventDelegator } from './WindowEventDelegator';

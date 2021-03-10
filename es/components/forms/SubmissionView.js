@@ -2758,11 +2758,6 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
       var customSelectField = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var customSelectType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var customArrayIdx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      // console.log(`calling selectComplete(
-      //     atIds=${atIds},
-      //     customSelectField=${customSelectField},
-      //     customSelectType=${customSelectType},
-      //     customArrayIdx=${customArrayIdx}`);
       var currContext = this.props.currContext;
       var _this$state7 = this.state,
           stateSelectField = _this$state7.selectField,
@@ -2787,12 +2782,7 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
       atIds.forEach(function (atId) {
         var currentlySelectedIds = selectField && currContext[selectField];
 
-        var isRepeat = Array.isArray(currentlySelectedIds) && _.contains(currentlySelectedIds, atId); // console.log("current: ", selectField);
-        // console.log("currentlySelectedIds", currentlySelectedIds);
-        // console.log("currContext: ", currContext);
-        // console.log("currContext[selectField]: ", currContext[selectField]);
-        // console.log("isInArray: ", isInArray);
-
+        var isRepeat = Array.isArray(currentlySelectedIds) && _.contains(currentlySelectedIds, atId);
 
         if (!isRepeat) {
           _this12.fetchAndValidateItem(atId, selectField, customSelectType || stateSelectType, isInArray ? nextArrayIndices.slice() : null, null);
@@ -2933,6 +2923,9 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
         }
       }
 
+      var _this$state9 = this.state,
+          selectField = _this$state9.selectField,
+          selectArrayIdx = _this$state9.selectArrayIdx;
       return /*#__PURE__*/React.createElement(BuildField, _extends({
         field: field,
         fieldType: fieldType,
@@ -2956,8 +2949,8 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
         selectObj: this.selectObj,
         selectComplete: this.selectComplete,
         selectCancel: this.selectCancel,
-        fieldBeingSelected: this.state.selectField,
-        fieldBeingSelectedArrayIdx: this.state.selectArrayIdx
+        fieldBeingSelected: selectField,
+        fieldBeingSelectedArrayIdx: selectArrayIdx
       }));
     }
     /**

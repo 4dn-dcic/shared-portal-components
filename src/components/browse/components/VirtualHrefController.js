@@ -194,10 +194,6 @@ export class VirtualHrefController extends React.PureComponent {
                     throw new Error("Did not get back a search response, request was potentially aborted.");
                 }
 
-                if (typeof globalNavigate.updateUserInfo === "function") {
-                    globalNavigate.updateUserInfo();
-                }
-
                 // Get correct URL from XHR, in case we hit a redirect during the request.
                 // (Only for requests with single href, as cannot treat real compound_search multi-filter-block request as href)
                 const responseHref = !nextHrefFull ? null : (
