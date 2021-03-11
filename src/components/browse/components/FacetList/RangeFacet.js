@@ -5,7 +5,6 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import Collapse from 'react-bootstrap/esm/Collapse';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Fade from 'react-bootstrap/esm/Fade';
@@ -216,9 +215,9 @@ export class RangeFacet extends React.PureComponent {
         this.setTo = this.setTo.bind(this);
         this.setToAndFrom = this.setToAndFrom.bind(this);
         this.selectRange = this.selectRange.bind(this);
+        this.resetAll = this.selectRange.bind(this, null, null);
         this.resetFrom = this.resetFrom.bind(this);
         this.resetTo = this.resetTo.bind(this);
-        this.resetToAndFrom = this.resetToAndFrom.bind(this); // tentative - will likely be replaced with a prop
         this.performUpdateFrom = this.performUpdateFrom.bind(this);
         this.performUpdateTo = this.performUpdateTo.bind(this);
         this.performUpdateToAndFrom = this.performUpdateToAndFrom.bind(this);
@@ -277,27 +276,29 @@ export class RangeFacet extends React.PureComponent {
         }
     }
 
-    performUpdateFrom(){
+    performUpdateFrom(callback){
         const { onFilter, facet } = this.props;
         const { fromVal } = this.state;
         // console.log("performUpdateFrom", fromVal);
         onFilter(
             { ...facet, field: facet.field + ".from" },
-            { key: fromVal }
+            { key: fromVal },
+            callback
         );
     }
 
-    performUpdateTo(){
+    performUpdateTo(callback){
         const { onFilter, facet } = this.props;
         const { toVal } = this.state;
         // console.log("performUpdateTo", toVal);
         onFilter(
             { ...facet, field: facet.field + ".to" },
-            { key: toVal }
+            { key: toVal },
+            callback
         );
     }
 
-    performUpdateToAndFrom() {
+    performUpdateToAndFrom(callback) {
         const { onFilterMultiple, facet } = this.props;
         const { toVal, fromVal } = this.state;
         // console.log("performUpdate", toVal, fromVal);
@@ -309,29 +310,27 @@ export class RangeFacet extends React.PureComponent {
             {
                 facet: { ...facet, field: facet.field + ".to" },
                 term: { key: toVal }
-            }]
+            }],
+            callback
         );
     }
 
-    resetFrom(e){
-        e.stopPropagation();
-        this.setFrom(null, this.performUpdateFrom);
+    resetFrom(callback){
+        this.setFrom(null, () => {
+            this.performUpdateFrom(callback);
+        });
     }
 
-    resetTo(e){
-        e.stopPropagation();
-        this.setTo(null, this.performUpdateTo);
+    resetTo(callback){
+        this.setTo(null, () => {
+            this.performUpdateTo(callback);
+        });
     }
 
-    resetToAndFrom(e) {
-        e.stopPropagation();
-        this.setToAndFrom(null, null, this.performUpdateToAndFrom);
-    }
-
-    selectRange(to, from, e) {
-        // console.log("selectRange", to, from);
-        e.stopPropagation();
-        this.setToAndFrom(to, from, this.performUpdateToAndFrom);
+    selectRange(to, from, callback) {
+        this.setToAndFrom(to, from, () => {
+            this.performUpdateToAndFrom(callback);
+        });
     }
 
     handleOpenToggleClick(e) {
@@ -450,7 +449,7 @@ export class RangeFacet extends React.PureComponent {
                 <div className="facet-list" data-open={facetOpen} data-any-active={(savedFromVal || savedToVal) ? true : false}>
                     <PartialList className="inner-panel" open={facetOpen}
                         persistent={[
-                            <RangeClear {...{ savedFromVal, savedToVal, facet, fieldSchema, termTransformFxn }} resetAll={this.resetToAndFrom}
+                            <RangeClear {...{ savedFromVal, savedToVal, facet, fieldSchema, termTransformFxn }} resetAll={this.resetAll}
                                 resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} key={0} />
                         ]}
                         collapsible={[
@@ -488,7 +487,7 @@ export class RangeFacet extends React.PureComponent {
                                     */}
                                 </div>
                             </div>,
-                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/> : null
+                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} selectRange={this.selectRange} /> : null
                         ]} />
                 </div>
             </div>
@@ -499,7 +498,7 @@ export class RangeFacet extends React.PureComponent {
 
 
 const ListOfRanges = React.memo(function ListOfRanges(props){
-    const { facet, facetOpen, facetClosing, persistentCount = 10, onTermClick, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal, resetAll } = props;
+    const { facet, facetOpen, facetClosing, persistentCount = 10, selectRange, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal } = props;
     const { ranges = [] } = facet;
 
     /** Create range components and sort by status (selected->omitted->unselected) */
@@ -515,7 +514,7 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
         } = segmentComponentsByStatus(ranges.map(function(range){
-            return <RangeTerm {...{ facet, range, termTransformFxn, resetAll }} onClick={onTermClick} key={`${range.to}-${range.from}`} status={getRangeStatus(range, toVal, fromVal)} />;
+            return <RangeTerm {...{ facet, range, termTransformFxn, selectRange }} key={`${range.to}-${range.from}`} status={getRangeStatus(range, toVal, fromVal)} />;
         }));
 
         const selectedLen = selectedTermComponents.length;
@@ -613,16 +612,24 @@ export class RangeTerm extends React.PureComponent {
     }
 
     handleClick(e) {
-        var { range, onClick } = this.props;
-        var { to = null, from = null } = range;
+        const { range, selectRange, status } = this.props;
+        const { to = null, from = null } = range;
+
         e.preventDefault();
+        e.stopPropagation();
+
         this.setState({ 'filtering' : true }, () => {
-            onClick(to, from, e, () => this.setState({ 'filtering' : false }));
+            const isSelected = status === "selected";
+            selectRange(
+                isSelected ? null : to,
+                isSelected ? null : from,
+                () => this.setState({ 'filtering' : false })
+            );
         });
     }
 
     render() {
-        const { range, facet, status, termTransformFxn, resetAll } = this.props;
+        const { range, facet, status } = this.props;
         const { doc_count, from, to, label } = range;
         const { filtering } = this.state;
         const selected = (status !== 'none');
@@ -657,7 +664,7 @@ export class RangeTerm extends React.PureComponent {
 
         return (
             <li className={"facet-list-element "} key={label} data-key={label}>
-                <a className="term" data-selected={selected} href="#" onClick={status === "selected" ? resetAll : this.handleClick} data-term={label}>
+                <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {displayLabel}</span>
                     <span className="facet-count">{doc_count || 0}</span>
@@ -696,8 +703,6 @@ export function FormattedToFromRangeValue(props){
 
     const fromTitle = formatRangeVal(termTransformFxn, facet, from);
     const toTitle = formatRangeVal(termTransformFxn, facet, to);
-
-    console.log("ABCD", from, to, fromTitle, toTitle);
 
     if (from !== null && to !== null) {
         // Both To and From present
@@ -741,13 +746,21 @@ const RangeClear = React.memo(function RangeClear(props){
         return null;
     }
 
-    const resetFunc = savedFromVal === null && savedToVal === null ? resetAll // To and From both present
-        : resetTo === null ? resetFrom  // Only From present
-            : resetTo;  // Only To present
+    function unselectRange(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if (savedFromVal !== null && savedToVal !== null) { // To and From both present
+            resetAll();
+        } else if (resetTo === null) { // Only From present
+            resetFrom();
+        } else { // Only To present
+            resetTo();
+        }
+    }
 
     return (
         <li className="selected facet-list-element clickable">
-            <a onClick={resetFunc}>
+            <a onClick={unselectRange}>
                 <span className="facet-selector">
                     <i className="icon icon-fw fas icon-minus-circle"/>
                 </span>

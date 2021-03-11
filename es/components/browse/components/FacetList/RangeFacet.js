@@ -46,7 +46,6 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import Collapse from 'react-bootstrap/esm/Collapse';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Fade from 'react-bootstrap/esm/Fade';
@@ -274,10 +273,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     _this.setTo = _this.setTo.bind(_assertThisInitialized(_this));
     _this.setToAndFrom = _this.setToAndFrom.bind(_assertThisInitialized(_this));
     _this.selectRange = _this.selectRange.bind(_assertThisInitialized(_this));
+    _this.resetAll = _this.selectRange.bind(_assertThisInitialized(_this), null, null);
     _this.resetFrom = _this.resetFrom.bind(_assertThisInitialized(_this));
     _this.resetTo = _this.resetTo.bind(_assertThisInitialized(_this));
-    _this.resetToAndFrom = _this.resetToAndFrom.bind(_assertThisInitialized(_this)); // tentative - will likely be replaced with a prop
-
     _this.performUpdateFrom = _this.performUpdateFrom.bind(_assertThisInitialized(_this));
     _this.performUpdateTo = _this.performUpdateTo.bind(_assertThisInitialized(_this));
     _this.performUpdateToAndFrom = _this.performUpdateToAndFrom.bind(_assertThisInitialized(_this));
@@ -358,7 +356,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     }
   }, {
     key: "performUpdateFrom",
-    value: function performUpdateFrom() {
+    value: function performUpdateFrom(callback) {
       var _this$props2 = this.props,
           onFilter = _this$props2.onFilter,
           facet = _this$props2.facet;
@@ -368,11 +366,11 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         field: facet.field + ".from"
       }), {
         key: fromVal
-      });
+      }, callback);
     }
   }, {
     key: "performUpdateTo",
-    value: function performUpdateTo() {
+    value: function performUpdateTo(callback) {
       var _this$props3 = this.props,
           onFilter = _this$props3.onFilter,
           facet = _this$props3.facet;
@@ -382,11 +380,11 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         field: facet.field + ".to"
       }), {
         key: toVal
-      });
+      }, callback);
     }
   }, {
     key: "performUpdateToAndFrom",
-    value: function performUpdateToAndFrom() {
+    value: function performUpdateToAndFrom(callback) {
       var _this$props4 = this.props,
           onFilterMultiple = _this$props4.onFilterMultiple,
           facet = _this$props4.facet;
@@ -408,32 +406,34 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         term: {
           key: toVal
         }
-      }]);
+      }], callback);
     }
   }, {
     key: "resetFrom",
-    value: function resetFrom(e) {
-      e.stopPropagation();
-      this.setFrom(null, this.performUpdateFrom);
+    value: function resetFrom(callback) {
+      var _this2 = this;
+
+      this.setFrom(null, function () {
+        _this2.performUpdateFrom(callback);
+      });
     }
   }, {
     key: "resetTo",
-    value: function resetTo(e) {
-      e.stopPropagation();
-      this.setTo(null, this.performUpdateTo);
-    }
-  }, {
-    key: "resetToAndFrom",
-    value: function resetToAndFrom(e) {
-      e.stopPropagation();
-      this.setToAndFrom(null, null, this.performUpdateToAndFrom);
+    value: function resetTo(callback) {
+      var _this3 = this;
+
+      this.setTo(null, function () {
+        _this3.performUpdateTo(callback);
+      });
     }
   }, {
     key: "selectRange",
-    value: function selectRange(to, from, e) {
-      // console.log("selectRange", to, from);
-      e.stopPropagation();
-      this.setToAndFrom(to, from, this.performUpdateToAndFrom);
+    value: function selectRange(to, from, callback) {
+      var _this4 = this;
+
+      this.setToAndFrom(to, from, function () {
+        _this4.performUpdateToAndFrom(callback);
+      });
     }
   }, {
     key: "handleOpenToggleClick",
@@ -584,7 +584,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           fieldSchema: fieldSchema,
           termTransformFxn: termTransformFxn
         }, {
-          resetAll: this.resetToAndFrom,
+          resetAll: this.resetAll,
           resetFrom: fromVal !== null ? this.resetFrom : null,
           resetTo: toVal !== null ? this.resetTo : null,
           key: 0
@@ -630,8 +630,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           expanded: expanded
         }, {
           onToggleExpanded: this.handleExpandListToggleClick,
-          onTermClick: this.selectRange,
-          resetAll: this.resetToAndFrom
+          selectRange: this.selectRange
         })) : null]
       })));
     }
@@ -645,13 +644,12 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
       facetClosing = props.facetClosing,
       _props$persistentCoun = props.persistentCount,
       persistentCount = _props$persistentCoun === void 0 ? 10 : _props$persistentCoun,
-      onTermClick = props.onTermClick,
+      selectRange = props.selectRange,
       expanded = props.expanded,
       onToggleExpanded = props.onToggleExpanded,
       termTransformFxn = props.termTransformFxn,
       toVal = props.toVal,
-      fromVal = props.fromVal,
-      resetAll = props.resetAll;
+      fromVal = props.fromVal;
   var _facet$ranges2 = facet.ranges,
       ranges = _facet$ranges2 === void 0 ? [] : _facet$ranges2;
   /** Create range components and sort by status (selected->omitted->unselected) */
@@ -662,9 +660,8 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
         facet: facet,
         range: range,
         termTransformFxn: termTransformFxn,
-        resetAll: resetAll
+        selectRange: selectRange
       }, {
-        onClick: onTermClick,
         key: "".concat(range.to, "-").concat(range.from),
         status: getRangeStatus(range, toVal, fromVal)
       }));
@@ -785,36 +782,39 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
   var _super2 = _createSuper(RangeTerm);
 
   function RangeTerm(props) {
-    var _this2;
+    var _this5;
 
     _classCallCheck(this, RangeTerm);
 
-    _this2 = _super2.call(this, props);
-    _this2.handleClick = _.debounce(_this2.handleClick.bind(_assertThisInitialized(_this2)), 500, true);
-    _this2.state = {
+    _this5 = _super2.call(this, props);
+    _this5.handleClick = _.debounce(_this5.handleClick.bind(_assertThisInitialized(_this5)), 500, true);
+    _this5.state = {
       'filtering': false
     };
-    return _this2;
+    return _this5;
   }
 
   _createClass(RangeTerm, [{
     key: "handleClick",
     value: function handleClick(e) {
-      var _this3 = this;
+      var _this6 = this;
 
       var _this$props8 = this.props,
           range = _this$props8.range,
-          onClick = _this$props8.onClick;
+          selectRange = _this$props8.selectRange,
+          status = _this$props8.status;
       var _range$to = range.to,
           to = _range$to === void 0 ? null : _range$to,
           _range$from = range.from,
           from = _range$from === void 0 ? null : _range$from;
       e.preventDefault();
+      e.stopPropagation();
       this.setState({
         'filtering': true
       }, function () {
-        onClick(to, from, e, function () {
-          return _this3.setState({
+        var isSelected = status === "selected";
+        selectRange(isSelected ? null : to, isSelected ? null : from, function () {
+          return _this6.setState({
             'filtering': false
           });
         });
@@ -826,9 +826,7 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       var _this$props9 = this.props,
           range = _this$props9.range,
           facet = _this$props9.facet,
-          status = _this$props9.status,
-          termTransformFxn = _this$props9.termTransformFxn,
-          resetAll = _this$props9.resetAll;
+          status = _this$props9.status;
       var doc_count = range.doc_count,
           from = range.from,
           to = range.to,
@@ -874,7 +872,7 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
         className: "term",
         "data-selected": status !== 'none',
         href: "#",
-        onClick: status === "selected" ? resetAll : this.handleClick,
+        onClick: this.handleClick,
         "data-term": label
       }, /*#__PURE__*/React.createElement("span", {
         className: "facet-selector"
@@ -917,7 +915,6 @@ export function FormattedToFromRangeValue(props) {
 
   var fromTitle = formatRangeVal(termTransformFxn, facet, from);
   var toTitle = formatRangeVal(termTransformFxn, facet, to);
-  console.log("ABCD", from, to, fromTitle, toTitle);
 
   if (from !== null && to !== null) {
     // Both To and From present
@@ -955,14 +952,24 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
     return null;
   }
 
-  var resetFunc = savedFromVal === null && savedToVal === null ? resetAll // To and From both present
-  : resetTo === null ? resetFrom // Only From present
-  : resetTo; // Only To present
-
   return /*#__PURE__*/React.createElement("li", {
     className: "selected facet-list-element clickable"
   }, /*#__PURE__*/React.createElement("a", {
-    onClick: resetFunc
+    onClick: function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (savedFromVal !== null && savedToVal !== null) {
+        // To and From both present
+        resetAll();
+      } else if (resetTo === null) {
+        // Only From present
+        resetFrom();
+      } else {
+        // Only To present
+        resetTo();
+      }
+    }
   }, /*#__PURE__*/React.createElement("span", {
     className: "facet-selector"
   }, /*#__PURE__*/React.createElement("i", {
@@ -988,22 +995,22 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   var _super3 = _createSuper(RangeDropdown);
 
   function RangeDropdown(props) {
-    var _this4;
+    var _this7;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this4 = _super3.call(this, props);
-    _this4.state = {
+    _this7 = _super3.call(this, props);
+    _this7.state = {
       showMenu: false,
       toggling: false
     };
-    _this4.onTextInputChange = _this4.onTextInputChange.bind(_assertThisInitialized(_this4));
-    _this4.onDropdownSelect = _this4.onDropdownSelect.bind(_assertThisInitialized(_this4));
-    _this4.onTextInputFormSubmit = _this4.onTextInputFormSubmit.bind(_assertThisInitialized(_this4));
-    _this4.onTextInputKeyDown = _this4.onTextInputKeyDown.bind(_assertThisInitialized(_this4));
-    _this4.toggleDrop = _this4.toggleDrop.bind(_assertThisInitialized(_this4));
-    _this4.onBlur = _this4.onBlur.bind(_assertThisInitialized(_this4));
-    return _this4;
+    _this7.onTextInputChange = _this7.onTextInputChange.bind(_assertThisInitialized(_this7));
+    _this7.onDropdownSelect = _this7.onDropdownSelect.bind(_assertThisInitialized(_this7));
+    _this7.onTextInputFormSubmit = _this7.onTextInputFormSubmit.bind(_assertThisInitialized(_this7));
+    _this7.onTextInputKeyDown = _this7.onTextInputKeyDown.bind(_assertThisInitialized(_this7));
+    _this7.toggleDrop = _this7.toggleDrop.bind(_assertThisInitialized(_this7));
+    _this7.onBlur = _this7.onBlur.bind(_assertThisInitialized(_this7));
+    return _this7;
   }
 
   _createClass(RangeDropdown, [{
@@ -1060,7 +1067,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "toggleDrop",
     value: function toggleDrop() {
-      var _this5 = this;
+      var _this8 = this;
 
       var _this$state3 = this.state,
           showMenu = _this$state3.showMenu,
@@ -1071,7 +1078,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           showMenu: !showMenu,
           toggling: true
         }, function () {
-          _this5.setState({
+          _this8.setState({
             toggling: false
           });
         });
