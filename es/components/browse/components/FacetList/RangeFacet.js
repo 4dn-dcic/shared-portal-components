@@ -50,8 +50,6 @@ import Collapse from 'react-bootstrap/esm/Collapse';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Fade from 'react-bootstrap/esm/Fade';
-import Popover from 'react-bootstrap/esm/Popover';
-import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
 import { LocalizedTime } from './../../../ui/LocalizedTime';
 import { PartialList } from './../../../ui/PartialList';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
@@ -111,6 +109,56 @@ export function getRangeValuesFromFiltersByField() {
   });
   return valuesByField;
 }
+/**
+ * Formats range facet value to be smaller to fit into FacetList & similar.
+ *
+ * @param {function} termTransformFxn - Schemas.Term.toName passed in from portal app.
+ * @param {{ field: string, field_type: string }} fieldFacetObj - Facet definition from backend.
+ * @param {number|string} rangeValue - Value to transform.
+ * @param {boolean} allowJSX - Passed to termTransformFxn.
+ */
+
+export function formatRangeVal(termTransformFxn, fieldFacetObj, rangeValue) {
+  var allowJSX = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+  var field = fieldFacetObj.field,
+      field_type = fieldFacetObj.field_type;
+
+  if (rangeValue === null || typeof rangeValue === "undefined") {
+    return rangeValue; // Pass thru lack of value
+  }
+
+  if (field_type === "date") {
+    return /*#__PURE__*/React.createElement(LocalizedTime, {
+      timestamp: value,
+      localize: false
+    });
+  }
+
+  if (field_type === "number") {
+    rangeValue = parseFloat(rangeValue);
+  }
+
+  var valToShow = termTransformFxn(field, rangeValue, allowJSX); // console.log("ABCD3", valToShow, field, rangeValue);
+
+  if (typeof valToShow === "number") {
+    var absVal = Math.abs(valToShow);
+
+    if (absVal.toString().length <= 6) {
+      // Else is too long and will go thru toPrecision or toExponential.
+      if (absVal >= 1000) {
+        valToShow = decorateNumberWithCommas(valToShow);
+      }
+    } else {
+      valToShow = valToShow.toPrecision(3); // Try to prevent trailing 0s e.g. in 0.00000100
+      // Taken from https://stackoverflow.com/questions/26299160/using-regex-how-do-i-remove-the-trailing-zeros-from-a-decimal-number
+
+      valToShow = valToShow.replace(/(\.\d*?[1-9])0+$/g, "$1");
+    }
+  } // else is assumed to be valid JSX already
+
+
+  return valToShow;
+}
 export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(RangeFacet, _React$PureComponent);
 
@@ -119,9 +167,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   _createClass(RangeFacet, null, [{
     key: "parseAndValidate",
     value: function parseAndValidate(facet, value) {
-      var aggregation_type = facet.aggregation_type,
-          _facet$field_type2 = facet.field_type,
-          field_type = _facet$field_type2 === void 0 ? aggregation_type === "range" ? "number" : "integer" : _facet$field_type2,
+      var _facet$field_type2 = facet.field_type,
+          field_type = _facet$field_type2 === void 0 ? "number" : _facet$field_type2,
           _facet$number_step = facet.number_step,
           number_step = _facet$number_step === void 0 ? "any" : _facet$number_step;
 
@@ -413,58 +460,25 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     /**
      * If no other transformations specified, and have a large number, then
      * condense it using `toExponential`.
+     *
+     * @param fieldName {string} is unused, kept to allow to be used as termTransformFxn downstream.
      */
 
   }, {
     key: "termTitle",
-    value: function termTitle(fieldName, value) {
-      var allowJSX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-      var toPrecision = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+    value: function termTitle(value) {
+      var allowJSX = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       var _this$props6 = this.props,
-          _this$props6$facet$fi = _this$props6.facet.field_type,
-          field_type = _this$props6$facet$fi === void 0 ? "number" : _this$props6$facet$fi,
+          facet = _this$props6.facet,
           termTransformFxn = _this$props6.termTransformFxn;
-
-      if (field_type === "date") {
-        return /*#__PURE__*/React.createElement(LocalizedTime, {
-          timestamp: value,
-          localize: false,
-          formatType: "date-xs"
-        });
-      }
-
-      if (field_type !== "number" && field_type !== "integer") {
-        throw new Error("Expect field_type to be 'number' or 'date'.");
-      }
-
-      var transformedValue = termTransformFxn(fieldName, value, allowJSX);
-
-      if (typeof transformedValue !== "number") {
-        return transformedValue;
-      }
-
-      var absVal = Math.abs(transformedValue);
-
-      if (absVal.toString().length <= 6) {
-        // Else is too long and will go thru toPrecision or toExponential.
-        if (absVal >= 1000) {
-          return decorateNumberWithCommas(transformedValue);
-        } else {
-          return transformedValue;
-        }
-      }
-
-      if (toPrecision) {
-        return transformedValue.toPrecision(3);
-      }
-
-      return transformedValue.toExponential(3);
+      return formatRangeVal(termTransformFxn, facet, value, allowJSX);
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props7 = this.props,
           schemas = _this$props7.schemas,
+          termTransformFxn = _this$props7.termTransformFxn,
           itemTypeForSchemas = _this$props7.itemTypeForSchemas,
           facet = _this$props7.facet,
           propTitle = _this$props7.title,
@@ -508,18 +522,18 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       if (field_type === "number" || field_type === "integer") {
         if (aggregation_type === "stats") {
-          fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof minValue === "number" ? this.termTitle(facet.field, minValue) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
-          toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue) : /*#__PURE__*/React.createElement("em", null, "Infinite");
+          fromTitle = typeof fromVal === 'number' ? this.termTitle(fromVal) : typeof minValue === "number" ? this.termTitle(minValue) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
+          toTitle = typeof toVal === 'number' ? this.termTitle(toVal) : typeof maxValue === "number" ? this.termTitle(maxValue) : /*#__PURE__*/React.createElement("em", null, "Infinite");
         } else if (aggregation_type === "range") {
           var _ranges$ = ranges[0],
               firstRange = _ranges$ === void 0 ? null : _ranges$;
           var lastRange = ranges[ranges.length - 1] || {};
-          fromTitle = typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal) : typeof firstRange.from === "number" ? this.termTitle(facet.field, firstRange.from) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
-          toTitle = typeof toVal === 'number' ? this.termTitle(facet.field, toVal) : typeof lastRange.to === "number" ? this.termTitle(facet.field, lastRange.to) : /*#__PURE__*/React.createElement("em", null, "Infinite");
+          fromTitle = typeof fromVal === 'number' ? this.termTitle(fromVal) : typeof firstRange.from === "number" ? this.termTitle(firstRange.from) : /*#__PURE__*/React.createElement("em", null, "-Infinite");
+          toTitle = typeof toVal === 'number' ? this.termTitle(toVal) : typeof lastRange.to === "number" ? this.termTitle(lastRange.to) : /*#__PURE__*/React.createElement("em", null, "Infinite");
         }
       } else if (field_type === "date") {
-        fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
-        toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/React.createElement("em", null, "None");
+        fromTitle = this.termTitle(fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
+        toTitle = this.termTitle(toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/React.createElement("em", null, "None");
         console.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
       } else {
         throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
@@ -564,15 +578,13 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
         className: "inner-panel",
         open: facetOpen,
         persistent: [/*#__PURE__*/React.createElement(RangeClear, _extends({
-          fromTitle: fromTitle,
-          toTitle: toTitle,
           savedFromVal: savedFromVal,
           savedToVal: savedToVal,
           facet: facet,
-          fieldSchema: fieldSchema
+          fieldSchema: fieldSchema,
+          termTransformFxn: termTransformFxn
         }, {
           resetAll: this.resetToAndFrom,
-          termTransformFxn: this.termTitle,
           resetFrom: fromVal !== null ? this.resetFrom : null,
           resetTo: toVal !== null ? this.resetTo : null,
           key: 0
@@ -593,7 +605,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           variant: "outline-secondary",
           onSelect: this.setFrom,
           update: this.performUpdateFrom,
-          termTransformFxn: this.termTitle,
+          termTransformFxn: termTransformFxn,
           facet: facet,
           id: "from_" + field,
           reset: fromVal !== null ? this.resetFrom : null
@@ -607,7 +619,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           savedValue: savedToVal,
           min: fromVal || null,
           increments: toIncrements,
-          termTransformFxn: this.termTitle,
+          termTransformFxn: termTransformFxn,
           variant: "outline-secondary",
           onSelect: this.setTo,
           update: this.performUpdateTo,
@@ -889,6 +901,39 @@ RangeTerm.propTypes = {
   }).isRequired,
   'onClick': PropTypes.func.isRequired
 };
+export function FormattedToFromRangeValue(props) {
+  var termTransformFxn = props.termTransformFxn,
+      facet = props.facet,
+      _props$title = props.title,
+      abbreviatedTitle = _props$title === void 0 ? /*#__PURE__*/React.createElement("em", null, "N") : _props$title,
+      _props$from = props.from,
+      from = _props$from === void 0 ? null : _props$from,
+      _props$to = props.to,
+      to = _props$to === void 0 ? null : _props$to;
+
+  if (from === null && to === null) {
+    throw new Error("Expected at least from or to value to be present");
+  }
+
+  var fromTitle = formatRangeVal(termTransformFxn, facet, from);
+  var toTitle = formatRangeVal(termTransformFxn, facet, to);
+  console.log("ABCD", from, to, fromTitle, toTitle);
+
+  if (from !== null && to !== null) {
+    // Both To and From present
+    return /*#__PURE__*/React.createElement(React.Fragment, null, fromTitle, " ", /*#__PURE__*/React.createElement("i", {
+      className: "icon fas icon-less-than-equal icon-xs px-1"
+    }), " ", abbreviatedTitle, " ", /*#__PURE__*/React.createElement("i", {
+      className: "icon fas icon-less-than-equal icon-xs px-1"
+    }), " ", toTitle);
+  }
+
+  return /*#__PURE__*/React.createElement(React.Fragment, null, toTitle !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, abbreviatedTitle, " ", /*#__PURE__*/React.createElement("i", {
+    className: "icon fas icon-less-than-equal icon-xs px-1"
+  }), " ", toTitle) : null, fromTitle !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, fromTitle, " ", /*#__PURE__*/React.createElement("i", {
+    className: "icon fas icon-less-than-equal icon-xs px-1"
+  }), " ", abbreviatedTitle) : null);
+}
 var RangeClear = /*#__PURE__*/React.memo(function (props) {
   var savedFromVal = props.savedFromVal,
       savedToVal = props.savedToVal,
@@ -896,65 +941,45 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       resetFrom = props.resetFrom,
       resetAll = props.resetAll,
       facet = props.facet,
-      termTransformFxn = props.termTransformFxn,
       _props$fieldSchema = props.fieldSchema,
-      fieldSchema = _props$fieldSchema === void 0 ? null : _props$fieldSchema;
-  var facetField = facet.field,
-      facetTitle = facet.title,
+      fieldSchema = _props$fieldSchema === void 0 ? null : _props$fieldSchema,
+      termTransformFxn = props.termTransformFxn;
+  var facetTitle = facet.title,
       _facet$abbreviation = facet.abbreviation,
       facetAbbreviation = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
   var _ref5$abbreviation = (fieldSchema || {}).abbreviation,
       fieldAbbreviation = _ref5$abbreviation === void 0 ? null : _ref5$abbreviation;
-  var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || facetTitle;
-  var savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
-  var savedToTitle = termTransformFxn(facetField, savedToVal, true);
+  var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || (facetTitle.length > 5 ? /*#__PURE__*/React.createElement("em", null, "N") : facetTitle);
 
   if (savedFromVal === null && savedToVal === null) {
     return null;
-  } else if (savedFromVal !== null && savedToVal !== null) {
-    // To and From present
-    // Commented out b.c. not used atm:
-    // const invalidRange = savedToVal < savedFromVal;
-    // const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
-    return /*#__PURE__*/React.createElement("li", {
-      className: "selected facet-list-element clickable"
-    }, /*#__PURE__*/React.createElement("a", {
-      onClick: resetAll
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "facet-selector"
-    }, /*#__PURE__*/React.createElement("i", {
-      className: "icon icon-fw fas icon-minus-circle"
-    })), /*#__PURE__*/React.createElement("span", {
-      className: "facet-item text-center",
-      style: {
-        marginLeft: "-5px"
-      }
-    }, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
-      className: "icon fas icon-less-than-equal icon-xs px-1"
-    }), " ", abbreviatedTitle, " ", /*#__PURE__*/React.createElement("i", {
-      className: "icon fas icon-less-than-equal icon-xs px-1"
-    }), " ", savedToTitle)));
-  } else {
-    // Only To or From present
-    return /*#__PURE__*/React.createElement("li", {
-      className: "selected facet-list-element clickable"
-    }, /*#__PURE__*/React.createElement("a", {
-      onClick: resetTo === null ? resetFrom : resetTo
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "facet-selector"
-    }, /*#__PURE__*/React.createElement("i", {
-      className: "icon icon-fw fas icon-minus-circle"
-    })), /*#__PURE__*/React.createElement("span", {
-      className: "facet-item text-center",
-      style: {
-        marginLeft: "-5px"
-      }
-    }, savedToVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, abbreviatedTitle, " ", /*#__PURE__*/React.createElement("i", {
-      className: "icon fas icon-less-than-equal icon-xs px-1"
-    }), " ", savedToTitle) : null, savedFromVal !== null ? /*#__PURE__*/React.createElement(React.Fragment, null, savedFromTitle, " ", /*#__PURE__*/React.createElement("i", {
-      className: "icon fas icon-less-than-equal icon-xs px-1"
-    }), " ", abbreviatedTitle) : null)));
   }
+
+  var resetFunc = savedFromVal === null && savedToVal === null ? resetAll // To and From both present
+  : resetTo === null ? resetFrom // Only From present
+  : resetTo; // Only To present
+
+  return /*#__PURE__*/React.createElement("li", {
+    className: "selected facet-list-element clickable"
+  }, /*#__PURE__*/React.createElement("a", {
+    onClick: resetFunc
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "facet-selector"
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw fas icon-minus-circle"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "facet-item text-center",
+    style: {
+      marginLeft: "-5px"
+    }
+  }, /*#__PURE__*/React.createElement(FormattedToFromRangeValue, _extends({
+    termTransformFxn: termTransformFxn,
+    facet: facet
+  }, {
+    from: savedFromVal,
+    to: savedToVal,
+    title: abbreviatedTitle
+  })))));
 });
 
 var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
@@ -1137,10 +1162,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           className: "icon icon-fw icon-check fas"
         }))));
       } else if (field_type === "number" || field_type === "integer") {
-        var min = typeof propMin === "number" ? propMin : typeof fMin === "number" ? fMin : 0;
+        var min = typeof propMin === "number" ? propMin : typeof fMin === "number" ? fMin : null;
         var max = propMax || fMax || null;
-
-        var menuOptsSet = _toConsumableArray(increments).concat([min]).concat([max]).sort(function (a, b) {
+        var incrementsList = increments.slice();
+        if (min !== null) incrementsList.push(min);
+        if (max !== null) incrementsList.push(max);
+        var menuOptsSet = incrementsList.sort(function (a, b) {
           return a - b;
         }).reduce(function (m, incr) {
           if (typeof incr !== "number") {
@@ -1177,7 +1204,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           "data-tip": tooltip,
           "data-html": true
         }), /*#__PURE__*/React.createElement("form", {
-          className: "inline-input-container",
+          className: "inline-input-container mb-08",
           onSubmit: this.onTextInputFormSubmit
         }, /*#__PURE__*/React.createElement("div", {
           className: "input-element-container"
