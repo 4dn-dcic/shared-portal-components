@@ -82,7 +82,7 @@ export function formatRangeVal(termTransformFxn, fieldFacetObj, rangeValue, allo
     }
 
     if (field_type === "date") {
-        return <LocalizedTime timestamp={value} localize={false} />;
+        return <LocalizedTime timestamp={rangeValue} localize={false} formatType="date-file" />;
     }
 
     if (field_type === "number"){
@@ -348,7 +348,7 @@ export class RangeFacet extends React.PureComponent {
 
     /**
      * If no other transformations specified, and have a large number, then
-     * condense it using `formatRangeVal`.
+     * condense it using `toExponential`.
      */
     termTitle(value, allowJSX = true){
         const { facet, termTransformFxn } = this.props;
@@ -413,6 +413,7 @@ export class RangeFacet extends React.PureComponent {
             }
 
         } else if (field_type === "date") {
+            console.log("TTT", fromVal);
             fromTitle = this.termTitle(fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
             toTitle = this.termTitle(toVal && typeof toVal === 'string' ? toVal : maxDateTime) || <em>None</em>;
             console.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);

@@ -128,8 +128,9 @@ export function formatRangeVal(termTransformFxn, fieldFacetObj, rangeValue) {
 
   if (field_type === "date") {
     return /*#__PURE__*/React.createElement(LocalizedTime, {
-      timestamp: value,
-      localize: false
+      timestamp: rangeValue,
+      localize: false,
+      formatType: "date-file"
     });
   }
 
@@ -459,7 +460,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     }
     /**
      * If no other transformations specified, and have a large number, then
-     * condense it using `formatRangeVal`.
+     * condense it using `toExponential`.
      */
 
   }, {
@@ -530,6 +531,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           toTitle = typeof toVal === 'number' ? this.termTitle(toVal) : typeof lastRange.to === "number" ? this.termTitle(lastRange.to) : /*#__PURE__*/React.createElement("em", null, "Infinite");
         }
       } else if (field_type === "date") {
+        console.log("TTT", fromVal);
         fromTitle = this.termTitle(fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
         toTitle = this.termTitle(toVal && typeof toVal === 'string' ? toVal : maxDateTime) || /*#__PURE__*/React.createElement("em", null, "None");
         console.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
