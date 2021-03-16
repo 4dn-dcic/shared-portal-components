@@ -393,12 +393,16 @@ class LoadMoreAsYouScroll extends React.Component {
         return styles;
     }
 
-    static getElementHeight(openDetailPanes, rowHeight, children, openRowHeight){
-        return Object.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function(c){
-            // openRowHeight + openDetailPane height
-            const savedHeight = openDetailPanes[c.props.id];
-            if (savedHeight && typeof savedHeight === 'number'){
-                return openDetailPanes[c.props.id] + openRowHeight;
+    static getElementHeight(openDetailPanes, rowHeight, children, openRowHeightToUse){
+        const openDetailPaneResultIDs = Object.keys(openDetailPanes);
+        if (openDetailPaneResultIDs.length === 0) {
+            return rowHeight; // Use same value for all rows.
+        }
+        return React.Children.map(children, function(c){
+            // openRowHeight + openDetailPane height, if detail pane open for this result.
+            const savedDetailPaneHeight = openDetailPanes[c.props.id];
+            if (savedDetailPaneHeight && typeof savedDetailPaneHeight === 'number'){
+                return savedDetailPaneHeight + openRowHeightToUse;
             }
             return rowHeight;
         });
@@ -519,7 +523,7 @@ class LoadMoreAsYouScroll extends React.Component {
 
     render(){
         const {
-            children, rowHeight, openDetailPanes, openRowHeight, tableContainerWidth, tableContainerScrollLeft,
+            children, rowHeight, openRowHeight, openDetailPanes, tableContainerWidth, tableContainerScrollLeft,
             mounted: propMounted, isOwnPage, maxHeight, canLoadMore
         } = this.props;
         const { mounted: stateMounted, isLoading } = this.state;
@@ -531,7 +535,7 @@ class LoadMoreAsYouScroll extends React.Component {
             );
         }
 
-        const elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight);
+        const elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, (openRowHeight || rowHeight));
 
         return (
             <Infinite
@@ -946,7 +950,7 @@ class DimensioningContainer extends React.PureComponent {
             isOwnPage = true,
             navigate,
             rowHeight = 47, // `rowHeight - rowBottomPadding` must be aligned in CSS stylesheets
-            openRowHeight = 57,
+            openRowHeight = null, // Will default to `rowHeight` if not supplied.
             maxHeight = 500, // Only used if not isOwnPage
             isContextLoading = false,
             setColumnWidths,
@@ -1108,7 +1112,8 @@ export class SearchResultTable extends React.Component {
         // This value (the default or if passed in) should be aligned to value in CSS.
         // Must account for any border or padding at bottom/top of row, as well.
         'rowHeight' : 47,
-        'openRowHeight' : 57,
+        // Will default to `rowHeight` if not supplied.
+        'openRowHeight' : null,
         'fullWidthInitOffset' : 60,
         'fullWidthContainerSelectorString' : '.browse-page-container',
         'currentAction' : null,
