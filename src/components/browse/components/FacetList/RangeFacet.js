@@ -348,9 +348,7 @@ export class RangeFacet extends React.PureComponent {
 
     /**
      * If no other transformations specified, and have a large number, then
-     * condense it using `toExponential`.
-     *
-     * @param fieldName {string} is unused, kept to allow to be used as termTransformFxn downstream.
+     * condense it using `formatRangeVal`.
      */
     termTitle(value, allowJSX = true){
         const { facet, termTransformFxn } = this.props;
