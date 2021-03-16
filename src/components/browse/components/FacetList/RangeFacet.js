@@ -413,7 +413,6 @@ export class RangeFacet extends React.PureComponent {
             }
 
         } else if (field_type === "date") {
-            console.log("TTT", fromVal);
             fromTitle = this.termTitle(fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
             toTitle = this.termTitle(toVal && typeof toVal === 'string' ? toVal : maxDateTime) || <em>None</em>;
             console.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
