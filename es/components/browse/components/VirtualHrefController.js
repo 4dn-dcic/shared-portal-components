@@ -222,11 +222,13 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           // in place of a GET /search/?type=... request.
 
           virtualCompoundFilterSet = {
-            "global_flags": queryString.stringify(globalFlagsParams),
+            // queryString.stringify will convert spaces into %20, but we expect "+" to be used
+            // for spaces in search hrefs, so overwrite after each time that stringify is used on URL params.
+            "global_flags": queryString.stringify(globalFlagsParams).replaceAll("%20", "+"),
             "search_type": searchType,
             "filter_blocks": [{
               "flags_applied": [],
-              "query": queryString.stringify(filterBlockParams)
+              "query": queryString.stringify(filterBlockParams).replaceAll("%20", "+")
             }]
           };
         }
