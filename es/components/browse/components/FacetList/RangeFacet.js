@@ -517,7 +517,10 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           fromIncrements = _this$memoized$validI.fromIncrements,
           toIncrements = _this$memoized$validI.toIncrements;
 
-      var fromTitle, toTitle;
+      var fromTitle, toTitle; // This may be deprecated to some extent, since fromTitle/toTitle are only
+      // rendered by RangeDropdown if value is present now.
+      // We can consider adjusting+moving this logic into RangeDropdown itself, using
+      // `formatRangeVal` in place of termTitle.
 
       if (field_type === "number" || field_type === "integer") {
         if (aggregation_type === "stats") {

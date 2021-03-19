@@ -389,6 +389,10 @@ export class RangeFacet extends React.PureComponent {
 
         let fromTitle, toTitle;
 
+        // This may be deprecated to some extent, since fromTitle/toTitle are only
+        // rendered by RangeDropdown if value is present now.
+        // We can consider adjusting+moving this logic into RangeDropdown itself, using
+        // `formatRangeVal` in place of termTitle.
         if (field_type === "number" || field_type === "integer") {
             if (aggregation_type === "stats") {
                 fromTitle = (typeof fromVal === 'number' ? this.termTitle(fromVal)
