@@ -1052,15 +1052,19 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
     value: function onDropdownSelect(evtKey) {
       var _this$props10 = this.props,
           onSelect = _this$props10.onSelect,
-          update = _this$props10.update,
           savedValue = _this$props10.savedValue;
 
       if (parseFloat(evtKey) === savedValue) {
         return false;
-      }
+      } // We previously supplied props.update as callback (2nd) arg to `onSelect`
+      // here, but removed it since onBlur is ran when Dropdown menu loses focus
+      // which itself then calls props.update again.
 
-      onSelect(evtKey, update);
+
+      onSelect(evtKey);
     }
+    /** This is called when DropdownButton loses focus (onBlur) as well */
+
   }, {
     key: "onTextInputFormSubmit",
     value: function onTextInputFormSubmit(evt) {

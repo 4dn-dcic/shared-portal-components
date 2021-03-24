@@ -817,13 +817,18 @@ class RangeDropdown extends React.PureComponent {
 
     /** Handles _numbers_ only. */
     onDropdownSelect(evtKey){
-        const { onSelect, update, savedValue } = this.props;
+        const { onSelect, savedValue } = this.props;
         if (parseFloat(evtKey) === savedValue){
             return false;
         }
-        onSelect(evtKey, update);
+
+        // We previously supplied props.update as callback (2nd) arg to `onSelect`
+        // here, but removed it since onBlur is ran when Dropdown menu loses focus
+        // which itself then calls props.update again.
+        onSelect(evtKey);
     }
 
+    /** This is called when DropdownButton loses focus (onBlur) as well */
     onTextInputFormSubmit(evt){
         const { update, savedValue, value } = this.props;
         const updateAble = (savedValue !== value);
