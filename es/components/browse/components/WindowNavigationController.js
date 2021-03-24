@@ -94,7 +94,7 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
       }, typeof callback === "function" ? callback : null);
     }
     /**
-     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term, callback)}) and generates a composite href before navigating
+     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term)}) and generates a composite href before navigating
      * @param {Array} filterObjs An object containing {facet, term, callback}
      * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
      * desired functionality.
@@ -104,6 +104,7 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
     key: "onFilterMultiple",
     value: function onFilterMultiple() {
       var filterObjs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var _this$props2 = this.props,
           href = _this$props2.href,
           _this$props2$navigate = _this$props2.navigate,
@@ -116,19 +117,13 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
       }
 
       var newHref = href; // initialize to href
+      // Update href to include facet/term query pairs for each new item
 
-      var callback; // Update href to include facet/term query pairs for each new item
-
-      filterObjs.forEach(function (obj, i) {
+      filterObjs.forEach(function (obj) {
         var facet = obj.facet,
-            term = obj.term,
-            thisCallback = obj.callback;
+            term = obj.term;
         var thisHref = generateNextHref(newHref, contextFilters, facet, term);
         newHref = thisHref;
-
-        if (i === 0) {
-          callback = thisCallback;
-        }
       });
       return propNavigate(newHref, {
         'dontScrollToTop': true

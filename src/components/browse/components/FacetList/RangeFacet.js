@@ -5,13 +5,9 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import Collapse from 'react-bootstrap/esm/Collapse';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Fade from 'react-bootstrap/esm/Fade';
-
-import Popover from 'react-bootstrap/esm/Popover';
-import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
 
 import { LocalizedTime } from './../../../ui/LocalizedTime';
 import { PartialList } from './../../../ui/PartialList';
@@ -70,12 +66,61 @@ export function getRangeValuesFromFiltersByField(facets = [], filters = []){
 }
 
 
+/**
+ * Formats range facet value to be smaller to fit into FacetList & similar.
+ *
+ * @param {function} termTransformFxn - Schemas.Term.toName passed in from portal app.
+ * @param {{ field: string, field_type: string }} fieldFacetObj - Facet definition from backend.
+ * @param {number|string} rangeValue - Value to transform.
+ * @param {boolean} allowJSX - Passed to termTransformFxn.
+ */
+export function formatRangeVal(termTransformFxn, fieldFacetObj, rangeValue, allowJSX = true){
+    const { field, field_type } = fieldFacetObj;
+
+    if (rangeValue === null || typeof rangeValue === "undefined") {
+        return rangeValue; // Pass thru lack of value
+    }
+
+    if (field_type === "date") {
+        return <LocalizedTime timestamp={rangeValue} localize={false} formatType="date-file" />;
+    }
+
+    if (field_type === "number"){
+        rangeValue = parseFloat(rangeValue);
+    }
+
+    let valToShow = termTransformFxn(field, rangeValue, allowJSX);
+
+    // console.log("ABCD3", valToShow, field, rangeValue);
+
+    if (typeof valToShow === "number") {
+        const absVal = Math.abs(valToShow);
+        if (absVal.toString().length <= 6){
+            // Else is too long and will go thru toPrecision or toExponential.
+            if (absVal >= 1000) {
+                valToShow = decorateNumberWithCommas(valToShow);
+            } else {
+                // keep valToShow
+            }
+        } else {
+            valToShow = valToShow.toPrecision(3);
+            // Try to prevent trailing 0s e.g. in 0.00000100
+            // Taken from https://stackoverflow.com/questions/26299160/using-regex-how-do-i-remove-the-trailing-zeros-from-a-decimal-number
+            valToShow = valToShow.replace(/(\.\d*?[1-9])0+$/g, "$1");
+        }
+    } // else is assumed to be valid JSX already
+
+    return valToShow;
+}
+
+
+
+
 export class RangeFacet extends React.PureComponent {
 
     static parseAndValidate(facet, value){
         const {
-            aggregation_type,
-            field_type = aggregation_type === "range" ? "number" : "integer",
+            field_type = "number",
             number_step = "any"
         } = facet;
 
@@ -117,7 +162,7 @@ export class RangeFacet extends React.PureComponent {
     }
 
     static validIncrements(facet){
-        const { min, max, increments } = facet;
+        const { min, max, increments, ranges } = facet;
 
         function ensureWithinRange(increment){
             if (typeof min === "number" && increment < min) return false;
@@ -131,16 +176,33 @@ export class RangeFacet extends React.PureComponent {
                 "fromIncrements": validIncrements,
                 "toIncrements": validIncrements
             };
+        } else if (increments) {
+            const {
+                from: fromIncrementsOrig = [],
+                to: toIncrementsOrig = []
+            } = increments || {};
+
+            return {
+                "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
+                "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
+            };
+        } else if (Array.isArray(ranges)) {
+            const allIncrements = new Set();
+            ranges.forEach(function({ doc_count, from: fromInc, to: toInc }){
+                // Preserve all values (incl. if no doc_count)
+                allIncrements.add(fromInc);
+                allIncrements.add(toInc);
+            });
+            const allIncsArr = [ ...allIncrements ].sort();
+            return {
+                "fromIncrements": allIncsArr,
+                "toIncrements": allIncsArr
+            };
         }
 
-        const {
-            from: fromIncrementsOrig = [],
-            to: toIncrementsOrig = []
-        } = increments || {};
-
         return {
-            "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
-            "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
+            "fromIncrements": [],
+            "toIncrements": []
         };
     }
 
@@ -170,9 +232,9 @@ export class RangeFacet extends React.PureComponent {
         this.setTo = this.setTo.bind(this);
         this.setToAndFrom = this.setToAndFrom.bind(this);
         this.selectRange = this.selectRange.bind(this);
+        this.resetAll = this.selectRange.bind(this, null, null);
         this.resetFrom = this.resetFrom.bind(this);
         this.resetTo = this.resetTo.bind(this);
-        this.resetToAndFrom = this.resetToAndFrom.bind(this); // tentative - will likely be replaced with a prop
         this.performUpdateFrom = this.performUpdateFrom.bind(this);
         this.performUpdateTo = this.performUpdateTo.bind(this);
         this.performUpdateToAndFrom = this.performUpdateToAndFrom.bind(this);
@@ -231,27 +293,29 @@ export class RangeFacet extends React.PureComponent {
         }
     }
 
-    performUpdateFrom(){
+    performUpdateFrom(callback){
         const { onFilter, facet } = this.props;
         const { fromVal } = this.state;
         // console.log("performUpdateFrom", fromVal);
         onFilter(
             { ...facet, field: facet.field + ".from" },
-            { key: fromVal }
+            { key: fromVal },
+            callback
         );
     }
 
-    performUpdateTo(){
+    performUpdateTo(callback){
         const { onFilter, facet } = this.props;
         const { toVal } = this.state;
         // console.log("performUpdateTo", toVal);
         onFilter(
             { ...facet, field: facet.field + ".to" },
-            { key: toVal }
+            { key: toVal },
+            callback
         );
     }
 
-    performUpdateToAndFrom() {
+    performUpdateToAndFrom(callback) {
         const { onFilterMultiple, facet } = this.props;
         const { toVal, fromVal } = this.state;
         // console.log("performUpdate", toVal, fromVal);
@@ -263,29 +327,27 @@ export class RangeFacet extends React.PureComponent {
             {
                 facet: { ...facet, field: facet.field + ".to" },
                 term: { key: toVal }
-            }]
+            }],
+            callback
         );
     }
 
-    resetFrom(e){
-        e.stopPropagation();
-        this.setFrom(null, this.performUpdateFrom);
+    resetFrom(callback){
+        this.setFrom(null, () => {
+            this.performUpdateFrom(callback);
+        });
     }
 
-    resetTo(e){
-        e.stopPropagation();
-        this.setTo(null, this.performUpdateTo);
+    resetTo(callback){
+        this.setTo(null, () => {
+            this.performUpdateTo(callback);
+        });
     }
 
-    resetToAndFrom(e) {
-        e.stopPropagation();
-        this.setToAndFrom(null, null, this.performUpdateToAndFrom);
-    }
-
-    selectRange(to, from, e) {
-        // console.log("selectRange", to, from);
-        e.stopPropagation();
-        this.setToAndFrom(to, from, this.performUpdateToAndFrom);
+    selectRange(to, from, callback) {
+        this.setToAndFrom(to, from, () => {
+            this.performUpdateToAndFrom(callback);
+        });
     }
 
     handleOpenToggleClick(e) {
@@ -305,41 +367,15 @@ export class RangeFacet extends React.PureComponent {
      * If no other transformations specified, and have a large number, then
      * condense it using `toExponential`.
      */
-    termTitle(fieldName, value, allowJSX = true, toPrecision = true){
-        const {
-            facet: { field_type = "number" },
-            termTransformFxn
-        } = this.props;
-
-        if (field_type === "date"){
-            return <LocalizedTime timestamp={value} localize={false} formatType="date-xs"/>;
-        }
-
-        if (field_type !== "number" && field_type !== "integer") {
-            throw new Error("Expect field_type to be 'number' or 'date'.");
-        }
-
-        const transformedValue = termTransformFxn(fieldName, value, allowJSX);
-        if (typeof transformedValue !== "number") {
-            return transformedValue;
-        }
-        const absVal = Math.abs(transformedValue);
-        if (absVal.toString().length <= 6){
-            // Else is too long and will go thru toPrecision or toExponential.
-            if (absVal >= 1000) {
-                return decorateNumberWithCommas(transformedValue);
-            } else {
-                return transformedValue;
-            }
-        }
-
-        if (toPrecision) { return transformedValue.toPrecision(3); }
-        return transformedValue.toExponential(3);
+    termTitle(value, allowJSX = true){
+        const { facet, termTransformFxn } = this.props;
+        return formatRangeVal(termTransformFxn, facet, value, allowJSX);
     }
 
     render(){
         const {
             schemas,
+            termTransformFxn,
             itemTypeForSchemas,
             facet,
             title: propTitle,
@@ -370,39 +406,42 @@ export class RangeFacet extends React.PureComponent {
 
         let fromTitle, toTitle;
 
+        // This may be deprecated to some extent, since fromTitle/toTitle are only
+        // rendered by RangeDropdown if value is present now.
+        // We can consider adjusting+moving this logic into RangeDropdown itself, using
+        // `formatRangeVal` in place of termTitle.
         if (field_type === "number" || field_type === "integer") {
             if (aggregation_type === "stats") {
-                fromTitle = (typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal)
-                    : typeof minValue === "number" ? this.termTitle(facet.field, minValue)
+                fromTitle = (typeof fromVal === 'number' ? this.termTitle(fromVal)
+                    : typeof minValue === "number" ? this.termTitle(minValue)
                         : <em>-Infinite</em>
                 );
-                toTitle = (typeof toVal === 'number' ? this.termTitle(facet.field, toVal)
-                    : typeof maxValue === "number" ? this.termTitle(facet.field, maxValue)
+                toTitle = (typeof toVal === 'number' ? this.termTitle(toVal)
+                    : typeof maxValue === "number" ? this.termTitle(maxValue)
                         : <em>Infinite</em>
                 );
             } else if (aggregation_type === "range"){
                 const { 0: firstRange = null } = ranges;
                 const lastRange = ranges[ranges.length - 1] || {};
-                fromTitle = (typeof fromVal === 'number' ? this.termTitle(facet.field, fromVal)
-                    : typeof firstRange.from === "number" ? this.termTitle(facet.field, firstRange.from)
+                fromTitle = (typeof fromVal === 'number' ? this.termTitle(fromVal)
+                    : typeof firstRange.from === "number" ? this.termTitle(firstRange.from)
                         : <em>-Infinite</em>
                 );
-                toTitle = (typeof toVal === 'number' ? this.termTitle(facet.field, toVal)
-                    : typeof lastRange.to === "number" ? this.termTitle(facet.field, lastRange.to)
+                toTitle = (typeof toVal === 'number' ? this.termTitle(toVal)
+                    : typeof lastRange.to === "number" ? this.termTitle(lastRange.to)
                         : <em>Infinite</em>
                 );
             }
 
         } else if (field_type === "date") {
-            fromTitle = this.termTitle(facet.field, fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
-            toTitle = this.termTitle(facet.field, toVal && typeof toVal === 'string' ? toVal : maxDateTime) || <em>None</em>;
+            fromTitle = this.termTitle(fromVal && typeof fromVal === 'string' ? fromVal : minDateTime || 0);
+            toTitle = this.termTitle(toVal && typeof toVal === 'string' ? toVal : maxDateTime) || <em>None</em>;
             console.log("DATE VALS", fromVal, facet.field, minDateTime, 0, fromTitle, toTitle);
         } else {
             throw new Error("Expected number|integer or date field_type. " + field + ' ' + field_type);
         }
 
         const isOpen = facetOpen || savedFromVal !== null || savedToVal !== null;
-
 
         const fromVariant = "outline-secondary";
         const toVariant = "outline-secondary";
@@ -429,7 +468,7 @@ export class RangeFacet extends React.PureComponent {
                 <div className="facet-list" data-open={facetOpen} data-any-active={(savedFromVal || savedToVal) ? true : false}>
                     <PartialList className="inner-panel" open={facetOpen}
                         persistent={[
-                            <RangeClear {...{ fromTitle, toTitle, savedFromVal, savedToVal, facet, fieldSchema }} resetAll={this.resetToAndFrom} termTransformFxn={this.termTitle}
+                            <RangeClear {...{ savedFromVal, savedToVal, facet, fieldSchema, termTransformFxn }} resetAll={this.resetAll}
                                 resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} key={0} />
                         ]}
                         collapsible={[
@@ -441,7 +480,7 @@ export class RangeFacet extends React.PureComponent {
                                     <RangeDropdown
                                         title={fromTitle} value={fromVal} savedValue={savedFromVal}
                                         max={toVal || null} increments={fromIncrements} variant={fromVariant}
-                                        onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={this.termTitle}
+                                        onSelect={this.setFrom} update={this.performUpdateFrom} termTransformFxn={termTransformFxn}
                                         facet={facet} id={"from_" + field} reset={fromVal !== null ? this.resetFrom : null} />
                                     {/*
                                     <div className={"clear-icon-container col-auto" + (fromVal === null ? " disabled" : " clickable")}
@@ -456,7 +495,7 @@ export class RangeFacet extends React.PureComponent {
                                     </label>
                                     <RangeDropdown
                                         title={toTitle} value={toVal} savedValue={savedToVal}
-                                        min={fromVal || null} increments={toIncrements} termTransformFxn={this.termTitle}
+                                        min={fromVal || null} increments={toIncrements} termTransformFxn={termTransformFxn}
                                         variant={toVariant} onSelect={this.setTo} update={this.performUpdateTo}
                                         facet={facet} id={"to_" + field} reset={toVal !== null ? this.resetTo : null} />
                                     {/*
@@ -467,7 +506,7 @@ export class RangeFacet extends React.PureComponent {
                                     */}
                                 </div>
                             </div>,
-                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} onTermClick={this.selectRange} resetAll={this.resetToAndFrom}/> : null
+                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} selectRange={this.selectRange} /> : null
                         ]} />
                 </div>
             </div>
@@ -478,7 +517,7 @@ export class RangeFacet extends React.PureComponent {
 
 
 const ListOfRanges = React.memo(function ListOfRanges(props){
-    const { facet, facetOpen, facetClosing, persistentCount = 10, onTermClick, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal, resetAll } = props;
+    const { facet, facetOpen, facetClosing, persistentCount = 10, selectRange, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal } = props;
     const { ranges = [] } = facet;
 
     /** Create range components and sort by status (selected->omitted->unselected) */
@@ -494,7 +533,7 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
         } = segmentComponentsByStatus(ranges.map(function(range){
-            return <RangeTerm {...{ facet, range, termTransformFxn, resetAll }} onClick={onTermClick} key={`${range.to}-${range.from}`} status={getRangeStatus(range, toVal, fromVal)} />;
+            return <RangeTerm {...{ facet, range, termTransformFxn, selectRange }} key={`${range.to}-${range.from}`} status={getRangeStatus(range, toVal, fromVal)} />;
         }));
 
         const selectedLen = selectedTermComponents.length;
@@ -592,16 +631,24 @@ export class RangeTerm extends React.PureComponent {
     }
 
     handleClick(e) {
-        var { range, onClick } = this.props;
-        var { to = null, from = null } = range;
+        const { range, selectRange, status } = this.props;
+        const { to = null, from = null } = range;
+
         e.preventDefault();
+        e.stopPropagation();
+
         this.setState({ 'filtering' : true }, () => {
-            onClick(to, from, e, () => this.setState({ 'filtering' : false }));
+            const isSelected = status === "selected";
+            selectRange(
+                isSelected ? null : to,
+                isSelected ? null : from,
+                () => this.setState({ 'filtering' : false })
+            );
         });
     }
 
     render() {
-        const { range, facet, status, termTransformFxn, resetAll } = this.props;
+        const { range, facet, status } = this.props;
         const { doc_count, from, to, label } = range;
         const { filtering } = this.state;
         const selected = (status !== 'none');
@@ -636,7 +683,7 @@ export class RangeTerm extends React.PureComponent {
 
         return (
             <li className={"facet-list-element "} key={label} data-key={label}>
-                <a className="term" data-selected={selected} href="#" onClick={status === "selected" ? resetAll : this.handleClick} data-term={label}>
+                <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {displayLabel}</span>
                     <span className="facet-count">{doc_count || 0}</span>
@@ -659,6 +706,40 @@ RangeTerm.propTypes = {
     'onClick'           : PropTypes.func.isRequired
 };
 
+
+export function FormattedToFromRangeValue(props){
+    const {
+        termTransformFxn,
+        facet,
+        title: abbreviatedTitle = <em>N</em>,
+        from = null,
+        to = null
+    } = props;
+
+    if (from === null && to === null) {
+        throw new Error("Expected at least from or to value to be present");
+    }
+
+    const fromTitle = formatRangeVal(termTransformFxn, facet, from);
+    const toTitle = formatRangeVal(termTransformFxn, facet, to);
+
+    if (from !== null && to !== null) {
+        // Both To and From present
+        return (
+            <React.Fragment>
+                {fromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {toTitle}
+            </React.Fragment>
+        );
+    }
+
+    return (
+        <React.Fragment>
+            { toTitle !== null ? <React.Fragment>{abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {toTitle}</React.Fragment> : null }
+            { fromTitle !== null ? <React.Fragment>{fromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle}</React.Fragment> : null }
+        </React.Fragment>
+    );
+}
+
 const RangeClear = React.memo(function RangeClear(props){
     const {
         savedFromVal,
@@ -667,59 +748,47 @@ const RangeClear = React.memo(function RangeClear(props){
         resetFrom,
         resetAll,
         facet,
-        termTransformFxn,
-        fieldSchema = null
+        fieldSchema = null,
+        termTransformFxn
     } = props;
 
     const {
-        field: facetField,
         title: facetTitle,
         abbreviation: facetAbbreviation = null
     } = facet;
 
     const { abbreviation: fieldAbbreviation = null } = fieldSchema || {};
-    const abbreviatedTitle = facetAbbreviation || fieldAbbreviation || facetTitle;
 
-    const savedFromTitle = termTransformFxn(facetField, savedFromVal, true);
-    const savedToTitle = termTransformFxn(facetField, savedToVal, true);
+    const abbreviatedTitle = facetAbbreviation || fieldAbbreviation || (facetTitle.length > 5 ? <em>N</em> : facetTitle);
 
     if (savedFromVal === null && savedToVal === null) {
         return null;
-    } else if (savedFromVal !== null && savedToVal !== null) { // To and From present
-        // Commented out b.c. not used atm:
-        // const invalidRange = savedToVal < savedFromVal;
-        // const btnVariant = invalidRange ? "btn-warning" : "btn-primary";
-        return (
-            <li className="selected facet-list-element clickable">
-                <a onClick={resetAll}>
-                    <span className="facet-selector">
-                        <i className="icon icon-fw fas icon-minus-circle"/>
-                    </span>
-                    <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
-                        {savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}
-                    </span>
-                </a>
-            </li>
-        );
-    } else { // Only To or From present
-        return (
-            <li className="selected facet-list-element clickable">
-                <a onClick={resetTo === null ? resetFrom : resetTo}>
-                    <span className="facet-selector">
-                        <i className="icon icon-fw fas icon-minus-circle"/>
-                    </span>
-                    <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
-                        { savedToVal !== null ?
-                            <React.Fragment>{abbreviatedTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {savedToTitle}</React.Fragment>
-                            : null }
-                        { savedFromVal !== null ?
-                            <React.Fragment>{savedFromTitle} <i className="icon fas icon-less-than-equal icon-xs px-1"/> {abbreviatedTitle}</React.Fragment>
-                            : null }
-                    </span>
-                </a>
-            </li>
-        );
     }
+
+    function unselectRange(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if (savedFromVal !== null && savedToVal !== null) { // To and From both present
+            resetAll();
+        } else if (resetTo === null) { // Only From present
+            resetFrom();
+        } else { // Only To present
+            resetTo();
+        }
+    }
+
+    return (
+        <li className="selected facet-list-element clickable">
+            <a onClick={unselectRange}>
+                <span className="facet-selector">
+                    <i className="icon icon-fw fas icon-minus-circle"/>
+                </span>
+                <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
+                    <FormattedToFromRangeValue {...{ termTransformFxn, facet }} from={savedFromVal} to={savedToVal} title={abbreviatedTitle} />
+                </span>
+            </a>
+        </li>
+    );
 });
 
 
@@ -748,13 +817,18 @@ class RangeDropdown extends React.PureComponent {
 
     /** Handles _numbers_ only. */
     onDropdownSelect(evtKey){
-        const { onSelect, update, savedValue } = this.props;
+        const { onSelect, savedValue } = this.props;
         if (parseFloat(evtKey) === savedValue){
             return false;
         }
-        onSelect(evtKey, update);
+
+        // We previously supplied props.update as callback (2nd) arg to `onSelect`
+        // here, but removed it since onBlur is ran when Dropdown menu loses focus
+        // which itself then calls props.update again.
+        onSelect(evtKey);
     }
 
+    /** This is called when DropdownButton loses focus (onBlur) as well */
     onTextInputFormSubmit(evt){
         const { update, savedValue, value } = this.props;
         const updateAble = (savedValue !== value);
@@ -838,14 +912,16 @@ class RangeDropdown extends React.PureComponent {
 
         } else if (field_type === "number" || field_type === "integer") {
 
-            const min = (
-                typeof propMin === "number" ? propMin
-                    : typeof fMin === "number" ? fMin
-                        : 0
-            );
+            const min = typeof propMin === "number" ? propMin
+                : typeof fMin === "number" ? fMin
+                    : null;
             const max = propMax || fMax || null;
 
-            const menuOptsSet = [...increments].concat([min]).concat([max])
+            const incrementsList = increments.slice();
+            if (min !== null) incrementsList.push(min);
+            if (max !== null) incrementsList.push(max);
+
+            const menuOptsSet = incrementsList
                 .sort(function(a, b){
                     return a - b;
                 })
@@ -859,9 +935,10 @@ class RangeDropdown extends React.PureComponent {
 
             const menuOptions = [...menuOptsSet].map(function(increment, indx){
                 const active = increment === savedValue;
+                const optTitle = formatRangeVal(termTransformFxn, facet, increment);
                 return (
                     <DropdownItem disabled={disabled} key={increment} eventKey={increment === 0 ? increment.toString() : increment} active={active}>
-                        { termTransformFxn(facet.field, increment, true) }
+                        { optTitle }
                         { increment === min ? <small> (min)</small> : null }
                         { increment === max ? <small> (max)</small> : null }
                     </DropdownItem>
@@ -871,7 +948,7 @@ class RangeDropdown extends React.PureComponent {
             return (
                 <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect}
                     title={showTitle} show={showMenu} onToggle={this.toggleDrop} onBlur={this.onBlur} data-tip={tooltip} data-html>
-                    <form className="inline-input-container" onSubmit={this.onTextInputFormSubmit}>
+                    <form className={"inline-input-container" + (menuOptions.length > 0 ? " has-options" : "")} onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
                             <input type="number" className="form-control" {...{ value, placeholder, step }}
                                 onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />

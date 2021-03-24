@@ -57,12 +57,12 @@ export class WindowNavigationController extends React.PureComponent {
     }
 
     /**
-     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term, callback)}) and generates a composite href before navigating
+     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term)}) and generates a composite href before navigating
      * @param {Array} filterObjs An object containing {facet, term, callback}
      * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
      * desired functionality.
      */
-    onFilterMultiple(filterObjs = []) {
+    onFilterMultiple(filterObjs = [], callback = null) {
         const {
             href, navigate: propNavigate = navigate,
             context: { filters : contextFilters }
@@ -71,16 +71,12 @@ export class WindowNavigationController extends React.PureComponent {
         if (filterObjs.length === 0) { console.log("Attempted multi-filter, but no objects passed in!"); return null; }
 
         let newHref = href; // initialize to href
-        let callback;
 
         // Update href to include facet/term query pairs for each new item
         filterObjs.forEach((obj, i) => {
-            const { facet, term, callback: thisCallback } = obj;
+            const { facet, term } = obj;
             const thisHref = generateNextHref(newHref, contextFilters, facet, term);
             newHref = thisHref;
-            if (i === 0) {
-                callback = thisCallback;
-            }
         });
 
         return propNavigate(

@@ -177,7 +177,8 @@ $facetlist-term-block-height: default !default;
                     
                     div.range-drop {
                         display: flex;
-                        align-items: center;                    
+                        align-items: center;  
+                        line-height: 1;
 
                         label {
                             display: inline-block;
@@ -213,11 +214,16 @@ $facetlist-term-block-height: default !default;
                         .dropdown > .dropdown-menu {
                             .inline-input-container {
                                 padding-left: 10px;
-                                padding-bottom: 10px;
-                                border-bottom: 1px solid #ddd;
-                                margin-bottom: 8px;
                                 display: flex;
                                 align-items: center;
+                                margin-bottom: 0px !important; /* overrides #content form margin-bottom: 10px !important style. */
+
+                                &.has-options {
+                                    padding-bottom: 10px;
+                                    border-bottom: 1px solid #ddd;
+                                    margin-bottom: 8px !important;
+                                }
+
                                 > .input-element-container {
                                     flex: 1;
                                 }

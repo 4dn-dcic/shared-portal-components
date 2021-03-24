@@ -222,11 +222,13 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           // in place of a GET /search/?type=... request.
 
           virtualCompoundFilterSet = {
-            "global_flags": queryString.stringify(globalFlagsParams),
+            // queryString.stringify will convert spaces into %20, but we expect "+" to be used
+            // for spaces in search hrefs, so overwrite after each time that stringify is used on URL params.
+            "global_flags": queryString.stringify(globalFlagsParams).replaceAll("%20", "+"),
             "search_type": searchType,
             "filter_blocks": [{
               "flags_applied": [],
-              "query": queryString.stringify(filterBlockParams)
+              "query": queryString.stringify(filterBlockParams).replaceAll("%20", "+")
             }]
           };
         }
@@ -353,6 +355,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
     key: "onFilterMultiple",
     value: function onFilterMultiple() {
       var filterObjs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var _this$state4 = this.state,
           virtualHref = _this$state4.virtualHref,
           virtualContextFilters = _this$state4.virtualContext.filters;
@@ -363,19 +366,13 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       }
 
       var newHref = virtualHref; // initialize to href
+      // Update href to include facet/term query pairs for each new item
 
-      var callback; // Update href to include facet/term query pairs for each new item
-
-      filterObjs.forEach(function (obj, i) {
+      filterObjs.forEach(function (obj) {
         var facet = obj.facet,
-            term = obj.term,
-            thisCallback = obj.callback;
+            term = obj.term;
         var thisHref = generateNextHref(newHref, virtualContextFilters, facet, term);
         newHref = thisHref;
-
-        if (i === 0) {
-          callback = thisCallback;
-        }
       });
       return this.virtualNavigate(newHref, {
         'dontScrollToTop': true

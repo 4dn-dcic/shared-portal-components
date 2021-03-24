@@ -120,6 +120,7 @@ export function preset() {
         return "YYYY-MM-DD";
 
       case 'date-xs':
+        // TODO: LOCALIZE
         // 11/03/2016
         return "MM/DD/YYYY";
 

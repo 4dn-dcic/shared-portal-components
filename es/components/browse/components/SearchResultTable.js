@@ -492,13 +492,19 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
     }
   }, {
     key: "getElementHeight",
-    value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeight) {
-      return Object.keys(openDetailPanes).length === 0 ? rowHeight : React.Children.map(children, function (c) {
-        // openRowHeight + openDetailPane height
-        var savedHeight = openDetailPanes[c.props.id];
+    value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeightToUse) {
+      var openDetailPaneResultIDs = Object.keys(openDetailPanes);
 
-        if (savedHeight && typeof savedHeight === 'number') {
-          return openDetailPanes[c.props.id] + openRowHeight;
+      if (openDetailPaneResultIDs.length === 0) {
+        return rowHeight; // Use same value for all rows.
+      }
+
+      return React.Children.map(children, function (c) {
+        // openRowHeight + openDetailPane height, if detail pane open for this result.
+        var savedDetailPaneHeight = openDetailPanes[c.props.id];
+
+        if (savedDetailPaneHeight && typeof savedDetailPaneHeight === 'number') {
+          return savedDetailPaneHeight + openRowHeightToUse;
         }
 
         return rowHeight;
@@ -650,8 +656,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
       var _this$props8 = this.props,
           children = _this$props8.children,
           rowHeight = _this$props8.rowHeight,
-          openDetailPanes = _this$props8.openDetailPanes,
           openRowHeight = _this$props8.openRowHeight,
+          openDetailPanes = _this$props8.openDetailPanes,
           tableContainerWidth = _this$props8.tableContainerWidth,
           tableContainerScrollLeft = _this$props8.tableContainerScrollLeft,
           propMounted = _this$props8.mounted,
@@ -668,7 +674,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         }, /*#__PURE__*/React.createElement("div", null, children));
       }
 
-      var elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight);
+      var elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight || rowHeight);
       return /*#__PURE__*/React.createElement(Infinite, {
         className: "react-infinite-container",
         ref: this.infiniteComponentRef,
@@ -1260,7 +1266,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           _this$props13$rowHeig = _this$props13.rowHeight,
           rowHeight = _this$props13$rowHeig === void 0 ? 47 : _this$props13$rowHeig,
           _this$props13$openRow = _this$props13.openRowHeight,
-          openRowHeight = _this$props13$openRow === void 0 ? 57 : _this$props13$openRow,
+          openRowHeight = _this$props13$openRow === void 0 ? null : _this$props13$openRow,
           _this$props13$maxHeig = _this$props13.maxHeight,
           maxHeight = _this$props13$maxHeig === void 0 ? 500 : _this$props13$maxHeig,
           _this$props13$isConte = _this$props13.isContextLoading,
@@ -1519,7 +1525,8 @@ _defineProperty(SearchResultTable, "defaultProps", {
   // This value (the default or if passed in) should be aligned to value in CSS.
   // Must account for any border or padding at bottom/top of row, as well.
   'rowHeight': 47,
-  'openRowHeight': 57,
+  // Will default to `rowHeight` if not supplied.
+  'openRowHeight': null,
   'fullWidthInitOffset': 60,
   'fullWidthContainerSelectorString': '.browse-page-container',
   'currentAction': null,

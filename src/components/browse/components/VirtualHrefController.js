@@ -151,11 +151,13 @@ export class VirtualHrefController extends React.PureComponent {
                 // We can thus perform a 'drop-in' POST compound_search for 1 filter_block
                 // in place of a GET /search/?type=... request.
                 virtualCompoundFilterSet = {
-                    "global_flags": queryString.stringify(globalFlagsParams),
+                    // queryString.stringify will convert spaces into %20, but we expect "+" to be used
+                    // for spaces in search hrefs, so overwrite after each time that stringify is used on URL params.
+                    "global_flags": queryString.stringify(globalFlagsParams).replaceAll("%20", "+"),
                     "search_type": searchType,
                     "filter_blocks": [{
                         "flags_applied": [],
-                        "query": queryString.stringify(filterBlockParams)
+                        "query": queryString.stringify(filterBlockParams).replaceAll("%20", "+")
                     }]
                 };
             }
@@ -288,22 +290,18 @@ export class VirtualHrefController extends React.PureComponent {
      * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
      * desired functionality.
      */
-    onFilterMultiple(filterObjs = []) {
+    onFilterMultiple(filterObjs = [], callback = null) {
         const { virtualHref, virtualContext : { filters: virtualContextFilters } } = this.state;
 
         if (filterObjs.length === 0) { console.log("Attempted multi-filter, but no objects passed in!"); return null; }
 
         let newHref = virtualHref; // initialize to href
-        let callback;
 
         // Update href to include facet/term query pairs for each new item
         filterObjs.forEach((obj, i) => {
-            const { facet, term, callback: thisCallback } = obj;
+            const { facet, term } = obj;
             const thisHref = generateNextHref(newHref, virtualContextFilters, facet, term);
             newHref = thisHref;
-            if (i === 0) {
-                callback = thisCallback;
-            }
         });
 
         return this.virtualNavigate(
