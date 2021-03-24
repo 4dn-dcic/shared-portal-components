@@ -193,7 +193,7 @@ export class RangeFacet extends React.PureComponent {
                 allIncrements.add(fromInc);
                 allIncrements.add(toInc);
             });
-            const allIncsArr = [ ...allIncrements ];
+            const allIncsArr = [ ...allIncrements ].sort();
             return {
                 "fromIncrements": allIncsArr,
                 "toIncrements": allIncsArr

@@ -250,7 +250,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           allIncrements.add(toInc);
         });
 
-        var allIncsArr = _toConsumableArray(allIncrements);
+        var allIncsArr = _toConsumableArray(allIncrements).sort();
 
         return {
           "fromIncrements": allIncsArr,
