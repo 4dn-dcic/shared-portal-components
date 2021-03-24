@@ -928,8 +928,6 @@ class RangeDropdown extends React.PureComponent {
                     return m;
                 }, new Set());
 
-            console.log("TTT", facet);
-
             const menuOptions = [...menuOptsSet].map(function(increment, indx){
                 const active = increment === savedValue;
                 const optTitle = formatRangeVal(termTransformFxn, facet, increment);

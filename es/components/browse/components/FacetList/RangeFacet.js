@@ -1210,7 +1210,6 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
 
           return m;
         }, new Set());
-        console.log("TTT", facet);
 
         var menuOptions = _toConsumableArray(menuOptsSet).map(function (increment) {
           var optTitle = formatRangeVal(termTransformFxn, facet, increment);
