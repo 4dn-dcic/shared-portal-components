@@ -162,7 +162,7 @@ export class RangeFacet extends React.PureComponent {
     }
 
     static validIncrements(facet){
-        const { min, max, increments } = facet;
+        const { min, max, increments, ranges } = facet;
 
         function ensureWithinRange(increment){
             if (typeof min === "number" && increment < min) return false;
@@ -176,16 +176,33 @@ export class RangeFacet extends React.PureComponent {
                 "fromIncrements": validIncrements,
                 "toIncrements": validIncrements
             };
+        } else if (increments) {
+            const {
+                from: fromIncrementsOrig = [],
+                to: toIncrementsOrig = []
+            } = increments || {};
+
+            return {
+                "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
+                "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
+            };
+        } else if (Array.isArray(ranges)) {
+            const allIncrements = new Set();
+            ranges.forEach(function({ doc_count, from: fromInc, to: toInc }){
+                // Preserve all values (incl. if no doc_count)
+                allIncrements.add(fromInc);
+                allIncrements.add(toInc);
+            });
+            const allIncsArr = [ ...allIncrements ];
+            return {
+                "fromIncrements": allIncsArr,
+                "toIncrements": allIncsArr
+            };
         }
 
-        const {
-            from: fromIncrementsOrig = [],
-            to: toIncrementsOrig = []
-        } = increments || {};
-
         return {
-            "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
-            "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
+            "fromIncrements": [],
+            "toIncrements": []
         };
     }
 
@@ -911,11 +928,14 @@ class RangeDropdown extends React.PureComponent {
                     return m;
                 }, new Set());
 
+            console.log("TTT", facet);
+
             const menuOptions = [...menuOptsSet].map(function(increment, indx){
                 const active = increment === savedValue;
+                const optTitle = formatRangeVal(termTransformFxn, facet, increment);
                 return (
                     <DropdownItem disabled={disabled} key={increment} eventKey={increment === 0 ? increment.toString() : increment} active={active}>
-                        { termTransformFxn(facet.field, increment, true) }
+                        { optTitle }
                         { increment === min ? <small> (min)</small> : null }
                         { increment === max ? <small> (max)</small> : null }
                     </DropdownItem>
@@ -925,7 +945,7 @@ class RangeDropdown extends React.PureComponent {
             return (
                 <DropdownButton {...{ variant, disabled, className, size, id }} alignRight onSelect={this.onDropdownSelect}
                     title={showTitle} show={showMenu} onToggle={this.toggleDrop} onBlur={this.onBlur} data-tip={tooltip} data-html>
-                    <form className="inline-input-container mb-08" onSubmit={this.onTextInputFormSubmit}>
+                    <form className={"inline-input-container" + (menuOptions.length > 0 ? " has-options" : "")} onSubmit={this.onTextInputFormSubmit}>
                         <div className="input-element-container">
                             <input type="number" className="form-control" {...{ value, placeholder, step }}
                                 onKeyDown={this.onTextInputKeyDown} onChange={this.onTextInputChange} />

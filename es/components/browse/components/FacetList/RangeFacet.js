@@ -1,6 +1,14 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -13,14 +21,6 @@ function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.it
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -213,7 +213,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     value: function validIncrements(facet) {
       var min = facet.min,
           max = facet.max,
-          increments = facet.increments;
+          increments = facet.increments,
+          ranges = facet.ranges;
 
       function ensureWithinRange(increment) {
         if (typeof min === "number" && increment < min) return false;
@@ -227,17 +228,39 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           "fromIncrements": validIncrements,
           "toIncrements": validIncrements
         };
+      } else if (increments) {
+        var _ref2 = increments || {},
+            _ref2$from = _ref2.from,
+            fromIncrementsOrig = _ref2$from === void 0 ? [] : _ref2$from,
+            _ref2$to = _ref2.to,
+            toIncrementsOrig = _ref2$to === void 0 ? [] : _ref2$to;
+
+        return {
+          "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
+          "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
+        };
+      } else if (Array.isArray(ranges)) {
+        var allIncrements = new Set();
+        ranges.forEach(function (_ref3) {
+          var doc_count = _ref3.doc_count,
+              fromInc = _ref3.from,
+              toInc = _ref3.to;
+          // Preserve all values (incl. if no doc_count)
+          allIncrements.add(fromInc);
+          allIncrements.add(toInc);
+        });
+
+        var allIncsArr = _toConsumableArray(allIncrements);
+
+        return {
+          "fromIncrements": allIncsArr,
+          "toIncrements": allIncsArr
+        };
       }
 
-      var _ref2 = increments || {},
-          _ref2$from = _ref2.from,
-          fromIncrementsOrig = _ref2$from === void 0 ? [] : _ref2$from,
-          _ref2$to = _ref2.to,
-          toIncrementsOrig = _ref2$to === void 0 ? [] : _ref2$to;
-
       return {
-        "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
-        "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
+        "fromIncrements": [],
+        "toIncrements": []
       };
     }
   }, {
@@ -451,8 +474,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref3) {
-        var expanded = _ref3.expanded;
+      this.setState(function (_ref4) {
+        var expanded = _ref4.expanded;
         return {
           'expanded': !expanded
         };
@@ -946,8 +969,8 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
   var facetTitle = facet.title,
       _facet$abbreviation = facet.abbreviation,
       facetAbbreviation = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
-  var _ref5$abbreviation = (fieldSchema || {}).abbreviation,
-      fieldAbbreviation = _ref5$abbreviation === void 0 ? null : _ref5$abbreviation;
+  var _ref6$abbreviation = (fieldSchema || {}).abbreviation,
+      fieldAbbreviation = _ref6$abbreviation === void 0 ? null : _ref6$abbreviation;
   var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || (facetTitle.length > 5 ? /*#__PURE__*/React.createElement("em", null, "N") : facetTitle);
 
   if (savedFromVal === null && savedToVal === null) {
@@ -1187,14 +1210,16 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
 
           return m;
         }, new Set());
+        console.log("TTT", facet);
 
         var menuOptions = _toConsumableArray(menuOptsSet).map(function (increment) {
+          var optTitle = formatRangeVal(termTransformFxn, facet, increment);
           return /*#__PURE__*/React.createElement(DropdownItem, {
             disabled: disabled,
             key: increment,
             eventKey: increment === 0 ? increment.toString() : increment,
             active: increment === savedValue
-          }, termTransformFxn(facet.field, increment, true), increment === min ? /*#__PURE__*/React.createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/React.createElement("small", null, " (max)") : null);
+          }, optTitle, increment === min ? /*#__PURE__*/React.createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/React.createElement("small", null, " (max)") : null);
         });
 
         return /*#__PURE__*/React.createElement(DropdownButton, _extends({
@@ -1213,7 +1238,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           "data-tip": tooltip,
           "data-html": true
         }), /*#__PURE__*/React.createElement("form", {
-          className: "inline-input-container mb-08",
+          className: "inline-input-container" + (menuOptions.length > 0 ? " has-options" : ""),
           onSubmit: this.onTextInputFormSubmit
         }, /*#__PURE__*/React.createElement("div", {
           className: "input-element-container"
