@@ -14,6 +14,10 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -664,12 +668,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         open: expanded,
         persistent: persistentTerms,
         collapsible: collapsibleTerms
-      }), searchType !== 'sayt_without_terms' ? /*#__PURE__*/React.createElement("div", {
+      }), /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
       }, /*#__PURE__*/React.createElement("div", {
         className: "view-more-button",
         onClick: onToggleExpanded
-      }, expandButtonTitle)) : null)
+      }, expandButtonTitle)))
     }));
   } else {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
@@ -680,27 +684,36 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     }));
   }
 });
-export var CountIndicator = /*#__PURE__*/React.memo(function (_ref7) {
-  var _ref7$count = _ref7.count,
-      count = _ref7$count === void 0 ? 1 : _ref7$count,
-      _ref7$countActive = _ref7.countActive,
-      countActive = _ref7$countActive === void 0 ? 0 : _ref7$countActive,
-      _ref7$height = _ref7.height,
-      height = _ref7$height === void 0 ? 16 : _ref7$height,
-      _ref7$width = _ref7.width,
-      width = _ref7$width === void 0 ? 40 : _ref7$width;
+export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
+  var _props$count = props.count,
+      count = _props$count === void 0 ? 1 : _props$count,
+      _props$countActive = props.countActive,
+      countActive = _props$countActive === void 0 ? 0 : _props$countActive,
+      _props$height = props.height,
+      height = _props$height === void 0 ? 16 : _props$height,
+      _props$width = props.width,
+      width = _props$width === void 0 ? 40 : _props$width,
+      _props$ltr = props.ltr,
+      ltr = _props$ltr === void 0 ? false : _props$ltr,
+      _props$className = props.className,
+      className = _props$className === void 0 ? null : _props$className,
+      passProps = _objectWithoutProperties(props, ["count", "countActive", "height", "width", "ltr", "className"]);
+
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref8, idx) {
-    var _ref9 = _slicedToArray(_ref8, 2),
-        x = _ref9[0],
-        y = _ref9[1];
+  var dots = dotCoords.map(function (_ref7, idx) {
+    var _ref8 = _slicedToArray(_ref7, 2),
+        x = _ref8[0],
+        y = _ref8[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 
-    return /*#__PURE__*/React.createElement("circle", {
-      cx: width - x + 1,
-      cy: height - y + 1,
+    var cx = ltr ? x + 1 : width - x + 1;
+    var cy = ltr ? y + 1 : height - y + 1;
+    return /*#__PURE__*/React.createElement("circle", _extends({
+      cx: cx,
+      cy: cy
+    }, {
       r: 2,
       key: idx,
       "data-original-index": idx,
@@ -708,12 +721,13 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (_ref7) {
         opacity: 1 - colIdx * .125
       },
       className: dotCountToShow - idx <= countActive ? "active" : null
-    });
+    }));
   });
-  return /*#__PURE__*/React.createElement("svg", {
-    className: "svg-count-indicator",
+  var cls = "svg-count-indicator" + (className ? " " + className : "");
+  return /*#__PURE__*/React.createElement("svg", _extends({}, passProps, {
+    className: cls,
     viewBox: "0 0 ".concat(width + 2, " ").concat(height + 2),
     width: width + 2,
     height: height + 2
-  }, dots);
+  }), dots);
 });

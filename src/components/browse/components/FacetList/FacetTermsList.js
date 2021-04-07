@@ -450,10 +450,9 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                     <React.Fragment>
                         {facetSearch}
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
-                        {(searchType !== 'sayt_without_terms' ? (
-                            <div className="pt-08 pb-0">
-                                <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
-                            </div>) : null)}
+                        <div className="pt-08 pb-0">
+                            <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
+                        </div>
                     </React.Fragment>
                 } />
             </div>
@@ -473,19 +472,31 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 });
 
 
-export const CountIndicator = React.memo(function CountIndicator({ count = 1, countActive = 0, height = 16, width = 40 }){
+export const CountIndicator = React.memo(function CountIndicator(props){
+    const {
+        count = 1,
+        countActive = 0,
+        height = 16,
+        width = 40,
+        ltr = false,
+        className = null,
+        ...passProps
+    } = props;
     const dotCountToShow = Math.min(count, 21);
     const dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
     const dots = dotCoords.map(function([ x, y ], idx){
         const colIdx = Math.floor(idx / 3);
         // Flip both axes so going bottom right to top left.
+        const cx = ltr ? x + 1 : width - x + 1;
+        const cy = ltr ? y + 1 : height - y + 1;
         return (
-            <circle cx={width - x + 1} cy={height - y + 1} r={2} key={idx} data-original-index={idx}
+            <circle {...{ cx, cy }} r={2} key={idx} data-original-index={idx}
                 style={{ opacity: 1 - (colIdx * .125) }} className={(dotCountToShow - idx) <= countActive ? "active" : null} />
         );
     });
+    const cls = "svg-count-indicator" + (className ? " " + className : "");
     return (
-        <svg className="svg-count-indicator" viewBox={`0 0 ${width + 2} ${height + 2}`} width={width + 2} height={height + 2}>
+        <svg {...passProps} className={cls} viewBox={`0 0 ${width + 2} ${height + 2}`} width={width + 2} height={height + 2}>
             { dots}
         </svg>
     );
