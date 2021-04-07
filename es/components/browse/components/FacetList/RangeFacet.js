@@ -138,7 +138,7 @@ export function formatRangeVal(termTransformFxn, fieldFacetObj, rangeValue) {
     rangeValue = parseFloat(rangeValue);
   }
 
-  var valToShow = termTransformFxn(field, rangeValue, allowJSX); // console.log("ABCD3", valToShow, field, rangeValue);
+  var valToShow = termTransformFxn(field, rangeValue, allowJSX);
 
   if (typeof valToShow === "number") {
     var absVal = Math.abs(valToShow);
@@ -387,7 +387,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var fromVal = this.state.fromVal; // console.log("performUpdateFrom", fromVal);
 
       onFilter(_objectSpread(_objectSpread({}, facet), {}, {
-        field: facet.field + ".from"
+        field: facet.field + ".from",
+        facetFieldName: facet.field // Used to inform UI in FacetList/index only.
+
       }), {
         key: fromVal
       }, callback);
@@ -401,7 +403,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       var toVal = this.state.toVal; // console.log("performUpdateTo", toVal);
 
       onFilter(_objectSpread(_objectSpread({}, facet), {}, {
-        field: facet.field + ".to"
+        field: facet.field + ".to",
+        facetFieldName: facet.field // Used to inform UI in FacetList/index only.
+
       }), {
         key: toVal
       }, callback);
@@ -414,18 +418,22 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facet = _this$props4.facet;
       var _this$state = this.state,
           toVal = _this$state.toVal,
-          fromVal = _this$state.fromVal; // console.log("performUpdate", toVal, fromVal);
+          fromVal = _this$state.fromVal; // console.log("performUpdate", toVal, fromVal, facet.field);
 
       onFilterMultiple([{
         facet: _objectSpread(_objectSpread({}, facet), {}, {
-          field: facet.field + ".from"
+          field: facet.field + ".from",
+          facetFieldName: facet.field // Used to inform UI in FacetList/index only.
+
         }),
         term: {
           key: fromVal
         }
       }, {
         facet: _objectSpread(_objectSpread({}, facet), {}, {
-          field: facet.field + ".to"
+          field: facet.field + ".to",
+          facetFieldName: facet.field // Used to inform UI in FacetList/index only.
+
         }),
         term: {
           key: toVal
@@ -509,7 +517,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           savedToVal = _this$props7.toVal,
           facetOpen = _this$props7.facetOpen,
           openPopover = _this$props7.openPopover,
-          setOpenPopover = _this$props7.setOpenPopover;
+          setOpenPopover = _this$props7.setOpenPopover,
+          filteringFieldTerm = _this$props7.filteringFieldTerm;
       var aggregation_type = facet.aggregation_type,
           _facet$field_type3 = facet.field_type,
           field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
@@ -607,7 +616,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           savedToVal: savedToVal,
           facet: facet,
           fieldSchema: fieldSchema,
-          termTransformFxn: termTransformFxn
+          termTransformFxn: termTransformFxn,
+          filteringFieldTerm: filteringFieldTerm
         }, {
           resetAll: this.resetAll,
           resetFrom: fromVal !== null ? this.resetFrom : null,
@@ -662,7 +672,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return RangeFacet;
-}(React.PureComponent);
+}(React.PureComponent); //const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
+//const isClearing = currFilteringTerm === null && facetField === currFilteringField;
+
 var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,
@@ -674,20 +686,34 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
       onToggleExpanded = props.onToggleExpanded,
       termTransformFxn = props.termTransformFxn,
       toVal = props.toVal,
-      fromVal = props.fromVal;
+      fromVal = props.fromVal,
+      filteringFieldTerm = props.filteringFieldTerm;
   var _facet$ranges2 = facet.ranges,
-      ranges = _facet$ranges2 === void 0 ? [] : _facet$ranges2;
+      ranges = _facet$ranges2 === void 0 ? [] : _facet$ranges2,
+      facetField = facet.field;
   /** Create range components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = useMemo(function () {
+    var _ref6 = filteringFieldTerm || {},
+        currFilteringField = _ref6.field,
+        currFilteringTerm = _ref6.term; // Ranges always presumed to have a from & to, so ignore if filtering a single value/term.
+
+
     var _segmentComponentsByS = segmentComponentsByStatus(ranges.map(function (range) {
+      var _range$from = range.from,
+          rangeFrom = _range$from === void 0 ? null : _range$from,
+          _range$to = range.to,
+          rangeTo = _range$to === void 0 ? null : _range$to;
+      var isFiltering = currFilteringField === facetField && ( // Sometimes a range may be 0 - 0 (and result in single value instead of array for currFilteringTerm)
+      Array.isArray(currFilteringTerm) && rangeFrom === currFilteringTerm[0] && rangeTo === currFilteringTerm[1] || currFilteringTerm === rangeTo && currFilteringTerm === rangeFrom);
       return /*#__PURE__*/React.createElement(RangeTerm, _extends({
         facet: facet,
         range: range,
         termTransformFxn: termTransformFxn,
-        selectRange: selectRange
+        selectRange: selectRange,
+        isFiltering: isFiltering
       }, {
-        key: "".concat(range.to, "-").concat(range.from),
+        key: "".concat(rangeFrom, "-").concat(rangeTo),
         status: getRangeStatus(range, toVal, fromVal)
       }));
     })),
@@ -732,7 +758,7 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
       return m + (termComponent.props.range.doc_count || 0);
     }, 0);
     return retObj;
-  }, [ranges, persistentCount, toVal, fromVal]),
+  }, [ranges, persistentCount, toVal, fromVal, filteringFieldTerm]),
       termComponents = _useMemo.termComponents,
       activeTermComponents = _useMemo.activeTermComponents,
       unselectedTermComponents = _useMemo.unselectedTermComponents,
@@ -812,38 +838,25 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
     _classCallCheck(this, RangeTerm);
 
     _this5 = _super2.call(this, props);
-    _this5.handleClick = _.debounce(_this5.handleClick.bind(_assertThisInitialized(_this5)), 500, true);
-    _this5.state = {
-      'filtering': false
-    };
+    _this5.handleClick = _this5.handleClick.bind(_assertThisInitialized(_this5));
     return _this5;
   }
 
   _createClass(RangeTerm, [{
     key: "handleClick",
     value: function handleClick(e) {
-      var _this6 = this;
-
       var _this$props8 = this.props,
           range = _this$props8.range,
           selectRange = _this$props8.selectRange,
           status = _this$props8.status;
-      var _range$to = range.to,
-          to = _range$to === void 0 ? null : _range$to,
-          _range$from = range.from,
-          from = _range$from === void 0 ? null : _range$from;
+      var _range$to2 = range.to,
+          to = _range$to2 === void 0 ? null : _range$to2,
+          _range$from2 = range.from,
+          from = _range$from2 === void 0 ? null : _range$from2;
       e.preventDefault();
       e.stopPropagation();
-      this.setState({
-        'filtering': true
-      }, function () {
-        var isSelected = status === "selected";
-        selectRange(isSelected ? null : to, isSelected ? null : from, function () {
-          return _this6.setState({
-            'filtering': false
-          });
-        });
-      });
+      var isSelected = status === "selected";
+      selectRange(isSelected ? null : to, isSelected ? null : from);
     }
   }, {
     key: "render",
@@ -851,16 +864,17 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       var _this$props9 = this.props,
           range = _this$props9.range,
           facet = _this$props9.facet,
-          status = _this$props9.status;
+          status = _this$props9.status,
+          _this$props9$isFilter = _this$props9.isFiltering,
+          isFiltering = _this$props9$isFilter === void 0 ? false : _this$props9$isFilter;
       var doc_count = range.doc_count,
           from = range.from,
           to = range.to,
           label = range.label;
-      var filtering = this.state.filtering;
       var icon = null;
       var title = (typeof from !== 'undefined' ? from : "≤ ") + (typeof from !== 'undefined' && typeof to !== 'undefined' ? ' - ' : '') + (typeof to !== 'undefined' ? to : '+ ');
 
-      if (filtering) {
+      if (isFiltering) {
         icon = /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
@@ -965,12 +979,19 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       facet = props.facet,
       _props$fieldSchema = props.fieldSchema,
       fieldSchema = _props$fieldSchema === void 0 ? null : _props$fieldSchema,
-      termTransformFxn = props.termTransformFxn;
-  var facetTitle = facet.title,
+      termTransformFxn = props.termTransformFxn,
+      filteringFieldTerm = props.filteringFieldTerm;
+  var facetField = facet.field,
+      facetTitle = facet.title,
       _facet$abbreviation = facet.abbreviation,
       facetAbbreviation = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
-  var _ref6$abbreviation = (fieldSchema || {}).abbreviation,
-      fieldAbbreviation = _ref6$abbreviation === void 0 ? null : _ref6$abbreviation;
+  var _ref7$abbreviation = (fieldSchema || {}).abbreviation,
+      fieldAbbreviation = _ref7$abbreviation === void 0 ? null : _ref7$abbreviation;
+
+  var _ref8 = filteringFieldTerm || {},
+      currFilteringField = _ref8.field,
+      currFilteringTerm = _ref8.term;
+
   var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || (facetTitle.length > 5 ? /*#__PURE__*/React.createElement("em", null, "N") : facetTitle);
 
   if (savedFromVal === null && savedToVal === null) {
@@ -998,7 +1019,7 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement("span", {
     className: "facet-selector"
   }, /*#__PURE__*/React.createElement("i", {
-    className: "icon icon-fw fas icon-minus-circle"
+    className: "icon icon-fw fas icon-" + (currFilteringTerm === null && facetField === currFilteringField ? "circle-notch icon-spin" : "minus-circle")
   })), /*#__PURE__*/React.createElement("span", {
     className: "facet-item text-center",
     style: {
@@ -1020,22 +1041,22 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   var _super3 = _createSuper(RangeDropdown);
 
   function RangeDropdown(props) {
-    var _this7;
+    var _this6;
 
     _classCallCheck(this, RangeDropdown);
 
-    _this7 = _super3.call(this, props);
-    _this7.state = {
+    _this6 = _super3.call(this, props);
+    _this6.state = {
       showMenu: false,
       toggling: false
     };
-    _this7.onTextInputChange = _this7.onTextInputChange.bind(_assertThisInitialized(_this7));
-    _this7.onDropdownSelect = _this7.onDropdownSelect.bind(_assertThisInitialized(_this7));
-    _this7.onTextInputFormSubmit = _this7.onTextInputFormSubmit.bind(_assertThisInitialized(_this7));
-    _this7.onTextInputKeyDown = _this7.onTextInputKeyDown.bind(_assertThisInitialized(_this7));
-    _this7.toggleDrop = _this7.toggleDrop.bind(_assertThisInitialized(_this7));
-    _this7.onBlur = _this7.onBlur.bind(_assertThisInitialized(_this7));
-    return _this7;
+    _this6.onTextInputChange = _this6.onTextInputChange.bind(_assertThisInitialized(_this6));
+    _this6.onDropdownSelect = _this6.onDropdownSelect.bind(_assertThisInitialized(_this6));
+    _this6.onTextInputFormSubmit = _this6.onTextInputFormSubmit.bind(_assertThisInitialized(_this6));
+    _this6.onTextInputKeyDown = _this6.onTextInputKeyDown.bind(_assertThisInitialized(_this6));
+    _this6.toggleDrop = _this6.toggleDrop.bind(_assertThisInitialized(_this6));
+    _this6.onBlur = _this6.onBlur.bind(_assertThisInitialized(_this6));
+    return _this6;
   }
 
   _createClass(RangeDropdown, [{
@@ -1096,7 +1117,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "toggleDrop",
     value: function toggleDrop() {
-      var _this8 = this;
+      var _this7 = this;
 
       var _this$state3 = this.state,
           showMenu = _this$state3.showMenu,
@@ -1107,7 +1128,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           showMenu: !showMenu,
           toggling: true
         }, function () {
-          _this8.setState({
+          _this7.setState({
             toggling: false
           });
         });

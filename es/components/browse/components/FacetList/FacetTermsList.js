@@ -166,7 +166,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, Term);
 
     _this = _super.call(this, props);
-    _this.handleClick = _.debounce(_this.handleClick.bind(_assertThisInitialized(_this)), 500, true);
+    _this.handleClick = _this.handleClick.bind(_assertThisInitialized(_this));
     _this.state = {
       'filtering': false
     };
@@ -176,22 +176,12 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
   _createClass(Term, [{
     key: "handleClick",
     value: function handleClick(e) {
-      var _this2 = this;
-
       var _this$props = this.props,
           facet = _this$props.facet,
           term = _this$props.term,
           onClick = _this$props.onClick;
       e.preventDefault();
-      this.setState({
-        'filtering': true
-      }, function () {
-        onClick(facet, term, e, function () {
-          return _this2.setState({
-            'filtering': false
-          });
-        });
-      });
+      onClick(facet, term, e);
     }
     /**
      * INCOMPLETE -
@@ -228,13 +218,14 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           term = _this$props2.term,
           facet = _this$props2.facet,
           status = _this$props2.status,
-          termTransformFxn = _this$props2.termTransformFxn;
-      var filtering = this.state.filtering;
+          termTransformFxn = _this$props2.termTransformFxn,
+          isFiltering = _this$props2.isFiltering; // const { filtering } = this.state;
+
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
 
-      if (filtering) {
+      if (isFiltering) {
         icon = /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
@@ -284,6 +275,11 @@ Term.propTypes = {
     'key': PropTypes.string.isRequired,
     'doc_count': PropTypes.number
   }).isRequired,
+  'isFiltering': PropTypes.bool,
+  'filteringFieldTerm': PropTypes.shape({
+    field: PropTypes.string,
+    term: PropTypes.string
+  }),
   'getTermStatus': PropTypes.func.isRequired,
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
@@ -324,20 +320,20 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   var _super2 = _createSuper(FacetTermsList);
 
   function FacetTermsList(props) {
-    var _this3;
+    var _this2;
 
     _classCallCheck(this, FacetTermsList);
 
-    _this3 = _super2.call(this, props);
-    _this3.handleOpenToggleClick = _this3.handleOpenToggleClick.bind(_assertThisInitialized(_this3));
-    _this3.handleExpandListToggleClick = _this3.handleExpandListToggleClick.bind(_assertThisInitialized(_this3));
-    _this3.handleBasicTermSearch = _this3.handleBasicTermSearch.bind(_assertThisInitialized(_this3));
-    _this3.handleSaytTermSearch = _this3.handleSaytTermSearch.bind(_assertThisInitialized(_this3));
-    _this3.state = {
+    _this2 = _super2.call(this, props);
+    _this2.handleOpenToggleClick = _this2.handleOpenToggleClick.bind(_assertThisInitialized(_this2));
+    _this2.handleExpandListToggleClick = _this2.handleExpandListToggleClick.bind(_assertThisInitialized(_this2));
+    _this2.handleBasicTermSearch = _this2.handleBasicTermSearch.bind(_assertThisInitialized(_this2));
+    _this2.handleSaytTermSearch = _this2.handleSaytTermSearch.bind(_assertThisInitialized(_this2));
+    _this2.state = {
       'expanded': false,
       'searchText': ''
     };
-    return _this3;
+    return _this2;
   }
 
   _createClass(FacetTermsList, [{
@@ -398,6 +394,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           termTransformFxn = _this$props5.termTransformFxn,
           facetOpen = _this$props5.facetOpen,
           openPopover = _this$props5.openPopover,
+          filteringFieldTerm = _this$props5.filteringFieldTerm,
           setOpenPopover = _this$props5.setOpenPopover,
           context = _this$props5.context,
           schemas = _this$props5.schemas;
@@ -485,7 +482,8 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         searchText: searchText,
         schemas: schemas,
         persistentCount: persistentCount,
-        defaultBasicSearchAutoDisplayThreshold: defaultBasicSearchAutoDisplayThreshold
+        defaultBasicSearchAutoDisplayThreshold: defaultBasicSearchAutoDisplayThreshold,
+        filteringFieldTerm: filteringFieldTerm
       }, {
         onSaytTermSearch: this.handleSaytTermSearch,
         onBasicTermSearch: this.handleBasicTermSearch,
@@ -505,14 +503,15 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       facetOpen = props.facetOpen,
       terms = props.terms,
       onTermClick = props.onTermClick,
+      filteringFieldTerm = props.filteringFieldTerm,
       expanded = props.expanded,
       onToggleExpanded = props.onToggleExpanded,
+      persistentCount = props.persistentCount,
       getTermStatus = props.getTermStatus,
       termTransformFxn = props.termTransformFxn,
       searchText = props.searchText,
       onBasicTermSearch = props.onBasicTermSearch,
       onSaytTermSearch = props.onSaytTermSearch,
-      persistentCount = props.persistentCount,
       defaultBasicSearchAutoDisplayThreshold = props.defaultBasicSearchAutoDisplayThreshold;
   var _facet$search_type = facet.search_type,
       searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
@@ -528,11 +527,18 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
 
 
   var _useMemo = useMemo(function () {
+    var field = facet.field;
     var segments = segmentComponentsByStatus(terms.map(function (term) {
+      var _ref6 = filteringFieldTerm || {},
+          currFilteringField = _ref6.field,
+          currFilteringTerm = _ref6.term;
+
+      var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
       return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
-        termTransformFxn: termTransformFxn
+        termTransformFxn: termTransformFxn,
+        isFiltering: isFiltering
       }, {
         onClick: onTermClick,
         key: term.key,
@@ -589,7 +595,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       return m + (termComponent.props.term.doc_count || 0);
     }, 0);
     return retObj;
-  }, [terms, persistentCount, searchText]),
+  }, [facet, terms, persistentCount, searchText, filteringFieldTerm]),
       termComponents = _useMemo.termComponents,
       activeTermComponents = _useMemo.activeTermComponents,
       unselectedTermComponents = _useMemo.unselectedTermComponents,
@@ -630,8 +636,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       key: "facet-search-input"
     }));
   } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-    var _ref6$sayt_item_type = (facet || {}).sayt_item_type,
-        itemType = _ref6$sayt_item_type === void 0 ? '' : _ref6$sayt_item_type;
+    var _ref7$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref7$sayt_item_type === void 0 ? '' : _ref7$sayt_item_type;
     itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
     var baseHref = "/search/?type=" + itemType;
     facetSearch = /*#__PURE__*/React.createElement("div", {
@@ -701,10 +707,10 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
 
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
-  var dots = dotCoords.map(function (_ref7, idx) {
-    var _ref8 = _slicedToArray(_ref7, 2),
-        x = _ref8[0],
-        y = _ref8[1];
+  var dots = dotCoords.map(function (_ref8, idx) {
+    var _ref9 = _slicedToArray(_ref8, 2),
+        x = _ref9[0],
+        y = _ref9[1];
 
     var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
 

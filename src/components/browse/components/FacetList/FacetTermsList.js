@@ -110,18 +110,16 @@ export class Term extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.handleClick = _.debounce(this.handleClick.bind(this), 500, true);
+        this.handleClick = this.handleClick.bind(this);
         this.state = {
             'filtering' : false
         };
     }
 
     handleClick(e) {
-        var { facet, term, onClick } = this.props;
+        const { facet, term, onClick } = this.props;
         e.preventDefault();
-        this.setState({ 'filtering' : true }, () => {
-            onClick(facet, term, e, () => this.setState({ 'filtering' : false }));
-        });
+        onClick(facet, term, e);
     }
 
     /**
@@ -155,14 +153,14 @@ export class Term extends React.PureComponent {
     */
 
     render() {
-        const { term, facet, status, termTransformFxn } = this.props;
-        const { filtering } = this.state;
+        const { term, facet, status, termTransformFxn, isFiltering } = this.props;
+        // const { filtering } = this.state;
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
 
-        if (filtering) {
+        if (isFiltering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
             icon = <i className="icon icon-check-square icon-fw fas" />;
@@ -195,6 +193,8 @@ Term.propTypes = {
         'key'               : PropTypes.string.isRequired,
         'doc_count'         : PropTypes.number
     }).isRequired,
+    'isFiltering'       : PropTypes.bool,
+    'filteringFieldTerm': PropTypes.shape({ field: PropTypes.string, term: PropTypes.string }),
     'getTermStatus'     : PropTypes.func.isRequired,
     'onClick'           : PropTypes.func.isRequired,
     'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
@@ -274,6 +274,7 @@ export class FacetTermsList extends React.PureComponent {
             termTransformFxn,
             facetOpen,
             openPopover,
+            filteringFieldTerm,
             setOpenPopover,
             context,
             schemas,
@@ -322,7 +323,9 @@ export class FacetTermsList extends React.PureComponent {
                     </div>
                     { indicator }
                 </h5>
-                <ListOfTerms {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold }} onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
+                <ListOfTerms
+                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold, filteringFieldTerm }}
+                    onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
@@ -333,7 +336,15 @@ FacetTermsList.defaultProps = {
 };
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, terms, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, searchText, onBasicTermSearch, onSaytTermSearch, persistentCount, defaultBasicSearchAutoDisplayThreshold } = props;
+    const {
+        facet, facetOpen,
+        terms, onTermClick, filteringFieldTerm,
+        expanded, onToggleExpanded, persistentCount,
+        getTermStatus,
+        termTransformFxn,
+        searchText, onBasicTermSearch, onSaytTermSearch,
+        defaultBasicSearchAutoDisplayThreshold
+    } = props;
     let { search_type: searchType = 'none' } = facet;
 
     /**
@@ -352,9 +363,12 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         collapsibleTermsCount = 0,
         collapsibleTermsItemCount = 0
     } = useMemo(function(){
+        const { field } = facet;
 
         const segments = segmentComponentsByStatus(terms.map(function(term){
-            return <Term {...{ facet, term, termTransformFxn }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
+            const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+            return <Term {...{ facet, term, termTransformFxn, isFiltering }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
 
         const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;
@@ -397,7 +411,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 
         return retObj;
 
-    }, [ terms, persistentCount, searchText ]);
+    }, [ facet, terms, persistentCount, searchText, filteringFieldTerm ]);
 
     const commonProps = {
         "data-any-active" : !!(selectedLen || omittedLen),
