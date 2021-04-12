@@ -14,6 +14,10 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -162,61 +166,20 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
     _classCallCheck(this, Term);
 
     _this = _super.call(this, props);
-    _this.handleClick = _.debounce(_this.handleClick.bind(_assertThisInitialized(_this)), 500, true);
-    _this.state = {
-      'filtering': false
-    };
+    _this.handleClick = _this.handleClick.bind(_assertThisInitialized(_this));
     return _this;
   }
 
   _createClass(Term, [{
     key: "handleClick",
     value: function handleClick(e) {
-      var _this2 = this;
-
       var _this$props = this.props,
           facet = _this$props.facet,
           term = _this$props.term,
           onClick = _this$props.onClick;
       e.preventDefault();
-      this.setState({
-        'filtering': true
-      }, function () {
-        onClick(facet, term, e, function () {
-          return _this2.setState({
-            'filtering': false
-          });
-        });
-      });
+      onClick(facet, term, e);
     }
-    /**
-     * INCOMPLETE -
-     *   For future, in addition to making a nice date range title, we should
-     *   also ensure that can send a date range as a filter and be able to parse it on
-     *   back-end.
-     * Handle date fields, etc.
-     */
-
-    /*
-    customTitleRender(){
-        const { facet, term, termTransformFxn } = this.props;
-         if (facet.aggregation_type === 'range'){
-            return (
-                (typeof term.from !== 'undefined' ? termTransformFxn(facet.field, term.from, true) : '< ') +
-                (typeof term.from !== 'undefined' && typeof term.to !== 'undefined' ? ' - ' : '') +
-                (typeof term.to !== 'undefined' ? termTransformFxn(facet.field, term.to, true) : ' >')
-            );
-        }
-         if (facet.aggregation_type === 'date_histogram'){
-            var interval = Filters.getDateHistogramIntervalFromFacet(facet);
-            if (interval === 'month'){
-                return <DateUtility.LocalizedTime timestamp={term.key} formatType="date-month" localize={false} />;
-            }
-        }
-         return null;
-    }
-    */
-
   }, {
     key: "render",
     value: function render() {
@@ -224,13 +187,13 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           term = _this$props2.term,
           facet = _this$props2.facet,
           status = _this$props2.status,
-          termTransformFxn = _this$props2.termTransformFxn;
-      var filtering = this.state.filtering;
+          termTransformFxn = _this$props2.termTransformFxn,
+          isFiltering = _this$props2.isFiltering;
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
 
-      if (filtering) {
+      if (isFiltering) {
         icon = /*#__PURE__*/React.createElement("i", {
           className: "icon fas icon-circle-notch icon-spin icon-fw"
         });
@@ -280,6 +243,11 @@ Term.propTypes = {
     'key': PropTypes.string.isRequired,
     'doc_count': PropTypes.number
   }).isRequired,
+  'isFiltering': PropTypes.bool,
+  'filteringFieldTerm': PropTypes.shape({
+    field: PropTypes.string,
+    term: PropTypes.string
+  }),
   'getTermStatus': PropTypes.func.isRequired,
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
@@ -320,20 +288,20 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
   var _super2 = _createSuper(FacetTermsList);
 
   function FacetTermsList(props) {
-    var _this3;
+    var _this2;
 
     _classCallCheck(this, FacetTermsList);
 
-    _this3 = _super2.call(this, props);
-    _this3.handleOpenToggleClick = _this3.handleOpenToggleClick.bind(_assertThisInitialized(_this3));
-    _this3.handleExpandListToggleClick = _this3.handleExpandListToggleClick.bind(_assertThisInitialized(_this3));
-    _this3.handleBasicTermSearch = _this3.handleBasicTermSearch.bind(_assertThisInitialized(_this3));
-    _this3.handleSaytTermSearch = _this3.handleSaytTermSearch.bind(_assertThisInitialized(_this3));
-    _this3.state = {
+    _this2 = _super2.call(this, props);
+    _this2.handleOpenToggleClick = _this2.handleOpenToggleClick.bind(_assertThisInitialized(_this2));
+    _this2.handleExpandListToggleClick = _this2.handleExpandListToggleClick.bind(_assertThisInitialized(_this2));
+    _this2.handleBasicTermSearch = _this2.handleBasicTermSearch.bind(_assertThisInitialized(_this2));
+    _this2.handleSaytTermSearch = _this2.handleSaytTermSearch.bind(_assertThisInitialized(_this2));
+    _this2.state = {
       'expanded': false,
       'searchText': ''
     };
-    return _this3;
+    return _this2;
   }
 
   _createClass(FacetTermsList, [{
@@ -394,6 +362,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           termTransformFxn = _this$props5.termTransformFxn,
           facetOpen = _this$props5.facetOpen,
           openPopover = _this$props5.openPopover,
+          filteringFieldTerm = _this$props5.filteringFieldTerm,
           setOpenPopover = _this$props5.setOpenPopover,
           context = _this$props5.context,
           schemas = _this$props5.schemas;
@@ -481,7 +450,8 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         searchText: searchText,
         schemas: schemas,
         persistentCount: persistentCount,
-        defaultBasicSearchAutoDisplayThreshold: defaultBasicSearchAutoDisplayThreshold
+        defaultBasicSearchAutoDisplayThreshold: defaultBasicSearchAutoDisplayThreshold,
+        filteringFieldTerm: filteringFieldTerm
       }, {
         onSaytTermSearch: this.handleSaytTermSearch,
         onBasicTermSearch: this.handleBasicTermSearch,
@@ -501,14 +471,15 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       facetOpen = props.facetOpen,
       terms = props.terms,
       onTermClick = props.onTermClick,
+      filteringFieldTerm = props.filteringFieldTerm,
       expanded = props.expanded,
       onToggleExpanded = props.onToggleExpanded,
+      persistentCount = props.persistentCount,
       getTermStatus = props.getTermStatus,
       termTransformFxn = props.termTransformFxn,
       searchText = props.searchText,
       onBasicTermSearch = props.onBasicTermSearch,
       onSaytTermSearch = props.onSaytTermSearch,
-      persistentCount = props.persistentCount,
       defaultBasicSearchAutoDisplayThreshold = props.defaultBasicSearchAutoDisplayThreshold;
   var _facet$search_type = facet.search_type,
       searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
@@ -524,11 +495,18 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
 
 
   var _useMemo = useMemo(function () {
+    var field = facet.field;
     var segments = segmentComponentsByStatus(terms.map(function (term) {
+      var _ref6 = filteringFieldTerm || {},
+          currFilteringField = _ref6.field,
+          currFilteringTerm = _ref6.term;
+
+      var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
       return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
-        termTransformFxn: termTransformFxn
+        termTransformFxn: termTransformFxn,
+        isFiltering: isFiltering
       }, {
         onClick: onTermClick,
         key: term.key,
@@ -585,7 +563,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       return m + (termComponent.props.term.doc_count || 0);
     }, 0);
     return retObj;
-  }, [terms, persistentCount, searchText]),
+  }, [facet, terms, persistentCount, searchText, filteringFieldTerm]),
       termComponents = _useMemo.termComponents,
       activeTermComponents = _useMemo.activeTermComponents,
       unselectedTermComponents = _useMemo.unselectedTermComponents,
@@ -626,8 +604,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       key: "facet-search-input"
     }));
   } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-    var _ref6$sayt_item_type = (facet || {}).sayt_item_type,
-        itemType = _ref6$sayt_item_type === void 0 ? '' : _ref6$sayt_item_type;
+    var _ref7$sayt_item_type = (facet || {}).sayt_item_type,
+        itemType = _ref7$sayt_item_type === void 0 ? '' : _ref7$sayt_item_type;
     itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
     var baseHref = "/search/?type=" + itemType;
     facetSearch = /*#__PURE__*/React.createElement("div", {
@@ -664,12 +642,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         open: expanded,
         persistent: persistentTerms,
         collapsible: collapsibleTerms
-      }), searchType !== 'sayt_without_terms' ? /*#__PURE__*/React.createElement("div", {
+      }), /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
       }, /*#__PURE__*/React.createElement("div", {
         className: "view-more-button",
         onClick: onToggleExpanded
-      }, expandButtonTitle)) : null)
+      }, expandButtonTitle)))
     }));
   } else {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
@@ -680,27 +658,38 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     }));
   }
 });
-export var CountIndicator = /*#__PURE__*/React.memo(function (_ref7) {
-  var _ref7$count = _ref7.count,
-      count = _ref7$count === void 0 ? 1 : _ref7$count,
-      _ref7$countActive = _ref7.countActive,
-      countActive = _ref7$countActive === void 0 ? 0 : _ref7$countActive,
-      _ref7$height = _ref7.height,
-      height = _ref7$height === void 0 ? 16 : _ref7$height,
-      _ref7$width = _ref7.width,
-      width = _ref7$width === void 0 ? 40 : _ref7$width;
+export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
+  var _props$count = props.count,
+      count = _props$count === void 0 ? 1 : _props$count,
+      _props$countActive = props.countActive,
+      countActive = _props$countActive === void 0 ? 0 : _props$countActive,
+      _props$height = props.height,
+      height = _props$height === void 0 ? 16 : _props$height,
+      _props$width = props.width,
+      width = _props$width === void 0 ? 40 : _props$width,
+      _props$ltr = props.ltr,
+      ltr = _props$ltr === void 0 ? false : _props$ltr,
+      _props$className = props.className,
+      className = _props$className === void 0 ? null : _props$className,
+      passProps = _objectWithoutProperties(props, ["count", "countActive", "height", "width", "ltr", "className"]);
+
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
+  var currColCounter = new Set();
   var dots = dotCoords.map(function (_ref8, idx) {
     var _ref9 = _slicedToArray(_ref8, 2),
         x = _ref9[0],
         y = _ref9[1];
 
-    var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
+    currColCounter.add(x);
+    var colIdx = currColCounter.size - 1; // Flip both axes so going bottom right to top left.
 
-    return /*#__PURE__*/React.createElement("circle", {
-      cx: width - x + 1,
-      cy: height - y + 1,
+    var cx = ltr ? x + 1 : width - x + 1;
+    var cy = ltr ? y + 1 : height - y + 1;
+    return /*#__PURE__*/React.createElement("circle", _extends({
+      cx: cx,
+      cy: cy
+    }, {
       r: 2,
       key: idx,
       "data-original-index": idx,
@@ -708,12 +697,13 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (_ref7) {
         opacity: 1 - colIdx * .125
       },
       className: dotCountToShow - idx <= countActive ? "active" : null
-    });
+    }));
   });
-  return /*#__PURE__*/React.createElement("svg", {
-    className: "svg-count-indicator",
+  var cls = "svg-count-indicator" + (className ? " " + className : "");
+  return /*#__PURE__*/React.createElement("svg", _extends({}, passProps, {
+    className: cls,
     viewBox: "0 0 ".concat(width + 2, " ").concat(height + 2),
     width: width + 2,
     height: height + 2
-  }, dots);
+  }), dots);
 });

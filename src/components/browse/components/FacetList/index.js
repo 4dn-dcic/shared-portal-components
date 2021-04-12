@@ -452,8 +452,9 @@ export class FacetList extends React.PureComponent {
         };
 
         this.state = {
-            openFacets : {}, // will be keyed by facet.field, value will be bool
-            openPopover: null // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
+            openFacets : {},    // will be keyed by facet.field, value will be bool
+            openPopover: null,  // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
+            filteringFieldTerm: null    // will contain `{ field: string, term: string|[from, to] }`. Used to show loading indicators on clicked-on terms.
         };
     }
 
@@ -498,19 +499,29 @@ export class FacetList extends React.PureComponent {
         }
 
         if (context !== prevContext) {
+
+            const stateChange = {};
+
             // If new filterset causes a facet to drop into common properties section, clean up openFacets state accordingly.
             const { staticFacetElements } = this.renderFacetComponents(); // Should be performant re: memoization
             const nextOpenFacets = _.clone(openFacets);
-            let changed = false;
+            let changedOpenFacets = false;
             staticFacetElements.forEach(function(facetComponent){
                 if (nextOpenFacets[facetComponent.props.facet.field]) {
                     delete nextOpenFacets[facetComponent.props.facet.field];
-                    changed = true;
+                    changedOpenFacets = true;
                 }
             });
-            if (changed) {
-                this.setState({ openFacets: nextOpenFacets });
+
+            if (changedOpenFacets) {
+                stateChange.openFacets = nextOpenFacets;
             }
+
+            // Newly loaded search response should clear any filteringFieldTerm state.
+            stateChange.filteringFieldTerm = null;
+
+
+            this.setState(stateChange);
         }
 
     }
@@ -523,18 +534,52 @@ export class FacetList extends React.PureComponent {
     onFilterExtended(facet, term, callback){
         const { onFilter, context: { filters: contextFilters } } = this.props;
         FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
-        return onFilter(...arguments);
+
+        // Used to show loading indicators on clicked-on terms.
+        // (decorative, not core functionality, so not implemented for `onFilterMultipleExtended`)
+        // `facet.facetFieldName` is passed in only from RangeFacet, as the real `field` would have a '.from' or '.to' appendage.
+        this.setState({
+            "filteringFieldTerm": {
+                "field": (facet.facetFieldName || facet.field),
+                "term": term.key
+            }
+        }, function(){
+            onFilter(facet, term, callback);
+        });
     }
 
-    onFilterMultipleExtended(filterObjArray) {
+    onFilterMultipleExtended(filterObjArray, callback) {
         const { onFilterMultiple, context: { filters: contextFilters } } = this.props;
+
+        // Detect if setting both values of range field and set state.filteringFieldTerm = { field: string, term:string|[from, to] }.
+        const facetFieldNames = new Set();
+        const uniqueVals = new Set();
 
         filterObjArray.forEach((filterObj) => {
             const { facet, term } = filterObj;
+            facetFieldNames.add(facet.facetFieldName || null);
+            uniqueVals.add(term.key);
             FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
         });
 
-        return onFilterMultiple(...arguments);
+        if (facetFieldNames.size === 1) {
+            // 2 values being set of same field
+            // (this is only use-case currently for onFilterMultipleExtended, via RangeFacet, but could change in future)
+            const [ facetFieldName ] = [ ...facetFieldNames ];
+            if (facetFieldName !== null) {
+                this.setState({
+                    "filteringFieldTerm": {
+                        "field": facetFieldName,
+                        "term": uniqueVals.size > 1 ? [...uniqueVals].sort() : [...uniqueVals][0]
+                    }
+                }, function(){
+                    onFilterMultiple(filterObjArray, callback);
+                });
+                return;
+            }
+        }
+
+        onFilterMultiple(filterObjArray, callback);
     }
 
     getTermStatus(term, facet){
@@ -591,10 +636,11 @@ export class FacetList extends React.PureComponent {
             href, schemas, itemTypeForSchemas, termTransformFxn, persistentCount
         } = this.props;
         const { filters } = context;
-        const { openFacets, openPopover } = this.state;
+        const { openFacets, openPopover, filteringFieldTerm } = this.state;
         const facetComponentProps = {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
             openPopover,
+            filteringFieldTerm,
             onFilter:       this.onFilterExtended,
             onFilterMultiple: this.onFilterMultipleExtended,
             getTermStatus:  this.getTermStatus,

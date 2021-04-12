@@ -110,59 +110,23 @@ export class Term extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.handleClick = _.debounce(this.handleClick.bind(this), 500, true);
-        this.state = {
-            'filtering' : false
-        };
+        this.handleClick = this.handleClick.bind(this);
     }
 
     handleClick(e) {
-        var { facet, term, onClick } = this.props;
+        const { facet, term, onClick } = this.props;
         e.preventDefault();
-        this.setState({ 'filtering' : true }, () => {
-            onClick(facet, term, e, () => this.setState({ 'filtering' : false }));
-        });
+        onClick(facet, term, e);
     }
-
-    /**
-     * INCOMPLETE -
-     *   For future, in addition to making a nice date range title, we should
-     *   also ensure that can send a date range as a filter and be able to parse it on
-     *   back-end.
-     * Handle date fields, etc.
-     */
-    /*
-    customTitleRender(){
-        const { facet, term, termTransformFxn } = this.props;
-
-        if (facet.aggregation_type === 'range'){
-            return (
-                (typeof term.from !== 'undefined' ? termTransformFxn(facet.field, term.from, true) : '< ') +
-                (typeof term.from !== 'undefined' && typeof term.to !== 'undefined' ? ' - ' : '') +
-                (typeof term.to !== 'undefined' ? termTransformFxn(facet.field, term.to, true) : ' >')
-            );
-        }
-
-        if (facet.aggregation_type === 'date_histogram'){
-            var interval = Filters.getDateHistogramIntervalFromFacet(facet);
-            if (interval === 'month'){
-                return <DateUtility.LocalizedTime timestamp={term.key} formatType="date-month" localize={false} />;
-            }
-        }
-
-        return null;
-    }
-    */
 
     render() {
-        const { term, facet, status, termTransformFxn } = this.props;
-        const { filtering } = this.state;
+        const { term, facet, status, termTransformFxn, isFiltering } = this.props;
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
 
-        if (filtering) {
+        if (isFiltering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
             icon = <i className="icon icon-check-square icon-fw fas" />;
@@ -195,6 +159,8 @@ Term.propTypes = {
         'key'               : PropTypes.string.isRequired,
         'doc_count'         : PropTypes.number
     }).isRequired,
+    'isFiltering'       : PropTypes.bool,
+    'filteringFieldTerm': PropTypes.shape({ field: PropTypes.string, term: PropTypes.string }),
     'getTermStatus'     : PropTypes.func.isRequired,
     'onClick'           : PropTypes.func.isRequired,
     'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
@@ -274,6 +240,7 @@ export class FacetTermsList extends React.PureComponent {
             termTransformFxn,
             facetOpen,
             openPopover,
+            filteringFieldTerm,
             setOpenPopover,
             context,
             schemas,
@@ -322,7 +289,9 @@ export class FacetTermsList extends React.PureComponent {
                     </div>
                     { indicator }
                 </h5>
-                <ListOfTerms {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold }} onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
+                <ListOfTerms
+                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold, filteringFieldTerm }}
+                    onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
     }
@@ -333,7 +302,15 @@ FacetTermsList.defaultProps = {
 };
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
-    const { facet, facetOpen, terms, onTermClick, expanded, onToggleExpanded, getTermStatus, termTransformFxn, searchText, onBasicTermSearch, onSaytTermSearch, persistentCount, defaultBasicSearchAutoDisplayThreshold } = props;
+    const {
+        facet, facetOpen,
+        terms, onTermClick, filteringFieldTerm,
+        expanded, onToggleExpanded, persistentCount,
+        getTermStatus,
+        termTransformFxn,
+        searchText, onBasicTermSearch, onSaytTermSearch,
+        defaultBasicSearchAutoDisplayThreshold
+    } = props;
     let { search_type: searchType = 'none' } = facet;
 
     /**
@@ -352,9 +329,12 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         collapsibleTermsCount = 0,
         collapsibleTermsItemCount = 0
     } = useMemo(function(){
+        const { field } = facet;
 
         const segments = segmentComponentsByStatus(terms.map(function(term){
-            return <Term {...{ facet, term, termTransformFxn }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
+            const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
+            return <Term {...{ facet, term, termTransformFxn, isFiltering }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
 
         const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;
@@ -397,7 +377,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 
         return retObj;
 
-    }, [ terms, persistentCount, searchText ]);
+    }, [ facet, terms, persistentCount, searchText, filteringFieldTerm ]);
 
     const commonProps = {
         "data-any-active" : !!(selectedLen || omittedLen),
@@ -450,10 +430,9 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                     <React.Fragment>
                         {facetSearch}
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
-                        {(searchType !== 'sayt_without_terms' ? (
-                            <div className="pt-08 pb-0">
-                                <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
-                            </div>) : null)}
+                        <div className="pt-08 pb-0">
+                            <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
+                        </div>
                     </React.Fragment>
                 } />
             </div>
@@ -473,19 +452,33 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 });
 
 
-export const CountIndicator = React.memo(function CountIndicator({ count = 1, countActive = 0, height = 16, width = 40 }){
+export const CountIndicator = React.memo(function CountIndicator(props){
+    const {
+        count = 1,
+        countActive = 0,
+        height = 16,
+        width = 40,
+        ltr = false,
+        className = null,
+        ...passProps
+    } = props;
     const dotCountToShow = Math.min(count, 21);
     const dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
+    const currColCounter = new Set();
     const dots = dotCoords.map(function([ x, y ], idx){
-        const colIdx = Math.floor(idx / 3);
+        currColCounter.add(x);
+        const colIdx = currColCounter.size - 1;
         // Flip both axes so going bottom right to top left.
+        const cx = ltr ? x + 1 : width - x + 1;
+        const cy = ltr ? y + 1 : height - y + 1;
         return (
-            <circle cx={width - x + 1} cy={height - y + 1} r={2} key={idx} data-original-index={idx}
+            <circle {...{ cx, cy }} r={2} key={idx} data-original-index={idx}
                 style={{ opacity: 1 - (colIdx * .125) }} className={(dotCountToShow - idx) <= countActive ? "active" : null} />
         );
     });
+    const cls = "svg-count-indicator" + (className ? " " + className : "");
     return (
-        <svg className="svg-count-indicator" viewBox={`0 0 ${width + 2} ${height + 2}`} width={width + 2} height={height + 2}>
+        <svg {...passProps} className={cls} viewBox={`0 0 ${width + 2} ${height + 2}`} width={width + 2} height={height + 2}>
             { dots}
         </svg>
     );

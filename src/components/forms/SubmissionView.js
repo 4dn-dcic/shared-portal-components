@@ -1085,6 +1085,14 @@ export default class SubmissionView extends React.PureComponent{
                     finalizedContext.lab = object.itemUtil.atId(context.lab);
                 }
 
+                if (currSchema.properties.institution && !('institution' in finalizedContext)){
+                    finalizedContext.institution = object.itemUtil.atId(context.institution);
+                }
+
+                if (currSchema.properties.project && !('project' in finalizedContext)){
+                    finalizedContext.project = object.itemUtil.atId(context.project);
+                }
+
                 // an admin is editing. Use the pre-existing submitted_by
                 // otherwise, permissions won't let us change this field
                 if (currentSubmittingUser.groups && _.contains(currentSubmittingUser.groups, 'admin')){
@@ -1096,15 +1104,29 @@ export default class SubmissionView extends React.PureComponent{
                     }
                 }
 
-            } else if (userLab && userAward && currType !== 'User') {
+            } else if (currType !== 'User') {
+
                 // Otherwise, use lab/award of user submitting unless values present
                 // Skip this is we are working on a User object
-                if (currSchema.properties.award && !('award' in finalizedContext)){
+
+                if (userAward && currSchema.properties.award && !('award' in finalizedContext)){
                     finalizedContext.award = object.itemUtil.atId(userAward);
                 }
-                if (currSchema.properties.lab && !('lab' in finalizedContext)){
+
+                if (userLab && currSchema.properties.lab && !('lab' in finalizedContext)){
                     finalizedContext.lab = object.itemUtil.atId(userLab);
                 }
+
+                if (currSchema.properties.institution && !('institution' in finalizedContext) && currentSubmittingUser.user_institution){
+                    finalizedContext.institution = object.itemUtil.atId(currentSubmittingUser.user_institution);
+                }
+
+                if (currSchema.properties.project && !('project' in finalizedContext) && currentSubmittingUser.project){
+                    finalizedContext.project = object.itemUtil.atId(currentSubmittingUser.project);
+                }
+
+                console.log("DDD", currentSubmittingUser, finalizedContext);
+
             }
 
             let destination;

@@ -512,7 +512,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     _this.state = {
       openFacets: {},
       // will be keyed by facet.field, value will be bool
-      openPopover: null // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
+      openPopover: null,
+      // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
+      filteringFieldTerm: null // will contain `{ field: string, term: string|[from, to] }`. Used to show loading indicators on clicked-on terms.
 
     };
     return _this;
@@ -576,26 +578,29 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       if (context !== prevContext) {
-        // If new filterset causes a facet to drop into common properties section, clean up openFacets state accordingly.
+        var stateChange = {}; // If new filterset causes a facet to drop into common properties section, clean up openFacets state accordingly.
+
         var _this$renderFacetComp2 = this.renderFacetComponents(),
             staticFacetElements = _this$renderFacetComp2.staticFacetElements; // Should be performant re: memoization
 
 
         var nextOpenFacets = _.clone(openFacets);
 
-        var changed = false;
+        var changedOpenFacets = false;
         staticFacetElements.forEach(function (facetComponent) {
           if (nextOpenFacets[facetComponent.props.facet.field]) {
             delete nextOpenFacets[facetComponent.props.facet.field];
-            changed = true;
+            changedOpenFacets = true;
           }
         });
 
-        if (changed) {
-          this.setState({
-            openFacets: nextOpenFacets
-          });
-        }
+        if (changedOpenFacets) {
+          stateChange.openFacets = nextOpenFacets;
+        } // Newly loaded search response should clear any filteringFieldTerm state.
+
+
+        stateChange.filteringFieldTerm = null;
+        this.setState(stateChange);
       }
     }
     /**
@@ -606,25 +611,60 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
   }, {
     key: "onFilterExtended",
-    value: function onFilterExtended(facet, term) {
+    value: function onFilterExtended(facet, term, callback) {
       var _this$props3 = this.props,
           onFilter = _this$props3.onFilter,
           contextFilters = _this$props3.context.filters;
-      FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
-      return onFilter.apply(void 0, arguments);
+      FacetList.sendAnalyticsPreFilter(facet, term, contextFilters); // Used to show loading indicators on clicked-on terms.
+      // (decorative, not core functionality, so not implemented for `onFilterMultipleExtended`)
+      // `facet.facetFieldName` is passed in only from RangeFacet, as the real `field` would have a '.from' or '.to' appendage.
+
+      this.setState({
+        "filteringFieldTerm": {
+          "field": facet.facetFieldName || facet.field,
+          "term": term.key
+        }
+      }, function () {
+        onFilter(facet, term, callback);
+      });
     }
   }, {
     key: "onFilterMultipleExtended",
-    value: function onFilterMultipleExtended(filterObjArray) {
+    value: function onFilterMultipleExtended(filterObjArray, callback) {
       var _this$props4 = this.props,
           onFilterMultiple = _this$props4.onFilterMultiple,
-          contextFilters = _this$props4.context.filters;
+          contextFilters = _this$props4.context.filters; // Detect if setting both values of range field and set state.filteringFieldTerm = { field: string, term:string|[from, to] }.
+
+      var facetFieldNames = new Set();
+      var uniqueVals = new Set();
       filterObjArray.forEach(function (filterObj) {
         var facet = filterObj.facet,
             term = filterObj.term;
+        facetFieldNames.add(facet.facetFieldName || null);
+        uniqueVals.add(term.key);
         FacetList.sendAnalyticsPreFilter(facet, term, contextFilters);
       });
-      return onFilterMultiple.apply(void 0, arguments);
+
+      if (facetFieldNames.size === 1) {
+        // 2 values being set of same field
+        // (this is only use-case currently for onFilterMultipleExtended, via RangeFacet, but could change in future)
+        var _ref6 = _toConsumableArray(facetFieldNames),
+            facetFieldName = _ref6[0];
+
+        if (facetFieldName !== null) {
+          this.setState({
+            "filteringFieldTerm": {
+              "field": facetFieldName,
+              "term": uniqueVals.size > 1 ? _toConsumableArray(uniqueVals).sort() : _toConsumableArray(uniqueVals)[0]
+            }
+          }, function () {
+            onFilterMultiple(filterObjArray, callback);
+          });
+          return;
+        }
+      }
+
+      onFilterMultiple(filterObjArray, callback);
     }
   }, {
     key: "getTermStatus",
@@ -636,8 +676,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleToggleFacetOpen",
     value: function handleToggleFacetOpen(facetField) {
       var nextOpen = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref6) {
-        var prevOpenFacets = _ref6.openFacets;
+      this.setState(function (_ref7) {
+        var prevOpenFacets = _ref7.openFacets;
 
         var openFacets = _.clone(prevOpenFacets);
 
@@ -661,9 +701,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     value: function setOpenPopover() {
       var nextPopover = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref7) {
-        var _ref7$openPopover = _ref7.openPopover,
-            openPopover = _ref7$openPopover === void 0 ? null : _ref7$openPopover;
+      this.setState(function (_ref8) {
+        var _ref8$openPopover = _ref8.openPopover,
+            openPopover = _ref8$openPopover === void 0 ? null : _ref8$openPopover;
 
         if (!openPopover) {
           if (!nextPopover) return null;
@@ -718,7 +758,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       var filters = context.filters;
       var _this$state2 = this.state,
           openFacets = _this$state2.openFacets,
-          openPopover = _this$state2.openPopover;
+          openPopover = _this$state2.openPopover,
+          filteringFieldTerm = _this$state2.filteringFieldTerm;
       var facetComponentProps = {
         href: href,
         schemas: schemas,
@@ -728,6 +769,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         persistentCount: persistentCount,
         separateSingleTermFacets: separateSingleTermFacets,
         openPopover: openPopover,
+        filteringFieldTerm: filteringFieldTerm,
         onFilter: this.onFilterExtended,
         onFilterMultiple: this.onFilterMultipleExtended,
         getTermStatus: this.getTermStatus,
@@ -765,9 +807,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           openFacets = _this$state3.openFacets,
           openPopover = _this$state3.openPopover;
 
-      var _ref8 = openPopover || {},
-          popoverJSX = _ref8.popover,
-          popoverTargetRef = _ref8.ref;
+      var _ref9 = openPopover || {},
+          popoverJSX = _ref9.popover,
+          popoverTargetRef = _ref9.ref;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
         return /*#__PURE__*/React.createElement("div", {

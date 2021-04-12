@@ -91,8 +91,6 @@ export function formatRangeVal(termTransformFxn, fieldFacetObj, rangeValue, allo
 
     let valToShow = termTransformFxn(field, rangeValue, allowJSX);
 
-    // console.log("ABCD3", valToShow, field, rangeValue);
-
     if (typeof valToShow === "number") {
         const absVal = Math.abs(valToShow);
         if (absVal.toString().length <= 6){
@@ -298,7 +296,11 @@ export class RangeFacet extends React.PureComponent {
         const { fromVal } = this.state;
         // console.log("performUpdateFrom", fromVal);
         onFilter(
-            { ...facet, field: facet.field + ".from" },
+            {
+                ...facet,
+                field: facet.field + ".from",
+                facetFieldName: facet.field // Used to inform UI in FacetList/index only.
+            },
             { key: fromVal },
             callback
         );
@@ -309,7 +311,11 @@ export class RangeFacet extends React.PureComponent {
         const { toVal } = this.state;
         // console.log("performUpdateTo", toVal);
         onFilter(
-            { ...facet, field: facet.field + ".to" },
+            {
+                ...facet,
+                field: facet.field + ".to",
+                facetFieldName: facet.field // Used to inform UI in FacetList/index only.
+            },
             { key: toVal },
             callback
         );
@@ -318,14 +324,22 @@ export class RangeFacet extends React.PureComponent {
     performUpdateToAndFrom(callback) {
         const { onFilterMultiple, facet } = this.props;
         const { toVal, fromVal } = this.state;
-        // console.log("performUpdate", toVal, fromVal);
+        // console.log("performUpdate", toVal, fromVal, facet.field);
         onFilterMultiple(
             [{
-                facet: { ...facet, field: facet.field + ".from" },
+                facet: {
+                    ...facet,
+                    field: facet.field + ".from",
+                    facetFieldName: facet.field // Used to inform UI in FacetList/index only.
+                },
                 term: { key: fromVal }
             },
             {
-                facet: { ...facet, field: facet.field + ".to" },
+                facet: {
+                    ...facet,
+                    field: facet.field + ".to",
+                    facetFieldName: facet.field // Used to inform UI in FacetList/index only.
+                },
                 term: { key: toVal }
             }],
             callback
@@ -384,7 +398,8 @@ export class RangeFacet extends React.PureComponent {
             toVal: savedToVal,
             facetOpen,
             openPopover,
-            setOpenPopover
+            setOpenPopover,
+            filteringFieldTerm
         } = this.props;
         const {
             aggregation_type,
@@ -468,8 +483,11 @@ export class RangeFacet extends React.PureComponent {
                 <div className="facet-list" data-open={facetOpen} data-any-active={(savedFromVal || savedToVal) ? true : false}>
                     <PartialList className="inner-panel" open={facetOpen}
                         persistent={[
-                            <RangeClear {...{ savedFromVal, savedToVal, facet, fieldSchema, termTransformFxn }} resetAll={this.resetAll}
-                                resetFrom={fromVal !== null ? this.resetFrom : null} resetTo={toVal !== null ? this.resetTo : null} key={0} />
+                            <RangeClear {...{ savedFromVal, savedToVal, facet, fieldSchema, termTransformFxn, filteringFieldTerm }}
+                                resetAll={this.resetAll}
+                                resetFrom={fromVal !== null ? this.resetFrom : null}
+                                resetTo={toVal !== null ? this.resetTo : null}
+                                key={0} />
                         ]}
                         collapsible={[
                             <div className="range-drop-group row" key={0}>
@@ -517,8 +535,18 @@ export class RangeFacet extends React.PureComponent {
 
 
 const ListOfRanges = React.memo(function ListOfRanges(props){
-    const { facet, facetOpen, facetClosing, persistentCount = 10, selectRange, expanded, onToggleExpanded, termTransformFxn, toVal, fromVal } = props;
-    const { ranges = [] } = facet;
+    const {
+        facet,
+        facetOpen, facetClosing,
+        persistentCount = 10,
+        selectRange,
+        expanded, onToggleExpanded,
+        termTransformFxn,
+        toVal, fromVal,
+        filteringFieldTerm
+    } = props;
+    const { ranges = [], field: facetField } = facet;
+
 
     /** Create range components and sort by status (selected->omitted->unselected) */
     const { termComponents, activeTermComponents, unselectedTermComponents,
@@ -528,12 +556,23 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
         collapsibleTermsCount = 0,
         collapsibleTermsItemCount = 0
     } = useMemo(function(){
+        const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
+        // Ranges always presumed to have a from & to, so ignore if filtering a single value/term.
+        const isFilteringCurrField = currFilteringField === facetField;
         const {
             selected: selectedTermComponents    = [],
             omitted : omittedTermComponents     = [],
             none    : unselectedTermComponents  = []
         } = segmentComponentsByStatus(ranges.map(function(range){
-            return <RangeTerm {...{ facet, range, termTransformFxn, selectRange }} key={`${range.to}-${range.from}`} status={getRangeStatus(range, toVal, fromVal)} />;
+            const { from: rangeFrom = null, to: rangeTo = null } = range;
+            const isFiltering = isFilteringCurrField && (
+                // Sometimes a range may be 0 - 0 (and result in single value instead of array for currFilteringTerm)
+                (
+                    (Array.isArray(currFilteringTerm) && rangeFrom === currFilteringTerm[0] && rangeTo === currFilteringTerm[1]) ||
+                    (currFilteringTerm === rangeTo && currFilteringTerm === rangeFrom)
+                )
+            );
+            return <RangeTerm {...{ facet, range, termTransformFxn, selectRange, isFiltering }} key={`${rangeFrom}-${rangeTo}`} status={getRangeStatus(range, toVal, fromVal)} />;
         }));
 
         const selectedLen = selectedTermComponents.length;
@@ -565,7 +604,7 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
 
         return retObj;
 
-    }, [ ranges, persistentCount, toVal, fromVal ]);
+    }, [ ranges, persistentCount, toVal, fromVal, filteringFieldTerm ]);
 
 
 
@@ -624,10 +663,7 @@ export class RangeTerm extends React.PureComponent {
 
     constructor(props){
         super(props);
-        this.handleClick = _.debounce(this.handleClick.bind(this), 500, true);
-        this.state = {
-            'filtering' : false
-        };
+        this.handleClick = this.handleClick.bind(this);
     }
 
     handleClick(e) {
@@ -637,20 +673,16 @@ export class RangeTerm extends React.PureComponent {
         e.preventDefault();
         e.stopPropagation();
 
-        this.setState({ 'filtering' : true }, () => {
-            const isSelected = status === "selected";
-            selectRange(
-                isSelected ? null : to,
-                isSelected ? null : from,
-                () => this.setState({ 'filtering' : false })
-            );
-        });
+        const isSelected = status === "selected";
+        selectRange(
+            isSelected ? null : to,
+            isSelected ? null : from
+        );
     }
 
     render() {
-        const { range, facet, status } = this.props;
+        const { range, facet, status, isFiltering = false } = this.props;
         const { doc_count, from, to, label } = range;
-        const { filtering } = this.state;
         const selected = (status !== 'none');
         let icon = null;
 
@@ -660,7 +692,7 @@ export class RangeTerm extends React.PureComponent {
             (typeof to !== 'undefined' ? to : '+ ')
         );
 
-        if (filtering) {
+        if (isFiltering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
             icon = <i className="icon icon-dot-circle icon-fw fas" />;
@@ -749,15 +781,20 @@ const RangeClear = React.memo(function RangeClear(props){
         resetAll,
         facet,
         fieldSchema = null,
-        termTransformFxn
+        termTransformFxn,
+        filteringFieldTerm
     } = props;
 
     const {
+        field: facetField,
         title: facetTitle,
         abbreviation: facetAbbreviation = null
     } = facet;
 
     const { abbreviation: fieldAbbreviation = null } = fieldSchema || {};
+
+    const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
+    const isClearing = currFilteringTerm === null && facetField === currFilteringField;
 
     const abbreviatedTitle = facetAbbreviation || fieldAbbreviation || (facetTitle.length > 5 ? <em>N</em> : facetTitle);
 
@@ -781,7 +818,7 @@ const RangeClear = React.memo(function RangeClear(props){
         <li className="selected facet-list-element clickable">
             <a onClick={unselectRange}>
                 <span className="facet-selector">
-                    <i className="icon icon-fw fas icon-minus-circle"/>
+                    <i className={"icon icon-fw fas icon-" + (isClearing ? "circle-notch icon-spin" : "minus-circle")}/>
                 </span>
                 <span className="facet-item text-center" style={{ marginLeft: "-5px" }}>
                     <FormattedToFromRangeValue {...{ termTransformFxn, facet }} from={savedFromVal} to={savedToVal} title={abbreviatedTitle} />
