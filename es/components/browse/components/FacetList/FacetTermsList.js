@@ -707,12 +707,14 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
 
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
+  var currColCounter = new Set();
   var dots = dotCoords.map(function (_ref8, idx) {
     var _ref9 = _slicedToArray(_ref8, 2),
         x = _ref9[0],
         y = _ref9[1];
 
-    var colIdx = Math.floor(idx / 3); // Flip both axes so going bottom right to top left.
+    currColCounter.add(x);
+    var colIdx = currColCounter.size - 1; // Flip both axes so going bottom right to top left.
 
     var cx = ltr ? x + 1 : width - x + 1;
     var cy = ltr ? y + 1 : height - y + 1;

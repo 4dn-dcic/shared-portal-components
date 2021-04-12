@@ -498,8 +498,10 @@ export const CountIndicator = React.memo(function CountIndicator(props){
     } = props;
     const dotCountToShow = Math.min(count, 21);
     const dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
+    const currColCounter = new Set();
     const dots = dotCoords.map(function([ x, y ], idx){
-        const colIdx = Math.floor(idx / 3);
+        currColCounter.add(x);
+        const colIdx = currColCounter.size - 1;
         // Flip both axes so going bottom right to top left.
         const cx = ltr ? x + 1 : width - x + 1;
         const cy = ltr ? y + 1 : height - y + 1;
