@@ -533,9 +533,6 @@ export class RangeFacet extends React.PureComponent {
 
 }
 
-//const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
-//const isClearing = currFilteringTerm === null && facetField === currFilteringField;
-
 
 const ListOfRanges = React.memo(function ListOfRanges(props){
     const {

@@ -111,9 +111,6 @@ export class Term extends React.PureComponent {
     constructor(props){
         super(props);
         this.handleClick = this.handleClick.bind(this);
-        this.state = {
-            'filtering' : false
-        };
     }
 
     handleClick(e) {
@@ -122,39 +119,8 @@ export class Term extends React.PureComponent {
         onClick(facet, term, e);
     }
 
-    /**
-     * INCOMPLETE -
-     *   For future, in addition to making a nice date range title, we should
-     *   also ensure that can send a date range as a filter and be able to parse it on
-     *   back-end.
-     * Handle date fields, etc.
-     */
-    /*
-    customTitleRender(){
-        const { facet, term, termTransformFxn } = this.props;
-
-        if (facet.aggregation_type === 'range'){
-            return (
-                (typeof term.from !== 'undefined' ? termTransformFxn(facet.field, term.from, true) : '< ') +
-                (typeof term.from !== 'undefined' && typeof term.to !== 'undefined' ? ' - ' : '') +
-                (typeof term.to !== 'undefined' ? termTransformFxn(facet.field, term.to, true) : ' >')
-            );
-        }
-
-        if (facet.aggregation_type === 'date_histogram'){
-            var interval = Filters.getDateHistogramIntervalFromFacet(facet);
-            if (interval === 'month'){
-                return <DateUtility.LocalizedTime timestamp={term.key} formatType="date-month" localize={false} />;
-            }
-        }
-
-        return null;
-    }
-    */
-
     render() {
         const { term, facet, status, termTransformFxn, isFiltering } = this.props;
-        // const { filtering } = this.state;
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;

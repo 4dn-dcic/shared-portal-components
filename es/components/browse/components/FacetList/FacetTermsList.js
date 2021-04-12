@@ -167,9 +167,6 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
 
     _this = _super.call(this, props);
     _this.handleClick = _this.handleClick.bind(_assertThisInitialized(_this));
-    _this.state = {
-      'filtering': false
-    };
     return _this;
   }
 
@@ -183,34 +180,6 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
       e.preventDefault();
       onClick(facet, term, e);
     }
-    /**
-     * INCOMPLETE -
-     *   For future, in addition to making a nice date range title, we should
-     *   also ensure that can send a date range as a filter and be able to parse it on
-     *   back-end.
-     * Handle date fields, etc.
-     */
-
-    /*
-    customTitleRender(){
-        const { facet, term, termTransformFxn } = this.props;
-         if (facet.aggregation_type === 'range'){
-            return (
-                (typeof term.from !== 'undefined' ? termTransformFxn(facet.field, term.from, true) : '< ') +
-                (typeof term.from !== 'undefined' && typeof term.to !== 'undefined' ? ' - ' : '') +
-                (typeof term.to !== 'undefined' ? termTransformFxn(facet.field, term.to, true) : ' >')
-            );
-        }
-         if (facet.aggregation_type === 'date_histogram'){
-            var interval = Filters.getDateHistogramIntervalFromFacet(facet);
-            if (interval === 'month'){
-                return <DateUtility.LocalizedTime timestamp={term.key} formatType="date-month" localize={false} />;
-            }
-        }
-         return null;
-    }
-    */
-
   }, {
     key: "render",
     value: function render() {
@@ -219,8 +188,7 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           facet = _this$props2.facet,
           status = _this$props2.status,
           termTransformFxn = _this$props2.termTransformFxn,
-          isFiltering = _this$props2.isFiltering; // const { filtering } = this.state;
-
+          isFiltering = _this$props2.isFiltering;
       var count = term && term.doc_count || 0;
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;

@@ -551,7 +551,7 @@ export class FacetList extends React.PureComponent {
     onFilterMultipleExtended(filterObjArray, callback) {
         const { onFilterMultiple, context: { filters: contextFilters } } = this.props;
 
-        // Detect if setting both values of range field and set a { from, to } term.
+        // Detect if setting both values of range field and set state.filteringFieldTerm = { field: string, term:string|[from, to] }.
         const facetFieldNames = new Set();
         const uniqueVals = new Set();
 
@@ -563,6 +563,8 @@ export class FacetList extends React.PureComponent {
         });
 
         if (facetFieldNames.size === 1) {
+            // 2 values being set of same field
+            // (this is only use-case currently for onFilterMultipleExtended, via RangeFacet, but could change in future)
             const [ facetFieldName ] = [ ...facetFieldNames ];
             if (facetFieldName !== null) {
                 this.setState({

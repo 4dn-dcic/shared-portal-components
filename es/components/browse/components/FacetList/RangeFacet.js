@@ -672,9 +672,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   }]);
 
   return RangeFacet;
-}(React.PureComponent); //const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
-//const isClearing = currFilteringTerm === null && facetField === currFilteringField;
-
+}(React.PureComponent);
 var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
       facetOpen = props.facetOpen,

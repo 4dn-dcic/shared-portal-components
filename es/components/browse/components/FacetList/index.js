@@ -633,7 +633,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     value: function onFilterMultipleExtended(filterObjArray, callback) {
       var _this$props4 = this.props,
           onFilterMultiple = _this$props4.onFilterMultiple,
-          contextFilters = _this$props4.context.filters; // Detect if setting both values of range field and set a { from, to } term.
+          contextFilters = _this$props4.context.filters; // Detect if setting both values of range field and set state.filteringFieldTerm = { field: string, term:string|[from, to] }.
 
       var facetFieldNames = new Set();
       var uniqueVals = new Set();
@@ -646,6 +646,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       });
 
       if (facetFieldNames.size === 1) {
+        // 2 values being set of same field
+        // (this is only use-case currently for onFilterMultipleExtended, via RangeFacet, but could change in future)
         var _ref6 = _toConsumableArray(facetFieldNames),
             facetFieldName = _ref6[0];
 
