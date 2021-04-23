@@ -6,6 +6,7 @@ import { getItemType, getTitleForType } from './../../../util/schema-transforms'
 import { getNestedProperty, itemUtil } from './../../../util/object';
 import { productClick as trackProductClick, hrefToListName } from './../../../util/analytics';
 import { LocalizedTime } from './../../../ui/LocalizedTime';
+import { elementIsChildOfLink } from '../../../../../es/components/util/layout';
 
 
 export const DEFAULT_WIDTH_MAP = { 'lg' : 200, 'md' : 180, 'sm' : 120, 'xs' : 120 };
@@ -182,6 +183,19 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
     /** Registers a list click event for Google Analytics then performs navigation. */
     const onClick = useMemo(function(){
         return function handleClick(evt){
+            const { target = null } = evt || {};
+            let targetUrl;
+
+            if (target && target.href) {
+                targetUrl = target.href;
+            } else if (target && !target.href) {
+                // Check parent for hrefs if none found on current evt.target
+                const linkElement = elementIsChildOfLink(target);
+                const { href = null } = linkElement || {};
+                if (href) { targetUrl = href; }
+            }
+
+            const navTarget = targetUrl || link; // Fallback to atId if no href found
             evt.preventDefault();
             evt.stopPropagation();
             const useHref = href || (window && window.location.href) || null;
@@ -191,7 +205,7 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
                 function(){
                     // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
                     // to VirtualHrefController.virtualNavigate and would not bring you to new page.
-                    globalPageNavigate(link);
+                    globalPageNavigate(navTarget);
                 },
                 context
             );

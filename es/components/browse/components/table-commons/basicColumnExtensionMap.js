@@ -12,6 +12,7 @@ import { getItemType, getTitleForType } from './../../../util/schema-transforms'
 import { getNestedProperty, itemUtil } from './../../../util/object';
 import { productClick as trackProductClick, hrefToListName } from './../../../util/analytics';
 import { LocalizedTime } from './../../../ui/LocalizedTime';
+import { elementIsChildOfLink } from '../../../../../es/components/util/layout';
 export var DEFAULT_WIDTH_MAP = {
   'lg': 200,
   'md': 180,
@@ -231,6 +232,27 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
 
   var onClick = useMemo(function () {
     return function (evt) {
+      var _ref2$target = (evt || {}).target,
+          target = _ref2$target === void 0 ? null : _ref2$target;
+      var targetUrl;
+
+      if (target && target.href) {
+        targetUrl = target.href;
+      } else if (target && !target.href) {
+        // Check parent for hrefs if none found on current evt.target
+        var linkElement = elementIsChildOfLink(target);
+
+        var _ref3 = linkElement || {},
+            _ref3$href = _ref3.href,
+            _href = _ref3$href === void 0 ? null : _ref3$href;
+
+        if (_href) {
+          targetUrl = _href;
+        }
+      }
+
+      var navTarget = targetUrl || link; // Fallback to atId if no href found
+
       evt.preventDefault();
       evt.stopPropagation();
       var useHref = href || window && window.location.href || null;
@@ -240,7 +262,7 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
       }, function () {
         // We explicitly use globalPageNavigate here and not props.navigate, as props.navigate might refer
         // to VirtualHrefController.virtualNavigate and would not bring you to new page.
-        globalPageNavigate(link);
+        globalPageNavigate(navTarget);
       }, context);
       return false;
     };
@@ -263,10 +285,10 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
 });
 /** Button shown in first column (display_title) to open/close detail pane. */
 
-export var TableRowToggleOpenButton = /*#__PURE__*/React.memo(function (_ref2) {
-  var onClick = _ref2.onClick,
-      toggleDetailOpen = _ref2.toggleDetailOpen,
-      open = _ref2.open;
+export var TableRowToggleOpenButton = /*#__PURE__*/React.memo(function (_ref4) {
+  var onClick = _ref4.onClick,
+      toggleDetailOpen = _ref4.toggleDetailOpen,
+      open = _ref4.open;
   return /*#__PURE__*/React.createElement("div", {
     className: "toggle-detail-button-container"
   }, /*#__PURE__*/React.createElement("button", {
