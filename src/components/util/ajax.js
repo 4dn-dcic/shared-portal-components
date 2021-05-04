@@ -42,7 +42,7 @@ export const AJAXSettings = Object.freeze((function(){
         if (sessionExpired) {
             // Remove existing localStorage userInfo
             JWT.remove();
-            console.warn("User session has expired or been unset");
+            console.warn("User session has expired or been unset", xhr);
             onSessionExpiredCallbacks.forEach(function(callback){
                 // One of these should be App's `this.updateAppSessionState`
                 callback(xhr);
@@ -137,8 +137,8 @@ export function load(url, callback, method = 'GET', fallback = null, data = null
  * interface.
  */
 export function promise(url, method = 'GET', headers = {}, data = null, cache = true, deleteHeaders = [], debugResponse = false){
-    var xhr;
-    var promiseInstance = new Promise(function(resolve, reject) {
+    let xhr;
+    const promiseInstance = new Promise(function(resolve, reject) {
         xhr = new XMLHttpRequest();
         xhr.onload = function() {
             AJAXSettings.onLoad(xhr);
@@ -169,6 +169,11 @@ export function promise(url, method = 'GET', headers = {}, data = null, cache = 
         }
         return xhr;
     });
+
+    // This abort below doesn't work consistently. Don't depend on it. Even plain `XHR.abort` isn't reliable.
+    // Rely instead on keeping a scoped reference to the initial request,
+    // and then check in request callback if this request is still more recent or not,
+    // and throw out if has been superseded.
     promiseInstance.xhr = xhr;
     promiseInstance.abort = function(){
         if (promiseInstance.xhr.readyState !== 4) promiseInstance.xhr.abort();

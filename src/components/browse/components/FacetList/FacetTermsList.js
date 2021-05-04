@@ -64,13 +64,10 @@ export function mergeTerms(facet, filters){
         activeTermsForField[f.term] = true;
     });
 
-    // Filter out terms w/ 0 counts (in case).
-    let terms = facet.terms.filter(function(term){
-        if (term.doc_count > 0) return true;
-        if (activeTermsForField[term.key]) return true;
-        return false;
-    });
+    let terms = facet.terms.slice();
 
+    // Leave in terms which aren't present in facet.terms but are in filters.
+    // This might happen because of limit=~100 of terms returned from backend aggs.
     terms.forEach(function({ key }){
         delete activeTermsForField[key];
     });
