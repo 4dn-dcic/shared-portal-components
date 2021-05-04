@@ -629,7 +629,8 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
         }, [/*#__PURE__*/React.createElement("td", {
           key: "rowNumber"
         }, i + 1, ".")].concat(row.map(function (colVal, j) {
-          var val = colVal.value;
+          var val = colVal.value,
+              className = colVal.className;
 
           if (typeof val === 'boolean') {
             val = /*#__PURE__*/React.createElement("code", null, val ? 'True' : 'False');
@@ -675,12 +676,13 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
             if (renderAsList) {
               val = /*#__PURE__*/React.createElement("ol", null, val);
+              className += ' text-left';
             }
           }
 
           return /*#__PURE__*/React.createElement("td", {
             key: "column-for-" + columnKeys[j].key,
-            className: colVal.className || null
+            className: className || null
           }, val);
         })));
       }))));

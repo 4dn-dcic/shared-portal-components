@@ -537,7 +537,7 @@ class SubItemTable extends React.Component {
                                         {
                                             [<td key="rowNumber">{ i + 1 }.</td>]
                                                 .concat(row.map(function(colVal, j){
-                                                    var val = colVal.value;
+                                                    let { value: val, className } = colVal;
                                                     if (typeof val === 'boolean'){
                                                         val = <code>{ val ? 'True' : 'False' }</code>;
                                                     }
@@ -565,10 +565,13 @@ class SubItemTable extends React.Component {
                                                             }
                                                             return renderAsList ? <li key={i}>{item}</li> : item;
                                                         });
-                                                        if (renderAsList) { val = <ol>{val}</ol>; }
+                                                        if (renderAsList) {
+                                                            val = <ol>{val}</ol>;
+                                                            className += ' text-left';
+                                                        }
                                                     }
                                                     return (
-                                                        <td key={("column-for-" + columnKeys[j].key)} className={colVal.className || null}>
+                                                        <td key={("column-for-" + columnKeys[j].key)} className={className || null}>
                                                             { val }
                                                         </td>
                                                     );
