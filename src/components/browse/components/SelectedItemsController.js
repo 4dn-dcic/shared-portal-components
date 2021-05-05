@@ -131,7 +131,6 @@ export class SelectedItemsController extends React.PureComponent {
     render(){
         const { children, ...remainingProps } = this.props;
         const { selectedItems } = this.state;
-        console.log("SSS2", selectedItems);
         const propsToPass = {
             ...remainingProps,
             selectedItems,

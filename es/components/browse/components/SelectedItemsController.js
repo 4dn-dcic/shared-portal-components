@@ -218,7 +218,6 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
           remainingProps = _objectWithoutProperties(_this$props2, ["children"]);
 
       var selectedItems = this.state.selectedItems;
-      console.log("SSS2", selectedItems);
 
       var propsToPass = _objectSpread(_objectSpread({}, remainingProps), {}, {
         selectedItems: selectedItems,
