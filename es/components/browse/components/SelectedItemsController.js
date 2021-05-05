@@ -142,10 +142,15 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
     key: "handleResetSelectedItems",
     value: function handleResetSelectedItems() {
       var initialResults = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var selectedItems = !Array.isArray(initialResults) ? new Map() : initialResults.map(function (result) {
-        var atId = itemUtil.atId(result);
-        return [atId, result];
-      });
+      var selectedItems = new Map();
+
+      if (Array.isArray(initialResults)) {
+        initialResults.forEach(function (result) {
+          var atId = itemUtil.atId(result);
+          selectedItems.set(atId, result);
+        });
+      }
+
       this.setState({
         selectedItems: selectedItems
       });
@@ -213,6 +218,7 @@ export var SelectedItemsController = /*#__PURE__*/function (_React$PureComponent
           remainingProps = _objectWithoutProperties(_this$props2, ["children"]);
 
       var selectedItems = this.state.selectedItems;
+      console.log("SSS2", selectedItems);
 
       var propsToPass = _objectSpread(_objectSpread({}, remainingProps), {}, {
         selectedItems: selectedItems,
