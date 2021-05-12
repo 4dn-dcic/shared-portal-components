@@ -74,11 +74,13 @@ export class SelectedItemsController extends React.PureComponent {
     }
 
     handleResetSelectedItems(initialResults = null){
-        const selectedItems = !Array.isArray(initialResults) ? new Map()
-            : initialResults.map(function(result){
+        const selectedItems = new Map();
+        if (Array.isArray(initialResults)) {
+            initialResults.forEach(function(result){
                 const atId = itemUtil.atId(result);
-                return [ atId, result ];
+                selectedItems.set(atId, result);
             });
+        }
         this.setState({ selectedItems });
     }
 
