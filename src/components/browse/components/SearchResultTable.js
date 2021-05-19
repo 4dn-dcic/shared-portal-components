@@ -970,7 +970,7 @@ class DimensioningContainer extends React.PureComponent {
         };
 
         const resultRowCommonProps = _.extend(
-            _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn'),
+            _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'),
             {
                 context, rowHeight, navigate, isOwnPage, columnWidths,
                 columnDefinitions, tableContainerWidth, tableContainerScrollLeft, windowWidth,

@@ -59,6 +59,7 @@ export class ControlsAndResults extends React.PureComponent {
             separateSingleTermFacets, navigate,
             facetColumnClassName = "col-12 col-sm-5 col-lg-4 col-xl-3",
             tableColumnClassName = "col-12 col-sm-7 col-lg-8 col-xl-9",
+            targetTabKey,
             // Default is component that renders out predefined buttons if receives props/data for them such as "Create New", "Full Screen", and "Column Selector".
             aboveTableComponent = <AboveSearchViewTableControls />, // Gets cloned further down in code to receive props from this ControlsAndResults component.
             // Default is blank element with same height as AboveSearchViewTableControls that allows to align tops of FacetList+Table headings.
@@ -98,7 +99,7 @@ export class ControlsAndResults extends React.PureComponent {
             columnDefinitions, visibleColumnDefinitions,
             setColumnWidths, columnWidths, detailPane,
             isOwnPage, sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
-            defaultOpenIndices, maxHeight,
+            defaultOpenIndices, maxHeight, targetTabKey,
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 
