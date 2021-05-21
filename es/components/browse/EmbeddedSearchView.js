@@ -219,7 +219,8 @@ _defineProperty(EmbeddedSearchView, "propTypes", {
   'facetListComponent': PropTypes.element,
   'facetColumnClassName': PropTypes.string,
   'tableColumnClassName': PropTypes.string,
-  'allowPostRequest': PropTypes.bool
+  'allowPostRequest': PropTypes.bool,
+  'targetTabKey': PropTypes.string
 });
 
 _defineProperty(EmbeddedSearchView, "defaultProps", {

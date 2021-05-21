@@ -34,7 +34,8 @@ export var basicColumnExtensionMap = {
           context = parentProps.context,
           rowNumber = parentProps.rowNumber,
           detailOpen = parentProps.detailOpen,
-          toggleDetailOpen = parentProps.toggleDetailOpen;
+          toggleDetailOpen = parentProps.toggleDetailOpen,
+          targetTabKey = parentProps.targetTabKey;
       var _result$Type = result['@type'],
           itemTypeList = _result$Type === void 0 ? ["Item"] : _result$Type;
       var renderElem;
@@ -45,7 +46,8 @@ export var basicColumnExtensionMap = {
         });
       } else {
         renderElem = /*#__PURE__*/React.createElement(DisplayTitleColumnDefault, {
-          result: result
+          result: result,
+          targetTabKey: targetTabKey
         });
       }
 
@@ -191,18 +193,26 @@ export var DisplayTitleColumnUser = /*#__PURE__*/React.memo(function (_ref) {
 
 export var DisplayTitleColumnDefault = /*#__PURE__*/React.memo(function (props) {
   var result = props.result,
-      link = props.link,
+      propLink = props.link,
       onClick = props.onClick,
       _props$className = props.className,
-      className = _props$className === void 0 ? null : _props$className;
+      className = _props$className === void 0 ? null : _props$className,
+      _props$targetTabKey = props.targetTabKey,
+      targetTabKey = _props$targetTabKey === void 0 ? null : _props$targetTabKey;
   var title = itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
   // Monospace accessions, file formats
 
   var shouldMonospace = itemUtil.isDisplayTitleAccession(result, title) || result.file_format && result.file_format === title;
   var tooltip = typeof title === "string" && title.length > 20 && title || null;
 
-  if (link) {
+  if (propLink) {
     // This should be the case always
+    var link = propLink;
+
+    if (targetTabKey && typeof targetTabKey === 'string') {
+      link = "".concat(propLink, "#").concat(targetTabKey);
+    }
+
     title = /*#__PURE__*/React.createElement("a", {
       key: "title",
       href: link || '#',
