@@ -48,7 +48,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
 import _ from 'underscore';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import memoize from 'memoize-one';
@@ -701,10 +700,7 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
       if (!flash || !wrapper) return null;
 
       if (typeof wrapperElement === 'function') {
-        // Means we have a React component vs a React/JSX element.
-        // This approach will be deprecated soon so we should look into forwarding refs
-        // ... I think
-        wrapper = ReactDOM.findDOMNode(wrapper);
+        wrapper = /*#__PURE__*/React.createElement(wrapperElement || 'div');
       }
 
       if (!wrapper) return null;
