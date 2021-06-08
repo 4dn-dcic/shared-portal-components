@@ -1,5 +1,17 @@
 'use strict';
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -33,6 +45,7 @@ import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import JSONTree from 'react-json-tree';
 import { isAnItem, itemUtil, isAnAttachment, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
+import { isPrimitive } from './../util/misc';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 import { getSchemaForItemType, getItemType, flattenSchemaPropertyToColumnDefinition, getSchemaProperty } from './../util/schema-transforms';
 import { PartialList } from './PartialList'; // eslint-disable-next-line no-unused-vars
@@ -143,7 +156,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
     value: function shouldUseTable(list, schemas) {
       if (!Array.isArray(list)) return false;
       if (list.length < 1) return false;
-      list[0];
       var schemaForType;
       if (_.any(list, function (x) {
         return typeof x === 'undefined';
@@ -151,6 +163,10 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       if (!_.all(list, function (x) {
         return _typeof(x) === 'object' && x;
       })) return false;
+      if (_.all(list, function (x) {
+        return Array.isArray(x);
+      })) return false; //multi-dim array??
+
       if (_.any(list, function (x) {
         if (!Array.isArray(x['@type'])) {
           {
@@ -272,6 +288,37 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
       if (reminderKeys.length <= 2) {
         return false;
+      }
+
+      return true;
+    }
+    /**
+     * check whether the list is a multi dimensional array
+     * @param {*} list - array to be checked
+     * @param {*} validationFunc - function to validate items in the array, if any fails then return false
+     * @returns boolean
+     */
+
+  }, {
+    key: "isMultiDimArray",
+    value: function isMultiDimArray(list, validationFunc) {
+      if (!Array.isArray(list)) return false;
+      if (list.length < 1) return false;
+      if (!_.all(list, function (x) {
+        return Array.isArray(x) && x.length > 0;
+      })) return false;
+      if (!_.all(list, function (x) {
+        return x.length === list[0].length;
+      })) return false;
+
+      if (validationFunc && typeof validationFunc === 'function') {
+        if (_.any(list, function (x) {
+          if (_.any(x, function (item) {
+            return !validationFunc(item);
+          })) {
+            return true;
+          }
+        })) return false;
       }
 
       return true;
@@ -923,6 +970,13 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           }, {
             items: item,
             parentKey: keyPrefix
+          }));
+        } else if (SubItemTable.isMultiDimArray(item, isPrimitive)) {
+          item = _.zip.apply(_, _toConsumableArray(item));
+          return /*#__PURE__*/React.createElement("ol", null, item.map(function (it, i) {
+            return /*#__PURE__*/React.createElement("li", {
+              key: i
+            }, JSON.stringify(it));
           }));
         }
 

@@ -1,5 +1,7 @@
 'use strict';
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 import memoize from 'memoize-one';
 import url from 'url';
 /**
@@ -58,3 +60,8 @@ isSelectAction.selectionActionMap = {
   "selection": true,
   "multiselect": true
 };
+export function isPrimitive(value) {
+  var t = _typeof(value);
+
+  return t === 'string' || t === 'number' || t === 'bigint' || t === 'boolean' || t === 'symbol' || t === 'undefined' || t === 'null';
+}
