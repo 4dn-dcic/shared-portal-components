@@ -7,7 +7,7 @@ import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import JSONTree from 'react-json-tree';
 
-import { isAnItem, itemUtil, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
+import { isAnItem, itemUtil, isAnAttachment, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 import { getSchemaForItemType, getItemType, flattenSchemaPropertyToColumnDefinition, getSchemaProperty } from './../util/schema-transforms';
 import { PartialList } from './PartialList';
@@ -350,6 +350,16 @@ class SubItemTable extends React.Component {
         return newVal;
     }
 
+    static getAttachmentTitle(val, fallbackTitle){
+        if (typeof val === 'string') {
+            const split_item = val.split('/');
+            const attach_title = decodeURIComponent(split_item[split_item.length - 1]);
+            return attach_title || fallbackTitle;
+        }
+
+        return fallbackTitle;
+    }
+
     constructor(props){
         super(props);
         this.state = { 'mounted' : false };
@@ -532,6 +542,8 @@ class SubItemTable extends React.Component {
                     <tbody>
                         {
                             _.map(rowData, function(row,i){
+                                const rowAtId = _.find(row, (elem) => elem.key === '@id');
+                                const rowAtIdValue = rowAtId ? rowAtId.value : null;
                                 return (
                                     <tr key={"row-" + i}>
                                         {
@@ -549,7 +561,11 @@ class SubItemTable extends React.Component {
                                                     }
                                                     if (val && typeof val === 'object' && !React.isValidElement(val) && !Array.isArray(val)) {
                                                         if (isAnItem(val)) {
-                                                            val = <a href={itemUtil.atId(val)}>{v.display_title}</a>;
+                                                            val = <a href={itemUtil.atId(val)}>{val.display_title}</a>;
+                                                        } else if (isAnAttachment(val) && (val.href.charAt(0) === '/' || rowAtIdValue)) {
+                                                            const attachmentTitle = SubItemTable.getAttachmentTitle(val.href, 'attached_file');
+                                                            const attachmentHref = val.href.charAt(0) === '/' ? val.href : rowAtIdValue + val.href;
+                                                            val = <a href={attachmentHref} target="_blank" rel="noreferrer noopener">{attachmentTitle}</a>;
                                                         } else {
                                                             val = SubItemTable.jsonify(val, columnKeys[j].key);
                                                         }
@@ -560,6 +576,10 @@ class SubItemTable extends React.Component {
                                                             let item = null;
                                                             if (isAnItem(v)) {
                                                                 item = <a href={itemUtil.atId(v)}>{v.display_title}</a>;
+                                                            } else if (isAnAttachment(v) && (val.href.charAt(0) === '/' || rowAtIdValue)) {
+                                                                const attachmentTitle = SubItemTable.getAttachmentTitle(v.href, 'attached_file');
+                                                                const attachmentHref = val.href.charAt(0) === '/' ? val.href : rowAtIdValue + val.href;
+                                                                val = <a href={attachmentHref} target="_blank" rel="noreferrer noopener">{attachmentTitle}</a>;
                                                             } else {
                                                                 item = SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
                                                             }
@@ -753,8 +773,7 @@ export class Detail extends React.PureComponent {
 
             if(item.charAt(0) === '/' && item.indexOf('@@download') > -1){
                 // This is a download link. Format appropriately
-                var split_item = item.split('/');
-                var attach_title = decodeURIComponent(split_item[split_item.length-1]);
+                const attach_title = SubItemTable.getAttachmentTitle(item);
                 return <a key={item} href={item} target="_blank" download rel="noreferrer noopener">{ attach_title || item }</a>;
             } else if (item.charAt(0) === '/') {
                 if (popLink) return <a key={item} href={item} target="_blank" rel="noreferrer noopener">{ item }</a>;

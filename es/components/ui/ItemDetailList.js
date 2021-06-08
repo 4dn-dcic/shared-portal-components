@@ -32,7 +32,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import JSONTree from 'react-json-tree';
-import { isAnItem, itemUtil, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
+import { isAnItem, itemUtil, isAnAttachment, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 import { getSchemaForItemType, getItemType, flattenSchemaPropertyToColumnDefinition, getSchemaProperty } from './../util/schema-transforms';
 import { PartialList } from './PartialList'; // eslint-disable-next-line no-unused-vars
@@ -391,6 +391,17 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
       return newVal;
     }
+  }, {
+    key: "getAttachmentTitle",
+    value: function getAttachmentTitle(val, fallbackTitle) {
+      if (typeof val === 'string') {
+        var split_item = val.split('/');
+        var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
+        return attach_title || fallbackTitle;
+      }
+
+      return fallbackTitle;
+    }
   }]);
 
   function SubItemTable(props) {
@@ -624,6 +635,11 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           })));
         }() : null);
       })))), /*#__PURE__*/React.createElement("tbody", null, _.map(rowData, function (row, i) {
+        var rowAtId = _.find(row, function (elem) {
+          return elem.key === '@id';
+        });
+
+        var rowAtIdValue = rowAtId ? rowAtId.value : null;
         return /*#__PURE__*/React.createElement("tr", {
           key: "row-" + i
         }, [/*#__PURE__*/React.createElement("td", {
@@ -650,7 +666,15 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             if (isAnItem(val)) {
               val = /*#__PURE__*/React.createElement("a", {
                 href: itemUtil.atId(val)
-              }, v.display_title);
+              }, val.display_title);
+            } else if (isAnAttachment(val) && (val.href.charAt(0) === '/' || rowAtIdValue)) {
+              var attachmentTitle = SubItemTable.getAttachmentTitle(val.href, 'attached_file');
+              var attachmentHref = val.href.charAt(0) === '/' ? val.href : rowAtIdValue + val.href;
+              val = /*#__PURE__*/React.createElement("a", {
+                href: attachmentHref,
+                target: "_blank",
+                rel: "noreferrer noopener"
+              }, attachmentTitle);
             } else {
               val = SubItemTable.jsonify(val, columnKeys[j].key);
             }
@@ -665,6 +689,16 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                 item = /*#__PURE__*/React.createElement("a", {
                   href: itemUtil.atId(v)
                 }, v.display_title);
+              } else if (isAnAttachment(v) && (val.href.charAt(0) === '/' || rowAtIdValue)) {
+                var _attachmentTitle = SubItemTable.getAttachmentTitle(v.href, 'attached_file');
+
+                var _attachmentHref = val.href.charAt(0) === '/' ? val.href : rowAtIdValue + val.href;
+
+                val = /*#__PURE__*/React.createElement("a", {
+                  href: _attachmentHref,
+                  target: "_blank",
+                  rel: "noreferrer noopener"
+                }, _attachmentTitle);
               } else {
                 item = SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
               }
@@ -933,8 +967,7 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
 
         if (item.charAt(0) === '/' && item.indexOf('@@download') > -1) {
           // This is a download link. Format appropriately
-          var split_item = item.split('/');
-          var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
+          var attach_title = SubItemTable.getAttachmentTitle(item);
           return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
