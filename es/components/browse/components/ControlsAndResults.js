@@ -180,6 +180,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         // <- search response context, prop navigate (could be virtual or global)
         schemas: schemas,
         session: session,
+        href: href,
         columnDefinitions: columnDefinitions,
         facets: facets,
         hiddenColumns: hiddenColumns,

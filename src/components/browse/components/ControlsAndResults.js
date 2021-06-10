@@ -116,7 +116,7 @@ export class ControlsAndResults extends React.PureComponent {
         const commonChildProps = {
             // Props which don't change too frequently and/or are useful to many components -
             context, navigate, // <- search response context, prop navigate (could be virtual or global)
-            schemas, session,
+            schemas, session, href,
             columnDefinitions, facets,
             hiddenColumns, addHiddenColumn, removeHiddenColumn,
             currentAction, windowWidth, windowHeight,

@@ -135,3 +135,9 @@
 .no-user-select {
 	@include no-user-select;
 }
+
+.multisort-column {
+    .dropdown-toggle, .dropdown-menu { 
+        width: 100%;
+    }
+}

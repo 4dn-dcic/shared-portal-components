@@ -29,6 +29,7 @@ import { SearchResultTable } from './../SearchResultTable';
 export var RightButtonsSection = /*#__PURE__*/React.memo(function (props) {
   var currentOpenPanel = props.currentOpenPanel,
       onColumnsBtnClick = props.onColumnsBtnClick,
+      onMultisortBtnClick = props.onMultisortBtnClick,
       windowWidth = props.windowWidth,
       isFullscreen = props.isFullscreen,
       toggleFullScreen = props.toggleFullScreen;
@@ -37,6 +38,9 @@ export var RightButtonsSection = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement(ConfigureVisibleColumnsButton, {
     onClick: onColumnsBtnClick,
     open: currentOpenPanel === "customColumns"
+  }), /*#__PURE__*/React.createElement(MultisortColumnsButton, {
+    onClick: onMultisortBtnClick,
+    open: currentOpenPanel === "multisortColumns"
   }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ? /*#__PURE__*/React.createElement(ToggleLayoutButton, {
     windowWidth: windowWidth,
     isFullscreen: isFullscreen,
@@ -62,6 +66,27 @@ export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_re
   }));
 });
 ConfigureVisibleColumnsButton.defaultProps = {
+  "className": "btn btn-outline-primary"
+};
+export var MultisortColumnsButton = /*#__PURE__*/React.memo(function (_ref2) {
+  var open = _ref2.open,
+      onClick = _ref2.onClick,
+      className = _ref2.className;
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: "toggle-visible-columns",
+    "data-tip": "Sort multiple columns",
+    "data-event-off": "click",
+    active: open.toString(),
+    onClick: onClick,
+    className: (className || "") + (open ? " active" : "")
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw icon-sort fas"
+  }), /*#__PURE__*/React.createElement("i", {
+    className: "icon icon-fw icon-angle-down ml-03 fas"
+  }));
+});
+MultisortColumnsButton.defaultProps = {
   "className": "btn btn-outline-primary"
 };
 /** Toggles between regular & full screen views */
