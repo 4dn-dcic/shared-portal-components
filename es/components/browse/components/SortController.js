@@ -341,7 +341,7 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
       var columnDefinitions = this.props.columnDefinitions;
       var sortColumns = this.state.sortColumns;
       return /*#__PURE__*/React.createElement("div", {
-        className: "row clearfix"
+        className: "row mb-1 clearfix"
       }, sortColumns.map(function (col, idx, all) {
         return /*#__PURE__*/React.createElement(MultisortOption, _extends({}, col, {
           key: col.name || idx,
@@ -362,7 +362,10 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
 }(React.PureComponent);
 MultisortColumnSelector.propTypes = {
   'columnDefinitions': PropTypes.object.isRequired,
-  'sortColumns': PropTypes.object
+  'sortColumns': PropTypes.object,
+  'onClose': PropTypes.func.isRequired,
+  'navigate': PropTypes.func.isRequired,
+  'href': PropTypes.string
 };
 var MultisortOption = /*#__PURE__*/React.memo(function (props) {
   var allColumns = props.allColumns,
@@ -428,7 +431,7 @@ var MultisortOption = /*#__PURE__*/React.memo(function (props) {
     type: "button",
     className: "btn btn-primary btn-sm",
     onClick: handleSettingsApply,
-    "data-tip": "Save sorting settings"
+    "data-tip": "Re-sort columns"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw fas icon-check"
   }))));

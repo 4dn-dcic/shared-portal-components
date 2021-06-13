@@ -213,7 +213,7 @@ export class MultisortColumnSelector extends React.PureComponent {
         const { columnDefinitions } = this.props;
         const { sortColumns } = this.state;
         return (
-            <div className="row clearfix">
+            <div className="row mb-1 clearfix">
                 { sortColumns.map((col, idx, all) =>
                     <MultisortOption {...col} key={col.name || idx} allColumns={columnDefinitions} allSortColumns={all} index={idx}
                         handleOptionVisibilityChange={this.handleOptionVisibilityChange}
@@ -222,9 +222,6 @@ export class MultisortColumnSelector extends React.PureComponent {
                         handleSortRowDelete={this.handleSortRowDelete}
                         handleSettingsApply={this.handleSettingsApply} />
                 ) }
-                {/* <div className="row col-12 mt-1 pl-2">
-                    <button type="button" className="col-8 btn btn-sm btn-block btn-primary" onClick={this.handleSettingsApply}>Apply Settings</button>
-                </div> */}
             </div>
         );
     }
@@ -233,6 +230,9 @@ export class MultisortColumnSelector extends React.PureComponent {
 MultisortColumnSelector.propTypes = {
     'columnDefinitions'     : PropTypes.object.isRequired,
     'sortColumns'           : PropTypes.object,
+    'onClose'               : PropTypes.func.isRequired,
+    'navigate'              : PropTypes.func.isRequired,
+    'href'                  : PropTypes.string
 };
 
 const MultisortOption = React.memo(function MultisortOption(props){
@@ -262,7 +262,7 @@ const MultisortOption = React.memo(function MultisortOption(props){
                     <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => handleSortRowDelete(index)} data-tip="Remove sort column">
                         <i className={"icon icon-fw fas icon-minus"} />
                     </button> :
-                    <button type="button" className="btn btn-primary btn-sm" onClick={handleSettingsApply} data-tip="Save sorting settings">
+                    <button type="button" className="btn btn-primary btn-sm" onClick={handleSettingsApply} data-tip="Re-sort columns">
                         <i className={"icon icon-fw fas icon-check"} />
                     </button>}
             </div>
