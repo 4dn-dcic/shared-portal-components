@@ -217,6 +217,28 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
 
   var _super2 = _createSuper(MultisortColumnSelector);
 
+  _createClass(MultisortColumnSelector, null, [{
+    key: "getSortColumnNameAndOrderPairs",
+    value: function getSortColumnNameAndOrderPairs(sortColumns) {
+      var colNames = _.filter(_.keys(sortColumns), function (sortKey) {
+        return sortKey != 'label';
+      });
+
+      var columns = colNames.map(function (colName) {
+        var order = sortColumns[colName].order === 'asc' ? 'asc' : 'desc';
+        return {
+          'name': colName,
+          'order': order
+        };
+      });
+      columns.push({
+        'name': null,
+        order: 'asc'
+      });
+      return columns;
+    }
+  }]);
+
   function MultisortColumnSelector(props) {
     var _this3;
 
@@ -227,35 +249,44 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
     _this3.handleSortOrderSelection = _this3.handleSortOrderSelection.bind(_assertThisInitialized(_this3));
     _this3.handleSortRowDelete = _this3.handleSortRowDelete.bind(_assertThisInitialized(_this3));
     _this3.handleSettingsApply = _this3.handleSettingsApply.bind(_assertThisInitialized(_this3));
+    _this3.memoized = {
+      getSortColumnNameAndOrderPairs: memoize(MultisortColumnSelector.getSortColumnNameAndOrderPairs)
+    };
     var _props$sortColumns = props.sortColumns,
         sortColumns = _props$sortColumns === void 0 ? {} : _props$sortColumns;
-
-    var colNames = _.filter(_.keys(sortColumns), function (sortKey) {
-      return sortKey != 'label';
-    });
-
-    var columns = colNames.map(function (colName) {
-      var order = sortColumns[colName].order === 'asc' ? 'asc' : 'desc';
-      return {
-        'name': colName,
-        'order': order
-      };
-    });
-    columns.push({
-      'name': null,
-      order: 'asc'
-    });
     _this3.state = {
-      'sortColumns': columns
+      'columnNameOrderPairs': _this3.memoized.getSortColumnNameAndOrderPairs(sortColumns)
     };
     return _this3;
   }
 
   _createClass(MultisortColumnSelector, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(pastProps) {
+      var pastHref = pastProps.href;
+      var _this$props3 = this.props,
+          href = _this$props3.href,
+          _this$props3$sortColu = _this$props3.sortColumns,
+          sortColumns = _this$props3$sortColu === void 0 ? {} : _this$props3$sortColu;
+      var columnNameOrderPairs = this.state.columnNameOrderPairs;
+
+      if (href !== pastHref) {
+        console.log('xxx columnNameOrderPairs', columnNameOrderPairs);
+        var updatedPairs = this.memoized.getSortColumnNameAndOrderPairs(sortColumns);
+        console.log('xxx updatedPairs', updatedPairs);
+
+        if (!_.isEqual(columnNameOrderPairs, updatedPairs)) {
+          this.setState({
+            'columnNameOrderPairs': updatedPairs
+          });
+        }
+      }
+    }
+  }, {
     key: "handleSortColumnSelection",
     value: function handleSortColumnSelection(evt) {
-      var sortColumns = this.state.sortColumns;
-      var newSortColumns = sortColumns.slice(0);
+      var columnNameOrderPairs = this.state.columnNameOrderPairs;
+      var newColumnNameOrderPairs = columnNameOrderPairs.slice(0);
 
       var _evt$split = evt.split('|'),
           _evt$split2 = _slicedToArray(_evt$split, 2),
@@ -263,24 +294,24 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
           name = _evt$split2[1];
 
       var index = parseInt(sIndex);
-      newSortColumns[index].name = name; //add new empty row if last is selected
+      newColumnNameOrderPairs[index].name = name; //add new empty row if last is selected
 
-      if (index === sortColumns.length - 1) {
-        newSortColumns.push({
+      if (index === columnNameOrderPairs.length - 1) {
+        newColumnNameOrderPairs.push({
           'name': null,
           'order': 'asc'
         });
       }
 
       this.setState({
-        'sortColumns': newSortColumns
+        'columnNameOrderPairs': newColumnNameOrderPairs
       });
     }
   }, {
     key: "handleSortOrderSelection",
     value: function handleSortOrderSelection(evt) {
-      var sortColumns = this.state.sortColumns;
-      var newSortColumns = sortColumns.slice(0);
+      var columnNameOrderPairs = this.state.columnNameOrderPairs;
+      var newColumnNameOrderPairs = columnNameOrderPairs.slice(0);
 
       var _evt$split3 = evt.split('|'),
           _evt$split4 = _slicedToArray(_evt$split3, 2),
@@ -288,29 +319,29 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
           order = _evt$split4[1];
 
       var index = parseInt(sIndex);
-      newSortColumns[index].order = order;
+      newColumnNameOrderPairs[index].order = order;
       this.setState({
-        'sortColumns': newSortColumns
+        'columnNameOrderPairs': newColumnNameOrderPairs
       });
     }
   }, {
     key: "handleSortRowDelete",
     value: function handleSortRowDelete(index) {
-      var sortColumns = this.state.sortColumns;
-      var newSortColumns = sortColumns.slice(0);
-      newSortColumns.splice(index, 1);
+      var columnNameOrderPairs = this.state.columnNameOrderPairs;
+      var newColumnNameOrderPairs = columnNameOrderPairs.slice(0);
+      newColumnNameOrderPairs.splice(index, 1);
       this.setState({
-        'sortColumns': newSortColumns
+        'columnNameOrderPairs': newColumnNameOrderPairs
       });
     }
   }, {
     key: "handleSettingsApply",
     value: function handleSettingsApply() {
-      var _this$props3 = this.props,
-          propNavigate = _this$props3.navigate,
-          currSearchHref = _this$props3.href,
-          onClose = _this$props3.onClose;
-      var sortColumns = this.state.sortColumns;
+      var _this$props4 = this.props,
+          propNavigate = _this$props4.navigate,
+          currSearchHref = _this$props4.href,
+          onClose = _this$props4.onClose;
+      var columnNameOrderPairs = this.state.columnNameOrderPairs;
       if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
       if (typeof currSearchHref !== 'string') throw new Error("Browse/Search doesn't have props.href.");
 
@@ -318,7 +349,7 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
           query = _url$parse2.query,
           urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
 
-      query.sort = _.filter(sortColumns, function (col) {
+      query.sort = _.filter(columnNameOrderPairs, function (col) {
         return col.name;
       }).map(function (col) {
         return (col.order === 'desc' ? '-' : '') + col.name;
@@ -339,10 +370,10 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
       var _this4 = this;
 
       var columnDefinitions = this.props.columnDefinitions;
-      var sortColumns = this.state.sortColumns;
+      var columnNameOrderPairs = this.state.columnNameOrderPairs;
       return /*#__PURE__*/React.createElement("div", {
         className: "row mb-1 clearfix"
-      }, sortColumns.map(function (col, idx, all) {
+      }, columnNameOrderPairs.map(function (col, idx, all) {
         return /*#__PURE__*/React.createElement(MultisortOption, _extends({}, col, {
           key: col.name || idx,
           allColumns: columnDefinitions,
