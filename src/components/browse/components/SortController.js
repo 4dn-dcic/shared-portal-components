@@ -161,14 +161,12 @@ export class MultisortColumnSelector extends React.PureComponent {
     }
 
     componentDidUpdate(pastProps, pastState) {
-        const { href: pastHref } = pastProps;
-        const { href, sortColumns = {} } = this.props;
-        const { columnNameOrderPairs } = this.state;
+        const { sortColumns : pastSortColumns = {} } = pastProps;
+        const { sortColumns = {} } = this.props;
 
-        if (href !== pastHref) {
-            console.log('xxx columnNameOrderPairs', columnNameOrderPairs);
+        if (sortColumns !== pastSortColumns) {
+            const { columnNameOrderPairs } = this.state;
             const updatedPairs = this.memoized.getSortColumnNameAndOrderPairs(sortColumns);
-            console.log('xxx updatedPairs', updatedPairs);
             if (!_.isEqual(columnNameOrderPairs, updatedPairs)) {
                 this.setState({ 'columnNameOrderPairs': updatedPairs });
             }
@@ -261,6 +259,15 @@ const MultisortOption = React.memo(function MultisortOption(props){
     const { allColumns, allSortColumns, name, order, index, handleSortColumnSelection, handleSortOrderSelection, handleSortRowDelete, handleSettingsApply } = props;
     const found = _.find(allColumns, (item) => item.field === name);
     const isLastRow = (allSortColumns.length - 1 === index);
+    const sortOrderTitle = order !== 'desc' ?
+        (
+            <React.Fragment>
+                <span className="d-lg-none">ASC</span><span className="d-none d-lg-inline">Ascending</span>
+            </React.Fragment>) :
+        (
+            <React.Fragment>
+                <span className="d-lg-none">DESC</span><span className="d-none d-lg-inline">Descending</span>
+            </React.Fragment>);
 
     return (
         <div className="row col-12 mt-1 multisort-column clearfix" key={name} data-tip={""} data-html>
@@ -273,18 +280,18 @@ const MultisortOption = React.memo(function MultisortOption(props){
                     }
                 </DropdownButton>
             </div>
-            <div className="col-2">
-                <DropdownButton className="btn-block" title={order !== 'desc' ? 'Ascending' : 'Descending'} variant="outline-secondary" size="sm" onSelect={handleSortOrderSelection}>
+            <div className="col-3">
+                <DropdownButton className="btn-block" title={sortOrderTitle} variant="outline-secondary" size="sm" onSelect={handleSortOrderSelection}>
                     <DropdownItem key="sort-order-asc" eventKey={index + "|asc"}>Ascending</DropdownItem>
                     <DropdownItem key="sort-order-desc" eventKey={index + "|desc"}>Descending</DropdownItem>
                 </DropdownButton>
             </div>
-            <div className="col-2">
+            <div className="col-1 pl-0 pr-0">
                 {!isLastRow ?
-                    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => handleSortRowDelete(index)} data-tip="Remove sort column">
+                    <button type="button" className="btn btn-outline-secondary btn-sm w-100" onClick={() => handleSortRowDelete(index)} data-tip="Remove sort column">
                         <i className={"icon icon-fw fas icon-minus"} />
                     </button> :
-                    <button type="button" className="btn btn-primary btn-sm" onClick={handleSettingsApply} data-tip="Re-sort columns">
+                    <button type="button" className="btn btn-primary btn-sm w-100" onClick={handleSettingsApply} data-tip="Re-sort columns">
                         <i className={"icon icon-fw fas icon-check"} />
                     </button>}
             </div>

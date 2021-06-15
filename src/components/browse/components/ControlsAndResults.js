@@ -57,8 +57,8 @@ export class ControlsAndResults extends React.PureComponent {
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
             facets, termTransformFxn, rowHeight,
             separateSingleTermFacets, navigate,
-            facetColumnClassName = "col-12 col-sm-5 col-lg-4 col-xl-3",
-            tableColumnClassName = "col-12 col-sm-7 col-lg-8 col-xl-9",
+            facetColumnClassName = "col-12 col-md-5 col-lg-4 col-xl-3",
+            tableColumnClassName = "col-12 col-md-7 col-lg-8 col-xl-9",
             targetTabKey,
             // Default is component that renders out predefined buttons if receives props/data for them such as "Create New", "Full Screen", and "Column Selector".
             aboveTableComponent = <AboveSearchViewTableControls />, // Gets cloned further down in code to receive props from this ControlsAndResults component.

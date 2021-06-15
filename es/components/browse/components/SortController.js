@@ -263,17 +263,14 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
   _createClass(MultisortColumnSelector, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
-      var pastHref = pastProps.href;
-      var _this$props3 = this.props,
-          href = _this$props3.href,
-          _this$props3$sortColu = _this$props3.sortColumns,
-          sortColumns = _this$props3$sortColu === void 0 ? {} : _this$props3$sortColu;
-      var columnNameOrderPairs = this.state.columnNameOrderPairs;
+      var _pastProps$sortColumn = pastProps.sortColumns,
+          pastSortColumns = _pastProps$sortColumn === void 0 ? {} : _pastProps$sortColumn;
+      var _this$props$sortColum = this.props.sortColumns,
+          sortColumns = _this$props$sortColum === void 0 ? {} : _this$props$sortColum;
 
-      if (href !== pastHref) {
-        console.log('xxx columnNameOrderPairs', columnNameOrderPairs);
+      if (sortColumns !== pastSortColumns) {
+        var columnNameOrderPairs = this.state.columnNameOrderPairs;
         var updatedPairs = this.memoized.getSortColumnNameAndOrderPairs(sortColumns);
-        console.log('xxx updatedPairs', updatedPairs);
 
         if (!_.isEqual(columnNameOrderPairs, updatedPairs)) {
           this.setState({
@@ -337,10 +334,10 @@ export var MultisortColumnSelector = /*#__PURE__*/function (_React$PureComponent
   }, {
     key: "handleSettingsApply",
     value: function handleSettingsApply() {
-      var _this$props4 = this.props,
-          propNavigate = _this$props4.navigate,
-          currSearchHref = _this$props4.href,
-          onClose = _this$props4.onClose;
+      var _this$props3 = this.props,
+          propNavigate = _this$props3.navigate,
+          currSearchHref = _this$props3.href,
+          onClose = _this$props3.onClose;
       var columnNameOrderPairs = this.state.columnNameOrderPairs;
       if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
       if (typeof currSearchHref !== 'string') throw new Error("Browse/Search doesn't have props.href.");
@@ -414,6 +411,15 @@ var MultisortOption = /*#__PURE__*/React.memo(function (props) {
   });
 
   var isLastRow = allSortColumns.length - 1 === index;
+  var sortOrderTitle = order !== 'desc' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    className: "d-lg-none"
+  }, "ASC"), /*#__PURE__*/React.createElement("span", {
+    className: "d-none d-lg-inline"
+  }, "Ascending")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    className: "d-lg-none"
+  }, "DESC"), /*#__PURE__*/React.createElement("span", {
+    className: "d-none d-lg-inline"
+  }, "Descending"));
   return /*#__PURE__*/React.createElement("div", {
     className: "row col-12 mt-1 multisort-column clearfix",
     key: name,
@@ -434,10 +440,10 @@ var MultisortOption = /*#__PURE__*/React.memo(function (props) {
       active: col.field === name
     }, col.title);
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "col-2"
+    className: "col-3"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
     className: "btn-block",
-    title: order !== 'desc' ? 'Ascending' : 'Descending',
+    title: sortOrderTitle,
     variant: "outline-secondary",
     size: "sm",
     onSelect: handleSortOrderSelection
@@ -448,10 +454,10 @@ var MultisortOption = /*#__PURE__*/React.memo(function (props) {
     key: "sort-order-desc",
     eventKey: index + "|desc"
   }, "Descending"))), /*#__PURE__*/React.createElement("div", {
-    className: "col-2"
+    className: "col-1 pl-0 pr-0"
   }, !isLastRow ? /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-outline-secondary btn-sm",
+    className: "btn btn-outline-secondary btn-sm w-100",
     onClick: function onClick() {
       return handleSortRowDelete(index);
     },
@@ -460,7 +466,7 @@ var MultisortOption = /*#__PURE__*/React.memo(function (props) {
     className: "icon icon-fw fas icon-minus"
   })) : /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-primary btn-sm",
+    className: "btn btn-primary btn-sm w-100",
     onClick: handleSettingsApply,
     "data-tip": "Re-sort columns"
   }, /*#__PURE__*/React.createElement("i", {
