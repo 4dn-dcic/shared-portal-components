@@ -18,13 +18,13 @@ export const basicColumnExtensionMap = {
         'minColumnWidth' : 90,
         'order' : -100,
         'render' : function renderDisplayTitleColumn(result, parentProps){
-            const { href, context, rowNumber, detailOpen, toggleDetailOpen } = parentProps;
+            const { href, context, rowNumber, detailOpen, toggleDetailOpen, targetTabKey } = parentProps;
             const { '@type' : itemTypeList = ["Item"] } = result;
             let renderElem;
             if (itemTypeList[0] === "User") {
                 renderElem = <DisplayTitleColumnUser {...{ result }}/>;
             } else {
-                renderElem = <DisplayTitleColumnDefault {...{ result }}/>;
+                renderElem = <DisplayTitleColumnDefault {...{ result, targetTabKey }}/>;
             }
             return (
                 <DisplayTitleColumnWrapper {...{ result, href, context, rowNumber, detailOpen, toggleDetailOpen }}>
@@ -143,7 +143,7 @@ export const DisplayTitleColumnUser = React.memo(function DisplayTitleColumnUser
  * overrides/extensions.
  */
 export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnDefault(props){
-    const { result, link, onClick, className = null } = props;
+    const { result, link: propLink, onClick, className = null, targetTabKey = null } = props;
 
     let title = itemUtil.getTitleStringFromContext(result); // Gets display_title || title || accession || ...
 
@@ -151,8 +151,12 @@ export const DisplayTitleColumnDefault = React.memo(function DisplayTitleColumnD
     const shouldMonospace = (itemUtil.isDisplayTitleAccession(result, title) || (result.file_format && result.file_format === title));
     const tooltip = (typeof title === "string" && title.length > 20 && title) || null;
 
-    if (link){ // This should be the case always
-        title = <a key="title" href={link || '#'} onClick={onClick}>{ title }</a>;
+    if (propLink){ // This should be the case always
+        let link = propLink;
+        if (targetTabKey && typeof targetTabKey === 'string'){
+            link = `${propLink}#${targetTabKey}`;
+        }
+        title = <a key="title" href={link || '#'} onClick={onClick}>{title}</a>;
     }
 
     const cls = (

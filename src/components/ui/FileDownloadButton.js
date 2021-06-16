@@ -105,7 +105,8 @@ export const ViewFileButton = React.memo(function ViewFileButton(props){
             extLink = <i className="icon icon-fw icon-external-link fas"/>;
         }
         preLink = <i className="icon icon-fw icon-file-pdf far" />;
-    } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx'){
+    } else if (fileNameLowerEnds['3'] === '.gz' || fileNameLowerEnds['4'] === '.zip' || fileNameLowerEnds['4'] === '.tgx' ||
+                fileNameLowerEnds['4'] === '.xls' || fileNameLowerEnds['5'] === '.xlsx'){
         action = 'Download';
     }
 

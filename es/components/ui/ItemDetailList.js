@@ -629,7 +629,8 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
         }, [/*#__PURE__*/React.createElement("td", {
           key: "rowNumber"
         }, i + 1, ".")].concat(row.map(function (colVal, j) {
-          var val = colVal.value;
+          var val = colVal.value,
+              className = colVal.className;
 
           if (typeof val === 'boolean') {
             val = /*#__PURE__*/React.createElement("code", null, val ? 'True' : 'False');
@@ -646,18 +647,42 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           }
 
           if (val && _typeof(val) === 'object' && ! /*#__PURE__*/React.isValidElement(val) && !Array.isArray(val)) {
-            val = SubItemTable.jsonify(val, columnKeys[j].key);
+            if (isAnItem(val)) {
+              val = /*#__PURE__*/React.createElement("a", {
+                href: itemUtil.atId(val)
+              }, v.display_title);
+            } else {
+              val = SubItemTable.jsonify(val, columnKeys[j].key);
+            }
           }
 
           if (Array.isArray(val) && val.length > 0 && !_.all(val, React.isValidElement)) {
+            var renderAsList = val.length > 1;
             val = _.map(val, function (v, i) {
-              return SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
+              var item = null;
+
+              if (isAnItem(v)) {
+                item = /*#__PURE__*/React.createElement("a", {
+                  href: itemUtil.atId(v)
+                }, v.display_title);
+              } else {
+                item = SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
+              }
+
+              return renderAsList ? /*#__PURE__*/React.createElement("li", {
+                key: i
+              }, item) : item;
             });
+
+            if (renderAsList) {
+              val = /*#__PURE__*/React.createElement("ol", null, val);
+              className += ' text-left';
+            }
           }
 
           return /*#__PURE__*/React.createElement("td", {
             key: "column-for-" + columnKeys[j].key,
-            className: colVal.className || null
+            className: className || null
           }, val);
         })));
       }))));

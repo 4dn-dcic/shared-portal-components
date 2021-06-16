@@ -59,7 +59,8 @@ export class EmbeddedSearchView extends React.PureComponent {
         'facetListComponent' : PropTypes.element,
         'facetColumnClassName' : PropTypes.string,
         'tableColumnClassName' : PropTypes.string,
-        'allowPostRequest' : PropTypes.bool
+        'allowPostRequest' : PropTypes.bool,
+        'targetTabKey': PropTypes.string
     };
 
     static listToObj(hideFacetStrs){

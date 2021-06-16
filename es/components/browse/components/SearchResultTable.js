@@ -1292,7 +1292,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         tableContainerScrollLeft: tableContainerScrollLeft
       });
 
-      var resultRowCommonProps = _.extend(_.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn'), {
+      var resultRowCommonProps = _.extend(_.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'), {
         context: context,
         rowHeight: rowHeight,
         navigate: navigate,

@@ -537,7 +537,7 @@ class SubItemTable extends React.Component {
                                         {
                                             [<td key="rowNumber">{ i + 1 }.</td>]
                                                 .concat(row.map(function(colVal, j){
-                                                    var val = colVal.value;
+                                                    let { value: val, className } = colVal;
                                                     if (typeof val === 'boolean'){
                                                         val = <code>{ val ? 'True' : 'False' }</code>;
                                                     }
@@ -548,13 +548,30 @@ class SubItemTable extends React.Component {
                                                         val = val.slice(0,50) + '...';
                                                     }
                                                     if (val && typeof val === 'object' && !React.isValidElement(val) && !Array.isArray(val)) {
-                                                        val = SubItemTable.jsonify(val, columnKeys[j].key);
+                                                        if (isAnItem(val)) {
+                                                            val = <a href={itemUtil.atId(val)}>{v.display_title}</a>;
+                                                        } else {
+                                                            val = SubItemTable.jsonify(val, columnKeys[j].key);
+                                                        }
                                                     }
-                                                    if (Array.isArray(val) && val.length > 0 && !_.all(val, React.isValidElement) ){
-                                                        val = _.map(val, function(v,i){ return SubItemTable.jsonify(v, columnKeys[j].key + ':' + i); });
+                                                    if (Array.isArray(val) && val.length > 0 && !_.all(val, React.isValidElement)) {
+                                                        const renderAsList = val.length > 1;
+                                                        val = _.map(val, function (v, i) {
+                                                            let item = null;
+                                                            if (isAnItem(v)) {
+                                                                item = <a href={itemUtil.atId(v)}>{v.display_title}</a>;
+                                                            } else {
+                                                                item = SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
+                                                            }
+                                                            return renderAsList ? <li key={i}>{item}</li> : item;
+                                                        });
+                                                        if (renderAsList) {
+                                                            val = <ol>{val}</ol>;
+                                                            className += ' text-left';
+                                                        }
                                                     }
                                                     return (
-                                                        <td key={("column-for-" + columnKeys[j].key)} className={colVal.className || null}>
+                                                        <td key={("column-for-" + columnKeys[j].key)} className={className || null}>
                                                             { val }
                                                         </td>
                                                     );

@@ -119,6 +119,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           facetColumnClassName = _this$props2$facetCol === void 0 ? "col-12 col-sm-5 col-lg-4 col-xl-3" : _this$props2$facetCol,
           _this$props2$tableCol = _this$props2.tableColumnClassName,
           tableColumnClassName = _this$props2$tableCol === void 0 ? "col-12 col-sm-7 col-lg-8 col-xl-9" : _this$props2$tableCol,
+          targetTabKey = _this$props2.targetTabKey,
           _this$props2$aboveTab = _this$props2.aboveTableComponent,
           aboveTableComponent = _this$props2$aboveTab === void 0 ? /*#__PURE__*/React.createElement(AboveSearchViewTableControls, null) : _this$props2$aboveTab,
           _this$props2$aboveFac = _this$props2.aboveFacetListComponent,
@@ -258,6 +259,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         rowHeight: rowHeight,
         defaultOpenIndices: defaultOpenIndices,
         maxHeight: maxHeight,
+        targetTabKey: targetTabKey,
         isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
 
       }, {
