@@ -517,6 +517,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       filteringFieldTerm: null // will contain `{ field: string, term: string|[from, to] }`. Used to show loading indicators on clicked-on terms.
 
     };
+    _this.scrollContainerRef = /*#__PURE__*/React.createRef();
     return _this;
   }
 
@@ -567,13 +568,24 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
       if (openFacets !== prevOpenFacets) {
         ReactTooltip.rebuild();
-      }
+      } // Disable scrolling while popover is open FacetList scroll container & body (if possible)
 
-      if (openPopover !== prevOpenPopover && typeof addToBodyClassList === "function" && typeof removeFromBodyClassList === "function") {
+
+      if (openPopover !== prevOpenPopover) {
+        var hasBodyScrollHandlers = typeof addToBodyClassList === "function" && typeof removeFromBodyClassList === "function";
+
         if (!openPopover) {
-          removeFromBodyClassList("overflow-hidden");
+          if (hasBodyScrollHandlers) {
+            removeFromBodyClassList("overflow-hidden");
+          }
+
+          this.scrollContainerRef.current.classList.remove("overflow-hidden");
         } else if (openPopover && !prevOpenPopover) {
-          addToBodyClassList("overflow-hidden");
+          if (hasBodyScrollHandlers) {
+            addToBodyClassList("overflow-hidden");
+          }
+
+          this.scrollContainerRef.current.classList.add("overflow-hidden");
         }
       }
 
@@ -820,13 +832,6 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         }, "No facets available");
       }
 
-      var bodyProps = {
-        className: "facets-body" + (typeof maxHeight === "number" ? " has-max-height" : ""),
-        style: typeof maxHeight === "number" ? {
-          maxHeight: maxHeight
-        } : null
-      };
-
       var _this$renderFacetComp3 = this.renderFacetComponents(),
           staticFacetElements = _this$renderFacetComp3.staticFacetElements,
           selectableFacetElements = _this$renderFacetComp3.selectableFacetElements;
@@ -841,7 +846,13 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         showClearFiltersButton: showClearFiltersButton
       }, {
         onCollapseFacets: this.handleCollapseAllFacets
-      })), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", {
+        ref: this.scrollContainerRef,
+        className: "facets-body" + (typeof maxHeight === "number" ? " has-max-height" : ""),
+        style: typeof maxHeight === "number" ? {
+          maxHeight: maxHeight
+        } : null
+      }, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
         className: "row facet-list-separator"
       }, /*#__PURE__*/React.createElement("div", {
         className: "col-12"
