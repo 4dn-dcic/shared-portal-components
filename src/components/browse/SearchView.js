@@ -95,7 +95,8 @@ export class SearchView extends React.PureComponent {
         // As well as in ControlsAndResults.
 
         const childViewProps = {
-            ...passProps, // Includes pass-thru props like 'facetListComponent', 'aboveTableComponent', 'aboveFacetListComponent', etc.
+            // Includes pass-thru props like 'facetListComponent', 'aboveTableComponent', 'aboveFacetListComponent', 'addToBodyClassList', etc.
+            ...passProps,
             currentAction,
             schemas,
             windowWidth,

@@ -107,7 +107,6 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
       // As well as in ControlsAndResults.
 
       var childViewProps = _objectSpread(_objectSpread({}, passProps), {}, {
-        // Includes pass-thru props like 'facetListComponent', 'aboveTableComponent', 'aboveFacetListComponent', etc.
         currentAction: currentAction,
         schemas: schemas,
         windowWidth: windowWidth,
