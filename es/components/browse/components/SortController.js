@@ -463,13 +463,13 @@ var MultisortOption = /*#__PURE__*/React.memo(function (props) {
     },
     "data-tip": "Remove sort column"
   }, /*#__PURE__*/React.createElement("i", {
-    className: "icon icon-fw fas icon-minus"
+    className: "icon icon-fw fas icon-minus w-100"
   })) : /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-primary btn-sm w-100",
     onClick: handleSettingsApply,
     "data-tip": "Re-sort columns"
   }, /*#__PURE__*/React.createElement("i", {
-    className: "icon icon-fw fas icon-check"
+    className: "icon icon-fw fas icon-check w-100"
   }))));
 });

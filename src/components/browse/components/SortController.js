@@ -289,10 +289,10 @@ const MultisortOption = React.memo(function MultisortOption(props){
             <div className="col-1 pl-0 pr-0">
                 {!isLastRow ?
                     <button type="button" className="btn btn-outline-secondary btn-sm w-100" onClick={() => handleSortRowDelete(index)} data-tip="Remove sort column">
-                        <i className={"icon icon-fw fas icon-minus"} />
+                        <i className={"icon icon-fw fas icon-minus w-100"} />
                     </button> :
                     <button type="button" className="btn btn-primary btn-sm w-100" onClick={handleSettingsApply} data-tip="Re-sort columns">
-                        <i className={"icon icon-fw fas icon-check"} />
+                        <i className={"icon icon-fw fas icon-check w-100"} />
                     </button>}
             </div>
         </div>
