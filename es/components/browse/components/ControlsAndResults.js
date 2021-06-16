@@ -155,6 +155,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           _this$props2$selected = _this$props2.selectedItems,
           selectedItems = _this$props2$selected === void 0 ? null : _this$props2$selected,
           sortBy = _this$props2.sortBy,
+          sortColumns = _this$props2.sortColumns,
           sortColumn = _this$props2.sortColumn,
           sortReverse = _this$props2.sortReverse; // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
 
@@ -252,6 +253,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         detailPane: detailPane,
         isOwnPage: isOwnPage,
         sortBy: sortBy,
+        sortColumns: sortColumns,
         sortColumn: sortColumn,
         sortReverse: sortReverse,
         termTransformFxn: termTransformFxn,

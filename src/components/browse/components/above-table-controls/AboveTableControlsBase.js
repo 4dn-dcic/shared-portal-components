@@ -8,7 +8,7 @@ import Collapse from 'react-bootstrap/esm/Collapse';
 import { AboveTablePanelWrapper } from './AboveTablePanelWrapper';
 import { RightButtonsSection } from './RightButtonsSection';
 import { CustomColumnSelector } from './../CustomColumnController';
-import { MultisortColumnSelector } from './../SortController';
+import { MultiColumnSortSelector } from './../SortController';
 
 
 
@@ -32,14 +32,14 @@ export class AboveTableControlsBase extends React.PureComponent {
                 "body" : <CustomColumnSelector {..._.pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')} />,
                 "className" : "visible-columns-selector-panel"
             },
-            "multisortColumns" : {
+            "multiColumnSort" : {
                 "title" : (
                     <React.Fragment>
                         <i className="icon icon-fw icon-cog fas"/>
                         <span className="title-contents">Sort Multiple Columns</span>
                     </React.Fragment>
                 ),
-                "body" : <MultisortColumnSelector {..._.pick(props, 'columnDefinitions', 'navigate', 'href')} sortColumns={sort} />,
+                "body" : <MultiColumnSortSelector {..._.pick(props, 'columnDefinitions', 'navigate', 'href')} sortColumns={sort} />,
                 "className" : "visible-columns-selector-panel"
             }
         };
@@ -136,7 +136,7 @@ export class AboveTableControlsBase extends React.PureComponent {
                 <div className="row align-items-center">
                     { extendedChildren }
                     <RightButtonsSection {..._.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')}
-                        currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} onMultisortBtnClick={this.panelToggleFxns.multisortColumns} />
+                        currentOpenPanel={open || reallyOpen} onColumnsBtnClick={this.panelToggleFxns.customColumns} onMultiColumnSortBtnClick={this.panelToggleFxns.multiColumnSort} />
                 </div>
                 { panelDefinition ?
                     <Collapse in={!!(open)} appear>

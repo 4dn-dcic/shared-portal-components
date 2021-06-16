@@ -8,12 +8,12 @@ import { SearchResultTable } from './../SearchResultTable';
 
 
 export const RightButtonsSection = React.memo(function RightButtonsSection(props){
-    const { currentOpenPanel, onColumnsBtnClick, onMultisortBtnClick, windowWidth, isFullscreen, toggleFullScreen } = props;
+    const { currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen } = props;
     const showToggleLayoutBtn = (typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function');
     return (
         <div className="right-buttons col-auto">
             <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} />
-            <MultisortColumnsButton onClick={onMultisortBtnClick} open={currentOpenPanel === "multisortColumns"} />
+            <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} />
             { showToggleLayoutBtn ? <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} /> : null }
         </div>
     );
@@ -34,7 +34,7 @@ ConfigureVisibleColumnsButton.defaultProps = {
     "className" : "btn btn-outline-primary"
 };
 
-export const MultisortColumnsButton = React.memo(function MultisortColumnsButton({ open, onClick, className }){
+export const MultiColumnSortButton = React.memo(function MultiColumnSortButton({ open, onClick, className }){
     return (
         <button type="button" key="toggle-visible-columns" data-tip="Sort multiple columns" data-event-off="click"
             active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
@@ -43,7 +43,7 @@ export const MultisortColumnsButton = React.memo(function MultisortColumnsButton
         </button>
     );
 });
-MultisortColumnsButton.defaultProps = {
+MultiColumnSortButton.defaultProps = {
     "className" : "btn btn-outline-primary"
 };
 

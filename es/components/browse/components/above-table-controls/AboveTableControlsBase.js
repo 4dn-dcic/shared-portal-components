@@ -32,7 +32,7 @@ import Collapse from 'react-bootstrap/esm/Collapse';
 import { AboveTablePanelWrapper } from './AboveTablePanelWrapper';
 import { RightButtonsSection } from './RightButtonsSection';
 import { CustomColumnSelector } from './../CustomColumnController';
-import { MultisortColumnSelector } from './../SortController';
+import { MultiColumnSortSelector } from './../SortController';
 /**
  * This component must be fed props from CustomColumnController (for columns UI), SelectedFilesController (for selected files read-out).
  * Some may need to be transformed to exclude certain non-user-controlled columns (e.g. @type) and such.
@@ -61,13 +61,13 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
           "body": /*#__PURE__*/React.createElement(CustomColumnSelector, _.pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')),
           "className": "visible-columns-selector-panel"
         },
-        "multisortColumns": {
+        "multiColumnSort": {
           "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
             className: "icon icon-fw icon-cog fas"
           }), /*#__PURE__*/React.createElement("span", {
             className: "title-contents"
           }, "Sort Multiple Columns")),
-          "body": /*#__PURE__*/React.createElement(MultisortColumnSelector, _extends({}, _.pick(props, 'columnDefinitions', 'navigate', 'href'), {
+          "body": /*#__PURE__*/React.createElement(MultiColumnSortSelector, _extends({}, _.pick(props, 'columnDefinitions', 'navigate', 'href'), {
             sortColumns: sort
           })),
           "className": "visible-columns-selector-panel"
@@ -207,7 +207,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
       }, extendedChildren, /*#__PURE__*/React.createElement(RightButtonsSection, _extends({}, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
         currentOpenPanel: open || reallyOpen,
         onColumnsBtnClick: this.panelToggleFxns.customColumns,
-        onMultisortBtnClick: this.panelToggleFxns.multisortColumns
+        onMultiColumnSortBtnClick: this.panelToggleFxns.multiColumnSort
       }))), panelDefinition ? /*#__PURE__*/React.createElement(Collapse, {
         "in": !!open,
         appear: true

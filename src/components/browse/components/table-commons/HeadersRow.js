@@ -42,6 +42,7 @@ export class HeadersRow extends React.PureComponent {
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'setColumnWidths' : PropTypes.func,
         // Passed down from SortController (if used)
+        'sortColumns' : PropTypes.object,
         'sortColumn' : PropTypes.string,
         'sortReverse' : PropTypes.bool,
         'sortBy' : PropTypes.func
@@ -65,7 +66,7 @@ export class HeadersRow extends React.PureComponent {
     }
 
     /** Minor optimization to avoid having each col figure out if is active any time sort changes */
-    static getActiveColumnMap(columnDefinitions, sortColumn, sortReverse){
+    static getActiveColumnMap(columnDefinitions, sortColumn, sortReverse, sortColumns){
         const retObj = {};
         columnDefinitions.forEach(function({ field, sort_fields = [] }){
             if (sort_fields.length < 2) {
@@ -177,9 +178,12 @@ export class HeadersRow extends React.PureComponent {
      * before calling `props.sortByFxn`.
      */
     sortByField(field){
-        const { sortReverse, sortColumn, sortBy } = this.props;
-        const isActive = sortColumn === field;
-        const beDescending = !isActive || (isActive && !sortReverse);
+        const { sortColumns, sortBy } = this.props;
+        const [{ column = null, order = "desc" } = {}] = sortColumns || [];
+
+        const isActive = column === field;
+        const beDescending = !isActive || (isActive && order !== "desc");
+
         this.setState({ "loadingField": field, "showingSortFieldsForColumn" : null }, function(){
             sortBy(field, beDescending);
         });
@@ -209,6 +213,7 @@ export class HeadersRow extends React.PureComponent {
             columnDefinitions,
             renderDetailPane,
             detailPane,
+            sortColumns = [],
             sortColumn = null,
             sortReverse = false,
             sortBy,
@@ -219,7 +224,7 @@ export class HeadersRow extends React.PureComponent {
             windowWidth
         } = this.props;
         const { showingSortFieldsForColumn, widths, loadingField } = this.state;
-        const activeColumnMap = this.memoized.getActiveColumnMap(columnDefinitions, sortColumn, sortReverse);
+        const activeColumnMap = this.memoized.getActiveColumnMap(columnDefinitions, sortColumn, sortReverse, sortColumns);
         const leftOffset = 0 - tableContainerScrollLeft;
         const isSortable = typeof sortBy === "function";
         const isAdjustable = !!(typeof setColumnWidths === "function" && columnWidths);
@@ -245,7 +250,6 @@ export class HeadersRow extends React.PureComponent {
 
         const alignedWidths = this.memoized.alignedWidths(columnDefinitions, columnWidths, widths, windowWidth);
         const rootLoadingField = this.memoized.getRootLoadingField(columnDefinitions, loadingField);
-
         return (
             <div className={outerClassName} style={outerStyle} data-showing-sort-fields-for={showingSortFieldsForColumn}>
                 <div className="headers-columns-overflow-container">
@@ -256,7 +260,7 @@ export class HeadersRow extends React.PureComponent {
                             const isLoading = (rootLoadingField && rootLoadingField === field);
                             return (
                                 // `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
-                                <HeadersRowColumn {...commonProps} {...{ columnDefinition, index, showingSortOptionsMenu, isLoading }}
+                                <HeadersRowColumn {...commonProps} {...{ columnDefinition, index, showingSortOptionsMenu, isLoading, sortColumns }}
                                     width={alignedWidths[index]} active={activeColumnMap[field]} key={field} />
                             );
                         }) }
@@ -304,6 +308,7 @@ class HeadersRowColumn extends React.PureComponent {
             showingSortOptionsMenu,
             setShowingSortFieldsFor,
             active, // `active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
+            sortColumns,
             isLoading = false
         } = this.props;
         const { noSort, colTitle, title, field, description = null } = columnDefinition;
@@ -312,7 +317,7 @@ class HeadersRowColumn extends React.PureComponent {
         const tooltip = description ? (titleTooltip ? `<h5 class="mb-03">${titleTooltip}</h5>` + description : description) : (titleTooltip? titleTooltip : null);
         let sorterIcon;
         if (!noSort && typeof sortByField === 'function' && width >= 50){
-            sorterIcon = <ColumnSorterIcon {...{ columnDefinition, sortByField, showingSortOptionsMenu, setShowingSortFieldsFor, active, isLoading }} />;
+            sorterIcon = <ColumnSorterIcon {...{ columnDefinition, sortByField, showingSortOptionsMenu, setShowingSortFieldsFor, active, sortColumns, isLoading }} />;
         }
         const cls = (
             "search-headers-column-block"
