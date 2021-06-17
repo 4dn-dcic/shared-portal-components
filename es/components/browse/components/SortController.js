@@ -60,32 +60,6 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
 
   var _super = _createSuper(SortController);
 
-  _createClass(SortController, null, [{
-    key: "getSortColumnAndReverseFromContext",
-    value: function getSortColumnAndReverseFromContext(context) {
-      var defaults = {
-        'sortColumn': null,
-        'sortReverse': false
-      };
-      if (!context || !context.sort) return defaults;
-      var sortKey = Object.keys(context.sort);
-
-      if (sortKey.length > 0) {
-        // Use first if multiple.
-        // eslint-disable-next-line prefer-destructuring
-        sortKey = sortKey[0];
-      } else {
-        return defaults;
-      }
-
-      var reverse = context.sort[sortKey].order === 'desc';
-      return {
-        'sortColumn': sortKey,
-        'sortReverse': reverse
-      };
-    }
-  }]);
-
   function SortController(props) {
     var _this;
 
@@ -98,7 +72,6 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
     }; // 'changingPage' = historical name, analogous of 'loading'
 
     _this.memoized = {
-      getSortColumnAndReverseFromContext: memoize(SortController.getSortColumnAndReverseFromContext),
       getSortColumnAndOrderPairs: memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs)
     };
     return _this;
@@ -180,18 +153,11 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
 
       var _ref$sort = (context || {}).sort,
           sort = _ref$sort === void 0 ? {} : _ref$sort;
-
-      var _this$memoized$getSor = this.memoized.getSortColumnAndReverseFromContext(context),
-          sortColumn = _this$memoized$getSor.sortColumn,
-          sortReverse = _this$memoized$getSor.sortReverse;
-
       var sortColumns = this.memoized.getSortColumnAndOrderPairs(sort);
 
       var childProps = _objectSpread(_objectSpread({}, passProps), {}, {
         context: context,
         sortColumns: sortColumns,
-        sortColumn: sortColumn,
-        sortReverse: sortReverse,
         sortBy: this.sortBy
       });
 

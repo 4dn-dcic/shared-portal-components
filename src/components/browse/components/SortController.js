@@ -27,34 +27,12 @@ export class SortController extends React.PureComponent {
         }
     };
 
-    static getSortColumnAndReverseFromContext(context){
-        const defaults = {
-            'sortColumn'    : null,
-            'sortReverse'   : false
-        };
-        if (!context || !context.sort) return defaults;
-        let sortKey = Object.keys(context.sort);
-        if (sortKey.length > 0){
-            // Use first if multiple.
-            // eslint-disable-next-line prefer-destructuring
-            sortKey = sortKey[0];
-        } else {
-            return defaults;
-        }
-        const reverse = context.sort[sortKey].order === 'desc';
-        return {
-            'sortColumn'    : sortKey,
-            'sortReverse'   : reverse
-        };
-    }
-
     constructor(props){
         super(props);
         this.sortBy = this.sortBy.bind(this);
         this.state = { 'changingPage' : false }; // 'changingPage' = historical name, analogous of 'loading'
 
         this.memoized = {
-            getSortColumnAndReverseFromContext: memoize(SortController.getSortColumnAndReverseFromContext),
             getSortColumnAndOrderPairs: memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs)
         };
     }
@@ -115,13 +93,11 @@ export class SortController extends React.PureComponent {
     render(){
         const { children, context, ...passProps } = this.props;
         const { sort = {} } = context || {};
-        const { sortColumn, sortReverse } = this.memoized.getSortColumnAndReverseFromContext(context);
         const sortColumns = this.memoized.getSortColumnAndOrderPairs(sort);
         const childProps = {
             ...passProps,
             context,
             sortColumns,
-            sortColumn, sortReverse,
             sortBy: this.sortBy
         };
 
