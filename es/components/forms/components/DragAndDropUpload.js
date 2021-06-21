@@ -361,7 +361,9 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
       var _this$props4 = this.props,
           cls = _this$props4.cls,
           fieldDisplayTitle = _this$props4.fieldDisplayTitle,
-          fieldName = _this$props4.fieldName;
+          fieldName = _this$props4.fieldName,
+          requireVerification = _this$props4.requireVerification,
+          requestVerificationMsg = _this$props4.requestVerificationMsg;
       var _this$state = this.state,
           files = _this$state.files,
           isLoading = _this$state.isLoading;
@@ -370,7 +372,9 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         fieldDisplayTitle: fieldDisplayTitle,
         fieldName: fieldName,
         files: files,
-        isLoading: isLoading
+        isLoading: isLoading,
+        requireVerification: requireVerification,
+        requestVerificationMsg: requestVerificationMsg
       }, {
         onUploadStart: this.onUploadStart,
         handleAddFile: this.handleAddFile,
@@ -398,7 +402,11 @@ _defineProperty(DragAndDropFileUploadController, "propTypes", {
   // Display title of field (e.g. "Related Documents")
   cls: PropTypes.string,
   // Classes to apply to the main "Quick Upload" button
-  multiselect: PropTypes.bool // Can field link multiple files at once?/Is array field?
+  multiselect: PropTypes.bool,
+  // Can field link multiple files at once?/Is array field?
+  requireVerification: PropTypes.bool,
+  // Require a checkbox to be checked before each upload
+  requestVerificationMsg: PropTypes.string // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
   // award: PropTypes.string,                    // Will be required for 4DN SV
   // lab: PropTypes.string,                      // Will be required for 4DN SV
   // institution: PropTypes.object,              // Will be required for CGAP SV
@@ -478,7 +486,9 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
           cls = _this$props5.cls,
           fieldDisplayTitle = _this$props5.fieldDisplayTitle,
           files = _this$props5.files,
-          isLoading = _this$props5.isLoading;
+          isLoading = _this$props5.isLoading,
+          requestVerificationMsg = _this$props5.requestVerificationMsg,
+          requireVerification = _this$props5.requireVerification;
       return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DragAndDropModal, _extends({
         handleHideModal: this.handleHideModal
       }, {
@@ -491,7 +501,9 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
         handleRemoveFile: handleRemoveFile,
         handleClearAllFiles: handleClearAllFiles,
         files: files,
-        isLoading: isLoading
+        isLoading: isLoading,
+        requestVerificationMsg: requestVerificationMsg,
+        requireVerification: requireVerification
       })), /*#__PURE__*/React.createElement("button", {
         type: "button",
         onClick: this.onShow,
@@ -524,7 +536,11 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
   // Can field link multiple files at once?/Is array field?
   cls: PropTypes.string,
   // Classes to apply to the main "Quick Upload" button
-  isLoading: PropTypes.bool // Are items currently being uploaded?
+  isLoading: PropTypes.bool,
+  // Are items currently being uploaded?
+  requireVerification: PropTypes.bool,
+  // Require a checkbox to be checked before each upload
+  requestVerificationMsg: PropTypes.string // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
 
 });
 
@@ -539,31 +555,80 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
 
   var _super4 = _createSuper(DragAndDropModal);
 
-  function DragAndDropModal() {
+  /*
+      Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
+      Functions for hiding, and handles files.
+  */
+  function DragAndDropModal(props) {
+    var _this5;
+
     _classCallCheck(this, DragAndDropModal);
 
-    return _super4.apply(this, arguments);
+    _this5 = _super4.call(this, props);
+    _this5.state = {
+      isVerified: false
+    };
+    _this5.toggleCheckbox = _this5.toggleCheckbox.bind(_assertThisInitialized(_this5));
+    _this5.disableCheckbox = _this5.toggleCheckbox.bind(_assertThisInitialized(_this5));
+    _this5.handleAddFileAndResetVerification = _this5.handleAddFileAndResetVerification.bind(_assertThisInitialized(_this5));
+    return _this5;
   }
 
   _createClass(DragAndDropModal, [{
-    key: "render",
+    key: "toggleCheckbox",
+    value: function toggleCheckbox() {
+      var isVerified = this.state.isVerified;
+      this.setState({
+        isVerified: !isVerified
+      });
+    }
+  }, {
+    key: "disableCheckbox",
+    value: function disableCheckbox() {
+      var isVerified = this.state.isVerified;
 
-    /*
-        Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
-        Functions for hiding, and handles files.
-    */
-    value: function render() {
+      if (isVerified) {
+        this.setState({
+          isVerified: false
+        });
+      }
+    }
+  }, {
+    key: "handleAddFileAndResetVerification",
+    value: function handleAddFileAndResetVerification(evt) {
       var _this$props6 = this.props,
-          show = _this$props6.show,
-          onUploadStart = _this$props6.onUploadStart,
-          fieldName = _this$props6.fieldName,
-          fieldDisplayTitle = _this$props6.fieldDisplayTitle,
           handleAddFile = _this$props6.handleAddFile,
-          handleRemoveFile = _this$props6.handleRemoveFile,
-          files = _this$props6.files,
-          handleHideModal = _this$props6.handleHideModal,
-          isLoading = _this$props6.isLoading;
-      console.log("isLoading:", isLoading);
+          requireVerification = _this$props6.requireVerification;
+      var isVerified = this.state.isVerified;
+      console.log("isVerified && requireVerification", isVerified, requireVerification);
+
+      if (isVerified && requireVerification) {
+        // reset verification status on add new files if already checked
+        this.setState({
+          isVerified: false
+        }, handleAddFile(evt));
+      } else {
+        handleAddFile(evt);
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var isVerified = this.state.isVerified;
+      var _this$props7 = this.props,
+          show = _this$props7.show,
+          onUploadStart = _this$props7.onUploadStart,
+          fieldName = _this$props7.fieldName,
+          fieldDisplayTitle = _this$props7.fieldDisplayTitle,
+          handleAddFile = _this$props7.handleAddFile,
+          handleRemoveFile = _this$props7.handleRemoveFile,
+          files = _this$props7.files,
+          handleHideModal = _this$props7.handleHideModal,
+          isLoading = _this$props7.isLoading,
+          requireVerification = _this$props7.requireVerification,
+          requestVerificationMsg = _this$props7.requestVerificationMsg; // console.log("isLoading:", isLoading);
+
+      var allowUpload = files.length > 0 && (requireVerification && isVerified || !requireVerification);
       return /*#__PURE__*/React.createElement(Modal, _extends({
         centered: true
       }, {
@@ -582,9 +647,14 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
       })))) : null, /*#__PURE__*/React.createElement(DragAndDropZone, _extends({
         files: files
       }, {
-        handleAddFile: handleAddFile,
+        handleAddFile: requireVerification ? this.handleAddFileAndResetVerification : handleAddFile,
         handleRemoveFile: handleRemoveFile
-      }))), /*#__PURE__*/React.createElement(Modal.Footer, null, /*#__PURE__*/React.createElement("button", {
+      })), requireVerification ? /*#__PURE__*/React.createElement(RequestVerification, _extends({
+        requestVerificationMsg: requestVerificationMsg,
+        isVerified: isVerified
+      }, {
+        toggleVerification: this.toggleCheckbox
+      })) : null), /*#__PURE__*/React.createElement(Modal.Footer, null, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-danger",
         onClick: handleHideModal
@@ -594,7 +664,8 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
         type: "button",
         className: "btn btn-primary",
         onClick: onUploadStart,
-        disabled: files.length === 0
+        disabled: !allowUpload,
+        "data-tip": requireVerification && !allowUpload ? "Verify your files by clicking the checkbox." : null
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-upload"
       }), " Upload ", fieldDisplayTitle)));
@@ -623,7 +694,11 @@ _defineProperty(DragAndDropModal, "propTypes", {
   // Human readable type (Ex. Item, Document, Image, etc)
   fieldDisplayTitle: PropTypes.string,
   // Name of specific field (Ex. Related Documents)
-  isLoading: PropTypes.bool // Are items currently being uploaded?
+  isLoading: PropTypes.bool,
+  // Are items currently being uploaded?
+  requireVerification: PropTypes.bool,
+  // Require a checkbox to be checked before each upload
+  requestVerificationMsg: PropTypes.string // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
 
 });
 
@@ -632,27 +707,47 @@ _defineProperty(DragAndDropModal, "defaultProps", {
   isLoading: false
 });
 
+function RequestVerification(props) {
+  var _props$isVerified = props.isVerified,
+      isVerified = _props$isVerified === void 0 ? true : _props$isVerified,
+      _props$requestVerific = props.requestVerificationMsg,
+      requestVerificationMsg = _props$requestVerific === void 0 ? '<span>I certify that my file(s) do not contain <a href="https://www.hipaajournal.com/considered-phi-hipaa/" target="_blank" rel="noreferrer">Personal Health Information</a></span>' : _props$requestVerific,
+      toggleVerification = props.toggleVerification;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+    name: "file-verification",
+    type: "checkbox",
+    checked: isVerified,
+    onChange: toggleVerification
+  }), /*#__PURE__*/React.createElement("label", {
+    className: "d-inline ml-05",
+    htmlFor: "file-verification",
+    dangerouslySetInnerHTML: {
+      __html: requestVerificationMsg
+    }
+  }));
+}
+
 export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
 
   var _super5 = _createSuper(DragAndDropZone);
 
   function DragAndDropZone(props) {
-    var _this5;
+    var _this6;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this5 = _super5.call(this, props);
-    _this5.state = {
+    _this6 = _super5.call(this, props);
+    _this6.state = {
       dragging: false
     };
-    _this5.dropZoneRef = /*#__PURE__*/React.createRef();
-    _this5.fileUploadRef = /*#__PURE__*/React.createRef();
-    _this5.cleanUpEventListeners = _this5.cleanUpEventListeners.bind(_assertThisInitialized(_this5));
-    _this5.setUpEventListeners = _this5.setUpEventListeners.bind(_assertThisInitialized(_this5));
-    _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
-    _this5.handleDropzoneClick = _this5.handleDropzoneClick.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this6.dropZoneRef = /*#__PURE__*/React.createRef();
+    _this6.fileUploadRef = /*#__PURE__*/React.createRef();
+    _this6.cleanUpEventListeners = _this6.cleanUpEventListeners.bind(_assertThisInitialized(_this6));
+    _this6.setUpEventListeners = _this6.setUpEventListeners.bind(_assertThisInitialized(_this6));
+    _this6.handleDrop = _this6.handleDrop.bind(_assertThisInitialized(_this6));
+    _this6.handleDropzoneClick = _this6.handleDropzoneClick.bind(_assertThisInitialized(_this6));
+    return _this6;
   }
 
   _createClass(DragAndDropZone, [{
@@ -740,11 +835,11 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   }, {
     key: "render",
     value: function render() {
-      var _this6 = this;
+      var _this7 = this;
 
-      var _this$props7 = this.props,
-          files = _this$props7.files,
-          handleRemoveFile = _this$props7.handleRemoveFile;
+      var _this$props8 = this.props,
+          files = _this$props8.files,
+          handleRemoveFile = _this$props8.handleRemoveFile;
       return /*#__PURE__*/React.createElement("div", {
         className: "dropzone panel text-center d-flex flex-row justify-content-center",
         ref: this.dropZoneRef,
@@ -754,7 +849,7 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
         ref: this.fileUploadRef,
         multiple: true,
         onChange: function onChange(e) {
-          return _this6.handleAddFromBrowse(e);
+          return _this7.handleAddFromBrowse(e);
         },
         name: "filesFromBrowse",
         className: "d-none"
