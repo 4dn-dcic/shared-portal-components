@@ -5,6 +5,7 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
 import React from 'react';
+import { IndeterminateCheckbox } from './IndeterminateCheckbox';
 /** Emulates React-Bootstrap 0.32.4 Checkbox for backwards compatibility */
 
 export var Checkbox = /*#__PURE__*/React.memo(function (props) {
@@ -15,17 +16,29 @@ export var Checkbox = /*#__PURE__*/React.memo(function (props) {
       title = props.title,
       _props$inputClassName = props.inputClassName,
       inputClassName = _props$inputClassName === void 0 ? "mr-08 align-middle" : _props$inputClassName,
-      passProps = _objectWithoutProperties(props, ["className", "children", "labelClassName", "title", "inputClassName"]);
+      _props$indeterminate = props.indeterminate,
+      indeterminate = _props$indeterminate === void 0 ? false : _props$indeterminate,
+      passProps = _objectWithoutProperties(props, ["className", "children", "labelClassName", "title", "inputClassName", "indeterminate"]);
 
   var disabled = passProps.disabled;
   var cls = "checkbox checkbox-with-label" + (disabled ? " disabled" : "") + (className ? " " + className : "");
+  var checkboxElement = indeterminate ?
+  /*#__PURE__*/
+  // We assume that we can never receive a props.indeterminate here unless also providing
+  // a boolean `props.checked` for fully controlled input element. Hence uncontrolled
+  // <input> shouldn't ever lose its uncontrolled state by changing to IndeterminateCheckbox.
+  React.createElement(IndeterminateCheckbox, _extends({
+    className: inputClassName
+  }, passProps, {
+    indeterminate: true
+  })) : /*#__PURE__*/React.createElement("input", _extends({
+    type: "checkbox",
+    className: inputClassName
+  }, passProps));
   return /*#__PURE__*/React.createElement("div", {
     className: cls
   }, /*#__PURE__*/React.createElement("label", {
     title: title,
     className: labelClassName
-  }, /*#__PURE__*/React.createElement("input", _extends({
-    type: "checkbox",
-    className: inputClassName
-  }, passProps)), children));
+  }, checkboxElement, children));
 });

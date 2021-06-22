@@ -2,6 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 
 export class IndeterminateCheckbox extends React.PureComponent {
+
     constructor(props){
         super(props);
         this.setIndeterminateOnRef = this.setIndeterminateOnRef.bind(this);
@@ -9,25 +10,29 @@ export class IndeterminateCheckbox extends React.PureComponent {
     }
 
     componentDidMount(){
+        const { indeterminate } = this.props;
         // Can be skipped if not set to true.
-        if (this.props.indeterminate === true){
+        if (indeterminate === true){
             this.setIndeterminateOnRef();
         }
     }
 
-    componentDidUpdate(pastProps){
-        if (pastProps.indeterminate !== this.props.indeterminate){
+    componentDidUpdate({ indeterminate: pastIndeterminate }){
+        const { indeterminate } = this.props;
+        if (pastIndeterminate !== indeterminate){
             this.setIndeterminateOnRef();
         }
     }
 
     setIndeterminateOnRef(){
+        const { indeterminate } = this.props;
         if (this.checkboxRef.current){
-            this.checkboxRef.current.indeterminate = this.props.indeterminate;
+            this.checkboxRef.current.indeterminate = indeterminate;
         }
     }
 
     render(){
-        return <input type="checkbox" {..._.omit(this.props, 'indeterminate')} ref={this.checkboxRef} />;
+        const { indeterminate, ...passProps } = this.props;
+        return <input type="checkbox" {...passProps} ref={this.checkboxRef} />;
     }
 }
