@@ -40,7 +40,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
@@ -69,11 +69,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
         return tempWidths && tempWidths[field] || columnWidths && columnWidths[field] || getColumnWidthFromDefinition(columnDefinition, typeof windowWidth === "number", windowWidth);
       });
     }
-    /** Minor optimization to avoid having each col figure out if is active any time sort changes */
-
   }, {
-    key: "getActiveColumnMap",
-    value: function getActiveColumnMap(columnDefinitions, sortColumn, sortReverse) {
+    key: "getSortColumnMap",
+    value: function getSortColumnMap(columnDefinitions, sortColumns) {
       var retObj = {};
       columnDefinitions.forEach(function (_ref) {
         var field = _ref.field,
@@ -82,40 +80,13 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
 
         if (sort_fields.length < 2) {
           var useField = sort_fields[0] && sort_fields[0].field || field;
-
-          if (useField === sortColumn) {
-            retObj[field] = [sortReverse];
-          }
-        } else {
-          var activeField = sort_fields.find(function (_ref2) {
-            var sField = _ref2.field;
-            return sField === sortColumn;
-          });
-
-          if (activeField) {
-            retObj[field] = _defineProperty({}, activeField.field, [sortReverse]);
-          }
-        }
-      });
-      return retObj;
-    }
-  }, {
-    key: "getSortColumnMap",
-    value: function getSortColumnMap(columnDefinitions, sortColumns) {
-      var retObj = {};
-      columnDefinitions.forEach(function (_ref3) {
-        var field = _ref3.field,
-            _ref3$sort_fields = _ref3.sort_fields,
-            sort_fields = _ref3$sort_fields === void 0 ? [] : _ref3$sort_fields;
-
-        if (sort_fields.length < 2) {
-          var useField = sort_fields[0] && sort_fields[0].field || field;
           var total = sortColumns.length;
-          sortColumns.forEach(function (_ref4, index) {
-            var column = _ref4.column,
-                order = _ref4.order;
+          sortColumns.forEach(function (_ref2, index) {
+            var column = _ref2.column,
+                order = _ref2.order;
+            var trimmedColumn = HeadersRow.getTrimmedColumn(column);
 
-            if (useField === column) {
+            if (useField === column || trimmedColumn && useField === trimmedColumn) {
               retObj[field] = _objectSpread({}, {
                 index: index,
                 order: order,
@@ -124,12 +95,25 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
             }
           });
         } else {
-          sort_fields.find(function (_ref5) {
-            var sField = _ref5.field;
-            return sField === sortColumn;
-          }); // if (activeField) {
-          //     retObj[field] = { [activeField.field]: [sortReverse] };
-          // }
+          /** @todo optimize the loops */
+          sortColumns.forEach(function (_ref3, index) {
+            var column = _ref3.column,
+                order = _ref3.order;
+            var total = sortColumns.length;
+            sort_fields.forEach(function (_ref4) {
+              var sField = _ref4.field;
+
+              if (column === sField) {
+                retObj[field] = _objectSpread({}, {
+                  index: index,
+                  order: order,
+                  total: total,
+                  field: sField,
+                  parent: field
+                });
+              }
+            });
+          });
         }
       });
       return retObj;
@@ -161,6 +145,10 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
 
       return null;
     }
+    /**
+     * linkTo fields are appended by .display_title by backend so we trim it to find a match
+     */
+
   }]);
 
   function HeadersRow(props) {
@@ -184,9 +172,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     };
     _this.memoized = {
       alignedWidths: memoize(HeadersRow.alignedWidths),
-      getActiveColumnMap: memoize(HeadersRow.getActiveColumnMap),
       getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
-      getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
+      getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
+      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
     };
     return _this;
   }
@@ -217,22 +205,24 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       } // Unset loading icon
 
 
-      var _ref7 = _slicedToArray(sortColumns || [], 1),
-          _ref7$ = _ref7[0],
-          _ref7$$column = _ref7$.column,
-          sortColumn = _ref7$$column === void 0 ? null : _ref7$$column,
-          _ref7$$order = _ref7$.order,
-          sortOrder = _ref7$$order === void 0 ? null : _ref7$$order;
+      var _ref6 = _slicedToArray(sortColumns || [], 1),
+          _ref6$ = _ref6[0],
+          _ref6$$column = _ref6$.column,
+          sortColumn = _ref6$$column === void 0 ? null : _ref6$$column,
+          _ref6$$order = _ref6$.order,
+          sortOrder = _ref6$$order === void 0 ? null : _ref6$$order;
 
-      var _ref9 = _slicedToArray(pastSortColumns || [], 1),
-          _ref9$ = _ref9[0],
-          _ref9$$column = _ref9$.column,
-          pastSortColumn = _ref9$$column === void 0 ? null : _ref9$$column,
-          _ref9$$order = _ref9$.order,
-          pastSortOrder = _ref9$$order === void 0 ? null : _ref9$$order;
+      var _ref8 = _slicedToArray(pastSortColumns || [], 1),
+          _ref8$ = _ref8[0],
+          _ref8$$column = _ref8$.column,
+          pastSortColumn = _ref8$$column === void 0 ? null : _ref8$$column,
+          _ref8$$order = _ref8$.order,
+          pastSortOrder = _ref8$$order === void 0 ? null : _ref8$$order;
 
-      if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastSortColumn || sortOrder !== pastSortOrder)) {
-        nextState.loadingField = null;
+      if (loadingField !== null && (sortColumn !== pastSortColumn || sortOrder !== pastSortOrder)) {
+        if (sortColumn === loadingField || HeadersRow.getTrimmedColumn(sortColumn) === loadingField) {
+          nextState.loadingField = null;
+        }
       } // Unset dropdown menu if start scrolling horizontally
 
 
@@ -283,15 +273,16 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           sortColumns = _this$props2.sortColumns,
           sortBy = _this$props2.sortBy;
 
-      var _ref11 = _slicedToArray(sortColumns || [], 1),
-          _ref11$ = _ref11[0];
+      var _ref10 = _slicedToArray(sortColumns || [], 1),
+          _ref10$ = _ref10[0];
 
-      _ref11$ = _ref11$ === void 0 ? {} : _ref11$;
-      var _ref11$$column = _ref11$.column,
-          column = _ref11$$column === void 0 ? null : _ref11$$column,
-          _ref11$$order = _ref11$.order,
-          order = _ref11$$order === void 0 ? "desc" : _ref11$$order;
-      var isActive = column === field;
+      _ref10$ = _ref10$ === void 0 ? {} : _ref10$;
+      var _ref10$$column = _ref10$.column,
+          column = _ref10$$column === void 0 ? null : _ref10$$column,
+          _ref10$$order = _ref10$.order,
+          order = _ref10$$order === void 0 ? "desc" : _ref10$$order;
+      var trimmedColumn = HeadersRow.getTrimmedColumn(column);
+      var isActive = column === field || trimmedColumn && trimmedColumn === field;
       this.setState({
         "loadingField": field,
         "showingSortFieldsForColumn": null
@@ -323,9 +314,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     key: "onAdjusterDrag",
     value: function onAdjusterDrag(columnDefinition, evt, r) {
       var field = columnDefinition.field;
-      this.setState(function (_ref12, _ref13) {
-        var widths = _ref12.widths;
-        var defaultMinColumnWidth = _ref13.defaultMinColumnWidth;
+      this.setState(function (_ref11, _ref12) {
+        var widths = _ref11.widths;
+        var defaultMinColumnWidth = _ref12.defaultMinColumnWidth;
         return {
           'widths': _objectSpread(_objectSpread({}, widths), {}, _defineProperty({}, field, Math.max(columnDefinition.minColumnWidth || defaultMinColumnWidth || 55, r.x)))
         };
@@ -349,8 +340,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var _this$state2 = this.state,
           showingSortFieldsForColumn = _this$state2.showingSortFieldsForColumn,
           widths = _this$state2.widths,
-          loadingField = _this$state2.loadingField; // const activeColumnMap = this.memoized.getActiveColumnMap(columnDefinitions, sortColumn, sortReverse);
-
+          loadingField = _this$state2.loadingField;
       var sortColumnMap = this.memoized.getSortColumnMap(columnDefinitions, sortColumns);
       var leftOffset = 0 - tableContainerScrollLeft;
       var isSortable = typeof sortBy === "function";
@@ -368,6 +358,18 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       };
       var alignedWidths = this.memoized.alignedWidths(columnDefinitions, columnWidths, widths, windowWidth);
       var rootLoadingField = this.memoized.getRootLoadingField(columnDefinitions, loadingField);
+      var sortColumn = null,
+          sortReverse = null;
+
+      if (showingSortFieldsForColumn) {
+        var col = sortColumnMap[showingSortFieldsForColumn];
+
+        if (col) {
+          sortColumn = col.field || showingSortFieldsForColumn;
+          sortReverse = col.order === 'desc';
+        }
+      }
+
       return /*#__PURE__*/React.createElement("div", {
         className: outerClassName,
         style: {
@@ -449,6 +451,14 @@ _defineProperty(HeadersRow, "defaultProps", {
   'defaultMinColumnWidth': 55,
   'tableContainerScrollLeft': 0
 });
+
+_defineProperty(HeadersRow, "getTrimmedColumn", memoize(function (column) {
+  if (!column && typeof column !== 'string' && column.length <= 14 && !column.endsWith('.display_title')) {
+    return column;
+  }
+
+  return column.substring(0, column.length - 14);
+}));
 
 var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(HeadersRowColumn, _React$PureComponent2);
@@ -652,13 +662,13 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
 
       var hasMultipleSortOptions = sort_fields.length >= 2;
 
-      var _ref14 = sortMap || {},
-          _ref14$order = _ref14.order,
-          sortOrder = _ref14$order === void 0 ? 'asc' : _ref14$order,
-          _ref14$index = _ref14.index,
-          sortIndex = _ref14$index === void 0 ? 0 : _ref14$index,
-          _ref14$total = _ref14.total,
-          sortTotal = _ref14$total === void 0 ? 1 : _ref14$total;
+      var _ref13 = sortMap || {},
+          _ref13$order = _ref13.order,
+          sortOrder = _ref13$order === void 0 ? 'asc' : _ref13$order,
+          _ref13$index = _ref13.index,
+          sortIndex = _ref13$index === void 0 ? 0 : _ref13$index,
+          _ref13$total = _ref13.total,
+          sortTotal = _ref13$total === void 0 ? 1 : _ref13$total;
 
       var sequence = sortMap && sortTotal > 1 ? sortIndex + 1 : null;
       var cls = (sortMap ? 'active ' : '') + (hasMultipleSortOptions ? 'multiple-sort-options ' : '') + 'column-sort-icon';
@@ -666,17 +676,12 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
 
       if (showingSortOptionsMenu) {
         tooltip = "Close sort options";
-      } else if (hasMultipleSortOptions && active) {
-        // In case multiple fields selected to sort on.
-        var sortedByFieldTitles = sort_fields.filter(function (_ref15) {
-          var field = _ref15.field;
-          return !!active[field];
-        }).map(function (_ref16) {
-          var title = _ref16.title,
-              field = _ref16.field;
-          return title || field;
-        }).join(", ");
-        tooltip = sortedByFieldTitles.length > 0 ? "Sorted by <span class=\"text-600\">".concat(sortedByFieldTitles, "</span>") : null;
+      } else if (hasMultipleSortOptions && sortMap) {
+        var found = sort_fields.find(function (_ref14) {
+          var field = _ref14.field;
+          return field === sortMap.field;
+        });
+        tooltip = found ? "Sorted by <span class=\"text-600\">".concat(found.title || found.field, "</span>") : null;
       } else if (hasMultipleSortOptions) {
         tooltip = "" + sort_fields.length + " sort options";
       }
@@ -767,22 +772,22 @@ function SortOptionsMenuContainer(props) {
   }));
 }
 
-var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref17) {
-  var _ref17$header = _ref17.header,
-      header = _ref17$header === void 0 ? /*#__PURE__*/React.createElement("h5", {
+var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref15) {
+  var _ref15$header = _ref15.header,
+      header = _ref15$header === void 0 ? /*#__PURE__*/React.createElement("h5", {
     className: "dropdown-header mt-0 px-3 pt-03 text-600"
-  }, "Sort by") : _ref17$header,
-      currentSortColumn = _ref17.currentSortColumn,
-      sort_fields = _ref17.sort_fields,
-      sortByField = _ref17.sortByField,
-      _ref17$descend = _ref17.descend,
-      descend = _ref17$descend === void 0 ? false : _ref17$descend,
-      _ref17$style = _ref17.style,
-      style = _ref17$style === void 0 ? null : _ref17$style;
-  var options = sort_fields.map(function (_ref18) {
-    var field = _ref18.field,
-        _ref18$title = _ref18.title,
-        title = _ref18$title === void 0 ? null : _ref18$title;
+  }, "Sort by") : _ref15$header,
+      currentSortColumn = _ref15.currentSortColumn,
+      sort_fields = _ref15.sort_fields,
+      sortByField = _ref15.sortByField,
+      _ref15$descend = _ref15.descend,
+      descend = _ref15$descend === void 0 ? false : _ref15$descend,
+      _ref15$style = _ref15.style,
+      style = _ref15$style === void 0 ? null : _ref15$style;
+  var options = sort_fields.map(function (_ref16) {
+    var field = _ref16.field,
+        _ref16$title = _ref16.title,
+        title = _ref16$title === void 0 ? null : _ref16$title;
     // TODO grab title from schemas if not provided.
     var isActive = currentSortColumn === field;
     var cls = "dropdown-item" + " clickable no-highlight no-user-select" + " d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
@@ -800,17 +805,12 @@ var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref17) {
     style: style
   }, header, options);
 });
-var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref19) {
-  var descend = _ref19.descend,
-      showingSortOptionsMenu = _ref19.showingSortOptionsMenu,
-      _ref19$isLoading = _ref19.isLoading,
-      isLoading = _ref19$isLoading === void 0 ? false : _ref19$isLoading,
-      propSequence = _ref19.sequence;
-  var sequence = null;
-
-  if (propSequence && typeof propSequence === 'number') {
-    sequence = /*#__PURE__*/React.createElement("sup", null, propSequence);
-  }
+var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref17) {
+  var descend = _ref17.descend,
+      showingSortOptionsMenu = _ref17.showingSortOptionsMenu,
+      _ref17$isLoading = _ref17.isLoading,
+      isLoading = _ref17$isLoading === void 0 ? false : _ref17$isLoading,
+      propSequence = _ref17.sequence;
 
   if (isLoading) {
     return /*#__PURE__*/React.createElement("i", {
@@ -822,6 +822,12 @@ var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref19) {
     return /*#__PURE__*/React.createElement("i", {
       className: "icon icon-fw icon-times fas"
     });
+  }
+
+  var sequence = null;
+
+  if (propSequence && typeof propSequence === 'number') {
+    sequence = /*#__PURE__*/React.createElement("sup", null, propSequence);
   }
 
   if (descend) {

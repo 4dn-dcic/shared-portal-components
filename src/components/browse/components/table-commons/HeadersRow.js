@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
@@ -63,27 +63,6 @@ export class HeadersRow extends React.PureComponent {
         });
     }
 
-    /** Minor optimization to avoid having each col figure out if is active any time sort changes */
-    static getActiveColumnMap(columnDefinitions, sortColumn, sortReverse){
-        const retObj = {};
-        columnDefinitions.forEach(function({ field, sort_fields = [] }){
-            if (sort_fields.length < 2) {
-                const useField = (sort_fields[0] && sort_fields[0].field) || field;
-                if (useField === sortColumn) {
-                    retObj[field] = [ sortReverse ];
-                }
-            } else {
-                const activeField = sort_fields.find(function({ field: sField }){
-                    return sField === sortColumn;
-                });
-                if (activeField) {
-                    retObj[field] = { [activeField.field]: [ sortReverse ] };
-                }
-            }
-        });
-        return retObj;
-    }
-
     static getSortColumnMap(columnDefinitions, sortColumns) {
         const retObj = {};
         columnDefinitions.forEach(function ({ field, sort_fields = [] }) {
@@ -91,17 +70,22 @@ export class HeadersRow extends React.PureComponent {
                 const useField = (sort_fields[0] && sort_fields[0].field) || field;
                 const total = sortColumns.length;
                 sortColumns.forEach(function ({ column, order }, index) {
-                    if (useField === column) {
+                    const trimmedColumn = HeadersRow.getTrimmedColumn(column);
+
+                    if (useField === column || (trimmedColumn && useField === trimmedColumn)) {
                         retObj[field] = { ...{ index, order, total } };
                     }
                 });
             } else {
-                const activeField = sort_fields.find(function ({ field: sField }) {
-                    return sField === sortColumn;
+                /** @todo optimize the loops */
+                sortColumns.forEach(function ({ column, order }, index) {
+                    const total = sortColumns.length;
+                    sort_fields.forEach(function ({ field: sField }) {
+                        if (column === sField) {
+                            retObj[field] = { ...{ index, order, total, field: sField, parent: field } };
+                        }
+                    });
                 });
-                // if (activeField) {
-                //     retObj[field] = { [activeField.field]: [sortReverse] };
-                // }
             }
         });
         return retObj;
@@ -125,6 +109,17 @@ export class HeadersRow extends React.PureComponent {
         return null;
     }
 
+    /**
+     * linkTo fields are appended by .display_title by backend so we trim it to find a match
+     */
+    static getTrimmedColumn = memoize(function getTrimmedColumn(column) {
+        if (!column && typeof column !== 'string' && column.length <= 14 && !column.endsWith('.display_title')) {
+            return column;
+        }
+
+        return column.substring(0, column.length - 14);
+    });
+
     constructor(props){
         super(props);
         this.onWindowClick = this.onWindowClick.bind(this);
@@ -139,9 +134,9 @@ export class HeadersRow extends React.PureComponent {
         };
         this.memoized = {
             alignedWidths: memoize(HeadersRow.alignedWidths),
-            getActiveColumnMap: memoize(HeadersRow.getActiveColumnMap),
             getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
-            getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
+            getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
+            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
         };
     }
 
@@ -165,8 +160,10 @@ export class HeadersRow extends React.PureComponent {
         // Unset loading icon
         const [{ column : sortColumn = null, order : sortOrder = null }] = sortColumns || [];
         const [{ column : pastSortColumn = null, order : pastSortOrder = null }] = pastSortColumns || [];
-        if (loadingField !== null && sortColumn === loadingField && (sortColumn !== pastSortColumn || sortOrder !== pastSortOrder)) {
-            nextState.loadingField = null;
+        if (loadingField !== null && (sortColumn !== pastSortColumn || sortOrder !== pastSortOrder)) {
+            if (sortColumn === loadingField || HeadersRow.getTrimmedColumn(sortColumn) === loadingField) {
+                nextState.loadingField = null;
+            }
         }
 
         // Unset dropdown menu if start scrolling horizontally
@@ -205,7 +202,9 @@ export class HeadersRow extends React.PureComponent {
         const { sortColumns, sortBy } = this.props;
         const [{ column = null, order = "desc" } = {}] = sortColumns || [];
 
-        const isActive = column === field;
+        const trimmedColumn = HeadersRow.getTrimmedColumn(column);
+
+        const isActive = column === field || (trimmedColumn && trimmedColumn === field);
         const beDescending = !isActive || (isActive && order !== "desc");
 
         this.setState({ "loadingField": field, "showingSortFieldsForColumn" : null }, function(){
@@ -246,7 +245,6 @@ export class HeadersRow extends React.PureComponent {
             windowWidth
         } = this.props;
         const { showingSortFieldsForColumn, widths, loadingField } = this.state;
-        // const activeColumnMap = this.memoized.getActiveColumnMap(columnDefinitions, sortColumn, sortReverse);
         const sortColumnMap = this.memoized.getSortColumnMap(columnDefinitions, sortColumns);
         const leftOffset = 0 - tableContainerScrollLeft;
         const isSortable = typeof sortBy === "function";
@@ -273,6 +271,14 @@ export class HeadersRow extends React.PureComponent {
 
         const alignedWidths = this.memoized.alignedWidths(columnDefinitions, columnWidths, widths, windowWidth);
         const rootLoadingField = this.memoized.getRootLoadingField(columnDefinitions, loadingField);
+        let sortColumn = null, sortReverse = null;
+        if (showingSortFieldsForColumn) {
+            const col = sortColumnMap[showingSortFieldsForColumn];
+            if (col) {
+                sortColumn = col.field || showingSortFieldsForColumn;
+                sortReverse = col.order === 'desc';
+            }
+        }
         return (
             <div className={outerClassName} style={outerStyle} data-showing-sort-fields-for={showingSortFieldsForColumn}>
                 <div className="headers-columns-overflow-container">
@@ -451,14 +457,11 @@ class ColumnSorterIcon extends React.PureComponent {
         let tooltip = null;
         if (showingSortOptionsMenu) {
             tooltip = "Close sort options";
-        } else if (hasMultipleSortOptions && active) {
-            // In case multiple fields selected to sort on.
-            const sortedByFieldTitles = sort_fields.filter(function({ field }){
-                return !!(active[field]);
-            }).map(function({ title, field }){
-                return title || field;
-            }).join(", ");
-            tooltip = sortedByFieldTitles.length > 0 ? `Sorted by <span class="text-600">${sortedByFieldTitles}</span>` : null;
+        } else if (hasMultipleSortOptions && sortMap) {
+            const found = sort_fields.find(function({ field }){
+                return field === sortMap.field;
+            });
+            tooltip = found ? `Sorted by <span class="text-600">${found.title || found.field}</span>` : null;
         } else if (hasMultipleSortOptions) {
             tooltip = "" + sort_fields.length + " sort options";
         }
@@ -552,17 +555,18 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({
 
 const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ descend, showingSortOptionsMenu, isLoading = false, sequence : propSequence }){
 
-    let sequence = null;
-    if (propSequence && typeof propSequence === 'number') {
-        sequence = (<sup>{propSequence}</sup>);
-    }
-
     if (isLoading) {
         return <i className="icon icon-fw icon-circle-notch icon-spin fas"/>;
     }
     if (showingSortOptionsMenu) {
         return <i className="icon icon-fw icon-times fas"/>;
     }
+
+    let sequence = null;
+    if (propSequence && typeof propSequence === 'number') {
+        sequence = (<sup>{propSequence}</sup>);
+    }
+
     if (descend){
         return (
             <React.Fragment>

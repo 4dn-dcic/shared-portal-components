@@ -220,6 +220,37 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
 
       return columns;
     }
+  }, {
+    key: "flattenColumnsDefinitionsSortFields",
+    value: function flattenColumnsDefinitionsSortFields(columnDefinitions) {
+      var result = _.reduce(columnDefinitions, function (m, colDef) {
+        var hasSubFields = colDef.sort_fields && Array.isArray(colDef.sort_fields) && colDef.sort_fields.length > 0;
+        m.push({
+          'title': colDef.title,
+          'field': colDef.field,
+          'parentField': colDef.field,
+          'hasSubFields': hasSubFields,
+          'noSort': colDef.noSort
+        });
+
+        if (hasSubFields) {
+          _.forEach(colDef.sort_fields, function (sortField, idx) {
+            m.push({
+              'title': colDef.title + ' / ' + sortField.title,
+              'field': sortField.field,
+              'parentField': colDef.field,
+              'hasSubFields': false,
+              'noSort': colDef.noSort,
+              'last': colDef.sort_fields.length - 1 === idx
+            });
+          });
+        }
+
+        return m;
+      }, []);
+
+      return result;
+    }
   }]);
 
   function MultiColumnSortSelector(props) {
@@ -233,7 +264,8 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
     _this3.handleSortRowDelete = _this3.handleSortRowDelete.bind(_assertThisInitialized(_this3));
     _this3.handleSettingsApply = _this3.handleSettingsApply.bind(_assertThisInitialized(_this3));
     _this3.memoized = {
-      getSortColumnAndOrderPairs: memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs)
+      getSortColumnAndOrderPairs: memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs),
+      flattenColumnsDefinitionsSortFields: memoize(MultiColumnSortSelector.flattenColumnsDefinitionsSortFields)
     };
     var _props$sortColumns = props.sortColumns,
         sortColumns = _props$sortColumns === void 0 ? {} : _props$sortColumns;
@@ -351,13 +383,15 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
 
       var columnDefinitions = this.props.columnDefinitions;
       var sortingPairs = this.state.sortingPairs;
+      var allSortFields = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions);
       return /*#__PURE__*/React.createElement("div", {
         className: "row mb-1 clearfix"
       }, sortingPairs.map(function (pair, idx, all) {
         return /*#__PURE__*/React.createElement(MultiColumnSortOption, _extends({}, pair, {
           key: pair.column || idx,
           allColumns: columnDefinitions,
-          allSortColumns: all,
+          allSortFields: allSortFields,
+          rowCount: all.length,
           index: idx,
           handleSortColumnSelection: _this4.handleSortColumnSelection,
           handleSortOrderSelection: _this4.handleSortOrderSelection,
@@ -378,8 +412,8 @@ MultiColumnSortSelector.propTypes = {
   'href': PropTypes.string
 };
 var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
-  var allColumns = props.allColumns,
-      allSortColumns = props.allSortColumns,
+  var allSortFields = props.allSortFields,
+      rowCount = props.rowCount,
       column = props.column,
       order = props.order,
       index = props.index,
@@ -388,11 +422,18 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
       handleSortRowDelete = props.handleSortRowDelete,
       handleSettingsApply = props.handleSettingsApply;
 
-  var found = _.find(allColumns, function (item) {
+  var found = _.find(allSortFields, function (item) {
     return item.field === column;
-  });
+  }); //linkTo fields are appended by .display_title by backend so we try once more to find a match
 
-  var isLastRow = allSortColumns.length - 1 === index;
+
+  if (!found && column && column.endsWith('.display_title')) {
+    var trimmedColumn = column.substring(0, column.length - 14);
+    found = _.find(allSortFields, function (item) {
+      return item.field === trimmedColumn;
+    });
+  }
+
   var sortOrderTitle = order !== 'desc' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
     className: "d-lg-none"
   }, "ASC"), /*#__PURE__*/React.createElement("span", {
@@ -415,13 +456,13 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
     variant: "outline-secondary",
     size: "sm",
     onSelect: handleSortColumnSelection
-  }, allColumns.map(function (col, idx) {
-    return /*#__PURE__*/React.createElement(DropdownItem, {
+  }, allSortFields.map(function (col, idx) {
+    return !col.hasSubFields ? /*#__PURE__*/React.createElement(DropdownItem, {
       key: "sort-column-" + idx,
       eventKey: index + '|' + col.field,
       active: col.field === column,
       disabled: !!col.noSort
-    }, col.title);
+    }, col.title) : null;
   }))), /*#__PURE__*/React.createElement("div", {
     className: "col-3"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
@@ -438,7 +479,7 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
     eventKey: index + "|desc"
   }, "Descending"))), /*#__PURE__*/React.createElement("div", {
     className: "col-1 pl-0 pr-0"
-  }, !isLastRow ? /*#__PURE__*/React.createElement("button", {
+  }, !(rowCount - 1 === index) ? /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-outline-secondary btn-sm w-100",
     onClick: function onClick() {

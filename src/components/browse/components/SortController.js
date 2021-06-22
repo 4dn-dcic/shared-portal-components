@@ -127,6 +127,27 @@ export class MultiColumnSortSelector extends React.PureComponent {
         return columns;
     }
 
+    static flattenColumnsDefinitionsSortFields(columnDefinitions) {
+        const result = _.reduce(columnDefinitions, function (m, colDef) {
+            const hasSubFields = colDef.sort_fields && Array.isArray(colDef.sort_fields) && colDef.sort_fields.length > 0;
+            m.push({ 'title': colDef.title, 'field': colDef.field, 'parentField': colDef.field, 'hasSubFields': hasSubFields, 'noSort': colDef.noSort });
+            if (hasSubFields) {
+                _.forEach(colDef.sort_fields, function (sortField, idx) {
+                    m.push({
+                        'title': colDef.title + ' / ' + sortField.title,
+                        'field': sortField.field,
+                        'parentField': colDef.field,
+                        'hasSubFields': false,
+                        'noSort': colDef.noSort,
+                        'last': colDef.sort_fields.length - 1 === idx
+                    });
+                });
+            }
+            return m;
+        }, []);
+        return result;
+    }
+
     constructor(props){
         super(props);
 
@@ -135,7 +156,8 @@ export class MultiColumnSortSelector extends React.PureComponent {
         this.handleSortRowDelete = this.handleSortRowDelete.bind(this);
         this.handleSettingsApply = this.handleSettingsApply.bind(this);
         this.memoized = {
-            getSortColumnAndOrderPairs : memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs)
+            getSortColumnAndOrderPairs : memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs),
+            flattenColumnsDefinitionsSortFields : memoize(MultiColumnSortSelector.flattenColumnsDefinitionsSortFields)
         };
 
         const { sortColumns = {} } = props;
@@ -217,10 +239,11 @@ export class MultiColumnSortSelector extends React.PureComponent {
     render(){
         const { columnDefinitions } = this.props;
         const { sortingPairs } = this.state;
+        const allSortFields = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions);
         return (
             <div className="row mb-1 clearfix">
                 { sortingPairs.map((pair, idx, all) =>
-                    <MultiColumnSortOption {...pair} key={pair.column || idx} allColumns={columnDefinitions} allSortColumns={all} index={idx}
+                    <MultiColumnSortOption {...pair} key={pair.column || idx} allColumns={columnDefinitions} allSortFields={allSortFields} rowCount={all.length} index={idx}
                         handleSortColumnSelection={this.handleSortColumnSelection}
                         handleSortOrderSelection={this.handleSortOrderSelection}
                         handleSortRowDelete={this.handleSortRowDelete}
@@ -240,26 +263,29 @@ MultiColumnSortSelector.propTypes = {
 };
 
 const MultiColumnSortOption = React.memo(function MultiColumnSortOption(props){
-    const { allColumns, allSortColumns, column, order, index, handleSortColumnSelection, handleSortOrderSelection, handleSortRowDelete, handleSettingsApply } = props;
-    const found = _.find(allColumns, (item) => item.field === column);
-    const isLastRow = (allSortColumns.length - 1 === index);
+    const { allSortFields, rowCount, column, order, index, handleSortColumnSelection, handleSortOrderSelection, handleSortRowDelete, handleSettingsApply } = props;
+    let found = _.find(allSortFields, (item) => item.field === column);
+    //linkTo fields are appended by .display_title by backend so we try once more to find a match
+    if (!found && column && column.endsWith('.display_title')) {
+        const trimmedColumn = column.substring(0, column.length - 14);
+        found = _.find(allSortFields, (item) => item.field === trimmedColumn);
+    }
+    const isLastRow = (rowCount - 1 === index);
     const sortOrderTitle = order !== 'desc' ?
-        (
-            <React.Fragment>
-                <span className="d-lg-none">ASC</span><span className="d-none d-lg-inline">Ascending</span>
-            </React.Fragment>) :
-        (
-            <React.Fragment>
-                <span className="d-lg-none">DESC</span><span className="d-none d-lg-inline">Descending</span>
-            </React.Fragment>);
+        (<React.Fragment><span className="d-lg-none">ASC</span><span className="d-none d-lg-inline">Ascending</span></React.Fragment>) :
+        (<React.Fragment><span className="d-lg-none">DESC</span><span className="d-none d-lg-inline">Descending</span></React.Fragment>);
 
     return (
         <div className="row col-12 mt-1 multi-column-sort clearfix" key={column} data-tip={""} data-html>
             <div className="col-8">
                 <DropdownButton className={"btn-block"} title={found ? found.title : "Select a column to sort"} variant="outline-secondary" size="sm" onSelect={handleSortColumnSelection}>
                     {
-                        allColumns.map(function (col, idx) {
-                            return (<DropdownItem key={"sort-column-" + idx} eventKey={index + '|' + col.field} active={col.field === column} disabled={!!col.noSort}>{col.title}</DropdownItem>);
+                        allSortFields.map(function (col, idx) {
+                            return (
+                                !col.hasSubFields ?
+                                    <DropdownItem key={"sort-column-" + idx} eventKey={index + '|' + col.field} active={col.field === column} disabled={!!col.noSort}>{col.title}</DropdownItem>
+                                    : null
+                            );
                         })
                     }
                 </DropdownButton>
