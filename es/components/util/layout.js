@@ -236,7 +236,13 @@ export var textContentWidth = memoize(function (textContent) {
   var style = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
   var contElem = document.createElement(containerElementType);
   contElem.className = "off-screen " + (containerClassName || '');
-  contElem.innerHTML = textContent + contElem.offsetHeight;
+  var constOffsetHeight = contElem.offsetHeight;
+
+  for (var i = 0; i < constOffsetHeight; i++) {
+    textContent += " ";
+  }
+
+  contElem.innerHTML = textContent;
   if (style) contElem.style = style;
   contElem.style.whiteSpace = "nowrap";
   document.body.appendChild(contElem);
