@@ -593,6 +593,11 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
         });
       }
     }
+    /**
+     * Basically just wraps the handleAddFile f(x) from props in the case verification is enabled and resets checkbox if new files are added
+     * @param {Object} evt  The click event to be passed to handleAddFile
+     */
+
   }, {
     key: "handleAddFileAndResetVerification",
     value: function handleAddFileAndResetVerification(evt) {
