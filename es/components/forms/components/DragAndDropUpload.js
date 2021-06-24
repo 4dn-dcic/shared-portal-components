@@ -298,7 +298,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         return _this3.createItem(file, true) // Validate
         .then(function (response) {
           if (response.status && response.status !== 'success') {
-            var errorMessage = "Validation failed!\n\n".concat(response.description, " ").concat(response.detail);
+            var _response$errors = response.errors;
+            _response$errors = _response$errors === void 0 ? {} : _response$errors;
+            var _response$errors$ = _response$errors[0];
+            _response$errors$ = _response$errors$ === void 0 ? {} : _response$errors$;
+            var description = _response$errors$.description,
+                respDescription = response.description;
+            var errorMessage = "Validation failed!\n\n".concat(respDescription, " ").concat(description);
             throw new Error(errorMessage);
           } else {
             console.log("validation succeeded");
@@ -306,7 +312,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           }
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
-            var errorMessage = "Create item failed!\n\n".concat(resp.description, " ").concat(resp.detail);
+            var _resp$errors = resp.errors;
+            _resp$errors = _resp$errors === void 0 ? {} : _resp$errors;
+            var _resp$errors$ = _resp$errors[0];
+            _resp$errors$ = _resp$errors$ === void 0 ? {} : _resp$errors$;
+            var description = _resp$errors$.description,
+                respDescription = resp.description;
+            var errorMessage = "Create item failed!\n\n".concat(respDescription, " ").concat(description);
             alert(errorMessage);
             throw new Error(errorMessage);
           } else {
@@ -319,7 +331,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           }
         }).then(function (res) {
           if (res.status && res.status !== 'success') {
-            var errorMessage = "Link Item to Individual failed!\n\n".concat(res.description, " ").concat(res.detail);
+            var _res$errors = res.errors;
+            _res$errors = _res$errors === void 0 ? {} : _res$errors;
+            var _res$errors$ = _res$errors[0];
+            _res$errors$ = _res$errors$ === void 0 ? {} : _res$errors$;
+            var description = _res$errors$.description,
+                respDescription = res.description;
+            var errorMessage = "Link Item to Individual failed!\n\n".concat(respDescription, " ").concat(description);
             alert(errorMessage);
             throw new Error(errorMessage);
           } else {

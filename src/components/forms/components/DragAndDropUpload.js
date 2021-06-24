@@ -242,7 +242,8 @@ export class DragAndDropFileUploadController extends React.Component {
             return this.createItem(file, true) // Validate
                 .then((response) => {
                     if (response.status && response.status !== 'success') {
-                        const errorMessage = `Validation failed!\n\n${response.description} ${response.detail}`;
+                        const { errors: { 0: { description } = {} } = {}, description: respDescription } = response;
+                        const errorMessage = `Validation failed!\n\n${respDescription} ${description}`;
                         throw new Error(errorMessage);
                     } else {
                         console.log("validation succeeded");
@@ -251,7 +252,8 @@ export class DragAndDropFileUploadController extends React.Component {
                 })
                 .then((resp) => {
                     if (resp.status && resp.status !== 'success') {
-                        const errorMessage = `Create item failed!\n\n${resp.description} ${resp.detail}`;
+                        const { errors: { 0: { description } = {} } = {}, description: respDescription } = resp;
+                        const errorMessage = `Create item failed!\n\n${respDescription} ${description}`;
                         alert(errorMessage);
                         throw new Error(errorMessage);
                     } else {
@@ -266,7 +268,8 @@ export class DragAndDropFileUploadController extends React.Component {
                 })
                 .then((res) => {
                     if (res.status && res.status !== 'success') {
-                        const errorMessage = `Link Item to Individual failed!\n\n${res.description} ${res.detail}`;
+                        const { errors: { 0: { description } = {} } = {}, description: respDescription } = res;
+                        const errorMessage = `Link Item to Individual failed!\n\n${respDescription} ${description}`;
                         alert(errorMessage);
                         throw new Error(errorMessage);
                     } else {
