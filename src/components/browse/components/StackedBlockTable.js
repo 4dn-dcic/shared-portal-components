@@ -142,14 +142,18 @@ export class StackedBlockList extends React.PureComponent {
         'collapseLongLists'   : PropTypes.bool,
         'defaultCollapsed'    : PropTypes.bool,
         'children'            : PropTypes.arrayOf(PropTypes.node),
-        'stackDepth'          : PropTypes.number
+        'stackDepth'          : PropTypes.number,
+        'collapseShowMoreLimit':PropTypes.number
     };
 
     constructor(props){
         super(props);
         this.adjustedChildren = this.adjustedChildren.bind(this);
         this.handleCollapseToggle = this.handleCollapseToggle.bind(this);
-        this.state = { 'collapsed' : props.defaultCollapsed };
+        this.handleCollapseMoreThanClick =this.handleCollapseMoreThanClick.bind(this);
+        this.handleCollapseMoreLessClick =this.handleCollapseMoreLessClick.bind(this);
+
+        this.state = { 'collapsed': props.defaultCollapsed, 'collapsibleCounter': 0 };
     }
 
     adjustedChildren(){
@@ -161,7 +165,7 @@ export class StackedBlockList extends React.PureComponent {
             const childProps = { colWidthStyles, columnHeaders, stackDepth : stackDepth + 1 };
             //const childProps = _.pick(this.props, 'colWidthStyles', 'selectedFiles', 'columnHeaders', 'handleFileCheckboxChange');
 
-            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed'], (prop)=>{
+            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'collapseShowMoreLimit'], (prop)=>{
                 if (typeof c.props[prop] === 'undefined'){
                     childProps[prop] = this.props[prop] || null;
                 }
@@ -185,9 +189,17 @@ export class StackedBlockList extends React.PureComponent {
         });
     }
 
+    handleCollapseMoreThanClick(count){
+        this.setState({ 'collapsibleCounter' : count + 100 });
+    }
+
+    handleCollapseMoreLessClick(count){
+        this.setState({ 'collapsibleCounter' : count });
+    }
+
     render(){
-        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, className, colWidthStyles, columnClass } = this.props;
-        const { collapsed } = this.state;
+        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, className, colWidthStyles, columnClass, collapseShowMoreLimit } = this.props;
+        const { collapsed, collapsibleCounter } = this.state;
         const children = this.adjustedChildren();
         const useStyle = colWidthStyles["list:" + columnClass]; // columnClass here is of parent StackedBlock, not of its children.
         const cls = "s-block-list " + (className || '') + (' stack-depth-' + stackDepth);
@@ -197,13 +209,26 @@ export class StackedBlockList extends React.PureComponent {
             return <div className={cls} style={useStyle}>{ children }</div>;
         }
 
-        const collapsibleChildren = children.slice(collapseShow);
-        const collapsibleChildrenLen = collapsibleChildren.length;
+        let collapsibleChildren;
+        //More than collapse calculate
+        if (children.length > collapseShowMoreLimit) {
+            collapsibleChildren = children.slice(0, collapsibleCounter+collapseShow);
+        }
+        else {
+            collapsibleChildren = children.slice(collapseShow);
+        }
+        const collapsibleChildrenLen =  collapsibleChildren.length;
+
 
         var collapsibleChildrenElemsList;
 
         if (collapsibleChildrenLen > Math.min(collapseShow, 10)) { // Don't transition
-            collapsibleChildrenElemsList = collapsed ? null : <div className="collapsible-s-block-ext">{ collapsibleChildren }</div>;
+            if (collapsibleCounter > 0) {
+                collapsibleChildrenElemsList= <div className="collapsible-s-block-ext">{children.slice(0, collapsibleCounter)}</div>;
+            }
+            else {
+                collapsibleChildrenElemsList = collapsed ? null : <div className="collapsible-s-block-ext">{collapsibleChildren}</div>;
+            }
         } else {
             collapsibleChildrenElemsList = (
                 <Collapse in={!collapsed}>
@@ -211,13 +236,44 @@ export class StackedBlockList extends React.PureComponent {
                 </Collapse>
             );
         }
+        const calculateCollapseCounter = children.length - collapsibleChildren <= 100 ? children.length : collapsibleCounter;
 
+        let collapseType=null;
+        let title;
+        if (children.length - collapsibleChildren.length <= 100) {
+            title = `Show ${children.length - collapsibleChildren.length} More Files`;
+        } else {
+            title = `Show 100 More Files (Total ${children.length - collapsibleChildren.length} Files to Show)`;
+        }
+        if (children.length > collapseShowMoreLimit) {
+            collapseType = (children.length > collapseShowMoreLimit && children.length - collapsibleCounter > 0 ?
+                <div className="view-more-button" onClick={(evt) => {
+                    this.handleCollapseMoreThanClick(calculateCollapseCounter);
+                }}>
+                    <i className="mr-1 icon fas icon-plus" />
+                    {<span> {title} </span>}
+                </div> : null);
+        }
+        else {
+            collapseType = (
+                <StackedBlockListViewMoreButton {...this.props} collapsibleChildren={collapsibleChildren}
+                    collapsed={collapsed} handleCollapseToggle={this.handleCollapseToggle}
+                />);
+        }
         return (
             <div className={cls} data-count-collapsed={collapsibleChildren.length} style={useStyle}>
-                { children.slice(0, collapseShow) }
-                { collapsibleChildrenElemsList }
-                <StackedBlockListViewMoreButton {...this.props} collapsibleChildren={collapsibleChildren}
-                    collapsed={collapsed} handleCollapseToggle={this.handleCollapseToggle} />
+                {collapsibleCounter > collapseShow ?
+                    <div className="view-more-button" onClick={(evt) => {
+                        this.handleCollapseMoreLessClick(calculateCollapseCounter-100);
+                    }}>
+                        <i className="icon fas icon-minus mr-1 ml-02 small" />
+                        {<span> {'Show Fewer Files '}</span>}
+                    </div>
+                    : null}
+
+                { children.slice(0, collapseShow)}
+                { collapsibleChildrenElemsList}
+                { collapseType }
             </div>
         );
     }
@@ -253,7 +309,7 @@ export class StackedBlock extends React.PureComponent {
             );
             */
 
-            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand'], (prop)=>{
+            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand', 'collapseShowMoreLimit'], (prop)=>{
                 if (typeof c.props[prop] === 'undefined'){
                     childProps[prop] = this.props[prop];
                 }
@@ -380,6 +436,7 @@ export class StackedBlockTable extends React.PureComponent {
         'collapseShow'      : 3,
         'preventExpand'     : false,
         'collapseLongLists' : true,
+        'collapseShowMoreLimit':100,
         'defaultCollapsed'  : true
     };
 
