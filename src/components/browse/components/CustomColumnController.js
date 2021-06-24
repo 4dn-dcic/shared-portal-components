@@ -77,23 +77,21 @@ export class CustomColumnController extends React.Component {
     }
 
     addHiddenColumn(field){
-        this.setState(function(currState){
-            if (currState.hiddenColumns[field] === true){
+        this.setState(function({ hiddenColumns: currHiddenColumns }){
+            if (currHiddenColumns[field] === true){
                 return null;
             }
-            var hiddenColumns = _.clone(currState.hiddenColumns);
-            hiddenColumns[field] = true;
-            return { hiddenColumns };
+            return { hiddenColumns: { ...currHiddenColumns, [field]: true } };
         });
     }
 
     removeHiddenColumn(field){
-        this.setState(function(currState){
-            if (currState.hiddenColumns[field] === false){
+        this.setState(function({ hiddenColumns: currHiddenColumns }){
+            if (currHiddenColumns[field] === false){
                 return null;
             }
-            var hiddenColumns = _.clone(currState.hiddenColumns);
-            hiddenColumns[field] = false;
+            const hiddenColumns = { ...currHiddenColumns } ;
+            delete hiddenColumns[field];
             return { hiddenColumns };
         });
     }
@@ -166,13 +164,11 @@ export class CustomColumnSelector extends React.PureComponent {
         evt.stopPropagation();
         const field = evt.target.value;
         const { hiddenColumns, removeHiddenColumn, addHiddenColumn } = this.props;
-        setTimeout(function(){
-            if (hiddenColumns[field] === true){
-                removeHiddenColumn(field);
-            } else {
-                addHiddenColumn(field);
-            }
-        }, 0);
+        if (hiddenColumns[field] === true){
+            removeHiddenColumn(field);
+        } else {
+            addHiddenColumn(field);
+        }
     }
 
     render(){

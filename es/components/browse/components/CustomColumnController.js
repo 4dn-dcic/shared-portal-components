@@ -130,30 +130,31 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "addHiddenColumn",
     value: function addHiddenColumn(field) {
-      this.setState(function (currState) {
-        if (currState.hiddenColumns[field] === true) {
+      this.setState(function (_ref) {
+        var currHiddenColumns = _ref.hiddenColumns;
+
+        if (currHiddenColumns[field] === true) {
           return null;
         }
 
-        var hiddenColumns = _.clone(currState.hiddenColumns);
-
-        hiddenColumns[field] = true;
         return {
-          hiddenColumns: hiddenColumns
+          hiddenColumns: _objectSpread(_objectSpread({}, currHiddenColumns), {}, _defineProperty({}, field, true))
         };
       });
     }
   }, {
     key: "removeHiddenColumn",
     value: function removeHiddenColumn(field) {
-      this.setState(function (currState) {
-        if (currState.hiddenColumns[field] === false) {
+      this.setState(function (_ref2) {
+        var currHiddenColumns = _ref2.hiddenColumns;
+
+        if (currHiddenColumns[field] === false) {
           return null;
         }
 
-        var hiddenColumns = _.clone(currState.hiddenColumns);
+        var hiddenColumns = _objectSpread({}, currHiddenColumns);
 
-        hiddenColumns[field] = false;
+        delete hiddenColumns[field];
         return {
           hiddenColumns: hiddenColumns
         };
@@ -258,13 +259,12 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
           hiddenColumns = _this$props2.hiddenColumns,
           removeHiddenColumn = _this$props2.removeHiddenColumn,
           addHiddenColumn = _this$props2.addHiddenColumn;
-      setTimeout(function () {
-        if (hiddenColumns[field] === true) {
-          removeHiddenColumn(field);
-        } else {
-          addHiddenColumn(field);
-        }
-      }, 0);
+
+      if (hiddenColumns[field] === true) {
+        removeHiddenColumn(field);
+      } else {
+        addHiddenColumn(field);
+      }
     }
   }, {
     key: "render",
