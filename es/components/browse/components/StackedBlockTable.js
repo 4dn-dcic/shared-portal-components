@@ -249,7 +249,7 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
     key: "handleCollapseMoreThanClick",
     value: function handleCollapseMoreThanClick(count) {
       this.setState({
-        'collapsibleCounter': count + 100
+        'collapsibleCounter': count
       });
     }
   }, {
@@ -272,7 +272,8 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           className = _this$props4.className,
           colWidthStyles = _this$props4.colWidthStyles,
           columnClass = _this$props4.columnClass,
-          collapseShowMoreLimit = _this$props4.collapseShowMoreLimit;
+          collapseShowMoreLimit = _this$props4.collapseShowMoreLimit,
+          collapseItemsIncrement = _this$props4.collapseItemsIncrement;
       var _this$state = this.state,
           collapsed = _this$state.collapsed,
           collapsibleCounter = _this$state.collapsibleCounter;
@@ -292,8 +293,11 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
       var collapsibleChildren; //More than collapse calculate
 
       if (children.length > collapseShowMoreLimit) {
+        //collapse Item Increment total lenght calculate.
+        //collapseShow first child items.
         collapsibleChildren = children.slice(0, collapsibleCounter + collapseShow);
       } else {
+        //Collapse Origin
         collapsibleChildren = children.slice(collapseShow);
       }
 
@@ -303,10 +307,12 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
       if (collapsibleChildrenLen > Math.min(collapseShow, 10)) {
         // Don't transition
         if (collapsibleCounter > 0) {
+          //Collapse Increment items for exp:(0,100)
           collapsibleChildrenElemsList = /*#__PURE__*/React.createElement("div", {
             className: "collapsible-s-block-ext"
           }, children.slice(0, collapsibleCounter));
         } else {
+          //Origin collapse Full items
           collapsibleChildrenElemsList = collapsed ? null : /*#__PURE__*/React.createElement("div", {
             className: "collapsible-s-block-ext"
           }, collapsibleChildren);
@@ -319,11 +325,11 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
         }, collapsibleChildren));
       }
 
-      var calculateCollapseCounter = children.length - collapsibleChildren <= 100 ? children.length : collapsibleCounter;
+      var calculateCollapseCounter = children.length - collapsibleChildren <= collapseItemsIncrement ? children.length : collapsibleCounter;
       var collapseType = null;
       var title;
 
-      if (children.length - collapsibleChildren.length <= 100) {
+      if (children.length - collapsibleChildren.length <= collapseItemsIncrement) {
         title = "Show ".concat(children.length - collapsibleChildren.length, " More Files");
       } else {
         title = "Show 100 More Files (Total ".concat(children.length - collapsibleChildren.length, " Files to Show)");
@@ -333,11 +339,21 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
         collapseType = children.length > collapseShowMoreLimit && children.length - collapsibleCounter > 0 ? /*#__PURE__*/React.createElement("div", {
           className: "view-more-button",
           onClick: function onClick() {
-            _this3.handleCollapseMoreThanClick(calculateCollapseCounter);
+            _this3.handleCollapseMoreThanClick(calculateCollapseCounter + collapseItemsIncrement);
           }
         }, /*#__PURE__*/React.createElement("i", {
           className: "mr-1 icon fas icon-plus"
-        }), /*#__PURE__*/React.createElement("span", null, " ", title, " ")) : null;
+        }), /*#__PURE__*/React.createElement("span", null, " ", title, " ")) :
+        /*#__PURE__*/
+        //Collapse Fewer files
+        React.createElement("div", {
+          className: "view-more-button",
+          onClick: function onClick() {
+            _this3.handleCollapseMoreLessClick(collapseShow);
+          }
+        }, /*#__PURE__*/React.createElement("i", {
+          className: "icon fas icon-minus mr-1 ml-02 small"
+        }), /*#__PURE__*/React.createElement("span", null, " ", 'Show Fewer Files '));
       } else {
         collapseType = /*#__PURE__*/React.createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
           collapsibleChildren: collapsibleChildren,
@@ -350,14 +366,7 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
         className: cls,
         "data-count-collapsed": collapsibleChildren.length,
         style: useStyle
-      }, collapsibleCounter > collapseShow ? /*#__PURE__*/React.createElement("div", {
-        className: "view-more-button",
-        onClick: function onClick() {
-          _this3.handleCollapseMoreLessClick(calculateCollapseCounter - 100);
-        }
-      }, /*#__PURE__*/React.createElement("i", {
-        className: "icon fas icon-minus mr-1 ml-02 small"
-      }), /*#__PURE__*/React.createElement("span", null, " ", 'Show Fewer Files ')) : null, children.slice(0, collapseShow), collapsibleChildrenElemsList, collapseType);
+      }, children.slice(0, collapseShow), collapsibleChildrenElemsList, collapseType);
     }
   }]);
 
@@ -374,7 +383,8 @@ _defineProperty(StackedBlockList, "propTypes", {
   'defaultCollapsed': PropTypes.bool,
   'children': PropTypes.arrayOf(PropTypes.node),
   'stackDepth': PropTypes.number,
-  'collapseShowMoreLimit': PropTypes.number
+  'collapseShowMoreLimit': PropTypes.number,
+  'collapseItemsIncrement': PropTypes.number
 });
 
 export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
@@ -670,6 +680,7 @@ _defineProperty(StackedBlockTable, "defaultProps", {
   'preventExpand': false,
   'collapseLongLists': true,
   'collapseShowMoreLimit': 100,
+  'collapseItemsIncrement': 100,
   'defaultCollapsed': true
 });
 

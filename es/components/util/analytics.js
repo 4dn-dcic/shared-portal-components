@@ -558,10 +558,15 @@ export function productClick(item) {
 
 export function productsAddToCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack()) return false;
-  var count = addProductsEE(items, extraData);
-  console.info("Adding ".concat(count, " items to cart."));
-  ga2('ec:setAction', 'add');
+
+  if (items.length < 50) {
+    if (!shouldTrack()) return false;
+    var count = addProductsEE(items, extraData);
+    console.info("Adding ".concat(count, " items to cart."));
+    ga2('ec:setAction', 'add');
+  } else {
+    console.info("We do not run analystic because the number of files is high ".concat(items.length, " items."));
+  }
 }
 export function productsRemoveFromCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -577,21 +582,26 @@ export function productsRemoveFromCart(items) {
 
 export function productsCheckout(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack()) return false;
 
-  var _ref8 = extraData || {},
-      _ref8$step = _ref8.step,
-      step = _ref8$step === void 0 ? 1 : _ref8$step,
-      _ref8$option = _ref8.option,
-      option = _ref8$option === void 0 ? null : _ref8$option,
-      extData = _objectWithoutProperties(_ref8, ["step", "option"]);
+  if (items.length < 50) {
+    if (!shouldTrack()) return false;
 
-  var count = addProductsEE(items, extData);
-  ga2('ec:setAction', 'checkout', {
-    step: step,
-    option: option
-  });
-  console.info("Checked out ".concat(count, " items."));
+    var _ref8 = extraData || {},
+        _ref8$step = _ref8.step,
+        step = _ref8$step === void 0 ? 1 : _ref8$step,
+        _ref8$option = _ref8.option,
+        option = _ref8$option === void 0 ? null : _ref8$option,
+        extData = _objectWithoutProperties(_ref8, ["step", "option"]);
+
+    var count = addProductsEE(items, extData);
+    ga2('ec:setAction', 'checkout', {
+      step: step,
+      option: option
+    });
+    console.info("Checked out ".concat(count, " items."));
+  } else {
+    console.info("We do not run analystic because the number of files is high ".concat(items.length, " items."));
+  }
 }
 export function productAddDetailViewed(item) {
   var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -839,54 +849,59 @@ export function impressionListOfItems(itemList) {
   var href = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var listName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var context = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-  if (!shouldTrack()) return false;
-  context = context || state && state.reduxStore && state.reduxStore.getState().context || null;
-  var from = 0;
 
-  if (typeof href === 'string') {
-    // Convert to URL parts.
-    href = url.parse(href, true);
-    if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
-  }
+  if (itemList.length < 50) {
+    if (!shouldTrack()) return false;
+    context = context || state && state.reduxStore && state.reduxStore.getState().context || null;
+    var from = 0;
 
-  href = href || window.location.href;
-  var commonProductObj = {
-    "list": listName || href && hrefToListName(href)
-  };
+    if (typeof href === 'string') {
+      // Convert to URL parts.
+      href = url.parse(href, true);
+      if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
+    }
 
-  if (context && context.filters && state.dimensionNameMap.currentFilters) {
-    commonProductObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
-  }
+    href = href || window.location.href;
+    var commonProductObj = {
+      "list": listName || href && hrefToListName(href)
+    };
 
-  var resultsImpressioned = itemList.filter(function (item) {
-    // Ensure we have permissions, can get product SKU, etc.
-    var display_title = item.display_title,
-        id = item['@id'],
-        _item$error = item.error,
-        error = _item$error === void 0 ? null : _item$error,
-        itemType = item['@type'];
+    if (context && context.filters && state.dimensionNameMap.currentFilters) {
+      commonProductObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+    }
 
-    if (!id || !display_title || !Array.isArray(itemType)) {
-      if (error) {
-        // Likely no view permissions, ok.
+    var resultsImpressioned = itemList.filter(function (item) {
+      // Ensure we have permissions, can get product SKU, etc.
+      var display_title = item.display_title,
+          id = item['@id'],
+          _item$error = item.error,
+          error = _item$error === void 0 ? null : _item$error,
+          itemType = item['@type'];
+
+      if (!id || !display_title || !Array.isArray(itemType)) {
+        if (error) {
+          // Likely no view permissions, ok.
+          return false;
+        }
+
+        var errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
+        exception(errMsg);
+        console.error(errMsg, item);
         return false;
       }
 
-      var errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
-      exception(errMsg);
-      console.error(errMsg, item);
-      return false;
-    }
+      return true;
+    }).map(function (item, i) {
+      var pObj = _.extend(itemToProductTransform(item), commonProductObj, {
+        'position': from + i + 1
+      });
 
-    return true;
-  }).map(function (item, i) {
-    var pObj = _.extend(itemToProductTransform(item), commonProductObj, {
-      'position': from + i + 1
+      ga2('ec:addImpression', pObj);
+      return pObj;
     });
-
-    ga2('ec:addImpression', pObj);
-    return pObj;
-  });
-  console.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1, " in list \"").concat(commonProductObj.list, "\""));
-  return resultsImpressioned;
+    console.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1, " in list \"").concat(commonProductObj.list, "\""));
+    return resultsImpressioned;
+  } else {
+    return false;
+  }
 }
