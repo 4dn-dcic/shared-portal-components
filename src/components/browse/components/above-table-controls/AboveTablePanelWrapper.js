@@ -12,6 +12,13 @@ export const AboveTablePanelWrapper = React.memo(function AboveTablePanelWrapper
             </a>
         );
     }
+    const childrenWithProps = React.Children.map(children, (child) => {
+        // checking isValidElement is the safe way and avoids a typescript error too
+        if (React.isValidElement(child)) {
+            return React.cloneElement(child, { onClose: onClose });
+        }
+        return child;
+    });
     return (
         <div className={"search-result-config-panel" + (className ? ' ' + className : '')}>
             <div className="inner">
@@ -19,7 +26,7 @@ export const AboveTablePanelWrapper = React.memo(function AboveTablePanelWrapper
                     { title }
                     { closeButton }
                 </h5>
-                { children }
+                { childrenWithProps }
             </div>
         </div>
     );

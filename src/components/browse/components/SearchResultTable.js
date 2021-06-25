@@ -963,7 +963,7 @@ class DimensioningContainer extends React.PureComponent {
         const anyResults = results.length > 0;
 
         const headerRowCommonProps = {
-            ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse',
+            ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse',
                 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth'),
             mounted, results, rowHeight, setColumnWidths, columnWidths,
             tableContainerScrollLeft
@@ -1061,6 +1061,7 @@ class DimensioningContainer extends React.PureComponent {
  * @prop {Object}           [defaultWidthMap]   Default column widths per responsive grid state. Applied to all non-constant columns.
  * @prop {string[]}         [hiddenColumns]     Keys of columns to remove from final columnDefinitions before rendering.
  * @prop {function}         [renderDetailPane]  An instance of a React component which will receive prop 'result'.
+ * @prop {Object[]}         sortColumns         List of current sort columns and orders: [{column: column_name, order: 'asc' or 'desc'}]
  * @prop {string}           sortColumn          Current sort column, as fed by SortController.
  * @prop {boolean}          sortReverse         Whether current sort column is reversed, as fed by SortController.
  * @prop {function}         sortBy              Callback function for performing a sort, acceping 'sortColumn' and 'sortReverse' as params. As fed by SortController.

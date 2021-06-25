@@ -7,7 +7,7 @@ import { AboveTableControlsBase } from './AboveTableControlsBase';
 
 /** This left section for Search should be made prettier, either kept in 4DN or re-used. */
 export const AboveSearchViewTableControls = React.memo(function AboveSearchViewTableControls(props){
-    const { context, currentAction, topLeftChildren } = props;
+    const { context, currentAction, topLeftChildren, isFullscreen, windowWidth, toggleFullScreen, sortBy } = props;
     const { total: showTotalResults = 0 } = context || {};
 
     // Case if on SearchView
@@ -40,8 +40,8 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
 
     return (
         // TODO refactor out panelMap stuff.
-        <AboveTableControlsBase panelMap={AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)}
-            {..._.pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')}>
+        <AboveTableControlsBase {...{ isFullscreen, windowWidth,toggleFullScreen, sortBy }}
+            panelMap={AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)}>
             <LeftSectionControls {...{ total, addButton, topLeftChildren }} />
         </AboveTableControlsBase>
     );

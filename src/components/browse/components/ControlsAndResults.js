@@ -57,8 +57,8 @@ export class ControlsAndResults extends React.PureComponent {
             // From SearchView or similar portal-specific HOCs (e.g. BrowseView, ...):
             facets, termTransformFxn, rowHeight,
             separateSingleTermFacets, navigate,
-            facetColumnClassName = "col-12 col-sm-5 col-lg-4 col-xl-3",
-            tableColumnClassName = "col-12 col-sm-7 col-lg-8 col-xl-9",
+            facetColumnClassName = "col-12 col-md-5 col-lg-4 col-xl-3",
+            tableColumnClassName = "col-12 col-md-7 col-lg-8 col-xl-9",
             targetTabKey,
             // Default is component that renders out predefined buttons if receives props/data for them such as "Create New", "Full Screen", and "Column Selector".
             aboveTableComponent = <AboveSearchViewTableControls />, // Gets cloned further down in code to receive props from this ControlsAndResults component.
@@ -86,7 +86,7 @@ export class ControlsAndResults extends React.PureComponent {
             // From SelectedItemsController:
             selectedItems = null,
             // From SortController:
-            sortBy, sortColumn, sortReverse
+            sortBy, sortColumns
         } = this.props;
 
         // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
@@ -98,7 +98,7 @@ export class ControlsAndResults extends React.PureComponent {
             context, href, requestedCompoundFilterSet, navigate, currentAction, schemas, results,
             columnDefinitions, visibleColumnDefinitions,
             setColumnWidths, columnWidths, detailPane,
-            isOwnPage, sortBy, sortColumn, sortReverse, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
+            isOwnPage, sortBy, sortColumns, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, targetTabKey,
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
@@ -116,13 +116,14 @@ export class ControlsAndResults extends React.PureComponent {
         const commonChildProps = {
             // Props which don't change too frequently and/or are useful to many components -
             context, navigate, // <- search response context, prop navigate (could be virtual or global)
-            schemas, session,
+            schemas, session, href,
             columnDefinitions, facets,
             hiddenColumns, addHiddenColumn, removeHiddenColumn,
             currentAction, windowWidth, windowHeight,
             isContextLoading,
             onFilter, onFilterMultiple,
             onClearFilters: this.onClearFiltersClick,
+            sortBy, sortColumns,
             termTransformFxn,
             itemTypeForSchemas: searchItemType,
             addToBodyClassList, removeFromBodyClassList

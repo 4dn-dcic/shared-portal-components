@@ -1283,7 +1283,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var canLoadMore = this.canLoadMore();
       var anyResults = results.length > 0;
 
-      var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
+      var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
         mounted: mounted,
         results: results,
         rowHeight: rowHeight,
@@ -1406,6 +1406,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
  * @prop {Object}           [defaultWidthMap]   Default column widths per responsive grid state. Applied to all non-constant columns.
  * @prop {string[]}         [hiddenColumns]     Keys of columns to remove from final columnDefinitions before rendering.
  * @prop {function}         [renderDetailPane]  An instance of a React component which will receive prop 'result'.
+ * @prop {Object[]}         sortColumns         List of current sort columns and orders: [{column: column_name, order: 'asc' or 'desc'}]
  * @prop {string}           sortColumn          Current sort column, as fed by SortController.
  * @prop {boolean}          sortReverse         Whether current sort column is reversed, as fed by SortController.
  * @prop {function}         sortBy              Callback function for performing a sort, acceping 'sortColumn' and 'sortReverse' as params. As fed by SortController.
