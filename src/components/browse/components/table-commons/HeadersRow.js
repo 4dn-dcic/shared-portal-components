@@ -113,7 +113,7 @@ export class HeadersRow extends React.PureComponent {
      * linkTo fields are appended by .display_title by backend so we trim it to find a match
      */
     static getTrimmedColumn = memoize(function getTrimmedColumn(column) {
-        if (!column && typeof column !== 'string' && column.length <= 14 && !column.endsWith('.display_title')) {
+        if (!column || typeof column !== 'string' || column.length <= 14 || !column.endsWith('.display_title')) {
             return column;
         }
 
@@ -158,8 +158,8 @@ export class HeadersRow extends React.PureComponent {
         }
 
         // Unset loading icon
-        const [{ column: sortColumn = null, direction = null }] = sortColumns || [];
-        const [{ column: pastSortColumn = null, direction: pastDirection = null }] = pastSortColumns || [];
+        const [{ column: sortColumn = null, direction = null } = {}] = sortColumns || [];
+        const [{ column: pastSortColumn = null, direction: pastDirection = null } = {}] = pastSortColumns || [];
         if (loadingField !== null && (sortColumn !== pastSortColumn || direction !== pastDirection)) {
             if (sortColumn === loadingField || HeadersRow.getTrimmedColumn(sortColumn) === loadingField) {
                 nextState.loadingField = null;

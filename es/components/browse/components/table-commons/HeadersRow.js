@@ -206,15 +206,19 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
 
 
       var _ref6 = _slicedToArray(sortColumns || [], 1),
-          _ref6$ = _ref6[0],
-          _ref6$$column = _ref6$.column,
+          _ref6$ = _ref6[0];
+
+      _ref6$ = _ref6$ === void 0 ? {} : _ref6$;
+      var _ref6$$column = _ref6$.column,
           sortColumn = _ref6$$column === void 0 ? null : _ref6$$column,
           _ref6$$direction = _ref6$.direction,
           direction = _ref6$$direction === void 0 ? null : _ref6$$direction;
 
       var _ref8 = _slicedToArray(pastSortColumns || [], 1),
-          _ref8$ = _ref8[0],
-          _ref8$$column = _ref8$.column,
+          _ref8$ = _ref8[0];
+
+      _ref8$ = _ref8$ === void 0 ? {} : _ref8$;
+      var _ref8$$column = _ref8$.column,
           pastSortColumn = _ref8$$column === void 0 ? null : _ref8$$column,
           _ref8$$direction = _ref8$.direction,
           pastDirection = _ref8$$direction === void 0 ? null : _ref8$$direction;
@@ -456,7 +460,7 @@ _defineProperty(HeadersRow, "defaultProps", {
 });
 
 _defineProperty(HeadersRow, "getTrimmedColumn", memoize(function (column) {
-  if (!column && typeof column !== 'string' && column.length <= 14 && !column.endsWith('.display_title')) {
+  if (!column || typeof column !== 'string' || column.length <= 14 || !column.endsWith('.display_title')) {
     return column;
   }
 

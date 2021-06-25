@@ -125,7 +125,7 @@ export class MultiColumnSortSelector extends React.PureComponent {
      * @returns {[ string, "desc" | "asc"][]} Array of [field_name, direction ("asc"/"desc")] tuples
      */
     static getSortColumnAndOrderPairs(sortColumns, appendDefault = false) {
-        const colNames = Object.keys(sortColumns).filter(function(sortKey){ return sortKey !== 'label'; });
+        const colNames = Object.keys(sortColumns).filter(function(sortKey){ return (sortKey !== 'label') && (sortKey !== '_score'); });
         const columns = colNames.map(function(colName){
             // N.B.: "order" is returned from context / search response; we rename it to "direction" here
             return { 'column': colName, 'direction': sortColumns[colName].order || "desc" };

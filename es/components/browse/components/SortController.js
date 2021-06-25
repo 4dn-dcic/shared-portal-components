@@ -207,7 +207,7 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
     value: function getSortColumnAndOrderPairs(sortColumns) {
       var appendDefault = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var colNames = Object.keys(sortColumns).filter(function (sortKey) {
-        return sortKey !== 'label';
+        return sortKey !== 'label' && sortKey !== '_score';
       });
       var columns = colNames.map(function (colName) {
         // N.B.: "order" is returned from context / search response; we rename it to "direction" here
