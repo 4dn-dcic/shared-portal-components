@@ -236,6 +236,12 @@ export var textContentWidth = memoize(function (textContent) {
   var style = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
   var contElem = document.createElement(containerElementType);
   contElem.className = "off-screen " + (containerClassName || '');
+  var constOffsetHeight = contElem.offsetHeight;
+
+  for (var i = 0; i < constOffsetHeight; i++) {
+    textContent += " ";
+  }
+
   contElem.innerHTML = textContent;
   if (style) contElem.style = style;
   contElem.style.whiteSpace = "nowrap";
@@ -247,7 +253,7 @@ export var textContentWidth = memoize(function (textContent) {
     contElem.style.whiteSpace = "";
     contElem.style.display = "block";
     contElem.style.width = widthForHeightCheck + "px";
-    fullContainerHeight = contElem.clientHeight;
+    fullContainerHeight = window.innerWidth <= 768 ? Math.max(contElem.clientHeight, window.innerHeight || 0) : contElem.clientHeight;
   }
 
   document.body.removeChild(contElem);

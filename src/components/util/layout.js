@@ -222,19 +222,22 @@ export const textContentWidth = memoize(function(
     widthForHeightCheck = null,
     style = null
 ){
-    var contElem = document.createElement(containerElementType);
+    const contElem = document.createElement(containerElementType);
     contElem.className = "off-screen " + (containerClassName || '');
+    const constOffsetHeight = contElem.offsetHeight;
+    for (var i = 0; i < constOffsetHeight; i++) { textContent += " "; }
     contElem.innerHTML = textContent;
+
     if (style) contElem.style = style;
     contElem.style.whiteSpace = "nowrap";
     document.body.appendChild(contElem);
-    var textLineWidth = contElem.clientWidth;
-    var fullContainerHeight;
+    const textLineWidth = contElem.clientWidth;
+    let fullContainerHeight;
     if (widthForHeightCheck){
         contElem.style.whiteSpace = "";
         contElem.style.display = "block";
         contElem.style.width = widthForHeightCheck + "px";
-        fullContainerHeight = contElem.clientHeight;
+        fullContainerHeight = window.innerWidth <= 768 ? Math.max(contElem.clientHeight, window.innerHeight || 0) : contElem.clientHeight;
     }
     document.body.removeChild(contElem);
     if (fullContainerHeight) {
