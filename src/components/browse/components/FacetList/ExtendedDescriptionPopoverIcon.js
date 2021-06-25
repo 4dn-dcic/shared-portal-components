@@ -9,24 +9,6 @@ import Fade from 'react-bootstrap/esm/Fade';
 import Popover from 'react-bootstrap/esm/Popover';
 
 
-export function FacetListPopoverController (props) {
-    const { children } = props;
-    // In this state we will store the entirety of the Popover JSX to display
-    // to allow flexibility in what to display in Popover contents
-    // in case we add more types of Popovers later.
-    const [ openPopoverID, setOpenPopoverID ] = useState(null);
-    const adjustedChildren = React.Children.map(children, function(child){
-        return React.cloneElement(child, { openPopoverID, setOpenPopoverID });
-    });
-    return (
-        <React.Fragment>
-            { adjustedChildren }
-
-        </React.Fragment>
-    );
-}
-
-
 /**
  * @todo Potentially refactor to use ReactDOM.createPortal along w. semi-opaque dark background that will close this onClick.
  * @todo Alternatively if we don't want the background, could attach event listener to window maybe..

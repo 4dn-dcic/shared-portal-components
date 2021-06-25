@@ -456,6 +456,8 @@ export class FacetList extends React.PureComponent {
             openPopover: null,  // will contain `{ ref: React Ref, popover: JSX element/component }`. We might want to move this functionality up into like App.js.
             filteringFieldTerm: null    // will contain `{ field: string, term: string|[from, to] }`. Used to show loading indicators on clicked-on terms.
         };
+
+        this.scrollContainerRef = React.createRef();
     }
 
     componentDidMount(){
@@ -490,11 +492,19 @@ export class FacetList extends React.PureComponent {
             ReactTooltip.rebuild();
         }
 
-        if (openPopover !== prevOpenPopover && typeof addToBodyClassList === "function" && typeof removeFromBodyClassList === "function") {
+        // Disable scrolling while popover is open FacetList scroll container & body (if possible)
+        if (openPopover !== prevOpenPopover) {
+            const hasBodyScrollHandlers = typeof addToBodyClassList === "function" && typeof removeFromBodyClassList === "function";
             if (!openPopover) {
-                removeFromBodyClassList("overflow-hidden");
+                if (hasBodyScrollHandlers) {
+                    removeFromBodyClassList("overflow-hidden");
+                }
+                this.scrollContainerRef.current.classList.remove("overflow-hidden");
             } else if (openPopover && !prevOpenPopover) {
-                addToBodyClassList("overflow-hidden");
+                if (hasBodyScrollHandlers) {
+                    addToBodyClassList("overflow-hidden");
+                }
+                this.scrollContainerRef.current.classList.add("overflow-hidden");
             }
         }
 
@@ -684,18 +694,15 @@ export class FacetList extends React.PureComponent {
             );
         }
 
-        const bodyProps = {
-            className: "facets-body" + (typeof maxHeight === "number" ? " has-max-height" : ""),
-            style: typeof maxHeight === "number" ? { maxHeight } : null
-        };
-
         const { staticFacetElements, selectableFacetElements } = this.renderFacetComponents();
 
         return (
             <React.Fragment>
                 <div className="facets-container facets with-header-bg" data-context-loading={isContextLoading}>
                     <FacetListHeader {...{ openFacets, title, onClearFilters, showClearFiltersButton }} onCollapseFacets={this.handleCollapseAllFacets} />
-                    <div {...bodyProps}>
+                    <div ref={this.scrollContainerRef}
+                        className={"facets-body" + (typeof maxHeight === "number" ? " has-max-height" : "")}
+                        style={typeof maxHeight === "number" ? { maxHeight } : null}>
                         { selectableFacetElements }
                         { staticFacetElements.length > 0 ?
                             <div className="row facet-list-separator">
