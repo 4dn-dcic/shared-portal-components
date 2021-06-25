@@ -69,20 +69,20 @@ export class HeadersRow extends React.PureComponent {
             if (sort_fields.length < 2) {
                 const useField = (sort_fields[0] && sort_fields[0].field) || field;
                 const total = sortColumns.length;
-                sortColumns.forEach(function ({ column, order }, index) {
+                sortColumns.forEach(function ({ column, direction }, index) {
                     const trimmedColumn = HeadersRow.getTrimmedColumn(column);
 
                     if (useField === column || (trimmedColumn && useField === trimmedColumn)) {
-                        retObj[field] = { ...{ index, order, total } };
+                        retObj[field] = { ...{ index, direction, total } };
                     }
                 });
             } else {
                 /** @todo optimize the loops */
-                sortColumns.forEach(function ({ column, order }, index) {
+                sortColumns.forEach(function ({ column, direction }, index) {
                     const total = sortColumns.length;
                     sort_fields.forEach(function ({ field: sField }) {
                         if (column === sField) {
-                            retObj[field] = { ...{ index, order, total, field: sField, parent: field } };
+                            retObj[field] = { ...{ index, direction, total, field: sField, parent: field } };
                         }
                     });
                 });
@@ -158,9 +158,9 @@ export class HeadersRow extends React.PureComponent {
         }
 
         // Unset loading icon
-        const [{ column : sortColumn = null, order : sortOrder = null }] = sortColumns || [];
-        const [{ column : pastSortColumn = null, order : pastSortOrder = null }] = pastSortColumns || [];
-        if (loadingField !== null && (sortColumn !== pastSortColumn || sortOrder !== pastSortOrder)) {
+        const [{ column: sortColumn = null, direction = null }] = sortColumns || [];
+        const [{ column: pastSortColumn = null, direction: pastDirection = null }] = pastSortColumns || [];
+        if (loadingField !== null && (sortColumn !== pastSortColumn || direction !== pastDirection)) {
             if (sortColumn === loadingField || HeadersRow.getTrimmedColumn(sortColumn) === loadingField) {
                 nextState.loadingField = null;
             }
@@ -200,15 +200,15 @@ export class HeadersRow extends React.PureComponent {
      */
     sortByField(field){
         const { sortColumns, sortBy } = this.props;
-        const [{ column = null, order = "desc" } = {}] = sortColumns || [];
+        const [{ column = null, direction = "desc" } = {}] = sortColumns || [];
 
         const trimmedColumn = HeadersRow.getTrimmedColumn(column);
 
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
-        const beDescending = !isActive || (isActive && order !== "desc");
+        const beDescending = !isActive || (isActive && direction !== "desc");
 
         this.setState({ "loadingField": field, "showingSortFieldsForColumn" : null }, function(){
-            sortBy(field, beDescending);
+            sortBy([{ column: field, direction: beDescending ? "desc" : "asc" }]);
         });
     }
 
@@ -276,7 +276,7 @@ export class HeadersRow extends React.PureComponent {
             const col = sortColumnMap[showingSortFieldsForColumn];
             if (col) {
                 sortColumn = col.field || showingSortFieldsForColumn;
-                sortReverse = col.order === 'desc';
+                sortReverse = col.direction === 'desc';
             }
         }
         return (
@@ -446,9 +446,9 @@ class ColumnSorterIcon extends React.PureComponent {
             return null;
         }
         const hasMultipleSortOptions = sort_fields.length >= 2;
-        const { order: sortOrder = 'asc', index: sortIndex = 0, total: sortTotal = 1 } = sortMap || {};
+        const { direction: sortDirection = 'asc', index: sortIndex = 0, total: sortTotal = 1 } = sortMap || {};
         const sequence = sortMap && sortTotal > 1 ? sortIndex + 1 : null;
-        const descend = (sortMap && sortOrder === 'desc') || false;
+        const descend = (sortMap && sortDirection === 'desc') || false;
         const cls = (
             (sortMap ? 'active ' : '') +
             (hasMultipleSortOptions ? 'multiple-sort-options ' : '') +

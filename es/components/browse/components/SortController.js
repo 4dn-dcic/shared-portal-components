@@ -86,7 +86,7 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
 
   _createClass(SortController, [{
     key: "sortBy",
-    value: function sortBy(key, reverse) {
+    value: function sortBy(sortingPairs, callback) {
       var _this2 = this;
 
       var _this$props = this.props,
@@ -95,38 +95,45 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
           currSearchHref = _this$props$href === void 0 ? null : _this$props$href,
           _this$props$requested = _this$props.requestedCompoundFilterSet,
           requestedCompoundFilterSet = _this$props$requested === void 0 ? null : _this$props$requested;
-      var href = null;
+      var hrefSourceWithSort = null;
 
       if (currSearchHref) {
-        href = currSearchHref;
+        hrefSourceWithSort = currSearchHref;
       } else if (requestedCompoundFilterSet) {
-        href = "?" + requestedCompoundFilterSet.global_flags || "";
+        // For compound filter sets, we keep `sort` URL param in `global_flags` at moment.
+        hrefSourceWithSort = "?" + requestedCompoundFilterSet.global_flags || "";
       } else {
         throw new Error("SortController doesn't have `props.href` nor `requestedCompoundFilterSet`.");
       }
 
-      if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
-      if (typeof href !== 'string') throw new Error("Browse doesn't have props.href.");
       this.setState({
         'changingPage': true
       }, function () {
-        var _url$parse = url.parse(href, true),
+        var _url$parse = url.parse(hrefSourceWithSort, true),
             query = _url$parse.query,
             urlParts = _objectWithoutProperties(_url$parse, ["query"]);
 
-        if (key) {
-          query.sort = (reverse ? '-' : '') + key;
-        } else {
-          delete query.sort;
+        var useSortPairs = sortingPairs.slice();
+        var sortingPairsLen = sortingPairs.length; // Exclude last empty column (null column)
+
+        if (sortingPairsLen > 0 && sortingPairs[sortingPairsLen - 1].column === null) {
+          useSortPairs.pop();
         }
 
+        query.sort = useSortPairs.map(function (_ref) {
+          var column = _ref.column,
+              direction = _ref.direction;
+          return (direction === 'desc' ? '-' : '') + column;
+        });
         var stringifiedNextQuery = queryString.stringify(query);
         var navTarget = null;
 
         if (currSearchHref) {
-          urlParts.search = '?' + queryString.stringify(query);
+          // Using search href
+          urlParts.search = '?' + stringifiedNextQuery;
           navTarget = url.format(urlParts);
         } else if (requestedCompoundFilterSet) {
+          // Using /compound_search POST requests
           navTarget = _objectSpread(_objectSpread({}, requestedCompoundFilterSet), {}, {
             "global_flags": stringifiedNextQuery
           });
@@ -139,7 +146,7 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
         }, function () {
           _this2.setState({
             'changingPage': false
-          });
+          }, callback);
         });
       });
     }
@@ -151,8 +158,8 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
           context = _this$props2.context,
           passProps = _objectWithoutProperties(_this$props2, ["children", "context"]);
 
-      var _ref$sort = (context || {}).sort,
-          sort = _ref$sort === void 0 ? {} : _ref$sort;
+      var _ref2$sort = (context || {}).sort,
+          sort = _ref2$sort === void 0 ? {} : _ref2$sort;
       var sortColumns = this.memoized.getSortColumnAndOrderPairs(sort);
 
       var childProps = _objectSpread(_objectSpread({}, passProps), {}, {
@@ -194,27 +201,26 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
     key: "getSortColumnAndOrderPairs",
 
     /**
-     * returns array of [field_name, order ("asc"/"desc")] tuples
+     * @param {Object.<string, { order: string }>} sortColumns The "sort" property of search response or `context`, keyed by field.
+     * @returns {[ string, "desc" | "asc"][]} Array of [field_name, direction ("asc"/"desc")] tuples
      */
     value: function getSortColumnAndOrderPairs(sortColumns) {
       var appendDefault = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-      var colNames = _.filter(_.keys(sortColumns), function (sortKey) {
-        return sortKey != 'label';
+      var colNames = Object.keys(sortColumns).filter(function (sortKey) {
+        return sortKey !== 'label';
       });
-
       var columns = colNames.map(function (colName) {
-        var order = sortColumns[colName].order === 'asc' ? 'asc' : 'desc';
+        // N.B.: "order" is returned from context / search response; we rename it to "direction" here
         return {
           'column': colName,
-          'order': order
+          'direction': sortColumns[colName].order || "desc"
         };
       });
 
       if (appendDefault) {
         columns.push({
           'column': null,
-          order: 'asc'
+          'direction': 'asc'
         });
       }
 
@@ -223,33 +229,49 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
   }, {
     key: "flattenColumnsDefinitionsSortFields",
     value: function flattenColumnsDefinitionsSortFields(columnDefinitions) {
-      var result = _.reduce(columnDefinitions, function (m, colDef) {
-        var hasSubFields = colDef.sort_fields && Array.isArray(colDef.sort_fields) && colDef.sort_fields.length > 0;
-        m.push({
-          'title': colDef.title,
-          'field': colDef.field,
-          'parentField': colDef.field,
-          'hasSubFields': hasSubFields,
-          'noSort': colDef.noSort
-        });
+      var allSortFieldsMap = {};
+
+      var allSortFields = _.reduce(columnDefinitions, function (m, colDef) {
+        var sort_fields = colDef.sort_fields,
+            title = colDef.title,
+            field = colDef.field,
+            noSort = colDef.noSort;
+        var hasSubFields = sort_fields && Array.isArray(sort_fields) && sort_fields.length > 0;
 
         if (hasSubFields) {
-          _.forEach(colDef.sort_fields, function (sortField, idx) {
+          sort_fields.forEach(function (_ref3, idx) {
+            var subFieldTitle = _ref3.title,
+                subField = _ref3.field;
             m.push({
-              'title': colDef.title + ' / ' + sortField.title,
-              'field': sortField.field,
-              'parentField': colDef.field,
+              'title': /*#__PURE__*/React.createElement(React.Fragment, null, title, " \xA0/\xA0 ", subFieldTitle),
+              'field': subField,
+              'parentField': field,
               'hasSubFields': false,
-              'noSort': colDef.noSort,
-              'last': colDef.sort_fields.length - 1 === idx
+              'noSort': noSort,
+              'last': sort_fields.length - 1 === idx
             });
+          });
+        } else {
+          // Exclude field itself if sub-fields are present, assumed that field itself will be a sub-field option
+          m.push({
+            title: title,
+            field: field,
+            'parentField': field,
+            hasSubFields: hasSubFields,
+            noSort: noSort
           });
         }
 
         return m;
       }, []);
 
-      return result;
+      allSortFields.forEach(function (sortField) {
+        allSortFieldsMap[sortField.field] = sortField;
+      });
+      return {
+        allSortFields: allSortFields,
+        allSortFieldsMap: allSortFieldsMap
+      };
     }
   }]);
 
@@ -270,6 +292,7 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
     var _props$sortColumns = props.sortColumns,
         sortColumns = _props$sortColumns === void 0 ? {} : _props$sortColumns;
     _this3.state = {
+      /** @type {{ column: string, direction: "asc"|"desc" }[]} */
       'sortingPairs': _this3.memoized.getSortColumnAndOrderPairs(sortColumns, true)
     };
     return _this3;
@@ -296,81 +319,70 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
     }
   }, {
     key: "handleSortColumnSelection",
-    value: function handleSortColumnSelection(evt) {
-      var sortingPairs = this.state.sortingPairs;
-      var newSortingPairs = sortingPairs.slice(0);
+    value: function handleSortColumnSelection(eventKey) {
+      this.setState(function (_ref4) {
+        var existingPairs = _ref4.sortingPairs;
+        var sortingPairs = existingPairs.slice(0);
 
-      var _evt$split = evt.split('|'),
-          _evt$split2 = _slicedToArray(_evt$split, 2),
-          sIndex = _evt$split2[0],
-          column = _evt$split2[1];
+        var _eventKey$split = eventKey.split('|'),
+            _eventKey$split2 = _slicedToArray(_eventKey$split, 2),
+            sIndex = _eventKey$split2[0],
+            column = _eventKey$split2[1];
 
-      var index = parseInt(sIndex);
-      newSortingPairs[index].column = column; //add new empty row if last is selected
+        var index = parseInt(sIndex);
+        sortingPairs[index].column = column; // add new empty row if last is selected
 
-      if (index === sortingPairs.length - 1) {
-        newSortingPairs.push({
-          'column': null,
-          'order': 'asc'
-        });
-      }
+        if (index === sortingPairs.length - 1) {
+          sortingPairs.push({
+            'column': null,
+            'direction': 'asc'
+          });
+        }
 
-      this.setState({
-        'sortingPairs': newSortingPairs
+        return {
+          sortingPairs: sortingPairs
+        };
       });
     }
   }, {
     key: "handleSortOrderSelection",
-    value: function handleSortOrderSelection(evt) {
-      var sortingPairs = this.state.sortingPairs;
-      var newSortingPairs = sortingPairs.slice(0);
+    value: function handleSortOrderSelection(eventKey) {
+      this.setState(function (_ref5) {
+        var existingPairs = _ref5.sortingPairs;
+        var sortingPairs = existingPairs.slice(0);
 
-      var _evt$split3 = evt.split('|'),
-          _evt$split4 = _slicedToArray(_evt$split3, 2),
-          sIndex = _evt$split4[0],
-          order = _evt$split4[1];
+        var _eventKey$split3 = eventKey.split('|'),
+            _eventKey$split4 = _slicedToArray(_eventKey$split3, 2),
+            sIndex = _eventKey$split4[0],
+            direction = _eventKey$split4[1];
 
-      var index = parseInt(sIndex);
-      newSortingPairs[index].order = order;
-      this.setState({
-        'sortingPairs': newSortingPairs
+        var index = parseInt(sIndex);
+        sortingPairs[index].direction = direction;
+        return {
+          sortingPairs: sortingPairs
+        };
       });
     }
   }, {
     key: "handleSortRowDelete",
-    value: function handleSortRowDelete(index) {
-      var sortingPairs = this.state.sortingPairs;
-      var newSortingPairs = sortingPairs.slice(0);
-      newSortingPairs.splice(index, 1);
-      this.setState({
-        'sortingPairs': newSortingPairs
+    value: function handleSortRowDelete(indexToDelete) {
+      this.setState(function (_ref6) {
+        var existingPairs = _ref6.sortingPairs;
+        var sortingPairs = existingPairs.slice(0);
+        sortingPairs.splice(indexToDelete, 1);
+        return {
+          sortingPairs: sortingPairs
+        };
       });
     }
   }, {
     key: "handleSettingsApply",
     value: function handleSettingsApply() {
       var _this$props3 = this.props,
-          propNavigate = _this$props3.navigate,
-          currSearchHref = _this$props3.href,
+          sortBy = _this$props3.sortBy,
           onClose = _this$props3.onClose;
       var sortingPairs = this.state.sortingPairs;
-      if (typeof propNavigate !== 'function') throw new Error("No navigate function.");
-      if (typeof currSearchHref !== 'string') throw new Error("Browse/Search doesn't have props.href.");
-
-      var _url$parse2 = url.parse(currSearchHref, true),
-          query = _url$parse2.query,
-          urlParts = _objectWithoutProperties(_url$parse2, ["query"]);
-
-      query.sort = _.filter(sortingPairs, function (pair) {
-        return pair.column;
-      }).map(function (pair) {
-        return (pair.order === 'desc' ? '-' : '') + pair.column;
-      });
-      urlParts.search = '?' + queryString.stringify(query);
-      var navTarget = url.format(urlParts);
-      propNavigate(navTarget, {
-        'replace': true
-      }, function () {
+      sortBy(sortingPairs, function () {
         if (onClose && typeof onClose === 'function') {
           onClose();
         }
@@ -383,16 +395,21 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
 
       var columnDefinitions = this.props.columnDefinitions;
       var sortingPairs = this.state.sortingPairs;
-      var allSortFields = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions);
+
+      var _this$memoized$flatte = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions),
+          allSortFields = _this$memoized$flatte.allSortFields,
+          allSortFieldsMap = _this$memoized$flatte.allSortFieldsMap;
+
       return /*#__PURE__*/React.createElement("div", {
         className: "row mb-1 clearfix"
-      }, sortingPairs.map(function (pair, idx, all) {
+      }, sortingPairs.map(function (pair, index, all) {
         return /*#__PURE__*/React.createElement(MultiColumnSortOption, _extends({}, pair, {
-          key: pair.column || idx,
-          allColumns: columnDefinitions,
+          index: index,
           allSortFields: allSortFields,
+          allSortFieldsMap: allSortFieldsMap
+        }, {
+          key: index,
           rowCount: all.length,
-          index: idx,
           handleSortColumnSelection: _this4.handleSortColumnSelection,
           handleSortOrderSelection: _this4.handleSortOrderSelection,
           handleSortRowDelete: _this4.handleSortRowDelete,
@@ -408,33 +425,21 @@ MultiColumnSortSelector.propTypes = {
   'columnDefinitions': PropTypes.object.isRequired,
   'sortColumns': PropTypes.object,
   'onClose': PropTypes.func.isRequired,
-  'navigate': PropTypes.func.isRequired,
-  'href': PropTypes.string
+  'sortBy': PropTypes.func.isRequired
 };
 var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
   var allSortFields = props.allSortFields,
+      allSortFieldsMap = props.allSortFieldsMap,
       rowCount = props.rowCount,
       column = props.column,
-      order = props.order,
+      direction = props.direction,
       index = props.index,
       handleSortColumnSelection = props.handleSortColumnSelection,
       handleSortOrderSelection = props.handleSortOrderSelection,
       handleSortRowDelete = props.handleSortRowDelete,
       handleSettingsApply = props.handleSettingsApply;
-
-  var found = _.find(allSortFields, function (item) {
-    return item.field === column;
-  }); //linkTo fields are appended by .display_title by backend so we try once more to find a match
-
-
-  if (!found && column && column.endsWith('.display_title')) {
-    var trimmedColumn = column.substring(0, column.length - 14);
-    found = _.find(allSortFields, function (item) {
-      return item.field === trimmedColumn;
-    });
-  }
-
-  var sortOrderTitle = order !== 'desc' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+  var titleColumn = column && (allSortFieldsMap[column] || column.endsWith('.display_title') && allSortFieldsMap[column.substring(0, column.length - 14)]);
+  var sortOrderTitle = direction !== 'desc' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
     className: "d-lg-none"
   }, "ASC"), /*#__PURE__*/React.createElement("span", {
     className: "d-none d-lg-inline"
@@ -451,31 +456,33 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-8"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
-    className: "btn-block",
-    title: found ? found.title : "Select a column to sort",
-    variant: "outline-secondary",
+    title: titleColumn ? titleColumn.title : "Select a column to sort",
+    variant: "outline-secondary btn-block text-left",
     size: "sm",
     onSelect: handleSortColumnSelection
   }, allSortFields.map(function (col, idx) {
-    return !col.hasSubFields ? /*#__PURE__*/React.createElement(DropdownItem, {
+    var field = col.field,
+        title = col.title,
+        hasSubFields = col.hasSubFields,
+        noSort = col.noSort;
+    return !hasSubFields ? /*#__PURE__*/React.createElement(DropdownItem, {
       key: "sort-column-" + idx,
-      eventKey: index + '|' + col.field,
-      active: col.field === column,
-      disabled: !!col.noSort
-    }, col.title) : null;
+      eventKey: index + '|' + field,
+      active: field === column,
+      disabled: !!noSort
+    }, title) : null;
   }))), /*#__PURE__*/React.createElement("div", {
     className: "col-3"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
-    className: "btn-block",
     title: sortOrderTitle,
-    variant: "outline-secondary",
+    variant: "outline-secondary btn-block text-left",
     size: "sm",
     onSelect: handleSortOrderSelection
   }, /*#__PURE__*/React.createElement(DropdownItem, {
-    key: "sort-order-asc",
+    key: "sort-direction-asc",
     eventKey: index + "|asc"
   }, "Ascending"), /*#__PURE__*/React.createElement(DropdownItem, {
-    key: "sort-order-desc",
+    key: "sort-direction-desc",
     eventKey: index + "|desc"
   }, "Descending"))), /*#__PURE__*/React.createElement("div", {
     className: "col-1 pl-0 pr-0"

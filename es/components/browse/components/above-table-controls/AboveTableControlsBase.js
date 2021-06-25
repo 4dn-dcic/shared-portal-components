@@ -50,7 +50,13 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
       var _props$context = props.context;
       _props$context = _props$context === void 0 ? {} : _props$context;
       var _props$context$sort = _props$context.sort,
-          sort = _props$context$sort === void 0 ? {} : _props$context$sort;
+          sort = _props$context$sort === void 0 ? {} : _props$context$sort,
+          hiddenColumns = props.hiddenColumns,
+          addHiddenColumn = props.addHiddenColumn,
+          removeHiddenColumn = props.removeHiddenColumn,
+          columnDefinitions = props.columnDefinitions,
+          navigate = props.navigate,
+          sortBy = props.sortBy;
       return {
         "customColumns": {
           "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
@@ -58,7 +64,12 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
           }), /*#__PURE__*/React.createElement("span", {
             className: "title-contents"
           }, "Configure Visible Columns")),
-          "body": /*#__PURE__*/React.createElement(CustomColumnSelector, _.pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')),
+          "body": /*#__PURE__*/React.createElement(CustomColumnSelector, {
+            hiddenColumns: hiddenColumns,
+            addHiddenColumn: addHiddenColumn,
+            removeHiddenColumn: removeHiddenColumn,
+            columnDefinitions: columnDefinitions
+          }),
           "className": "visible-columns-selector-panel"
         },
         "multiColumnSort": {
@@ -67,7 +78,11 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
           }), /*#__PURE__*/React.createElement("span", {
             className: "title-contents"
           }, "Sort Multiple Columns")),
-          "body": /*#__PURE__*/React.createElement(MultiColumnSortSelector, _extends({}, _.pick(props, 'columnDefinitions', 'navigate', 'href'), {
+          "body": /*#__PURE__*/React.createElement(MultiColumnSortSelector, _extends({
+            navigate: navigate,
+            columnDefinitions: columnDefinitions,
+            sortBy: sortBy
+          }, {
             sortColumns: sort
           })),
           "className": "visible-columns-selector-panel"

@@ -20,7 +20,11 @@ export class AboveTableControlsBase extends React.PureComponent {
 
     // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
     static getCustomColumnSelectorPanelMapDefinition(props){
-        const { context : { sort = {} } = {} } = props;
+        const {
+            context : { sort = {} } = {},
+            hiddenColumns, addHiddenColumn, removeHiddenColumn, columnDefinitions,
+            navigate, sortBy
+        } = props;
         return {
             "customColumns" : {
                 "title" : (
@@ -29,7 +33,7 @@ export class AboveTableControlsBase extends React.PureComponent {
                         <span className="title-contents">Configure Visible Columns</span>
                     </React.Fragment>
                 ),
-                "body" : <CustomColumnSelector {..._.pick(props, 'hiddenColumns', 'addHiddenColumn', 'removeHiddenColumn', 'columnDefinitions')} />,
+                "body" : <CustomColumnSelector {...{ hiddenColumns, addHiddenColumn, removeHiddenColumn, columnDefinitions }} />,
                 "className" : "visible-columns-selector-panel"
             },
             "multiColumnSort" : {
@@ -39,7 +43,7 @@ export class AboveTableControlsBase extends React.PureComponent {
                         <span className="title-contents">Sort Multiple Columns</span>
                     </React.Fragment>
                 ),
-                "body" : <MultiColumnSortSelector {..._.pick(props, 'columnDefinitions', 'navigate', 'href')} sortColumns={sort} />,
+                "body" : <MultiColumnSortSelector {...{ navigate, columnDefinitions, sortBy }} sortColumns={sort} />,
                 "className" : "visible-columns-selector-panel"
             }
         };

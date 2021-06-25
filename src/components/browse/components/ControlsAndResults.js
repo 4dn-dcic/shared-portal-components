@@ -123,6 +123,7 @@ export class ControlsAndResults extends React.PureComponent {
             isContextLoading,
             onFilter, onFilterMultiple,
             onClearFilters: this.onClearFiltersClick,
+            sortBy, sortColumns,
             termTransformFxn,
             itemTypeForSchemas: searchItemType,
             addToBodyClassList, removeFromBodyClassList

@@ -83,13 +83,13 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           var total = sortColumns.length;
           sortColumns.forEach(function (_ref2, index) {
             var column = _ref2.column,
-                order = _ref2.order;
+                direction = _ref2.direction;
             var trimmedColumn = HeadersRow.getTrimmedColumn(column);
 
             if (useField === column || trimmedColumn && useField === trimmedColumn) {
               retObj[field] = _objectSpread({}, {
                 index: index,
-                order: order,
+                direction: direction,
                 total: total
               });
             }
@@ -98,7 +98,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           /** @todo optimize the loops */
           sortColumns.forEach(function (_ref3, index) {
             var column = _ref3.column,
-                order = _ref3.order;
+                direction = _ref3.direction;
             var total = sortColumns.length;
             sort_fields.forEach(function (_ref4) {
               var sField = _ref4.field;
@@ -106,7 +106,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
               if (column === sField) {
                 retObj[field] = _objectSpread({}, {
                   index: index,
-                  order: order,
+                  direction: direction,
                   total: total,
                   field: sField,
                   parent: field
@@ -209,17 +209,17 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           _ref6$ = _ref6[0],
           _ref6$$column = _ref6$.column,
           sortColumn = _ref6$$column === void 0 ? null : _ref6$$column,
-          _ref6$$order = _ref6$.order,
-          sortOrder = _ref6$$order === void 0 ? null : _ref6$$order;
+          _ref6$$direction = _ref6$.direction,
+          direction = _ref6$$direction === void 0 ? null : _ref6$$direction;
 
       var _ref8 = _slicedToArray(pastSortColumns || [], 1),
           _ref8$ = _ref8[0],
           _ref8$$column = _ref8$.column,
           pastSortColumn = _ref8$$column === void 0 ? null : _ref8$$column,
-          _ref8$$order = _ref8$.order,
-          pastSortOrder = _ref8$$order === void 0 ? null : _ref8$$order;
+          _ref8$$direction = _ref8$.direction,
+          pastDirection = _ref8$$direction === void 0 ? null : _ref8$$direction;
 
-      if (loadingField !== null && (sortColumn !== pastSortColumn || sortOrder !== pastSortOrder)) {
+      if (loadingField !== null && (sortColumn !== pastSortColumn || direction !== pastDirection)) {
         if (sortColumn === loadingField || HeadersRow.getTrimmedColumn(sortColumn) === loadingField) {
           nextState.loadingField = null;
         }
@@ -279,15 +279,18 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       _ref10$ = _ref10$ === void 0 ? {} : _ref10$;
       var _ref10$$column = _ref10$.column,
           column = _ref10$$column === void 0 ? null : _ref10$$column,
-          _ref10$$order = _ref10$.order,
-          order = _ref10$$order === void 0 ? "desc" : _ref10$$order;
+          _ref10$$direction = _ref10$.direction,
+          direction = _ref10$$direction === void 0 ? "desc" : _ref10$$direction;
       var trimmedColumn = HeadersRow.getTrimmedColumn(column);
       var isActive = column === field || trimmedColumn && trimmedColumn === field;
       this.setState({
         "loadingField": field,
         "showingSortFieldsForColumn": null
       }, function () {
-        sortBy(field, !isActive || isActive && order !== "desc");
+        sortBy([{
+          column: field,
+          direction: !isActive || isActive && direction !== "desc" ? "desc" : "asc"
+        }]);
       });
     }
     /** Updates CustomColumnController.state.columnWidths from HeadersRow.state.widths */
@@ -366,7 +369,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
 
         if (col) {
           sortColumn = col.field || showingSortFieldsForColumn;
-          sortReverse = col.order === 'desc';
+          sortReverse = col.direction === 'desc';
         }
       }
 
@@ -663,8 +666,8 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
       var hasMultipleSortOptions = sort_fields.length >= 2;
 
       var _ref13 = sortMap || {},
-          _ref13$order = _ref13.order,
-          sortOrder = _ref13$order === void 0 ? 'asc' : _ref13$order,
+          _ref13$direction = _ref13.direction,
+          sortDirection = _ref13$direction === void 0 ? 'asc' : _ref13$direction,
           _ref13$index = _ref13.index,
           sortIndex = _ref13$index === void 0 ? 0 : _ref13$index,
           _ref13$total = _ref13.total,
@@ -697,7 +700,7 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
         isLoading: isLoading,
         sequence: sequence
       }, {
-        descend: !sortMap || sortMap && sortOrder === 'desc' || false
+        descend: !sortMap || sortMap && sortDirection === 'desc' || false
       })));
     }
   }]);

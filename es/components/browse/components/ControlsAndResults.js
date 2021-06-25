@@ -192,6 +192,8 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         onFilter: onFilter,
         onFilterMultiple: onFilterMultiple,
         onClearFilters: this.onClearFiltersClick,
+        sortBy: sortBy,
+        sortColumns: sortColumns,
         termTransformFxn: termTransformFxn,
         itemTypeForSchemas: searchItemType,
         addToBodyClassList: addToBodyClassList,
