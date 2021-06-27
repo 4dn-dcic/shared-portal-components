@@ -98,6 +98,7 @@ export class SearchView extends React.PureComponent {
             ...passProps, // Includes pass-thru props like 'facetListComponent', 'aboveTableComponent', 'aboveFacetListComponent', etc.
             currentAction,
             schemas,
+            href,
             windowWidth,
             isOwnPage: true,
             facets: propFacets || contextFacets

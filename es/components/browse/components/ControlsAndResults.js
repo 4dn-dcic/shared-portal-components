@@ -116,9 +116,9 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           separateSingleTermFacets = _this$props2.separateSingleTermFacets,
           navigate = _this$props2.navigate,
           _this$props2$facetCol = _this$props2.facetColumnClassName,
-          facetColumnClassName = _this$props2$facetCol === void 0 ? "col-12 col-sm-5 col-lg-4 col-xl-3" : _this$props2$facetCol,
+          facetColumnClassName = _this$props2$facetCol === void 0 ? "col-12 col-md-5 col-lg-4 col-xl-3" : _this$props2$facetCol,
           _this$props2$tableCol = _this$props2.tableColumnClassName,
-          tableColumnClassName = _this$props2$tableCol === void 0 ? "col-12 col-sm-7 col-lg-8 col-xl-9" : _this$props2$tableCol,
+          tableColumnClassName = _this$props2$tableCol === void 0 ? "col-12 col-md-7 col-lg-8 col-xl-9" : _this$props2$tableCol,
           targetTabKey = _this$props2.targetTabKey,
           _this$props2$aboveTab = _this$props2.aboveTableComponent,
           aboveTableComponent = _this$props2$aboveTab === void 0 ? /*#__PURE__*/React.createElement(AboveSearchViewTableControls, null) : _this$props2$aboveTab,
@@ -155,8 +155,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
           _this$props2$selected = _this$props2.selectedItems,
           selectedItems = _this$props2$selected === void 0 ? null : _this$props2$selected,
           sortBy = _this$props2.sortBy,
-          sortColumn = _this$props2.sortColumn,
-          sortReverse = _this$props2.sortReverse; // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
+          sortColumns = _this$props2.sortColumns; // Initial results. Will get cloned to SearchResultTable state and added onto during load-as-you-scroll.
 
       var _ref = context || {},
           results = _ref["@graph"],
@@ -180,6 +179,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         // <- search response context, prop navigate (could be virtual or global)
         schemas: schemas,
         session: session,
+        href: href,
         columnDefinitions: columnDefinitions,
         facets: facets,
         hiddenColumns: hiddenColumns,
@@ -192,6 +192,8 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         onFilter: onFilter,
         onFilterMultiple: onFilterMultiple,
         onClearFilters: this.onClearFiltersClick,
+        sortBy: sortBy,
+        sortColumns: sortColumns,
         termTransformFxn: termTransformFxn,
         itemTypeForSchemas: searchItemType,
         addToBodyClassList: addToBodyClassList,
@@ -251,8 +253,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         detailPane: detailPane,
         isOwnPage: isOwnPage,
         sortBy: sortBy,
-        sortColumn: sortColumn,
-        sortReverse: sortReverse,
+        sortColumns: sortColumns,
         termTransformFxn: termTransformFxn,
         windowWidth: windowWidth,
         registerWindowOnScrollHandler: registerWindowOnScrollHandler,

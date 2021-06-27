@@ -110,6 +110,7 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         // Includes pass-thru props like 'facetListComponent', 'aboveTableComponent', 'aboveFacetListComponent', etc.
         currentAction: currentAction,
         schemas: schemas,
+        href: href,
         windowWidth: windowWidth,
         isOwnPage: true,
         facets: propFacets || contextFacets

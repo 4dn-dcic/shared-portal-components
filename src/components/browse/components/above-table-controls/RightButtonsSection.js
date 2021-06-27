@@ -8,11 +8,12 @@ import { SearchResultTable } from './../SearchResultTable';
 
 
 export const RightButtonsSection = React.memo(function RightButtonsSection(props){
-    const { currentOpenPanel, onColumnsBtnClick, windowWidth, isFullscreen, toggleFullScreen } = props;
+    const { currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen } = props;
     const showToggleLayoutBtn = (typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function');
     return (
         <div className="right-buttons col-auto">
             <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} />
+            <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} />
             { showToggleLayoutBtn ? <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} /> : null }
         </div>
     );
@@ -33,7 +34,18 @@ ConfigureVisibleColumnsButton.defaultProps = {
     "className" : "btn btn-outline-primary"
 };
 
-
+export const MultiColumnSortButton = React.memo(function MultiColumnSortButton({ open, onClick, className }){
+    return (
+        <button type="button" key="toggle-visible-columns" data-tip="Sort multiple columns" data-event-off="click"
+            active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
+            <i className="icon icon-fw icon-sort fas" />
+            <i className="icon icon-fw icon-angle-down ml-03 fas"/>
+        </button>
+    );
+});
+MultiColumnSortButton.defaultProps = {
+    "className" : "btn btn-outline-primary"
+};
 
 /** Toggles between regular & full screen views */
 export class ToggleLayoutButton extends React.PureComponent {
