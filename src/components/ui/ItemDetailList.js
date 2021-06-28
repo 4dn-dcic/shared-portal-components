@@ -763,7 +763,7 @@ export class Detail extends React.PureComponent {
                 item = _.zip(...item);
                 return (
                     <ol>
-                        {   item.map(function (it, i) { return <li key={i}>{JSON.stringify(it)}</li>; })}
+                        {item.map(function (it, i) { return <li key={i}>{JSON.stringify(it, null, 1)}</li>; })}
                     </ol>
                 );
             }

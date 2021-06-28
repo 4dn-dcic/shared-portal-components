@@ -63,5 +63,5 @@ isSelectAction.selectionActionMap = {
 export function isPrimitive(value) {
   var t = _typeof(value);
 
-  return t === 'string' || t === 'number' || t === 'bigint' || t === 'boolean' || t === 'symbol' || t === 'undefined' || t === 'null';
+  return value === null || t === 'string' || t === 'number' || t === 'bigint' || t === 'boolean' || t === 'symbol' || t === 'undefined';
 }

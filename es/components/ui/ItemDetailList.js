@@ -976,7 +976,7 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           return /*#__PURE__*/React.createElement("ol", null, item.map(function (it, i) {
             return /*#__PURE__*/React.createElement("li", {
               key: i
-            }, JSON.stringify(it));
+            }, JSON.stringify(it, null, 1));
           }));
         }
 
