@@ -1,5 +1,17 @@
 'use strict';
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -32,7 +44,8 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
 import JSONTree from 'react-json-tree';
-import { isAnItem, itemUtil, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
+import { isAnItem, itemUtil, isAnAttachment, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
+import { isPrimitive } from './../util/misc';
 import { patchedConsoleInstance as console } from './../util/patched-console';
 import { getSchemaForItemType, getItemType, flattenSchemaPropertyToColumnDefinition, getSchemaProperty } from './../util/schema-transforms';
 import { PartialList } from './PartialList'; // eslint-disable-next-line no-unused-vars
@@ -143,7 +156,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
     value: function shouldUseTable(list, schemas) {
       if (!Array.isArray(list)) return false;
       if (list.length < 1) return false;
-      list[0];
       var schemaForType;
       if (_.any(list, function (x) {
         return typeof x === 'undefined';
@@ -151,6 +163,10 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       if (!_.all(list, function (x) {
         return _typeof(x) === 'object' && x;
       })) return false;
+      if (_.all(list, function (x) {
+        return Array.isArray(x);
+      })) return false; //multi-dim array??
+
       if (_.any(list, function (x) {
         if (!Array.isArray(x['@type'])) {
           {
@@ -276,6 +292,37 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
       return true;
     }
+    /**
+     * check whether the list is a multi dimensional array
+     * @param {*} list - array to be checked
+     * @param {*} validationFunc - function to validate items in the array, if any fails then return false
+     * @returns boolean
+     */
+
+  }, {
+    key: "isMultiDimArray",
+    value: function isMultiDimArray(list, validationFunc) {
+      if (!Array.isArray(list)) return false;
+      if (list.length < 1) return false;
+      if (!_.all(list, function (x) {
+        return Array.isArray(x) && x.length > 0;
+      })) return false;
+      if (!_.all(list, function (x) {
+        return x.length === list[0].length;
+      })) return false;
+
+      if (validationFunc && typeof validationFunc === 'function') {
+        if (_.any(list, function (x) {
+          if (_.any(x, function (item) {
+            return !validationFunc(item);
+          })) {
+            return true;
+          }
+        })) return false;
+      }
+
+      return true;
+    }
   }, {
     key: "getColumnKeys",
     value: function getColumnKeys(items, columnDefinitions, schemas) {
@@ -390,6 +437,17 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
       }
 
       return newVal;
+    }
+  }, {
+    key: "getAttachmentTitle",
+    value: function getAttachmentTitle(val, fallbackTitle) {
+      if (typeof val === 'string') {
+        var split_item = val.split('/');
+        var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
+        return attach_title || fallbackTitle;
+      }
+
+      return fallbackTitle;
     }
   }]);
 
@@ -624,6 +682,11 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
           })));
         }() : null);
       })))), /*#__PURE__*/React.createElement("tbody", null, _.map(rowData, function (row, i) {
+        var rowAtId = _.find(row, function (elem) {
+          return elem.key === '@id';
+        });
+
+        var rowAtIdValue = rowAtId ? rowAtId.value : null;
         return /*#__PURE__*/React.createElement("tr", {
           key: "row-" + i
         }, [/*#__PURE__*/React.createElement("td", {
@@ -650,7 +713,15 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
             if (isAnItem(val)) {
               val = /*#__PURE__*/React.createElement("a", {
                 href: itemUtil.atId(val)
-              }, v.display_title);
+              }, val.display_title);
+            } else if (isAnAttachment(val) && (val.href.charAt(0) === '/' || rowAtIdValue)) {
+              var attachmentTitle = SubItemTable.getAttachmentTitle(val.href, 'attached_file');
+              var attachmentHref = val.href.charAt(0) === '/' ? val.href : rowAtIdValue + val.href;
+              val = /*#__PURE__*/React.createElement("a", {
+                href: attachmentHref,
+                target: "_blank",
+                rel: "noreferrer noopener"
+              }, attachmentTitle);
             } else {
               val = SubItemTable.jsonify(val, columnKeys[j].key);
             }
@@ -665,6 +736,16 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
                 item = /*#__PURE__*/React.createElement("a", {
                   href: itemUtil.atId(v)
                 }, v.display_title);
+              } else if (isAnAttachment(v) && (val.href.charAt(0) === '/' || rowAtIdValue)) {
+                var _attachmentTitle = SubItemTable.getAttachmentTitle(v.href, 'attached_file');
+
+                var _attachmentHref = val.href.charAt(0) === '/' ? val.href : rowAtIdValue + val.href;
+
+                val = /*#__PURE__*/React.createElement("a", {
+                  href: _attachmentHref,
+                  target: "_blank",
+                  rel: "noreferrer noopener"
+                }, _attachmentTitle);
               } else {
                 item = SubItemTable.jsonify(v, columnKeys[j].key + ':' + i);
               }
@@ -890,6 +971,13 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
             items: item,
             parentKey: keyPrefix
           }));
+        } else if (SubItemTable.isMultiDimArray(item, isPrimitive)) {
+          item = _.zip.apply(_, _toConsumableArray(item));
+          return /*#__PURE__*/React.createElement("ol", null, item.map(function (it, i) {
+            return /*#__PURE__*/React.createElement("li", {
+              key: i
+            }, JSON.stringify(it, null, 1));
+          }));
         }
 
         return /*#__PURE__*/React.createElement("ol", null, item.length === 0 ? /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("em", null, "None")) : item.map(function (it, i) {
@@ -933,8 +1021,7 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
 
         if (item.charAt(0) === '/' && item.indexOf('@@download') > -1) {
           // This is a download link. Format appropriately
-          var split_item = item.split('/');
-          var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
+          var attach_title = SubItemTable.getAttachmentTitle(item);
           return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
