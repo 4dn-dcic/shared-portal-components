@@ -476,19 +476,14 @@ export function productClick(item, extraData = {}, callback = null, context = nu
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
 export function productsAddToCart(items, extraData = {}){
-    if (items.length < 50) {
-        if (!shouldTrack()) return false;
-        const count = addProductsEE(items, extraData);
-        console.info(`Adding ${count} items to cart.`);
-        ga2('ec:setAction', 'add');
-    }
-    else{
-        console.info(`We do not run analystic because the number of files is high ${items.length} items.`);
-    }
+    if (!shouldTrack(items)) return false;
+    const count = addProductsEE(items, extraData);
+    console.info(`Adding ${count} items to cart.`);
+    ga2('ec:setAction', 'add');
 }
 
 export function productsRemoveFromCart(items, extraData = {}){
-    if (!shouldTrack()) return false;
+    if (!shouldTrack(items)) return false;
     const count = addProductsEE(items, extraData);
     ga2('ec:setAction', 'remove');
     console.info(`Removing ${count} items from cart.`);
@@ -499,16 +494,11 @@ export function productsRemoveFromCart(items, extraData = {}){
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
 export function productsCheckout(items, extraData = {}){
-    if (items.length < 50){
-        if (!shouldTrack()) return false;
-        const { step = 1, option = null, ...extData } = extraData || {};
-        const count = addProductsEE(items, extData);
-        ga2('ec:setAction', 'checkout', { step, option });
-        console.info(`Checked out ${count} items.`);
-    }
-    else{
-        console.info(`We do not run analystic because the number of files is high ${items.length} items.`);
-    }
+    if (!shouldTrack(items)) return false;
+    const { step = 1, option = null, ...extData } = extraData || {};
+    const count = addProductsEE(items, extData);
+    ga2('ec:setAction', 'checkout', { step, option });
+    console.info(`Checked out ${count} items.`);
 }
 
 export function productAddDetailViewed(item, context = null, extraData = {}){
@@ -623,7 +613,7 @@ export function hrefToListName(href){
  * Private Functions *
  *********************/
 
-function shouldTrack(){
+function shouldTrack(itemList){
 
     // 1. Ensure we're initialized
 
@@ -644,6 +634,11 @@ function shouldTrack(){
 
     if (typeof window.ga === 'undefined') {
         console.error("Google Analytics library is not loaded/available. Fine if disabled via AdBlocker, else check `analytics.js` loading.");
+        return false;
+    }
+
+    if (itemList && Array.isArray(itemList) && itemList.length > 50) {
+        console.info(`Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has (${itemList.length} items.`);
         return false;
     }
 
@@ -734,47 +729,42 @@ function addProductsEE(items, extData = {}){
  * @returns {Object[]} Representation of what was sent.
  */
 export function impressionListOfItems(itemList, href = null, listName = null, context = null){
-    if (itemList.length < 50){
-        if (!shouldTrack()) return false;
-        context = context || (state && state.reduxStore && state.reduxStore.getState().context) || null;
-        var from = 0;
-        if (typeof href === 'string'){ // Convert to URL parts.
-            href = url.parse(href, true);
-            if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
-        }
+    if (!shouldTrack(itemList)) return false;
+    context = context || (state && state.reduxStore && state.reduxStore.getState().context) || null;
+    var from = 0;
+    if (typeof href === 'string'){ // Convert to URL parts.
+        href = url.parse(href, true);
+        if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
+    }
 
-        href = href || window.location.href;
+    href = href || window.location.href;
 
-        const commonProductObj = { "list" : listName || (href && hrefToListName(href)) };
+    const commonProductObj = { "list" : listName || (href && hrefToListName(href)) };
 
-        if (context && context.filters && state.dimensionNameMap.currentFilters) {
-            commonProductObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
-        }
+    if (context && context.filters && state.dimensionNameMap.currentFilters) {
+        commonProductObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+    }
 
-        const resultsImpressioned = itemList.filter(function(item){
-            // Ensure we have permissions, can get product SKU, etc.
-            const { display_title, '@id': id, error = null, '@type' : itemType } = item;
-            if (!id || !display_title || !Array.isArray(itemType)) {
-                if (error) {
-                    // Likely no view permissions, ok.
-                    return false;
-                }
-                const errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
-                exception(errMsg);
-                console.error(errMsg, item);
+    const resultsImpressioned = itemList.filter(function(item){
+        // Ensure we have permissions, can get product SKU, etc.
+        const { display_title, '@id': id, error = null, '@type' : itemType } = item;
+        if (!id || !display_title || !Array.isArray(itemType)) {
+            if (error) {
+                // Likely no view permissions, ok.
                 return false;
             }
-            return true;
-        }).map(function(item, i){
-            const pObj = _.extend(itemToProductTransform(item), commonProductObj, { 'position' : from + i + 1 });
-            ga2('ec:addImpression', pObj);
-            return pObj;
-        });
+            const errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
+            exception(errMsg);
+            console.error(errMsg, item);
+            return false;
+        }
+        return true;
+    }).map(function(item, i){
+        const pObj = _.extend(itemToProductTransform(item), commonProductObj, { 'position' : from + i + 1 });
+        ga2('ec:addImpression', pObj);
+        return pObj;
+    });
 
-        console.info(`Impressioned ${resultsImpressioned.length} items starting at position ${from + 1} in list "${commonProductObj.list}"`);
-        return resultsImpressioned;
-    }
-    else {
-        return false;
-    }
+    console.info(`Impressioned ${resultsImpressioned.length} items starting at position ${from + 1} in list "${commonProductObj.list}"`);
+    return resultsImpressioned;
 }

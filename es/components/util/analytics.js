@@ -558,19 +558,14 @@ export function productClick(item) {
 
 export function productsAddToCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  if (items.length < 50) {
-    if (!shouldTrack()) return false;
-    var count = addProductsEE(items, extraData);
-    console.info("Adding ".concat(count, " items to cart."));
-    ga2('ec:setAction', 'add');
-  } else {
-    console.info("We do not run analystic because the number of files is high ".concat(items.length, " items."));
-  }
+  if (!shouldTrack(items)) return false;
+  var count = addProductsEE(items, extraData);
+  console.info("Adding ".concat(count, " items to cart."));
+  ga2('ec:setAction', 'add');
 }
 export function productsRemoveFromCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack()) return false;
+  if (!shouldTrack(items)) return false;
   var count = addProductsEE(items, extraData);
   ga2('ec:setAction', 'remove');
   console.info("Removing ".concat(count, " items from cart."));
@@ -582,26 +577,21 @@ export function productsRemoveFromCart(items) {
 
 export function productsCheckout(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  if (!shouldTrack(items)) return false;
 
-  if (items.length < 50) {
-    if (!shouldTrack()) return false;
+  var _ref8 = extraData || {},
+      _ref8$step = _ref8.step,
+      step = _ref8$step === void 0 ? 1 : _ref8$step,
+      _ref8$option = _ref8.option,
+      option = _ref8$option === void 0 ? null : _ref8$option,
+      extData = _objectWithoutProperties(_ref8, ["step", "option"]);
 
-    var _ref8 = extraData || {},
-        _ref8$step = _ref8.step,
-        step = _ref8$step === void 0 ? 1 : _ref8$step,
-        _ref8$option = _ref8.option,
-        option = _ref8$option === void 0 ? null : _ref8$option,
-        extData = _objectWithoutProperties(_ref8, ["step", "option"]);
-
-    var count = addProductsEE(items, extData);
-    ga2('ec:setAction', 'checkout', {
-      step: step,
-      option: option
-    });
-    console.info("Checked out ".concat(count, " items."));
-  } else {
-    console.info("We do not run analystic because the number of files is high ".concat(items.length, " items."));
-  }
+  var count = addProductsEE(items, extData);
+  ga2('ec:setAction', 'checkout', {
+    step: step,
+    option: option
+  });
+  console.info("Checked out ".concat(count, " items."));
 }
 export function productAddDetailViewed(item) {
   var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -721,7 +711,7 @@ export function hrefToListName(href) {
  * Private Functions *
  *********************/
 
-function shouldTrack() {
+function shouldTrack(itemList) {
   // 1. Ensure we're initialized
   if (!state) {
     console.error("Google Analytics is not initialized. Fine if this appears in a test.");
@@ -740,6 +730,11 @@ function shouldTrack() {
 
   if (typeof window.ga === 'undefined') {
     console.error("Google Analytics library is not loaded/available. Fine if disabled via AdBlocker, else check `analytics.js` loading.");
+    return false;
+  }
+
+  if (itemList && Array.isArray(itemList) && itemList.length > 50) {
+    console.info("Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has (".concat(itemList.length, " items."));
     return false;
   } // 2. TODO: Check if User wants to be excluded from tracking
   // 2. TODO: Make sure not logged in as admin on a production site.
@@ -849,59 +844,54 @@ export function impressionListOfItems(itemList) {
   var href = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var listName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var context = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+  if (!shouldTrack(itemList)) return false;
+  context = context || state && state.reduxStore && state.reduxStore.getState().context || null;
+  var from = 0;
 
-  if (itemList.length < 50) {
-    if (!shouldTrack()) return false;
-    context = context || state && state.reduxStore && state.reduxStore.getState().context || null;
-    var from = 0;
+  if (typeof href === 'string') {
+    // Convert to URL parts.
+    href = url.parse(href, true);
+    if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
+  }
 
-    if (typeof href === 'string') {
-      // Convert to URL parts.
-      href = url.parse(href, true);
-      if (!isNaN(parseInt(href.query.from))) from = parseInt(href.query.from);
-    }
+  href = href || window.location.href;
+  var commonProductObj = {
+    "list": listName || href && hrefToListName(href)
+  };
 
-    href = href || window.location.href;
-    var commonProductObj = {
-      "list": listName || href && hrefToListName(href)
-    };
+  if (context && context.filters && state.dimensionNameMap.currentFilters) {
+    commonProductObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
+  }
 
-    if (context && context.filters && state.dimensionNameMap.currentFilters) {
-      commonProductObj["dimension" + state.dimensionNameMap.currentFilters] = getStringifiedCurrentFilters(context.filters);
-    }
+  var resultsImpressioned = itemList.filter(function (item) {
+    // Ensure we have permissions, can get product SKU, etc.
+    var display_title = item.display_title,
+        id = item['@id'],
+        _item$error = item.error,
+        error = _item$error === void 0 ? null : _item$error,
+        itemType = item['@type'];
 
-    var resultsImpressioned = itemList.filter(function (item) {
-      // Ensure we have permissions, can get product SKU, etc.
-      var display_title = item.display_title,
-          id = item['@id'],
-          _item$error = item.error,
-          error = _item$error === void 0 ? null : _item$error,
-          itemType = item['@type'];
-
-      if (!id || !display_title || !Array.isArray(itemType)) {
-        if (error) {
-          // Likely no view permissions, ok.
-          return false;
-        }
-
-        var errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
-        exception(errMsg);
-        console.error(errMsg, item);
+    if (!id || !display_title || !Array.isArray(itemType)) {
+      if (error) {
+        // Likely no view permissions, ok.
         return false;
       }
 
-      return true;
-    }).map(function (item, i) {
-      var pObj = _.extend(itemToProductTransform(item), commonProductObj, {
-        'position': from + i + 1
-      });
+      var errMsg = "Analytics Product Tracking: Could not access necessary product/item fields";
+      exception(errMsg);
+      console.error(errMsg, item);
+      return false;
+    }
 
-      ga2('ec:addImpression', pObj);
-      return pObj;
+    return true;
+  }).map(function (item, i) {
+    var pObj = _.extend(itemToProductTransform(item), commonProductObj, {
+      'position': from + i + 1
     });
-    console.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1, " in list \"").concat(commonProductObj.list, "\""));
-    return resultsImpressioned;
-  } else {
-    return false;
-  }
+
+    ga2('ec:addImpression', pObj);
+    return pObj;
+  });
+  console.info("Impressioned ".concat(resultsImpressioned.length, " items starting at position ").concat(from + 1, " in list \"").concat(commonProductObj.list, "\""));
+  return resultsImpressioned;
 }
