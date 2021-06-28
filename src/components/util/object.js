@@ -407,7 +407,14 @@ export function isAnItem(content){
     );
 }
 
-
+export function isAnAttachment(content){
+    return (
+        content &&
+        typeof content === 'object' &&
+        typeof content.href === 'string' && content.href.indexOf('@@download') > -1 &&
+        typeof content.md5sum === 'string' && typeof content.type === 'string'
+    );
+}
 
 /**
  * Used for object.randomId().

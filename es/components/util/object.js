@@ -479,6 +479,9 @@ export function isValidAtIDFormat(value) {
 export function isAnItem(content) {
   return content && _typeof(content) === 'object' && (typeof content.display_title === 'string' || typeof content.uuid === 'string') && typeof atIdFromObject(content) === 'string';
 }
+export function isAnAttachment(content) {
+  return content && _typeof(content) === 'object' && typeof content.href === 'string' && content.href.indexOf('@@download') > -1 && typeof content.md5sum === 'string' && typeof content.type === 'string';
+}
 /**
  * Used for object.randomId().
  * @private
