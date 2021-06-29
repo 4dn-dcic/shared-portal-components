@@ -413,6 +413,21 @@ export class RangeFacet extends React.PureComponent {
             title: facetTitle = null,
             description: facetSchemaDescription = null
         } = facet;
+
+        let hideDocCounts = false;
+        // Check to see if should show doc counts based on schema info (Note: only works for VariantSample/may need to be generalized for more fields in future)
+        if (schemas && field !== undefined && itemTypeForSchemas === "VariantSample") {
+            const fieldSplit = field.split("variant.");
+            const { 1: variantField } = fieldSplit || [];
+            if (variantField) {
+                const fieldPropsFromVariant = getSchemaProperty(variantField, schemas, "Variant");
+                // console.log("fieldSchemaFromVariant", fieldSplit[1], fieldPropsFromVariant);
+                if (fieldPropsFromVariant.add_no_value) {
+                    hideDocCounts = true;
+                }
+            }
+        }
+
         const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
         const { description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet.
         const { fromVal, toVal, expanded } = this.state;
@@ -524,7 +539,7 @@ export class RangeFacet extends React.PureComponent {
                                     */}
                                 </div>
                             </div>,
-                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} selectRange={this.selectRange} /> : null
+                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded, hideDocCounts }} onToggleExpanded={this.handleExpandListToggleClick} selectRange={this.selectRange} /> : null
                         ]} />
                 </div>
             </div>
@@ -543,7 +558,8 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
         expanded, onToggleExpanded,
         termTransformFxn,
         toVal, fromVal,
-        filteringFieldTerm
+        filteringFieldTerm,
+        hideDocCounts
     } = props;
     const { ranges = [], field: facetField } = facet;
 
@@ -572,7 +588,7 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
                     (currFilteringTerm === rangeTo && currFilteringTerm === rangeFrom)
                 )
             );
-            return <RangeTerm {...{ facet, range, termTransformFxn, selectRange, isFiltering }} key={`${rangeFrom}-${rangeTo}`} status={getRangeStatus(range, toVal, fromVal)} />;
+            return <RangeTerm {...{ facet, range, termTransformFxn, selectRange, isFiltering, hideDocCounts }} key={`${rangeFrom}-${rangeTo}`} status={getRangeStatus(range, toVal, fromVal)} />;
         }));
 
         const selectedLen = selectedTermComponents.length;
@@ -681,7 +697,7 @@ export class RangeTerm extends React.PureComponent {
     }
 
     render() {
-        const { range, facet, status, isFiltering = false } = this.props;
+        const { range, facet, status, isFiltering = false, hideDocCounts = false } = this.props;
         const { doc_count, from, to, label } = range;
         const selected = (status !== 'none');
         let icon = null;
@@ -718,7 +734,7 @@ export class RangeTerm extends React.PureComponent {
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {displayLabel}</span>
-                    <span className="facet-count">{doc_count || 0}</span>
+                    { !hideDocCounts ? <span className="facet-count">{doc_count || 0}</span> : null }
                 </a>
             </li>
         );

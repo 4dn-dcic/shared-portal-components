@@ -537,6 +537,23 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facetTitle = _facet$title === void 0 ? null : _facet$title,
           _facet$description = facet.description,
           facetSchemaDescription = _facet$description === void 0 ? null : _facet$description;
+      var hideDocCounts = false; // Check to see if should show doc counts based on schema info (Note: only works for VariantSample/may need to be generalized for more fields in future)
+
+      if (schemas && field !== undefined && itemTypeForSchemas === "VariantSample") {
+        var fieldSplit = field.split("variant.");
+
+        var _ref5 = fieldSplit || [],
+            variantField = _ref5[1];
+
+        if (variantField) {
+          var fieldPropsFromVariant = getSchemaProperty(variantField, schemas, "Variant"); // console.log("fieldSchemaFromVariant", fieldSplit[1], fieldPropsFromVariant);
+
+          if (fieldPropsFromVariant.add_no_value) {
+            hideDocCounts = true;
+          }
+        }
+      }
+
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       var fieldSchemaDescription = (fieldSchema || {}).description; // fieldSchema not present if no schemas loaded yet.
 
@@ -662,7 +679,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           id: "to_" + field,
           reset: toVal !== null ? this.resetTo : null
         }))), ranges && ranges.length > 0 ? /*#__PURE__*/React.createElement(ListOfRanges, _extends({}, this.props, {
-          expanded: expanded
+          expanded: expanded,
+          hideDocCounts: hideDocCounts
         }, {
           onToggleExpanded: this.handleExpandListToggleClick,
           selectRange: this.selectRange
@@ -685,16 +703,17 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
       termTransformFxn = props.termTransformFxn,
       toVal = props.toVal,
       fromVal = props.fromVal,
-      filteringFieldTerm = props.filteringFieldTerm;
+      filteringFieldTerm = props.filteringFieldTerm,
+      hideDocCounts = props.hideDocCounts;
   var _facet$ranges2 = facet.ranges,
       ranges = _facet$ranges2 === void 0 ? [] : _facet$ranges2,
       facetField = facet.field;
   /** Create range components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = useMemo(function () {
-    var _ref6 = filteringFieldTerm || {},
-        currFilteringField = _ref6.field,
-        currFilteringTerm = _ref6.term; // Ranges always presumed to have a from & to, so ignore if filtering a single value/term.
+    var _ref7 = filteringFieldTerm || {},
+        currFilteringField = _ref7.field,
+        currFilteringTerm = _ref7.term; // Ranges always presumed to have a from & to, so ignore if filtering a single value/term.
 
 
     var _segmentComponentsByS = segmentComponentsByStatus(ranges.map(function (range) {
@@ -709,7 +728,8 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
         range: range,
         termTransformFxn: termTransformFxn,
         selectRange: selectRange,
-        isFiltering: isFiltering
+        isFiltering: isFiltering,
+        hideDocCounts: hideDocCounts
       }, {
         key: "".concat(rangeFrom, "-").concat(rangeTo),
         status: getRangeStatus(range, toVal, fromVal)
@@ -864,7 +884,9 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
           facet = _this$props9.facet,
           status = _this$props9.status,
           _this$props9$isFilter = _this$props9.isFiltering,
-          isFiltering = _this$props9$isFilter === void 0 ? false : _this$props9$isFilter;
+          isFiltering = _this$props9$isFilter === void 0 ? false : _this$props9$isFilter,
+          _this$props9$hideDocC = _this$props9.hideDocCounts,
+          hideDocCounts = _this$props9$hideDocC === void 0 ? false : _this$props9$hideDocC;
       var doc_count = range.doc_count,
           from = range.from,
           to = range.to,
@@ -916,9 +938,9 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item",
         "data-tip": title.length > 30 ? title : null
-      }, title, " ", displayLabel), /*#__PURE__*/React.createElement("span", {
+      }, title, " ", displayLabel), !hideDocCounts ? /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
-      }, doc_count || 0)));
+      }, doc_count || 0) : null));
     }
   }]);
 
@@ -983,12 +1005,12 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       facetTitle = facet.title,
       _facet$abbreviation = facet.abbreviation,
       facetAbbreviation = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
-  var _ref7$abbreviation = (fieldSchema || {}).abbreviation,
-      fieldAbbreviation = _ref7$abbreviation === void 0 ? null : _ref7$abbreviation;
+  var _ref8$abbreviation = (fieldSchema || {}).abbreviation,
+      fieldAbbreviation = _ref8$abbreviation === void 0 ? null : _ref8$abbreviation;
 
-  var _ref8 = filteringFieldTerm || {},
-      currFilteringField = _ref8.field,
-      currFilteringTerm = _ref8.term;
+  var _ref9 = filteringFieldTerm || {},
+      currFilteringField = _ref9.field,
+      currFilteringTerm = _ref9.term;
 
   var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || (facetTitle.length > 5 ? /*#__PURE__*/React.createElement("em", null, "N") : facetTitle);
 
