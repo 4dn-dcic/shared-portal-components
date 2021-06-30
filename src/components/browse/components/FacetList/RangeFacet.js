@@ -421,8 +421,9 @@ export class RangeFacet extends React.PureComponent {
             const { 1: variantField } = fieldSplit || [];
             if (variantField) {
                 const fieldPropsFromVariant = getSchemaProperty(variantField, schemas, "Variant");
-                // console.log("fieldSchemaFromVariant", fieldSplit[1], fieldPropsFromVariant);
-                if (fieldPropsFromVariant.add_no_value) {
+                const { items: { add_no_value: addNoValueNested = false } = {}, add_no_value: addNoValue = false } = fieldPropsFromVariant || {};
+                // console.log("fieldPropsFromVariant", variantField, fieldPropsFromVariant);
+                if (addNoValue || addNoValueNested) {
                     hideDocCounts = true;
                 }
             }
