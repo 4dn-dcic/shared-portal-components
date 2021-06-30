@@ -38,7 +38,7 @@ import _ from 'underscore';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import Infinite from 'react-infinite';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
@@ -674,24 +674,18 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         }, /*#__PURE__*/React.createElement("div", null, children));
       }
 
-      var elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, openRowHeight || rowHeight);
-      return /*#__PURE__*/React.createElement(Infinite, {
+      return /*#__PURE__*/React.createElement(InfiniteScroll, {
         className: "react-infinite-container",
         ref: this.infiniteComponentRef,
-        elementHeight: elementHeight,
-        containerHeight: !isOwnPage && maxHeight || undefined,
-        useWindowAsScrollContainer: isOwnPage,
-        onInfiniteLoad: this.handleLoad,
-        isInfiniteLoading: isLoading,
-        timeScrollStateLastsForAfterUserScrolls: 250 //onChangeScrollState={this.handleScrollingStateChange}
-        ,
-        loadingSpinnerDelegate: /*#__PURE__*/React.createElement(LoadingSpinner, {
+        height: !isOwnPage && maxHeight || undefined,
+        dataLength: children.length,
+        next: this.handleLoad,
+        hasMore: true,
+        loader: /*#__PURE__*/React.createElement(LoadingSpinner, {
           width: tableContainerWidth,
-          scrollLeft: tableContainerScrollLeft
+          scrollLeft: tableContainerScrollLeft,
+          canLoadMore: canLoadMore
         }),
-        infiniteLoadBeginEdgeOffset: canLoadMore ? 200 : undefined,
-        preloadAdditionalHeight: Infinite.containerHeightScaleFactor(1.5),
-        preloadBatchSize: Infinite.containerHeightScaleFactor(1.5),
         styles: isOwnPage ? null : this.memoized.getStyles(maxHeight)
       }, children);
     }
@@ -741,17 +735,22 @@ _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
 var LoadingSpinner = /*#__PURE__*/React.memo(function (_ref3) {
   var maxWidth = _ref3.width,
       _ref3$scrollLeft = _ref3.scrollLeft,
-      scrollLeft = _ref3$scrollLeft === void 0 ? 0 : _ref3$scrollLeft;
+      scrollLeft = _ref3$scrollLeft === void 0 ? 0 : _ref3$scrollLeft,
+      _ref3$canLoadMore = _ref3.canLoadMore,
+      canLoadMore = _ref3$canLoadMore === void 0 ? false : _ref3$canLoadMore;
   var style = {
     maxWidth: maxWidth,
     'transform': vizStyle.translate3d(scrollLeft)
   };
-  return /*#__PURE__*/React.createElement("div", {
-    className: "search-result-row loading text-center d-flex align-items-center justify-content-center",
-    style: style
-  }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-    className: "icon icon-circle-notch icon-spin fas"
-  }), "\xA0 Loading..."));
+
+  if (canLoadMore) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "search-result-row loading text-center d-flex align-items-center justify-content-center",
+      style: style
+    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-circle-notch icon-spin fas"
+    }), "\xA0 Loading..."));
+  }
 });
 
 var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {

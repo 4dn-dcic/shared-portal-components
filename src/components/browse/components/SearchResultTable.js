@@ -9,7 +9,7 @@ import _ from 'underscore';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import Infinite from 'react-infinite';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
@@ -535,39 +535,34 @@ class LoadMoreAsYouScroll extends React.Component {
             );
         }
 
-        const elementHeight = this.memoized.getElementHeight(openDetailPanes, rowHeight, children, (openRowHeight || rowHeight));
 
         return (
-            <Infinite
+            <InfiniteScroll
                 className="react-infinite-container"
                 ref={this.infiniteComponentRef}
-                elementHeight={elementHeight}
-                containerHeight={(!isOwnPage && maxHeight) || undefined}
-                useWindowAsScrollContainer={isOwnPage}
-                onInfiniteLoad={this.handleLoad}
-                isInfiniteLoading={isLoading}
-                timeScrollStateLastsForAfterUserScrolls={250}
-                //onChangeScrollState={this.handleScrollingStateChange}
-                loadingSpinnerDelegate={<LoadingSpinner width={tableContainerWidth} scrollLeft={tableContainerScrollLeft} />}
-                infiniteLoadBeginEdgeOffset={canLoadMore ? 200 : undefined}
-                preloadAdditionalHeight={Infinite.containerHeightScaleFactor(1.5)}
-                preloadBatchSize={Infinite.containerHeightScaleFactor(1.5)}
+                height={(!isOwnPage && maxHeight) || undefined}
+                dataLength={children.length}
+                next={this.handleLoad}
+                hasMore={true}
+                loader={<LoadingSpinner width={tableContainerWidth} scrollLeft={tableContainerScrollLeft} canLoadMore={canLoadMore} />}
                 styles={isOwnPage ? null : this.memoized.getStyles(maxHeight)}>
                 { children }
-            </Infinite>
+            </InfiniteScroll>
         );
     }
 }
 
-const LoadingSpinner = React.memo(function LoadingSpinner({ width: maxWidth, scrollLeft = 0 }){
+const LoadingSpinner = React.memo(function LoadingSpinner({ width: maxWidth, scrollLeft = 0, canLoadMore=false }){
     const style = { maxWidth, 'transform' : vizStyle.translate3d(scrollLeft) };
-    return (
-        <div className="search-result-row loading text-center d-flex align-items-center justify-content-center" style={style}>
-            <span>
-                <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
-            </span>
-        </div>
-    );
+    if (canLoadMore){
+        return (
+            <div className="search-result-row loading text-center d-flex align-items-center justify-content-center" style={style}>
+                <span>
+                    <i className="icon icon-circle-notch icon-spin fas" />&nbsp; Loading...
+                </span>
+            </div>
+        );
+    }
 });
 
 class ShadowBorderLayer extends React.Component {
