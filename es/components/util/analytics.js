@@ -734,7 +734,7 @@ function shouldTrack(itemList) {
   }
 
   if (itemList && Array.isArray(itemList) && itemList.length > 50) {
-    console.info("Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has (".concat(itemList.length, " items."));
+    console.info("Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has ".concat(itemList.length, " items."));
     return false;
   } // 2. TODO: Check if User wants to be excluded from tracking
   // 2. TODO: Make sure not logged in as admin on a production site.

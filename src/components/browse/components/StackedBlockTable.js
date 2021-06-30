@@ -105,15 +105,15 @@ export class StackedBlockListViewMoreButton extends React.PureComponent {
             return (
                 <div className="view-more-button">
                     <i className="icon fas icon-plus mr-1 ml-02 small"/>
-                    { collapsibleChildrenLen + " More" + (title? ' ' + title : '') }
+                    {collapsibleChildrenLen + " More" + (title ? ' ' + title : '')}
                     { showMoreExtTitle ? <span className="ext text-400"> { showMoreExtTitle }</span> : null }
                 </div>
             );
         }
 
         const titleStr = (
-            (collapsed? (preventExpand ? collapsibleChildrenLen + " More" : `Show ${collapsibleChildrenLen} More`) : "Show Fewer") +
-            (title? ' ' + title : '')
+            (collapsed ? (preventExpand ? collapsibleChildrenLen + " More" : `Show ${collapsibleChildrenLen} More`) : "Show Fewer") +
+            (title ? ' ' + title : '')
         );
 
         const cls = "view-more-button" + (preventExpand ? "" : " clickable");
@@ -136,24 +136,22 @@ export class StackedBlockList extends React.PureComponent {
     static ViewMoreButton = StackedBlockListViewMoreButton;
 
     static propTypes = {
-        'showMoreExtTitle'      : PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
-        'collapseLimit'         : PropTypes.number,
-        'collapseShow'          : PropTypes.number,
-        'collapseLongLists'     : PropTypes.bool,
-        'defaultCollapsed'      : PropTypes.bool,
-        'children'              : PropTypes.arrayOf(PropTypes.node),
-        'stackDepth'            : PropTypes.number,
-        'collapseShowMoreLimit' :PropTypes.number,
-        'collapseItemsIncrement':PropTypes.number
+        'showMoreExtTitle'          : PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+        'collapseLimit'             : PropTypes.number,
+        'collapseShow'              : PropTypes.number,
+        'collapseLongLists'         : PropTypes.bool,
+        'defaultCollapsed'          : PropTypes.bool,
+        'children'                  : PropTypes.arrayOf(PropTypes.node),
+        'stackDepth'                : PropTypes.number,
+        'incrementalExpandLimit': PropTypes.number,
+        'incrementalExpandStep'     : PropTypes.number
     };
 
     constructor(props){
         super(props);
         this.adjustedChildren = this.adjustedChildren.bind(this);
         this.handleCollapseToggle = this.handleCollapseToggle.bind(this);
-        this.handleCollapseMoreThanClick =this.handleCollapseMoreThanClick.bind(this);
-        this.handleCollapseMoreLessClick =this.handleCollapseMoreLessClick.bind(this);
-        this.state = { 'collapsed': props.defaultCollapsed, 'collapsibleCounter': 0 };
+        this.state = { 'collapsed': props.defaultCollapsed, 'incrementalExpandVisibleCount': props.collapseShow };
     }
 
     adjustedChildren(){
@@ -165,7 +163,7 @@ export class StackedBlockList extends React.PureComponent {
             const childProps = { colWidthStyles, columnHeaders, stackDepth : stackDepth + 1 };
             //const childProps = _.pick(this.props, 'colWidthStyles', 'selectedFiles', 'columnHeaders', 'handleFileCheckboxChange');
 
-            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'collapseShowMoreLimit'], (prop)=>{
+            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'incrementalExpandLimit'], (prop)=>{
                 if (typeof c.props[prop] === 'undefined'){
                     childProps[prop] = this.props[prop] || null;
                 }
@@ -189,17 +187,15 @@ export class StackedBlockList extends React.PureComponent {
         });
     }
 
-    handleCollapseMoreThanClick(count){
-        this.setState({ 'collapsibleCounter' : count });
-    }
-
-    handleCollapseMoreLessClick(count){
-        this.setState({ 'collapsibleCounter' : count });
+    handleIncrementalExpandClick(count){
+        this.setState(function(){
+            return { 'incrementalExpandVisibleCount' : count };
+        });
     }
 
     render(){
-        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, className, colWidthStyles, columnClass, collapseShowMoreLimit, collapseItemsIncrement } = this.props;
-        const { collapsed, collapsibleCounter } = this.state;
+        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, title = 'Items', className, colWidthStyles, columnClass, incrementalExpandLimit, incrementalExpandStep } = this.props;
+        const { collapsed, incrementalExpandVisibleCount } = this.state;
         const children = this.adjustedChildren();
         const useStyle = colWidthStyles["list:" + columnClass]; // columnClass here is of parent StackedBlock, not of its children.
         const cls = "s-block-list " + (className || '') + (' stack-depth-' + stackDepth);
@@ -209,73 +205,52 @@ export class StackedBlockList extends React.PureComponent {
             return <div className={cls} style={useStyle}>{ children }</div>;
         }
 
-        let collapsibleChildren;
-        //More than collapse calculate
-        if (children.length > collapseShowMoreLimit) {
-            //collapse Item Increment total lenght calculate.
-            //collapseShow first child items.
-            collapsibleChildren = children.slice(0, collapsibleCounter + collapseShow);
-        }
-        else {
-            //Collapse Origin
-            collapsibleChildren = children.slice(collapseShow);
-        }
+        const isIncrementalExpand = children.length > incrementalExpandLimit;
+
+        const collapsibleChildren = !isIncrementalExpand ? children.slice(collapseShow) : children.slice(collapseShow, incrementalExpandVisibleCount);
         const collapsibleChildrenLen =  collapsibleChildren.length;
 
-
-        var collapsibleChildrenElemsList;
-        if (collapsibleChildrenLen > Math.min(collapseShow, 10)) { // Don't transition
-            if (collapsibleCounter > 0) {
-                //Collapse Increment items for exp:(0,100)
-                collapsibleChildrenElemsList= <div className="collapsible-s-block-ext">{children.slice(0, collapsibleCounter)}</div>;
-            }
-            else {
-                //Origin collapse Full items
-                collapsibleChildrenElemsList = collapsed ? null : <div className="collapsible-s-block-ext">{collapsibleChildren}</div>;
-            }
+        let collapsibleChildrenElemsList;
+        if (collapsibleChildrenLen > Math.min(collapseShow, 10) || isIncrementalExpand) { // Don't transition
+            collapsibleChildrenElemsList = !collapsed || (isIncrementalExpand && collapsibleChildrenLen > 0) ? <div className="collapsible-s-block-ext">{collapsibleChildren}</div> : null;
         } else {
             collapsibleChildrenElemsList = (
                 <Collapse in={!collapsed}>
-                    <div className="collapsible-s-block-ext">{ collapsibleChildren }</div>
+                    <div className="collapsible-s-block-ext">{collapsibleChildren}</div>
                 </Collapse>
             );
         }
-        const calculateCollapseCounter = children.length - collapsibleChildren <= collapseItemsIncrement ? children.length : collapsibleCounter;
 
-        let collapseType=null;
-        let title;
-        if (children.length - collapsibleChildren.length <= collapseItemsIncrement) {
-            title = `Show ${children.length - collapsibleChildren.length} More Files`;
-        } else {
-            title = `Show 100 More Files (Total ${children.length - collapsibleChildren.length} Files to Show)`;
-        }
-        if (children.length > collapseShowMoreLimit) {
-            collapseType = (children.length > collapseShowMoreLimit && children.length - collapsibleCounter > 0 ?
-                <div className="view-more-button" onClick={(evt) => {
-                    this.handleCollapseMoreThanClick(calculateCollapseCounter + collapseItemsIncrement);
-                }}>
-                    <i className="mr-1 icon fas icon-plus" />
-                    {<span> {title} </span>}
-                </div> :
-                //Collapse Fewer files
-                <div className="view-more-button" onClick={(evt) => {
-                    this.handleCollapseMoreLessClick(collapseShow);
-                }}>
-                    <i className="icon fas icon-minus mr-1 ml-02 small" />
-                    {<span> {'Show Fewer Files '}</span>}
+        let viewMoreButton = null;
+        if (isIncrementalExpand) {
+            let titleStr, nextCount;
+            if (collapsibleChildrenLen + collapseShow >= children.length) {
+                titleStr = `Show Fewer ${title}`;
+                nextCount = collapseShow;
+            } else if (incrementalExpandVisibleCount + incrementalExpandStep > children.length) {
+                titleStr = `Show ${children.length - collapsibleChildren.length} More ${title}`;
+                nextCount = children.length;
+            } else {
+                titleStr = `Show ${incrementalExpandStep} More ${title} (Total ${children.length - collapsibleChildren.length} ${title} to Show)`;
+                nextCount = incrementalExpandVisibleCount + incrementalExpandStep;
+            }
+            viewMoreButton = (
+                <div className="view-more-button clickable" onClick={this.handleIncrementalExpandClick.bind(this, nextCount)}>
+                    <i className={"mr-1 icon fas icon-" + (nextCount >= incrementalExpandVisibleCount ? "plus" : "minus")} />
+                    {<span> {titleStr} </span>}
                 </div>);
-        }
-        else {
-            collapseType = (
+        } else {
+            viewMoreButton = (
                 <StackedBlockListViewMoreButton {...this.props} collapsibleChildren={collapsibleChildren}
                     collapsed={collapsed} handleCollapseToggle={this.handleCollapseToggle}
                 />);
         }
+
         return (
             <div className={cls} data-count-collapsed={collapsibleChildren.length} style={useStyle}>
                 { children.slice(0, collapseShow)}
-                { collapsibleChildrenElemsList}
-                { collapseType }
+                { collapsibleChildrenElemsList }
+                { viewMoreButton }
             </div>
         );
     }
@@ -311,7 +286,7 @@ export class StackedBlock extends React.PureComponent {
             );
             */
 
-            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand', 'collapseShowMoreLimit'], (prop)=>{
+            _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand', 'incrementalExpandLimit'], (prop)=>{
                 if (typeof c.props[prop] === 'undefined'){
                     childProps[prop] = this.props[prop];
                 }
@@ -430,17 +405,17 @@ export class StackedBlockTable extends React.PureComponent {
         'columnHeaders' : [
             { columnClass: 'biosample',     className: 'text-left',     title: 'Biosample',     initialWidth: 115   },
             { columnClass: 'experiment',    className: 'text-left',     title: 'Experiment',    initialWidth: 145   },
-            { columnClass: 'file-group',                                title: 'File Group',     initialWidth: 40,   visibleTitle : <i className="icon fas icon-download"></i> },
+            { columnClass: 'file-group',                                title: 'File Group',    initialWidth: 40,   visibleTitle : <i className="icon fas icon-download"></i> },
             { columnClass: 'file',                                      title: 'File',          initialWidth: 125   }
         ],
         'defaultInitialColumnWidth' : 120,
-        'collapseLimit'     : 4,
-        'collapseShow'      : 3,
-        'preventExpand'     : false,
-        'collapseLongLists' : true,
-        'collapseShowMoreLimit':100,
-        'collapseItemsIncrement':100,
-        'defaultCollapsed'  : true
+        'collapseLimit'             : 4,
+        'collapseShow'              : 3,
+        'preventExpand'             : false,
+        'collapseLongLists'         : true,
+        'incrementalExpandLimit'    : 100,
+        'incrementalExpandStep'     : 100,
+        'defaultCollapsed'          : true
     };
 
     constructor(props){

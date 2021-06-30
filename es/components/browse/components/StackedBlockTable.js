@@ -191,11 +191,9 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
     _this = _super3.call(this, props);
     _this.adjustedChildren = _this.adjustedChildren.bind(_assertThisInitialized(_this));
     _this.handleCollapseToggle = _this.handleCollapseToggle.bind(_assertThisInitialized(_this));
-    _this.handleCollapseMoreThanClick = _this.handleCollapseMoreThanClick.bind(_assertThisInitialized(_this));
-    _this.handleCollapseMoreLessClick = _this.handleCollapseMoreLessClick.bind(_assertThisInitialized(_this));
     _this.state = {
       'collapsed': props.defaultCollapsed,
-      'collapsibleCounter': 0
+      'incrementalExpandVisibleCount': props.collapseShow
     };
     return _this;
   }
@@ -220,7 +218,7 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           stackDepth: stackDepth + 1
         }; //const childProps = _.pick(this.props, 'colWidthStyles', 'selectedFiles', 'columnHeaders', 'handleFileCheckboxChange');
 
-        _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'collapseShowMoreLimit'], function (prop) {
+        _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'incrementalExpandLimit'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
             childProps[prop] = _this2.props[prop] || null;
           }
@@ -246,37 +244,32 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
       });
     }
   }, {
-    key: "handleCollapseMoreThanClick",
-    value: function handleCollapseMoreThanClick(count) {
-      this.setState({
-        'collapsibleCounter': count
-      });
-    }
-  }, {
-    key: "handleCollapseMoreLessClick",
-    value: function handleCollapseMoreLessClick(count) {
-      this.setState({
-        'collapsibleCounter': count
+    key: "handleIncrementalExpandClick",
+    value: function handleIncrementalExpandClick(count) {
+      this.setState(function () {
+        return {
+          'incrementalExpandVisibleCount': count
+        };
       });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
-
       var _this$props4 = this.props,
           collapseLongLists = _this$props4.collapseLongLists,
           stackDepth = _this$props4.stackDepth,
           collapseLimit = _this$props4.collapseLimit,
           collapseShow = _this$props4.collapseShow,
+          _this$props4$title = _this$props4.title,
+          title = _this$props4$title === void 0 ? 'Items' : _this$props4$title,
           className = _this$props4.className,
           colWidthStyles = _this$props4.colWidthStyles,
           columnClass = _this$props4.columnClass,
-          collapseShowMoreLimit = _this$props4.collapseShowMoreLimit,
-          collapseItemsIncrement = _this$props4.collapseItemsIncrement;
+          incrementalExpandLimit = _this$props4.incrementalExpandLimit,
+          incrementalExpandStep = _this$props4.incrementalExpandStep;
       var _this$state = this.state,
           collapsed = _this$state.collapsed,
-          collapsibleCounter = _this$state.collapsibleCounter;
+          incrementalExpandVisibleCount = _this$state.incrementalExpandVisibleCount;
       var children = this.adjustedChildren();
       var useStyle = colWidthStyles["list:" + columnClass]; // columnClass here is of parent StackedBlock, not of its children.
 
@@ -290,33 +283,16 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
         }, children);
       }
 
-      var collapsibleChildren; //More than collapse calculate
-
-      if (children.length > collapseShowMoreLimit) {
-        //collapse Item Increment total lenght calculate.
-        //collapseShow first child items.
-        collapsibleChildren = children.slice(0, collapsibleCounter + collapseShow);
-      } else {
-        //Collapse Origin
-        collapsibleChildren = children.slice(collapseShow);
-      }
-
+      var isIncrementalExpand = children.length > incrementalExpandLimit;
+      var collapsibleChildren = !isIncrementalExpand ? children.slice(collapseShow) : children.slice(collapseShow, incrementalExpandVisibleCount);
       var collapsibleChildrenLen = collapsibleChildren.length;
       var collapsibleChildrenElemsList;
 
-      if (collapsibleChildrenLen > Math.min(collapseShow, 10)) {
+      if (collapsibleChildrenLen > Math.min(collapseShow, 10) || isIncrementalExpand) {
         // Don't transition
-        if (collapsibleCounter > 0) {
-          //Collapse Increment items for exp:(0,100)
-          collapsibleChildrenElemsList = /*#__PURE__*/React.createElement("div", {
-            className: "collapsible-s-block-ext"
-          }, children.slice(0, collapsibleCounter));
-        } else {
-          //Origin collapse Full items
-          collapsibleChildrenElemsList = collapsed ? null : /*#__PURE__*/React.createElement("div", {
-            className: "collapsible-s-block-ext"
-          }, collapsibleChildren);
-        }
+        collapsibleChildrenElemsList = !collapsed || isIncrementalExpand && collapsibleChildrenLen > 0 ? /*#__PURE__*/React.createElement("div", {
+          className: "collapsible-s-block-ext"
+        }, collapsibleChildren) : null;
       } else {
         collapsibleChildrenElemsList = /*#__PURE__*/React.createElement(Collapse, {
           "in": !collapsed
@@ -325,37 +301,30 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
         }, collapsibleChildren));
       }
 
-      var calculateCollapseCounter = children.length - collapsibleChildren <= collapseItemsIncrement ? children.length : collapsibleCounter;
-      var collapseType = null;
-      var title;
+      var viewMoreButton = null;
 
-      if (children.length - collapsibleChildren.length <= collapseItemsIncrement) {
-        title = "Show ".concat(children.length - collapsibleChildren.length, " More Files");
-      } else {
-        title = "Show 100 More Files (Total ".concat(children.length - collapsibleChildren.length, " Files to Show)");
-      }
+      if (isIncrementalExpand) {
+        var titleStr, nextCount;
 
-      if (children.length > collapseShowMoreLimit) {
-        collapseType = children.length > collapseShowMoreLimit && children.length - collapsibleCounter > 0 ? /*#__PURE__*/React.createElement("div", {
-          className: "view-more-button",
-          onClick: function onClick() {
-            _this3.handleCollapseMoreThanClick(calculateCollapseCounter + collapseItemsIncrement);
-          }
+        if (collapsibleChildrenLen + collapseShow >= children.length) {
+          titleStr = "Show Fewer ".concat(title);
+          nextCount = collapseShow;
+        } else if (incrementalExpandVisibleCount + incrementalExpandStep > children.length) {
+          titleStr = "Show ".concat(children.length - collapsibleChildren.length, " More ").concat(title);
+          nextCount = children.length;
+        } else {
+          titleStr = "Show ".concat(incrementalExpandStep, " More ").concat(title, " (Total ").concat(children.length - collapsibleChildren.length, " ").concat(title, " to Show)");
+          nextCount = incrementalExpandVisibleCount + incrementalExpandStep;
+        }
+
+        viewMoreButton = /*#__PURE__*/React.createElement("div", {
+          className: "view-more-button clickable",
+          onClick: this.handleIncrementalExpandClick.bind(this, nextCount)
         }, /*#__PURE__*/React.createElement("i", {
-          className: "mr-1 icon fas icon-plus"
-        }), /*#__PURE__*/React.createElement("span", null, " ", title, " ")) :
-        /*#__PURE__*/
-        //Collapse Fewer files
-        React.createElement("div", {
-          className: "view-more-button",
-          onClick: function onClick() {
-            _this3.handleCollapseMoreLessClick(collapseShow);
-          }
-        }, /*#__PURE__*/React.createElement("i", {
-          className: "icon fas icon-minus mr-1 ml-02 small"
-        }), /*#__PURE__*/React.createElement("span", null, " ", 'Show Fewer Files '));
+          className: "mr-1 icon fas icon-" + (nextCount >= incrementalExpandVisibleCount ? "plus" : "minus")
+        }), /*#__PURE__*/React.createElement("span", null, " ", titleStr, " "));
       } else {
-        collapseType = /*#__PURE__*/React.createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
+        viewMoreButton = /*#__PURE__*/React.createElement(StackedBlockListViewMoreButton, _extends({}, this.props, {
           collapsibleChildren: collapsibleChildren,
           collapsed: collapsed,
           handleCollapseToggle: this.handleCollapseToggle
@@ -366,7 +335,7 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
         className: cls,
         "data-count-collapsed": collapsibleChildren.length,
         style: useStyle
-      }, children.slice(0, collapseShow), collapsibleChildrenElemsList, collapseType);
+      }, children.slice(0, collapseShow), collapsibleChildrenElemsList, viewMoreButton);
     }
   }]);
 
@@ -383,8 +352,8 @@ _defineProperty(StackedBlockList, "propTypes", {
   'defaultCollapsed': PropTypes.bool,
   'children': PropTypes.arrayOf(PropTypes.node),
   'stackDepth': PropTypes.number,
-  'collapseShowMoreLimit': PropTypes.number,
-  'collapseItemsIncrement': PropTypes.number
+  'incrementalExpandLimit': PropTypes.number,
+  'incrementalExpandStep': PropTypes.number
 });
 
 export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
@@ -394,19 +363,19 @@ export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
 
   /** TODO MAYBE USE HERE & ON LIST */
   function StackedBlock(props) {
-    var _this4;
+    var _this3;
 
     _classCallCheck(this, StackedBlock);
 
-    _this4 = _super4.call(this, props);
-    _this4.adjustedChildren = _this4.adjustedChildren.bind(_assertThisInitialized(_this4));
-    return _this4;
+    _this3 = _super4.call(this, props);
+    _this3.adjustedChildren = _this3.adjustedChildren.bind(_assertThisInitialized(_this3));
+    return _this3;
   }
 
   _createClass(StackedBlock, [{
     key: "adjustedChildren",
     value: function adjustedChildren() {
-      var _this5 = this;
+      var _this4 = this;
 
       var _this$props5 = this.props,
           children = _this$props5.children,
@@ -431,15 +400,15 @@ export var StackedBlock = /*#__PURE__*/function (_React$PureComponent4) {
         );
         */
 
-        _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand', 'collapseShowMoreLimit'], function (prop) {
+        _.forEach(['collapseLongLists', 'collapseLimit', 'collapseShow', 'defaultCollapsed', 'preventExpand', 'incrementalExpandLimit'], function (prop) {
           if (typeof c.props[prop] === 'undefined') {
-            childProps[prop] = _this5.props[prop];
+            childProps[prop] = _this4.props[prop];
           }
         });
 
-        _.forEach(_.keys(_this5.props), function (prop) {
+        _.forEach(_.keys(_this4.props), function (prop) {
           if (typeof c.props[prop] === 'undefined' && typeof childProps[prop] === 'undefined' && !StackedBlock.excludedPassedProps.has(prop)) {
-            childProps[prop] = _this5.props[prop];
+            childProps[prop] = _this4.props[prop];
           }
         });
 
@@ -548,21 +517,21 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
   }]);
 
   function StackedBlockTable(props) {
-    var _this6;
+    var _this5;
 
     _classCallCheck(this, StackedBlockTable);
 
-    _this6 = _super5.call(this, props);
-    _this6.adjustedChildren = _this6.adjustedChildren.bind(_assertThisInitialized(_this6));
-    _this6.setCollapsingState = _.throttle(_this6.setCollapsingState.bind(_assertThisInitialized(_this6)));
-    _this6.memoized = {
+    _this5 = _super5.call(this, props);
+    _this5.adjustedChildren = _this5.adjustedChildren.bind(_assertThisInitialized(_this5));
+    _this5.setCollapsingState = _.throttle(_this5.setCollapsingState.bind(_assertThisInitialized(_this5)));
+    _this5.memoized = {
       totalColumnsMinWidth: memoize(StackedBlockTable.totalColumnsMinWidth),
       colWidthStyles: memoize(StackedBlockTable.colWidthStyles)
     };
-    _this6.state = {
+    _this5.state = {
       'mounted': false
     };
-    return _this6;
+    return _this5;
   }
 
   _createClass(StackedBlockTable, [{
@@ -582,7 +551,7 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
   }, {
     key: "adjustedChildren",
     value: function adjustedChildren() {
-      var _this7 = this;
+      var _this6 = this;
 
       var _this$props7 = this.props,
           children = _this$props7.children,
@@ -591,7 +560,7 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
       var colWidthStyles = this.memoized.colWidthStyles(columnHeaders, defaultInitialColumnWidth);
       return React.Children.map(children, function (c) {
         // Includes handleFileCheckboxChange, selectedFiles, etc. if present
-        var addedProps = _.omit(_this7.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width'); // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
+        var addedProps = _.omit(_this6.props, 'columnHeaders', 'stackDepth', 'colWidthStyles', 'width'); // REQUIRED & PASSED DOWN TO STACKEDBLOCKLIST
 
 
         addedProps.colWidthStyles = colWidthStyles;
@@ -679,8 +648,8 @@ _defineProperty(StackedBlockTable, "defaultProps", {
   'collapseShow': 3,
   'preventExpand': false,
   'collapseLongLists': true,
-  'collapseShowMoreLimit': 100,
-  'collapseItemsIncrement': 100,
+  'incrementalExpandLimit': 100,
+  'incrementalExpandStep': 100,
   'defaultCollapsed': true
 });
 

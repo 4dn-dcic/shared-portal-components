@@ -638,7 +638,7 @@ function shouldTrack(itemList){
     }
 
     if (itemList && Array.isArray(itemList) && itemList.length > 50) {
-        console.info(`Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has (${itemList.length} items.`);
+        console.info(`Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has ${itemList.length} items.`);
         return false;
     }
 
