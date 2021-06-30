@@ -589,6 +589,11 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 								opacity: 0.8;
 							}
 						}
+
+						sup {
+							margin-left: -3px;
+    						margin-right: 2px;
+						}
 					}
 
 				}
@@ -793,7 +798,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 	.box {
 		min-height: 33px;
 		&.selection-buttons {
-			margin-right: 7px;
+			margin-right: 6px;
 		}
 	}
 

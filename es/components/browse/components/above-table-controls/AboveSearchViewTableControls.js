@@ -10,7 +10,11 @@ import { AboveTableControlsBase } from './AboveTableControlsBase';
 export var AboveSearchViewTableControls = /*#__PURE__*/React.memo(function (props) {
   var context = props.context,
       currentAction = props.currentAction,
-      topLeftChildren = props.topLeftChildren;
+      topLeftChildren = props.topLeftChildren,
+      isFullscreen = props.isFullscreen,
+      windowWidth = props.windowWidth,
+      toggleFullScreen = props.toggleFullScreen,
+      sortBy = props.sortBy;
   var _ref$total = (context || {}).total,
       showTotalResults = _ref$total === void 0 ? 0 : _ref$total; // Case if on SearchView
 
@@ -48,8 +52,13 @@ export var AboveSearchViewTableControls = /*#__PURE__*/React.memo(function (prop
     /*#__PURE__*/
     // TODO refactor out panelMap stuff.
     React.createElement(AboveTableControlsBase, _extends({
+      isFullscreen: isFullscreen,
+      windowWidth: windowWidth,
+      toggleFullScreen: toggleFullScreen,
+      sortBy: sortBy
+    }, {
       panelMap: AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)
-    }, _.pick(props, 'isFullscreen', 'windowWidth', 'toggleFullScreen')), /*#__PURE__*/React.createElement(LeftSectionControls, {
+    }), /*#__PURE__*/React.createElement(LeftSectionControls, {
       total: total,
       addButton: addButton,
       topLeftChildren: topLeftChildren
