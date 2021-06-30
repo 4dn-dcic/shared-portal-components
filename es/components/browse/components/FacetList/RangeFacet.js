@@ -536,33 +536,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           _facet$title = facet.title,
           facetTitle = _facet$title === void 0 ? null : _facet$title,
           _facet$description = facet.description,
-          facetSchemaDescription = _facet$description === void 0 ? null : _facet$description;
-      var hideDocCounts = false; // Check to see if should show doc counts based on schema info (Note: only works for VariantSample/may need to be generalized for more fields in future)
-
-      if (schemas && field !== undefined && itemTypeForSchemas === "VariantSample") {
-        var fieldSplit = field.split("variant.");
-
-        var _ref5 = fieldSplit || [],
-            variantField = _ref5[1];
-
-        if (variantField) {
-          var fieldPropsFromVariant = getSchemaProperty(variantField, schemas, "Variant");
-
-          var _ref6 = fieldPropsFromVariant || {},
-              _ref6$items = _ref6.items;
-
-          _ref6$items = _ref6$items === void 0 ? {} : _ref6$items;
-          var _ref6$items$add_no_va = _ref6$items.add_no_value,
-              addNoValueNested = _ref6$items$add_no_va === void 0 ? false : _ref6$items$add_no_va,
-              _ref6$add_no_value = _ref6.add_no_value,
-              addNoValue = _ref6$add_no_value === void 0 ? false : _ref6$add_no_value; // console.log("fieldPropsFromVariant", variantField, fieldPropsFromVariant);
-
-          if (addNoValue || addNoValueNested) {
-            hideDocCounts = true;
-          }
-        }
-      }
-
+          facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
+          _facet$hide_facet_cou = facet.hide_facet_counts,
+          hideDocCounts = _facet$hide_facet_cou === void 0 ? false : _facet$hide_facet_cou;
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       var fieldSchemaDescription = (fieldSchema || {}).description; // fieldSchema not present if no schemas loaded yet.
 
@@ -687,7 +663,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facet: facet,
           id: "to_" + field,
           reset: toVal !== null ? this.resetTo : null
-        }))), ranges && ranges.length > 0 ? /*#__PURE__*/React.createElement(ListOfRanges, _extends({}, this.props, {
+        }))), ranges && ranges.length > 0 ? /*#__PURE__*/React.createElement(ListOfRanges, _extends({
+          key: 1
+        }, this.props, {
           expanded: expanded,
           hideDocCounts: hideDocCounts
         }, {
@@ -720,9 +698,9 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
   /** Create range components and sort by status (selected->omitted->unselected) */
 
   var _useMemo = useMemo(function () {
-    var _ref8 = filteringFieldTerm || {},
-        currFilteringField = _ref8.field,
-        currFilteringTerm = _ref8.term; // Ranges always presumed to have a from & to, so ignore if filtering a single value/term.
+    var _ref6 = filteringFieldTerm || {},
+        currFilteringField = _ref6.field,
+        currFilteringTerm = _ref6.term; // Ranges always presumed to have a from & to, so ignore if filtering a single value/term.
 
 
     var _segmentComponentsByS = segmentComponentsByStatus(ranges.map(function (range) {
@@ -965,7 +943,7 @@ RangeTerm.propTypes = {
     'label': PropTypes.string,
     'doc_count': PropTypes.number
   }).isRequired,
-  'onClick': PropTypes.func.isRequired
+  'onClick': PropTypes.func
 };
 export function FormattedToFromRangeValue(props) {
   var termTransformFxn = props.termTransformFxn,
@@ -1014,12 +992,12 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
       facetTitle = facet.title,
       _facet$abbreviation = facet.abbreviation,
       facetAbbreviation = _facet$abbreviation === void 0 ? null : _facet$abbreviation;
-  var _ref9$abbreviation = (fieldSchema || {}).abbreviation,
-      fieldAbbreviation = _ref9$abbreviation === void 0 ? null : _ref9$abbreviation;
+  var _ref7$abbreviation = (fieldSchema || {}).abbreviation,
+      fieldAbbreviation = _ref7$abbreviation === void 0 ? null : _ref7$abbreviation;
 
-  var _ref10 = filteringFieldTerm || {},
-      currFilteringField = _ref10.field,
-      currFilteringTerm = _ref10.term;
+  var _ref8 = filteringFieldTerm || {},
+      currFilteringField = _ref8.field,
+      currFilteringTerm = _ref8.term;
 
   var abbreviatedTitle = facetAbbreviation || fieldAbbreviation || (facetTitle.length > 5 ? /*#__PURE__*/React.createElement("em", null, "N") : facetTitle);
 

@@ -411,23 +411,9 @@ export class RangeFacet extends React.PureComponent {
             max: maxValue = null,
             max_as_string: maxDateTime = null,
             title: facetTitle = null,
-            description: facetSchemaDescription = null
+            description: facetSchemaDescription = null,
+            hide_facet_counts: hideDocCounts = false
         } = facet;
-
-        let hideDocCounts = false;
-        // Check to see if should show doc counts based on schema info (Note: only works for VariantSample/may need to be generalized for more fields in future)
-        if (schemas && field !== undefined && itemTypeForSchemas === "VariantSample") {
-            const fieldSplit = field.split("variant.");
-            const { 1: variantField } = fieldSplit || [];
-            if (variantField) {
-                const fieldPropsFromVariant = getSchemaProperty(variantField, schemas, "Variant");
-                const { items: { add_no_value: addNoValueNested = false } = {}, add_no_value: addNoValue = false } = fieldPropsFromVariant || {};
-                // console.log("fieldPropsFromVariant", variantField, fieldPropsFromVariant);
-                if (addNoValue || addNoValueNested) {
-                    hideDocCounts = true;
-                }
-            }
-        }
 
         const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
         const { description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet.
@@ -540,7 +526,7 @@ export class RangeFacet extends React.PureComponent {
                                     */}
                                 </div>
                             </div>,
-                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded, hideDocCounts }} onToggleExpanded={this.handleExpandListToggleClick} selectRange={this.selectRange} /> : null
+                            (ranges && ranges.length > 0) ? <ListOfRanges key={1} {...this.props} {...{ expanded, hideDocCounts }} onToggleExpanded={this.handleExpandListToggleClick} selectRange={this.selectRange} /> : null
                         ]} />
                 </div>
             </div>
@@ -752,7 +738,7 @@ RangeTerm.propTypes = {
         'label'             : PropTypes.string,
         'doc_count'         : PropTypes.number
     }).isRequired,
-    'onClick'           : PropTypes.func.isRequired
+    'onClick'           : PropTypes.func
 };
 
 
