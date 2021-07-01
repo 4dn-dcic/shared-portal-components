@@ -411,8 +411,10 @@ export class RangeFacet extends React.PureComponent {
             max: maxValue = null,
             max_as_string: maxDateTime = null,
             title: facetTitle = null,
-            description: facetSchemaDescription = null
+            description: facetSchemaDescription = null,
+            hide_facet_counts: hideDocCounts = false
         } = facet;
+
         const fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
         const { description: fieldSchemaDescription } = fieldSchema || {}; // fieldSchema not present if no schemas loaded yet.
         const { fromVal, toVal, expanded } = this.state;
@@ -524,7 +526,7 @@ export class RangeFacet extends React.PureComponent {
                                     */}
                                 </div>
                             </div>,
-                            (ranges && ranges.length > 0) ? <ListOfRanges {...this.props} {...{ expanded }} onToggleExpanded={this.handleExpandListToggleClick} selectRange={this.selectRange} /> : null
+                            (ranges && ranges.length > 0) ? <ListOfRanges key={1} {...this.props} {...{ expanded, hideDocCounts }} onToggleExpanded={this.handleExpandListToggleClick} selectRange={this.selectRange} /> : null
                         ]} />
                 </div>
             </div>
@@ -543,7 +545,8 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
         expanded, onToggleExpanded,
         termTransformFxn,
         toVal, fromVal,
-        filteringFieldTerm
+        filteringFieldTerm,
+        hideDocCounts
     } = props;
     const { ranges = [], field: facetField } = facet;
 
@@ -572,7 +575,7 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
                     (currFilteringTerm === rangeTo && currFilteringTerm === rangeFrom)
                 )
             );
-            return <RangeTerm {...{ facet, range, termTransformFxn, selectRange, isFiltering }} key={`${rangeFrom}-${rangeTo}`} status={getRangeStatus(range, toVal, fromVal)} />;
+            return <RangeTerm {...{ facet, range, termTransformFxn, selectRange, isFiltering, hideDocCounts }} key={`${rangeFrom}-${rangeTo}`} status={getRangeStatus(range, toVal, fromVal)} />;
         }));
 
         const selectedLen = selectedTermComponents.length;
@@ -681,7 +684,7 @@ export class RangeTerm extends React.PureComponent {
     }
 
     render() {
-        const { range, facet, status, isFiltering = false } = this.props;
+        const { range, facet, status, isFiltering = false, hideDocCounts = false } = this.props;
         const { doc_count, from, to, label } = range;
         const selected = (status !== 'none');
         let icon = null;
@@ -718,7 +721,7 @@ export class RangeTerm extends React.PureComponent {
                 <a className="term" data-selected={selected} href="#" onClick={this.handleClick} data-term={label}>
                     <span className="facet-selector">{icon}</span>
                     <span className="facet-item" data-tip={title.length > 30 ? title : null}>{title} {displayLabel}</span>
-                    <span className="facet-count">{doc_count || 0}</span>
+                    { !hideDocCounts ? <span className="facet-count">{doc_count || 0}</span> : null }
                 </a>
             </li>
         );
@@ -735,7 +738,7 @@ RangeTerm.propTypes = {
         'label'             : PropTypes.string,
         'doc_count'         : PropTypes.number
     }).isRequired,
-    'onClick'           : PropTypes.func.isRequired
+    'onClick'           : PropTypes.func
 };
 
 
