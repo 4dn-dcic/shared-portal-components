@@ -465,7 +465,7 @@ class DragAndDropModal extends React.Component {
         const allowUpload = files.length > 0 && ((requireVerification && isVerified) || !requireVerification);
 
         return (
-            <Modal centered {...{ show }} onHide={handleHideModal} className="submission-view-modal drag-and-drop-upload">
+            <Modal centered {...{ show }} onHide={handleHideModal} className="submission-view-modal drag-and-drop-upload" size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title className="text-500">
                         Upload a {fieldName} { showFieldName ? "for " + fieldDisplayTitle : null}
@@ -510,7 +510,7 @@ function RequestVerification(props) {
     } = props;
 
     return (
-        <div>
+        <div className="mb-1 mt-2 text-center">
             <input name="file-verification" type="checkbox" checked={isVerified} onChange={toggleVerification} />
             <label className="d-inline ml-05" htmlFor="file-verification" dangerouslySetInnerHTML={{ __html: requestVerificationMsg }}></label>
         </div>

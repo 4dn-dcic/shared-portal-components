@@ -658,7 +658,8 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
         show: show
       }, {
         onHide: handleHideModal,
-        className: "submission-view-modal drag-and-drop-upload"
+        className: "submission-view-modal drag-and-drop-upload",
+        size: "lg"
       }), /*#__PURE__*/React.createElement(Modal.Header, {
         closeButton: true
       }, /*#__PURE__*/React.createElement(Modal.Title, {
@@ -736,7 +737,9 @@ function RequestVerification(props) {
       _props$requestVerific = props.requestVerificationMsg,
       requestVerificationMsg = _props$requestVerific === void 0 ? '<span>I certify that my file(s) do not contain <a href="https://www.hipaajournal.com/considered-phi-hipaa/" target="_blank" rel="noreferrer">Personal Health Information</a></span>' : _props$requestVerific,
       toggleVerification = props.toggleVerification;
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mb-1 mt-2 text-center"
+  }, /*#__PURE__*/React.createElement("input", {
     name: "file-verification",
     type: "checkbox",
     checked: isVerified,
