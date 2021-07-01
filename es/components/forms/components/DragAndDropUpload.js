@@ -380,7 +380,6 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           cls = _this$props4.cls,
           fieldDisplayTitle = _this$props4.fieldDisplayTitle,
           fieldName = _this$props4.fieldName,
-          requireVerification = _this$props4.requireVerification,
           requestVerificationMsg = _this$props4.requestVerificationMsg,
           multiselect = _this$props4.multiselect;
       var _this$state = this.state,
@@ -392,7 +391,6 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         fieldName: fieldName,
         files: files,
         isLoading: isLoading,
-        requireVerification: requireVerification,
         requestVerificationMsg: requestVerificationMsg,
         multiselect: multiselect
       }, {
@@ -424,9 +422,7 @@ _defineProperty(DragAndDropFileUploadController, "propTypes", {
   // Classes to apply to the main "Quick Upload" button
   multiselect: PropTypes.bool,
   // Can field link multiple files at once?/Is array field?
-  requireVerification: PropTypes.bool,
-  // Require a checkbox to be checked before each upload
-  requestVerificationMsg: PropTypes.string // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+  requestVerificationMsg: PropTypes.element // JSX message to be displayed on verification request
   // award: PropTypes.string,                    // Will be required for 4DN SV
   // lab: PropTypes.string,                      // Will be required for 4DN SV
   // institution: PropTypes.object,              // Will be required for CGAP SV
@@ -505,8 +501,7 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
           fieldDisplayTitle = _this$props5.fieldDisplayTitle,
           files = _this$props5.files,
           isLoading = _this$props5.isLoading,
-          requestVerificationMsg = _this$props5.requestVerificationMsg,
-          requireVerification = _this$props5.requireVerification;
+          requestVerificationMsg = _this$props5.requestVerificationMsg;
       return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DragAndDropModal, _extends({
         handleHideModal: this.handleHideModal
       }, {
@@ -520,8 +515,7 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
         handleClearAllFiles: handleClearAllFiles,
         files: files,
         isLoading: isLoading,
-        requestVerificationMsg: requestVerificationMsg,
-        requireVerification: requireVerification
+        requestVerificationMsg: requestVerificationMsg
       })), /*#__PURE__*/React.createElement("button", {
         type: "button",
         onClick: this.onShow,
@@ -556,9 +550,7 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
   // Classes to apply to the main "Quick Upload" button
   isLoading: PropTypes.bool,
   // Are items currently being uploaded?
-  requireVerification: PropTypes.bool,
-  // Require a checkbox to be checked before each upload
-  requestVerificationMsg: PropTypes.string // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+  requestVerificationMsg: PropTypes.element // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
 
 });
 
@@ -620,11 +612,10 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
     value: function handleAddFileAndResetVerification(evt) {
       var _this$props6 = this.props,
           handleAddFile = _this$props6.handleAddFile,
-          requireVerification = _this$props6.requireVerification;
+          requestVerificationMsg = _this$props6.requestVerificationMsg;
       var isVerified = this.state.isVerified;
-      console.log("isVerified && requireVerification", isVerified, requireVerification);
 
-      if (isVerified && requireVerification) {
+      if (isVerified && requestVerificationMsg) {
         // reset verification status on add new files if already checked
         this.setState({
           isVerified: false
@@ -647,11 +638,10 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
           files = _this$props7.files,
           handleHideModal = _this$props7.handleHideModal,
           isLoading = _this$props7.isLoading,
-          requireVerification = _this$props7.requireVerification,
           requestVerificationMsg = _this$props7.requestVerificationMsg,
           multiselect = _this$props7.multiselect; // console.log("isLoading:", isLoading);
 
-      var allowUpload = files.length > 0 && (requireVerification && isVerified || !requireVerification);
+      var allowUpload = files.length > 0 && (requestVerificationMsg && isVerified || !requestVerificationMsg);
       return /*#__PURE__*/React.createElement(Modal, _extends({
         centered: true
       }, {
@@ -672,9 +662,9 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
         files: files,
         multiselect: multiselect
       }, {
-        handleAddFile: requireVerification ? this.handleAddFileAndResetVerification : handleAddFile,
+        handleAddFile: requestVerificationMsg ? this.handleAddFileAndResetVerification : handleAddFile,
         handleRemoveFile: handleRemoveFile
-      })), requireVerification ? /*#__PURE__*/React.createElement(RequestVerification, _extends({
+      })), requestVerificationMsg ? /*#__PURE__*/React.createElement(RequestVerification, _extends({
         requestVerificationMsg: requestVerificationMsg,
         isVerified: isVerified
       }, {
@@ -690,7 +680,7 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
         className: "btn btn-primary",
         onClick: onUploadStart,
         disabled: !allowUpload,
-        "data-tip": requireVerification && !allowUpload ? "Verify your files by clicking the checkbox." : null
+        "data-tip": requestVerificationMsg && !allowUpload ? "Verify your files by clicking the checkbox." : null
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-upload"
       }), " Upload ", fieldDisplayTitle)));
@@ -721,9 +711,7 @@ _defineProperty(DragAndDropModal, "propTypes", {
   // Name of specific field (Ex. Related Documents)
   isLoading: PropTypes.bool,
   // Are items currently being uploaded?
-  requireVerification: PropTypes.bool,
-  // Require a checkbox to be checked before each upload
-  requestVerificationMsg: PropTypes.string,
+  requestVerificationMsg: PropTypes.element,
   // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
   multiselect: PropTypes.bool // Can you select more than one file at a time for upload?
 
@@ -737,8 +725,7 @@ _defineProperty(DragAndDropModal, "defaultProps", {
 function RequestVerification(props) {
   var _props$isVerified = props.isVerified,
       isVerified = _props$isVerified === void 0 ? true : _props$isVerified,
-      _props$requestVerific = props.requestVerificationMsg,
-      requestVerificationMsg = _props$requestVerific === void 0 ? '<span>I certify that my file(s) do not contain <a href="https://www.hipaajournal.com/considered-phi-hipaa/" target="_blank" rel="noreferrer">Personal Health Information</a></span>' : _props$requestVerific,
+      requestVerificationMsg = props.requestVerificationMsg,
       toggleVerification = props.toggleVerification;
   return /*#__PURE__*/React.createElement("div", {
     className: "mb-1 mt-2 text-center"
@@ -749,11 +736,8 @@ function RequestVerification(props) {
     onChange: toggleVerification
   }), /*#__PURE__*/React.createElement("label", {
     className: "d-inline ml-05",
-    htmlFor: "file-verification",
-    dangerouslySetInnerHTML: {
-      __html: requestVerificationMsg
-    }
-  }));
+    htmlFor: "file-verification"
+  }, requestVerificationMsg, " "));
 }
 
 export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {

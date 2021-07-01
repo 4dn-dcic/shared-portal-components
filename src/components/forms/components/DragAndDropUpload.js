@@ -29,8 +29,7 @@ export class DragAndDropFileUploadController extends React.Component {
         fieldDisplayTitle: PropTypes.string,        // Display title of field (e.g. "Related Documents")
         cls: PropTypes.string,                      // Classes to apply to the main "Quick Upload" button
         multiselect: PropTypes.bool,                // Can field link multiple files at once?/Is array field?
-        requireVerification: PropTypes.bool,        // Require a checkbox to be checked before each upload
-        requestVerificationMsg: PropTypes.string    // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+        requestVerificationMsg: PropTypes.element    // JSX message to be displayed on verification request
         // award: PropTypes.string,                    // Will be required for 4DN SV
         // lab: PropTypes.string,                      // Will be required for 4DN SV
         // institution: PropTypes.object,              // Will be required for CGAP SV
@@ -304,10 +303,10 @@ export class DragAndDropFileUploadController extends React.Component {
     }
 
     render() {
-        const { cls, fieldDisplayTitle, fieldName, requireVerification, requestVerificationMsg, multiselect } = this.props;
+        const { cls, fieldDisplayTitle, fieldName, requestVerificationMsg, multiselect } = this.props;
         const { files, isLoading } = this.state;
 
-        return <DragAndDropUploadButton {...{ cls, fieldDisplayTitle, fieldName, files, isLoading, requireVerification, requestVerificationMsg, multiselect }}
+        return <DragAndDropUploadButton {...{ cls, fieldDisplayTitle, fieldName, files, isLoading, requestVerificationMsg, multiselect }}
             onUploadStart={this.onUploadStart} handleAddFile={this.handleAddFile}
             handleClearAllFiles={this.handleClearAllFiles} handleRemoveFile={this.handleRemoveFile} />;
     }
@@ -325,8 +324,7 @@ class DragAndDropUploadButton extends React.Component {
         multiselect: PropTypes.bool,                    // Can field link multiple files at once?/Is array field?
         cls: PropTypes.string,                          // Classes to apply to the main "Quick Upload" button
         isLoading: PropTypes.bool,                       // Are items currently being uploaded?
-        requireVerification: PropTypes.bool,            // Require a checkbox to be checked before each upload
-        requestVerificationMsg: PropTypes.string        // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+        requestVerificationMsg: PropTypes.element        // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
     }
 
     static defaultProps = {
@@ -372,13 +370,13 @@ class DragAndDropUploadButton extends React.Component {
     render() {
         const { showModal: show } = this.state;
         const { onUploadStart, handleAddFile, handleRemoveFile, handleClearAllFiles, multiselect,
-            fieldName, cls, fieldDisplayTitle, files, isLoading, requestVerificationMsg, requireVerification } = this.props;
+            fieldName, cls, fieldDisplayTitle, files, isLoading, requestVerificationMsg } = this.props;
 
         return (
             <div>
                 <DragAndDropModal handleHideModal={this.handleHideModal}
                     {...{ multiselect, show, onUploadStart, fieldName, fieldDisplayTitle, handleAddFile, handleRemoveFile,
-                        handleClearAllFiles, files, isLoading, requestVerificationMsg, requireVerification }}
+                        handleClearAllFiles, files, isLoading, requestVerificationMsg }}
                 />
                 <button type="button" onClick={this.onShow} className={cls}>
                     <i className="icon icon-upload fas"></i> Quick Upload a new {fieldName}
@@ -404,8 +402,7 @@ class DragAndDropModal extends React.Component {
         fieldName: PropTypes.string,                    // Human readable type (Ex. Item, Document, Image, etc)
         fieldDisplayTitle: PropTypes.string,            // Name of specific field (Ex. Related Documents)
         isLoading: PropTypes.bool,                      // Are items currently being uploaded?
-        requireVerification: PropTypes.bool,            // Require a checkbox to be checked before each upload
-        requestVerificationMsg: PropTypes.string,       // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+        requestVerificationMsg: PropTypes.element,      // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
         multiselect: PropTypes.bool                     // Can you select more than one file at a time for upload?
     }
 
@@ -440,12 +437,10 @@ class DragAndDropModal extends React.Component {
      * @param {Object} evt  The click event to be passed to handleAddFile
      */
     handleAddFileAndResetVerification(evt) {
-        const { handleAddFile, requireVerification } = this.props;
+        const { handleAddFile, requestVerificationMsg } = this.props;
         const { isVerified } = this.state;
 
-        console.log("isVerified && requireVerification", isVerified, requireVerification);
-
-        if (isVerified && requireVerification) { // reset verification status on add new files if already checked
+        if (isVerified && requestVerificationMsg) { // reset verification status on add new files if already checked
             this.setState({ isVerified: false }, handleAddFile(evt));
         } else {
             handleAddFile(evt);
@@ -455,13 +450,13 @@ class DragAndDropModal extends React.Component {
     render(){
         const { isVerified } = this.state;
         const {
-            show, onUploadStart, fieldName, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal, isLoading, requireVerification, requestVerificationMsg, multiselect
+            show, onUploadStart, fieldName, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal, isLoading, requestVerificationMsg, multiselect
         } = this.props;
         // console.log("isLoading:", isLoading);
 
         const showFieldName = fieldDisplayTitle && fieldName !== fieldDisplayTitle;
 
-        const allowUpload = files.length > 0 && ((requireVerification && isVerified) || !requireVerification);
+        const allowUpload = files.length > 0 && ((requestVerificationMsg && isVerified) || !requestVerificationMsg);
 
         return (
             <Modal centered {...{ show }} onHide={handleHideModal} className="submission-view-modal drag-and-drop-upload" size="lg">
@@ -478,9 +473,9 @@ class DragAndDropModal extends React.Component {
                             </div>
                         </div> : null}
                     <DragAndDropZone {...{ files, multiselect }}
-                        handleAddFile={requireVerification ? this.handleAddFileAndResetVerification: handleAddFile}
+                        handleAddFile={requestVerificationMsg ? this.handleAddFileAndResetVerification: handleAddFile}
                         handleRemoveFile={handleRemoveFile} />
-                    { requireVerification ?
+                    { requestVerificationMsg ?
                         <RequestVerification {...{ requestVerificationMsg, isVerified }} toggleVerification={this.toggleCheckbox} />: null
                     }
                 </Modal.Body>
@@ -492,7 +487,7 @@ class DragAndDropModal extends React.Component {
                     // Refer to https://medium.com/trabe/controlled-file-input-components-in-react-3f0d42f901b8 */}
 
                     <button type="button" className="btn btn-primary" onClick={onUploadStart}
-                        disabled={!allowUpload} data-tip={requireVerification && !allowUpload ? "Verify your files by clicking the checkbox.": null }>
+                        disabled={!allowUpload} data-tip={requestVerificationMsg && !allowUpload ? "Verify your files by clicking the checkbox.": null }>
                         <i className="icon fas icon-upload"></i> Upload {fieldDisplayTitle}
                     </button>
                 </Modal.Footer>
@@ -504,14 +499,14 @@ class DragAndDropModal extends React.Component {
 function RequestVerification(props) {
     const {
         isVerified = true,
-        requestVerificationMsg = '<span>I certify that my file(s) do not contain <a href="https://www.hipaajournal.com/considered-phi-hipaa/" target="_blank" rel="noreferrer">Personal Health Information</a></span>',
+        requestVerificationMsg,
         toggleVerification
     } = props;
 
     return (
         <div className="mb-1 mt-2 text-center">
             <input name="file-verification" type="checkbox" checked={isVerified} onChange={toggleVerification} />
-            <label className="d-inline ml-05" htmlFor="file-verification" dangerouslySetInnerHTML={{ __html: requestVerificationMsg }}></label>
+            <label className="d-inline ml-05" htmlFor="file-verification">{ requestVerificationMsg } </label>
         </div>
     );
 }
