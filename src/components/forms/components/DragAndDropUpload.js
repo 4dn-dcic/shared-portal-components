@@ -38,8 +38,7 @@ export class DragAndDropFileUploadController extends React.Component {
     }
 
     static defaultProps = {
-        cls: "btn",
-        multiselect: true
+        cls: "btn"
     }
 
     constructor(props) {
@@ -305,10 +304,10 @@ export class DragAndDropFileUploadController extends React.Component {
     }
 
     render() {
-        const { cls, fieldDisplayTitle, fieldName, requireVerification, requestVerificationMsg } = this.props;
+        const { cls, fieldDisplayTitle, fieldName, requireVerification, requestVerificationMsg, multiselect } = this.props;
         const { files, isLoading } = this.state;
 
-        return <DragAndDropUploadButton {...{ cls, fieldDisplayTitle, fieldName, files, isLoading, requireVerification, requestVerificationMsg }}
+        return <DragAndDropUploadButton {...{ cls, fieldDisplayTitle, fieldName, files, isLoading, requireVerification, requestVerificationMsg, multiselect }}
             onUploadStart={this.onUploadStart} handleAddFile={this.handleAddFile}
             handleClearAllFiles={this.handleClearAllFiles} handleRemoveFile={this.handleRemoveFile} />;
     }
@@ -332,7 +331,6 @@ class DragAndDropUploadButton extends React.Component {
 
     static defaultProps = {
         fieldName: "Document",
-        multiselect: false,
         files: []
     }
 
@@ -372,8 +370,8 @@ class DragAndDropUploadButton extends React.Component {
     }
 
     render() {
-        const { showModal: show, multiselect } = this.state;
-        const { onUploadStart, handleAddFile, handleRemoveFile, handleClearAllFiles,
+        const { showModal: show } = this.state;
+        const { onUploadStart, handleAddFile, handleRemoveFile, handleClearAllFiles, multiselect,
             fieldName, cls, fieldDisplayTitle, files, isLoading, requestVerificationMsg, requireVerification } = this.props;
 
         return (
@@ -407,7 +405,8 @@ class DragAndDropModal extends React.Component {
         fieldDisplayTitle: PropTypes.string,            // Name of specific field (Ex. Related Documents)
         isLoading: PropTypes.bool,                      // Are items currently being uploaded?
         requireVerification: PropTypes.bool,            // Require a checkbox to be checked before each upload
-        requestVerificationMsg: PropTypes.string        // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+        requestVerificationMsg: PropTypes.string,       // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+        multiselect: PropTypes.bool                     // Can you select more than one file at a time for upload?
     }
 
     static defaultProps = {
@@ -456,7 +455,7 @@ class DragAndDropModal extends React.Component {
     render(){
         const { isVerified } = this.state;
         const {
-            show, onUploadStart, fieldName, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal, isLoading, requireVerification, requestVerificationMsg
+            show, onUploadStart, fieldName, fieldDisplayTitle, handleAddFile, handleRemoveFile, files, handleHideModal, isLoading, requireVerification, requestVerificationMsg, multiselect
         } = this.props;
         // console.log("isLoading:", isLoading);
 
@@ -478,7 +477,7 @@ class DragAndDropModal extends React.Component {
                                 <div><i className="icon icon-spin icon-circle-notch fas"></i></div>
                             </div>
                         </div> : null}
-                    <DragAndDropZone {...{ files }}
+                    <DragAndDropZone {...{ files, multiselect }}
                         handleAddFile={requireVerification ? this.handleAddFileAndResetVerification: handleAddFile}
                         handleRemoveFile={handleRemoveFile} />
                     { requireVerification ?
@@ -522,7 +521,8 @@ export class DragAndDropZone extends React.Component {
         /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
         'handleAddFile'          : PropTypes.func.isRequired,
         'handleRemoveFile'       : PropTypes.func.isRequired,
-        'files'                  : PropTypes.array
+        'files'                  : PropTypes.array,
+        'multiselect'            : PropTypes.bool
     };
 
     static defaultProps = {
@@ -617,7 +617,7 @@ export class DragAndDropZone extends React.Component {
     }
 
     render() {
-        const { files, handleRemoveFile } = this.props;
+        const { files, handleRemoveFile, multiselect } = this.props;
 
         return (
             <div
@@ -625,7 +625,7 @@ export class DragAndDropZone extends React.Component {
                 ref={this.dropZoneRef}
                 onClick={this.handleDropzoneClick}
             >
-                <input type="file" ref={this.fileUploadRef} multiple
+                <input type="file" ref={this.fileUploadRef} multiple={multiselect}
                     onChange={(e) => this.handleAddFromBrowse(e)}
                     name="filesFromBrowse" className="d-none" />
                 <span style={{ alignSelf: "center" }}>

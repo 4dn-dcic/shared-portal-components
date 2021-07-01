@@ -381,7 +381,8 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           fieldDisplayTitle = _this$props4.fieldDisplayTitle,
           fieldName = _this$props4.fieldName,
           requireVerification = _this$props4.requireVerification,
-          requestVerificationMsg = _this$props4.requestVerificationMsg;
+          requestVerificationMsg = _this$props4.requestVerificationMsg,
+          multiselect = _this$props4.multiselect;
       var _this$state = this.state,
           files = _this$state.files,
           isLoading = _this$state.isLoading;
@@ -392,7 +393,8 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         files: files,
         isLoading: isLoading,
         requireVerification: requireVerification,
-        requestVerificationMsg: requestVerificationMsg
+        requestVerificationMsg: requestVerificationMsg,
+        multiselect: multiselect
       }, {
         onUploadStart: this.onUploadStart,
         handleAddFile: this.handleAddFile,
@@ -433,8 +435,7 @@ _defineProperty(DragAndDropFileUploadController, "propTypes", {
 });
 
 _defineProperty(DragAndDropFileUploadController, "defaultProps", {
-  cls: "btn",
-  multiselect: true
+  cls: "btn"
 });
 
 var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
@@ -492,14 +493,13 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$state2 = this.state,
-          show = _this$state2.showModal,
-          multiselect = _this$state2.multiselect;
+      var show = this.state.showModal;
       var _this$props5 = this.props,
           onUploadStart = _this$props5.onUploadStart,
           handleAddFile = _this$props5.handleAddFile,
           handleRemoveFile = _this$props5.handleRemoveFile,
           handleClearAllFiles = _this$props5.handleClearAllFiles,
+          multiselect = _this$props5.multiselect,
           fieldName = _this$props5.fieldName,
           cls = _this$props5.cls,
           fieldDisplayTitle = _this$props5.fieldDisplayTitle,
@@ -564,7 +564,6 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
 
 _defineProperty(DragAndDropUploadButton, "defaultProps", {
   fieldName: "Document",
-  multiselect: false,
   files: []
 });
 
@@ -649,7 +648,8 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
           handleHideModal = _this$props7.handleHideModal,
           isLoading = _this$props7.isLoading,
           requireVerification = _this$props7.requireVerification,
-          requestVerificationMsg = _this$props7.requestVerificationMsg; // console.log("isLoading:", isLoading);
+          requestVerificationMsg = _this$props7.requestVerificationMsg,
+          multiselect = _this$props7.multiselect; // console.log("isLoading:", isLoading);
 
       var allowUpload = files.length > 0 && (requireVerification && isVerified || !requireVerification);
       return /*#__PURE__*/React.createElement(Modal, _extends({
@@ -669,7 +669,8 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
       }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       })))) : null, /*#__PURE__*/React.createElement(DragAndDropZone, _extends({
-        files: files
+        files: files,
+        multiselect: multiselect
       }, {
         handleAddFile: requireVerification ? this.handleAddFileAndResetVerification : handleAddFile,
         handleRemoveFile: handleRemoveFile
@@ -722,7 +723,9 @@ _defineProperty(DragAndDropModal, "propTypes", {
   // Are items currently being uploaded?
   requireVerification: PropTypes.bool,
   // Require a checkbox to be checked before each upload
-  requestVerificationMsg: PropTypes.string // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+  requestVerificationMsg: PropTypes.string,
+  // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+  multiselect: PropTypes.bool // Can you select more than one file at a time for upload?
 
 });
 
@@ -865,7 +868,8 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
 
       var _this$props8 = this.props,
           files = _this$props8.files,
-          handleRemoveFile = _this$props8.handleRemoveFile;
+          handleRemoveFile = _this$props8.handleRemoveFile,
+          multiselect = _this$props8.multiselect;
       return /*#__PURE__*/React.createElement("div", {
         className: "dropzone panel text-center d-flex flex-row justify-content-center",
         ref: this.dropZoneRef,
@@ -873,7 +877,7 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
       }, /*#__PURE__*/React.createElement("input", {
         type: "file",
         ref: this.fileUploadRef,
-        multiple: true,
+        multiple: multiselect,
         onChange: function onChange(e) {
           return _this7.handleAddFromBrowse(e);
         },
@@ -907,7 +911,8 @@ _defineProperty(DragAndDropZone, "propTypes", {
   /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
   'handleAddFile': PropTypes.func.isRequired,
   'handleRemoveFile': PropTypes.func.isRequired,
-  'files': PropTypes.array
+  'files': PropTypes.array,
+  'multiselect': PropTypes.bool
 });
 
 _defineProperty(DragAndDropZone, "defaultProps", {
