@@ -957,13 +957,9 @@ function FileIcon(props) {
             return 'file';
         }
       }
-    }(fileType)),
-    style: {
-      marginBottom: "5px",
-      color: "#444444"
-    }
+    }(fileType), " mb-05 text-dark")
   }), /*#__PURE__*/React.createElement("span", {
-    className: "filename"
+    className: "filename text-break"
   }, fileName), /*#__PURE__*/React.createElement("span", {
     className: "filesize"
   }, fileSize, " bytes"));

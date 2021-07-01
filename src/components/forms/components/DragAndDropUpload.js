@@ -676,8 +676,8 @@ function FileIcon(props) {
             { thisUploading ?
                 <i className="icon icon-spin icon-circle-notch fas"></i> :
                 <i onClick={(e) => { e.stopPropagation(); handleRemoveFile(fileName);}} className="icon fas icon-window-close text-danger"></i> }
-            <i className={`icon far icon-2x icon-${getFileIconClass(fileType)}`} style={{ marginBottom: "5px", color: "#444444" }}></i>
-            <span className="filename">{fileName}</span>
+            <i className={`icon far icon-2x icon-${getFileIconClass(fileType)} mb-05 text-dark`}></i>
+            <span className="filename text-break">{fileName}</span>
             <span className="filesize">{fileSize} bytes</span>
         </div>
     );
