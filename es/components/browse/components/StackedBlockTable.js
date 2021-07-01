@@ -310,10 +310,10 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           titleStr = "Show Fewer ".concat(title);
           nextCount = collapseShow;
         } else if (incrementalExpandVisibleCount + incrementalExpandStep > children.length) {
-          titleStr = "Show ".concat(children.length - collapsibleChildren.length, " More ").concat(title);
+          titleStr = "Show ".concat(children.length - collapsibleChildren.length - collapseShow, " More ").concat(title);
           nextCount = children.length;
         } else {
-          titleStr = "Show ".concat(incrementalExpandStep, " More ").concat(title, " (Total ").concat(children.length - collapsibleChildren.length, " ").concat(title, " to Show)");
+          titleStr = "Show ".concat(incrementalExpandStep, " More ").concat(title, " (Total ").concat(children.length - collapsibleChildren.length - collapseShow, " ").concat(title, " to Show)");
           nextCount = incrementalExpandVisibleCount + incrementalExpandStep;
         }
 

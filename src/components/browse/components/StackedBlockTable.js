@@ -228,10 +228,10 @@ export class StackedBlockList extends React.PureComponent {
                 titleStr = `Show Fewer ${title}`;
                 nextCount = collapseShow;
             } else if (incrementalExpandVisibleCount + incrementalExpandStep > children.length) {
-                titleStr = `Show ${children.length - collapsibleChildren.length} More ${title}`;
+                titleStr = `Show ${children.length - collapsibleChildren.length - collapseShow} More ${title}`;
                 nextCount = children.length;
             } else {
-                titleStr = `Show ${incrementalExpandStep} More ${title} (Total ${children.length - collapsibleChildren.length} ${title} to Show)`;
+                titleStr = `Show ${incrementalExpandStep} More ${title} (Total ${children.length - collapsibleChildren.length - collapseShow} ${title} to Show)`;
                 nextCount = incrementalExpandVisibleCount + incrementalExpandStep;
             }
             viewMoreButton = (
