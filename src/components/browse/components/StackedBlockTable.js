@@ -105,7 +105,7 @@ export class StackedBlockListViewMoreButton extends React.PureComponent {
             return (
                 <div className="view-more-button">
                     <i className="icon fas icon-plus mr-1 ml-02 small"/>
-                    {collapsibleChildrenLen + " More" + (title ? ' ' + title : '')}
+                    { collapsibleChildrenLen + " More" + (title ? ' ' + title : '') }
                     { showMoreExtTitle ? <span className="ext text-400"> { showMoreExtTitle }</span> : null }
                 </div>
             );
@@ -143,7 +143,8 @@ export class StackedBlockList extends React.PureComponent {
         'defaultCollapsed'          : PropTypes.bool,
         'children'                  : PropTypes.arrayOf(PropTypes.node),
         'stackDepth'                : PropTypes.number,
-        'incrementalExpandLimit': PropTypes.number,
+        'preventExpand'             : PropTypes.bool,
+        'incrementalExpandLimit'    : PropTypes.number,
         'incrementalExpandStep'     : PropTypes.number
     };
 
@@ -194,7 +195,7 @@ export class StackedBlockList extends React.PureComponent {
     }
 
     render(){
-        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, title = 'Items', className, colWidthStyles, columnClass, incrementalExpandLimit, incrementalExpandStep } = this.props;
+        const { collapseLongLists, stackDepth, collapseLimit, collapseShow, title = 'Items', className, colWidthStyles, columnClass, preventExpand, incrementalExpandLimit, incrementalExpandStep } = this.props;
         const { collapsed, incrementalExpandVisibleCount } = this.state;
         const children = this.adjustedChildren();
         const useStyle = colWidthStyles["list:" + columnClass]; // columnClass here is of parent StackedBlock, not of its children.
@@ -205,7 +206,7 @@ export class StackedBlockList extends React.PureComponent {
             return <div className={cls} style={useStyle}>{ children }</div>;
         }
 
-        const isIncrementalExpand = children.length > incrementalExpandLimit;
+        const isIncrementalExpand = (children.length > incrementalExpandLimit) && !preventExpand;
 
         const collapsibleChildren = !isIncrementalExpand ? children.slice(collapseShow) : children.slice(collapseShow, incrementalExpandVisibleCount);
         const collapsibleChildrenLen =  collapsibleChildren.length;

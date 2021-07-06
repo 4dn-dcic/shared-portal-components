@@ -265,6 +265,7 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
           className = _this$props4.className,
           colWidthStyles = _this$props4.colWidthStyles,
           columnClass = _this$props4.columnClass,
+          preventExpand = _this$props4.preventExpand,
           incrementalExpandLimit = _this$props4.incrementalExpandLimit,
           incrementalExpandStep = _this$props4.incrementalExpandStep;
       var _this$state = this.state,
@@ -283,7 +284,7 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
         }, children);
       }
 
-      var isIncrementalExpand = children.length > incrementalExpandLimit;
+      var isIncrementalExpand = children.length > incrementalExpandLimit && !preventExpand;
       var collapsibleChildren = !isIncrementalExpand ? children.slice(collapseShow) : children.slice(collapseShow, incrementalExpandVisibleCount);
       var collapsibleChildrenLen = collapsibleChildren.length;
       var collapsibleChildrenElemsList;
@@ -352,6 +353,7 @@ _defineProperty(StackedBlockList, "propTypes", {
   'defaultCollapsed': PropTypes.bool,
   'children': PropTypes.arrayOf(PropTypes.node),
   'stackDepth': PropTypes.number,
+  'preventExpand': PropTypes.bool,
   'incrementalExpandLimit': PropTypes.number,
   'incrementalExpandStep': PropTypes.number
 });
