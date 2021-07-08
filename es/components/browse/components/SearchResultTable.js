@@ -608,7 +608,8 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           var keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
 
           if (keyIntersection.length > 0) {
-            console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys); // We can refresh current page to get newest results.
+            console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
+            errorReporting.captureException("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'"); // We can refresh current page to get newest results.
 
             _this5.setState({
               'isLoading': false

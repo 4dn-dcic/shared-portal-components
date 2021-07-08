@@ -116,10 +116,10 @@ var defaultOptions = {
   "anonymizeTypes": ["User"],
   "excludeAdminTrackingOnHostnames": ["data.4dnucleome.org"],
   "reduxStore": null
-}; // let state = null;
-
+};
+var state = null;
 /**
- * Initialize Sentry Reportin. Call this from app.js on initial mount perhaps.
+ * Initialize Sentry Reporting. Call this from app.js on initial mount perhaps.
  *
  * @export
  * @param {string} [dsn] - Sentry dsn.
@@ -154,6 +154,12 @@ export function initializeSentry() {
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0
   });
+
+  if (!shouldTrack()) {
+    console.error("EXITING ANALYTICS INITIALIZATION.");
+    return false;
+  }
+
   console.info("Sentry: Initialized");
   return true;
 }
@@ -162,7 +168,21 @@ export function initializeSentry() {
  */
 
 export function captureException(message) {
-  var fatal = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  Sentry.captureException(message);
+  var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Sentry.Severity.Warning;
+  var fatal = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+  if (!shouldTrack()) return false;
+  Sentry.withScope(function (scope) {
+    scope.setLevel(level);
+    Sentry.captureException(message);
+  }); //Sentry.captureException(message);
+
   return true;
+}
+/*********************
+ * Private Functions *
+ *********************/
+
+function shouldTrack() {
+  console.error("Sentry Reporting is not initialized. Fine if this appears in a test.");
+  return false;
 }

@@ -483,6 +483,7 @@ class LoadMoreAsYouScroll extends React.Component {
                 const keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
                 if (keyIntersection.length > 0){
                     console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
+                    errorReporting.captureException("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'");
                     // We can refresh current page to get newest results.
                     this.setState({ 'isLoading' : false }, function(){
                         if (origCompoundFilterSet) {
