@@ -20,7 +20,10 @@ import * as layoutMethods from './layout';
 export var layout = layoutMethods; // AJAX
 
 import * as ajaxMethods from './ajax';
-export var ajax = ajaxMethods; // Patches over browser window's console and disables logging (e.g. console.log) on production. Just import from this module to patch.
+export var ajax = ajaxMethods; // Reporting
+
+import * as errorReportingMethods from './error-reporting';
+export var errorReporting = errorReportingMethods; // Patches over browser window's console and disables logging (e.g. console.log) on production. Just import from this module to patch.
 
 import { patchedConsoleInstance } from './patched-console';
 export var console = patchedConsoleInstance; // Type definitions

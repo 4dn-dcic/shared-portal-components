@@ -13,6 +13,7 @@ import Infinite from 'react-infinite';
 
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
+import * as errorReporting from '../../util/error-reporting';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { isServerSide, isSelectAction } from './../../util/misc';
 import { navigate as globalPageNavigate } from './../../util/navigate';
@@ -27,7 +28,6 @@ import { ResultRowColumnBlockValue } from './table-commons/ResultRowColumnBlockV
 import { columnsToColumnDefinitions, getColumnWidthFromDefinition } from './table-commons/ColumnCombiner';
 import { HeadersRow } from './table-commons/HeadersRow';
 import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap';
-import * as Sentry from "@sentry/react";
 
 
 
@@ -639,7 +639,7 @@ class ShadowBorderLayer extends React.Component {
 
             if (depth >= 10000){
                 console.error("Reached depth 10k on a recursive function 'performScrollAction.'");
-                Sentry.captureException("Reached depth 10k on a recursive function 'performScrollAction.'");
+                errorReporting.captureException("Reached depth 10k on a recursive function 'performScrollAction.'");
                 return;
             }
 

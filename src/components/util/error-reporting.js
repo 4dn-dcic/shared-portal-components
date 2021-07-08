@@ -123,7 +123,19 @@ export function initializeSentry(dsn = null, appOptions = {}){
     return true;
 }
 
+/**
+ *
+ */
+export function captureException(message, fatal = false){
+    const excObj = {
+        'hitType'       : 'exception',
+        'exDescription' : message,
+        'exFatal'       : fatal
+    };
 
+    Sentry.captureException(message);
+    return true;
+}
 
 
 

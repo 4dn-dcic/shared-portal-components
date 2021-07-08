@@ -35,6 +35,11 @@ import * as ajaxMethods from './ajax';
 export const ajax = ajaxMethods;
 
 
+// Reporting
+import * as errorReportingMethods from './error-reporting';
+export const errorReporting = errorReportingMethods;
+
+
 // Patches over browser window's console and disables logging (e.g. console.log) on production. Just import from this module to patch.
 import { patchedConsoleInstance } from './patched-console';
 export const console = patchedConsoleInstance;
