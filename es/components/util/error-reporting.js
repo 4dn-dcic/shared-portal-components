@@ -186,3 +186,26 @@ function shouldTrack() {
   console.error("Sentry Reporting is not initialized. Fine if this appears in a test.");
   return false;
 }
+
+export var levels = {
+  /** JSDoc */
+  Fatal: "fatal",
+
+  /** JSDoc */
+  Error: "error",
+
+  /** JSDoc */
+  Warning: "warning",
+
+  /** JSDoc */
+  Log: "log",
+
+  /** JSDoc */
+  Info: "info",
+
+  /** JSDoc */
+  Debug: "debug",
+
+  /** JSDoc */
+  Critical: "critical"
+};

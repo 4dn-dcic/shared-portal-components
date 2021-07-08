@@ -176,4 +176,21 @@ function shouldTrack(){
     return true;
 }
 
+export const levels = {
+    /** JSDoc */
+    Fatal: "fatal",
+    /** JSDoc */
+    Error: "error",
+    /** JSDoc */
+    Warning: "warning",
+    /** JSDoc */
+    Log: "log",
+    /** JSDoc */
+    Info: "info",
+    /** JSDoc */
+    Debug: "debug",
+    /** JSDoc */
+    Critical: "critical"
+};
+
 
