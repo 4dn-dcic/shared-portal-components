@@ -17,7 +17,7 @@ const state = null;
  * @param {Object} [options] - Extra options.
  * @returns {boolean} true if initialized.
  */
-export function initializeSentry(dsn = null, appOptions = {}){
+export function initializeLogger(dsn = null, appOptions = {}){
 
     if (dsn === null || typeof dsn !== 'string'){
         throw new Error("No dsn provided");
@@ -45,20 +45,17 @@ export function initializeSentry(dsn = null, appOptions = {}){
         tracesSampleRate: 1.0,
     });
 
-    if (!shouldTrack()){
-        console.error("EXITING ANALYTICS INITIALIZATION.");
+    if (!isInitialized()){
+        console.error("EXITING LOGGER INITIALIZATION.");
         return false;
     }
-    console.info("Sentry: Initialized");
+    console.info("Logger: Initialized");
 
     return true;
 }
 
-/**
- *
- */
-export function captureException(message, level, ...arg){
-    if (message !== null || typeof message === 'string'){
+function log(message, level, ...arg){
+    if (message && typeof message === 'string'){
         Sentry.withScope(function (scope) {
             scope.setLevel(level);
             scope.setTag("ExampleTag", "Example");
@@ -71,32 +68,26 @@ export function captureException(message, level, ...arg){
     return true;
 }
 
-//Sentry send error message
 export function error(message, ...arg) {
-
-    if (message !== null || typeof trackingID === 'string') {
+    if (message && typeof message === 'string') {
         console.error(message, arg);
-        captureException(message, Sentry.Severity.Error, ...arg);
+        log(message, Sentry.Severity.Error, ...arg);
     }
 }
 
-
-//Sentry send warning message
 export function warning(message, ...arg) {
-    if (message !== null || typeof trackingID === 'string') {
+    if (message && typeof message === 'string') {
         console.warn(message, arg);
-        captureException(message, Sentry.Severity.Warning, ...arg);
+        log(message, Sentry.Severity.Warning, ...arg);
     }
 }
 
-//Sentry send info message
 export function info(message, ...arg) {
-    if (message !== null || typeof trackingID === 'string') {
+    if (message && typeof message === 'string') {
         console.info(message, arg);
-        captureException(message, Sentry.Severity.Info, ...arg);
+        log(message, Sentry.Severity.Info, ...arg);
     }
 }
-
 
 export function breadCrumbs(user) {
     Sentry.addBreadcrumb({
@@ -111,27 +102,27 @@ export function breadCrumbs(user) {
  * Private Functions *
  *********************/
 
-function shouldTrack(){
+function isInitialized(){
 
     if (!state) {
-        console.error("Sentry Reporting is not initialized. Fine if this appears in a test.");
+        console.error("Logger is not initialized. Fine if this appears in a test.");
         return false;
     }
 
     if (!state.enabled) {
-        console.warn("Sentry Reporting is not enabled. Fine if expected, else check config.");
+        console.warn("Logger is not enabled. Fine if expected, else check config.");
         return false;
     }
 
     if (isServerSide()){
-        console.warn("Sentry Reporting will not be sent events while serverside. Fine if this appears in a test.");
+        console.warn("Logger will not be sent events while serverside. Fine if this appears in a test.");
         return false;
     }
 
-    if (typeof window.Sentry === 'undefined') {
-        console.error("Sentry Reporting library is not loaded/available. Fine if disabled via AdBlocker, else check `reporting.js` loading.");
-        return false;
-    }
+    // if (typeof window.Sentry === 'undefined') {
+    //     console.error("Logger library is not loaded/available. Fine if disabled via AdBlocker, else check `logger.js` loading.");
+    //     return false;
+    // }
 
     return true;
 }
