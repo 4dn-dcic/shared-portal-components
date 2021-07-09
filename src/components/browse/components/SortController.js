@@ -246,6 +246,12 @@ export class MultiColumnSortSelector extends React.PureComponent {
     render(){
         const { columnDefinitions } = this.props;
         const { sortingPairs } = this.state;
+
+        // columnDefinitions are passed as empty arrays when table displays "No Results", so we hide dropdowns
+        if (!Array.isArray(columnDefinitions) || !columnDefinitions.length) {
+            return null;
+        }
+
         const { allSortFields, allSortFieldsMap } = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions);
         return (
             <div className="row mb-1 clearfix">
@@ -263,7 +269,7 @@ export class MultiColumnSortSelector extends React.PureComponent {
 
 }
 MultiColumnSortSelector.propTypes = {
-    'columnDefinitions'     : PropTypes.object.isRequired,
+    'columnDefinitions'     : PropTypes.arrayOf(PropTypes.object).isRequired,
     'sortColumns'           : PropTypes.object,
     'onClose'               : PropTypes.func.isRequired,
     'sortBy'                : PropTypes.func.isRequired
