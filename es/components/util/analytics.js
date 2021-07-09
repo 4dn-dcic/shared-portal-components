@@ -558,14 +558,14 @@ export function productClick(item) {
 
 export function productsAddToCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack()) return false;
+  if (!shouldTrack(items)) return false;
   var count = addProductsEE(items, extraData);
   console.info("Adding ".concat(count, " items to cart."));
   ga2('ec:setAction', 'add');
 }
 export function productsRemoveFromCart(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack()) return false;
+  if (!shouldTrack(items)) return false;
   var count = addProductsEE(items, extraData);
   ga2('ec:setAction', 'remove');
   console.info("Removing ".concat(count, " items from cart."));
@@ -577,7 +577,7 @@ export function productsRemoveFromCart(items) {
 
 export function productsCheckout(items) {
   var extraData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  if (!shouldTrack()) return false;
+  if (!shouldTrack(items)) return false;
 
   var _ref8 = extraData || {},
       _ref8$step = _ref8.step,
@@ -711,7 +711,7 @@ export function hrefToListName(href) {
  * Private Functions *
  *********************/
 
-function shouldTrack() {
+function shouldTrack(itemList) {
   // 1. Ensure we're initialized
   if (!state) {
     console.error("Google Analytics is not initialized. Fine if this appears in a test.");
@@ -730,6 +730,11 @@ function shouldTrack() {
 
   if (typeof window.ga === 'undefined') {
     console.error("Google Analytics library is not loaded/available. Fine if disabled via AdBlocker, else check `analytics.js` loading.");
+    return false;
+  }
+
+  if (itemList && Array.isArray(itemList) && itemList.length > 50) {
+    console.info("Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has ".concat(itemList.length, " items."));
     return false;
   } // 2. TODO: Check if User wants to be excluded from tracking
   // 2. TODO: Make sure not logged in as admin on a production site.
@@ -839,7 +844,7 @@ export function impressionListOfItems(itemList) {
   var href = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   var listName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var context = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-  if (!shouldTrack()) return false;
+  if (!shouldTrack(itemList)) return false;
   context = context || state && state.reduxStore && state.reduxStore.getState().context || null;
   var from = 0;
 

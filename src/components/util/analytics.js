@@ -476,14 +476,14 @@ export function productClick(item, extraData = {}, callback = null, context = nu
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
 export function productsAddToCart(items, extraData = {}){
-    if (!shouldTrack()) return false;
+    if (!shouldTrack(items)) return false;
     const count = addProductsEE(items, extraData);
     console.info(`Adding ${count} items to cart.`);
     ga2('ec:setAction', 'add');
 }
 
 export function productsRemoveFromCart(items, extraData = {}){
-    if (!shouldTrack()) return false;
+    if (!shouldTrack(items)) return false;
     const count = addProductsEE(items, extraData);
     ga2('ec:setAction', 'remove');
     console.info(`Removing ${count} items from cart.`);
@@ -494,7 +494,7 @@ export function productsRemoveFromCart(items, extraData = {}){
  * Does _NOT_ also send a GA event. This must be done outside of func.
  */
 export function productsCheckout(items, extraData = {}){
-    if (!shouldTrack()) return false;
+    if (!shouldTrack(items)) return false;
     const { step = 1, option = null, ...extData } = extraData || {};
     const count = addProductsEE(items, extData);
     ga2('ec:setAction', 'checkout', { step, option });
@@ -613,7 +613,7 @@ export function hrefToListName(href){
  * Private Functions *
  *********************/
 
-function shouldTrack(){
+function shouldTrack(itemList){
 
     // 1. Ensure we're initialized
 
@@ -634,6 +634,11 @@ function shouldTrack(){
 
     if (typeof window.ga === 'undefined') {
         console.error("Google Analytics library is not loaded/available. Fine if disabled via AdBlocker, else check `analytics.js` loading.");
+        return false;
+    }
+
+    if (itemList && Array.isArray(itemList) && itemList.length > 50) {
+        console.info(`Google Analytics do not respond well when items count exceeds 50. Tracking is disabled since list has ${itemList.length} items.`);
         return false;
     }
 
@@ -724,7 +729,7 @@ function addProductsEE(items, extData = {}){
  * @returns {Object[]} Representation of what was sent.
  */
 export function impressionListOfItems(itemList, href = null, listName = null, context = null){
-    if (!shouldTrack()) return false;
+    if (!shouldTrack(itemList)) return false;
     context = context || (state && state.reduxStore && state.reduxStore.getState().context) || null;
     var from = 0;
     if (typeof href === 'string'){ // Convert to URL parts.
