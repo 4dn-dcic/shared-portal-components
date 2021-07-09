@@ -54,32 +54,7 @@ export function initializeSentry() {
  *
  */
 
-export function captureException() {
-  var level = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Sentry.Severity.Warning;
-  var message = arguments.length > 1 ? arguments[1] : undefined;
-
-  for (var _len = arguments.length, arg = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    arg[_key - 2] = arguments[_key];
-  }
-
-  switch (level) {
-    case Sentry.Severity.Warning:
-      console.warn(message, arg);
-      break;
-
-    case Sentry.Severity.Log:
-      console.log(message, arg);
-      break;
-
-    case Sentry.Severity.Error:
-      console.error(message, arg);
-      break;
-
-    default:
-      console.info(message, arg);
-      break;
-  }
-
+export function captureException(message, level) {
   if (message !== null || typeof message === 'string') {
     Sentry.withScope(function (scope) {
       scope.setLevel(level);
@@ -90,6 +65,39 @@ export function captureException() {
   }
 
   return true;
+} //Sentry send error message
+
+export function error(message) {
+  if (message !== null || typeof trackingID === 'string') {
+    for (var _len = arguments.length, arg = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      arg[_key - 1] = arguments[_key];
+    }
+
+    console.error(message, arg);
+    captureException.apply(void 0, [message, Sentry.Severity.Error].concat(arg));
+  }
+} //Sentry send warning message
+
+export function warning(message) {
+  if (message !== null || typeof trackingID === 'string') {
+    for (var _len2 = arguments.length, arg = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      arg[_key2 - 1] = arguments[_key2];
+    }
+
+    console.warn(message, arg);
+    captureException.apply(void 0, [message, Sentry.Severity.Warning].concat(arg));
+  }
+} //Sentry send info message
+
+export function info(message) {
+  if (message !== null || typeof trackingID === 'string') {
+    for (var _len3 = arguments.length, arg = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+      arg[_key3 - 1] = arguments[_key3];
+    }
+
+    console.info(message, arg);
+    captureException.apply(void 0, [message, Sentry.Severity.Info].concat(arg));
+  }
 }
 export function breadCrumbs(user) {
   Sentry.addBreadcrumb({
@@ -106,26 +114,3 @@ function shouldTrack() {
   console.error("Sentry Reporting is not initialized. Fine if this appears in a test.");
   return false;
 }
-
-export var levels = {
-  /** JSDoc */
-  Fatal: "fatal",
-
-  /** JSDoc */
-  Error: "error",
-
-  /** JSDoc */
-  Warning: "warning",
-
-  /** JSDoc */
-  Log: "log",
-
-  /** JSDoc */
-  Info: "info",
-
-  /** JSDoc */
-  Debug: "debug",
-
-  /** JSDoc */
-  Critical: "critical"
-};

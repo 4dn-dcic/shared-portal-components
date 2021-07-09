@@ -28,8 +28,17 @@ export function initializeSentry(dsn = null, appOptions = {}){
     Sentry.init({
         dsn: dsn,
         integrations: [new Integrations.BrowserTracing()],
-        environment:'prod',
+        environment:'production',
         maxBreadcrumbs:100,
+        //Monitor the health of releases by observing user adoption, usage of the application, percentage of crashes, and session data.
+        autoSessionTracking: true,
+
+        //Determine issues and regressions introduced in a new release
+        //Predict which commit caused an issue and who is likely responsible
+        //Resolve issues by including the issue number in your commit message
+        //Receive email notifications when your code gets deployed
+        release:'',
+
         // Set tracesSampleRate to 1.0 to capture 100%
         // of transactions for performance monitoring.
         // We recommend adjusting this value in production
@@ -48,17 +57,55 @@ export function initializeSentry(dsn = null, appOptions = {}){
 /**
  *
  */
-export function captureException(message, level = Sentry.Severity.Warning, fatal = false){
+export function captureException(message, level, ...arg){
+    if (message !== null || typeof message === 'string'){
+        Sentry.withScope(function (scope) {
+            scope.setLevel(level);
+            scope.setTag("ExampleTag", "Example");
+            scope.setExtra("someVariable", "some data");
 
-    if (!shouldTrack()) return false;
+            Sentry.captureException(message);
+        });
+    }
 
-    Sentry.withScope(function(scope) {
-        scope.setLevel(level);
-        Sentry.captureException(message);
-    });
-    //Sentry.captureException(message);
     return true;
 }
+
+//Sentry send error message
+export function error(message, ...arg) {
+
+    if (message !== null || typeof trackingID === 'string') {
+        console.error(message, arg);
+        captureException(message, Sentry.Severity.Error, ...arg);
+    }
+}
+
+
+//Sentry send warning message
+export function warning(message, ...arg) {
+    if (message !== null || typeof trackingID === 'string') {
+        console.warn(message, arg);
+        captureException(message, Sentry.Severity.Warning, ...arg);
+    }
+}
+
+//Sentry send info message
+export function info(message, ...arg) {
+    if (message !== null || typeof trackingID === 'string') {
+        console.info(message, arg);
+        captureException(message, Sentry.Severity.Info, ...arg);
+    }
+}
+
+
+export function breadCrumbs(user) {
+    Sentry.addBreadcrumb({
+        category: "auth",
+        message: "Authenticated user " + user.email,
+        level: Sentry.Severity.Info,
+    });
+}
+
 
 /*********************
  * Private Functions *
@@ -89,21 +136,5 @@ function shouldTrack(){
     return true;
 }
 
-export const levels = {
-    /** JSDoc */
-    Fatal: "fatal",
-    /** JSDoc */
-    Error: "error",
-    /** JSDoc */
-    Warning: "warning",
-    /** JSDoc */
-    Log: "log",
-    /** JSDoc */
-    Info: "info",
-    /** JSDoc */
-    Debug: "debug",
-    /** JSDoc */
-    Critical: "critical"
-};
 
 

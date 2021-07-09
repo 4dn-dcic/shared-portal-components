@@ -10,6 +10,8 @@ import _ from 'underscore';
 
 import { console, JWT, object } from './';
 
+import * as logger from '../util/logger';
+
 import { isValueNull } from '../forms/components/submission-fields';
 import { fieldSchemaLinkToType, fieldSchemaLinkToPath } from '../forms/components/SubmissionTree';
 
@@ -228,8 +230,8 @@ export function findFieldFromContext(contextToSearch, rootType, schemas, keyInde
     }
 
     // _.keys(contextToSearch).forEach(function(propKey){
-        // Bleh need to traverse every sub object and array here
-        scrapeFromContext(contextToSearch, null, schemas[rootType].properties, []);
+    // Bleh need to traverse every sub object and array here
+    scrapeFromContext(contextToSearch, null, schemas[rootType].properties, []);
     // });
 
     // console.log("returning splitfield: ", splitField);
@@ -310,7 +312,7 @@ export function modifyContextInPlace(splitField, currContext, arrayIdx, fieldTyp
         }else{
             // console.log(pointer[splitField[i]]);
             // console.log(pointer);
-            console.error('PROBLEM CREATING NEW CONTEXT WITH: ', fieldType, value);
+            logger.error('PROBLEM CREATING NEW CONTEXT WITH: ', fieldType, value);
             return;
         }
         // console.log("pointer after updating with", splitField[i], " :", pointer);
