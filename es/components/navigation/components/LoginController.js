@@ -42,6 +42,7 @@ import * as JWT from './../../util/json-web-token';
 import { navigate } from './../../util/navigate';
 import { load, fetch, promise as ajaxPromise } from './../../util/ajax';
 import { event as trackEvent, setUserID } from './../../util/analytics';
+import * as logger from '../../util/logger';
 /** Imported in componentDidMount. */
 
 var Auth0Lock = null;
@@ -232,7 +233,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
           }
         })["catch"](function (error) {
           // Handle Errors
-          console.error("Error during login: ", error.description);
+          logger.error("Error during login: ", error.description);
           console.log(error);
 
           _this3.setState({

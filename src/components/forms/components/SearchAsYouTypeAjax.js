@@ -4,7 +4,7 @@ import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
 import Fade from 'react-bootstrap/esm/Fade';
 
-import { ajax, object } from './../../util/';
+import { ajax, object, logger } from './../../util/';
 
 import { Alerts } from './../../ui/Alerts';
 
@@ -103,7 +103,7 @@ export class SearchAsYouTypeAjax extends React.PureComponent {
                     this.setState({ loading: false, results, error: null });
                 } else if (error) {
                     // handle more general errors (should we display the actual error message to users?)
-                    console.error("Status code " + status + " encountered. " + statusText);
+                    logger.error("Status code " + status + " encountered. " + statusText);
                     this.setState({ loading: false, results, error: error || "Something went wrong while handling this request." });
                 }
             });

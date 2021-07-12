@@ -8,7 +8,7 @@ import ReactTooltip from 'react-tooltip';
 import Modal from 'react-bootstrap/esm/Modal';
 import Collapse from 'react-bootstrap/esm/Collapse';
 
-import { ajax, console, JWT, object, layout, schemaTransforms, memoizedUrlParse } from './../util';
+import { ajax, console, JWT, object, layout, schemaTransforms, memoizedUrlParse, logger } from './../util';
 import { DropdownButton, DropdownItem } from './components/DropdownButton';
 import { Alerts } from './../ui/Alerts';
 
@@ -598,7 +598,7 @@ export default class SubmissionView extends React.PureComponent{
             } else {
                 keyIdx = keyIter + 1; // increase key iter by 1 for a new unique key
                 if (newIdx !== keyIdx) {
-                    console.error('ERROR: KEY INDEX INCONSISTENCY!');
+                    logger.error('ERROR: KEY INDEX INCONSISTENCY!');
                     return;
                 }
                 newHierarchy = modifyHierarchy(_.clone(keyHierarchy), keyIdx, parentKeyIdx);
@@ -1065,7 +1065,7 @@ export default class SubmissionView extends React.PureComponent{
         this.setState({ 'processingFetch': true });
 
         if (!currentSubmittingUser){
-            console.error('No user account info.');
+            logger.error('No user account info.');
             stateToSet.keyValid[inKey] = 2;
             this.setState(stateToSet);
             return;
@@ -1972,7 +1972,7 @@ class IndividualObjectView extends React.Component {
 
         if (!field || typeof field !== 'string'){
             // Throw error instead?
-            console.error('No field supplied', ...arguments);
+            logger.error('No field supplied', ...arguments);
         }
 
         const splitField = field.split('.');
@@ -1990,7 +1990,7 @@ class IndividualObjectView extends React.Component {
             if(pointer[splitField[i]]){
                 pointer = pointer[splitField[i]];
             }else{
-                console.error('PROBLEM CREATING NEW CONTEXT WITH: ', splitField, value);
+                logger.error('PROBLEM CREATING NEW CONTEXT WITH: ', splitField, value);
                 return;
             }
             if(Array.isArray(pointer)){
