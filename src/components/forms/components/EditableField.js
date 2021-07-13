@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import { ajax, console, object, navigate } from './../../util';
+import { ajax, console, object, navigate, logger } from './../../util';
 
 
 /** TODO 1 of refactor out / get rid of / fix */
@@ -99,7 +99,7 @@ export class EditableField extends React.Component {
         try {
             initialValue = object.getNestedProperty(props.context, props.labelID); // Returns undefined if doesn't exist in context
         } catch (e){
-            console.error(e);
+            logger.error(e);
         }
         this.state = {
             'value'             : initialValue || null, // Changes on input field change
@@ -342,7 +342,7 @@ export class EditableField extends React.Component {
 
         const errorFallback = (res) => {
             // ToDo display (bigger?) errors
-            console.error("Error: ", res);
+            logger.error("Error: ", res);
             this.setState({ 'serverErrors' : res.errors, 'serverErrorsMessage' : res.description, 'loading' : false }, errorCallback);
             return;
         };
@@ -423,7 +423,7 @@ export class EditableField extends React.Component {
         const { labelID, handleCustomSave, context, parent, dataType } = this.props;
         if (!this.isValid()) {
             // ToDo : Bigger notification to end user that something is wrong.
-            console.error("Cannot save " + this.props.labelID + "; value is not valid:", this.state.value);
+            logger.error("Cannot save " + this.props.labelID + "; value is not valid:", this.state.value);
             return;
         } else if (this.state.value === this.state.savedValue) {
             return this.cancelEditState(e);

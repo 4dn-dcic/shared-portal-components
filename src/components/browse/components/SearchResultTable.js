@@ -13,7 +13,7 @@ import Infinite from 'react-infinite';
 
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
-import * as errorReporting from '../../util/error-reporting';
+import * as logger from '../../util/logger';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { isServerSide, isSelectAction } from './../../util/misc';
 import { navigate as globalPageNavigate } from './../../util/navigate';
@@ -482,8 +482,7 @@ class LoadMoreAsYouScroll extends React.Component {
                 const newKeys = _.map(nextResults, itemUtil.atId);
                 const keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
                 if (keyIntersection.length > 0){
-                    console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys);
-                    errorReporting.captureException("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'");
+                    logger.error("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'", keyIntersection , newKeys);
                     // We can refresh current page to get newest results.
                     this.setState({ 'isLoading' : false }, function(){
                         if (origCompoundFilterSet) {
@@ -639,8 +638,7 @@ class ShadowBorderLayer extends React.Component {
             setContainerScrollLeft(leftOffset);
 
             if (depth >= 10000){
-                console.error("Reached depth 10k on a recursive function 'performScrollAction.'");
-                errorReporting.captureException("Reached depth 10k on a recursive function 'performScrollAction.'");
+                logger.error("Reached depth 10k on a recursive function 'performScrollAction.'");
                 return;
             }
 

@@ -5,6 +5,7 @@ import _ from 'underscore';
 import { Alerts } from './../../ui/Alerts';
 import { itemUtil } from './../../util/object';
 import { isSelectAction } from './../../util/misc';
+import * as logger from '../../util/logger';
 import { DisplayTitleColumnWrapper, DisplayTitleColumnDefault } from './../../browse/components/table-commons/basicColumnExtensionMap';
 import { getSchemaTypeFromSearchContext, getTitleForType } from './../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
@@ -34,7 +35,7 @@ export function sendDataToParentWindow(itemsListWrappedWithID) {
                 'message' : 'Please ensure there is a parent window to which this selection is being sent to. Alternatively, try to drag & drop the Item over instead.'
             });
         } else {
-            console.err('Unexpecter error -- browser may not support postMessage', err);
+            logger.error('Unexpecter error -- browser may not support postMessage', err);
         }
     }
 
@@ -185,7 +186,7 @@ export const SelectStickyFooter = React.memo(function SelectStickyFooter(props){
         if (window.opener){
             window.opener.postMessage({ 'eventType': 'fourfrontcancelclick' }, '*');
         } else {
-            console.error("Couldn't access opener window.");
+            logger.error("Couldn't access opener window.");
         }
     }, [ selectedItems ]);
 
