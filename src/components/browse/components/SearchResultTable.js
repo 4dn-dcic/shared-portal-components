@@ -787,6 +787,7 @@ class DimensioningContainer extends React.PureComponent {
         //const scrollContainer = infiniteComponent && infiniteComponent.scrollable;
         const scrollContainer = outerContainerElem.querySelector(".react-infinite-container");
         if (!scrollContainer) {
+            logger.error("Could not get scroll container from React-Infinite. Check to see if library has been updated");
             throw new Error("Could not get scroll container from React-Infinite. Check to see if library has been updated");
         }
         return scrollContainer;

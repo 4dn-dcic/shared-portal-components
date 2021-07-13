@@ -45,62 +45,50 @@ export function initializeLogger() {
   console.info("Logger: Initialized");
   return true;
 }
-
-function log(message, level) {
-  for (var _len = arguments.length, arg = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    arg[_key - 2] = arguments[_key];
-  }
-
-  if (message && typeof message === 'string') {
-    Sentry.withScope(function (scope) {
-      scope.setLevel(level);
-      scope.setTag("ExampleTag", "Example");
-      scope.setExtra("extraArgument", arg);
-      Sentry.captureException(message);
-    });
-  }
-}
-
 export function error(message) {
-  if (message && typeof message === 'string') {
-    for (var _len2 = arguments.length, arg = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-      arg[_key2 - 1] = arguments[_key2];
-    }
-
-    console.error(message, arg);
-    log.apply(void 0, [message, Sentry.Severity.Error].concat(arg));
+  for (var _len = arguments.length, arg = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    arg[_key - 1] = arguments[_key];
   }
+
+  console.error(message, arg);
+  log.apply(void 0, [message, Sentry.Severity.Error].concat(arg));
 }
 export function warning(message) {
-  if (message && typeof message === 'string') {
-    for (var _len3 = arguments.length, arg = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
-      arg[_key3 - 1] = arguments[_key3];
-    }
-
-    console.warn(message, arg);
-    log.apply(void 0, [message, Sentry.Severity.Warning].concat(arg));
+  for (var _len2 = arguments.length, arg = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+    arg[_key2 - 1] = arguments[_key2];
   }
+
+  console.warn(message, arg);
+  log.apply(void 0, [message, Sentry.Severity.Warning].concat(arg));
 }
 export function info(message) {
-  if (message && typeof message === 'string') {
-    for (var _len4 = arguments.length, arg = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
-      arg[_key4 - 1] = arguments[_key4];
-    }
-
-    console.info(message, arg);
-    log.apply(void 0, [message, Sentry.Severity.Info].concat(arg));
+  for (var _len3 = arguments.length, arg = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+    arg[_key3 - 1] = arguments[_key3];
   }
+
+  console.info(message, arg);
+  log.apply(void 0, [message, Sentry.Severity.Info].concat(arg));
 }
-export function breadCrumbs(user) {
-  Sentry.addBreadcrumb({
-    category: "auth",
-    message: "Authenticated user " + user.email,
-    level: Sentry.Severity.Info
+/**
+ * generic function to log into sentry
+ */
+
+function log(message, level) {
+  for (var _len4 = arguments.length, arg = new Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
+    arg[_key4 - 2] = arguments[_key4];
+  }
+
+  Sentry.withScope(function (scope) {
+    scope.setLevel(level); //scope.setTag("ExampleTag", "Example");
+
+    scope.setExtra("ExtraArgument", arg);
+    Sentry.captureException(message);
   });
 }
 /*********************
  * Private Functions *
  *********************/
+
 
 function isInitialized(dsn) {
   if (!dsn) {

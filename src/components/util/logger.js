@@ -49,48 +49,33 @@ export function initializeLogger(dsn = null){
     return true;
 }
 
-function log(message, level, ...arg) {
-
-    if (message && typeof message === 'string') {
-        Sentry.withScope(function (scope) {
-            scope.setLevel(level);
-            scope.setTag("ExampleTag", "Example");
-            scope.setExtra("extraArgument", arg);
-
-            Sentry.captureException(message);
-        });
-    }
-}
-
 export function error(message, ...arg) {
-    if (message && typeof message === 'string') {
-        console.error(message, arg);
-        log(message, Sentry.Severity.Error, ...arg);
-    }
+    console.error(message, arg);
+    log(message, Sentry.Severity.Error, ...arg);
 }
 
 export function warning(message, ...arg) {
-    if (message && typeof message === 'string') {
-        console.warn(message, arg);
-        log(message, Sentry.Severity.Warning, ...arg);
-    }
+    console.warn(message, arg);
+    log(message, Sentry.Severity.Warning, ...arg);
 }
 
 export function info(message, ...arg) {
-    if (message && typeof message === 'string') {
-        console.info(message, arg);
-        log(message, Sentry.Severity.Info, ...arg);
-    }
+    console.info(message, arg);
+    log(message, Sentry.Severity.Info, ...arg);
 }
 
-export function breadCrumbs(user) {
-    Sentry.addBreadcrumb({
-        category: "auth",
-        message: "Authenticated user " + user.email,
-        level: Sentry.Severity.Info,
+/**
+ * generic function to log into sentry
+ */
+function log(message, level, ...arg) {
+    Sentry.withScope(function (scope) {
+        scope.setLevel(level);
+        //scope.setTag("ExampleTag", "Example");
+        scope.setExtra("ExtraArgument", arg);
+
+        Sentry.captureException(message);
     });
 }
-
 
 /*********************
  * Private Functions *
