@@ -394,7 +394,11 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
       var _this4 = this;
 
       var columnDefinitions = this.props.columnDefinitions;
-      var sortingPairs = this.state.sortingPairs;
+      var sortingPairs = this.state.sortingPairs; // columnDefinitions are passed as empty arrays when table displays "No Results", so we hide dropdowns
+
+      if (!Array.isArray(columnDefinitions) || !columnDefinitions.length) {
+        return null;
+      }
 
       var _this$memoized$flatte = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions),
           allSortFields = _this$memoized$flatte.allSortFields,
@@ -422,7 +426,7 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
   return MultiColumnSortSelector;
 }(React.PureComponent);
 MultiColumnSortSelector.propTypes = {
-  'columnDefinitions': PropTypes.object.isRequired,
+  'columnDefinitions': PropTypes.arrayOf(PropTypes.object).isRequired,
   'sortColumns': PropTypes.object,
   'onClose': PropTypes.func.isRequired,
   'sortBy': PropTypes.func.isRequired
