@@ -17,10 +17,14 @@ let isInitialized = false;
 export function initializeLogger(dsn = null){
 
     if (dsn === null || typeof dsn !== 'string'){
-        throw new Error("No dsn provided");
+        console.error("EXITING LOGGER INITIALIZATION - Logger has not dsn. Fine if expected, else check config.");
+        return false;
     }
 
-    if (isServerSide()) return false;
+    if (isServerSide()){
+        console.error("EXITING LOGGER INITIALIZATION - Logger will not be sent events while serverside. Fine if this appears in a test.");
+        return false;
+    }
 
     Sentry.init({
         dsn: dsn,
@@ -41,17 +45,6 @@ export function initializeLogger(dsn = null){
         tracesSampleRate: 1.0,
     });
 
-    if (!dsn){
-        console.error("EXITING LOGGER INITIALIZATION - Logger is not dsn. Fine if expected, else check config.");
-        isInitialized = false;
-        return false;
-    }
-
-    if (isServerSide()){
-        console.error("EXITING LOGGER INITIALIZATION - Logger will not be sent events while serverside. Fine if this appears in a test.");
-        isInitialized = false;
-        return false;
-    }
     dataSourceName = dsn;
     isInitialized = true;
     console.info("Logger: Initialized");
@@ -78,7 +71,8 @@ export function info(message, ...arg) {
  * generic function to log into sentry
  */
 function log(message, level, ...arg) {
-    if (!isInitialized) { return false; }
+    if (!isInitialized) { return; }
+
     Sentry.withScope(function (scope) {
         scope.setLevel(level);
         //scope.setTag("ExampleTag", "Example");
@@ -87,6 +81,3 @@ function log(message, level, ...arg) {
         Sentry.captureException(message);
     });
 }
-
-
-

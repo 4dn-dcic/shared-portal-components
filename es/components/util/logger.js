@@ -17,10 +17,15 @@ export function initializeLogger() {
   var dsn = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
   if (dsn === null || typeof dsn !== 'string') {
-    throw new Error("No dsn provided");
+    console.error("EXITING LOGGER INITIALIZATION - Logger has not dsn. Fine if expected, else check config.");
+    return false;
   }
 
-  if (isServerSide()) return false;
+  if (isServerSide()) {
+    console.error("EXITING LOGGER INITIALIZATION - Logger will not be sent events while serverside. Fine if this appears in a test.");
+    return false;
+  }
+
   Sentry.init({
     dsn: dsn,
     integrations: [new Integrations.BrowserTracing()],
@@ -37,19 +42,6 @@ export function initializeLogger() {
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0
   });
-
-  if (!dsn) {
-    console.error("EXITING LOGGER INITIALIZATION - Logger is not dsn. Fine if expected, else check config.");
-    isInitialized = false;
-    return false;
-  }
-
-  if (isServerSide()) {
-    console.error("EXITING LOGGER INITIALIZATION - Logger will not be sent events while serverside. Fine if this appears in a test.");
-    isInitialized = false;
-    return false;
-  }
-
   dataSourceName = dsn;
   isInitialized = true;
   console.info("Logger: Initialized");
@@ -89,7 +81,7 @@ function log(message, level) {
   }
 
   if (!isInitialized) {
-    return false;
+    return;
   }
 
   Sentry.withScope(function (scope) {
