@@ -1,10 +1,11 @@
 'use strict';
 
-import _ from 'underscore';
 import { isServerSide } from './misc';
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
 
+let dataSourceName = null;
+let isInitialized = false;
 
 /**
  * Initialize Sentry Reporting. Call this from app.js on initial mount perhaps.
@@ -18,7 +19,7 @@ export function initializeLogger(dsn = null){
     if (dsn === null || typeof dsn !== 'string'){
         throw new Error("No dsn provided");
     }
-
+    dataSourceName = dsn;
     if (isServerSide()) return false;
 
     Sentry.init({
@@ -40,10 +41,19 @@ export function initializeLogger(dsn = null){
         tracesSampleRate: 1.0,
     });
 
-    if (!isInitialized(dsn)){
-        console.error("EXITING LOGGER INITIALIZATION.");
+    if (!dsn){
+        console.error("EXITING LOGGER INITIALIZATION - Logger is not dsn. Fine if expected, else check config.");
+        isInitialized = false;
         return false;
     }
+
+    if (isServerSide()){
+        console.error("EXITING LOGGER INITIALIZATION - Logger will not be sent events while serverside. Fine if this appears in a test.");
+        isInitialized = false;
+        return false;
+    }
+
+    isInitialized = true;
     console.info("Logger: Initialized");
 
     return true;
@@ -68,6 +78,7 @@ export function info(message, ...arg) {
  * generic function to log into sentry
  */
 function log(message, level, ...arg) {
+    if ((isInitialized) || (dataSourceName === null || typeof dataSourceName !== 'string')) { return false; }
     Sentry.withScope(function (scope) {
         scope.setLevel(level);
         //scope.setTag("ExampleTag", "Example");
@@ -75,25 +86,6 @@ function log(message, level, ...arg) {
 
         Sentry.captureException(message);
     });
-}
-
-/*********************
- * Private Functions *
- *********************/
-
-function isInitialized(dsn){
-
-    if (!dsn) {
-        console.warn("Logger is not dsn. Fine if expected, else check config.");
-        return false;
-    }
-
-    if (isServerSide()){
-        console.warn("Logger will not be sent events while serverside. Fine if this appears in a test.");
-        return false;
-    }
-
-    return true;
 }
 
 
