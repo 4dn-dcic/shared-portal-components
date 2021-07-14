@@ -20,7 +20,6 @@ export function initializeLogger() {
     throw new Error("No dsn provided");
   }
 
-  dataSourceName = dsn;
   if (isServerSide()) return false;
   Sentry.init({
     dsn: dsn,
@@ -51,6 +50,7 @@ export function initializeLogger() {
     return false;
   }
 
+  dataSourceName = dsn;
   isInitialized = true;
   console.info("Logger: Initialized");
   return true;
@@ -88,7 +88,7 @@ function log(message, level) {
     arg[_key4 - 2] = arguments[_key4];
   }
 
-  if (isInitialized || dataSourceName === null || typeof dataSourceName !== 'string') {
+  if (!isInitialized) {
     return false;
   }
 

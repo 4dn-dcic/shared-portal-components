@@ -19,7 +19,7 @@ export function initializeLogger(dsn = null){
     if (dsn === null || typeof dsn !== 'string'){
         throw new Error("No dsn provided");
     }
-    dataSourceName = dsn;
+
     if (isServerSide()) return false;
 
     Sentry.init({
@@ -52,7 +52,7 @@ export function initializeLogger(dsn = null){
         isInitialized = false;
         return false;
     }
-
+    dataSourceName = dsn;
     isInitialized = true;
     console.info("Logger: Initialized");
 
@@ -78,7 +78,7 @@ export function info(message, ...arg) {
  * generic function to log into sentry
  */
 function log(message, level, ...arg) {
-    if ((isInitialized) || (dataSourceName === null || typeof dataSourceName !== 'string')) { return false; }
+    if (!isInitialized) { return false; }
     Sentry.withScope(function (scope) {
         scope.setLevel(level);
         //scope.setTag("ExampleTag", "Example");
