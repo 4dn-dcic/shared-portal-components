@@ -11,6 +11,7 @@ import * as JWT from './../../util/json-web-token';
 import { navigate } from './../../util/navigate';
 import { load, fetch, promise as ajaxPromise } from './../../util/ajax';
 import { event as trackEvent, setUserID } from './../../util/analytics';
+import * as logger from '../../util/logger';
 
 /** Imported in componentDidMount. */
 let Auth0Lock = null;
@@ -195,7 +196,7 @@ export class LoginController extends React.PureComponent {
                     }
                 }).catch((error)=>{
                     // Handle Errors
-                    console.error("Error during login: ", error.description);
+                    logger.error("Error during login: ", error.description);
                     console.log(error);
 
                     this.setState({ "isLoading" : false });
