@@ -40,6 +40,7 @@ import _ from 'underscore';
 import { navigate } from './../../util/navigate';
 import { getTermFacetStatus } from './../../util/search-filters';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
+import * as logger from '../../util/logger';
 import { generateNextHref } from './FacetList'; // eslint-disable-next-line no-unused-vars
 
 import { SearchResponse, Item, ColumnDefinition, URLParts } from './../../util/typedefs';
@@ -142,7 +143,7 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
       var clearFiltersURL = clearFiltersURLOriginal;
 
       if (!clearFiltersURL) {
-        console.error("No Clear Filters URL");
+        logger.error("No Clear Filters URL");
         return;
       } // If we have a '#' in URL, add to target URL as well.
 

@@ -536,7 +536,9 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           _facet$title = facet.title,
           facetTitle = _facet$title === void 0 ? null : _facet$title,
           _facet$description = facet.description,
-          facetSchemaDescription = _facet$description === void 0 ? null : _facet$description;
+          facetSchemaDescription = _facet$description === void 0 ? null : _facet$description,
+          _facet$hide_facet_cou = facet.hide_facet_counts,
+          hideDocCounts = _facet$hide_facet_cou === void 0 ? false : _facet$hide_facet_cou;
       var fieldSchema = this.memoized.fieldSchema(field, schemas, itemTypeForSchemas);
       var fieldSchemaDescription = (fieldSchema || {}).description; // fieldSchema not present if no schemas loaded yet.
 
@@ -661,8 +663,11 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           facet: facet,
           id: "to_" + field,
           reset: toVal !== null ? this.resetTo : null
-        }))), ranges && ranges.length > 0 ? /*#__PURE__*/React.createElement(ListOfRanges, _extends({}, this.props, {
-          expanded: expanded
+        }))), ranges && ranges.length > 0 ? /*#__PURE__*/React.createElement(ListOfRanges, _extends({
+          key: 1
+        }, this.props, {
+          expanded: expanded,
+          hideDocCounts: hideDocCounts
         }, {
           onToggleExpanded: this.handleExpandListToggleClick,
           selectRange: this.selectRange
@@ -685,7 +690,8 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
       termTransformFxn = props.termTransformFxn,
       toVal = props.toVal,
       fromVal = props.fromVal,
-      filteringFieldTerm = props.filteringFieldTerm;
+      filteringFieldTerm = props.filteringFieldTerm,
+      hideDocCounts = props.hideDocCounts;
   var _facet$ranges2 = facet.ranges,
       ranges = _facet$ranges2 === void 0 ? [] : _facet$ranges2,
       facetField = facet.field;
@@ -709,7 +715,8 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
         range: range,
         termTransformFxn: termTransformFxn,
         selectRange: selectRange,
-        isFiltering: isFiltering
+        isFiltering: isFiltering,
+        hideDocCounts: hideDocCounts
       }, {
         key: "".concat(rangeFrom, "-").concat(rangeTo),
         status: getRangeStatus(range, toVal, fromVal)
@@ -864,7 +871,9 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
           facet = _this$props9.facet,
           status = _this$props9.status,
           _this$props9$isFilter = _this$props9.isFiltering,
-          isFiltering = _this$props9$isFilter === void 0 ? false : _this$props9$isFilter;
+          isFiltering = _this$props9$isFilter === void 0 ? false : _this$props9$isFilter,
+          _this$props9$hideDocC = _this$props9.hideDocCounts,
+          hideDocCounts = _this$props9$hideDocC === void 0 ? false : _this$props9$hideDocC;
       var doc_count = range.doc_count,
           from = range.from,
           to = range.to,
@@ -916,9 +925,9 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
       }, icon), /*#__PURE__*/React.createElement("span", {
         className: "facet-item",
         "data-tip": title.length > 30 ? title : null
-      }, title, " ", displayLabel), /*#__PURE__*/React.createElement("span", {
+      }, title, " ", displayLabel), !hideDocCounts ? /*#__PURE__*/React.createElement("span", {
         className: "facet-count"
-      }, doc_count || 0)));
+      }, doc_count || 0) : null));
     }
   }]);
 
@@ -934,7 +943,7 @@ RangeTerm.propTypes = {
     'label': PropTypes.string,
     'doc_count': PropTypes.number
   }).isRequired,
-  'onClick': PropTypes.func.isRequired
+  'onClick': PropTypes.func
 };
 export function FormattedToFromRangeValue(props) {
   var termTransformFxn = props.termTransformFxn,

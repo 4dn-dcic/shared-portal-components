@@ -41,6 +41,7 @@ import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
+import * as logger from '../../util/logger';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
 import { isServerSide, isSelectAction } from './../../util/misc';
 import { navigate as globalPageNavigate } from './../../util/navigate';
@@ -607,7 +608,7 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
           var keyIntersection = _.intersection(oldKeys.sort(), newKeys.sort());
 
           if (keyIntersection.length > 0) {
-            console.error('FOUND ALREADY-PRESENT RESULT IN NEW RESULTS', keyIntersection, newKeys); // We can refresh current page to get newest results.
+            logger.error("FOUND ALREADY-PRESENT RESULT IN NEW RESULTS.'", keyIntersection, newKeys); // We can refresh current page to get newest results.
 
             _this5.setState({
               'isLoading': false
@@ -858,7 +859,7 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
         setContainerScrollLeft(leftOffset);
 
         if (depth >= 10000) {
-          console.error("Reached depth 10k on a recursive function 'performScrollAction.'");
+          logger.error("Reached depth 10k on a recursive function 'performScrollAction.'");
           return;
         }
 
@@ -1057,6 +1058,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var scrollContainer = outerContainerElem.querySelector(".react-infinite-container");
 
       if (!scrollContainer) {
+        logger.error("Could not get scroll container from React-Infinite. Check to see if library has been updated");
         throw new Error("Could not get scroll container from React-Infinite. Check to see if library has been updated");
       }
 

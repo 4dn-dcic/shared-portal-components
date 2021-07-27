@@ -61,7 +61,7 @@ import queryString from 'query-string';
 import ReactTooltip from 'react-tooltip';
 import Modal from 'react-bootstrap/esm/Modal';
 import Collapse from 'react-bootstrap/esm/Collapse';
-import { ajax, console, JWT, object, layout, schemaTransforms, memoizedUrlParse } from './../util';
+import { ajax, console, JWT, object, layout, schemaTransforms, memoizedUrlParse, logger } from './../util';
 import { DropdownButton, DropdownItem } from './components/DropdownButton';
 import { Alerts } from './../ui/Alerts'; // We will cull util/file to only have some/minor fxns, and leave rest in 4DN repo.
 
@@ -806,7 +806,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
           keyIdx = keyIter + 1; // increase key iter by 1 for a new unique key
 
           if (newIdx !== keyIdx) {
-            console.error('ERROR: KEY INDEX INCONSISTENCY!');
+            logger.error('ERROR: KEY INDEX INCONSISTENCY!');
             return;
           }
 
@@ -1405,7 +1405,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
       });
 
       if (!currentSubmittingUser) {
-        console.error('No user account info.');
+        logger.error('No user account info.');
         stateToSet.keyValid[inKey] = 2;
         this.setState(stateToSet);
         return;
@@ -2582,7 +2582,7 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
 
       if (!field || typeof field !== 'string') {
         // Throw error instead?
-        console.error.apply(console, ['No field supplied'].concat(Array.prototype.slice.call(arguments)));
+        logger.error.apply(logger, ['No field supplied'].concat(Array.prototype.slice.call(arguments)));
       }
 
       var splitField = field.split('.'); // todo: re-implement modifyContextInPlace... somehow the f(x) has the exact same logic but causes a
@@ -2601,7 +2601,7 @@ var IndividualObjectView = /*#__PURE__*/function (_React$Component2) {
         if (pointer[splitField[i]]) {
           pointer = pointer[splitField[i]];
         } else {
-          console.error('PROBLEM CREATING NEW CONTEXT WITH: ', splitField, value);
+          logger.error('PROBLEM CREATING NEW CONTEXT WITH: ', splitField, value);
           return;
         }
 

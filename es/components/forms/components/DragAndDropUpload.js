@@ -298,7 +298,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         return _this3.createItem(file, true) // Validate
         .then(function (response) {
           if (response.status && response.status !== 'success') {
-            var errorMessage = "Validation failed!\n\n".concat(response.description, " ").concat(response.detail);
+            var _response$errors = response.errors;
+            _response$errors = _response$errors === void 0 ? {} : _response$errors;
+            var _response$errors$ = _response$errors[0];
+            _response$errors$ = _response$errors$ === void 0 ? {} : _response$errors$;
+            var description = _response$errors$.description,
+                respDescription = response.description;
+            var errorMessage = "Validation failed!\n\n".concat(respDescription, " ").concat(description);
             throw new Error(errorMessage);
           } else {
             console.log("validation succeeded");
@@ -306,7 +312,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           }
         }).then(function (resp) {
           if (resp.status && resp.status !== 'success') {
-            var errorMessage = "Create item failed!\n\n".concat(resp.description, " ").concat(resp.detail);
+            var _resp$errors = resp.errors;
+            _resp$errors = _resp$errors === void 0 ? {} : _resp$errors;
+            var _resp$errors$ = _resp$errors[0];
+            _resp$errors$ = _resp$errors$ === void 0 ? {} : _resp$errors$;
+            var description = _resp$errors$.description,
+                respDescription = resp.description;
+            var errorMessage = "Create item failed!\n\n".concat(respDescription, " ").concat(description);
             alert(errorMessage);
             throw new Error(errorMessage);
           } else {
@@ -319,7 +331,13 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
           }
         }).then(function (res) {
           if (res.status && res.status !== 'success') {
-            var errorMessage = "Link Item to Individual failed!\n\n".concat(res.description, " ").concat(res.detail);
+            var _res$errors = res.errors;
+            _res$errors = _res$errors === void 0 ? {} : _res$errors;
+            var _res$errors$ = _res$errors[0];
+            _res$errors$ = _res$errors$ === void 0 ? {} : _res$errors$;
+            var description = _res$errors$.description,
+                respDescription = res.description;
+            var errorMessage = "Link Item to Individual failed!\n\n".concat(respDescription, " ").concat(description);
             alert(errorMessage);
             throw new Error(errorMessage);
           } else {
@@ -361,7 +379,9 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
       var _this$props4 = this.props,
           cls = _this$props4.cls,
           fieldDisplayTitle = _this$props4.fieldDisplayTitle,
-          fieldName = _this$props4.fieldName;
+          fieldName = _this$props4.fieldName,
+          requestVerificationMsg = _this$props4.requestVerificationMsg,
+          multiselect = _this$props4.multiselect;
       var _this$state = this.state,
           files = _this$state.files,
           isLoading = _this$state.isLoading;
@@ -370,7 +390,9 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
         fieldDisplayTitle: fieldDisplayTitle,
         fieldName: fieldName,
         files: files,
-        isLoading: isLoading
+        isLoading: isLoading,
+        requestVerificationMsg: requestVerificationMsg,
+        multiselect: multiselect
       }, {
         onUploadStart: this.onUploadStart,
         handleAddFile: this.handleAddFile,
@@ -398,7 +420,9 @@ _defineProperty(DragAndDropFileUploadController, "propTypes", {
   // Display title of field (e.g. "Related Documents")
   cls: PropTypes.string,
   // Classes to apply to the main "Quick Upload" button
-  multiselect: PropTypes.bool // Can field link multiple files at once?/Is array field?
+  multiselect: PropTypes.bool,
+  // Can field link multiple files at once?/Is array field?
+  requestVerificationMsg: PropTypes.element // JSX message to be displayed on verification request
   // award: PropTypes.string,                    // Will be required for 4DN SV
   // lab: PropTypes.string,                      // Will be required for 4DN SV
   // institution: PropTypes.object,              // Will be required for CGAP SV
@@ -407,8 +431,7 @@ _defineProperty(DragAndDropFileUploadController, "propTypes", {
 });
 
 _defineProperty(DragAndDropFileUploadController, "defaultProps", {
-  cls: "btn",
-  multiselect: true
+  cls: "btn"
 });
 
 var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
@@ -466,19 +489,19 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$state2 = this.state,
-          show = _this$state2.showModal,
-          multiselect = _this$state2.multiselect;
+      var show = this.state.showModal;
       var _this$props5 = this.props,
           onUploadStart = _this$props5.onUploadStart,
           handleAddFile = _this$props5.handleAddFile,
           handleRemoveFile = _this$props5.handleRemoveFile,
           handleClearAllFiles = _this$props5.handleClearAllFiles,
+          multiselect = _this$props5.multiselect,
           fieldName = _this$props5.fieldName,
           cls = _this$props5.cls,
           fieldDisplayTitle = _this$props5.fieldDisplayTitle,
           files = _this$props5.files,
-          isLoading = _this$props5.isLoading;
+          isLoading = _this$props5.isLoading,
+          requestVerificationMsg = _this$props5.requestVerificationMsg;
       return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DragAndDropModal, _extends({
         handleHideModal: this.handleHideModal
       }, {
@@ -491,7 +514,8 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
         handleRemoveFile: handleRemoveFile,
         handleClearAllFiles: handleClearAllFiles,
         files: files,
-        isLoading: isLoading
+        isLoading: isLoading,
+        requestVerificationMsg: requestVerificationMsg
       })), /*#__PURE__*/React.createElement("button", {
         type: "button",
         onClick: this.onShow,
@@ -524,13 +548,14 @@ _defineProperty(DragAndDropUploadButton, "propTypes", {
   // Can field link multiple files at once?/Is array field?
   cls: PropTypes.string,
   // Classes to apply to the main "Quick Upload" button
-  isLoading: PropTypes.bool // Are items currently being uploaded?
+  isLoading: PropTypes.bool,
+  // Are items currently being uploaded?
+  requestVerificationMsg: PropTypes.element // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
 
 });
 
 _defineProperty(DragAndDropUploadButton, "defaultProps", {
   fieldName: "Document",
-  multiselect: false,
   files: []
 });
 
@@ -539,38 +564,92 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
 
   var _super4 = _createSuper(DragAndDropModal);
 
-  function DragAndDropModal() {
+  /*
+      Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
+      Functions for hiding, and handles files.
+  */
+  function DragAndDropModal(props) {
+    var _this5;
+
     _classCallCheck(this, DragAndDropModal);
 
-    return _super4.apply(this, arguments);
+    _this5 = _super4.call(this, props);
+    _this5.state = {
+      isVerified: false
+    };
+    _this5.toggleCheckbox = _this5.toggleCheckbox.bind(_assertThisInitialized(_this5));
+    _this5.disableCheckbox = _this5.toggleCheckbox.bind(_assertThisInitialized(_this5));
+    _this5.handleAddFileAndResetVerification = _this5.handleAddFileAndResetVerification.bind(_assertThisInitialized(_this5));
+    return _this5;
   }
 
   _createClass(DragAndDropModal, [{
-    key: "render",
+    key: "toggleCheckbox",
+    value: function toggleCheckbox() {
+      var isVerified = this.state.isVerified;
+      this.setState({
+        isVerified: !isVerified
+      });
+    }
+  }, {
+    key: "disableCheckbox",
+    value: function disableCheckbox() {
+      var isVerified = this.state.isVerified;
 
-    /*
-        Drag and Drop File Manager Component that accepts an onHide and onContainerKeyDown function
-        Functions for hiding, and handles files.
-    */
-    value: function render() {
+      if (isVerified) {
+        this.setState({
+          isVerified: false
+        });
+      }
+    }
+    /**
+     * Basically just wraps the handleAddFile f(x) from props in the case verification is enabled and resets checkbox if new files are added
+     * @param {Object} evt  The click event to be passed to handleAddFile
+     */
+
+  }, {
+    key: "handleAddFileAndResetVerification",
+    value: function handleAddFileAndResetVerification(evt) {
       var _this$props6 = this.props,
-          show = _this$props6.show,
-          onUploadStart = _this$props6.onUploadStart,
-          fieldName = _this$props6.fieldName,
-          fieldDisplayTitle = _this$props6.fieldDisplayTitle,
           handleAddFile = _this$props6.handleAddFile,
-          handleRemoveFile = _this$props6.handleRemoveFile,
-          files = _this$props6.files,
-          handleHideModal = _this$props6.handleHideModal,
-          isLoading = _this$props6.isLoading;
-      console.log("isLoading:", isLoading);
+          requestVerificationMsg = _this$props6.requestVerificationMsg;
+      var isVerified = this.state.isVerified;
+
+      if (isVerified && requestVerificationMsg) {
+        // reset verification status on add new files if already checked
+        this.setState({
+          isVerified: false
+        }, handleAddFile(evt));
+      } else {
+        handleAddFile(evt);
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var isVerified = this.state.isVerified;
+      var _this$props7 = this.props,
+          show = _this$props7.show,
+          onUploadStart = _this$props7.onUploadStart,
+          fieldName = _this$props7.fieldName,
+          fieldDisplayTitle = _this$props7.fieldDisplayTitle,
+          handleAddFile = _this$props7.handleAddFile,
+          handleRemoveFile = _this$props7.handleRemoveFile,
+          files = _this$props7.files,
+          handleHideModal = _this$props7.handleHideModal,
+          isLoading = _this$props7.isLoading,
+          requestVerificationMsg = _this$props7.requestVerificationMsg,
+          multiselect = _this$props7.multiselect; // console.log("isLoading:", isLoading);
+
+      var allowUpload = files.length > 0 && (requestVerificationMsg && isVerified || !requestVerificationMsg);
       return /*#__PURE__*/React.createElement(Modal, _extends({
         centered: true
       }, {
         show: show
       }, {
         onHide: handleHideModal,
-        className: "submission-view-modal drag-and-drop-upload"
+        className: "submission-view-modal drag-and-drop-upload",
+        size: "lg"
       }), /*#__PURE__*/React.createElement(Modal.Header, {
         closeButton: true
       }, /*#__PURE__*/React.createElement(Modal.Title, {
@@ -580,11 +659,17 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
       }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
       })))) : null, /*#__PURE__*/React.createElement(DragAndDropZone, _extends({
-        files: files
+        files: files,
+        multiselect: multiselect
       }, {
-        handleAddFile: handleAddFile,
+        handleAddFile: requestVerificationMsg ? this.handleAddFileAndResetVerification : handleAddFile,
         handleRemoveFile: handleRemoveFile
-      }))), /*#__PURE__*/React.createElement(Modal.Footer, null, /*#__PURE__*/React.createElement("button", {
+      })), requestVerificationMsg ? /*#__PURE__*/React.createElement(RequestVerification, _extends({
+        requestVerificationMsg: requestVerificationMsg,
+        isVerified: isVerified
+      }, {
+        toggleVerification: this.toggleCheckbox
+      })) : null), /*#__PURE__*/React.createElement(Modal.Footer, null, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-danger",
         onClick: handleHideModal
@@ -594,7 +679,8 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
         type: "button",
         className: "btn btn-primary",
         onClick: onUploadStart,
-        disabled: files.length === 0
+        disabled: !allowUpload,
+        "data-tip": requestVerificationMsg && !allowUpload ? "Verify your files by clicking the checkbox." : null
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon fas icon-upload"
       }), " Upload ", fieldDisplayTitle)));
@@ -623,7 +709,11 @@ _defineProperty(DragAndDropModal, "propTypes", {
   // Human readable type (Ex. Item, Document, Image, etc)
   fieldDisplayTitle: PropTypes.string,
   // Name of specific field (Ex. Related Documents)
-  isLoading: PropTypes.bool // Are items currently being uploaded?
+  isLoading: PropTypes.bool,
+  // Are items currently being uploaded?
+  requestVerificationMsg: PropTypes.element,
+  // HTML message to be displayed on verification request (uses dangerouslySetInnerHtml -- should be OK since this is not user-generated)
+  multiselect: PropTypes.bool // Can you select more than one file at a time for upload?
 
 });
 
@@ -632,27 +722,45 @@ _defineProperty(DragAndDropModal, "defaultProps", {
   isLoading: false
 });
 
+function RequestVerification(props) {
+  var _props$isVerified = props.isVerified,
+      isVerified = _props$isVerified === void 0 ? true : _props$isVerified,
+      requestVerificationMsg = props.requestVerificationMsg,
+      toggleVerification = props.toggleVerification;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mb-1 mt-2 text-center"
+  }, /*#__PURE__*/React.createElement("input", {
+    name: "file-verification",
+    type: "checkbox",
+    checked: isVerified,
+    onChange: toggleVerification
+  }), /*#__PURE__*/React.createElement("label", {
+    className: "d-inline ml-05",
+    htmlFor: "file-verification"
+  }, requestVerificationMsg, " "));
+}
+
 export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   _inherits(DragAndDropZone, _React$Component5);
 
   var _super5 = _createSuper(DragAndDropZone);
 
   function DragAndDropZone(props) {
-    var _this5;
+    var _this6;
 
     _classCallCheck(this, DragAndDropZone);
 
-    _this5 = _super5.call(this, props);
-    _this5.state = {
+    _this6 = _super5.call(this, props);
+    _this6.state = {
       dragging: false
     };
-    _this5.dropZoneRef = /*#__PURE__*/React.createRef();
-    _this5.fileUploadRef = /*#__PURE__*/React.createRef();
-    _this5.cleanUpEventListeners = _this5.cleanUpEventListeners.bind(_assertThisInitialized(_this5));
-    _this5.setUpEventListeners = _this5.setUpEventListeners.bind(_assertThisInitialized(_this5));
-    _this5.handleDrop = _this5.handleDrop.bind(_assertThisInitialized(_this5));
-    _this5.handleDropzoneClick = _this5.handleDropzoneClick.bind(_assertThisInitialized(_this5));
-    return _this5;
+    _this6.dropZoneRef = /*#__PURE__*/React.createRef();
+    _this6.fileUploadRef = /*#__PURE__*/React.createRef();
+    _this6.cleanUpEventListeners = _this6.cleanUpEventListeners.bind(_assertThisInitialized(_this6));
+    _this6.setUpEventListeners = _this6.setUpEventListeners.bind(_assertThisInitialized(_this6));
+    _this6.handleDrop = _this6.handleDrop.bind(_assertThisInitialized(_this6));
+    _this6.handleDropzoneClick = _this6.handleDropzoneClick.bind(_assertThisInitialized(_this6));
+    return _this6;
   }
 
   _createClass(DragAndDropZone, [{
@@ -740,11 +848,12 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
   }, {
     key: "render",
     value: function render() {
-      var _this6 = this;
+      var _this7 = this;
 
-      var _this$props7 = this.props,
-          files = _this$props7.files,
-          handleRemoveFile = _this$props7.handleRemoveFile;
+      var _this$props8 = this.props,
+          files = _this$props8.files,
+          handleRemoveFile = _this$props8.handleRemoveFile,
+          multiselect = _this$props8.multiselect;
       return /*#__PURE__*/React.createElement("div", {
         className: "dropzone panel text-center d-flex flex-row justify-content-center",
         ref: this.dropZoneRef,
@@ -752,9 +861,9 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
       }, /*#__PURE__*/React.createElement("input", {
         type: "file",
         ref: this.fileUploadRef,
-        multiple: true,
+        multiple: multiselect,
         onChange: function onChange(e) {
-          return _this6.handleAddFromBrowse(e);
+          return _this7.handleAddFromBrowse(e);
         },
         name: "filesFromBrowse",
         className: "d-none"
@@ -786,7 +895,8 @@ _defineProperty(DragAndDropZone, "propTypes", {
   /** Callback called when Item is received. Should accept @ID and Item context (not guaranteed) as params. */
   'handleAddFile': PropTypes.func.isRequired,
   'handleRemoveFile': PropTypes.func.isRequired,
-  'files': PropTypes.array
+  'files': PropTypes.array,
+  'multiselect': PropTypes.bool
 });
 
 _defineProperty(DragAndDropZone, "defaultProps", {
@@ -839,13 +949,9 @@ function FileIcon(props) {
             return 'file';
         }
       }
-    }(fileType)),
-    style: {
-      marginBottom: "5px",
-      color: "#444444"
-    }
+    }(fileType), " mb-05 text-dark")
   }), /*#__PURE__*/React.createElement("span", {
-    className: "filename"
+    className: "filename text-break"
   }, fileName), /*#__PURE__*/React.createElement("span", {
     className: "filesize"
   }, fileSize, " bytes"));

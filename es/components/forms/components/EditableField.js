@@ -30,7 +30,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
-import { ajax, console, object, navigate } from './../../util';
+import { ajax, console, object, navigate, logger } from './../../util';
 /** TODO 1 of refactor out / get rid of / fix */
 
 /**
@@ -84,7 +84,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
     try {
       initialValue = object.getNestedProperty(props.context, props.labelID); // Returns undefined if doesn't exist in context
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     }
 
     _this.state = {
@@ -366,7 +366,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
 
       var errorFallback = function (res) {
         // ToDo display (bigger?) errors
-        console.error("Error: ", res);
+        logger.error("Error: ", res);
 
         _this3.setState({
           'serverErrors': res.errors,
@@ -488,7 +488,7 @@ export var EditableField = /*#__PURE__*/function (_React$Component) {
 
       if (!this.isValid()) {
         // ToDo : Bigger notification to end user that something is wrong.
-        console.error("Cannot save " + this.props.labelID + "; value is not valid:", this.state.value);
+        logger.error("Cannot save " + this.props.labelID + "; value is not valid:", this.state.value);
         return;
       } else if (this.state.value === this.state.savedValue) {
         return this.cancelEditState(e);

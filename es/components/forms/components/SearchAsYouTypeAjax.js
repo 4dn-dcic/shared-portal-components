@@ -49,7 +49,7 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
 import Fade from 'react-bootstrap/esm/Fade';
-import { ajax, object } from './../../util/';
+import { ajax, object, logger } from './../../util/';
 import { Alerts } from './../../ui/Alerts';
 import { LinkToSelector } from './LinkToSelector';
 import { SearchSelectionMenu } from './SearchSelectionMenu';
@@ -188,7 +188,7 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
             });
           } else if (error) {
             // handle more general errors (should we display the actual error message to users?)
-            console.error("Status code " + status + " encountered. " + statusText);
+            logger.error("Status code " + status + " encountered. " + statusText);
 
             _this2.setState({
               loading: false,
