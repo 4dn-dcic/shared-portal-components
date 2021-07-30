@@ -107,11 +107,11 @@ export class ColumnCombiner extends React.PureComponent {
             columns: overridePropColumns = null,
             columnExtensionMap,
             filterColumnFxn = null,
+            schemas,
             ...passProps
         } = this.props;
         const { context : { columns: contextColumns } = {} } = passProps;
         const columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
-
         if (columns.length === 0) {
             console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
         }
@@ -158,6 +158,7 @@ export function columnsToColumnDefinitions(columns, columnDefinitionMap, default
         colDef.render = colDef.render || null;
         colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
 
+        if(!colDef.initial_sort){colDef.initial_sort='test';}
         return colDef;
     });
 

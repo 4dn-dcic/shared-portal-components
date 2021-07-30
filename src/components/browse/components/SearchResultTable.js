@@ -956,7 +956,8 @@ class DimensioningContainer extends React.PureComponent {
             maxHeight = 500, // Only used if not isOwnPage
             isContextLoading = false,
             setColumnWidths,
-            columnWidths
+            columnWidths,
+            colDefsFromSchema
         } = this.props;
         const { results, tableContainerWidth, tableContainerScrollLeft, mounted, openDetailPanes } = this.state;
 
@@ -968,7 +969,7 @@ class DimensioningContainer extends React.PureComponent {
             ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse',
                 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth'),
             mounted, results, rowHeight, setColumnWidths, columnWidths,
-            tableContainerScrollLeft
+            tableContainerScrollLeft, colDefsFromSchema
         };
 
         const resultRowCommonProps = _.extend(
@@ -1126,7 +1127,7 @@ export class SearchResultTable extends React.Component {
     };
 
     render(){
-        const { context, visibleColumnDefinitions, columnDefinitions, isContextLoading = false, isOwnPage } = this.props;
+        const { context, visibleColumnDefinitions, columnDefinitions, isContextLoading = false, isOwnPage , colDefsFromSchema } = this.props;
 
         if (isContextLoading && !context) {
             // Initial context (pre-sort, filter, etc) loading.
@@ -1147,7 +1148,7 @@ export class SearchResultTable extends React.Component {
         return (
             <DimensioningContainer
                 {..._.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap')}
-                columnDefinitions={visibleColumnDefinitions || columnDefinitions} />
+                columnDefinitions={visibleColumnDefinitions || columnDefinitions} colDefsFromSchema={colDefsFromSchema} />
         );
     }
 }

@@ -49,6 +49,7 @@ import { getColumnWidthFromDefinition } from './ColumnCombiner';
 import { WindowEventDelegator } from './../../../util/WindowEventDelegator';
 import { findParentElement } from './../../../util/layout';
 import { requestAnimationFrame as raf } from './../../../viz/utilities';
+import { console, object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 /**
  * Assumes that is rendered by SearchResultTable and that a SortController instance
  * is above it in the component tree hierarchy (provide sortColumn, sortBy, sortReverse).
@@ -174,7 +175,8 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       alignedWidths: memoize(HeadersRow.alignedWidths),
       getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
       getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
+      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn),
+      getSortFieldDirection: memoize(HeadersRow.getSortFieldDirection)
     };
     return _this;
   }
@@ -275,7 +277,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     value: function sortByField(field) {
       var _this$props2 = this.props,
           sortColumns = _this$props2.sortColumns,
-          sortBy = _this$props2.sortBy;
+          sortBy = _this$props2.sortBy,
+          columnDefinitions = _this$props2.columnDefinitions,
+          colDefsFromSchema = _this$props2.colDefsFromSchema;
 
       var _ref10 = _slicedToArray(sortColumns || [], 1),
           _ref10$ = _ref10[0];
@@ -286,14 +290,36 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           _ref10$$direction = _ref10$.direction,
           direction = _ref10$$direction === void 0 ? "desc" : _ref10$$direction;
       var trimmedColumn = HeadersRow.getTrimmedColumn(column);
+      var initialSort;
+      var sortDirection;
+
+      if (columnDefinitions) {
+        var itemField = _.filter(columnDefinitions, function (item) {
+          return item.field == field;
+        });
+
+        if (itemField[0].initial_sort) {
+          initialSort = itemField[0].initial_sort;
+        } else {
+          initialSort = HeadersRow.getSortFieldDirection(colDefsFromSchema[field].type);
+        }
+      }
+
       var isActive = column === field || trimmedColumn && trimmedColumn === field;
+
+      if (initialSort && !isActive) {
+        sortDirection = initialSort;
+      } else if (!(initialSort && !isActive)) {
+        sortDirection = !isActive || isActive && direction !== "desc" ? "desc" : "asc";
+      }
+
       this.setState({
         "loadingField": field,
         "showingSortFieldsForColumn": null
       }, function () {
         sortBy([{
           column: field,
-          direction: !isActive || isActive && direction !== "desc" ? "desc" : "asc"
+          direction: sortDirection
         }]);
       });
     }
@@ -465,6 +491,24 @@ _defineProperty(HeadersRow, "getTrimmedColumn", memoize(function (column) {
   }
 
   return column.substring(0, column.length - 14);
+}));
+
+_defineProperty(HeadersRow, "getSortFieldDirection", memoize(function (fieldType) {
+  switch (fieldType) {
+    case 'string':
+      return 'asc';
+
+    case 'integer':
+      return 'desc';
+
+    case 'number':
+      return 'desc';
+
+    case 'date':
+      return 'desc';
+  }
+
+  return null;
 }));
 
 var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {

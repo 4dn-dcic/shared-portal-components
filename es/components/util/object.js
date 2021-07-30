@@ -178,8 +178,10 @@ export function tipsFromSchemaByType(schemas) {
   var tips = {};
 
   if (itemType && _typeof(schemas) === 'object' && schemas !== null) {
-    if (schemas[itemType]) {
-      tips = schemas[itemType].properties;
+    var searchViewTypeMatch = itemType.match(/^(\w+)(SearchResults)$/);
+
+    if (schemas[searchViewTypeMatch[1]]) {
+      tips = schemas[searchViewTypeMatch[1]].properties;
     }
   }
 

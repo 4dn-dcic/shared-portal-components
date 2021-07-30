@@ -7,6 +7,7 @@ import { getColumnWidthFromDefinition } from './ColumnCombiner';
 import { WindowEventDelegator } from './../../../util/WindowEventDelegator';
 import { findParentElement } from './../../../util/layout';
 import { requestAnimationFrame as raf } from './../../../viz/utilities';
+import { console, object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
 /**
  * Assumes that is rendered by SearchResultTable and that a SortController instance
@@ -120,6 +121,20 @@ export class HeadersRow extends React.PureComponent {
         return column.substring(0, column.length - 14);
     });
 
+    static getSortFieldDirection = memoize(function getTrimmedColumn(fieldType) {
+        switch (fieldType) {
+            case 'string':
+                return 'asc';
+            case 'integer':
+                return 'desc';
+            case 'number':
+                return 'desc';
+            case 'date':
+                return 'desc';
+        }
+        return null;
+    });
+
     constructor(props){
         super(props);
         this.onWindowClick = this.onWindowClick.bind(this);
@@ -136,7 +151,8 @@ export class HeadersRow extends React.PureComponent {
             alignedWidths: memoize(HeadersRow.alignedWidths),
             getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
             getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
+            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn),
+            getSortFieldDirection: memoize(HeadersRow.getSortFieldDirection)
         };
     }
 
@@ -199,16 +215,33 @@ export class HeadersRow extends React.PureComponent {
      * before calling `props.sortByFxn`.
      */
     sortByField(field){
-        const { sortColumns, sortBy } = this.props;
+        const { sortColumns, sortBy, columnDefinitions, colDefsFromSchema,  } = this.props;
         const [{ column = null, direction = "desc" } = {}] = sortColumns || [];
-
         const trimmedColumn = HeadersRow.getTrimmedColumn(column);
+        let initialSort;
+        let sortDirection;
+
+        if(columnDefinitions) {
+            var itemField = _.filter(columnDefinitions, function(item){ return item.field == field; });
+            if(itemField[0].initial_sort){
+                initialSort=itemField[0].initial_sort;
+            }
+            else {
+                initialSort=HeadersRow.getSortFieldDirection(colDefsFromSchema[field].type);
+            }
+        }
 
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
-        const beDescending = !isActive || (isActive && direction !== "desc");
+
+        if (initialSort && !isActive) { sortDirection = initialSort; }
+        else if(initialSort && !isActive){ }
+        else {
+            const beDescending = !isActive || (isActive && direction !== "desc");
+            sortDirection = beDescending ? "desc" : "asc";
+        }
 
         this.setState({ "loadingField": field, "showingSortFieldsForColumn" : null }, function(){
-            sortBy([{ column: field, direction: beDescending ? "desc" : "asc" }]);
+            sortBy([{ column: field, direction: sortDirection }]);
         });
     }
 

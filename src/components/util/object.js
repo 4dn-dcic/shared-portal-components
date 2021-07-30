@@ -110,8 +110,10 @@ export function tipsFromSchema(schemas, content){
 export function tipsFromSchemaByType(schemas, itemType='ExperimentSet'){
     var tips = {};
     if(itemType && typeof schemas === 'object' && schemas !== null){
-        if (schemas[itemType]){
-            tips = schemas[itemType].properties;
+
+        const searchViewTypeMatch = itemType.match(/^(\w+)(SearchResults)$/);
+        if (schemas[searchViewTypeMatch[1]]){
+            tips = schemas[searchViewTypeMatch[1]].properties;
         }
     }
     return tips;

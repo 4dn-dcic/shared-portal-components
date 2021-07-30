@@ -175,7 +175,8 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
           columnExtensionMap = _this$props.columnExtensionMap,
           _this$props$filterCol = _this$props.filterColumnFxn,
           filterColumnFxn = _this$props$filterCol === void 0 ? null : _this$props$filterCol,
-          passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap", "filterColumnFxn"]);
+          schemas = _this$props.schemas,
+          passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap", "filterColumnFxn", "schemas"]);
 
       var _passProps$context = passProps.context;
       _passProps$context = _passProps$context === void 0 ? {} : _passProps$context;
@@ -246,6 +247,11 @@ export function columnsToColumnDefinitions(columns, columnDefinitionMap) {
     colDef.widthMap = colDef.widthMap || defaultWidthMap;
     colDef.render = colDef.render || null;
     colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
+
+    if (!colDef.initial_sort) {
+      colDef.initial_sort = 'test';
+    }
+
     return colDef;
   });
 
