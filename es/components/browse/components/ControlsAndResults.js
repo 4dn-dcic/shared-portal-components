@@ -33,9 +33,8 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 import React from 'react';
 import memoize from 'memoize-one';
 import { isSelectAction } from './../../util/misc';
-import { getAbstractTypeForType, getSchemaTypeFromSearchContext, flattenSchemaPropertyToColumnDefinition } from './../../util/schema-transforms';
+import { getAbstractTypeForType, getSchemaTypeFromSearchContext } from './../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
-import { tipsFromSchema } from './../../util/object';
 import { AboveSearchViewTableControls } from './above-table-controls/AboveSearchViewTableControls';
 import { SearchResultTable } from './SearchResultTable';
 import { FacetList, FacetListHeader } from './FacetList';
@@ -56,9 +55,7 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
     _this.renderSearchDetailPane = _this.renderSearchDetailPane.bind(_assertThisInitialized(_this));
     _this.memoized = {
       getSchemaTypeFromSearchContext: memoize(getSchemaTypeFromSearchContext),
-      getAbstractTypeForType: memoize(getAbstractTypeForType),
-      flattenSchemaPropertyToColumnDefinition: memoize(flattenSchemaPropertyToColumnDefinition),
-      tipsFromSchema: memoize(tipsFromSchema)
+      getAbstractTypeForType: memoize(getAbstractTypeForType)
     };
     _this.searchResultTableRef = /*#__PURE__*/React.createRef();
     return _this;
@@ -166,7 +163,6 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
 
       var searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
       var searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
-      var colDefsFromSchema = this.memoized.flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
 
       /**
        * To Consider:
@@ -265,7 +261,6 @@ export var ControlsAndResults = /*#__PURE__*/function (_React$PureComponent) {
         defaultOpenIndices: defaultOpenIndices,
         maxHeight: maxHeight,
         targetTabKey: targetTabKey,
-        colDefsFromSchema: colDefsFromSchema,
         isContextLoading: isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
 
       }, {

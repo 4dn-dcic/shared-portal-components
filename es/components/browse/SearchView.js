@@ -124,7 +124,8 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         navigate: propNavigate
       }), /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
-        columnExtensionMap: columnExtensionMap
+        columnExtensionMap: columnExtensionMap,
+        schemas: schemas
       }, /*#__PURE__*/React.createElement(CustomColumnController, null, /*#__PURE__*/React.createElement(SortController, null, /*#__PURE__*/React.createElement(ControlsAndResults, childViewProps)))));
 
       if (isSelectAction(currentAction)) {

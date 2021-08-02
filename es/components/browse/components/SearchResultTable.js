@@ -1274,8 +1274,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           _this$props13$isConte = _this$props13.isContextLoading,
           isContextLoading = _this$props13$isConte === void 0 ? false : _this$props13$isConte,
           setColumnWidths = _this$props13.setColumnWidths,
-          columnWidths = _this$props13.columnWidths,
-          colDefsFromSchema = _this$props13.colDefsFromSchema;
+          columnWidths = _this$props13.columnWidths;
       var _this$state3 = this.state,
           results = _this$state3.results,
           tableContainerWidth = _this$state3.tableContainerWidth,
@@ -1292,8 +1291,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         rowHeight: rowHeight,
         setColumnWidths: setColumnWidths,
         columnWidths: columnWidths,
-        tableContainerScrollLeft: tableContainerScrollLeft,
-        colDefsFromSchema: colDefsFromSchema
+        tableContainerScrollLeft: tableContainerScrollLeft
       });
 
       var resultRowCommonProps = _.extend(_.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'), {
@@ -1438,8 +1436,7 @@ export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
           columnDefinitions = _this$props14.columnDefinitions,
           _this$props14$isConte = _this$props14.isContextLoading,
           isContextLoading = _this$props14$isConte === void 0 ? false : _this$props14$isConte,
-          isOwnPage = _this$props14.isOwnPage,
-          colDefsFromSchema = _this$props14.colDefsFromSchema;
+          isOwnPage = _this$props14.isOwnPage;
 
       if (isContextLoading && !context) {
         // Initial context (pre-sort, filter, etc) loading.
@@ -1458,8 +1455,7 @@ export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
 
 
       return /*#__PURE__*/React.createElement(DimensioningContainer, _extends({}, _.omit(this.props, 'hiddenColumns', 'columnDefinitionOverrideMap', 'defaultWidthMap'), {
-        columnDefinitions: visibleColumnDefinitions || columnDefinitions,
-        colDefsFromSchema: colDefsFromSchema
+        columnDefinitions: visibleColumnDefinitions || columnDefinitions
       }));
     }
   }], [{

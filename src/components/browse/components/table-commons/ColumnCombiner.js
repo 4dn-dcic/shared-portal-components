@@ -7,6 +7,8 @@ import memoize from 'memoize-one';
 import { basicColumnExtensionMap, DEFAULT_WIDTH_MAP } from './basicColumnExtensionMap';
 import { responsiveGridState } from './../../../util/layout';
 import { isServerSide } from './../../../util/misc';
+import { flattenSchemaPropertyToColumnDefinition } from './../../../util/schema-transforms';
+import { tipsFromSchema } from './../../../util/object';
 
 // eslint-disable-next-line no-unused-vars
 import { Item, ColumnDefinition } from './../../../util/typedefs';
@@ -32,10 +34,10 @@ export class ColumnCombiner extends React.PureComponent {
      * @param {Object<string,{ colTitle: JSX.Element|string, render: function(Item, ...): JSX.Element, widthMap: { sm: number, md: number, lg: number } }} columnExtensionMap - Column definitions/extensions from front-end code.
      * @returns {{ title: string, field: string, render: function, widthMap: { sm: number, md: number, lg: number } }[]} Final form of columns to display
      */
-    static getDefinitions(columns, columnExtensionMap){
+    static getDefinitions(columns, columnExtensionMap, colDefsFromSchema){
         // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
         // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
-        return columnsToColumnDefinitions(columns, columnExtensionMap);
+        return columnsToColumnDefinitions(columns, columnExtensionMap, colDefsFromSchema);
     }
 
     /**
@@ -58,6 +60,20 @@ export class ColumnCombiner extends React.PureComponent {
         "columns" : null, // Passed in as prop or defaults to context.columns
         "columnExtensionMap": basicColumnExtensionMap
     };
+
+    static getSortFieldDirection (fieldType){
+        switch (fieldType) {
+            case 'string':
+                return 'asc';
+            case 'integer':
+                return 'desc';
+            case 'number':
+                return 'desc';
+            case 'date':
+                return 'desc';
+        }
+        return null;
+    }
 
     constructor(props){
         super(props);
@@ -97,7 +113,10 @@ export class ColumnCombiner extends React.PureComponent {
                     return !this.memoized.haveContextColumnsChanged(prevColumns, nextColumns);
                 }
             ),
-            filteredColumns: memoize(ColumnCombiner.filteredColumns)
+            filteredColumns: memoize(ColumnCombiner.filteredColumns),
+            flattenSchemaPropertyToColumnDefinition : memoize(flattenSchemaPropertyToColumnDefinition),
+            tipsFromSchema : memoize(tipsFromSchema)
+
         };
     }
 
@@ -110,7 +129,11 @@ export class ColumnCombiner extends React.PureComponent {
             schemas,
             ...passProps
         } = this.props;
-        const { context : { columns: contextColumns } = {} } = passProps;
+        const { context : { columns: contextColumns } = {} , context } = passProps;
+        let colDefsFromSchema;
+        if(schemas){
+            colDefsFromSchema =this.memoized.flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
+        }
         const columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
         if (columns.length === 0) {
             console.error("No columns available in context nor props. Please provide columns. Ok if resorting to back-end provided columns and waiting for first response to load.");
@@ -119,7 +142,7 @@ export class ColumnCombiner extends React.PureComponent {
         const propsToPass = {
             ...passProps,
             /** Final form of all columns to show in table */
-            columnDefinitions: this.memoized.getDefinitions(columns, columnExtensionMap),
+            columnDefinitions: ColumnCombiner.getDefinitions(columns, columnExtensionMap, colDefsFromSchema),
             /**
              * Initial column keys/fields from `columnDefinitions` to be hidden from table.
              * Change of this prop value causes reset of hidden columns state.
@@ -142,7 +165,7 @@ export class ColumnCombiner extends React.PureComponent {
  * @param {Object} defaultWidthMap          Map of responsive grid states (lg, md, sm) to pixel number sizes.
  * @returns {Object[]}                      List of objects containing keys 'title', 'field', 'widthMap', and 'render'.
  */
-export function columnsToColumnDefinitions(columns, columnDefinitionMap, defaultWidthMap = DEFAULT_WIDTH_MAP){
+export function columnsToColumnDefinitions(columns, columnDefinitionMap, colDefsFromSchema, defaultWidthMap = DEFAULT_WIDTH_MAP){
     const uninishedColumnDefinitions = _.pairs(columns).map(function([ field, columnProperties ]){
         return { ...columnProperties, field };
     });
@@ -158,7 +181,12 @@ export function columnsToColumnDefinitions(columns, columnDefinitionMap, default
         colDef.render = colDef.render || null;
         colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
 
-        if(!colDef.initial_sort){colDef.initial_sort='test';}
+        if (!colDef.initial_sort){
+            if ((colDefsFromSchema && colDefsFromSchema[colDef.field])) {
+                const initialSort = ColumnCombiner.getSortFieldDirection(colDefsFromSchema[colDef.field].type);
+                colDef.initial_sort = initialSort;
+            }
+        }
         return colDef;
     });
 

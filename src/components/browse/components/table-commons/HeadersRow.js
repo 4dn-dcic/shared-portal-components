@@ -121,20 +121,6 @@ export class HeadersRow extends React.PureComponent {
         return column.substring(0, column.length - 14);
     });
 
-    static getSortFieldDirection = memoize(function getTrimmedColumn(fieldType) {
-        switch (fieldType) {
-            case 'string':
-                return 'asc';
-            case 'integer':
-                return 'desc';
-            case 'number':
-                return 'desc';
-            case 'date':
-                return 'desc';
-        }
-        return null;
-    });
-
     constructor(props){
         super(props);
         this.onWindowClick = this.onWindowClick.bind(this);
@@ -151,8 +137,7 @@ export class HeadersRow extends React.PureComponent {
             alignedWidths: memoize(HeadersRow.alignedWidths),
             getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
             getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn),
-            getSortFieldDirection: memoize(HeadersRow.getSortFieldDirection)
+            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
         };
     }
 
@@ -215,7 +200,7 @@ export class HeadersRow extends React.PureComponent {
      * before calling `props.sortByFxn`.
      */
     sortByField(field){
-        const { sortColumns, sortBy, columnDefinitions, colDefsFromSchema,  } = this.props;
+        const { sortColumns, sortBy, columnDefinitions  } = this.props;
         const [{ column = null, direction = "desc" } = {}] = sortColumns || [];
         const trimmedColumn = HeadersRow.getTrimmedColumn(column);
         let initialSort;
@@ -225,9 +210,6 @@ export class HeadersRow extends React.PureComponent {
             var itemField = _.filter(columnDefinitions, function(item){ return item.field == field; });
             if(itemField[0].initial_sort){
                 initialSort=itemField[0].initial_sort;
-            }
-            else {
-                initialSort=HeadersRow.getSortFieldDirection(colDefsFromSchema[field].type);
             }
         }
 

@@ -175,8 +175,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       alignedWidths: memoize(HeadersRow.alignedWidths),
       getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
       getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn),
-      getSortFieldDirection: memoize(HeadersRow.getSortFieldDirection)
+      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
     };
     return _this;
   }
@@ -278,8 +277,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props2 = this.props,
           sortColumns = _this$props2.sortColumns,
           sortBy = _this$props2.sortBy,
-          columnDefinitions = _this$props2.columnDefinitions,
-          colDefsFromSchema = _this$props2.colDefsFromSchema;
+          columnDefinitions = _this$props2.columnDefinitions;
 
       var _ref10 = _slicedToArray(sortColumns || [], 1),
           _ref10$ = _ref10[0];
@@ -300,8 +298,6 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
 
         if (itemField[0].initial_sort) {
           initialSort = itemField[0].initial_sort;
-        } else {
-          initialSort = HeadersRow.getSortFieldDirection(colDefsFromSchema[field].type);
         }
       }
 
@@ -491,24 +487,6 @@ _defineProperty(HeadersRow, "getTrimmedColumn", memoize(function (column) {
   }
 
   return column.substring(0, column.length - 14);
-}));
-
-_defineProperty(HeadersRow, "getSortFieldDirection", memoize(function (fieldType) {
-  switch (fieldType) {
-    case 'string':
-      return 'asc';
-
-    case 'integer':
-      return 'desc';
-
-    case 'number':
-      return 'desc';
-
-    case 'date':
-      return 'desc';
-  }
-
-  return null;
 }));
 
 var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {

@@ -3,9 +3,8 @@
 import React from 'react';
 import memoize from 'memoize-one';
 import { isSelectAction } from './../../util/misc';
-import { getAbstractTypeForType, getSchemaTypeFromSearchContext, flattenSchemaPropertyToColumnDefinition } from './../../util/schema-transforms';
+import { getAbstractTypeForType, getSchemaTypeFromSearchContext } from './../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
-import { tipsFromSchema } from './../../util/object';
 import { AboveSearchViewTableControls } from './above-table-controls/AboveSearchViewTableControls';
 import { SearchResultTable } from './SearchResultTable';
 import { FacetList, FacetListHeader } from './FacetList';
@@ -23,9 +22,7 @@ export class ControlsAndResults extends React.PureComponent {
 
         this.memoized = {
             getSchemaTypeFromSearchContext: memoize(getSchemaTypeFromSearchContext),
-            getAbstractTypeForType: memoize(getAbstractTypeForType),
-            flattenSchemaPropertyToColumnDefinition : memoize(flattenSchemaPropertyToColumnDefinition),
-            tipsFromSchema : memoize(tipsFromSchema)
+            getAbstractTypeForType: memoize(getAbstractTypeForType)
         };
 
         this.searchResultTableRef = React.createRef();
@@ -96,14 +93,12 @@ export class ControlsAndResults extends React.PureComponent {
         const searchItemType = this.memoized.getSchemaTypeFromSearchContext(context || {});
         const searchAbstractItemType = this.memoized.getAbstractTypeForType(searchItemType, schemas);
 
-        const colDefsFromSchema =this.memoized.flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
         const searchResultTableProps = {
             context, href, requestedCompoundFilterSet, navigate, currentAction, schemas, results,
             columnDefinitions, visibleColumnDefinitions,
             setColumnWidths, columnWidths, detailPane,
             isOwnPage, sortBy, sortColumns, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, targetTabKey,
-            colDefsFromSchema,
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
         };
 
