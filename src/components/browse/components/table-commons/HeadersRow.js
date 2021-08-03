@@ -7,7 +7,6 @@ import { getColumnWidthFromDefinition } from './ColumnCombiner';
 import { WindowEventDelegator } from './../../../util/WindowEventDelegator';
 import { findParentElement } from './../../../util/layout';
 import { requestAnimationFrame as raf } from './../../../viz/utilities';
-import { console, object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
 /**
  * Assumes that is rendered by SearchResultTable and that a SortController instance
