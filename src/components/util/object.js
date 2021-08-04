@@ -97,8 +97,12 @@ export function listToObj(listOfStrings){
  */
 export function tipsFromSchema(schemas, content){
     if (content['@type'] && Array.isArray(content['@type']) && content['@type'].length > 0){
-        var type = content['@type'][0];
-        return tipsFromSchemaByType(schemas, content['@type'][0]);
+        let type = content['@type'][0];
+        const searchViewTypeMatch = type.match(/^(\w+)(SearchResults)$/);
+        if(searchViewTypeMatch && schemas[searchViewTypeMatch[1]]){
+            type = schemas[searchViewTypeMatch[1]];
+        }
+        return tipsFromSchemaByType(schemas, type);
     }
     return {};
 }
@@ -110,10 +114,8 @@ export function tipsFromSchema(schemas, content){
 export function tipsFromSchemaByType(schemas, itemType='ExperimentSet'){
     var tips = {};
     if(itemType && typeof schemas === 'object' && schemas !== null){
-
-        const searchViewTypeMatch = itemType.match(/^(\w+)(SearchResults)$/);
-        if (schemas[searchViewTypeMatch[1]]){
-            tips = schemas[searchViewTypeMatch[1]].properties;
+        if (schemas[itemType]){
+            tips = schemas[itemType].properties;
         }
     }
     return tips;
