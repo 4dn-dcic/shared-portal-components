@@ -85,10 +85,10 @@ export class ResultRowColumnBlockValue extends React.Component {
     shouldComponentUpdate(nextProps, nextState){
         const { columnDefinition, schemas, result, className } = this.props;
         if (
-            nextProps.columnNumber === 0 || // Update title column more frequently.
+            nextProps.columnNumber === 0 || // Update title column more frequently as it has expansion controls, checkboxes, etc.
             nextProps.columnDefinition.field !== columnDefinition.field ||
             nextProps.schemas !== schemas ||
-            itemUtil.atId(nextProps.result) !== itemUtil.atId(result) ||
+            (nextProps.result !== result && itemUtil.atId(nextProps.result) !== itemUtil.atId(result)) ||
             nextProps.className !== className ||
             (typeof nextProps.shouldComponentUpdateExt === 'function' && nextProps.shouldComponentUpdateExt(nextProps, nextState, this.props, this.state))
         ){
