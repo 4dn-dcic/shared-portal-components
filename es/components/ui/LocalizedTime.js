@@ -27,6 +27,13 @@ import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import moment from 'moment';
 import { isServerSide } from './../util/misc';
+/**
+ * @deprecated
+ * This is deprecated and should be used lightly.
+ * We should consider alternatives.
+ * @see https://momentjs.com/docs/#/-project-status/
+ */
+
 export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
   _inherits(LocalizedTime, _React$Component);
 
@@ -120,9 +127,8 @@ export function preset() {
         return "YYYY-MM-DD";
 
       case 'date-xs':
-        // TODO: LOCALIZE
-        // 11/03/2016
-        return "MM/DD/YYYY";
+        // 11/03/2016 (for USA, localized for other places)
+        return "L";
 
       case 'date-sm':
         // Nov 3rd, 2016
