@@ -205,17 +205,14 @@ export class HeadersRow extends React.PureComponent {
         let initialSort;
         let sortDirection;
 
-        if(columnDefinitions) {
-            var itemField = _.filter(columnDefinitions, function(item){ return item.field == field; });
-            if(itemField[0].initial_sort){
-                initialSort=itemField[0].initial_sort;
-            }
+        if (columnDefinitions) {
+            const itemField = _.filter(columnDefinitions, function (item) { return item.field == field; });
+            initialSort = itemField && itemField[0] && itemField[0].initial_sort;
         }
 
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
 
         if (initialSort && !isActive) { sortDirection = initialSort; }
-        else if(initialSort && !isActive){ }
         else {
             const beDescending = !isActive || (isActive && direction !== "desc");
             sortDirection = beDescending ? "desc" : "asc";

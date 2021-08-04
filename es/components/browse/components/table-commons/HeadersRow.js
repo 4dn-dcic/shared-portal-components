@@ -295,16 +295,14 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           return item.field == field;
         });
 
-        if (itemField[0].initial_sort) {
-          initialSort = itemField[0].initial_sort;
-        }
+        initialSort = itemField && itemField[0] && itemField[0].initial_sort;
       }
 
       var isActive = column === field || trimmedColumn && trimmedColumn === field;
 
       if (initialSort && !isActive) {
         sortDirection = initialSort;
-      } else if (!(initialSort && !isActive)) {
+      } else {
         sortDirection = !isActive || isActive && direction !== "desc" ? "desc" : "asc";
       }
 
