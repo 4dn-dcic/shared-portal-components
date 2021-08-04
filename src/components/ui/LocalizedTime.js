@@ -6,7 +6,12 @@ import memoize from 'memoize-one';
 import moment from 'moment';
 import { isServerSide } from './../util/misc';
 
-
+/**
+ * @deprecated
+ * This is deprecated and should be used lightly.
+ * We should consider alternatives.
+ * @see https://momentjs.com/docs/#/-project-status/
+ */
 export class LocalizedTime extends React.Component {
 
     constructor(props){
@@ -84,9 +89,8 @@ export function preset(formatType = 'date-md', dateTimeSeparator = " "){
             case 'date-file':
                 return "YYYY-MM-DD";
             case 'date-xs':
-                // TODO: LOCALIZE
-                // 11/03/2016
-                return "MM/DD/YYYY";
+                // 11/03/2016 (for USA, localized for other places)
+                return "L";
             case 'date-sm':
                 // Nov 3rd, 2016
                 return "MMM Do, YYYY";
