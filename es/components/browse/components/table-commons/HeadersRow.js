@@ -288,7 +288,6 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           direction = _ref10$$direction === void 0 ? "desc" : _ref10$$direction;
       var trimmedColumn = HeadersRow.getTrimmedColumn(column);
       var initialSort;
-      var sortDirection;
 
       if (columnDefinitions) {
         var itemField = _.filter(columnDefinitions, function (item) {
@@ -299,6 +298,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var isActive = column === field || trimmedColumn && trimmedColumn === field;
+      var sortDirection;
 
       if (initialSort && !isActive) {
         sortDirection = initialSort;

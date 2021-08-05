@@ -199,12 +199,12 @@ export class HeadersRow extends React.PureComponent {
      * before calling `props.sortByFxn`.
      */
     sortByField(field){
-        const { sortColumns, sortBy, columnDefinitions  } = this.props;
+        const { sortColumns, sortBy, columnDefinitions } = this.props;
         const [{ column = null, direction = "desc" } = {}] = sortColumns || [];
-        const trimmedColumn = HeadersRow.getTrimmedColumn(column);
-        let initialSort;
-        let sortDirection;
 
+        const trimmedColumn = HeadersRow.getTrimmedColumn(column);
+
+        let initialSort;
         if (columnDefinitions) {
             const itemField = _.filter(columnDefinitions, function (item) { return item.field == field; });
             initialSort = itemField && itemField[0] && itemField[0].initial_sort;
@@ -212,13 +212,15 @@ export class HeadersRow extends React.PureComponent {
 
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
 
-        if (initialSort && !isActive) { sortDirection = initialSort; }
-        else {
+        let sortDirection;
+        if (initialSort && !isActive) {
+            sortDirection = initialSort;
+        } else {
             const beDescending = !isActive || (isActive && direction !== "desc");
             sortDirection = beDescending ? "desc" : "asc";
         }
 
-        this.setState({ "loadingField": field, "showingSortFieldsForColumn" : null }, function(){
+        this.setState({ "loadingField": field, "showingSortFieldsForColumn": null }, function () {
             sortBy([{ column: field, direction: sortDirection }]);
         });
     }
