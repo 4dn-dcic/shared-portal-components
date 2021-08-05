@@ -300,7 +300,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var isActive = column === field || trimmedColumn && trimmedColumn === field;
       var sortDirection;
 
-      if (initialSort && !isActive) {
+      if (!isActive && initialSort) {
         sortDirection = initialSort;
       } else {
         sortDirection = !isActive || isActive && direction !== "desc" ? "desc" : "asc";

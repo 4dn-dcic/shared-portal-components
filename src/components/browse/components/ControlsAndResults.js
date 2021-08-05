@@ -5,6 +5,7 @@ import memoize from 'memoize-one';
 import { isSelectAction } from './../../util/misc';
 import { getAbstractTypeForType, getSchemaTypeFromSearchContext } from './../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../util/patched-console';
+
 import { AboveSearchViewTableControls } from './above-table-controls/AboveSearchViewTableControls';
 import { SearchResultTable } from './SearchResultTable';
 import { FacetList, FacetListHeader } from './FacetList';

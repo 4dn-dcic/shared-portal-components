@@ -61,7 +61,7 @@ export class ColumnCombiner extends React.PureComponent {
         "columnExtensionMap": basicColumnExtensionMap
     };
 
-    static getSortFieldDirection (fieldType){
+    static getSortDirectionBySchemaFieldType(fieldType) {
         switch (fieldType) {
             case 'string':
                 return 'asc';
@@ -183,7 +183,7 @@ export function columnsToColumnDefinitions(columns, columnDefinitionMap, colDefs
 
         if (!colDef.initial_sort){
             if ((colDefsFromSchema && colDefsFromSchema[colDef.field])) {
-                const initialSort = ColumnCombiner.getSortFieldDirection(colDefsFromSchema[colDef.field].type);
+                const initialSort = ColumnCombiner.getSortDirectionBySchemaFieldType(colDefsFromSchema[colDef.field].type);
                 colDef.initial_sort = initialSort;
             }
         }

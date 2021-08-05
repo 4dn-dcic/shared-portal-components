@@ -110,8 +110,8 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
       return nextColumns;
     }
   }, {
-    key: "getSortFieldDirection",
-    value: function getSortFieldDirection(fieldType) {
+    key: "getSortDirectionBySchemaFieldType",
+    value: function getSortDirectionBySchemaFieldType(fieldType) {
       switch (fieldType) {
         case 'string':
           return 'asc';
@@ -280,7 +280,7 @@ export function columnsToColumnDefinitions(columns, columnDefinitionMap, colDefs
 
     if (!colDef.initial_sort) {
       if (colDefsFromSchema && colDefsFromSchema[colDef.field]) {
-        var initialSort = ColumnCombiner.getSortFieldDirection(colDefsFromSchema[colDef.field].type);
+        var initialSort = ColumnCombiner.getSortDirectionBySchemaFieldType(colDefsFromSchema[colDef.field].type);
         colDef.initial_sort = initialSort;
       }
     }

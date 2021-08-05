@@ -213,7 +213,7 @@ export class HeadersRow extends React.PureComponent {
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
 
         let sortDirection;
-        if (initialSort && !isActive) {
+        if (!isActive && initialSort) {
             sortDirection = initialSort;
         } else {
             const beDescending = !isActive || (isActive && direction !== "desc");
