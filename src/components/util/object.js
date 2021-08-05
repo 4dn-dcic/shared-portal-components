@@ -100,7 +100,7 @@ export function tipsFromSchema(schemas, content){
         let type = content['@type'][0];
         const searchViewTypeMatch = type.match(/^(\w+)(SearchResults)$/);
         if(searchViewTypeMatch && schemas[searchViewTypeMatch[1]]){
-            type = schemas[searchViewTypeMatch[1]];
+            type = searchViewTypeMatch[1];
         }
         return tipsFromSchemaByType(schemas, type);
     }

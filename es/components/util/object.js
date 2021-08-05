@@ -166,7 +166,7 @@ export function tipsFromSchema(schemas, content) {
     var searchViewTypeMatch = type.match(/^(\w+)(SearchResults)$/);
 
     if (searchViewTypeMatch && schemas[searchViewTypeMatch[1]]) {
-      type = schemas[searchViewTypeMatch[1]];
+      type = searchViewTypeMatch[1];
     }
 
     return tipsFromSchemaByType(schemas, type);
