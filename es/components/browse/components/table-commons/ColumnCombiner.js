@@ -50,9 +50,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import { basicColumnExtensionMap, DEFAULT_WIDTH_MAP } from './basicColumnExtensionMap';
 import { responsiveGridState } from './../../../util/layout';
-import { isServerSide } from './../../../util/misc';
-import { flattenSchemaPropertyToColumnDefinition } from './../../../util/schema-transforms';
-import { tipsFromSchema } from './../../../util/object'; // eslint-disable-next-line no-unused-vars
+import { isServerSide } from './../../../util/misc'; // eslint-disable-next-line no-unused-vars
 
 import { Item, ColumnDefinition } from './../../../util/typedefs';
 /**
@@ -83,10 +81,10 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
      * @param {Object<string,{ colTitle: JSX.Element|string, render: function(Item, ...): JSX.Element, widthMap: { sm: number, md: number, lg: number } }} columnExtensionMap - Column definitions/extensions from front-end code.
      * @returns {{ title: string, field: string, render: function, widthMap: { sm: number, md: number, lg: number } }[]} Final form of columns to display
      */
-    value: function getDefinitions(columns, columnExtensionMap, colDefsFromSchema) {
+    value: function getDefinitions(columns, columnExtensionMap) {
       // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
       // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
-      return columnsToColumnDefinitions(columns, columnExtensionMap, colDefsFromSchema);
+      return columnsToColumnDefinitions(columns, columnExtensionMap);
     }
     /**
      * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
@@ -108,25 +106,6 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
         nextColumns[key] = columns[key];
       });
       return nextColumns;
-    }
-  }, {
-    key: "getSortDirectionBySchemaFieldType",
-    value: function getSortDirectionBySchemaFieldType(fieldType) {
-      switch (fieldType) {
-        case 'string':
-          return 'asc';
-
-        case 'integer':
-          return 'desc';
-
-        case 'number':
-          return 'desc';
-
-        case 'date':
-          return 'desc';
-      }
-
-      return null;
     }
   }]);
 
@@ -181,9 +160,7 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
 
         return !_this.memoized.haveContextColumnsChanged(prevColumns, nextColumns);
       }),
-      filteredColumns: memoize(ColumnCombiner.filteredColumns),
-      flattenSchemaPropertyToColumnDefinition: memoize(flattenSchemaPropertyToColumnDefinition),
-      tipsFromSchema: memoize(tipsFromSchema)
+      filteredColumns: memoize(ColumnCombiner.filteredColumns)
     };
     return _this;
   }
@@ -198,19 +175,11 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
           columnExtensionMap = _this$props.columnExtensionMap,
           _this$props$filterCol = _this$props.filterColumnFxn,
           filterColumnFxn = _this$props$filterCol === void 0 ? null : _this$props$filterCol,
-          schemas = _this$props.schemas,
-          passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap", "filterColumnFxn", "schemas"]);
+          passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap", "filterColumnFxn"]);
 
       var _passProps$context = passProps.context;
       _passProps$context = _passProps$context === void 0 ? {} : _passProps$context;
-      var contextColumns = _passProps$context.columns,
-          context = passProps.context;
-      var colDefsFromSchema;
-
-      if (schemas) {
-        colDefsFromSchema = this.memoized.flattenSchemaPropertyToColumnDefinition(schemas ? tipsFromSchema(schemas, context) : {}, 0, schemas);
-      }
-
+      var contextColumns = _passProps$context.columns;
       var columns = this.memoized.filteredColumns(overridePropColumns || contextColumns || {}, filterColumnFxn);
 
       if (columns.length === 0) {
@@ -219,7 +188,7 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         /** Final form of all columns to show in table */
-        columnDefinitions: ColumnCombiner.getDefinitions(columns, columnExtensionMap, colDefsFromSchema),
+        columnDefinitions: ColumnCombiner.getDefinitions(columns, columnExtensionMap),
 
         /**
          * Initial column keys/fields from `columnDefinitions` to be hidden from table.
@@ -252,8 +221,8 @@ _defineProperty(ColumnCombiner, "defaultProps", {
   "columnExtensionMap": basicColumnExtensionMap
 });
 
-export function columnsToColumnDefinitions(columns, columnDefinitionMap, colDefsFromSchema) {
-  var defaultWidthMap = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : DEFAULT_WIDTH_MAP;
+export function columnsToColumnDefinitions(columns, columnDefinitionMap) {
+  var defaultWidthMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_WIDTH_MAP;
 
   var uninishedColumnDefinitions = _.pairs(columns).map(function (_ref5) {
     var _ref6 = _slicedToArray(_ref5, 2),
@@ -277,14 +246,6 @@ export function columnsToColumnDefinitions(columns, columnDefinitionMap, colDefs
     colDef.widthMap = colDef.widthMap || defaultWidthMap;
     colDef.render = colDef.render || null;
     colDef.order = typeof colDef.order === 'number' ? colDef.order : i;
-
-    if (!colDef.initial_sort) {
-      if (colDefsFromSchema && colDefsFromSchema[colDef.field]) {
-        var initialSort = ColumnCombiner.getSortDirectionBySchemaFieldType(colDefsFromSchema[colDef.field].type);
-        colDef.initial_sort = initialSort;
-      }
-    }
-
     return colDef;
   });
 

@@ -149,6 +149,25 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
      * linkTo fields are appended by .display_title by backend so we trim it to find a match
      */
 
+  }, {
+    key: "getSortDirectionBySchemaFieldType",
+    value: function getSortDirectionBySchemaFieldType(fieldType) {
+      switch (fieldType) {
+        case 'string':
+          return 'asc';
+
+        case 'integer':
+          return 'desc';
+
+        case 'number':
+          return 'desc';
+
+        case 'date':
+          return 'desc';
+      }
+
+      return null;
+    }
   }]);
 
   function HeadersRow(props) {
@@ -174,7 +193,8 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       alignedWidths: memoize(HeadersRow.alignedWidths),
       getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
       getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
+      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn),
+      getSortDirectionBySchemaFieldType: memoize(HeadersRow.getSortDirectionBySchemaFieldType)
     };
     return _this;
   }
@@ -294,7 +314,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           return item.field == field;
         });
 
-        initialSort = itemField && itemField[0] && itemField[0].initial_sort;
+        if (itemField && itemField[0]) {
+          initialSort = itemField[0].initial_sort || this.memoized.getSortDirectionBySchemaFieldType(itemField[0].type);
+        }
       }
 
       var isActive = column === field || trimmedColumn && trimmedColumn === field;

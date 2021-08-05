@@ -106,7 +106,7 @@ export class SearchView extends React.PureComponent {
 
         let controllersAndView = (
             <WindowNavigationController {...{ href, context, showClearFiltersButton }} navigate={propNavigate}>
-                <ColumnCombiner {...{ columns, columnExtensionMap, schemas }}>
+                <ColumnCombiner {...{ columns, columnExtensionMap }}>
                     <CustomColumnController>
                         <SortController>
                             <ControlsAndResults {...childViewProps} />

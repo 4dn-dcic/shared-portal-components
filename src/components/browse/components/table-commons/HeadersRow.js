@@ -120,6 +120,20 @@ export class HeadersRow extends React.PureComponent {
         return column.substring(0, column.length - 14);
     });
 
+    static getSortDirectionBySchemaFieldType(fieldType) {
+        switch (fieldType) {
+            case 'string':
+                return 'asc';
+            case 'integer':
+                return 'desc';
+            case 'number':
+                return 'desc';
+            case 'date':
+                return 'desc';
+        }
+        return null;
+    }
+
     constructor(props){
         super(props);
         this.onWindowClick = this.onWindowClick.bind(this);
@@ -136,7 +150,8 @@ export class HeadersRow extends React.PureComponent {
             alignedWidths: memoize(HeadersRow.alignedWidths),
             getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
             getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
+            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn),
+            getSortDirectionBySchemaFieldType: memoize(HeadersRow.getSortDirectionBySchemaFieldType)
         };
     }
 
@@ -207,7 +222,9 @@ export class HeadersRow extends React.PureComponent {
         let initialSort;
         if (columnDefinitions) {
             const itemField = _.filter(columnDefinitions, function (item) { return item.field == field; });
-            initialSort = itemField && itemField[0] && itemField[0].initial_sort;
+            if (itemField && itemField[0]) {
+                initialSort = itemField[0].initial_sort || this.memoized.getSortDirectionBySchemaFieldType(itemField[0].type);
+            }
         }
 
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
