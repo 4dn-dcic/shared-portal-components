@@ -310,12 +310,14 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
       var initialSort;
 
       if (columnDefinitions) {
-        var itemField = _.filter(columnDefinitions, function (item) {
+        var _$filter = _.filter(columnDefinitions, function (item) {
           return item.field == field;
-        });
+        }),
+            _$filter2 = _slicedToArray(_$filter, 1),
+            colDef = _$filter2[0];
 
-        if (itemField && itemField[0]) {
-          initialSort = itemField[0].initial_sort || this.memoized.getSortDirectionBySchemaFieldType(itemField[0].type);
+        if (colDef) {
+          initialSort = colDef.initial_sort || this.memoized.getSortDirectionBySchemaFieldType(colDef.type);
         }
       }
 
