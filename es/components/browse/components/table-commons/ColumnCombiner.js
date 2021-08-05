@@ -188,7 +188,7 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
 
       var propsToPass = _objectSpread(_objectSpread({}, passProps), {}, {
         /** Final form of all columns to show in table */
-        columnDefinitions: ColumnCombiner.getDefinitions(columns, columnExtensionMap),
+        columnDefinitions: this.memoized.getDefinitions(columns, columnExtensionMap),
 
         /**
          * Initial column keys/fields from `columnDefinitions` to be hidden from table.

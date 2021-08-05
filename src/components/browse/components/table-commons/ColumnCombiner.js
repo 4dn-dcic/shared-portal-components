@@ -98,7 +98,6 @@ export class ColumnCombiner extends React.PureComponent {
                 }
             ),
             filteredColumns: memoize(ColumnCombiner.filteredColumns)
-
         };
     }
 
@@ -120,7 +119,7 @@ export class ColumnCombiner extends React.PureComponent {
         const propsToPass = {
             ...passProps,
             /** Final form of all columns to show in table */
-            columnDefinitions: ColumnCombiner.getDefinitions(columns, columnExtensionMap),
+            columnDefinitions: this.memoized.getDefinitions(columns, columnExtensionMap),
             /**
              * Initial column keys/fields from `columnDefinitions` to be hidden from table.
              * Change of this prop value causes reset of hidden columns state.
