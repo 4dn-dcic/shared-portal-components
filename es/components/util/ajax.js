@@ -49,6 +49,7 @@ import { Alerts } from './../ui/Alerts';
 import _ from 'underscore';
 import * as JWT from './json-web-token';
 import { patchedConsoleInstance as console } from './patched-console';
+import { exception as analyticsException } from './analytics';
 export var AJAXSettings = Object.freeze(function () {
   // Returned from anonymous function since server-side rendering can re-use global state.
   // Also a singleton class b.c. might as well.
@@ -402,7 +403,8 @@ export var FetchedItem = /*#__PURE__*/function (_React$Component) {
     _this3.fetchItem = _this3.fetchItem.bind(_assertThisInitialized(_this3));
     _this3.state = {
       "fetchedItem": null,
-      "isFetchingItem": !!props.atId
+      "isFetchingItem": !!props.atId,
+      "fetchedItemError": null
     };
     return _this3;
   }
@@ -427,6 +429,8 @@ export var FetchedItem = /*#__PURE__*/function (_React$Component) {
     value: function fetchItem() {
       var _this4 = this;
 
+      var propOnFail = this.props.onFail;
+
       var onSuccess = function (res) {
         _this4.setState({
           "fetchedItem": res,
@@ -435,13 +439,22 @@ export var FetchedItem = /*#__PURE__*/function (_React$Component) {
       };
 
       var onFail = function (res) {
-        console.log("CONNECTION ERROR", res);
-        Alerts.queue(Alerts.ConnectionError);
-        onSuccess(null);
+        if (typeof propOnFail === "function") {
+          propOnFail(res);
+        }
+
+        console.error("FetchedItem - CONNECTION ERROR", err);
+        analyticsException("ajax.FetchedItem - failed; " + (res && res.code || "unknown"));
+
+        _this4.setState({
+          "fetchedItem": null,
+          "isFetchingItem": false,
+          "error": res
+        });
       };
 
       this.setState({
-        isFetchingItem: true
+        "isFetchingItem": true
       }, function () {
         var atId = _this4.props.atId;
         load(atId, onSuccess, "GET", onFail);
@@ -460,9 +473,15 @@ export var FetchedItem = /*#__PURE__*/function (_React$Component) {
 
       var _this$state = this.state,
           fetchedItem = _this$state.fetchedItem,
-          isFetchingItem = _this$state.isFetchingItem;
+          isFetchingItem = _this$state.isFetchingItem,
+          fetchedItemError = _this$state.fetchedItemError;
 
       var passProps = _objectSpread(_objectSpread({}, remainingProps), {}, (_objectSpread2 = {}, _defineProperty(_objectSpread2, fetchedItemPropName, fetchedItem), _defineProperty(_objectSpread2, isFetchingItemPropName, isFetchingItem), _objectSpread2));
+
+      if (fetchedItemError) {
+        delete passProps[isFetchingItemPropName];
+        passProps[isFetchingItemPropName + "Error"] = fetchedItemError;
+      }
 
       return React.Children.map(children, function (child) {
         if (! /*#__PURE__*/React.isValidElement(child)) {
@@ -491,7 +510,10 @@ export var FetchedItem = /*#__PURE__*/function (_React$Component) {
 
 _defineProperty(FetchedItem, "defaultProps", {
   "fetchedItemPropName": "fetchedItem",
-  "isFetchingItemPropName": "isFetchingItem"
+  "isFetchingItemPropName": "isFetchingItem",
+  "onFail": function onFail() {
+    Alerts.queue(Alerts.ConnectionError);
+  }
 });
 
 export function postMultipartFormData() {

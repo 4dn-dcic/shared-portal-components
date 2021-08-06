@@ -263,7 +263,7 @@ Alerts.propTypes = {
   'alerts': PropTypes.arrayOf(PropTypes.shape({
     'title': PropTypes.string.isRequired,
     'message': PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,
-    'style': PropTypes.string,
+    'style': PropTypes.oneOf(["warning", "danger", "success", "info", "primary", "secondary", "light", "dark"]),
     'navigationDissappearThreshold': PropTypes.number
   }))
 };
