@@ -5,6 +5,7 @@ import { Alerts } from './../ui/Alerts';
 import _ from 'underscore';
 import * as JWT from './json-web-token';
 import { patchedConsoleInstance as console } from './patched-console';
+import { exception as analyticsException } from './analytics';
 
 
 
@@ -295,7 +296,10 @@ export class FetchedItem extends React.Component {
 
     static defaultProps = {
         "fetchedItemPropName": "fetchedItem",
-        "isFetchingItemPropName": "isFetchingItem"
+        "isFetchingItemPropName": "isFetchingItem",
+        "onFail": function (err) {
+            Alerts.queue(Alerts.ConnectionError);
+        }
     };
 
     constructor(props){
@@ -303,7 +307,8 @@ export class FetchedItem extends React.Component {
         this.fetchItem = this.fetchItem.bind(this);
         this.state = {
             "fetchedItem": null,
-            "isFetchingItem": !!(props.atId)
+            "isFetchingItem": !!(props.atId),
+            "fetchedItemError": null
         };
     }
 
@@ -319,20 +324,29 @@ export class FetchedItem extends React.Component {
     }
 
     fetchItem(){
+        const { onFail: propOnFail } = this.props;
+
         const onSuccess = (res) => {
             this.setState({
-                "fetchedItem" : res,
-                "isFetchingItem" : false
+                "fetchedItem": res,
+                "isFetchingItem": false
             });
         };
 
         const onFail = (res) => {
-            console.log("CONNECTION ERROR", res);
-            Alerts.queue(Alerts.ConnectionError);
-            onSuccess(null);
+            if (typeof propOnFail === "function") {
+                propOnFail(res);
+            }
+            console.error("FetchedItem - CONNECTION ERROR", err);
+            analyticsException("ajax.FetchedItem - failed; " + (res && res.code || "unknown"));
+            this.setState({
+                "fetchedItem": null,
+                "isFetchingItem": false,
+                "error": res
+            });
         };
 
-        this.setState({ isFetchingItem: true }, () => {
+        this.setState({ "isFetchingItem": true }, () => {
             const { atId } = this.props;
             load(atId, onSuccess, "GET", onFail);
         });
@@ -340,12 +354,16 @@ export class FetchedItem extends React.Component {
 
     render(){
         const { children, fetchedItemPropName, isFetchingItemPropName, ...remainingProps } = this.props;
-        const { fetchedItem, isFetchingItem } = this.state;
+        const { fetchedItem, isFetchingItem, fetchedItemError } = this.state;
         const passProps = {
             ...remainingProps,
             [fetchedItemPropName]: fetchedItem,
             [isFetchingItemPropName]: isFetchingItem
         };
+        if (fetchedItemError) {
+            delete passProps[isFetchingItemPropName];
+            passProps[isFetchingItemPropName + "Error"] = fetchedItemError;
+        }
         return React.Children.map(children, function(child){
             if (!React.isValidElement(child)) {
                 return child;
