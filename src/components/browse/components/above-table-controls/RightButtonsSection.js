@@ -8,12 +8,12 @@ import { SearchResultTable } from './../SearchResultTable';
 
 
 export const RightButtonsSection = React.memo(function RightButtonsSection(props){
-    const { currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen } = props;
+    const { currentOpenPanel, onColumnsBtnClick, onMultiColumnSortBtnClick, windowWidth, isFullscreen, toggleFullScreen, showMultiColumnSort = true } = props;
     const showToggleLayoutBtn = (typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function');
     return (
         <div className="right-buttons col-auto">
             <ConfigureVisibleColumnsButton onClick={onColumnsBtnClick} open={currentOpenPanel === "customColumns"} />
-            <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} />
+            { showMultiColumnSort ? <MultiColumnSortButton onClick={onMultiColumnSortBtnClick} open={currentOpenPanel === "multiColumnSort"} /> : null}
             { showToggleLayoutBtn ? <ToggleLayoutButton {...{ windowWidth, isFullscreen, toggleFullScreen }} /> : null }
         </div>
     );

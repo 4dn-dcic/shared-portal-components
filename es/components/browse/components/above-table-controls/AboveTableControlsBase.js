@@ -219,7 +219,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
         className: "above-results-table-row"
       }, /*#__PURE__*/React.createElement("div", {
         className: "row align-items-center"
-      }, extendedChildren, /*#__PURE__*/React.createElement(RightButtonsSection, _extends({}, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen'), {
+      }, extendedChildren, /*#__PURE__*/React.createElement(RightButtonsSection, _extends({}, _.pick(this.props, 'isFullscreen', 'windowWidth', 'toggleFullScreen', 'showMultiColumnSort'), {
         currentOpenPanel: open || reallyOpen,
         onColumnsBtnClick: this.panelToggleFxns.customColumns,
         onMultiColumnSortBtnClick: this.panelToggleFxns.multiColumnSort
