@@ -217,7 +217,7 @@ export class HeadersRow extends React.PureComponent {
 
         let initialSort;
         if (columnDefinitions) {
-            const [colDef] = _.filter(columnDefinitions, function (item) { return item.field == field; });
+            const colDef = columnDefinitions.find(function (item) { return item.field == field; });
             if (colDef) {
                 initialSort = colDef.initial_sort || this.memoized.getSortDirectionBySchemaFieldType(colDef.type);
             }
