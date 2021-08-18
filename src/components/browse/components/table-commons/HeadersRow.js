@@ -121,17 +121,13 @@ export class HeadersRow extends React.PureComponent {
     });
 
     static getSortDirectionBySchemaFieldType(fieldType) {
-        switch (fieldType) {
-            case 'string':
-                return 'asc';
-            case 'integer':
-                return 'desc';
-            case 'number':
-                return 'desc';
-            case 'date':
-                return 'desc';
-        }
-        return null;
+        const directionsByFieldType = {
+            "string": "asc",
+            "integer": "desc",
+            "number": "desc",
+            "date": "desc",
+        };
+        return directionsByFieldType[fieldType] || null;
     }
 
     constructor(props){
