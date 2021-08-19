@@ -152,21 +152,12 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "getSortDirectionBySchemaFieldType",
     value: function getSortDirectionBySchemaFieldType(fieldType) {
-      switch (fieldType) {
-        case 'string':
-          return 'asc';
-
-        case 'integer':
-          return 'desc';
-
-        case 'number':
-          return 'desc';
-
-        case 'date':
-          return 'desc';
-      }
-
-      return null;
+      return {
+        "string": "asc",
+        "integer": "asc",
+        "number": "desc",
+        "date": "desc"
+      }[fieldType] || null;
     }
   }]);
 
@@ -192,9 +183,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     _this.memoized = {
       alignedWidths: memoize(HeadersRow.alignedWidths),
       getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
-      getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn),
-      getSortDirectionBySchemaFieldType: memoize(HeadersRow.getSortDirectionBySchemaFieldType)
+      getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
     };
     return _this;
   }
@@ -307,21 +296,8 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           _ref10$$direction = _ref10$.direction,
           direction = _ref10$$direction === void 0 ? "desc" : _ref10$$direction;
       var trimmedColumn = HeadersRow.getTrimmedColumn(column);
-      var initialSort;
-
-      if (columnDefinitions) {
-        var _$filter = _.filter(columnDefinitions, function (item) {
-          return item.field == field;
-        }),
-            _$filter2 = _slicedToArray(_$filter, 1),
-            colDef = _$filter2[0];
-
-        if (colDef) {
-          initialSort = colDef.initial_sort || this.memoized.getSortDirectionBySchemaFieldType(colDef.type);
-        }
-      }
-
       var isActive = column === field || trimmedColumn && trimmedColumn === field;
+      var initialSort = HeadersRow.getInitialSort(columnDefinitions, field);
       var sortDirection;
 
       if (!isActive && initialSort) {
@@ -508,6 +484,20 @@ _defineProperty(HeadersRow, "getTrimmedColumn", memoize(function (column) {
   }
 
   return column.substring(0, column.length - 14);
+}));
+
+_defineProperty(HeadersRow, "getInitialSort", memoize(function (columnDefinitions, field) {
+  if (columnDefinitions) {
+    var colDef = columnDefinitions.find(function (item) {
+      return item.field == field;
+    });
+
+    if (colDef) {
+      return colDef.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(colDef.type);
+    }
+  }
+
+  return null;
 }));
 
 var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {

@@ -120,10 +120,20 @@ export class HeadersRow extends React.PureComponent {
         return column.substring(0, column.length - 14);
     });
 
+    static getInitialSort = memoize(function getInitialSort(columnDefinitions, field) {
+        if (columnDefinitions) {
+            const colDef = columnDefinitions.find(function (item) { return item.field == field; });
+            if (colDef) {
+                return colDef.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(colDef.type);
+            }
+        }
+        return null;
+    });
+
     static getSortDirectionBySchemaFieldType(fieldType) {
         const directionsByFieldType = {
             "string": "asc",
-            "integer": "desc",
+            "integer": "asc",
             "number": "desc",
             "date": "desc",
         };
@@ -145,9 +155,7 @@ export class HeadersRow extends React.PureComponent {
         this.memoized = {
             alignedWidths: memoize(HeadersRow.alignedWidths),
             getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
-            getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn),
-            getSortDirectionBySchemaFieldType: memoize(HeadersRow.getSortDirectionBySchemaFieldType)
+            getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
         };
     }
 
@@ -214,16 +222,8 @@ export class HeadersRow extends React.PureComponent {
         const [{ column = null, direction = "desc" } = {}] = sortColumns || [];
 
         const trimmedColumn = HeadersRow.getTrimmedColumn(column);
-
-        let initialSort;
-        if (columnDefinitions) {
-            const colDef = columnDefinitions.find(function (item) { return item.field == field; });
-            if (colDef) {
-                initialSort = colDef.initial_sort || this.memoized.getSortDirectionBySchemaFieldType(colDef.type);
-            }
-        }
-
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
+        const initialSort = HeadersRow.getInitialSort(columnDefinitions, field);
 
         let sortDirection;
         if (!isActive && initialSort) {
