@@ -149,6 +149,16 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
      * linkTo fields are appended by .display_title by backend so we trim it to find a match
      */
 
+  }, {
+    key: "getSortDirectionBySchemaFieldType",
+    value: function getSortDirectionBySchemaFieldType(fieldType) {
+      return {
+        "string": "asc",
+        "integer": "asc",
+        "number": "desc",
+        "date": "desc"
+      }[fieldType] || null;
+    }
   }]);
 
   function HeadersRow(props) {
@@ -173,8 +183,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     _this.memoized = {
       alignedWidths: memoize(HeadersRow.alignedWidths),
       getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
-      getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
+      getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
     };
     return _this;
   }
@@ -275,7 +284,8 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     value: function sortByField(field) {
       var _this$props2 = this.props,
           sortColumns = _this$props2.sortColumns,
-          sortBy = _this$props2.sortBy;
+          sortBy = _this$props2.sortBy,
+          columnDefinitions = _this$props2.columnDefinitions;
 
       var _ref10 = _slicedToArray(sortColumns || [], 1),
           _ref10$ = _ref10[0];
@@ -287,13 +297,22 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           direction = _ref10$$direction === void 0 ? "desc" : _ref10$$direction;
       var trimmedColumn = HeadersRow.getTrimmedColumn(column);
       var isActive = column === field || trimmedColumn && trimmedColumn === field;
+      var initialSort = HeadersRow.getInitialSort(columnDefinitions, field);
+      var sortDirection;
+
+      if (!isActive && initialSort) {
+        sortDirection = initialSort;
+      } else {
+        sortDirection = !isActive || isActive && direction !== "desc" ? "desc" : "asc";
+      }
+
       this.setState({
         "loadingField": field,
         "showingSortFieldsForColumn": null
       }, function () {
         sortBy([{
           column: field,
-          direction: !isActive || isActive && direction !== "desc" ? "desc" : "asc"
+          direction: sortDirection
         }]);
       });
     }
@@ -465,6 +484,20 @@ _defineProperty(HeadersRow, "getTrimmedColumn", memoize(function (column) {
   }
 
   return column.substring(0, column.length - 14);
+}));
+
+_defineProperty(HeadersRow, "getInitialSort", memoize(function (columnDefinitions, field) {
+  if (columnDefinitions) {
+    var colDef = columnDefinitions.find(function (item) {
+      return item.field == field;
+    });
+
+    if (colDef) {
+      return colDef.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(colDef.type);
+    }
+  }
+
+  return null;
 }));
 
 var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {

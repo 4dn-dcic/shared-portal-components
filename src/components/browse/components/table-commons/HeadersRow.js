@@ -120,6 +120,26 @@ export class HeadersRow extends React.PureComponent {
         return column.substring(0, column.length - 14);
     });
 
+    static getInitialSort = memoize(function getInitialSort(columnDefinitions, field) {
+        if (columnDefinitions) {
+            const colDef = columnDefinitions.find(function (item) { return item.field == field; });
+            if (colDef) {
+                return colDef.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(colDef.type);
+            }
+        }
+        return null;
+    });
+
+    static getSortDirectionBySchemaFieldType(fieldType) {
+        const directionsByFieldType = {
+            "string": "asc",
+            "integer": "asc",
+            "number": "desc",
+            "date": "desc",
+        };
+        return directionsByFieldType[fieldType] || null;
+    }
+
     constructor(props){
         super(props);
         this.onWindowClick = this.onWindowClick.bind(this);
@@ -135,8 +155,7 @@ export class HeadersRow extends React.PureComponent {
         this.memoized = {
             alignedWidths: memoize(HeadersRow.alignedWidths),
             getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
-            getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
-            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
+            getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
         };
     }
 
@@ -199,16 +218,23 @@ export class HeadersRow extends React.PureComponent {
      * before calling `props.sortByFxn`.
      */
     sortByField(field){
-        const { sortColumns, sortBy } = this.props;
+        const { sortColumns, sortBy, columnDefinitions } = this.props;
         const [{ column = null, direction = "desc" } = {}] = sortColumns || [];
 
         const trimmedColumn = HeadersRow.getTrimmedColumn(column);
-
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
-        const beDescending = !isActive || (isActive && direction !== "desc");
+        const initialSort = HeadersRow.getInitialSort(columnDefinitions, field);
 
-        this.setState({ "loadingField": field, "showingSortFieldsForColumn" : null }, function(){
-            sortBy([{ column: field, direction: beDescending ? "desc" : "asc" }]);
+        let sortDirection;
+        if (!isActive && initialSort) {
+            sortDirection = initialSort;
+        } else {
+            const beDescending = !isActive || (isActive && direction !== "desc");
+            sortDirection = beDescending ? "desc" : "asc";
+        }
+
+        this.setState({ "loadingField": field, "showingSortFieldsForColumn": null }, function () {
+            sortBy([{ column: field, direction: sortDirection }]);
         });
     }
 

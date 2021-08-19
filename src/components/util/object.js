@@ -97,7 +97,6 @@ export function listToObj(listOfStrings){
  */
 export function tipsFromSchema(schemas, content){
     if (content['@type'] && Array.isArray(content['@type']) && content['@type'].length > 0){
-        var type = content['@type'][0];
         return tipsFromSchemaByType(schemas, content['@type'][0]);
     }
     return {};
