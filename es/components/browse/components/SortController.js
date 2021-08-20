@@ -55,6 +55,7 @@ import queryString from 'querystring';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import { navigate as _navigate } from './../../util/navigate';
+import { flattenColumnsDefinitionsSortFields } from './table-commons';
 export var SortController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SortController, _React$PureComponent);
 
@@ -226,53 +227,6 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
 
       return columns;
     }
-  }, {
-    key: "flattenColumnsDefinitionsSortFields",
-    value: function flattenColumnsDefinitionsSortFields(columnDefinitions) {
-      var allSortFieldsMap = {};
-
-      var allSortFields = _.reduce(columnDefinitions, function (m, colDef) {
-        var sort_fields = colDef.sort_fields,
-            title = colDef.title,
-            field = colDef.field,
-            noSort = colDef.noSort;
-        var hasSubFields = sort_fields && Array.isArray(sort_fields) && sort_fields.length > 0;
-
-        if (hasSubFields) {
-          sort_fields.forEach(function (_ref3, idx) {
-            var subFieldTitle = _ref3.title,
-                subField = _ref3.field;
-            m.push({
-              'title': /*#__PURE__*/React.createElement(React.Fragment, null, title, " \xA0/\xA0 ", subFieldTitle),
-              'field': subField,
-              'parentField': field,
-              'hasSubFields': false,
-              'noSort': noSort,
-              'last': sort_fields.length - 1 === idx
-            });
-          });
-        } else {
-          // Exclude field itself if sub-fields are present, assumed that field itself will be a sub-field option
-          m.push({
-            title: title,
-            field: field,
-            'parentField': field,
-            hasSubFields: hasSubFields,
-            noSort: noSort
-          });
-        }
-
-        return m;
-      }, []);
-
-      allSortFields.forEach(function (sortField) {
-        allSortFieldsMap[sortField.field] = sortField;
-      });
-      return {
-        allSortFields: allSortFields,
-        allSortFieldsMap: allSortFieldsMap
-      };
-    }
   }]);
 
   function MultiColumnSortSelector(props) {
@@ -287,7 +241,7 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
     _this3.handleSettingsApply = _this3.handleSettingsApply.bind(_assertThisInitialized(_this3));
     _this3.memoized = {
       getSortColumnAndOrderPairs: memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs),
-      flattenColumnsDefinitionsSortFields: memoize(MultiColumnSortSelector.flattenColumnsDefinitionsSortFields)
+      flattenColumnsDefinitionsSortFields: memoize(flattenColumnsDefinitionsSortFields)
     };
     var _props$sortColumns = props.sortColumns,
         sortColumns = _props$sortColumns === void 0 ? {} : _props$sortColumns;
@@ -320,8 +274,8 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
   }, {
     key: "handleSortColumnSelection",
     value: function handleSortColumnSelection(eventKey) {
-      this.setState(function (_ref4) {
-        var existingPairs = _ref4.sortingPairs;
+      this.setState(function (_ref3) {
+        var existingPairs = _ref3.sortingPairs;
         var sortingPairs = existingPairs.slice(0);
 
         var _eventKey$split = eventKey.split('|'),
@@ -347,8 +301,8 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
   }, {
     key: "handleSortOrderSelection",
     value: function handleSortOrderSelection(eventKey) {
-      this.setState(function (_ref5) {
-        var existingPairs = _ref5.sortingPairs;
+      this.setState(function (_ref4) {
+        var existingPairs = _ref4.sortingPairs;
         var sortingPairs = existingPairs.slice(0);
 
         var _eventKey$split3 = eventKey.split('|'),
@@ -366,8 +320,8 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
   }, {
     key: "handleSortRowDelete",
     value: function handleSortRowDelete(indexToDelete) {
-      this.setState(function (_ref6) {
-        var existingPairs = _ref6.sortingPairs;
+      this.setState(function (_ref5) {
+        var existingPairs = _ref5.sortingPairs;
         var sortingPairs = existingPairs.slice(0);
         sortingPairs.splice(indexToDelete, 1);
         return {

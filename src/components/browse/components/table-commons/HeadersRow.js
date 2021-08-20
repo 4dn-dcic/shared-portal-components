@@ -122,13 +122,16 @@ export class HeadersRow extends React.PureComponent {
 
     static getInitialSort = memoize(function getInitialSort(columnDefinitions, field) {
         if (columnDefinitions) {
-            const colDef = columnDefinitions.find(function (item) { return item.field == field; });
-            if (colDef) {
-                return colDef.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(colDef.type);
+            const { allSortFields, allSortFieldsMap } = HeadersRow.flattenColumnsDefinitionsSortFields(columnDefinitions);
+            const def = allSortFieldsMap && allSortFieldsMap[field];
+            if (def) {
+                return def.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(def.type);
             }
         }
         return null;
     });
+
+    static flattenColumnsDefinitionsSortFields = memoize(flattenColumnsDefinitionsSortFields);
 
     static getSortDirectionBySchemaFieldType(fieldType) {
         const directionsByFieldType = {
@@ -607,3 +610,34 @@ const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ de
             </React.Fragment>);
     }
 });
+
+export function flattenColumnsDefinitionsSortFields(columnDefinitions) {
+    console.log('xxx flattenColumnsDefinitionsSortFields');
+    const allSortFieldsMap = {};
+    const allSortFields = _.reduce(columnDefinitions, function (m, colDef) {
+        const { sort_fields, title, field, noSort, initial_sort, type } = colDef;
+        const hasSubFields = sort_fields && Array.isArray(sort_fields) && sort_fields.length > 0;
+        if (hasSubFields) {
+            sort_fields.forEach(function ({ title: subFieldTitle, field: subField, initial_sort: subInitialSort, type: subType }, idx) {
+                m.push({
+                    'title': <React.Fragment>{ title } &nbsp;/&nbsp; { subFieldTitle }</React.Fragment>,
+                    'field': subField,
+                    'parentField': field,
+                    'hasSubFields': false,
+                    'noSort': noSort,
+                    'initial_sort': subInitialSort,
+                    'type': subType,
+                    'last': sort_fields.length - 1 === idx
+                });
+            });
+        } else {
+            // Exclude field itself if sub-fields are present, assumed that field itself will be a sub-field option
+            m.push({ title, field, 'parentField': field, hasSubFields, noSort, initial_sort, type });
+        }
+        return m;
+    }, []);
+    allSortFields.forEach(function(sortField){
+        allSortFieldsMap[sortField.field] = sortField;
+    });
+    return { allSortFields, allSortFieldsMap };
+}

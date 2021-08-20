@@ -488,17 +488,21 @@ _defineProperty(HeadersRow, "getTrimmedColumn", memoize(function (column) {
 
 _defineProperty(HeadersRow, "getInitialSort", memoize(function (columnDefinitions, field) {
   if (columnDefinitions) {
-    var colDef = columnDefinitions.find(function (item) {
-      return item.field == field;
-    });
+    var _HeadersRow$flattenCo = HeadersRow.flattenColumnsDefinitionsSortFields(columnDefinitions),
+        allSortFields = _HeadersRow$flattenCo.allSortFields,
+        allSortFieldsMap = _HeadersRow$flattenCo.allSortFieldsMap;
 
-    if (colDef) {
-      return colDef.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(colDef.type);
+    var def = allSortFieldsMap && allSortFieldsMap[field];
+
+    if (def) {
+      return def.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(def.type);
     }
   }
 
   return null;
 }));
+
+_defineProperty(HeadersRow, "flattenColumnsDefinitionsSortFields", memoize(flattenColumnsDefinitionsSortFields));
 
 var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(HeadersRowColumn, _React$PureComponent2);
@@ -880,3 +884,57 @@ var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref17) {
     }), sequence);
   }
 });
+export function flattenColumnsDefinitionsSortFields(columnDefinitions) {
+  console.log('xxx flattenColumnsDefinitionsSortFields');
+  var allSortFieldsMap = {};
+
+  var allSortFields = _.reduce(columnDefinitions, function (m, colDef) {
+    var sort_fields = colDef.sort_fields,
+        title = colDef.title,
+        field = colDef.field,
+        noSort = colDef.noSort,
+        initial_sort = colDef.initial_sort,
+        type = colDef.type;
+    var hasSubFields = sort_fields && Array.isArray(sort_fields) && sort_fields.length > 0;
+
+    if (hasSubFields) {
+      sort_fields.forEach(function (_ref18, idx) {
+        var subFieldTitle = _ref18.title,
+            subField = _ref18.field,
+            subInitialSort = _ref18.initial_sort,
+            subType = _ref18.type;
+        m.push({
+          'title': /*#__PURE__*/React.createElement(React.Fragment, null, title, " \xA0/\xA0 ", subFieldTitle),
+          'field': subField,
+          'parentField': field,
+          'hasSubFields': false,
+          'noSort': noSort,
+          'initial_sort': subInitialSort,
+          'type': subType,
+          'last': sort_fields.length - 1 === idx
+        });
+      });
+    } else {
+      // Exclude field itself if sub-fields are present, assumed that field itself will be a sub-field option
+      m.push({
+        title: title,
+        field: field,
+        'parentField': field,
+        hasSubFields: hasSubFields,
+        noSort: noSort,
+        initial_sort: initial_sort,
+        type: type
+      });
+    }
+
+    return m;
+  }, []);
+
+  allSortFields.forEach(function (sortField) {
+    allSortFieldsMap[sortField.field] = sortField;
+  });
+  return {
+    allSortFields: allSortFields,
+    allSortFieldsMap: allSortFieldsMap
+  };
+}

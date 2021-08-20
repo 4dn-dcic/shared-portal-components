@@ -16,5 +16,5 @@ export {
     haveContextColumnsChanged
 } from './ColumnCombiner';
 
-export { HeadersRow } from './HeadersRow';
+export { HeadersRow, flattenColumnsDefinitionsSortFields } from './HeadersRow';
 export { ResultRowColumnBlockValue, sanitizeOutputValue } from './ResultRowColumnBlockValue';

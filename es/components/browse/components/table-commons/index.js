@@ -4,5 +4,5 @@ export { basicColumnExtensionMap, DEFAULT_WIDTH_MAP, TableRowToggleOpenButton //
 , DisplayTitleColumnWrapper, DisplayTitleColumnDefault, DisplayTitleColumnUser } from './basicColumnExtensionMap';
 export { ColumnCombiner, columnsToColumnDefinitions // Should be private function but still used by 4DN ItemPageTable
 , haveContextColumnsChanged } from './ColumnCombiner';
-export { HeadersRow } from './HeadersRow';
+export { HeadersRow, flattenColumnsDefinitionsSortFields } from './HeadersRow';
 export { ResultRowColumnBlockValue, sanitizeOutputValue } from './ResultRowColumnBlockValue';

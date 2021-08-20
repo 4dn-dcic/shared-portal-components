@@ -9,6 +9,7 @@ import queryString from 'querystring';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import { navigate } from './../../util/navigate';
+import { flattenColumnsDefinitionsSortFields } from './table-commons';
 
 
 export class SortController extends React.PureComponent {
@@ -138,34 +139,6 @@ export class MultiColumnSortSelector extends React.PureComponent {
         return columns;
     }
 
-    static flattenColumnsDefinitionsSortFields(columnDefinitions) {
-        const allSortFieldsMap = {};
-        const allSortFields = _.reduce(columnDefinitions, function (m, colDef) {
-            const { sort_fields, title, field, noSort } = colDef;
-            const hasSubFields = sort_fields && Array.isArray(sort_fields) && sort_fields.length > 0;
-            if (hasSubFields) {
-                sort_fields.forEach(function ({ title: subFieldTitle, field: subField }, idx) {
-                    m.push({
-                        'title': <React.Fragment>{ title } &nbsp;/&nbsp; { subFieldTitle }</React.Fragment>,
-                        'field': subField,
-                        'parentField': field,
-                        'hasSubFields': false,
-                        'noSort': noSort,
-                        'last': sort_fields.length - 1 === idx
-                    });
-                });
-            } else {
-                // Exclude field itself if sub-fields are present, assumed that field itself will be a sub-field option
-                m.push({ title, field, 'parentField': field, hasSubFields, noSort });
-            }
-            return m;
-        }, []);
-        allSortFields.forEach(function(sortField){
-            allSortFieldsMap[sortField.field] = sortField;
-        });
-        return { allSortFields, allSortFieldsMap };
-    }
-
     constructor(props){
         super(props);
 
@@ -175,7 +148,7 @@ export class MultiColumnSortSelector extends React.PureComponent {
         this.handleSettingsApply = this.handleSettingsApply.bind(this);
         this.memoized = {
             getSortColumnAndOrderPairs : memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs),
-            flattenColumnsDefinitionsSortFields : memoize(MultiColumnSortSelector.flattenColumnsDefinitionsSortFields)
+            flattenColumnsDefinitionsSortFields : memoize(flattenColumnsDefinitionsSortFields)
         };
 
         const { sortColumns = {} } = props;
