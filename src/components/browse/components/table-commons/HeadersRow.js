@@ -612,7 +612,6 @@ const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ de
 });
 
 export function flattenColumnsDefinitionsSortFields(columnDefinitions) {
-    console.log('xxx flattenColumnsDefinitionsSortFields');
     const allSortFieldsMap = {};
     const allSortFields = _.reduce(columnDefinitions, function (m, colDef) {
         const { sort_fields, title, field, noSort, initial_sort, type } = colDef;

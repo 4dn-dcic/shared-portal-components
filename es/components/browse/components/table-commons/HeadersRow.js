@@ -885,7 +885,6 @@ var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref17) {
   }
 });
 export function flattenColumnsDefinitionsSortFields(columnDefinitions) {
-  console.log('xxx flattenColumnsDefinitionsSortFields');
   var allSortFieldsMap = {};
 
   var allSortFields = _.reduce(columnDefinitions, function (m, colDef) {
