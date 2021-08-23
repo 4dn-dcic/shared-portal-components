@@ -32,16 +32,18 @@ export var RightButtonsSection = /*#__PURE__*/React.memo(function (props) {
       onMultiColumnSortBtnClick = props.onMultiColumnSortBtnClick,
       windowWidth = props.windowWidth,
       isFullscreen = props.isFullscreen,
-      toggleFullScreen = props.toggleFullScreen;
+      toggleFullScreen = props.toggleFullScreen,
+      _props$showMultiColum = props.showMultiColumnSort,
+      showMultiColumnSort = _props$showMultiColum === void 0 ? true : _props$showMultiColum;
   return /*#__PURE__*/React.createElement("div", {
     className: "right-buttons col-auto"
   }, /*#__PURE__*/React.createElement(ConfigureVisibleColumnsButton, {
     onClick: onColumnsBtnClick,
     open: currentOpenPanel === "customColumns"
-  }), /*#__PURE__*/React.createElement(MultiColumnSortButton, {
+  }), showMultiColumnSort ? /*#__PURE__*/React.createElement(MultiColumnSortButton, {
     onClick: onMultiColumnSortBtnClick,
     open: currentOpenPanel === "multiColumnSort"
-  }), typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ? /*#__PURE__*/React.createElement(ToggleLayoutButton, {
+  }) : null, typeof windowWidth === 'number' && typeof isFullscreen === 'boolean' && typeof toggleFullScreen === 'function' ? /*#__PURE__*/React.createElement(ToggleLayoutButton, {
     windowWidth: windowWidth,
     isFullscreen: isFullscreen,
     toggleFullScreen: toggleFullScreen
