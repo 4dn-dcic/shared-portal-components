@@ -210,6 +210,9 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
       if (!isServerSide()) {
         // Create throttled version of toggleDescriptionExpand for button.
         this.throttledToggleDescriptionExpand = _.throttle(this.toggleDescriptionExpand, 350);
+        window.addEventListener('resize', function () {
+          return _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
+        });
         setTimeout(function () {
           var willDescriptionFitAtCurrentSize = _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
 

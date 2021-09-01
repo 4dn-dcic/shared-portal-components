@@ -191,7 +191,8 @@ export class FlexibleDescriptionBox extends React.Component {
 
             // Create throttled version of toggleDescriptionExpand for button.
             this.throttledToggleDescriptionExpand = _.throttle(this.toggleDescriptionExpand, 350);
-
+            
+            window.addEventListener('resize', () => this.checkWillDescriptionFitOneLineAndUpdateHeight());
             setTimeout(()=>{
                 var willDescriptionFitAtCurrentSize = this.checkWillDescriptionFitOneLineAndUpdateHeight();
                 this.setState({
