@@ -167,7 +167,6 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
     _this2.toggleDescriptionExpand = _this2.toggleDescriptionExpand.bind(_assertThisInitialized(_this2));
     _this2.makeShortContent = _this2.makeShortContent.bind(_assertThisInitialized(_this2));
     _this2.havePermissionToEdit = _this2.havePermissionToEdit.bind(_assertThisInitialized(_this2));
-    _this2.updateDescriptionHeight = _this2.updateDescriptionHeight(_assertThisInitialized(_this2));
     _this2.descriptionHeight = null;
     _this2.state = {
       'descriptionExpanded': props.defaultExpanded,

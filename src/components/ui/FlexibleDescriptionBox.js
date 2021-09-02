@@ -153,7 +153,6 @@ export class FlexibleDescriptionBox extends React.Component {
         this.toggleDescriptionExpand = this.toggleDescriptionExpand.bind(this);
         this.makeShortContent = this.makeShortContent.bind(this);
         this.havePermissionToEdit = this.havePermissionToEdit.bind(this);
-        this.updateDescriptionHeight = this.updateDescriptionHeight(this);
         this.descriptionHeight = null;
         this.state = {
             'descriptionExpanded' : props.defaultExpanded,
