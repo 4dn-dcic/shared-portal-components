@@ -237,7 +237,7 @@ export const textContentWidth = (function(
         contElem.style.whiteSpace = "";
         contElem.style.display = "block";
         contElem.style.width = widthForHeightCheck + "px";
-        fullContainerHeight = window.innerWidth <= 768 ? Math.max(contElem.clientHeight, window.innerHeight || 0) : contElem.clientHeight;
+        fullContainerHeight = contElem.clientHeight;
     }
     document.body.removeChild(contElem);
     if (fullContainerHeight) {
