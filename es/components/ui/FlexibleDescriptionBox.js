@@ -167,6 +167,7 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
     _this2.toggleDescriptionExpand = _this2.toggleDescriptionExpand.bind(_assertThisInitialized(_this2));
     _this2.makeShortContent = _this2.makeShortContent.bind(_assertThisInitialized(_this2));
     _this2.havePermissionToEdit = _this2.havePermissionToEdit.bind(_assertThisInitialized(_this2));
+    _this2.window.addEventListener = _this2.window.addEventListener(_assertThisInitialized(_this2));
     _this2.descriptionHeight = null;
     _this2.state = {
       'descriptionExpanded': props.defaultExpanded,
@@ -201,6 +202,16 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
       }
     }
   }, {
+    key: "updateDescriptionHeight",
+    value: function updateDescriptionHeight() {
+      var willDescriptionFitAtCurrentSize = this.checkWillDescriptionFitOneLineAndUpdateHeight();
+      this.setState({
+        'descriptionWillFitOneLine': willDescriptionFitAtCurrentSize,
+        'mounted': true,
+        'shortContent': this.props.linesOfText > 1 ? this.makeShortContent() : null
+      });
+    }
+  }, {
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this4 = this;
@@ -211,16 +222,10 @@ export var FlexibleDescriptionBox = /*#__PURE__*/function (_React$Component3) {
         // Create throttled version of toggleDescriptionExpand for button.
         this.throttledToggleDescriptionExpand = _.throttle(this.toggleDescriptionExpand, 350);
         window.addEventListener('resize', function () {
-          return _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
+          return _this4.updateDescriptionHeight();
         });
         setTimeout(function () {
-          var willDescriptionFitAtCurrentSize = _this4.checkWillDescriptionFitOneLineAndUpdateHeight();
-
-          _this4.setState({
-            'descriptionWillFitOneLine': willDescriptionFitAtCurrentSize,
-            'mounted': true,
-            'shortContent': _this4.props.linesOfText > 1 ? _this4.makeShortContent() : null
-          });
+          _this4.updateDescriptionHeight();
         }, 50);
       }
     }

@@ -153,6 +153,7 @@ export class FlexibleDescriptionBox extends React.Component {
         this.toggleDescriptionExpand = this.toggleDescriptionExpand.bind(this);
         this.makeShortContent = this.makeShortContent.bind(this);
         this.havePermissionToEdit = this.havePermissionToEdit.bind(this);
+        this.window.addEventListener = this.window.addEventListener(this);
         this.descriptionHeight = null;
         this.state = {
             'descriptionExpanded' : props.defaultExpanded,
@@ -184,22 +185,24 @@ export class FlexibleDescriptionBox extends React.Component {
 
         }
     }
-
+    updateDescriptionHeight(){
+        const willDescriptionFitAtCurrentSize = this.checkWillDescriptionFitOneLineAndUpdateHeight();
+        this.setState({
+            'descriptionWillFitOneLine' : willDescriptionFitAtCurrentSize,
+            'mounted' : true,
+            'shortContent' : this.props.linesOfText > 1 ? this.makeShortContent() : null
+        });
+    }
     componentDidMount(){
         if (this.props.debug) console.info("Mounted FlexibleDescriptionBox");
         if (!isServerSide()){
 
             // Create throttled version of toggleDescriptionExpand for button.
             this.throttledToggleDescriptionExpand = _.throttle(this.toggleDescriptionExpand, 350);
+            window.addEventListener('resize', () => this.updateDescriptionHeight());
             
-            window.addEventListener('resize', () => this.checkWillDescriptionFitOneLineAndUpdateHeight());
             setTimeout(()=>{
-                var willDescriptionFitAtCurrentSize = this.checkWillDescriptionFitOneLineAndUpdateHeight();
-                this.setState({
-                    'descriptionWillFitOneLine' : willDescriptionFitAtCurrentSize,
-                    'mounted' : true,
-                    'shortContent' : this.props.linesOfText > 1 ? this.makeShortContent() : null
-                });
+               this.updateDescriptionHeight();
             }, 50);
         }
 
