@@ -56,7 +56,7 @@
         "aws-sdk": "^2.745.0",
         "crypto-js": "^3.3.0",
         "dom-helpers": "^3.4.0",
-        "html-react-parser": "^0.4.7",
+        "html-react-parser": "^1.2.8",
         "js-md5": "^0.4.2",
         "jsonwebtoken": ">=7.4.0",
         "rc-progress": "^2.6.1",
