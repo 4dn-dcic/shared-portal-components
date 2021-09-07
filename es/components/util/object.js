@@ -52,13 +52,17 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import memoize from 'memoize-one';
-import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
-import domToReact from 'html-react-parser/lib/dom-to-react';
+import { JSDOM } from 'jsdom';
+import parseDOM, { domToReact } from 'html-react-parser';
+import DOMPurify from 'dompurify'; // import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
+// import domToReact from 'html-react-parser/lib/dom-to-react';
+
 import md5 from 'js-md5';
 import { patchedConsoleInstance as console } from './patched-console';
 import { getSchemaProperty } from './schema-transforms';
 import * as analytics from './analytics';
 import url from 'url';
+import { isServerSide } from './misc';
 /**
  * Get '@id' from param 'object' if it exists
  *
@@ -397,15 +401,70 @@ export function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 export function htmlToJSX(htmlString) {
-  var nodes,
-      result,
-      // Theoretically, esp in modern browsers, almost any tag/element name can be used to create a <div>.
+  /**
+   * Filters out nodes and node children recursively if detect an invalid tag name.
+   * Also removes any <script> tags.
+   */
+  function replaceNode(domNode) {
+    var type = domNode.type,
+        name = domNode.name;
+
+    if (type === 'tag') {
+      if (headerTags[name]) return domNode; // Exclude scripts due to security vulnerability potential.
+
+      if (name === 'script') return null; // Filter out nonsensical tags which will likely break React, e.g. <hr?>
+
+      var match = name.match(/[\W\s\d]/);
+
+      if (match && (match.length > 1 || match[0] !== '/')) {
+        return null;
+      } // Recurse on children
+
+
+      if (Array.isArray(n.children)) {
+        n = _.extend({}, n, {
+          'children': filterNodes(n.children)
+        });
+      }
+    }
+
+    return n;
+  }
+
+  function filterNodes(nodeList) {
+    return _.filter(_.map(nodeList, replaceNode));
+  }
+
+  var jsxOutput;
+  // Theoretically, esp in modern browsers, almost any tag/element name can be used to create a <div>.
   // So we allow them in our HTML, but exclude elements/tags with numbers, special characters, etc.
   // Except for hardcoded exceptions defined here in someTags.
-  someTags = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+  var headerTags = {
+    'h1': 1,
+    'h2': 1,
+    'h3': 1,
+    'h4': 1,
+    'h5': 1,
+    'h6': 1
+  }; // const parseOptions = { decodeEntities: true, lowerCaseAttributeNames: false, replace: filterNodes };
+
+  var domPurifyInstance;
+
+  if (isServerSide()) {
+    var _JSDOM = new JSDOM(""),
+        window = _JSDOM.window;
+
+    domPurifyInstance = createDOMPurify(window);
+  } else {
+    domPurifyInstance = DOMPurify;
+  }
+
+  var sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, {
+    FORBID_TAGS: ['script']
+  });
 
   try {
-    nodes = parseDOM(htmlString, {
+    jsxOutput = parseDOM(sanitizedHtmlString, {
       decodeEntities: true,
       lowerCaseAttributeNames: false
     });
@@ -415,47 +474,15 @@ export function htmlToJSX(htmlString) {
       className: "error"
     }, "Parsing Error. Check your markup.");
   }
-  /**
-   * Filters out nodes and node children recursively if detect an invalid tag name.
-   * Also removes any <script> tags.
-   */
 
+  console.log('DDDD', domToReact, jsxOutput); // try {
+  //     result = domToReact(filterNodes(jsxOutput));
+  // } catch (e) {
+  //     console.error('HTML parsing error', e);
+  //     return <div className="error">Parsing Error. Check your markup.</div>;
+  // }
 
-  function filterNodes(nodeList) {
-    return _.filter(_.map(nodeList, function (n) {
-      if (n.type === 'tag') {
-        if (someTags.has(n.name)) return n; // Exclude scripts due to security vulnerability potential.
-
-        if (n.name === 'script') return null; // Filter out nonsensical tags which will likely break React, e.g. <hr?>
-
-        var match = n.name.match(/[\W\s\d]/);
-
-        if (match && (match.length > 1 || match[0] !== '/')) {
-          return null;
-        } // Recurse on children
-
-
-        if (Array.isArray(n.children)) {
-          n = _.extend({}, n, {
-            'children': filterNodes(n.children)
-          });
-        }
-      }
-
-      return n;
-    }));
-  }
-
-  try {
-    result = domToReact(filterNodes(nodes));
-  } catch (e) {
-    console.error('HTML parsing error', e);
-    return /*#__PURE__*/React.createElement("div", {
-      className: "error"
-    }, "Parsing Error. Check your markup.");
-  }
-
-  return result;
+  return jsxOutput;
 }
 /**
  * Check if param is in form of an @id. Doesn't validate whether proper collection, etc. just URL format.
