@@ -1,10 +1,12 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var _excluded = ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"];
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
@@ -24,11 +26,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -54,23 +56,6 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(EmbeddedSearchView, _React$PureComponent);
 
   var _super = _createSuper(EmbeddedSearchView);
-
-  _createClass(EmbeddedSearchView, null, [{
-    key: "listToObj",
-
-    /**
-     * @property {string} searchHref - Base URI to search on.
-     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
-     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
-     * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
-     * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
-     */
-    value: function listToObj(hideFacetStrs) {
-      return _listToObj(hideFacetStrs.concat(hideFacetStrs.map(function (facetStr) {
-        return facetStr + "!";
-      })));
-    }
-  }]);
 
   function EmbeddedSearchView(props) {
     var _this;
@@ -147,7 +132,7 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           propTableColumnClassName = _this$props.tableColumnClassName,
           _this$props$allowPost = _this$props.allowPostRequest,
           allowPostRequest = _this$props$allowPost === void 0 ? false : _this$props$allowPost,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"]); // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
+          passProps = _objectWithoutProperties(_this$props, _excluded); // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
 
 
       var tableColumnClassName = propTableColumnClassName || (facets === null ? "col-12" : undefined); // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
@@ -163,27 +148,40 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
       var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
       return /*#__PURE__*/React.createElement("div", {
         className: "embedded-search-container"
-      }, /*#__PURE__*/React.createElement(VirtualHrefController, _extends({
+      }, /*#__PURE__*/React.createElement(VirtualHrefController, {
         searchHref: searchHref,
         facets: facets,
         onLoad: onLoad,
         filterFacetFxn: filterFacetFxn,
         onClearFiltersVirtual: onClearFiltersVirtual,
         isClearFiltersBtnVisible: isClearFiltersBtnVisible,
-        allowPostRequest: allowPostRequest
-      }, {
+        allowPostRequest: allowPostRequest,
         key: searchHref || 1
-      }), /*#__PURE__*/React.createElement(ColumnCombiner, {
+      }, /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, /*#__PURE__*/React.createElement(CustomColumnController, _extends({
+      }, /*#__PURE__*/React.createElement(CustomColumnController, {
         windowWidth: windowWidth,
-        filterColumnFxn: filterColumnFxn
-      }, {
+        filterColumnFxn: filterColumnFxn,
         hiddenColumns: hideColumns
-      }), /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
+      }, /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
       })), embeddedTableFooter)))));
+    }
+  }], [{
+    key: "listToObj",
+    value:
+    /**
+     * @property {string} searchHref - Base URI to search on.
+     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
+     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
+     * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
+     * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
+     */
+    function listToObj(hideFacetStrs) {
+      return _listToObj(hideFacetStrs.concat(hideFacetStrs.map(function (facetStr) {
+        return facetStr + "!";
+      })));
     }
   }]);
 

@@ -1,8 +1,10 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+var _excluded = ["children", "showClearFiltersButton"];
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
@@ -24,11 +26,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -55,16 +57,6 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
   _inherits(WindowNavigationController, _React$PureComponent);
 
   var _super = _createSuper(WindowNavigationController);
-
-  _createClass(WindowNavigationController, null, [{
-    key: "isClearFiltersBtnVisible",
-    value: function isClearFiltersBtnVisible(href, context) {
-      var urlPartsQuery = url.parse(href, true).query || {};
-      var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
-      var clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
-      return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
-    }
-  }]);
 
   function WindowNavigationController(props) {
     var _this;
@@ -168,7 +160,7 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
       var _this$props4 = this.props,
           children = _this$props4.children,
           propShowClearFiltersBtn = _this$props4.showClearFiltersButton,
-          passProps = _objectWithoutProperties(_this$props4, ["children", "showClearFiltersButton"]);
+          passProps = _objectWithoutProperties(_this$props4, _excluded);
 
       var href = passProps.href,
           context = passProps.context;
@@ -185,6 +177,14 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
       return React.Children.map(children, function (child) {
         return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
+    }
+  }], [{
+    key: "isClearFiltersBtnVisible",
+    value: function isClearFiltersBtnVisible(href, context) {
+      var urlPartsQuery = url.parse(href, true).query || {};
+      var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
+      var clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
+      return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
     }
   }]);
 

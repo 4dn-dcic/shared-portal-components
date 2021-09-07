@@ -7,8 +7,8 @@ import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import memoize from 'memoize-one';
 import { JSDOM } from 'jsdom';
-import parseDOM, { domToReact } from 'html-react-parser';
-import DOMPurify from 'dompurify';
+import parseDOM from 'html-react-parser';
+import createDOMPurify from 'dompurify';
 // import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
 // import domToReact from 'html-react-parser/lib/dom-to-react';
 import md5 from 'js-md5';
@@ -334,7 +334,7 @@ export function htmlToJSX(htmlString){
         const { window } = new JSDOM("");
         domPurifyInstance = createDOMPurify(window);
     } else {
-        domPurifyInstance = DOMPurify;
+        domPurifyInstance = createDOMPurify;
     }
 
     const sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, { FORBID_TAGS: ['script'] });

@@ -38,12 +38,13 @@
         "gulp": "^4.0.0",
         "jest-cli": "^27.1.0",
         "plugin-error": "^1.0.1",
+        "react": "^16.14.0",
+        "react-dom": "^16.14.0",
         "sass": "^1.39.0",
         "sinon": "^1.17.6",
         "source-map-support": "^0.5.19",
         "string-replace-loader": "^2.3.0",
         "terser-webpack-plugin": "^1.4.5",
-        "uglifyjs-webpack-plugin": "^2.2.0",
         "webpack": "4.28.4",
         "webpack-bundle-analyzer": "^3.8.0",
         "webpack-deadcode-plugin": "^0.1.12"
@@ -61,8 +62,8 @@
         "jsonwebtoken": ">=7.4.0",
         "rc-progress": "^2.6.1",
         "react-draggable": "^3.3.2",
-        "@4dn-dcic/react-infinite": "github:4dn-dcic/react-infinite#1.1.4",
-        "react-json-tree": "^0.11.2"
+        "@4dn-dcic/react-infinite": "github:4dn-dcic/react-infinite#1.1.8",
+        "react-json-tree": "^0.15.0"
     },
     "peerDependencies": {
         "auth0-lock": ">=11.26.3",
@@ -72,8 +73,8 @@
         "memoize-one": "^5.1.1",
         "moment": ">=2.25.3",
         "query-string": ">=4.3.0",
-        "react": ">=16.2.0",
-        "react-dom": ">=16.2.0",
+        "react": ">=16.14.0",
+        "react-dom": ">=16.14.0",
         "react-bootstrap": "*",
         "react-tooltip": ">=3.11.6",
         "react-transition-group": ">=4.4.1",

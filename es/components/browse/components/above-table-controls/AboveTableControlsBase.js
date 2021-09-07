@@ -1,6 +1,6 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -16,11 +16,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -42,71 +42,6 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
   _inherits(AboveTableControlsBase, _React$PureComponent);
 
   var _super = _createSuper(AboveTableControlsBase);
-
-  _createClass(AboveTableControlsBase, null, [{
-    key: "getCustomColumnSelectorPanelMapDefinition",
-    // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
-    value: function getCustomColumnSelectorPanelMapDefinition(props) {
-      var _props$context = props.context;
-      _props$context = _props$context === void 0 ? {} : _props$context;
-      var _props$context$sort = _props$context.sort,
-          sort = _props$context$sort === void 0 ? {} : _props$context$sort,
-          hiddenColumns = props.hiddenColumns,
-          addHiddenColumn = props.addHiddenColumn,
-          removeHiddenColumn = props.removeHiddenColumn,
-          columnDefinitions = props.columnDefinitions,
-          navigate = props.navigate,
-          sortBy = props.sortBy;
-      return {
-        "customColumns": {
-          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
-            className: "icon icon-fw icon-cog fas"
-          }), /*#__PURE__*/React.createElement("span", {
-            className: "title-contents"
-          }, "Configure Visible Columns")),
-          "body": /*#__PURE__*/React.createElement(CustomColumnSelector, {
-            hiddenColumns: hiddenColumns,
-            addHiddenColumn: addHiddenColumn,
-            removeHiddenColumn: removeHiddenColumn,
-            columnDefinitions: columnDefinitions
-          }),
-          "className": "visible-columns-selector-panel"
-        },
-        "multiColumnSort": {
-          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
-            className: "icon icon-fw icon-cog fas"
-          }), /*#__PURE__*/React.createElement("span", {
-            className: "title-contents"
-          }, "Sort Multiple Columns")),
-          "body": /*#__PURE__*/React.createElement(MultiColumnSortSelector, _extends({
-            navigate: navigate,
-            columnDefinitions: columnDefinitions,
-            sortBy: sortBy
-          }, {
-            sortColumns: sort
-          })),
-          "className": "visible-columns-selector-panel"
-        }
-      };
-    }
-  }, {
-    key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(props, state) {
-      // Close panel if needed (as told by panelMap 'close' bool field)
-      if (state.open && typeof state.open === 'string') {
-        var currPanelDefinition = props.panelMap[state.open];
-
-        if (currPanelDefinition && currPanelDefinition.close) {
-          return {
-            "open": false,
-            "reallyOpen": false
-          };
-        }
-      }
-
-      return null;
-    }
-  }]);
 
   function AboveTableControlsBase(props) {
     var _this;
@@ -231,6 +166,68 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
         onClose: this.handleClose,
         title: panelTitle
       }, panelBody)) : null);
+    }
+  }], [{
+    key: "getCustomColumnSelectorPanelMapDefinition",
+    value: // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
+    function getCustomColumnSelectorPanelMapDefinition(props) {
+      var _props$context = props.context;
+      _props$context = _props$context === void 0 ? {} : _props$context;
+      var _props$context$sort = _props$context.sort,
+          sort = _props$context$sort === void 0 ? {} : _props$context$sort,
+          hiddenColumns = props.hiddenColumns,
+          addHiddenColumn = props.addHiddenColumn,
+          removeHiddenColumn = props.removeHiddenColumn,
+          columnDefinitions = props.columnDefinitions,
+          navigate = props.navigate,
+          sortBy = props.sortBy;
+      return {
+        "customColumns": {
+          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+            className: "icon icon-fw icon-cog fas"
+          }), /*#__PURE__*/React.createElement("span", {
+            className: "title-contents"
+          }, "Configure Visible Columns")),
+          "body": /*#__PURE__*/React.createElement(CustomColumnSelector, {
+            hiddenColumns: hiddenColumns,
+            addHiddenColumn: addHiddenColumn,
+            removeHiddenColumn: removeHiddenColumn,
+            columnDefinitions: columnDefinitions
+          }),
+          "className": "visible-columns-selector-panel"
+        },
+        "multiColumnSort": {
+          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+            className: "icon icon-fw icon-cog fas"
+          }), /*#__PURE__*/React.createElement("span", {
+            className: "title-contents"
+          }, "Sort Multiple Columns")),
+          "body": /*#__PURE__*/React.createElement(MultiColumnSortSelector, {
+            navigate: navigate,
+            columnDefinitions: columnDefinitions,
+            sortBy: sortBy,
+            sortColumns: sort
+          }),
+          "className": "visible-columns-selector-panel"
+        }
+      };
+    }
+  }, {
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(props, state) {
+      // Close panel if needed (as told by panelMap 'close' bool field)
+      if (state.open && typeof state.open === 'string') {
+        var currPanelDefinition = props.panelMap[state.open];
+
+        if (currPanelDefinition && currPanelDefinition.close) {
+          return {
+            "open": false,
+            "reallyOpen": false
+          };
+        }
+      }
+
+      return null;
     }
   }]);
 

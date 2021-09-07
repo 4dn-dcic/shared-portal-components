@@ -1,14 +1,16 @@
 'use strict';
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var _excluded = ["context", "navigate"];
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -24,11 +26,11 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
@@ -46,11 +48,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -101,53 +103,6 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SubmissionView, _React$PureComponent);
 
   var _super = _createSuper(SubmissionView);
-
-  _createClass(SubmissionView, null, [{
-    key: "findValidationState",
-
-    /**
-     * Function to look at a specific object (reference by key) and
-     * use searchHierarchy() to see if the children of the given key
-     * contain any un-submitted custom objects. If they do, return
-     * 1 (ready to validate). Otherwise return 0 (not ready to validate)
-     *
-     * @todo maybe memoize this and replace usage of state.keyValid w/ it.
-     */
-    value: function findValidationState(keyIdx, prevKeyHierarchy) {
-      var hierarchy = object.deepClone(prevKeyHierarchy);
-      var keyHierarchy = searchHierarchy(hierarchy, keyIdx);
-      if (keyHierarchy === null) return 0;
-      var validationReturn = 1;
-
-      _.keys(keyHierarchy).forEach(function (key) {
-        // If key is a number, item has not been submitted yet... see note below
-        if (!isNaN(key)) {
-          // NOTE: as of SAYTAJAX, ONLY unsubmitted items are stored with numeric keys
-          validationReturn = 0;
-        }
-      });
-
-      return validationReturn;
-    }
-  }, {
-    key: "principalTitle",
-    value: function principalTitle(context, edit, create) {
-      var itemType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      var principalDisplay; // Name of our current Item being created.
-
-      if (create === true && !edit) {
-        principalDisplay = 'New ' + itemType;
-      } else if (edit === true && !create) {
-        if (context && typeof context.accession === 'string') {
-          principalDisplay = context.accession;
-        } else {
-          principalDisplay = itemType;
-        }
-      }
-
-      return principalDisplay;
-    }
-  }]);
 
   function SubmissionView(props) {
     var _this;
@@ -1901,7 +1856,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props5 = this.props,
           context = _this$props5.context,
           navigate = _this$props5.navigate,
-          propsToPass = _objectWithoutProperties(_this$props5, ["context", "navigate"]);
+          propsToPass = _objectWithoutProperties(_this$props5, _excluded);
 
       keyDisplay[currKey] || currType;
       return /*#__PURE__*/React.createElement("div", {
@@ -1956,6 +1911,51 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
         updateUpload: this.updateUpload,
         hierarchy: keyHierarchy
       }, _.pick(this.state, 'keyDisplay', 'keyComplete', 'keyIter', 'currKey', 'keyContext', 'upload', 'uploadStatus', 'md5Progress', 'roundTwo', 'currentSubmittingUser'))))));
+    }
+  }], [{
+    key: "findValidationState",
+    value:
+    /**
+     * Function to look at a specific object (reference by key) and
+     * use searchHierarchy() to see if the children of the given key
+     * contain any un-submitted custom objects. If they do, return
+     * 1 (ready to validate). Otherwise return 0 (not ready to validate)
+     *
+     * @todo maybe memoize this and replace usage of state.keyValid w/ it.
+     */
+    function findValidationState(keyIdx, prevKeyHierarchy) {
+      var hierarchy = object.deepClone(prevKeyHierarchy);
+      var keyHierarchy = searchHierarchy(hierarchy, keyIdx);
+      if (keyHierarchy === null) return 0;
+      var validationReturn = 1;
+
+      _.keys(keyHierarchy).forEach(function (key) {
+        // If key is a number, item has not been submitted yet... see note below
+        if (!isNaN(key)) {
+          // NOTE: as of SAYTAJAX, ONLY unsubmitted items are stored with numeric keys
+          validationReturn = 0;
+        }
+      });
+
+      return validationReturn;
+    }
+  }, {
+    key: "principalTitle",
+    value: function principalTitle(context, edit, create) {
+      var itemType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      var principalDisplay; // Name of our current Item being created.
+
+      if (create === true && !edit) {
+        principalDisplay = 'New ' + itemType;
+      } else if (edit === true && !create) {
+        if (context && typeof context.accession === 'string') {
+          principalDisplay = context.accession;
+        } else {
+          principalDisplay = itemType;
+        }
+      }
+
+      return principalDisplay;
     }
   }]);
 
@@ -2129,70 +2129,6 @@ var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
 
   var _super2 = _createSuper(DetailTitleBanner);
 
-  _createClass(DetailTitleBanner, null, [{
-    key: "getListOfKeysInPath",
-
-    /**
-     * Traverse keyHierarchy option to get a list of hierarchical keys, e.g. 0,1,4 if are on currKey 4 that is a child of currKey 1 that is a child of currKey 0.
-     *
-     * @param {Object} hierachy - Hierarchy as defined on state of SubmissionView components.
-     * @param {number} currKey - Current key of Object/Item we're editing.
-     * @returns {number[]} List of keys leading from 0 to currKey.
-     */
-    value: function getListOfKeysInPath(hierachy, currKey) {
-      function findNestedKey(obj) {
-        if (typeof obj[currKey] !== 'undefined') {
-          return [currKey];
-        } else {
-          var nestedFound = _.find(_.map(_.pairs(obj), // p[0] = key, p[1] = child obj with keys
-          function (p) {
-            return [p[0], findNestedKey(p[1])];
-          }), function (p) {
-            return typeof p[1] !== 'undefined' && p[1] !== null;
-          });
-
-          if (nestedFound) {
-            return [parseInt(nestedFound[0])].concat(nestedFound[1]);
-          }
-        }
-      }
-
-      return findNestedKey(hierachy);
-    }
-  }, {
-    key: "getContextPropertyNameOfNextKey",
-    value: function getContextPropertyNameOfNextKey(context, nextKey) {
-      var getArrayIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-      var foundPropertyName = null;
-      var arrayIdx = null;
-
-      _.pairs(context).forEach(function (p) {
-        if (foundPropertyName) return;
-
-        if (p[1] === nextKey) {
-          foundPropertyName = p[0];
-        } // Remove value from array.
-
-
-        if (Array.isArray(p[1])) {
-          arrayIdx = p[1].indexOf(nextKey);
-
-          if (typeof arrayIdx === 'number' && arrayIdx > -1) {
-            foundPropertyName = p[0];
-          } else {
-            arrayIdx = null;
-          }
-        }
-      });
-
-      if (getArrayIndex) {
-        return [foundPropertyName, arrayIdx];
-      }
-
-      return foundPropertyName;
-    }
-  }]);
-
   function DetailTitleBanner(props) {
     var _this8;
 
@@ -2308,6 +2244,68 @@ var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
       }, "Currently Editing ", currKey > 0 ? /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')
       }) : null)), open ? this.generateHierarchicalTitles() : this.generateCrumbTitle(currKey));
+    }
+  }], [{
+    key: "getListOfKeysInPath",
+    value:
+    /**
+     * Traverse keyHierarchy option to get a list of hierarchical keys, e.g. 0,1,4 if are on currKey 4 that is a child of currKey 1 that is a child of currKey 0.
+     *
+     * @param {Object} hierachy - Hierarchy as defined on state of SubmissionView components.
+     * @param {number} currKey - Current key of Object/Item we're editing.
+     * @returns {number[]} List of keys leading from 0 to currKey.
+     */
+    function getListOfKeysInPath(hierachy, currKey) {
+      function findNestedKey(obj) {
+        if (typeof obj[currKey] !== 'undefined') {
+          return [currKey];
+        } else {
+          var nestedFound = _.find(_.map(_.pairs(obj), // p[0] = key, p[1] = child obj with keys
+          function (p) {
+            return [p[0], findNestedKey(p[1])];
+          }), function (p) {
+            return typeof p[1] !== 'undefined' && p[1] !== null;
+          });
+
+          if (nestedFound) {
+            return [parseInt(nestedFound[0])].concat(nestedFound[1]);
+          }
+        }
+      }
+
+      return findNestedKey(hierachy);
+    }
+  }, {
+    key: "getContextPropertyNameOfNextKey",
+    value: function getContextPropertyNameOfNextKey(context, nextKey) {
+      var getArrayIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      var foundPropertyName = null;
+      var arrayIdx = null;
+
+      _.pairs(context).forEach(function (p) {
+        if (foundPropertyName) return;
+
+        if (p[1] === nextKey) {
+          foundPropertyName = p[0];
+        } // Remove value from array.
+
+
+        if (Array.isArray(p[1])) {
+          arrayIdx = p[1].indexOf(nextKey);
+
+          if (typeof arrayIdx === 'number' && arrayIdx > -1) {
+            foundPropertyName = p[0];
+          } else {
+            arrayIdx = null;
+          }
+        }
+      });
+
+      if (getArrayIndex) {
+        return [foundPropertyName, arrayIdx];
+      }
+
+      return foundPropertyName;
     }
   }]);
 

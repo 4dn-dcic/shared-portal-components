@@ -1,6 +1,4 @@
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
@@ -16,11 +14,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -385,20 +383,19 @@ export var DragAndDropFileUploadController = /*#__PURE__*/function (_React$Compo
       var _this$state = this.state,
           files = _this$state.files,
           isLoading = _this$state.isLoading;
-      return /*#__PURE__*/React.createElement(DragAndDropUploadButton, _extends({
+      return /*#__PURE__*/React.createElement(DragAndDropUploadButton, {
         cls: cls,
         fieldDisplayTitle: fieldDisplayTitle,
         fieldName: fieldName,
         files: files,
         isLoading: isLoading,
         requestVerificationMsg: requestVerificationMsg,
-        multiselect: multiselect
-      }, {
+        multiselect: multiselect,
         onUploadStart: this.onUploadStart,
         handleAddFile: this.handleAddFile,
         handleClearAllFiles: this.handleClearAllFiles,
         handleRemoveFile: this.handleRemoveFile
-      }));
+      });
     }
   }]);
 
@@ -502,9 +499,8 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
           files = _this$props5.files,
           isLoading = _this$props5.isLoading,
           requestVerificationMsg = _this$props5.requestVerificationMsg;
-      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DragAndDropModal, _extends({
-        handleHideModal: this.handleHideModal
-      }, {
+      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DragAndDropModal, {
+        handleHideModal: this.handleHideModal,
         multiselect: multiselect,
         show: show,
         onUploadStart: onUploadStart,
@@ -516,7 +512,7 @@ var DragAndDropUploadButton = /*#__PURE__*/function (_React$Component3) {
         files: files,
         isLoading: isLoading,
         requestVerificationMsg: requestVerificationMsg
-      })), /*#__PURE__*/React.createElement("button", {
+      }), /*#__PURE__*/React.createElement("button", {
         type: "button",
         onClick: this.onShow,
         className: cls
@@ -642,15 +638,13 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
           multiselect = _this$props7.multiselect; // console.log("isLoading:", isLoading);
 
       var allowUpload = files.length > 0 && (requestVerificationMsg && isVerified || !requestVerificationMsg);
-      return /*#__PURE__*/React.createElement(Modal, _extends({
-        centered: true
-      }, {
-        show: show
-      }, {
+      return /*#__PURE__*/React.createElement(Modal, {
+        centered: true,
+        show: show,
         onHide: handleHideModal,
         className: "submission-view-modal drag-and-drop-upload",
         size: "lg"
-      }), /*#__PURE__*/React.createElement(Modal.Header, {
+      }, /*#__PURE__*/React.createElement(Modal.Header, {
         closeButton: true
       }, /*#__PURE__*/React.createElement(Modal.Title, {
         className: "text-500"
@@ -658,18 +652,16 @@ var DragAndDropModal = /*#__PURE__*/function (_React$Component4) {
         className: "is-loading-overlay-cont"
       }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-spin icon-circle-notch fas"
-      })))) : null, /*#__PURE__*/React.createElement(DragAndDropZone, _extends({
+      })))) : null, /*#__PURE__*/React.createElement(DragAndDropZone, {
         files: files,
-        multiselect: multiselect
-      }, {
+        multiselect: multiselect,
         handleAddFile: requestVerificationMsg ? this.handleAddFileAndResetVerification : handleAddFile,
         handleRemoveFile: handleRemoveFile
-      })), requestVerificationMsg ? /*#__PURE__*/React.createElement(RequestVerification, _extends({
+      }), requestVerificationMsg ? /*#__PURE__*/React.createElement(RequestVerification, {
         requestVerificationMsg: requestVerificationMsg,
-        isVerified: isVerified
-      }, {
+        isVerified: isVerified,
         toggleVerification: this.toggleCheckbox
-      })) : null), /*#__PURE__*/React.createElement(Modal.Footer, null, /*#__PURE__*/React.createElement("button", {
+      }) : null), /*#__PURE__*/React.createElement(Modal.Footer, null, /*#__PURE__*/React.createElement("button", {
         type: "button",
         className: "btn btn-danger",
         onClick: handleHideModal
@@ -877,13 +869,12 @@ export var DragAndDropZone = /*#__PURE__*/function (_React$Component5) {
         return /*#__PURE__*/React.createElement("li", {
           key: file.download,
           className: "m-1"
-        }, /*#__PURE__*/React.createElement(FileIcon, _extends({
+        }, /*#__PURE__*/React.createElement(FileIcon, {
           fileName: file.download,
           fileSize: file.size,
-          fileType: file.type
-        }, {
+          fileType: file.type,
           handleRemoveFile: handleRemoveFile
-        })));
+        }));
       })));
     }
   }]);

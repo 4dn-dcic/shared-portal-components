@@ -4,7 +4,7 @@ function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableTo
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
@@ -20,11 +20,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -32,11 +32,11 @@ function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArra
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function () {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
@@ -53,8 +53,8 @@ import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import memoize from 'memoize-one';
 import { JSDOM } from 'jsdom';
-import parseDOM, { domToReact } from 'html-react-parser';
-import DOMPurify from 'dompurify'; // import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
+import parseDOM from 'html-react-parser';
+import createDOMPurify from 'dompurify'; // import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
 // import domToReact from 'html-react-parser/lib/dom-to-react';
 
 import md5 from 'js-md5';
@@ -401,53 +401,7 @@ export function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 export function htmlToJSX(htmlString) {
-  /**
-   * Filters out nodes and node children recursively if detect an invalid tag name.
-   * Also removes any <script> tags.
-   */
-  function replaceNode(domNode) {
-    var type = domNode.type,
-        name = domNode.name;
-
-    if (type === 'tag') {
-      if (headerTags[name]) return domNode; // Exclude scripts due to security vulnerability potential.
-
-      if (name === 'script') return null; // Filter out nonsensical tags which will likely break React, e.g. <hr?>
-
-      var match = name.match(/[\W\s\d]/);
-
-      if (match && (match.length > 1 || match[0] !== '/')) {
-        return null;
-      } // Recurse on children
-
-
-      if (Array.isArray(n.children)) {
-        n = _.extend({}, n, {
-          'children': filterNodes(n.children)
-        });
-      }
-    }
-
-    return n;
-  }
-
-  function filterNodes(nodeList) {
-    return _.filter(_.map(nodeList, replaceNode));
-  }
-
   var jsxOutput;
-  // Theoretically, esp in modern browsers, almost any tag/element name can be used to create a <div>.
-  // So we allow them in our HTML, but exclude elements/tags with numbers, special characters, etc.
-  // Except for hardcoded exceptions defined here in someTags.
-  var headerTags = {
-    'h1': 1,
-    'h2': 1,
-    'h3': 1,
-    'h4': 1,
-    'h5': 1,
-    'h6': 1
-  }; // const parseOptions = { decodeEntities: true, lowerCaseAttributeNames: false, replace: filterNodes };
-
   var domPurifyInstance;
 
   if (isServerSide()) {
@@ -456,7 +410,7 @@ export function htmlToJSX(htmlString) {
 
     domPurifyInstance = createDOMPurify(window);
   } else {
-    domPurifyInstance = DOMPurify;
+    domPurifyInstance = createDOMPurify;
   }
 
   var sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, {
@@ -473,14 +427,8 @@ export function htmlToJSX(htmlString) {
     return /*#__PURE__*/React.createElement("div", {
       className: "error"
     }, "Parsing Error. Check your markup.");
-  }
+  } // console.log('DDDD', domToReact, jsxOutput);
 
-  console.log('DDDD', domToReact, jsxOutput); // try {
-  //     result = domToReact(filterNodes(jsxOutput));
-  // } catch (e) {
-  //     console.error('HTML parsing error', e);
-  //     return <div className="error">Parsing Error. Check your markup.</div>;
-  // }
 
   return jsxOutput;
 }
@@ -643,49 +591,6 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
 
   var _super = _createSuper(CopyWrapper);
 
-  _createClass(CopyWrapper, null, [{
-    key: "copyToClipboard",
-    value: function copyToClipboard(value) {
-      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var failCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var textArea = document.createElement('textarea');
-      textArea.style.top = '-100px';
-      textArea.style.left = '-100px';
-      textArea.style.position = 'absolute';
-      textArea.style.width = '5px';
-      textArea.style.height = '5px';
-      textArea.style.padding = 0;
-      textArea.style.border = 'none';
-      textArea.style.outline = 'none';
-      textArea.style.boxShadow = 'none'; // Avoid flash of white box if rendered for any reason.
-
-      textArea.style.background = 'transparent';
-      textArea.value = value;
-      document.body.appendChild(textArea);
-      textArea.select();
-
-      try {
-        var successful = document.execCommand('copy');
-        var msg = successful ? 'successful' : 'unsuccessful';
-        console.log('Copying text command was ' + msg);
-
-        if (typeof successCallback === 'function') {
-          return successCallback(value);
-        }
-
-        return true;
-      } catch (err) {
-        console.error('Oops, unable to copy', err);
-
-        if (typeof failCallback === 'function') {
-          return failCallback(value);
-        }
-
-        return false;
-      }
-    }
-  }]);
-
   function CopyWrapper(props) {
     var _this;
 
@@ -799,6 +704,47 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
       }, _.omit.apply(_, [this.props, 'children', 'style', 'value', 'onCopy', 'mounted'].concat(_toConsumableArray(_.keys(CopyWrapper.defaultProps)))));
 
       return /*#__PURE__*/React.createElement(wrapperElement, wrapperProps, elemsToWrap);
+    }
+  }], [{
+    key: "copyToClipboard",
+    value: function copyToClipboard(value) {
+      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var failCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var textArea = document.createElement('textarea');
+      textArea.style.top = '-100px';
+      textArea.style.left = '-100px';
+      textArea.style.position = 'absolute';
+      textArea.style.width = '5px';
+      textArea.style.height = '5px';
+      textArea.style.padding = 0;
+      textArea.style.border = 'none';
+      textArea.style.outline = 'none';
+      textArea.style.boxShadow = 'none'; // Avoid flash of white box if rendered for any reason.
+
+      textArea.style.background = 'transparent';
+      textArea.value = value;
+      document.body.appendChild(textArea);
+      textArea.select();
+
+      try {
+        var successful = document.execCommand('copy');
+        var msg = successful ? 'successful' : 'unsuccessful';
+        console.log('Copying text command was ' + msg);
+
+        if (typeof successCallback === 'function') {
+          return successCallback(value);
+        }
+
+        return true;
+      } catch (err) {
+        console.error('Oops, unable to copy', err);
+
+        if (typeof failCallback === 'function') {
+          return failCallback(value);
+        }
+
+        return false;
+      }
     }
   }]);
 
