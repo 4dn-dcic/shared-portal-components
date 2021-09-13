@@ -54,9 +54,7 @@ import ReactTooltip from 'react-tooltip';
 import memoize from 'memoize-one';
 import { JSDOM } from 'jsdom';
 import parseDOM from 'html-react-parser';
-import createDOMPurify from 'dompurify'; // import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
-// import domToReact from 'html-react-parser/lib/dom-to-react';
-
+import createDOMPurify from 'dompurify';
 import md5 from 'js-md5';
 import { patchedConsoleInstance as console } from './patched-console';
 import { getSchemaProperty } from './schema-transforms';
@@ -427,7 +425,7 @@ export function htmlToJSX(htmlString) {
     return /*#__PURE__*/React.createElement("div", {
       className: "error"
     }, "Parsing Error. Check your markup.");
-  } // console.log('DDDD', domToReact, jsxOutput);
+  } // console.log('DDDD', jsxOutput);
 
 
   return jsxOutput;

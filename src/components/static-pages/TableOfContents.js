@@ -213,6 +213,15 @@ class TableEntry extends React.Component {
 class TableEntryChildren extends React.Component {
 
     static getHeadersFromContent = memoize(function(jsxContent, maxHeaderDepth, currentDepth){
+        if (Array.isArray(jsxContent)) {
+            // As of html-react-parser v1.2.8, we may get back array of content, including "\n" or similar.
+            return jsxContent.reduce(function(m, c){
+                const res = TableEntryChildren.getHeadersFromContent(c, maxHeaderDepth, currentDepth);
+                m.childDepth = Math.max(res.childDepth, m.childDepth);
+                m.childrenForDepth = m.childrenForDepth.concat(res.childrenForDepth);
+                return m;
+            }, { childDepth: currentDepth, childrenForDepth: [] });
+        }
         if (!TableOfContents.isContentJSX(jsxContent)) return [];
         let depthToFind = currentDepth;
         let childrenForDepth = [];
@@ -267,9 +276,9 @@ class TableEntryChildren extends React.Component {
         var { skipDepth, maxHeaderDepth, listStyleTypes, pageScrollTop, mounted, nextHeader, recurDepth } = opts;
 
         if (Array.isArray(childHeaders) && childHeaders.length > 0){
-            return _.map(childHeaders, function(h, index){
+            return childHeaders.map(function(h, index){
 
-                var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
+                const childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
 
                 if (skipDepth > currentDepth){
                     return TableEntryChildren.renderChildrenElements(
@@ -277,12 +286,12 @@ class TableEntryChildren extends React.Component {
                     );
                 }
 
-                var hAttributes = MarkdownHeading.getAttributes(h.props.children);
-                var linkTitle = TableOfContents.textFromReactChildren(h.props.children);
+                const hAttributes = MarkdownHeading.getAttributes(h.props.children);
+                let linkTitle = TableOfContents.textFromReactChildren(h.props.children);
 
                 // We must have this to be equal to the ID of the element we're navigating to.
                 // A custom ID might be set in Markdown 'attributes' which we prefer over the one passed to explicitly via props.
-                var link = (hAttributes && hAttributes.id) || h.props.id || null;
+                let link = (hAttributes && hAttributes.id) || h.props.id || null;
 
                 if (hAttributes && hAttributes.matchedString){
                     linkTitle = linkTitle.replace(hAttributes.matchedString, '').trim();
@@ -291,7 +300,7 @@ class TableEntryChildren extends React.Component {
                 /** @deprecated */
                 if (!link) link = TableOfContents.slugify(linkTitle); // Fallback -- attempt to not use -- may fail.
 
-                var collapsible = currentDepth >= 1 + skipDepth;
+                const collapsible = currentDepth >= 1 + skipDepth;
                 return (
                     <TableEntry
                         link={link}
@@ -399,24 +408,25 @@ export class TableOfContents extends React.Component {
 
     static isContentJSX(content){
         if (!content || typeof content !== 'object') return false;
-        var proto = Object.getPrototypeOf(content);
+        const proto = Object.getPrototypeOf(content);
         return proto && proto.isPrototypeOf(React.Component.prototype);
     }
 
     static elementIDFromSectionName(sectionName){
-        var sectionParts;
+        let sectionParts;
+        let idToUse = sectionName;
         if (sectionName.indexOf('#') > -1){
             sectionParts = sectionName.split('#');
-            sectionName = sectionParts[sectionParts.length - 1];
+            idToUse = sectionParts[sectionParts.length - 1];
         } else if (sectionName.indexOf('.') > -1){
             sectionParts = sectionName.split('.');
-            sectionName = sectionParts[sectionParts.length - 1];
+            idToUse = sectionParts[sectionParts.length - 1];
         }
-        return sectionName;
+        return idToUse;
     }
 
     static scrollToLink(link, offsetBeforeTarget = 72, navigateFunc = navigate, targetElement = null){
-        var pageScrollTop, elementTop;
+        let elementTop;
         if (link === "top") {
             elementTop = 0;
         } else if (typeof link === 'string' && link){
@@ -430,7 +440,7 @@ export class TableOfContents extends React.Component {
             return null;
         }
 
-        pageScrollTop = getPageVerticalScrollPosition();
+        const pageScrollTop = getPageVerticalScrollPosition();
 
         animateScrollTo(elementTop, 750, offsetBeforeTarget, ()=>{
             if (typeof navigateFunc === 'function'){
@@ -560,14 +570,15 @@ export class TableOfContents extends React.Component {
     }
 
     render(){
-        const { context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes, windowWidth, windowHeight, maxHeight } = this.props;
+        const { context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes, windowWidth, windowHeight, maxHeight, navigate: propNavigate } = this.props;
         const { mounted, scrollTop, widthBound } = this.state;
         const contents = [];
         let skipDepth = 0;
 
         const sectionEntries = () => {
-            var lastSection = null;
-            var excludeSectionsFromTOC = _.filter(context.content, function(section){ return section.title || section['toc-title']; }).length < 2;
+            let lastSection = null;
+            // Don't make top-level section entries if not all sections have a section title.
+            const excludeSectionsFromTOC = _.filter(context.content, function(section){ return section.title || section['toc-title']; }).length < 2;
             return _(context.content).chain()
                 .sortBy(function(s){
                     return s.order || 99;
@@ -582,8 +593,8 @@ export class TableOfContents extends React.Component {
                 .map((s, i, all) => {
                     if (excludeSectionsFromTOC){
                         skipDepth = 1;
-                        var { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(s.content, maxHeaderDepth, 1);
-                        var opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth }, {
+                        const { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(s.content, maxHeaderDepth, 1);
+                        const opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth }, {
                             'mounted' : mounted,
                             'pageScrollTop' : scrollTop,
                             'nextHeader' : s.nextHeader
@@ -595,7 +606,7 @@ export class TableOfContents extends React.Component {
                             title={s['toc-title'] || s.title || _.map(s.link.split('-'), function(w){ return w.charAt(0).toUpperCase() + w.slice(1); } ).join(' ') }
                             key={s.link} depth={1} content={s.content} listStyleTypes={listStyleTypes}
                             pageScrollTop={scrollTop} mounted={mounted} nextHeader={s.nextHeader}
-                            navigate={this.props.navigate} maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth} />
+                            navigate={propNavigate} maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth} />
                     );
                 })
                 .flatten(false)

@@ -353,7 +353,7 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
           recurDepth = opts.recurDepth;
 
       if (Array.isArray(childHeaders) && childHeaders.length > 0) {
-        return _.map(childHeaders, function (h) {
+        return childHeaders.map(function (h) {
           var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
 
           if (skipDepth > currentDepth) {
@@ -403,6 +403,19 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
 }(React.Component);
 
 _defineProperty(TableEntryChildren, "getHeadersFromContent", memoize(function (jsxContent, maxHeaderDepth, currentDepth) {
+  if (Array.isArray(jsxContent)) {
+    // As of html-react-parser v1.2.8, we may get back array of content, including "\n" or similar.
+    return jsxContent.reduce(function (m, c) {
+      var res = TableEntryChildren.getHeadersFromContent(c, maxHeaderDepth, currentDepth);
+      m.childDepth = Math.max(res.childDepth, m.childDepth);
+      m.childrenForDepth = m.childrenForDepth.concat(res.childrenForDepth);
+      return m;
+    }, {
+      childDepth: currentDepth,
+      childrenForDepth: []
+    });
+  }
+
   if (!TableOfContents.isContentJSX(jsxContent)) return [];
   var depthToFind = currentDepth;
   var childrenForDepth = [];
@@ -582,8 +595,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this6 = this;
-
       var _this$props3 = this.props,
           context = _this$props3.context,
           maxHeaderDepth = _this$props3.maxHeaderDepth,
@@ -593,7 +604,8 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           listStyleTypes = _this$props3.listStyleTypes,
           windowWidth = _this$props3.windowWidth,
           windowHeight = _this$props3.windowHeight,
-          maxHeight = _this$props3.maxHeight;
+          maxHeight = _this$props3.maxHeight,
+          propNavigate = _this$props3.navigate;
       var _this$state = this.state,
           mounted = _this$state.mounted,
           scrollTop = _this$state.scrollTop,
@@ -602,7 +614,8 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       var skipDepth = 0;
 
       var sectionEntries = function () {
-        var lastSection = null;
+        var lastSection = null; // Don't make top-level section entries if not all sections have a section title.
+
         var excludeSectionsFromTOC = _.filter(context.content, function (section) {
           return section.title || section['toc-title'];
         }).length < 2;
@@ -648,7 +661,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
             pageScrollTop: scrollTop,
             mounted: mounted,
             nextHeader: s.nextHeader,
-            navigate: _this6.props.navigate,
+            navigate: propNavigate,
             maxHeaderDepth: maxHeaderDepth,
             skipDepth: skipDepth
           });
@@ -767,16 +780,17 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     key: "elementIDFromSectionName",
     value: function elementIDFromSectionName(sectionName) {
       var sectionParts;
+      var idToUse = sectionName;
 
       if (sectionName.indexOf('#') > -1) {
         sectionParts = sectionName.split('#');
-        sectionName = sectionParts[sectionParts.length - 1];
+        idToUse = sectionParts[sectionParts.length - 1];
       } else if (sectionName.indexOf('.') > -1) {
         sectionParts = sectionName.split('.');
-        sectionName = sectionParts[sectionParts.length - 1];
+        idToUse = sectionParts[sectionParts.length - 1];
       }
 
-      return sectionName;
+      return idToUse;
     }
   }, {
     key: "scrollToLink",
@@ -784,7 +798,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       var offsetBeforeTarget = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 72;
       var navigateFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : navigate;
       var targetElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      var pageScrollTop, elementTop;
+      var elementTop;
 
       if (link === "top") {
         elementTop = 0;
@@ -799,7 +813,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         return null;
       }
 
-      pageScrollTop = getPageVerticalScrollPosition();
+      var pageScrollTop = getPageVerticalScrollPosition();
       animateScrollTo(elementTop, 750, offsetBeforeTarget, function () {
         if (typeof navigateFunc === 'function') {
           setTimeout(function () {
@@ -889,13 +903,13 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
   var _super4 = _createSuper(MarkdownHeading);
 
   function MarkdownHeading(props) {
-    var _this7;
+    var _this6;
 
     _classCallCheck(this, MarkdownHeading);
 
-    _this7 = _super4.call(this, props);
-    _this7.getID = _this7.getID.bind(_assertThisInitialized(_this7));
-    return _this7;
+    _this6 = _super4.call(this, props);
+    _this6.getID = _this6.getID.bind(_assertThisInitialized(_this6));
+    return _this6;
   }
 
   _createClass(MarkdownHeading, [{
@@ -999,13 +1013,13 @@ export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   var _super5 = _createSuper(HeaderWithLink);
 
   function HeaderWithLink(props) {
-    var _this8;
+    var _this7;
 
     _classCallCheck(this, HeaderWithLink);
 
-    _this8 = _super5.call(this, props);
-    _this8.handleLinkClick = _this8.handleLinkClick.bind(_assertThisInitialized(_this8));
-    return _this8;
+    _this7 = _super5.call(this, props);
+    _this7.handleLinkClick = _this7.handleLinkClick.bind(_assertThisInitialized(_this7));
+    return _this7;
   }
 
   _createClass(HeaderWithLink, [{
