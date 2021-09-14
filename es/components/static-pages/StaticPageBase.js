@@ -106,7 +106,7 @@ var Wrapper = /*#__PURE__*/React.memo(function (props) {
     pageTitle: pageTitle,
     fixedGridWidth: 3,
     maxHeaderDepth: toc['header-depth'] || 6
-  }, _.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')))) : null, /*#__PURE__*/React.createElement("div", {
+  }, _.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler', 'fixedPositionBreakpoint')))) : null, /*#__PURE__*/React.createElement("div", {
     key: "main-column",
     className: "order-2 col-12 col-xl-" + (tocExists ? '9' : '12')
   }, children)));
@@ -265,7 +265,7 @@ export var StaticPageBase = /*#__PURE__*/function (_React$PureComponent2) {
       }
 
       var tableOfContents = parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled ? parsedContent['table-of-contents'] : false;
-      return /*#__PURE__*/React.createElement(Wrapper, _extends({}, _.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href'), {
+      return /*#__PURE__*/React.createElement(Wrapper, _extends({}, _.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint'), {
         key: "page-wrapper",
         title: parsedContent.title,
         tableOfContents: tableOfContents,

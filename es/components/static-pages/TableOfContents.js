@@ -2,6 +2,18 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -106,24 +118,34 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "handleClick",
     value: function handleClick() {
-      TableOfContents.scrollToLink(this.props.link, this.props.offsetBeforeTarget, this.props.navigate, this.getTargetElement());
+      var _this$props = this.props,
+          link = _this$props.link,
+          offsetBeforeTarget = _this$props.offsetBeforeTarget,
+          propNavigate = _this$props.navigate;
+      TableOfContents.scrollToLink(link, offsetBeforeTarget, propNavigate, this.getTargetElement());
     }
   }, {
     key: "determineIfActive",
     value: function determineIfActive() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
-      if (!props.mounted) return false;
-      var scrollingOuterElement = getScrollingOuterElement(),
-          targetElem,
-          elemTop;
+      var mounted = props.mounted,
+          depth = props.depth,
+          link = props.link,
+          nextHeader = props.nextHeader,
+          pageScrollTop = props.pageScrollTop,
+          offsetBeforeTarget = props.offsetBeforeTarget;
+      if (!mounted) return false;
+      var scrollingOuterElement = getScrollingOuterElement();
+      var targetElem;
+      var elemTop;
 
-      if (props.depth === 0 && props.mounted) {
+      if (depth === 0 && mounted) {
         elemTop = 0;
       } else {
-        targetElem = this.getTargetElement(props.link);
+        targetElem = this.getTargetElement(link);
         elemTop = getElementTop(targetElem);
 
-        if (props.mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight) {
+        if (mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight) {
           // Try to prevent from trying to scroll past max scrollable height.
           elemTop = Math.min(scrollingOuterElement.scrollHeight - window.innerHeight, elemTop);
         }
@@ -131,22 +153,25 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
 
       if (typeof elemTop !== 'number') return null;
 
-      if (props.nextHeader) {
+      if (nextHeader) {
         var nextHeaderTop = null;
 
-        if (typeof props.nextHeader === 'number') {
-          nextHeaderTop = props.nextHeader;
+        if (typeof nextHeader === 'number') {
+          nextHeaderTop = nextHeader;
         } else {
           var nextHeaderElement = this.getNextHeaderElement(props);
-          if (nextHeaderElement) nextHeaderTop = getElementTop(nextHeaderElement);
+
+          if (nextHeaderElement) {
+            nextHeaderTop = getElementTop(nextHeaderElement);
+          }
         }
 
-        if (nextHeaderTop && props.pageScrollTop >= Math.max(props.depth > 0 ? 40 : 0, elemTop - props.offsetBeforeTarget - 120) && props.pageScrollTop < nextHeaderTop - props.offsetBeforeTarget - 120) return true;else return false;
+        if (nextHeaderTop && pageScrollTop >= Math.max(depth > 0 ? 40 : 0, elemTop - offsetBeforeTarget - 120) && pageScrollTop < nextHeaderTop - offsetBeforeTarget - 120) return true;else return false;
       } else if (targetElem && targetElem.className.split(' ').indexOf('static-section-entry') > -1) {
         var elemStyle = targetElem.computedStyle || window.getComputedStyle(targetElem);
-        if (props.pageScrollTop >= elemTop - props.offsetBeforeTarget - 120 && props.pageScrollTop < elemTop + parseInt(elemStyle.marginTop) + targetElem.offsetHeight - props.offsetBeforeTarget - 120) return true;else return false;
-      } else if (props.depth === 0) {
-        if (props.mounted && props.pageScrollTop >= 0 && props.pageScrollTop < 40) return true;
+        if (pageScrollTop >= elemTop - offsetBeforeTarget - 120 && pageScrollTop < elemTop + parseInt(elemStyle.marginTop) + targetElem.offsetHeight - offsetBeforeTarget - 120) return true;else return false;
+      } else if (depth === 0) {
+        if (mounted && pageScrollTop >= 0 && pageScrollTop < 40) return true;
       }
 
       return false;
@@ -166,21 +191,21 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
-      var _this$props = this.props,
-          recurDepth = _this$props.recurDepth,
-          link = _this$props.link,
-          content = _this$props.content,
-          maxHeaderDepth = _this$props.maxHeaderDepth,
-          depth = _this$props.depth,
-          collapsible = _this$props.collapsible,
-          mounted = _this$props.mounted,
-          listStyleTypes = _this$props.listStyleTypes,
-          pageScrollTop = _this$props.pageScrollTop,
-          nextHeader = _this$props.nextHeader,
-          children = _this$props.children,
-          skipDepth = _this$props.skipDepth,
-          className = _this$props.className,
-          propNavigate = _this$props.navigate;
+      var _this$props2 = this.props,
+          recurDepth = _this$props2.recurDepth,
+          link = _this$props2.link,
+          content = _this$props2.content,
+          maxHeaderDepth = _this$props2.maxHeaderDepth,
+          depth = _this$props2.depth,
+          collapsible = _this$props2.collapsible,
+          mounted = _this$props2.mounted,
+          listStyleTypes = _this$props2.listStyleTypes,
+          pageScrollTop = _this$props2.pageScrollTop,
+          nextHeader = _this$props2.nextHeader,
+          children = _this$props2.children,
+          skipDepth = _this$props2.skipDepth,
+          className = _this$props2.className,
+          propNavigate = _this$props2.navigate;
       var title = this.props.title;
 
       var _ref2 = this.state || {},
@@ -251,7 +276,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
 
 _defineProperty(TableEntry, "getChildHeaders", memoize(function (content, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
-  return _.filter(content.props.children, function (child) {
+  return content.props.children.filter(function (child) {
     return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (currentDepth + 1);
   });
 }));
@@ -307,6 +332,11 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
   }, {
     key: "children",
     value: function children() {
+      var _this$props3 = this.props,
+          content = _this$props3.content,
+          depth = _this$props3.depth,
+          propChildren = _this$props3.children;
+
       var _this$getHeadersFromC = this.getHeadersFromContent(),
           childHeaders = _this$getHeadersFromC.childHeaders,
           childDepth = _this$getHeadersFromC.childDepth;
@@ -314,28 +344,28 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
       if (childHeaders && childHeaders.length) {
         var opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
 
-        var _this$props2 = this.props,
-            content = _this$props2.content,
-            depth = _this$props2.depth;
         return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
       } else {
-        return this.props.children;
+        return propChildren;
       }
     }
   }, {
     key: "render",
     value: function render() {
-      // Removed: 'collapse' children if not over them (re: negative feedback)
+      var _this$props4 = this.props,
+          listStyleTypes = _this$props4.listStyleTypes,
+          _this$props4$depth = _this$props4.depth,
+          depth = _this$props4$depth === void 0 ? 0 : _this$props4$depth; // Removed: 'collapse' children if not over them (re: negative feedback)
       //if (this.props.depth >= 3 && !this.props.active) return null;
-      var children = this.children();
-      if (!children) return null;
+
+      var renderedChildren = this.children();
+      if (!renderedChildren) return null;
       return /*#__PURE__*/React.createElement("ol", {
         className: "inner",
         style: {
-          'listStyleType': this.props.listStyleTypes[(this.props.depth || 0) + 1]
-        },
-        children: children
-      });
+          'listStyleType': listStyleTypes[depth + 1]
+        }
+      }, renderedChildren);
     }
   }], [{
     key: "renderChildrenElements",
@@ -440,8 +470,7 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(functio
   if (!TableOfContents.isContentJSX(jsxContent)) return null;
   var getNext = null;
   var nextMajorHeader = null;
-
-  var nextHeaderComponents = _.reduce(jsxContent.props.children, function (m, child) {
+  var nextHeaderComponents = jsxContent.props.children.reduce(function (m, child) {
     if (getNext === null && child === header) {
       getNext = true;
       return m;
@@ -460,7 +489,6 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(functio
   },
   /* m = */
   []);
-
   return {
     'content': /*#__PURE__*/React.cloneElement(jsxContent, {}, nextHeaderComponents),
     'nextMajorHeader': nextMajorHeader
@@ -595,17 +623,19 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props3 = this.props,
-          context = _this$props3.context,
-          maxHeaderDepth = _this$props3.maxHeaderDepth,
-          includeTop = _this$props3.includeTop,
-          fixedGridWidth = _this$props3.fixedGridWidth,
-          includeNextPreviousPages = _this$props3.includeNextPreviousPages,
-          listStyleTypes = _this$props3.listStyleTypes,
-          windowWidth = _this$props3.windowWidth,
-          windowHeight = _this$props3.windowHeight,
-          maxHeight = _this$props3.maxHeight,
-          propNavigate = _this$props3.navigate;
+      var _this$props5 = this.props,
+          context = _this$props5.context,
+          maxHeaderDepth = _this$props5.maxHeaderDepth,
+          includeTop = _this$props5.includeTop,
+          fixedGridWidth = _this$props5.fixedGridWidth,
+          includeNextPreviousPages = _this$props5.includeNextPreviousPages,
+          listStyleTypes = _this$props5.listStyleTypes,
+          windowWidth = _this$props5.windowWidth,
+          windowHeight = _this$props5.windowHeight,
+          maxHeight = _this$props5.maxHeight,
+          propNavigate = _this$props5.navigate,
+          _this$props5$fixedPos = _this$props5.fixedPositionBreakpoint,
+          fixedPositionBreakpoint = _this$props5$fixedPos === void 0 ? 1200 : _this$props5$fixedPos;
       var _this$state = this.state,
           mounted = _this$state.mounted,
           scrollTop = _this$state.scrollTop,
@@ -613,7 +643,11 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       var contents = [];
       var skipDepth = 0;
 
-      var sectionEntries = function () {
+      if (context && context.parent && context.parent['@id']) {
+        contents.push(this.parentLink(windowWidth));
+      }
+
+      var renderedSections = function sectionEntries() {
         var lastSection = null; // Don't make top-level section entries if not all sections have a section title.
 
         var excludeSectionsFromTOC = _.filter(context.content, function (section) {
@@ -666,26 +700,27 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
             skipDepth: skipDepth
           });
         }).flatten(false).value();
-      };
+      }();
 
-      if (context && context.parent && context.parent['@id']) {
-        contents.push(this.parentLink(windowWidth));
-      }
+      var _renderedSections = _slicedToArray(renderedSections, 1),
+          _renderedSections$0$p = _renderedSections[0].props;
 
-      var renderedSections = sectionEntries();
+      _renderedSections$0$p = _renderedSections$0$p === void 0 ? {} : _renderedSections$0$p;
+      var _renderedSections$0$p2 = _renderedSections$0$p.link,
+          firstSectionLink = _renderedSections$0$p2 === void 0 ? null : _renderedSections$0$p2;
       contents.push( /*#__PURE__*/React.createElement(TableEntry, {
         link: "top",
-        title: context['display_title'] || 'Top of Page' || null,
+        title: context.display_title || 'Top of Page' || null,
         key: "top",
         depth: 0,
         listStyleTypes: listStyleTypes,
         pageScrollTop: scrollTop,
         mounted: mounted,
-        navigate: this.props.navigate,
-        nextHeader: renderedSections[0] && renderedSections[0].props && renderedSections[0].props.link || null,
+        navigate: propNavigate,
+        nextHeader: firstSectionLink || null,
         maxHeaderDepth: maxHeaderDepth,
         skipDepth: skipDepth || 0
-      }, sectionEntries()));
+      }, renderedSections));
       var marginTop = 0; // Account for test warning
 
       if (windowWidth) {
@@ -702,10 +737,11 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         key: "toc",
         className: "table-of-contents" + (widthBound ? ' width-bounded' : ''),
         style: {
-          'width': windowWidth ? windowWidth >= 1200 ? function () {
-            return 1140 * (fixedGridWidth / 12) + (windowWidth - 1140) / 2 - 10;
+          'width': windowWidth ? windowWidth >= fixedPositionBreakpoint ? function () {
+            var containerWidth = fixedPositionBreakpoint - 60;
+            return containerWidth * (fixedGridWidth / 12) + (windowWidth - containerWidth) / 2 - 10;
           }() || 'inherit' : 'inherit' : 285,
-          'height': windowWidth && windowHeight ? windowWidth >= 1200 ? maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 : null : 1000,
+          'height': windowWidth && windowHeight ? windowWidth >= fixedPositionBreakpoint ? maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 : null : 1000,
           marginTop: marginTop
         }
       }, !isEmpty ? /*#__PURE__*/React.createElement("ol", {
@@ -714,10 +750,10 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           'listStyleType': listStyleTypes[0],
           'paddingLeft': 0
         }
-      }, contents) : null, includeNextPreviousPages ? /*#__PURE__*/React.createElement(NextPreviousPageSection, {
+      }, contents) : null, includeNextPreviousPages && (context.next || context.previous) ? /*#__PURE__*/React.createElement(NextPreviousPageSection, {
         context: context,
         windowInnerWidth: windowWidth
-      }) : null);
+      }) : /*#__PURE__*/React.createElement("br", null));
     }
   }], [{
     key: "slugify",
@@ -773,8 +809,8 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
     key: "isContentJSX",
     value: function isContentJSX(content) {
       if (!content || _typeof(content) !== 'object') return false;
-      var proto = Object.getPrototypeOf(content);
-      return proto && proto.isPrototypeOf(React.Component.prototype);
+      return /*#__PURE__*/React.isValidElement(content); // const proto = Object.getPrototypeOf(content);
+      // return proto && proto.isPrototypeOf(React.Component.prototype);
     }
   }, {
     key: "elementIDFromSectionName",
@@ -897,6 +933,8 @@ NextPreviousPageSection.defaultProps = {
   'previousTitle': 'Previous',
   'nextTitle': 'Next'
 };
+/** @todo We can probably have this work with HTML-type content as well. */
+
 export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(MarkdownHeading, _React$PureComponent);
 
@@ -936,10 +974,10 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props4 = this.props,
-          type = _this$props4.type,
-          children = _this$props4.children;
-      children = Array.isArray(children) ? children : [children];
+      var _this$props6 = this.props,
+          type = _this$props6.type,
+          propChildren = _this$props6.children;
+      var children = Array.isArray(propChildren) ? propChildren : [propChildren];
       var propsToPass = {
         'children': children,
         'id': null,
@@ -967,8 +1005,8 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
     }
   }], [{
     key: "getAttributes",
-    value: function getAttributes(children) {
-      children = Array.isArray(children) ? children : [children];
+    value: function getAttributes(childrenParam) {
+      var children = Array.isArray(childrenParam) ? childrenParam : [childrenParam];
       var attr = {
         'id': null,
         'className': null,
@@ -1025,14 +1063,17 @@ export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   _createClass(HeaderWithLink, [{
     key: "handleLinkClick",
     value: function handleLinkClick() {
+      var _this$props7 = this.props,
+          link = _this$props7.link,
+          propID = _this$props7.id,
+          context = _this$props7.context;
       if (!(!isServerSide() && typeof window !== 'undefined' && document)) return null;
-      var id = this.props.link || this.props.id,
-          itemAtID;
-      if (this.props.context) itemAtID = itemUtil.atId(this.props.context);else itemAtID = window.location.pathname;
+      var id = link || propID;
+      var itemAtID;
+      if (context) itemAtID = itemUtil.atId(context);else itemAtID = window.location.pathname;
 
       if (itemAtID) {
-        var linkToCopy = itemAtID + '#' + id;
-        linkToCopy = window.location.protocol + '//' + window.location.host + linkToCopy;
+        var linkToCopy = window.location.protocol + '//' + window.location.host + itemAtID + '#' + id;
         CopyWrapper.copyToClipboard(linkToCopy);
         TableOfContents.scrollToLink(id);
       }
@@ -1040,8 +1081,17 @@ export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      if (!this.props.id && !this.props.link) throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
-      return /*#__PURE__*/React.createElement(this.props.type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children, /*#__PURE__*/React.createElement("i", {
+      var _this$props8 = this.props,
+          link = _this$props8.link,
+          propID = _this$props8.id,
+          type = _this$props8.type,
+          children = _this$props8.children;
+
+      if (!propID && !link) {
+        throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
+      }
+
+      return /*#__PURE__*/React.createElement(type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [children, /*#__PURE__*/React.createElement("i", {
         key: "icon-link",
         className: "icon icon-fw icon-link fas",
         onClick: this.handleLinkClick,

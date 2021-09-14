@@ -82,7 +82,7 @@ const Wrapper = React.memo(function Wrapper(props){
                 { tocExists ? (
                     <div key="toc-wrapper" className="col-12 col-xl-3 order-1 order-xl-3">
                         <TableOfContents pageTitle={pageTitle} fixedGridWidth={3} maxHeaderDepth={toc['header-depth'] || 6}
-                            {..._.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler')}
+                            {..._.pick(props, 'navigate', 'windowWidth', 'windowHeight', 'context', 'href', 'registerWindowOnScrollHandler', 'fixedPositionBreakpoint')}
                             // skipDepth={1} includeTop={toc['include-top-link']} listStyleTypes={['none'].concat((toc && toc['list-styles']) || this.props.tocListStyles)}
                         />
                     </div>
@@ -189,7 +189,7 @@ export class StaticEntry extends React.PureComponent {
  */
 export class StaticPageBase extends React.PureComponent {
 
-    static Wrapper = Wrapper
+    static Wrapper = Wrapper;
 
     static renderSections(renderMethod, parsedContent, props){
         if (!parsedContent || !parsedContent.content || !Array.isArray(parsedContent.content)){
@@ -260,7 +260,7 @@ export class StaticPageBase extends React.PureComponent {
         const tableOfContents = (parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled) ? parsedContent['table-of-contents'] : false;
         return (
             <Wrapper
-                {..._.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href')}
+                {..._.pick(this.props, 'navigate', 'windowWidth', 'windowHeight', 'registerWindowOnScrollHandler', 'href', 'fixedPositionBreakpoint')}
                 key="page-wrapper" title={parsedContent.title}
                 tableOfContents={tableOfContents} context={parsedContent}>
                 { StaticPageBase.renderSections(entryRenderFxn, parsedContent, this.props) }
