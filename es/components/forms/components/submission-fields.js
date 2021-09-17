@@ -1,6 +1,6 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -12,7 +12,7 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -30,11 +30,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -67,52 +67,6 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(BuildField, _React$PureComponent);
 
   var _super = _createSuper(BuildField);
-
-  _createClass(BuildField, null, [{
-    key: "fieldTypeFromFieldSchema",
-
-    /**
-     * Gets the (interal) field type from a schema for a field.
-     * Possible return values include 'attachment', 'linked object', 'enum', 'text', 'html', 'code', 'boolean', 'number', 'integer', etc.
-     *
-     * @todo Handle date formats, other things, etc.
-     *
-     * @param {{ 'type' : string }} fieldSchema - Schema definition for this property. Should be same as `app.state.schemas[CurrentItemType].properties[currentField]`.
-     * @returns {string} Type of field that will be created, according to schema.
-     */
-    value: function fieldTypeFromFieldSchema(fieldSchema) {
-      var fieldType = fieldSchema.type ? fieldSchema.type : "text"; // transform some types...
-
-      if (fieldType === 'string') {
-        fieldType = 'text';
-
-        if (typeof fieldSchema.formInput === 'string') {
-          if (['textarea', 'html', 'code'].indexOf(fieldSchema.formInput) > -1) {
-            return fieldSchema.formInput;
-          }
-        }
-      } // check if this is an enum
-
-
-      if (Array.isArray(fieldSchema["enum"])) {
-        // not sure why this is here if suggested_enum doesn't even appear when is a field with that type
-        fieldType = 'enum';
-      }
-
-      if (Array.isArray(fieldSchema.suggested_enum)) {
-        fieldType = "suggested_enum";
-      } // handle a linkTo object on the the top level
-
-
-      if (fieldSchema.linkTo) {
-        fieldType = 'linked object';
-      } else if (fieldSchema.attachment && fieldSchema.attachment === true) {
-        fieldType = 'attachment';
-      }
-
-      return fieldType;
-    }
-  }]);
 
   function BuildField(props) {
     var _this;
@@ -188,8 +142,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
         if (filetype === 'md' || filetype === 'html') {
           return /*#__PURE__*/React.createElement(PreviewField, _extends({}, this.props, {
             filetype: filetype,
-            fieldType: fieldType
-          }, {
+            fieldType: fieldType,
             onChange: this.handleChange
           }));
         }
@@ -623,6 +576,50 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
         onClick: this.deleteField
       })));
     }
+  }], [{
+    key: "fieldTypeFromFieldSchema",
+    value:
+    /**
+     * Gets the (interal) field type from a schema for a field.
+     * Possible return values include 'attachment', 'linked object', 'enum', 'text', 'html', 'code', 'boolean', 'number', 'integer', etc.
+     *
+     * @todo Handle date formats, other things, etc.
+     *
+     * @param {{ 'type' : string }} fieldSchema - Schema definition for this property. Should be same as `app.state.schemas[CurrentItemType].properties[currentField]`.
+     * @returns {string} Type of field that will be created, according to schema.
+     */
+    function fieldTypeFromFieldSchema(fieldSchema) {
+      var fieldType = fieldSchema.type ? fieldSchema.type : "text"; // transform some types...
+
+      if (fieldType === 'string') {
+        fieldType = 'text';
+
+        if (typeof fieldSchema.formInput === 'string') {
+          if (['textarea', 'html', 'code'].indexOf(fieldSchema.formInput) > -1) {
+            return fieldSchema.formInput;
+          }
+        }
+      } // check if this is an enum
+
+
+      if (Array.isArray(fieldSchema["enum"])) {
+        // not sure why this is here if suggested_enum doesn't even appear when is a field with that type
+        fieldType = 'enum';
+      }
+
+      if (Array.isArray(fieldSchema.suggested_enum)) {
+        fieldType = "suggested_enum";
+      } // handle a linkTo object on the the top level
+
+
+      if (fieldSchema.linkTo) {
+        fieldType = 'linked object';
+      } else if (fieldSchema.attachment && fieldSchema.attachment === true) {
+        fieldType = 'attachment';
+      }
+
+      return fieldType;
+    }
   }]);
 
   return BuildField;
@@ -669,44 +666,6 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
   _inherits(ArrayField, _React$Component);
 
   var _super2 = _createSuper(ArrayField);
-
-  _createClass(ArrayField, null, [{
-    key: "typeOfItems",
-    value: function typeOfItems(itemSchema) {
-      var fieldType = itemSchema.type ? itemSchema.type : "text"; // transform some types...
-
-      if (fieldType === 'string') {
-        fieldType = 'text';
-      } // check if this is an enum
-
-
-      if (itemSchema["enum"]) {
-        fieldType = 'enum';
-      }
-
-      if (itemSchema.suggested_enum) {
-        fieldType = 'suggested_enum';
-      } // handle a linkTo object on the the top level
-
-
-      if (itemSchema.linkTo) {
-        fieldType = 'linked object';
-      }
-
-      return fieldType;
-    }
-  }, {
-    key: "shouldPushArrayValue",
-    value: function shouldPushArrayValue(currentArr) {
-      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-      if (!currentArr || Array.isArray(currentArr) && (currentArr.length === 0 || !isValueNull(currentArr[currentArr.length - 1]))) {
-        return true;
-      }
-
-      return false;
-    }
-  }]);
 
   function ArrayField(props) {
     var _this2;
@@ -861,6 +820,42 @@ var ArrayField = /*#__PURE__*/function (_React$Component) {
         className: "list-of-array-items"
       }, valuesToRender.map(this.initiateArrayField), showAddButton ? this.generateAddButton() : null);
     }
+  }], [{
+    key: "typeOfItems",
+    value: function typeOfItems(itemSchema) {
+      var fieldType = itemSchema.type ? itemSchema.type : "text"; // transform some types...
+
+      if (fieldType === 'string') {
+        fieldType = 'text';
+      } // check if this is an enum
+
+
+      if (itemSchema["enum"]) {
+        fieldType = 'enum';
+      }
+
+      if (itemSchema.suggested_enum) {
+        fieldType = 'suggested_enum';
+      } // handle a linkTo object on the the top level
+
+
+      if (itemSchema.linkTo) {
+        fieldType = 'linked object';
+      }
+
+      return fieldType;
+    }
+  }, {
+    key: "shouldPushArrayValue",
+    value: function shouldPushArrayValue(currentArr) {
+      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      if (!currentArr || Array.isArray(currentArr) && (currentArr.length === 0 || !isValueNull(currentArr[currentArr.length - 1]))) {
+        return true;
+      }
+
+      return false;
+    }
   }]);
 
   return ArrayField;
@@ -995,8 +990,7 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
           fieldTip: fieldTip,
           enumValues: enumValues,
           nestedField: propNestedField + '.' + field,
-          title: title
-        }, {
+          title: title,
           value: fieldValue,
           key: field,
           schema: fieldSchema,
@@ -1439,42 +1433,6 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
 
   var _super6 = _createSuper(AliasInputField);
 
-  _createClass(AliasInputField, null, [{
-    key: "emailToString",
-    value: function emailToString(email) {
-      return email.replace('@', "_at_");
-    }
-  }, {
-    key: "getInitialSubmitsForFirstPart",
-    value: function getInitialSubmitsForFirstPart(submitter) {
-      var submits_for_list = submitter && Array.isArray(submitter.submits_for) && submitter.submits_for.length > 0 && submitter.submits_for || null;
-      var primaryLab = submitter && submitter.lab || null;
-      var primaryLabID = primaryLab && object.itemUtil.atId(primaryLab);
-
-      if (!submits_for_list) {
-        // Fallback to using submitter ID.
-        return AliasInputField.emailToString(submitter.email);
-      }
-
-      if (primaryLabID && primaryLab.name && _.map(submits_for_list, object.itemUtil.atId).indexOf(primaryLabID) > -1) {
-        return primaryLab.name;
-      } else {
-        return submits_for_list[0].name;
-      }
-    }
-  }, {
-    key: "splitInTwo",
-    value: function splitInTwo(str) {
-      var parts = (str || ':').split(':');
-
-      if (parts.length > 2) {
-        return [parts[0], parts.slice(1).join(':')];
-      }
-
-      return parts;
-    }
-  }]);
-
   function AliasInputField(props) {
     var _this9;
 
@@ -1618,6 +1576,40 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
       })), showErrorMsg && errorMessage ? /*#__PURE__*/React.createElement("div", {
         className: "invalid-feedback d-block text-right"
       }, errorMessage) : null);
+    }
+  }], [{
+    key: "emailToString",
+    value: function emailToString(email) {
+      return email.replace('@', "_at_");
+    }
+  }, {
+    key: "getInitialSubmitsForFirstPart",
+    value: function getInitialSubmitsForFirstPart(submitter) {
+      var submits_for_list = submitter && Array.isArray(submitter.submits_for) && submitter.submits_for.length > 0 && submitter.submits_for || null;
+      var primaryLab = submitter && submitter.lab || null;
+      var primaryLabID = primaryLab && object.itemUtil.atId(primaryLab);
+
+      if (!submits_for_list) {
+        // Fallback to using submitter ID.
+        return AliasInputField.emailToString(submitter.email);
+      }
+
+      if (primaryLabID && primaryLab.name && _.map(submits_for_list, object.itemUtil.atId).indexOf(primaryLabID) > -1) {
+        return primaryLab.name;
+      } else {
+        return submits_for_list[0].name;
+      }
+    }
+  }, {
+    key: "splitInTwo",
+    value: function splitInTwo(str) {
+      var parts = (str || ':').split(':');
+
+      if (parts.length > 2) {
+        return [parts[0], parts.slice(1).join(':')];
+      }
+
+      return parts;
     }
   }]);
 

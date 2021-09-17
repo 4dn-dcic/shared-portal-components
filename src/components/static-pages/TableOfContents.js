@@ -15,7 +15,7 @@ class TableEntry extends React.Component {
 
     static getChildHeaders = memoize(function(content, maxHeaderDepth, currentDepth){
         if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
-        return _.filter(content.props.children, function(child,i,a){
+        return content.props.children.filter(function(child,i,a){
             return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && (child.props.type === 'h' + (currentDepth + 1));
         });
     });
@@ -85,23 +85,25 @@ class TableEntry extends React.Component {
     }
 
     handleClick(){
-        TableOfContents.scrollToLink(this.props.link, this.props.offsetBeforeTarget, this.props.navigate, this.getTargetElement());
+        const { link, offsetBeforeTarget, navigate: propNavigate } = this.props;
+        TableOfContents.scrollToLink(link, offsetBeforeTarget, propNavigate, this.getTargetElement());
     }
 
     determineIfActive(props = this.props){
+        const { mounted, depth, link, nextHeader, pageScrollTop, offsetBeforeTarget } = props;
 
-        if (!props.mounted) return false;
+        if (!mounted) return false;
 
-        var scrollingOuterElement = getScrollingOuterElement(),
-            targetElem,
-            elemTop;
+        const scrollingOuterElement = getScrollingOuterElement();
+        let targetElem;
+        let elemTop;
 
-        if (props.depth === 0 && props.mounted){
+        if (depth === 0 && mounted){
             elemTop = 0;
         } else {
-            targetElem = this.getTargetElement(props.link);
+            targetElem = this.getTargetElement(link);
             elemTop = getElementTop(targetElem);
-            if (props.mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight){
+            if (mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight){
                 // Try to prevent from trying to scroll past max scrollable height.
                 elemTop = Math.min(scrollingOuterElement.scrollHeight - window.innerHeight, elemTop);
             }
@@ -109,40 +111,33 @@ class TableEntry extends React.Component {
 
         if (typeof elemTop !== 'number') return null;
 
-        if (props.nextHeader) {
-            var nextHeaderTop = null;
-            if (typeof props.nextHeader === 'number'){
-                nextHeaderTop = props.nextHeader;
+        if (nextHeader) {
+            let nextHeaderTop = null;
+            if (typeof nextHeader === 'number'){
+                nextHeaderTop = nextHeader;
             } else {
-                var nextHeaderElement = this.getNextHeaderElement(props);
-                if (nextHeaderElement) nextHeaderTop = getElementTop(nextHeaderElement);
+                const nextHeaderElement = this.getNextHeaderElement(props);
+                if (nextHeaderElement) {
+                    nextHeaderTop = getElementTop(nextHeaderElement);
+                }
             }
             if (
                 nextHeaderTop &&
-                props.pageScrollTop >= Math.max(props.depth > 0 ? 40 : 0, elemTop - props.offsetBeforeTarget - 120) &&
-                props.pageScrollTop < (nextHeaderTop - props.offsetBeforeTarget - 120)
+                pageScrollTop >= Math.max(depth > 0 ? 40 : 0, elemTop - offsetBeforeTarget - 120) &&
+                pageScrollTop < (nextHeaderTop - offsetBeforeTarget - 120)
             ) return true;
             else return false;
         } else if (targetElem && targetElem.className.split(' ').indexOf('static-section-entry') > -1) {
-            var elemStyle = (targetElem.computedStyle || window.getComputedStyle(targetElem));
+            const elemStyle = (targetElem.computedStyle || window.getComputedStyle(targetElem));
             if (
-                props.pageScrollTop >= (elemTop - props.offsetBeforeTarget - 120) &&
-                props.pageScrollTop <  (
-                    elemTop +
-                    parseInt(elemStyle.marginTop) +
-                    targetElem.offsetHeight -
-                    props.offsetBeforeTarget - 120
-                )
+                pageScrollTop >= (elemTop - offsetBeforeTarget - 120) &&
+                pageScrollTop < (elemTop + parseInt(elemStyle.marginTop) + targetElem.offsetHeight - offsetBeforeTarget - 120)
             ) return true;
             else return false;
-        } else if (props.depth === 0){
-            if (
-                props.mounted &&
-                props.pageScrollTop >= 0 && props.pageScrollTop < 40
-            ) return true;
+        } else if (depth === 0){
+            if (mounted && pageScrollTop >= 0 && pageScrollTop < 40) return true;
         }
         return false;
-
     }
 
     toggleOpen(){
@@ -213,6 +208,15 @@ class TableEntry extends React.Component {
 class TableEntryChildren extends React.Component {
 
     static getHeadersFromContent = memoize(function(jsxContent, maxHeaderDepth, currentDepth){
+        if (Array.isArray(jsxContent)) {
+            // As of html-react-parser v1.2.8, we may get back array of content, including "\n" or similar.
+            return jsxContent.reduce(function(m, c){
+                const res = TableEntryChildren.getHeadersFromContent(c, maxHeaderDepth, currentDepth);
+                m.childDepth = Math.max(res.childDepth, m.childDepth);
+                m.childrenForDepth = m.childrenForDepth.concat(res.childrenForDepth);
+                return m;
+            }, { childDepth: currentDepth, childrenForDepth: [] });
+        }
         if (!TableOfContents.isContentJSX(jsxContent)) return [];
         let depthToFind = currentDepth;
         let childrenForDepth = [];
@@ -233,9 +237,9 @@ class TableEntryChildren extends React.Component {
     static getSubsequentChildHeaders = memoize(function(header, jsxContent, maxHeaderDepth, currentDepth){
         if (!TableOfContents.isContentJSX(jsxContent)) return null;
 
-        var getNext = null;
-        var nextMajorHeader = null;
-        var nextHeaderComponents = _.reduce(jsxContent.props.children, (m, child)=>{
+        let getNext = null;
+        let nextMajorHeader = null;
+        const nextHeaderComponents = jsxContent.props.children.reduce(function(m, child){
             if (getNext === null && child === header){
                 getNext = true;
                 return m;
@@ -263,13 +267,12 @@ class TableEntryChildren extends React.Component {
     });
 
     static renderChildrenElements(childHeaders, currentDepth, jsxContent, opts={ 'skipDepth' : 0, 'nextHeader' : null }){
-
-        var { skipDepth, maxHeaderDepth, listStyleTypes, pageScrollTop, mounted, nextHeader, recurDepth } = opts;
+        const { skipDepth, maxHeaderDepth, listStyleTypes, pageScrollTop, mounted, nextHeader, recurDepth } = opts;
 
         if (Array.isArray(childHeaders) && childHeaders.length > 0){
-            return _.map(childHeaders, function(h, index){
+            return childHeaders.map(function(h, index){
 
-                var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
+                const childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
 
                 if (skipDepth > currentDepth){
                     return TableEntryChildren.renderChildrenElements(
@@ -277,12 +280,12 @@ class TableEntryChildren extends React.Component {
                     );
                 }
 
-                var hAttributes = MarkdownHeading.getAttributes(h.props.children);
-                var linkTitle = TableOfContents.textFromReactChildren(h.props.children);
+                const hAttributes = MarkdownHeading.getAttributes(h.props.children);
+                let linkTitle = TableOfContents.textFromReactChildren(h.props.children);
 
                 // We must have this to be equal to the ID of the element we're navigating to.
                 // A custom ID might be set in Markdown 'attributes' which we prefer over the one passed to explicitly via props.
-                var link = (hAttributes && hAttributes.id) || h.props.id || null;
+                let link = (hAttributes && hAttributes.id) || h.props.id || null;
 
                 if (hAttributes && hAttributes.matchedString){
                     linkTitle = linkTitle.replace(hAttributes.matchedString, '').trim();
@@ -291,7 +294,7 @@ class TableEntryChildren extends React.Component {
                 /** @deprecated */
                 if (!link) link = TableOfContents.slugify(linkTitle); // Fallback -- attempt to not use -- may fail.
 
-                var collapsible = currentDepth >= 1 + skipDepth;
+                const collapsible = currentDepth >= 1 + skipDepth;
                 return (
                     <TableEntry
                         link={link}
@@ -337,22 +340,23 @@ class TableEntryChildren extends React.Component {
     }
 
     children(){
-        var { childHeaders, childDepth } = this.getHeadersFromContent();
+        const { content, depth, children: propChildren } = this.props;
+        const { childHeaders, childDepth } = this.getHeadersFromContent();
         if (childHeaders && childHeaders.length){
-            var opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
-            var { content, depth } = this.props;
+            const opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
             return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
         } else {
-            return this.props.children;
+            return propChildren;
         }
     }
 
     render(){
+        const { listStyleTypes, depth = 0 } = this.props;
         // Removed: 'collapse' children if not over them (re: negative feedback)
         //if (this.props.depth >= 3 && !this.props.active) return null;
-        var children = this.children();
-        if (!children) return null;
-        return <ol className="inner" style={{ 'listStyleType' : this.props.listStyleTypes[(this.props.depth || 0) + 1] }} children={children}/>;
+        const renderedChildren = this.children();
+        if (!renderedChildren) return null;
+        return <ol className="inner" style={{ 'listStyleType' : listStyleTypes[depth + 1] }}>{ renderedChildren }</ol>;
     }
 }
 
@@ -399,24 +403,26 @@ export class TableOfContents extends React.Component {
 
     static isContentJSX(content){
         if (!content || typeof content !== 'object') return false;
-        var proto = Object.getPrototypeOf(content);
-        return proto && proto.isPrototypeOf(React.Component.prototype);
+        return React.isValidElement(content);
+        // const proto = Object.getPrototypeOf(content);
+        // return proto && proto.isPrototypeOf(React.Component.prototype);
     }
 
     static elementIDFromSectionName(sectionName){
-        var sectionParts;
+        let sectionParts;
+        let idToUse = sectionName;
         if (sectionName.indexOf('#') > -1){
             sectionParts = sectionName.split('#');
-            sectionName = sectionParts[sectionParts.length - 1];
+            idToUse = sectionParts[sectionParts.length - 1];
         } else if (sectionName.indexOf('.') > -1){
             sectionParts = sectionName.split('.');
-            sectionName = sectionParts[sectionParts.length - 1];
+            idToUse = sectionParts[sectionParts.length - 1];
         }
-        return sectionName;
+        return idToUse;
     }
 
     static scrollToLink(link, offsetBeforeTarget = 72, navigateFunc = navigate, targetElement = null){
-        var pageScrollTop, elementTop;
+        let elementTop;
         if (link === "top") {
             elementTop = 0;
         } else if (typeof link === 'string' && link){
@@ -430,7 +436,7 @@ export class TableOfContents extends React.Component {
             return null;
         }
 
-        pageScrollTop = getPageVerticalScrollPosition();
+        const pageScrollTop = getPageVerticalScrollPosition();
 
         animateScrollTo(elementTop, 750, offsetBeforeTarget, ()=>{
             if (typeof navigateFunc === 'function'){
@@ -560,14 +566,19 @@ export class TableOfContents extends React.Component {
     }
 
     render(){
-        const { context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes, windowWidth, windowHeight, maxHeight } = this.props;
+        const {
+            context, maxHeaderDepth, includeTop, fixedGridWidth, includeNextPreviousPages, listStyleTypes,
+            windowWidth, windowHeight, maxHeight, navigate: propNavigate,
+            fixedPositionBreakpoint = 1200
+        } = this.props;
         const { mounted, scrollTop, widthBound } = this.state;
         const contents = [];
         let skipDepth = 0;
 
         const sectionEntries = () => {
-            var lastSection = null;
-            var excludeSectionsFromTOC = _.filter(context.content, function(section){ return section.title || section['toc-title']; }).length < 2;
+            let lastSection = null;
+            // Don't make top-level section entries if not all sections have a section title.
+            const excludeSectionsFromTOC = _.filter(context.content, function(section){ return section.title || section['toc-title']; }).length < 2;
             return _(context.content).chain()
                 .sortBy(function(s){
                     return s.order || 99;
@@ -582,8 +593,8 @@ export class TableOfContents extends React.Component {
                 .map((s, i, all) => {
                     if (excludeSectionsFromTOC){
                         skipDepth = 1;
-                        var { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(s.content, maxHeaderDepth, 1);
-                        var opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth }, {
+                        const { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(s.content, maxHeaderDepth, 1);
+                        const opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth }, {
                             'mounted' : mounted,
                             'pageScrollTop' : scrollTop,
                             'nextHeader' : s.nextHeader
@@ -595,7 +606,7 @@ export class TableOfContents extends React.Component {
                             title={s['toc-title'] || s.title || _.map(s.link.split('-'), function(w){ return w.charAt(0).toUpperCase() + w.slice(1); } ).join(' ') }
                             key={s.link} depth={1} content={s.content} listStyleTypes={listStyleTypes}
                             pageScrollTop={scrollTop} mounted={mounted} nextHeader={s.nextHeader}
-                            navigate={this.props.navigate} maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth} />
+                            navigate={propNavigate} maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth} />
                     );
                 })
                 .flatten(false)
@@ -609,15 +620,16 @@ export class TableOfContents extends React.Component {
         }
 
         const renderedSections = sectionEntries();
+        const [ { props: { link: firstSectionLink = null } = {} } ] = renderedSections;
 
         contents.push(
             <TableEntry link="top"
-                title={context['display_title'] || 'Top of Page' || null}
+                title={context.display_title || 'Top of Page' || null}
                 key="top" depth={0} listStyleTypes={listStyleTypes}
-                pageScrollTop={scrollTop} mounted={mounted} navigate={this.props.navigate}
-                nextHeader={(renderedSections[0] && renderedSections[0].props && renderedSections[0].props.link) || null}
+                pageScrollTop={scrollTop} mounted={mounted} navigate={propNavigate}
+                nextHeader={firstSectionLink || null}
                 maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth || 0}>
-                { sectionEntries() }
+                { renderedSections }
             </TableEntry>
         );
 
@@ -634,18 +646,19 @@ export class TableOfContents extends React.Component {
         const isEmpty = (Array.isArray(contents) && !_.filter(contents).length) || !contents;
 
         function generateFixedWidth(){
-            return 1140 * (fixedGridWidth / 12) + (windowWidth - 1140) / 2 - 10;
+            const containerWidth = fixedPositionBreakpoint - 60;
+            return containerWidth * (fixedGridWidth / 12) + (windowWidth - containerWidth) / 2 - 10;
         }
 
         return (
             <div key="toc" className={"table-of-contents" + (widthBound ? ' width-bounded' : '')} style={{
                 'width' : windowWidth ?
-                    windowWidth >= 1200 ? generateFixedWidth() || 'inherit'
+                    windowWidth >= fixedPositionBreakpoint ? generateFixedWidth() || 'inherit'
                         :'inherit'
                     : 285,
                 'height' :
                     (windowWidth && windowHeight ?
-                        windowWidth >= 1200 ?
+                        windowWidth >= fixedPositionBreakpoint ?
                             ( maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 )
                             : null
                         : 1000),
@@ -655,7 +668,7 @@ export class TableOfContents extends React.Component {
                 { !isEmpty ?
                     <ol className="inner" style={{ 'listStyleType' : listStyleTypes[0], 'paddingLeft' : 0 }}>{ contents }</ol>
                     : null }
-                { includeNextPreviousPages ? <NextPreviousPageSection context={context} windowInnerWidth={windowWidth} /> : null }
+                { includeNextPreviousPages && (context.next || context.previous) ? <NextPreviousPageSection context={context} windowInnerWidth={windowWidth} /> : <br/> }
             </div>
         );
     }
@@ -693,12 +706,12 @@ NextPreviousPageSection.defaultProps = {
 };
 
 
-
+/** @todo We can probably have this work with HTML-type content as well. */
 export class MarkdownHeading extends React.PureComponent {
 
-    static getAttributes(children){
-        children = Array.isArray(children) ? children : [children];
-        var attr = { 'id' : null, 'className' : null, 'matchedString' : null };
+    static getAttributes(childrenParam){
+        const children = Array.isArray(childrenParam) ? childrenParam : [childrenParam];
+        const attr = { 'id': null, 'className': null, 'matchedString': null };
 
         const childrenOuterText = _.filter(children, function(c){ return typeof c === 'string'; }).join(' ');
         let attrMatch = childrenOuterText.match(/({:[.-\w#]+})/g);
@@ -706,7 +719,7 @@ export class MarkdownHeading extends React.PureComponent {
         if (attrMatch && attrMatch.length){
             attr.matchedString = attrMatch[0];
             attrMatch = attrMatch[0].replace('{:', '').replace('}', '');
-            var idMatch = attrMatch.match(/(#[-\w]+)/g);
+            let idMatch = attrMatch.match(/(#[-\w]+)/g);
             if (idMatch && idMatch.length){
                 idMatch = idMatch[0].replace('#', '');
                 attr.id = idMatch;
@@ -740,15 +753,15 @@ export class MarkdownHeading extends React.PureComponent {
     componentWillUnmount(){ delete this.id; }
 
     render(){
-        var { type, children } = this.props;
-        children = Array.isArray(children) ? children : [children];
-        var propsToPass = {
+        const { type, children: propChildren } = this.props;
+        const children = Array.isArray(propChildren) ? propChildren : [propChildren];
+        const propsToPass = {
             'children' : children,
             'id' : null,
             'type' : type
         };
 
-        var attributes = MarkdownHeading.getAttributes(children);
+        const attributes = MarkdownHeading.getAttributes(children);
 
         if (attributes && attributes.matchedString){
             propsToPass.children = _.map(children, function(c){
@@ -776,24 +789,30 @@ export class HeaderWithLink extends React.PureComponent {
     }
 
     handleLinkClick(e){
+        const { link, id: propID, context } = this.props;
         if (!(!isServerSide() && typeof window !== 'undefined' && document)) return null;
-        var id = this.props.link || this.props.id,
-            itemAtID;
-        if (this.props.context) itemAtID = itemUtil.atId(this.props.context);
+        const id = link || propID;
+        let itemAtID;
+        if (context) itemAtID = itemUtil.atId(context);
         else itemAtID = window.location.pathname;
 
         if (itemAtID){
-            var linkToCopy = itemAtID + '#' + id;
-            linkToCopy = window.location.protocol + '//' + window.location.host + linkToCopy;
+            const linkToCopy = (
+                window.location.protocol + '//' + window.location.host
+                + itemAtID + '#' + id
+            );
             CopyWrapper.copyToClipboard(linkToCopy);
             TableOfContents.scrollToLink(id);
         }
     }
 
     render(){
-        if (!this.props.id && !this.props.link) throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
-        return React.createElement(this.props.type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [
-            this.props.children,
+        const { link, id: propID, type, children } = this.props;
+        if (!propID && !link) {
+            throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
+        }
+        return React.createElement(type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [
+            children,
             <i key="icon-link" className="icon icon-fw icon-link fas" onClick={this.handleLinkClick} title="Copy link to clipboard"/>
         ]);
     }

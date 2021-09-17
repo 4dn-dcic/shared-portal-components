@@ -1,6 +1,8 @@
 'use strict'; // @flow
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var _excluded = ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"];
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -8,7 +10,7 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
@@ -24,11 +26,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -55,30 +57,6 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
   _inherits(CustomColumnController, _React$Component);
 
   var _super = _createSuper(CustomColumnController);
-
-  _createClass(CustomColumnController, null, [{
-    key: "filterOutHiddenCols",
-    value: function filterOutHiddenCols(columnDefinitions) {
-      var hiddenColumns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var filterColumnFxn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-      if (hiddenColumns || typeof filterColumnFxn === "function") {
-        return columnDefinitions.filter(function (colDef, i, a) {
-          if (hiddenColumns && hiddenColumns[colDef.field] === true) {
-            return false;
-          }
-
-          if (typeof filterColumnFxn === "function") {
-            return filterColumnFxn(colDef, i, a);
-          }
-
-          return true;
-        });
-      }
-
-      return columnDefinitions;
-    }
-  }]);
 
   function CustomColumnController(props) {
     var _this;
@@ -169,7 +147,7 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
           alwaysHiddenColsList = _this$props$hiddenCol === void 0 ? [] : _this$props$hiddenCol,
           allColumnDefinitions = _this$props.columnDefinitions,
           filterColumnFxn = _this$props.filterColumnFxn,
-          remainingProps = _objectWithoutProperties(_this$props, ["children", "hiddenColumns", "columnDefinitions", "filterColumnFxn"]);
+          remainingProps = _objectWithoutProperties(_this$props, _excluded);
 
       var _this$state = this.state,
           hiddenColumns = _this$state.hiddenColumns,
@@ -197,6 +175,28 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
         return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
     }
+  }], [{
+    key: "filterOutHiddenCols",
+    value: function filterOutHiddenCols(columnDefinitions) {
+      var hiddenColumns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var filterColumnFxn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      if (hiddenColumns || typeof filterColumnFxn === "function") {
+        return columnDefinitions.filter(function (colDef, i, a) {
+          if (hiddenColumns && hiddenColumns[colDef.field] === true) {
+            return false;
+          }
+
+          if (typeof filterColumnFxn === "function") {
+            return filterColumnFxn(colDef, i, a);
+          }
+
+          return true;
+        });
+      }
+
+      return columnDefinitions;
+    }
   }]);
 
   return CustomColumnController;
@@ -214,28 +214,6 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(CustomColumnSelector, _React$PureComponent);
 
   var _super2 = _createSuper(CustomColumnSelector);
-
-  _createClass(CustomColumnSelector, null, [{
-    key: "columnDefinitionsWithHiddenState",
-
-    /**
-     * Extends `props.columnDefinitions` (Object[]) with property `hiddenState` (boolean)
-     * according to internal state of `hiddenColumns` (Object.<boolean>).
-     *
-     * Sorts columns according to order and remove the display_title option, as well.
-     *
-     * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
-     */
-    value: function columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns) {
-      return _.sortBy(columnDefinitions.filter(function (c) {
-        return c.field !== 'display_title'; // Should always remain visible.
-      }), 'order').map(function (colDef) {
-        return _objectSpread(_objectSpread({}, colDef), {}, {
-          'hiddenState': hiddenColumns[colDef.field] === true
-        });
-      });
-    }
-  }]);
 
   function CustomColumnSelector(props) {
     var _this2;
@@ -285,6 +263,26 @@ export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {
         }));
       }));
     }
+  }], [{
+    key: "columnDefinitionsWithHiddenState",
+    value:
+    /**
+     * Extends `props.columnDefinitions` (Object[]) with property `hiddenState` (boolean)
+     * according to internal state of `hiddenColumns` (Object.<boolean>).
+     *
+     * Sorts columns according to order and remove the display_title option, as well.
+     *
+     * @returns {Object[]} Copy of columnDefintions with `hiddenState` added.
+     */
+    function columnDefinitionsWithHiddenState(columnDefinitions, hiddenColumns) {
+      return _.sortBy(columnDefinitions.filter(function (c) {
+        return c.field !== 'display_title'; // Should always remain visible.
+      }), 'order').map(function (colDef) {
+        return _objectSpread(_objectSpread({}, colDef), {}, {
+          'hiddenState': hiddenColumns[colDef.field] === true
+        });
+      });
+    }
   }]);
 
   return CustomColumnSelector;
@@ -324,11 +322,10 @@ var ColumnOption = /*#__PURE__*/React.memo(function (props) {
     key: field,
     "data-tip": showDescription,
     "data-html": true
-  }, /*#__PURE__*/React.createElement(Checkbox, _extends({
+  }, /*#__PURE__*/React.createElement(Checkbox, {
     className: className,
-    checked: checked
-  }, {
+    checked: checked,
     value: field,
     onChange: handleOptionVisibilityChange
-  }), title));
+  }, title));
 });

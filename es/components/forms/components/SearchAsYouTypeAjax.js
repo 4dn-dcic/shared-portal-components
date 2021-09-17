@@ -1,4 +1,6 @@
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var _excluded = ["optionsHeader", "value", "keyComplete"];
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
@@ -8,13 +10,13 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
@@ -36,11 +38,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -231,7 +233,7 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
           value = _this$props3.value,
           _this$props3$keyCompl = _this$props3.keyComplete,
           keyComplete = _this$props3$keyCompl === void 0 ? {} : _this$props3$keyCompl,
-          leftoverProps = _objectWithoutProperties(_this$props3, ["optionsHeader", "value", "keyComplete"]);
+          leftoverProps = _objectWithoutProperties(_this$props3, _excluded);
 
       var _this$state = this.state,
           currentTextValue = _this$state.currentTextValue,
@@ -272,8 +274,7 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       var hideButton = value && !isNaN(value) && !keyComplete[intKey];
       return hideButton ? null : /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
-        currentTextValue: currentTextValue
-      }, {
+        currentTextValue: currentTextValue,
         alignRight: true,
         options: results,
         onToggleOpen: this.onToggleOpen,
@@ -358,8 +359,7 @@ export function SubmissionViewSearchAsYouTypeAjax(props) {
   return /*#__PURE__*/React.createElement("div", {
     className: "d-flex flex-wrap"
   }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, _extends({
-    showTips: true
-  }, {
+    showTips: true,
     value: value,
     onChange: onChange,
     baseHref: baseHref,
@@ -544,35 +544,6 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(LinkedObj, _React$PureComponent2);
 
   var _super2 = _createSuper(LinkedObj);
-
-  _createClass(LinkedObj, null, [{
-    key: "isInSelectionField",
-
-    /**
-     * @param {string} props.nestedField - Field of LinkedObj
-     * @param {number[]|null} props.arrayIdx - Array index (if any) of this item, if any.
-     * @param {string} props.fieldBeingSelected - Field currently selected for linkedTo item selection.
-     * @param {number[]|null} props.fieldBeingSelectedArrayIdx - Array index (if any) of currently selected for linkedTo item selection.
-     * @returns {boolean} Whether is currently selected field/item or not.
-     */
-    value: function isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx) {
-      if (!fieldBeingSelected || fieldBeingSelected !== nestedField) {
-        return false;
-      }
-
-      if (arrayIdx === null && fieldBeingSelectedArrayIdx === null) {
-        return true;
-      }
-
-      if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
-        return _.every(arrayIdx, function (arrIdx, arrIdxIdx) {
-          return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
-        });
-      }
-
-      return false;
-    }
-  }]);
 
   function LinkedObj(props) {
     var _this3;
@@ -760,16 +731,15 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
         }
       }
 
-      return /*#__PURE__*/React.createElement(LinkToSelector, _extends({
+      return /*#__PURE__*/React.createElement(LinkToSelector, {
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
         onCloseChildWindow: selectCancel,
-        childWindowAlert: this.childWindowAlert
-      }, {
+        childWindowAlert: this.childWindowAlert,
         value: value,
         dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
         searchURL: searchURL
-      }));
+      });
     }
   }, {
     key: "renderButtons",
@@ -846,6 +816,33 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
         // nothing chosen/created yet
         return this.renderButtons();
       }
+    }
+  }], [{
+    key: "isInSelectionField",
+    value:
+    /**
+     * @param {string} props.nestedField - Field of LinkedObj
+     * @param {number[]|null} props.arrayIdx - Array index (if any) of this item, if any.
+     * @param {string} props.fieldBeingSelected - Field currently selected for linkedTo item selection.
+     * @param {number[]|null} props.fieldBeingSelectedArrayIdx - Array index (if any) of currently selected for linkedTo item selection.
+     * @returns {boolean} Whether is currently selected field/item or not.
+     */
+    function isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx) {
+      if (!fieldBeingSelected || fieldBeingSelected !== nestedField) {
+        return false;
+      }
+
+      if (arrayIdx === null && fieldBeingSelectedArrayIdx === null) {
+        return true;
+      }
+
+      if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
+        return _.every(arrayIdx, function (arrIdx, arrIdxIdx) {
+          return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
+        });
+      }
+
+      return false;
     }
   }]);
 

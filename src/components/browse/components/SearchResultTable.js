@@ -9,7 +9,7 @@ import _ from 'underscore';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import Infinite from 'react-infinite';
+import Infinite from '@4dn-dcic/react-infinite/build/react-infinite';
 
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
