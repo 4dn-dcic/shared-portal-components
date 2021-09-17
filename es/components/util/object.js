@@ -636,6 +636,7 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
         // Means we have a React component vs a React/JSX element.
         // This approach will be deprecated soon so we should look into forwarding refs
         // ... I think
+        // Possible TODO -- Just don't allow wrapperElement to be a Component.
         wrapper = ReactDOM.findDOMNode(wrapper);
       }
 
@@ -728,6 +729,10 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
         var successful = document.execCommand('copy');
         var msg = successful ? 'successful' : 'unsuccessful';
         console.log('Copying text command was ' + msg);
+        setTimeout(function () {
+          // Cleanup
+          textArea.remove();
+        }, 50);
 
         if (typeof successCallback === 'function') {
           return successCallback(value);
