@@ -1016,12 +1016,6 @@ export default class SubmissionView extends React.PureComponent{
 
     /**
      * Master object submission function.
-     *
-     * @param {number} inKey             The temporary key (index) of unsubmitted item OR key of submitted item (requiring round-two
-     *                                   submission); key used in state (keyDisplay, keyContext) to refer to unsubmitted object
-     * @param {boolean} test             If 'true', test/validate object without submitting.
-     * @param {boolean} suppressWarnings Hide HTTP related warnings and errors from console
-     *
      * Uses ajax to POST/PATCH the json to the object collection (a new object) or to the
      * specific object path (a pre-existing/roundTwo object). If test=true,
      * the POST is made to the check_only=true endpoint for validation without
@@ -1037,6 +1031,16 @@ export default class SubmissionView extends React.PureComponent{
      * Handles roundTwo submission slightly differently. Uses PATCH and kicks off
      * uploads using updateUpload if there is a file given. Completes submission
      * process once all roundTwo objects have been skipped or submitted.
+     *
+     * @todo
+     * Move the award/project/lab/institution attribution related stuff to backend if possible.
+     * Otherwise could parameterize it into some props.transformRequestBeforeSend() function
+     * perhaps.
+     *
+     * @param {number} inKey             The temporary key (index) of unsubmitted item OR key of submitted item (requiring round-two
+     *                                   submission); key used in state (keyDisplay, keyContext) to refer to unsubmitted object
+     * @param {boolean} test             If 'true', test/validate object without submitting.
+     * @param {boolean} suppressWarnings Hide HTTP related warnings and errors from console
      */
     submitObject(inKey, test=false, suppressWarnings=false){
         console.log("SUBMITOBJ", ...arguments);
@@ -1075,8 +1079,10 @@ export default class SubmissionView extends React.PureComponent{
             // Todo: this code is 4dn specific; get rid of it and move it to fourfront (eventually)
             // if editing, use pre-existing award, lab, and submitted_by
             // this should only be done on the primary object
-            if (edit && inKey === 0 && context.award && context.lab){
 
+            if (edit && inKey === 0 && ((context.award && context.lab) || (context.project && context.institution))){
+
+                // If pre-existing award & lab
                 if (currSchema.properties.award && !('award' in finalizedContext)){
                     finalizedContext.award = object.itemUtil.atId(context.award);
                 }
@@ -1085,6 +1091,7 @@ export default class SubmissionView extends React.PureComponent{
                     finalizedContext.lab = object.itemUtil.atId(context.lab);
                 }
 
+                // If pre-existing project & institution
                 if (currSchema.properties.institution && !('institution' in finalizedContext)){
                     finalizedContext.institution = object.itemUtil.atId(context.institution);
                 }
@@ -1105,6 +1112,7 @@ export default class SubmissionView extends React.PureComponent{
                 }
 
             } else if (currType !== 'User') {
+                // If creating new Item or no existing award/lab/project/institution.
 
                 // Otherwise, use lab/award of user submitting unless values present
                 // Skip this is we are working on a User object
@@ -1124,8 +1132,6 @@ export default class SubmissionView extends React.PureComponent{
                 if (currSchema.properties.project && !('project' in finalizedContext) && currentSubmittingUser.project){
                     finalizedContext.project = object.itemUtil.atId(currentSubmittingUser.project);
                 }
-
-                console.log("DDD", currentSubmittingUser, finalizedContext);
 
             }
 
