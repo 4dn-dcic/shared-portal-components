@@ -2,8 +2,6 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var _excluded = ["context", "navigate"];
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -103,6 +101,53 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SubmissionView, _React$PureComponent);
 
   var _super = _createSuper(SubmissionView);
+
+  _createClass(SubmissionView, null, [{
+    key: "findValidationState",
+
+    /**
+     * Function to look at a specific object (reference by key) and
+     * use searchHierarchy() to see if the children of the given key
+     * contain any un-submitted custom objects. If they do, return
+     * 1 (ready to validate). Otherwise return 0 (not ready to validate)
+     *
+     * @todo maybe memoize this and replace usage of state.keyValid w/ it.
+     */
+    value: function findValidationState(keyIdx, prevKeyHierarchy) {
+      var hierarchy = object.deepClone(prevKeyHierarchy);
+      var keyHierarchy = searchHierarchy(hierarchy, keyIdx);
+      if (keyHierarchy === null) return 0;
+      var validationReturn = 1;
+
+      _.keys(keyHierarchy).forEach(function (key) {
+        // If key is a number, item has not been submitted yet... see note below
+        if (!isNaN(key)) {
+          // NOTE: as of SAYTAJAX, ONLY unsubmitted items are stored with numeric keys
+          validationReturn = 0;
+        }
+      });
+
+      return validationReturn;
+    }
+  }, {
+    key: "principalTitle",
+    value: function principalTitle(context, edit, create) {
+      var itemType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      var principalDisplay; // Name of our current Item being created.
+
+      if (create === true && !edit) {
+        principalDisplay = 'New ' + itemType;
+      } else if (edit === true && !create) {
+        if (context && typeof context.accession === 'string') {
+          principalDisplay = context.accession;
+        } else {
+          principalDisplay = itemType;
+        }
+      }
+
+      return principalDisplay;
+    }
+  }]);
 
   function SubmissionView(props) {
     var _this;
@@ -1861,7 +1906,7 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props5 = this.props,
           context = _this$props5.context,
           navigate = _this$props5.navigate,
-          propsToPass = _objectWithoutProperties(_this$props5, _excluded);
+          propsToPass = _objectWithoutProperties(_this$props5, ["context", "navigate"]);
 
       keyDisplay[currKey] || currType;
       return /*#__PURE__*/React.createElement("div", {
@@ -1916,51 +1961,6 @@ var SubmissionView = /*#__PURE__*/function (_React$PureComponent) {
         updateUpload: this.updateUpload,
         hierarchy: keyHierarchy
       }, _.pick(this.state, 'keyDisplay', 'keyComplete', 'keyIter', 'currKey', 'keyContext', 'upload', 'uploadStatus', 'md5Progress', 'roundTwo', 'currentSubmittingUser'))))));
-    }
-  }], [{
-    key: "findValidationState",
-    value:
-    /**
-     * Function to look at a specific object (reference by key) and
-     * use searchHierarchy() to see if the children of the given key
-     * contain any un-submitted custom objects. If they do, return
-     * 1 (ready to validate). Otherwise return 0 (not ready to validate)
-     *
-     * @todo maybe memoize this and replace usage of state.keyValid w/ it.
-     */
-    function findValidationState(keyIdx, prevKeyHierarchy) {
-      var hierarchy = object.deepClone(prevKeyHierarchy);
-      var keyHierarchy = searchHierarchy(hierarchy, keyIdx);
-      if (keyHierarchy === null) return 0;
-      var validationReturn = 1;
-
-      _.keys(keyHierarchy).forEach(function (key) {
-        // If key is a number, item has not been submitted yet... see note below
-        if (!isNaN(key)) {
-          // NOTE: as of SAYTAJAX, ONLY unsubmitted items are stored with numeric keys
-          validationReturn = 0;
-        }
-      });
-
-      return validationReturn;
-    }
-  }, {
-    key: "principalTitle",
-    value: function principalTitle(context, edit, create) {
-      var itemType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      var principalDisplay; // Name of our current Item being created.
-
-      if (create === true && !edit) {
-        principalDisplay = 'New ' + itemType;
-      } else if (edit === true && !create) {
-        if (context && typeof context.accession === 'string') {
-          principalDisplay = context.accession;
-        } else {
-          principalDisplay = itemType;
-        }
-      }
-
-      return principalDisplay;
     }
   }]);
 
@@ -2134,6 +2134,70 @@ var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
 
   var _super2 = _createSuper(DetailTitleBanner);
 
+  _createClass(DetailTitleBanner, null, [{
+    key: "getListOfKeysInPath",
+
+    /**
+     * Traverse keyHierarchy option to get a list of hierarchical keys, e.g. 0,1,4 if are on currKey 4 that is a child of currKey 1 that is a child of currKey 0.
+     *
+     * @param {Object} hierachy - Hierarchy as defined on state of SubmissionView components.
+     * @param {number} currKey - Current key of Object/Item we're editing.
+     * @returns {number[]} List of keys leading from 0 to currKey.
+     */
+    value: function getListOfKeysInPath(hierachy, currKey) {
+      function findNestedKey(obj) {
+        if (typeof obj[currKey] !== 'undefined') {
+          return [currKey];
+        } else {
+          var nestedFound = _.find(_.map(_.pairs(obj), // p[0] = key, p[1] = child obj with keys
+          function (p) {
+            return [p[0], findNestedKey(p[1])];
+          }), function (p) {
+            return typeof p[1] !== 'undefined' && p[1] !== null;
+          });
+
+          if (nestedFound) {
+            return [parseInt(nestedFound[0])].concat(nestedFound[1]);
+          }
+        }
+      }
+
+      return findNestedKey(hierachy);
+    }
+  }, {
+    key: "getContextPropertyNameOfNextKey",
+    value: function getContextPropertyNameOfNextKey(context, nextKey) {
+      var getArrayIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      var foundPropertyName = null;
+      var arrayIdx = null;
+
+      _.pairs(context).forEach(function (p) {
+        if (foundPropertyName) return;
+
+        if (p[1] === nextKey) {
+          foundPropertyName = p[0];
+        } // Remove value from array.
+
+
+        if (Array.isArray(p[1])) {
+          arrayIdx = p[1].indexOf(nextKey);
+
+          if (typeof arrayIdx === 'number' && arrayIdx > -1) {
+            foundPropertyName = p[0];
+          } else {
+            arrayIdx = null;
+          }
+        }
+      });
+
+      if (getArrayIndex) {
+        return [foundPropertyName, arrayIdx];
+      }
+
+      return foundPropertyName;
+    }
+  }]);
+
   function DetailTitleBanner(props) {
     var _this8;
 
@@ -2249,68 +2313,6 @@ var DetailTitleBanner = /*#__PURE__*/function (_React$PureComponent2) {
       }, "Currently Editing ", currKey > 0 ? /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw fas icon-caret-" + (open ? 'down' : 'right')
       }) : null)), open ? this.generateHierarchicalTitles() : this.generateCrumbTitle(currKey));
-    }
-  }], [{
-    key: "getListOfKeysInPath",
-    value:
-    /**
-     * Traverse keyHierarchy option to get a list of hierarchical keys, e.g. 0,1,4 if are on currKey 4 that is a child of currKey 1 that is a child of currKey 0.
-     *
-     * @param {Object} hierachy - Hierarchy as defined on state of SubmissionView components.
-     * @param {number} currKey - Current key of Object/Item we're editing.
-     * @returns {number[]} List of keys leading from 0 to currKey.
-     */
-    function getListOfKeysInPath(hierachy, currKey) {
-      function findNestedKey(obj) {
-        if (typeof obj[currKey] !== 'undefined') {
-          return [currKey];
-        } else {
-          var nestedFound = _.find(_.map(_.pairs(obj), // p[0] = key, p[1] = child obj with keys
-          function (p) {
-            return [p[0], findNestedKey(p[1])];
-          }), function (p) {
-            return typeof p[1] !== 'undefined' && p[1] !== null;
-          });
-
-          if (nestedFound) {
-            return [parseInt(nestedFound[0])].concat(nestedFound[1]);
-          }
-        }
-      }
-
-      return findNestedKey(hierachy);
-    }
-  }, {
-    key: "getContextPropertyNameOfNextKey",
-    value: function getContextPropertyNameOfNextKey(context, nextKey) {
-      var getArrayIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-      var foundPropertyName = null;
-      var arrayIdx = null;
-
-      _.pairs(context).forEach(function (p) {
-        if (foundPropertyName) return;
-
-        if (p[1] === nextKey) {
-          foundPropertyName = p[0];
-        } // Remove value from array.
-
-
-        if (Array.isArray(p[1])) {
-          arrayIdx = p[1].indexOf(nextKey);
-
-          if (typeof arrayIdx === 'number' && arrayIdx > -1) {
-            foundPropertyName = p[0];
-          } else {
-            arrayIdx = null;
-          }
-        }
-      });
-
-      if (getArrayIndex) {
-        return [foundPropertyName, arrayIdx];
-      }
-
-      return foundPropertyName;
     }
   }]);
 

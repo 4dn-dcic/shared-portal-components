@@ -1,9 +1,5 @@
 'use strict';
 
-var _excluded = ["children", "columns", "columnExtensionMap", "filterColumnFxn"];
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -23,6 +19,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -71,6 +69,45 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(ColumnCombiner, _React$PureComponent);
 
   var _super = _createSuper(ColumnCombiner);
+
+  _createClass(ColumnCombiner, null, [{
+    key: "getDefinitions",
+
+    /**
+     * Merges `columns` from backend context (or prop, via StaticSection) with `columnExtensionMap` prop from front-end.
+     * Forms `columnDefinitions` list which is ultimately displayed in result table.
+     *
+     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {Object<string,{ colTitle: JSX.Element|string, render: function(Item, ...): JSX.Element, widthMap: { sm: number, md: number, lg: number } }} columnExtensionMap - Column definitions/extensions from front-end code.
+     * @returns {{ title: string, field: string, render: function, widthMap: { sm: number, md: number, lg: number } }[]} Final form of columns to display
+     */
+    value: function getDefinitions(columns, columnExtensionMap) {
+      // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
+      // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
+      return columnsToColumnDefinitions(columns, columnExtensionMap);
+    }
+    /**
+     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
+     * @param {function} filterColumnFxn - filtering function
+     */
+
+  }, {
+    key: "filteredColumns",
+    value: function filteredColumns(columns) {
+      var filterColumnFxn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      if (typeof filterColumnFxn !== "function" || _typeof(columns) !== 'object') {
+        return columns;
+      }
+
+      var nextColumns = {};
+      Object.keys(columns).forEach(function (key) {
+        if (filterColumnFxn(key, columns[key])) return;
+        nextColumns[key] = columns[key];
+      });
+      return nextColumns;
+    }
+  }]);
 
   function ColumnCombiner(props) {
     var _this;
@@ -138,7 +175,7 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
           columnExtensionMap = _this$props.columnExtensionMap,
           _this$props$filterCol = _this$props.filterColumnFxn,
           filterColumnFxn = _this$props$filterCol === void 0 ? null : _this$props$filterCol,
-          passProps = _objectWithoutProperties(_this$props, _excluded);
+          passProps = _objectWithoutProperties(_this$props, ["children", "columns", "columnExtensionMap", "filterColumnFxn"]);
 
       var _passProps$context = passProps.context;
       _passProps$context = _passProps$context === void 0 ? {} : _passProps$context;
@@ -163,43 +200,6 @@ export var ColumnCombiner = /*#__PURE__*/function (_React$PureComponent) {
       return React.Children.map(children, function (child) {
         return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
-    }
-  }], [{
-    key: "getDefinitions",
-    value:
-    /**
-     * Merges `columns` from backend context (or prop, via StaticSection) with `columnExtensionMap` prop from front-end.
-     * Forms `columnDefinitions` list which is ultimately displayed in result table.
-     *
-     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
-     * @param {Object<string,{ colTitle: JSX.Element|string, render: function(Item, ...): JSX.Element, widthMap: { sm: number, md: number, lg: number } }} columnExtensionMap - Column definitions/extensions from front-end code.
-     * @returns {{ title: string, field: string, render: function, widthMap: { sm: number, md: number, lg: number } }[]} Final form of columns to display
-     */
-    function getDefinitions(columns, columnExtensionMap) {
-      // TODO: Consider changing `defaultHiddenColumnMapFromColumns` to accept array (columnDefinitions) instd of Object (columns).
-      // We currently don't put "default_hidden" property in columnExtensionMap, but could, in which case this change would be needed.
-      return columnsToColumnDefinitions(columns, columnExtensionMap);
-    }
-    /**
-     * @param {Object<string,{ title: string }} columns - Column definitions from backend (e.g. context, StaticSection props)
-     * @param {function} filterColumnFxn - filtering function
-     */
-
-  }, {
-    key: "filteredColumns",
-    value: function filteredColumns(columns) {
-      var filterColumnFxn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-      if (typeof filterColumnFxn !== "function" || _typeof(columns) !== 'object') {
-        return columns;
-      }
-
-      var nextColumns = {};
-      Object.keys(columns).forEach(function (key) {
-        if (filterColumnFxn(key, columns[key])) return;
-        nextColumns[key] = columns[key];
-      });
-      return nextColumns;
     }
   }]);
 

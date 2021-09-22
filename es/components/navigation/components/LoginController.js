@@ -2,9 +2,6 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var _excluded = ["children"],
-    _excluded2 = ["children"];
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -358,7 +355,7 @@ export var LoginController = /*#__PURE__*/function (_React$PureComponent) {
     value: function render() {
       var _this$props3 = this.props,
           children = _this$props3.children,
-          passProps = _objectWithoutProperties(_this$props3, _excluded);
+          passProps = _objectWithoutProperties(_this$props3, ["children"]);
 
       var _this$state = this.state,
           isLoading = _this$state.isLoading,
@@ -536,7 +533,7 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
     value: function render() {
       var _this$props4 = this.props,
           children = _this$props4.children,
-          passProps = _objectWithoutProperties(_this$props4, _excluded2);
+          passProps = _objectWithoutProperties(_this$props4, ["children"]);
 
       var isLoading = this.state.isLoading;
       return /*#__PURE__*/React.cloneElement(children, _objectSpread(_objectSpread({}, passProps), {}, {

@@ -1,7 +1,5 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -13,6 +11,10 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -251,9 +253,10 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         "data-recursion-depth": recurDepth
       }, title, /*#__PURE__*/React.createElement(Collapse, {
         "in": !this.state || open && mounted
-      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(TableEntryChildren, {
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(TableEntryChildren, _extends({
         navigate: propNavigate,
-        parentClosed: this.state && !open,
+        parentClosed: this.state && !open
+      }, {
         active: active,
         content: content,
         childHeaders: childHeaders,
@@ -267,7 +270,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         maxHeaderDepth: maxHeaderDepth,
         skipDepth: skipDepth,
         recurDepth: recurDepth
-      }))));
+      })))));
     }
   }]);
 
@@ -300,6 +303,68 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
   _inherits(TableEntryChildren, _React$Component2);
 
   var _super2 = _createSuper(TableEntryChildren);
+
+  _createClass(TableEntryChildren, null, [{
+    key: "renderChildrenElements",
+    value: function renderChildrenElements(childHeaders, currentDepth, jsxContent) {
+      var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {
+        'skipDepth': 0,
+        'nextHeader': null
+      };
+      var skipDepth = opts.skipDepth,
+          maxHeaderDepth = opts.maxHeaderDepth,
+          listStyleTypes = opts.listStyleTypes,
+          pageScrollTop = opts.pageScrollTop,
+          mounted = opts.mounted,
+          nextHeader = opts.nextHeader,
+          recurDepth = opts.recurDepth;
+
+      if (Array.isArray(childHeaders) && childHeaders.length > 0) {
+        return childHeaders.map(function (h) {
+          var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
+
+          if (skipDepth > currentDepth) {
+            return TableEntryChildren.renderChildrenElements(childHeaders, currentDepth + 1, childContent.content, _.extend({}, opts, {
+              'nextHeader': childContent.nextMajorHeader || nextHeader || null
+            }));
+          }
+
+          var hAttributes = MarkdownHeading.getAttributes(h.props.children);
+          var linkTitle = TableOfContents.textFromReactChildren(h.props.children); // We must have this to be equal to the ID of the element we're navigating to.
+          // A custom ID might be set in Markdown 'attributes' which we prefer over the one passed to explicitly via props.
+
+          var link = hAttributes && hAttributes.id || h.props.id || null;
+
+          if (hAttributes && hAttributes.matchedString) {
+            linkTitle = linkTitle.replace(hAttributes.matchedString, '').trim();
+          }
+          /** @deprecated */
+
+
+          if (!link) link = TableOfContents.slugify(linkTitle); // Fallback -- attempt to not use -- may fail.
+
+          return /*#__PURE__*/React.createElement(TableEntry, {
+            link: link,
+            title: linkTitle,
+            key: link,
+            depth: (currentDepth || 0) + 1,
+            listStyleTypes: listStyleTypes,
+            pageScrollTop: pageScrollTop,
+            mounted: mounted,
+            content: childContent.content,
+            nextHeader: childContent.nextMajorHeader || nextHeader || null,
+            navigate: navigate,
+            maxHeaderDepth: maxHeaderDepth,
+            collapsible: currentDepth >= 1 + skipDepth,
+            skipDepth: skipDepth,
+            recurDepth: (recurDepth || 0) + 1
+          });
+        });
+      }
+
+      return null;
+    }
+  }]);
 
   function TableEntryChildren(props) {
     var _this3;
@@ -366,66 +431,6 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
           'listStyleType': listStyleTypes[depth + 1]
         }
       }, renderedChildren);
-    }
-  }], [{
-    key: "renderChildrenElements",
-    value: function renderChildrenElements(childHeaders, currentDepth, jsxContent) {
-      var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {
-        'skipDepth': 0,
-        'nextHeader': null
-      };
-      var skipDepth = opts.skipDepth,
-          maxHeaderDepth = opts.maxHeaderDepth,
-          listStyleTypes = opts.listStyleTypes,
-          pageScrollTop = opts.pageScrollTop,
-          mounted = opts.mounted,
-          nextHeader = opts.nextHeader,
-          recurDepth = opts.recurDepth;
-
-      if (Array.isArray(childHeaders) && childHeaders.length > 0) {
-        return childHeaders.map(function (h) {
-          var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
-
-          if (skipDepth > currentDepth) {
-            return TableEntryChildren.renderChildrenElements(childHeaders, currentDepth + 1, childContent.content, _.extend({}, opts, {
-              'nextHeader': childContent.nextMajorHeader || nextHeader || null
-            }));
-          }
-
-          var hAttributes = MarkdownHeading.getAttributes(h.props.children);
-          var linkTitle = TableOfContents.textFromReactChildren(h.props.children); // We must have this to be equal to the ID of the element we're navigating to.
-          // A custom ID might be set in Markdown 'attributes' which we prefer over the one passed to explicitly via props.
-
-          var link = hAttributes && hAttributes.id || h.props.id || null;
-
-          if (hAttributes && hAttributes.matchedString) {
-            linkTitle = linkTitle.replace(hAttributes.matchedString, '').trim();
-          }
-          /** @deprecated */
-
-
-          if (!link) link = TableOfContents.slugify(linkTitle); // Fallback -- attempt to not use -- may fail.
-
-          return /*#__PURE__*/React.createElement(TableEntry, {
-            link: link,
-            title: linkTitle,
-            key: link,
-            depth: (currentDepth || 0) + 1,
-            listStyleTypes: listStyleTypes,
-            pageScrollTop: pageScrollTop,
-            mounted: mounted,
-            content: childContent.content,
-            nextHeader: childContent.nextMajorHeader || nextHeader || null,
-            navigate: navigate,
-            maxHeaderDepth: maxHeaderDepth,
-            collapsible: currentDepth >= 1 + skipDepth,
-            skipDepth: skipDepth,
-            recurDepth: (recurDepth || 0) + 1
-          });
-        });
-      }
-
-      return null;
     }
   }]);
 
@@ -499,6 +504,115 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   _inherits(TableOfContents, _React$Component3);
 
   var _super3 = _createSuper(TableOfContents);
+
+  _createClass(TableOfContents, null, [{
+    key: "slugify",
+
+    /** Taken from https://gist.github.com/mathewbyrne/1280286 */
+
+    /** @deprecated */
+    value: function slugify(text) {
+      return text.toString().toLowerCase().replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, ''); // Trim - from end of text
+    }
+    /** @deprecated */
+
+  }, {
+    key: "slugifyReactChildren",
+    value: function slugifyReactChildren(children) {
+      return TableOfContents.slugify(TableOfContents.textFromReactChildren(children));
+    }
+  }, {
+    key: "textFromReactChildren",
+    value: function textFromReactChildren(children) {
+      if (typeof children === 'string') return children;
+      if (children && _typeof(children) === 'object' && children.props && children.props.children) return TableOfContents.textFromReactChildren(children.props.children);
+
+      if (Array.isArray(children) && children.length > 0) {
+        var childrenWithChildren = _.filter(children, function (c) {
+          return typeof c === 'string' || c && c.props && c.props.children;
+        });
+
+        var childPrimaryElemIfAny = _.find(childrenWithChildren, function (c) {
+          return c && _typeof(c) === 'object' && c.props && (c.type === 'code' || c.type === 'strong' || c.type === 'b');
+        });
+
+        if (childPrimaryElemIfAny) {
+          return TableOfContents.textFromReactChildren(childPrimaryElemIfAny);
+        } else {
+          return _.map(children, TableOfContents.textFromReactChildren).join('');
+        }
+      }
+
+      return '';
+    }
+  }, {
+    key: "isHeaderComponent",
+    value: function isHeaderComponent(c) {
+      var maxHeaderDepth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
+      return c && c.props && typeof c.props.type === 'string' && c.props.type.charAt(0).toLowerCase() === 'h' && _.range(1, maxHeaderDepth + 1).indexOf(parseInt(c.props.type.charAt(1))) > -1;
+    }
+  }, {
+    key: "isContentJSX",
+    value: function isContentJSX(content) {
+      if (!content || _typeof(content) !== 'object') return false;
+      return /*#__PURE__*/React.isValidElement(content); // const proto = Object.getPrototypeOf(content);
+      // return proto && proto.isPrototypeOf(React.Component.prototype);
+    }
+  }, {
+    key: "elementIDFromSectionName",
+    value: function elementIDFromSectionName(sectionName) {
+      var sectionParts;
+      var idToUse = sectionName;
+
+      if (sectionName.indexOf('#') > -1) {
+        sectionParts = sectionName.split('#');
+        idToUse = sectionParts[sectionParts.length - 1];
+      } else if (sectionName.indexOf('.') > -1) {
+        sectionParts = sectionName.split('.');
+        idToUse = sectionParts[sectionParts.length - 1];
+      }
+
+      return idToUse;
+    }
+  }, {
+    key: "scrollToLink",
+    value: function scrollToLink(link) {
+      var offsetBeforeTarget = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 72;
+      var navigateFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : navigate;
+      var targetElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      var elementTop;
+
+      if (link === "top") {
+        elementTop = 0;
+      } else if (typeof link === 'string' && link) {
+        if (link.charAt(0) === '/') {
+          navigateFunc(link);
+          return;
+        } else {
+          elementTop = getElementTop(targetElement || document.getElementById(link));
+        }
+      } else {
+        return null;
+      }
+
+      var pageScrollTop = getPageVerticalScrollPosition();
+      animateScrollTo(elementTop, 750, offsetBeforeTarget, function () {
+        if (typeof navigateFunc === 'function') {
+          setTimeout(function () {
+            if (link === 'top' || link === 'bottom') link = '';
+            navigateFunc('#' + link, {
+              'replace': true,
+              'skipRequest': true
+            });
+          }, link === 'top' || typeof pageScrollTop === 'number' && pageScrollTop <= 40 ? 800 : 0);
+        }
+      });
+    }
+  }]);
 
   function TableOfContents(props) {
     var _this4;
@@ -755,113 +869,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         windowInnerWidth: windowWidth
       }) : /*#__PURE__*/React.createElement("br", null));
     }
-  }], [{
-    key: "slugify",
-    value:
-    /** Taken from https://gist.github.com/mathewbyrne/1280286 */
-
-    /** @deprecated */
-    function slugify(text) {
-      return text.toString().toLowerCase().replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-      .replace(/\-\-+/g, '-') // Replace multiple - with single -
-      .replace(/^-+/, '') // Trim - from start of text
-      .replace(/-+$/, ''); // Trim - from end of text
-    }
-    /** @deprecated */
-
-  }, {
-    key: "slugifyReactChildren",
-    value: function slugifyReactChildren(children) {
-      return TableOfContents.slugify(TableOfContents.textFromReactChildren(children));
-    }
-  }, {
-    key: "textFromReactChildren",
-    value: function textFromReactChildren(children) {
-      if (typeof children === 'string') return children;
-      if (children && _typeof(children) === 'object' && children.props && children.props.children) return TableOfContents.textFromReactChildren(children.props.children);
-
-      if (Array.isArray(children) && children.length > 0) {
-        var childrenWithChildren = _.filter(children, function (c) {
-          return typeof c === 'string' || c && c.props && c.props.children;
-        });
-
-        var childPrimaryElemIfAny = _.find(childrenWithChildren, function (c) {
-          return c && _typeof(c) === 'object' && c.props && (c.type === 'code' || c.type === 'strong' || c.type === 'b');
-        });
-
-        if (childPrimaryElemIfAny) {
-          return TableOfContents.textFromReactChildren(childPrimaryElemIfAny);
-        } else {
-          return _.map(children, TableOfContents.textFromReactChildren).join('');
-        }
-      }
-
-      return '';
-    }
-  }, {
-    key: "isHeaderComponent",
-    value: function isHeaderComponent(c) {
-      var maxHeaderDepth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
-      return c && c.props && typeof c.props.type === 'string' && c.props.type.charAt(0).toLowerCase() === 'h' && _.range(1, maxHeaderDepth + 1).indexOf(parseInt(c.props.type.charAt(1))) > -1;
-    }
-  }, {
-    key: "isContentJSX",
-    value: function isContentJSX(content) {
-      if (!content || _typeof(content) !== 'object') return false;
-      return /*#__PURE__*/React.isValidElement(content); // const proto = Object.getPrototypeOf(content);
-      // return proto && proto.isPrototypeOf(React.Component.prototype);
-    }
-  }, {
-    key: "elementIDFromSectionName",
-    value: function elementIDFromSectionName(sectionName) {
-      var sectionParts;
-      var idToUse = sectionName;
-
-      if (sectionName.indexOf('#') > -1) {
-        sectionParts = sectionName.split('#');
-        idToUse = sectionParts[sectionParts.length - 1];
-      } else if (sectionName.indexOf('.') > -1) {
-        sectionParts = sectionName.split('.');
-        idToUse = sectionParts[sectionParts.length - 1];
-      }
-
-      return idToUse;
-    }
-  }, {
-    key: "scrollToLink",
-    value: function scrollToLink(link) {
-      var offsetBeforeTarget = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 72;
-      var navigateFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : navigate;
-      var targetElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      var elementTop;
-
-      if (link === "top") {
-        elementTop = 0;
-      } else if (typeof link === 'string' && link) {
-        if (link.charAt(0) === '/') {
-          navigateFunc(link);
-          return;
-        } else {
-          elementTop = getElementTop(targetElement || document.getElementById(link));
-        }
-      } else {
-        return null;
-      }
-
-      var pageScrollTop = getPageVerticalScrollPosition();
-      animateScrollTo(elementTop, 750, offsetBeforeTarget, function () {
-        if (typeof navigateFunc === 'function') {
-          setTimeout(function () {
-            if (link === 'top' || link === 'bottom') link = '';
-            navigateFunc('#' + link, {
-              'replace': true,
-              'skipRequest': true
-            });
-          }, link === 'top' || typeof pageScrollTop === 'number' && pageScrollTop <= 40 ? 800 : 0);
-        }
-      });
-    }
   }]);
 
   return TableOfContents;
@@ -940,6 +947,40 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
 
   var _super4 = _createSuper(MarkdownHeading);
 
+  _createClass(MarkdownHeading, null, [{
+    key: "getAttributes",
+    value: function getAttributes(childrenParam) {
+      var children = Array.isArray(childrenParam) ? childrenParam : [childrenParam];
+      var attr = {
+        'id': null,
+        'className': null,
+        'matchedString': null
+      };
+
+      var childrenOuterText = _.filter(children, function (c) {
+        return typeof c === 'string';
+      }).join(' ');
+
+      var attrMatch = childrenOuterText.match(/({:[.-\w#]+})/g);
+
+      if (attrMatch && attrMatch.length) {
+        attr.matchedString = attrMatch[0];
+        attrMatch = attrMatch[0].replace('{:', '').replace('}', '');
+        var idMatch = attrMatch.match(/(#[-\w]+)/g);
+
+        if (idMatch && idMatch.length) {
+          idMatch = idMatch[0].replace('#', '');
+          attr.id = idMatch;
+          attrMatch = attrMatch.replace('#' + idMatch, '');
+        }
+
+        attr.className = attrMatch.split('.').join(' ').trim();
+      }
+
+      return attr;
+    }
+  }]);
+
   function MarkdownHeading(props) {
     var _this6;
 
@@ -1002,38 +1043,6 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
 
       if (!propsToPass.id) propsToPass.id = this.getID(true);
       return /*#__PURE__*/React.createElement(HeaderWithLink, propsToPass); //return React.createElement(type, propsToPass);
-    }
-  }], [{
-    key: "getAttributes",
-    value: function getAttributes(childrenParam) {
-      var children = Array.isArray(childrenParam) ? childrenParam : [childrenParam];
-      var attr = {
-        'id': null,
-        'className': null,
-        'matchedString': null
-      };
-
-      var childrenOuterText = _.filter(children, function (c) {
-        return typeof c === 'string';
-      }).join(' ');
-
-      var attrMatch = childrenOuterText.match(/({:[.-\w#]+})/g);
-
-      if (attrMatch && attrMatch.length) {
-        attr.matchedString = attrMatch[0];
-        attrMatch = attrMatch[0].replace('{:', '').replace('}', '');
-        var idMatch = attrMatch.match(/(#[-\w]+)/g);
-
-        if (idMatch && idMatch.length) {
-          idMatch = idMatch[0].replace('#', '');
-          attr.id = idMatch;
-          attrMatch = attrMatch.replace('#' + idMatch, '');
-        }
-
-        attr.className = attrMatch.split('.').join(' ').trim();
-      }
-
-      return attr;
     }
   }]);
 

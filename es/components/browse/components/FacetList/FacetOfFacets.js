@@ -36,6 +36,23 @@ export var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
 
   var _super = _createSuper(FacetOfFacets);
 
+  _createClass(FacetOfFacets, null, [{
+    key: "anyFacetsHaveSelection",
+    value: function anyFacetsHaveSelection(renderedFacets) {
+      for (var facetIdx = 0; facetIdx < renderedFacets.length; facetIdx++) {
+        var renderedFacet = renderedFacets[facetIdx]; // We have rendered facets as `props.facets`
+
+        var anySelected = renderedFacet.props.anyTermsSelected;
+
+        if (anySelected) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+  }]);
+
   function FacetOfFacets(props) {
     var _this;
 
@@ -117,21 +134,6 @@ export var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement("div", {
         className: "facet-group-list-container"
       }, extendedFacets)));
-    }
-  }], [{
-    key: "anyFacetsHaveSelection",
-    value: function anyFacetsHaveSelection(renderedFacets) {
-      for (var facetIdx = 0; facetIdx < renderedFacets.length; facetIdx++) {
-        var renderedFacet = renderedFacets[facetIdx]; // We have rendered facets as `props.facets`
-
-        var anySelected = renderedFacet.props.anyTermsSelected;
-
-        if (anySelected) {
-          return true;
-        }
-      }
-
-      return false;
     }
   }]);
 
