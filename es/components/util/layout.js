@@ -229,7 +229,7 @@ export var textHeight = memoize(function () {
  * @return {integer|{ containerHeight: number, textWidth: number }} Width of text if whitespace style set to nowrap, or object containing 'containerHeight' & 'textWidth' if widthForHeightCheck is set.
  */
 
-export var textContentWidth = memoize(function (textContent) {
+export var textContentWidth = function (textContent) {
   var containerElementType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'div';
   var containerClassName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var widthForHeightCheck = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -253,7 +253,7 @@ export var textContentWidth = memoize(function (textContent) {
     contElem.style.whiteSpace = "";
     contElem.style.display = "block";
     contElem.style.width = widthForHeightCheck + "px";
-    fullContainerHeight = window.innerWidth <= 768 ? Math.max(contElem.clientHeight, window.innerHeight || 0) : contElem.clientHeight;
+    fullContainerHeight = contElem.clientHeight;
   }
 
   document.body.removeChild(contElem);
@@ -266,7 +266,7 @@ export var textContentWidth = memoize(function (textContent) {
   }
 
   return textLineWidth;
-});
+};
 /**
  * Grabs the outer-most scrolling container for the page, either <body> or <html>.
  * Needed because the outer-most scrolling container differs between Google Chrome (which use `document.body`, aka <body>)

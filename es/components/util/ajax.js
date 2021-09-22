@@ -2,8 +2,6 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var _excluded = ["children", "fetchedItemPropName", "isFetchingItemPropName"];
-
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -471,7 +469,7 @@ export var FetchedItem = /*#__PURE__*/function (_React$Component) {
           children = _this$props.children,
           fetchedItemPropName = _this$props.fetchedItemPropName,
           isFetchingItemPropName = _this$props.isFetchingItemPropName,
-          remainingProps = _objectWithoutProperties(_this$props, _excluded);
+          remainingProps = _objectWithoutProperties(_this$props, ["children", "fetchedItemPropName", "isFetchingItemPropName"]);
 
       var _this$state = this.state,
           fetchedItem = _this$state.fetchedItem,

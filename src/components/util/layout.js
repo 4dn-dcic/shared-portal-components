@@ -215,7 +215,7 @@ export const textHeight = memoize(function(
  * @param {?Object} [style=null]                    Any additional style properties.
  * @return {integer|{ containerHeight: number, textWidth: number }} Width of text if whitespace style set to nowrap, or object containing 'containerHeight' & 'textWidth' if widthForHeightCheck is set.
  */
-export const textContentWidth = memoize(function(
+export const textContentWidth = (function(
     textContent,
     containerElementType = 'div',
     containerClassName = null,
@@ -237,7 +237,7 @@ export const textContentWidth = memoize(function(
         contElem.style.whiteSpace = "";
         contElem.style.display = "block";
         contElem.style.width = widthForHeightCheck + "px";
-        fullContainerHeight = window.innerWidth <= 768 ? Math.max(contElem.clientHeight, window.innerHeight || 0) : contElem.clientHeight;
+        fullContainerHeight = contElem.clientHeight;
     }
     document.body.removeChild(contElem);
     if (fullContainerHeight) {

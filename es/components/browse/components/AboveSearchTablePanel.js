@@ -35,11 +35,12 @@ function SearchHeaderSection(_ref2) {
   var title = propTitle ? /*#__PURE__*/React.createElement("h4", {
     className: "text-300"
   }, propTitle) : null;
-  var content = propContent ? /*#__PURE__*/React.createElement(BasicStaticSectionBody, {
+  var content = propContent ? /*#__PURE__*/React.createElement(BasicStaticSectionBody, _extends({
     content: propContent,
-    placeholderReplacementFxn: placeholderReplacementFxn,
+    placeholderReplacementFxn: placeholderReplacementFxn
+  }, {
     filetype: filetype || 'txt'
-  }) : null;
+  })) : null;
   return content ? /*#__PURE__*/React.createElement("div", {
     className: "row mt-1"
   }, /*#__PURE__*/React.createElement("div", {
