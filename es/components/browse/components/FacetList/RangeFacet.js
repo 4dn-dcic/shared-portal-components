@@ -1,14 +1,6 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -16,11 +8,19 @@ function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread n
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -34,11 +34,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -163,127 +163,6 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(RangeFacet, _React$PureComponent);
 
   var _super = _createSuper(RangeFacet);
-
-  _createClass(RangeFacet, null, [{
-    key: "parseAndValidate",
-    value: function parseAndValidate(facet, value) {
-      var _facet$field_type2 = facet.field_type,
-          field_type = _facet$field_type2 === void 0 ? "number" : _facet$field_type2,
-          _facet$number_step = facet.number_step,
-          number_step = _facet$number_step === void 0 ? "any" : _facet$number_step;
-
-      if (value === "" || value === null) {
-        return null;
-      }
-
-      if (field_type === "date") {
-        // Todo check if valid date string and set state.valid === false, upon which
-        // to deny ability to apply.
-        return value.toString();
-      }
-
-      var numVal = field_type === "integer" ? parseInt(value) : parseFloat(value);
-
-      if (isNaN(numVal)) {
-        throw new Error("Is not a number - " + numVal);
-      }
-
-      if (number_step === "any") {
-        return numVal;
-      }
-
-      if (typeof number_step !== "number" || isNaN(number_step) || number_step <= 0) {
-        console.error("Expected number_step to be a positive number");
-        return numVal;
-      } // Remove trailing decimals (if any) (round down)
-      // Be careful re: float operations (imprecise) and favor integers
-
-
-      if (number_step >= 1) {
-        numVal = Math.floor(numVal / number_step) * number_step;
-      } else {
-        var diviser = Math.round(1 / number_step);
-        numVal = Math.floor(numVal * diviser) / diviser;
-      }
-
-      return numVal;
-    }
-  }, {
-    key: "validIncrements",
-    value: function validIncrements(facet) {
-      var min = facet.min,
-          max = facet.max,
-          increments = facet.increments,
-          ranges = facet.ranges;
-
-      function ensureWithinRange(increment) {
-        if (typeof min === "number" && increment < min) return false;
-        if (typeof max === "number" && increment > max) return false;
-        return true;
-      }
-
-      if (Array.isArray(increments)) {
-        var validIncrements = increments.filter(ensureWithinRange);
-        return {
-          "fromIncrements": validIncrements,
-          "toIncrements": validIncrements
-        };
-      } else if (increments) {
-        var _ref2 = increments || {},
-            _ref2$from = _ref2.from,
-            fromIncrementsOrig = _ref2$from === void 0 ? [] : _ref2$from,
-            _ref2$to = _ref2.to,
-            toIncrementsOrig = _ref2$to === void 0 ? [] : _ref2$to;
-
-        return {
-          "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
-          "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
-        };
-      } else if (Array.isArray(ranges)) {
-        var allIncrements = new Set();
-        ranges.forEach(function (_ref3) {
-          var doc_count = _ref3.doc_count,
-              fromInc = _ref3.from,
-              toInc = _ref3.to;
-          // Preserve all values (incl. if no doc_count)
-          allIncrements.add(fromInc);
-          allIncrements.add(toInc);
-        });
-
-        var allIncsArr = _toConsumableArray(allIncrements).sort();
-
-        return {
-          "fromIncrements": allIncsArr,
-          "toIncrements": allIncsArr
-        };
-      }
-
-      return {
-        "fromIncrements": [],
-        "toIncrements": []
-      };
-    }
-  }, {
-    key: "initialStateValues",
-    value: function initialStateValues(props) {
-      var fromVal = props.fromVal,
-          toVal = props.toVal,
-          _props$facet$field_ty = props.facet.field_type,
-          field_type = _props$facet$field_ty === void 0 ? "number" : _props$facet$field_ty;
-      var state = {
-        fromVal: fromVal,
-        toVal: toVal
-      };
-
-      if (field_type === "date") {
-        // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
-        state.fromVal = fromVal && fromVal.toString() || null;
-        state.toVal = toVal && toVal.toString() || null;
-      }
-
-      return state;
-    }
-  }]);
 
   function RangeFacet(props) {
     var _this;
@@ -482,8 +361,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleExpandListToggleClick",
     value: function handleExpandListToggleClick(e) {
       e.preventDefault();
-      this.setState(function (_ref4) {
-        var expanded = _ref4.expanded;
+      this.setState(function (_ref2) {
+        var expanded = _ref2.expanded;
         return {
           'expanded': !expanded
         };
@@ -520,8 +399,8 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           setOpenPopover = _this$props7.setOpenPopover,
           filteringFieldTerm = _this$props7.filteringFieldTerm;
       var aggregation_type = facet.aggregation_type,
-          _facet$field_type3 = facet.field_type,
-          field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
+          _facet$field_type2 = facet.field_type,
+          field_type = _facet$field_type2 === void 0 ? "number" : _facet$field_type2,
           field = facet.field,
           _facet$ranges = facet.ranges,
           ranges = _facet$ranges === void 0 ? [] : _facet$ranges,
@@ -613,19 +492,18 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement(PartialList, {
         className: "inner-panel",
         open: facetOpen,
-        persistent: [/*#__PURE__*/React.createElement(RangeClear, _extends({
+        persistent: [/*#__PURE__*/React.createElement(RangeClear, {
           savedFromVal: savedFromVal,
           savedToVal: savedToVal,
           facet: facet,
           fieldSchema: fieldSchema,
           termTransformFxn: termTransformFxn,
-          filteringFieldTerm: filteringFieldTerm
-        }, {
+          filteringFieldTerm: filteringFieldTerm,
           resetAll: this.resetAll,
           resetFrom: fromVal !== null ? this.resetFrom : null,
           resetTo: toVal !== null ? this.resetTo : null,
           key: 0
-        }))],
+        })],
         collapsible: [/*#__PURE__*/React.createElement("div", {
           className: "range-drop-group row",
           key: 0
@@ -667,12 +545,130 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           key: 1
         }, this.props, {
           expanded: expanded,
-          hideDocCounts: hideDocCounts
-        }, {
+          hideDocCounts: hideDocCounts,
           onToggleExpanded: this.handleExpandListToggleClick,
           selectRange: this.selectRange
         })) : null]
       })));
+    }
+  }], [{
+    key: "parseAndValidate",
+    value: function parseAndValidate(facet, value) {
+      var _facet$field_type3 = facet.field_type,
+          field_type = _facet$field_type3 === void 0 ? "number" : _facet$field_type3,
+          _facet$number_step = facet.number_step,
+          number_step = _facet$number_step === void 0 ? "any" : _facet$number_step;
+
+      if (value === "" || value === null) {
+        return null;
+      }
+
+      if (field_type === "date") {
+        // Todo check if valid date string and set state.valid === false, upon which
+        // to deny ability to apply.
+        return value.toString();
+      }
+
+      var numVal = field_type === "integer" ? parseInt(value) : parseFloat(value);
+
+      if (isNaN(numVal)) {
+        throw new Error("Is not a number - " + numVal);
+      }
+
+      if (number_step === "any") {
+        return numVal;
+      }
+
+      if (typeof number_step !== "number" || isNaN(number_step) || number_step <= 0) {
+        console.error("Expected number_step to be a positive number");
+        return numVal;
+      } // Remove trailing decimals (if any) (round down)
+      // Be careful re: float operations (imprecise) and favor integers
+
+
+      if (number_step >= 1) {
+        numVal = Math.floor(numVal / number_step) * number_step;
+      } else {
+        var diviser = Math.round(1 / number_step);
+        numVal = Math.floor(numVal * diviser) / diviser;
+      }
+
+      return numVal;
+    }
+  }, {
+    key: "validIncrements",
+    value: function validIncrements(facet) {
+      var min = facet.min,
+          max = facet.max,
+          increments = facet.increments,
+          ranges = facet.ranges;
+
+      function ensureWithinRange(increment) {
+        if (typeof min === "number" && increment < min) return false;
+        if (typeof max === "number" && increment > max) return false;
+        return true;
+      }
+
+      if (Array.isArray(increments)) {
+        var validIncrements = increments.filter(ensureWithinRange);
+        return {
+          "fromIncrements": validIncrements,
+          "toIncrements": validIncrements
+        };
+      } else if (increments) {
+        var _ref4 = increments || {},
+            _ref4$from = _ref4.from,
+            fromIncrementsOrig = _ref4$from === void 0 ? [] : _ref4$from,
+            _ref4$to = _ref4.to,
+            toIncrementsOrig = _ref4$to === void 0 ? [] : _ref4$to;
+
+        return {
+          "fromIncrements": fromIncrementsOrig.filter(ensureWithinRange),
+          "toIncrements": toIncrementsOrig.filter(ensureWithinRange)
+        };
+      } else if (Array.isArray(ranges)) {
+        var allIncrements = new Set();
+        ranges.forEach(function (_ref5) {
+          var doc_count = _ref5.doc_count,
+              fromInc = _ref5.from,
+              toInc = _ref5.to;
+          // Preserve all values (incl. if no doc_count)
+          allIncrements.add(fromInc);
+          allIncrements.add(toInc);
+        });
+
+        var allIncsArr = _toConsumableArray(allIncrements).sort();
+
+        return {
+          "fromIncrements": allIncsArr,
+          "toIncrements": allIncsArr
+        };
+      }
+
+      return {
+        "fromIncrements": [],
+        "toIncrements": []
+      };
+    }
+  }, {
+    key: "initialStateValues",
+    value: function initialStateValues(props) {
+      var fromVal = props.fromVal,
+          toVal = props.toVal,
+          _props$facet$field_ty = props.facet.field_type,
+          field_type = _props$facet$field_ty === void 0 ? "number" : _props$facet$field_ty;
+      var state = {
+        fromVal: fromVal,
+        toVal: toVal
+      };
+
+      if (field_type === "date") {
+        // Convert to strings so e.g. "2018" doesn't get interpreted as unix timestamp.
+        state.fromVal = fromVal && fromVal.toString() || null;
+        state.toVal = toVal && toVal.toString() || null;
+      }
+
+      return state;
     }
   }]);
 
@@ -708,19 +704,17 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
           rangeFrom = _range$from === void 0 ? null : _range$from,
           _range$to = range.to,
           rangeTo = _range$to === void 0 ? null : _range$to;
-      var isFiltering = currFilteringField === facetField && ( // Sometimes a range may be 0 - 0 (and result in single value instead of array for currFilteringTerm)
-      Array.isArray(currFilteringTerm) && rangeFrom === currFilteringTerm[0] && rangeTo === currFilteringTerm[1] || currFilteringTerm === rangeTo && currFilteringTerm === rangeFrom);
-      return /*#__PURE__*/React.createElement(RangeTerm, _extends({
+      var isFiltering = currFilteringField === facetField && (Array.isArray(currFilteringTerm) && rangeFrom === currFilteringTerm[0] && rangeTo === currFilteringTerm[1] || currFilteringTerm === rangeTo && currFilteringTerm === rangeFrom);
+      return /*#__PURE__*/React.createElement(RangeTerm, {
         facet: facet,
         range: range,
         termTransformFxn: termTransformFxn,
         selectRange: selectRange,
         isFiltering: isFiltering,
-        hideDocCounts: hideDocCounts
-      }, {
+        hideDocCounts: hideDocCounts,
         key: "".concat(rangeFrom, "-").concat(rangeTo),
         status: getRangeStatus(range, toVal, fromVal)
-      }));
+      });
     })),
         _segmentComponentsByS2 = _segmentComponentsByS.selected,
         selectedTermComponents = _segmentComponentsByS2 === void 0 ? [] : _segmentComponentsByS2,
@@ -751,6 +745,7 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
 
     retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
 
+    //termComponents.slice(0, unselectedStartIdx);
     var i;
 
     for (i = selectedLen + omittedLen; i < persistentCount; i++) {
@@ -1032,14 +1027,13 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
     style: {
       marginLeft: "-5px"
     }
-  }, /*#__PURE__*/React.createElement(FormattedToFromRangeValue, _extends({
+  }, /*#__PURE__*/React.createElement(FormattedToFromRangeValue, {
     termTransformFxn: termTransformFxn,
-    facet: facet
-  }, {
+    facet: facet,
     from: savedFromVal,
     to: savedToVal,
     title: abbreviatedTitle
-  })))));
+  }))));
 });
 
 var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
@@ -1192,13 +1186,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
       }, value !== null ? title : emptyValue));
 
       if (field_type === "date") {
-        return /*#__PURE__*/React.createElement(DropdownButton, _extends({
+        return /*#__PURE__*/React.createElement(DropdownButton, {
           variant: variant,
           disabled: disabled,
           className: className,
           size: size,
-          id: id
-        }, {
+          id: id,
           alignRight: true,
           title: showTitle,
           show: showMenu,
@@ -1206,7 +1199,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
-        }), /*#__PURE__*/React.createElement("form", {
+        }, /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container pb-0 mb-0 border-0",
           onSubmit: this.onTextInputFormSubmit
         }, /*#__PURE__*/React.createElement("div", {
@@ -1253,13 +1246,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           }, optTitle, increment === min ? /*#__PURE__*/React.createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/React.createElement("small", null, " (max)") : null);
         });
 
-        return /*#__PURE__*/React.createElement(DropdownButton, _extends({
+        return /*#__PURE__*/React.createElement(DropdownButton, {
           variant: variant,
           disabled: disabled,
           className: className,
           size: size,
-          id: id
-        }, {
+          id: id,
           alignRight: true,
           onSelect: this.onDropdownSelect,
           title: showTitle,
@@ -1268,22 +1260,20 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
-        }), /*#__PURE__*/React.createElement("form", {
+        }, /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container" + (menuOptions.length > 0 ? " has-options" : ""),
           onSubmit: this.onTextInputFormSubmit
         }, /*#__PURE__*/React.createElement("div", {
           className: "input-element-container"
-        }, /*#__PURE__*/React.createElement("input", _extends({
+        }, /*#__PURE__*/React.createElement("input", {
           type: "number",
-          className: "form-control"
-        }, {
+          className: "form-control",
           value: value,
           placeholder: placeholder,
-          step: step
-        }, {
+          step: step,
           onKeyDown: this.onTextInputKeyDown,
           onChange: this.onTextInputChange
-        }))), /*#__PURE__*/React.createElement("button", {
+        })), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
           className: "btn"

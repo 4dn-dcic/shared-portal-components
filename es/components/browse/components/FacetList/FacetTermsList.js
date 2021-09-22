@@ -1,6 +1,10 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var _excluded = ["count", "countActive", "height", "width", "ltr", "className"];
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
@@ -10,15 +14,13 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -32,11 +34,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -436,7 +438,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         facet: facet,
         openPopover: openPopover,
         setOpenPopover: setOpenPopover
-      })), indicator), /*#__PURE__*/React.createElement(ListOfTerms, _extends({
+      })), indicator), /*#__PURE__*/React.createElement(ListOfTerms, {
         facet: facet,
         facetOpen: facetOpen,
         terms: terms,
@@ -448,12 +450,11 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         schemas: schemas,
         persistentCount: persistentCount,
         defaultBasicSearchAutoDisplayThreshold: defaultBasicSearchAutoDisplayThreshold,
-        filteringFieldTerm: filteringFieldTerm
-      }, {
+        filteringFieldTerm: filteringFieldTerm,
         onSaytTermSearch: this.handleSaytTermSearch,
         onBasicTermSearch: this.handleBasicTermSearch,
         onToggleExpanded: this.handleExpandListToggleClick
-      })));
+      }));
     }
   }]);
 
@@ -499,16 +500,15 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           currFilteringTerm = _ref6.term;
 
       var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-      return /*#__PURE__*/React.createElement(Term, _extends({
+      return /*#__PURE__*/React.createElement(Term, {
         facet: facet,
         term: term,
         termTransformFxn: termTransformFxn,
-        isFiltering: isFiltering
-      }, {
+        isFiltering: isFiltering,
         onClick: onTermClick,
         key: term.key,
         status: getTermStatus(term, facet)
-      }));
+      });
     }));
     var _segments$selected = segments.selected,
         selectedTermComponents = _segments$selected === void 0 ? [] : _segments$selected,
@@ -517,6 +517,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     var _segments$none = segments.none,
         unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none; //filter unselected terms
 
+    //filter unselected terms
     if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
       var dict = getFilteredTerms(terms, searchText);
       unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
@@ -548,6 +549,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
 
     retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
 
+    //termComponents.slice(0, unselectedStartIdx);
     var i;
 
     for (i = selectedLen + omittedLen; i < persistentCount; i++) {
@@ -668,7 +670,7 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
       ltr = _props$ltr === void 0 ? false : _props$ltr,
       _props$className = props.className,
       className = _props$className === void 0 ? null : _props$className,
-      passProps = _objectWithoutProperties(props, ["count", "countActive", "height", "width", "ltr", "className"]);
+      passProps = _objectWithoutProperties(props, _excluded);
 
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
@@ -683,10 +685,9 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
 
     var cx = ltr ? x + 1 : width - x + 1;
     var cy = ltr ? y + 1 : height - y + 1;
-    return /*#__PURE__*/React.createElement("circle", _extends({
+    return /*#__PURE__*/React.createElement("circle", {
       cx: cx,
-      cy: cy
-    }, {
+      cy: cy,
       r: 2,
       key: idx,
       "data-original-index": idx,
@@ -694,7 +695,7 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
         opacity: 1 - colIdx * .125
       },
       className: dotCountToShow - idx <= countActive ? "active" : null
-    }));
+    });
   });
   var cls = "svg-count-indicator" + (className ? " " + className : "");
   return /*#__PURE__*/React.createElement("svg", _extends({}, passProps, {

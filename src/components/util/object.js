@@ -6,13 +6,15 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import memoize from 'memoize-one';
-import parseDOM from 'html-dom-parser/lib/html-to-dom-server';
-import domToReact from 'html-react-parser/lib/dom-to-react';
+import { JSDOM } from 'jsdom';
+import parseDOM from 'html-react-parser';
+import createDOMPurify from 'dompurify';
 import md5 from 'js-md5';
 import { patchedConsoleInstance as console } from './patched-console';
 import { getSchemaProperty } from './schema-transforms';
 import * as analytics from './analytics';
 import url from 'url';
+import { isServerSide } from './misc';
 
 /**
  * Get '@id' from param 'object' if it exists
@@ -322,56 +324,29 @@ export function deepClone(obj){
 
 
 export function htmlToJSX(htmlString){
-    var nodes, result,
-        // Theoretically, esp in modern browsers, almost any tag/element name can be used to create a <div>.
-        // So we allow them in our HTML, but exclude elements/tags with numbers, special characters, etc.
-        // Except for hardcoded exceptions defined here in someTags.
-        someTags = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+
+    let jsxOutput;
+    let domPurifyInstance;
+
+    if (isServerSide()) {
+        const { window } = new JSDOM("");
+        domPurifyInstance = createDOMPurify(window);
+    } else {
+        domPurifyInstance = createDOMPurify;
+    }
+
+    const sanitizedHtmlString = domPurifyInstance.sanitize(htmlString, { FORBID_TAGS: ['script'] });
 
     try {
-        nodes = parseDOM(htmlString, { decodeEntities: true, lowerCaseAttributeNames: false });
+        jsxOutput = parseDOM(sanitizedHtmlString, { decodeEntities: true, lowerCaseAttributeNames: false });
     } catch (e) {
         console.error('HTML parsing error', e);
         return <div className="error">Parsing Error. Check your markup.</div>;
     }
 
-    /**
-     * Filters out nodes and node children recursively if detect an invalid tag name.
-     * Also removes any <script> tags.
-     */
-    function filterNodes(nodeList){
-        return _.filter(
-            _.map(nodeList, function(n){
-                if (n.type === 'tag'){
-                    if (someTags.has(n.name)) return n;
+    // console.log('DDDD', jsxOutput);
 
-                    // Exclude scripts due to security vulnerability potential.
-                    if (n.name === 'script') return null;
-
-                    // Filter out nonsensical tags which will likely break React, e.g. <hr?>
-                    var match = n.name.match(/[\W\s\d]/);
-                    if (match && (match.length > 1 || match[0] !== '/')){
-                        return null;
-                    }
-
-                    // Recurse on children
-                    if (Array.isArray(n.children)) {
-                        n = _.extend({}, n, { 'children' : filterNodes(n.children) });
-                    }
-                }
-                return n;
-            })
-        );
-    }
-
-    try {
-        result = domToReact(filterNodes(nodes));
-    } catch (e) {
-        console.error('HTML parsing error', e);
-        return <div className="error">Parsing Error. Check your markup.</div>;
-    }
-
-    return result;
+    return jsxOutput;
 }
 
 
@@ -553,6 +528,10 @@ export class CopyWrapper extends React.PureComponent {
             var successful = document.execCommand('copy');
             var msg = successful ? 'successful' : 'unsuccessful';
             console.log('Copying text command was ' + msg);
+            setTimeout(function(){
+                // Cleanup
+                textArea.remove();
+            }, 50);
             if (typeof successCallback === 'function'){
                 return successCallback(value);
             }
@@ -595,6 +574,7 @@ export class CopyWrapper extends React.PureComponent {
             // Means we have a React component vs a React/JSX element.
             // This approach will be deprecated soon so we should look into forwarding refs
             // ... I think
+            // Possible TODO -- Just don't allow wrapperElement to be a Component.
             wrapper = ReactDOM.findDOMNode(wrapper);
         }
 

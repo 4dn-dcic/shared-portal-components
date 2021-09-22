@@ -1,8 +1,18 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16,11 +26,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -108,24 +118,34 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "handleClick",
     value: function handleClick() {
-      TableOfContents.scrollToLink(this.props.link, this.props.offsetBeforeTarget, this.props.navigate, this.getTargetElement());
+      var _this$props = this.props,
+          link = _this$props.link,
+          offsetBeforeTarget = _this$props.offsetBeforeTarget,
+          propNavigate = _this$props.navigate;
+      TableOfContents.scrollToLink(link, offsetBeforeTarget, propNavigate, this.getTargetElement());
     }
   }, {
     key: "determineIfActive",
     value: function determineIfActive() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
-      if (!props.mounted) return false;
-      var scrollingOuterElement = getScrollingOuterElement(),
-          targetElem,
-          elemTop;
+      var mounted = props.mounted,
+          depth = props.depth,
+          link = props.link,
+          nextHeader = props.nextHeader,
+          pageScrollTop = props.pageScrollTop,
+          offsetBeforeTarget = props.offsetBeforeTarget;
+      if (!mounted) return false;
+      var scrollingOuterElement = getScrollingOuterElement();
+      var targetElem;
+      var elemTop;
 
-      if (props.depth === 0 && props.mounted) {
+      if (depth === 0 && mounted) {
         elemTop = 0;
       } else {
-        targetElem = this.getTargetElement(props.link);
+        targetElem = this.getTargetElement(link);
         elemTop = getElementTop(targetElem);
 
-        if (props.mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight) {
+        if (mounted && scrollingOuterElement && scrollingOuterElement.scrollHeight && window && window.innerHeight) {
           // Try to prevent from trying to scroll past max scrollable height.
           elemTop = Math.min(scrollingOuterElement.scrollHeight - window.innerHeight, elemTop);
         }
@@ -133,22 +153,25 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
 
       if (typeof elemTop !== 'number') return null;
 
-      if (props.nextHeader) {
+      if (nextHeader) {
         var nextHeaderTop = null;
 
-        if (typeof props.nextHeader === 'number') {
-          nextHeaderTop = props.nextHeader;
+        if (typeof nextHeader === 'number') {
+          nextHeaderTop = nextHeader;
         } else {
           var nextHeaderElement = this.getNextHeaderElement(props);
-          if (nextHeaderElement) nextHeaderTop = getElementTop(nextHeaderElement);
+
+          if (nextHeaderElement) {
+            nextHeaderTop = getElementTop(nextHeaderElement);
+          }
         }
 
-        if (nextHeaderTop && props.pageScrollTop >= Math.max(props.depth > 0 ? 40 : 0, elemTop - props.offsetBeforeTarget - 120) && props.pageScrollTop < nextHeaderTop - props.offsetBeforeTarget - 120) return true;else return false;
+        if (nextHeaderTop && pageScrollTop >= Math.max(depth > 0 ? 40 : 0, elemTop - offsetBeforeTarget - 120) && pageScrollTop < nextHeaderTop - offsetBeforeTarget - 120) return true;else return false;
       } else if (targetElem && targetElem.className.split(' ').indexOf('static-section-entry') > -1) {
         var elemStyle = targetElem.computedStyle || window.getComputedStyle(targetElem);
-        if (props.pageScrollTop >= elemTop - props.offsetBeforeTarget - 120 && props.pageScrollTop < elemTop + parseInt(elemStyle.marginTop) + targetElem.offsetHeight - props.offsetBeforeTarget - 120) return true;else return false;
-      } else if (props.depth === 0) {
-        if (props.mounted && props.pageScrollTop >= 0 && props.pageScrollTop < 40) return true;
+        if (pageScrollTop >= elemTop - offsetBeforeTarget - 120 && pageScrollTop < elemTop + parseInt(elemStyle.marginTop) + targetElem.offsetHeight - offsetBeforeTarget - 120) return true;else return false;
+      } else if (depth === 0) {
+        if (mounted && pageScrollTop >= 0 && pageScrollTop < 40) return true;
       }
 
       return false;
@@ -168,21 +191,21 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
-      var _this$props = this.props,
-          recurDepth = _this$props.recurDepth,
-          link = _this$props.link,
-          content = _this$props.content,
-          maxHeaderDepth = _this$props.maxHeaderDepth,
-          depth = _this$props.depth,
-          collapsible = _this$props.collapsible,
-          mounted = _this$props.mounted,
-          listStyleTypes = _this$props.listStyleTypes,
-          pageScrollTop = _this$props.pageScrollTop,
-          nextHeader = _this$props.nextHeader,
-          children = _this$props.children,
-          skipDepth = _this$props.skipDepth,
-          className = _this$props.className,
-          propNavigate = _this$props.navigate;
+      var _this$props2 = this.props,
+          recurDepth = _this$props2.recurDepth,
+          link = _this$props2.link,
+          content = _this$props2.content,
+          maxHeaderDepth = _this$props2.maxHeaderDepth,
+          depth = _this$props2.depth,
+          collapsible = _this$props2.collapsible,
+          mounted = _this$props2.mounted,
+          listStyleTypes = _this$props2.listStyleTypes,
+          pageScrollTop = _this$props2.pageScrollTop,
+          nextHeader = _this$props2.nextHeader,
+          children = _this$props2.children,
+          skipDepth = _this$props2.skipDepth,
+          className = _this$props2.className,
+          propNavigate = _this$props2.navigate;
       var title = this.props.title;
 
       var _ref2 = this.state || {},
@@ -228,10 +251,9 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         "data-recursion-depth": recurDepth
       }, title, /*#__PURE__*/React.createElement(Collapse, {
         "in": !this.state || open && mounted
-      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(TableEntryChildren, _extends({
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(TableEntryChildren, {
         navigate: propNavigate,
-        parentClosed: this.state && !open
-      }, {
+        parentClosed: this.state && !open,
         active: active,
         content: content,
         childHeaders: childHeaders,
@@ -245,7 +267,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         maxHeaderDepth: maxHeaderDepth,
         skipDepth: skipDepth,
         recurDepth: recurDepth
-      })))));
+      }))));
     }
   }]);
 
@@ -254,7 +276,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
 
 _defineProperty(TableEntry, "getChildHeaders", memoize(function (content, maxHeaderDepth, currentDepth) {
   if (!TableOfContents.isContentJSX(content) || !content.props || !content.props.children) return [];
-  return _.filter(content.props.children, function (child) {
+  return content.props.children.filter(function (child) {
     return TableOfContents.isHeaderComponent(child, maxHeaderDepth || 6) && child.props.type === 'h' + (currentDepth + 1);
   });
 }));
@@ -279,7 +301,73 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
 
   var _super2 = _createSuper(TableEntryChildren);
 
-  _createClass(TableEntryChildren, null, [{
+  function TableEntryChildren(props) {
+    var _this3;
+
+    _classCallCheck(this, TableEntryChildren);
+
+    _this3 = _super2.call(this, props);
+    _this3.shouldComponentUpdate = _this3.shouldComponentUpdate.bind(_assertThisInitialized(_this3));
+    _this3.getHeadersFromContent = _this3.getHeadersFromContent.bind(_assertThisInitialized(_this3));
+    _this3.children = _this3.children.bind(_assertThisInitialized(_this3));
+    _this3.render = _this3.render.bind(_assertThisInitialized(_this3));
+    return _this3;
+  }
+
+  _createClass(TableEntryChildren, [{
+    key: "shouldComponentUpdate",
+    value: function shouldComponentUpdate(nextProps) {
+      if (nextProps.active) return true;
+      if (nextProps.depth === 0) return true;
+      if (nextProps.mounted !== this.props.mounted) return true;
+      if (nextProps.active !== this.props.active) return true;
+      if (nextProps.parentClosed !== this.props.parentClosed) return true;
+      return false;
+    }
+  }, {
+    key: "getHeadersFromContent",
+    value: function getHeadersFromContent() {
+      return TableEntryChildren.getHeadersFromContent(this.props.content, this.props.maxHeaderDepth, this.props.depth);
+    }
+  }, {
+    key: "children",
+    value: function children() {
+      var _this$props3 = this.props,
+          content = _this$props3.content,
+          depth = _this$props3.depth,
+          propChildren = _this$props3.children;
+
+      var _this$getHeadersFromC = this.getHeadersFromContent(),
+          childHeaders = _this$getHeadersFromC.childHeaders,
+          childDepth = _this$getHeadersFromC.childDepth;
+
+      if (childHeaders && childHeaders.length) {
+        var opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
+
+        return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
+      } else {
+        return propChildren;
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props4 = this.props,
+          listStyleTypes = _this$props4.listStyleTypes,
+          _this$props4$depth = _this$props4.depth,
+          depth = _this$props4$depth === void 0 ? 0 : _this$props4$depth; // Removed: 'collapse' children if not over them (re: negative feedback)
+      //if (this.props.depth >= 3 && !this.props.active) return null;
+
+      var renderedChildren = this.children();
+      if (!renderedChildren) return null;
+      return /*#__PURE__*/React.createElement("ol", {
+        className: "inner",
+        style: {
+          'listStyleType': listStyleTypes[depth + 1]
+        }
+      }, renderedChildren);
+    }
+  }], [{
     key: "renderChildrenElements",
     value: function renderChildrenElements(childHeaders, currentDepth, jsxContent) {
       var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {
@@ -295,7 +383,7 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
           recurDepth = opts.recurDepth;
 
       if (Array.isArray(childHeaders) && childHeaders.length > 0) {
-        return _.map(childHeaders, function (h) {
+        return childHeaders.map(function (h) {
           var childContent = TableEntryChildren.getSubsequentChildHeaders(h, jsxContent, maxHeaderDepth, currentDepth);
 
           if (skipDepth > currentDepth) {
@@ -341,73 +429,23 @@ var TableEntryChildren = /*#__PURE__*/function (_React$Component2) {
     }
   }]);
 
-  function TableEntryChildren(props) {
-    var _this3;
-
-    _classCallCheck(this, TableEntryChildren);
-
-    _this3 = _super2.call(this, props);
-    _this3.shouldComponentUpdate = _this3.shouldComponentUpdate.bind(_assertThisInitialized(_this3));
-    _this3.getHeadersFromContent = _this3.getHeadersFromContent.bind(_assertThisInitialized(_this3));
-    _this3.children = _this3.children.bind(_assertThisInitialized(_this3));
-    _this3.render = _this3.render.bind(_assertThisInitialized(_this3));
-    return _this3;
-  }
-
-  _createClass(TableEntryChildren, [{
-    key: "shouldComponentUpdate",
-    value: function shouldComponentUpdate(nextProps) {
-      if (nextProps.active) return true;
-      if (nextProps.depth === 0) return true;
-      if (nextProps.mounted !== this.props.mounted) return true;
-      if (nextProps.active !== this.props.active) return true;
-      if (nextProps.parentClosed !== this.props.parentClosed) return true;
-      return false;
-    }
-  }, {
-    key: "getHeadersFromContent",
-    value: function getHeadersFromContent() {
-      return TableEntryChildren.getHeadersFromContent(this.props.content, this.props.maxHeaderDepth, this.props.depth);
-    }
-  }, {
-    key: "children",
-    value: function children() {
-      var _this$getHeadersFromC = this.getHeadersFromContent(),
-          childHeaders = _this$getHeadersFromC.childHeaders,
-          childDepth = _this$getHeadersFromC.childDepth;
-
-      if (childHeaders && childHeaders.length) {
-        var opts = _.pick(this.props, 'maxHeaderDepth', 'pageScrollTop', 'listStyleTypes', 'skipDepth', 'nextHeader', 'mounted', 'recurDepth');
-
-        var _this$props2 = this.props,
-            content = _this$props2.content,
-            depth = _this$props2.depth;
-        return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
-      } else {
-        return this.props.children;
-      }
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      // Removed: 'collapse' children if not over them (re: negative feedback)
-      //if (this.props.depth >= 3 && !this.props.active) return null;
-      var children = this.children();
-      if (!children) return null;
-      return /*#__PURE__*/React.createElement("ol", {
-        className: "inner",
-        style: {
-          'listStyleType': this.props.listStyleTypes[(this.props.depth || 0) + 1]
-        },
-        children: children
-      });
-    }
-  }]);
-
   return TableEntryChildren;
 }(React.Component);
 
 _defineProperty(TableEntryChildren, "getHeadersFromContent", memoize(function (jsxContent, maxHeaderDepth, currentDepth) {
+  if (Array.isArray(jsxContent)) {
+    // As of html-react-parser v1.2.8, we may get back array of content, including "\n" or similar.
+    return jsxContent.reduce(function (m, c) {
+      var res = TableEntryChildren.getHeadersFromContent(c, maxHeaderDepth, currentDepth);
+      m.childDepth = Math.max(res.childDepth, m.childDepth);
+      m.childrenForDepth = m.childrenForDepth.concat(res.childrenForDepth);
+      return m;
+    }, {
+      childDepth: currentDepth,
+      childrenForDepth: []
+    });
+  }
+
   if (!TableOfContents.isContentJSX(jsxContent)) return [];
   var depthToFind = currentDepth;
   var childrenForDepth = [];
@@ -432,8 +470,7 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(functio
   if (!TableOfContents.isContentJSX(jsxContent)) return null;
   var getNext = null;
   var nextMajorHeader = null;
-
-  var nextHeaderComponents = _.reduce(jsxContent.props.children, function (m, child) {
+  var nextHeaderComponents = jsxContent.props.children.reduce(function (m, child) {
     if (getNext === null && child === header) {
       getNext = true;
       return m;
@@ -452,7 +489,6 @@ _defineProperty(TableEntryChildren, "getSubsequentChildHeaders", memoize(functio
   },
   /* m = */
   []);
-
   return {
     'content': /*#__PURE__*/React.cloneElement(jsxContent, {}, nextHeaderComponents),
     'nextMajorHeader': nextMajorHeader
@@ -463,114 +499,6 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   _inherits(TableOfContents, _React$Component3);
 
   var _super3 = _createSuper(TableOfContents);
-
-  _createClass(TableOfContents, null, [{
-    key: "slugify",
-
-    /** Taken from https://gist.github.com/mathewbyrne/1280286 */
-
-    /** @deprecated */
-    value: function slugify(text) {
-      return text.toString().toLowerCase().replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-      .replace(/\-\-+/g, '-') // Replace multiple - with single -
-      .replace(/^-+/, '') // Trim - from start of text
-      .replace(/-+$/, ''); // Trim - from end of text
-    }
-    /** @deprecated */
-
-  }, {
-    key: "slugifyReactChildren",
-    value: function slugifyReactChildren(children) {
-      return TableOfContents.slugify(TableOfContents.textFromReactChildren(children));
-    }
-  }, {
-    key: "textFromReactChildren",
-    value: function textFromReactChildren(children) {
-      if (typeof children === 'string') return children;
-      if (children && _typeof(children) === 'object' && children.props && children.props.children) return TableOfContents.textFromReactChildren(children.props.children);
-
-      if (Array.isArray(children) && children.length > 0) {
-        var childrenWithChildren = _.filter(children, function (c) {
-          return typeof c === 'string' || c && c.props && c.props.children;
-        });
-
-        var childPrimaryElemIfAny = _.find(childrenWithChildren, function (c) {
-          return c && _typeof(c) === 'object' && c.props && (c.type === 'code' || c.type === 'strong' || c.type === 'b');
-        });
-
-        if (childPrimaryElemIfAny) {
-          return TableOfContents.textFromReactChildren(childPrimaryElemIfAny);
-        } else {
-          return _.map(children, TableOfContents.textFromReactChildren).join('');
-        }
-      }
-
-      return '';
-    }
-  }, {
-    key: "isHeaderComponent",
-    value: function isHeaderComponent(c) {
-      var maxHeaderDepth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
-      return c && c.props && typeof c.props.type === 'string' && c.props.type.charAt(0).toLowerCase() === 'h' && _.range(1, maxHeaderDepth + 1).indexOf(parseInt(c.props.type.charAt(1))) > -1;
-    }
-  }, {
-    key: "isContentJSX",
-    value: function isContentJSX(content) {
-      if (!content || _typeof(content) !== 'object') return false;
-      var proto = Object.getPrototypeOf(content);
-      return proto && proto.isPrototypeOf(React.Component.prototype);
-    }
-  }, {
-    key: "elementIDFromSectionName",
-    value: function elementIDFromSectionName(sectionName) {
-      var sectionParts;
-
-      if (sectionName.indexOf('#') > -1) {
-        sectionParts = sectionName.split('#');
-        sectionName = sectionParts[sectionParts.length - 1];
-      } else if (sectionName.indexOf('.') > -1) {
-        sectionParts = sectionName.split('.');
-        sectionName = sectionParts[sectionParts.length - 1];
-      }
-
-      return sectionName;
-    }
-  }, {
-    key: "scrollToLink",
-    value: function scrollToLink(link) {
-      var offsetBeforeTarget = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 72;
-      var navigateFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : navigate;
-      var targetElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      var pageScrollTop, elementTop;
-
-      if (link === "top") {
-        elementTop = 0;
-      } else if (typeof link === 'string' && link) {
-        if (link.charAt(0) === '/') {
-          navigateFunc(link);
-          return;
-        } else {
-          elementTop = getElementTop(targetElement || document.getElementById(link));
-        }
-      } else {
-        return null;
-      }
-
-      pageScrollTop = getPageVerticalScrollPosition();
-      animateScrollTo(elementTop, 750, offsetBeforeTarget, function () {
-        if (typeof navigateFunc === 'function') {
-          setTimeout(function () {
-            if (link === 'top' || link === 'bottom') link = '';
-            navigateFunc('#' + link, {
-              'replace': true,
-              'skipRequest': true
-            });
-          }, link === 'top' || typeof pageScrollTop === 'number' && pageScrollTop <= 40 ? 800 : 0);
-        }
-      });
-    }
-  }]);
 
   function TableOfContents(props) {
     var _this4;
@@ -695,18 +623,19 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "render",
     value: function render() {
-      var _this6 = this;
-
-      var _this$props3 = this.props,
-          context = _this$props3.context,
-          maxHeaderDepth = _this$props3.maxHeaderDepth,
-          includeTop = _this$props3.includeTop,
-          fixedGridWidth = _this$props3.fixedGridWidth,
-          includeNextPreviousPages = _this$props3.includeNextPreviousPages,
-          listStyleTypes = _this$props3.listStyleTypes,
-          windowWidth = _this$props3.windowWidth,
-          windowHeight = _this$props3.windowHeight,
-          maxHeight = _this$props3.maxHeight;
+      var _this$props5 = this.props,
+          context = _this$props5.context,
+          maxHeaderDepth = _this$props5.maxHeaderDepth,
+          includeTop = _this$props5.includeTop,
+          fixedGridWidth = _this$props5.fixedGridWidth,
+          includeNextPreviousPages = _this$props5.includeNextPreviousPages,
+          listStyleTypes = _this$props5.listStyleTypes,
+          windowWidth = _this$props5.windowWidth,
+          windowHeight = _this$props5.windowHeight,
+          maxHeight = _this$props5.maxHeight,
+          propNavigate = _this$props5.navigate,
+          _this$props5$fixedPos = _this$props5.fixedPositionBreakpoint,
+          fixedPositionBreakpoint = _this$props5$fixedPos === void 0 ? 1200 : _this$props5$fixedPos;
       var _this$state = this.state,
           mounted = _this$state.mounted,
           scrollTop = _this$state.scrollTop,
@@ -714,8 +643,13 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
       var contents = [];
       var skipDepth = 0;
 
-      var sectionEntries = function () {
-        var lastSection = null;
+      if (context && context.parent && context.parent['@id']) {
+        contents.push(this.parentLink(windowWidth));
+      }
+
+      var renderedSections = function sectionEntries() {
+        var lastSection = null; // Don't make top-level section entries if not all sections have a section title.
+
         var excludeSectionsFromTOC = _.filter(context.content, function (section) {
           return section.title || section['toc-title'];
         }).length < 2;
@@ -761,31 +695,32 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
             pageScrollTop: scrollTop,
             mounted: mounted,
             nextHeader: s.nextHeader,
-            navigate: _this6.props.navigate,
+            navigate: propNavigate,
             maxHeaderDepth: maxHeaderDepth,
             skipDepth: skipDepth
           });
         }).flatten(false).value();
-      };
+      }();
 
-      if (context && context.parent && context.parent['@id']) {
-        contents.push(this.parentLink(windowWidth));
-      }
+      var _renderedSections = _slicedToArray(renderedSections, 1),
+          _renderedSections$0$p = _renderedSections[0].props;
 
-      var renderedSections = sectionEntries();
+      _renderedSections$0$p = _renderedSections$0$p === void 0 ? {} : _renderedSections$0$p;
+      var _renderedSections$0$p2 = _renderedSections$0$p.link,
+          firstSectionLink = _renderedSections$0$p2 === void 0 ? null : _renderedSections$0$p2;
       contents.push( /*#__PURE__*/React.createElement(TableEntry, {
         link: "top",
-        title: context['display_title'] || 'Top of Page' || null,
+        title: context.display_title || 'Top of Page' || null,
         key: "top",
         depth: 0,
         listStyleTypes: listStyleTypes,
         pageScrollTop: scrollTop,
         mounted: mounted,
-        navigate: this.props.navigate,
-        nextHeader: renderedSections[0] && renderedSections[0].props && renderedSections[0].props.link || null,
+        navigate: propNavigate,
+        nextHeader: firstSectionLink || null,
         maxHeaderDepth: maxHeaderDepth,
         skipDepth: skipDepth || 0
-      }, sectionEntries()));
+      }, renderedSections));
       var marginTop = 0; // Account for test warning
 
       if (windowWidth) {
@@ -802,10 +737,11 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         key: "toc",
         className: "table-of-contents" + (widthBound ? ' width-bounded' : ''),
         style: {
-          'width': windowWidth ? windowWidth >= 1200 ? function () {
-            return 1140 * (fixedGridWidth / 12) + (windowWidth - 1140) / 2 - 10;
+          'width': windowWidth ? windowWidth >= fixedPositionBreakpoint ? function () {
+            var containerWidth = fixedPositionBreakpoint - 60;
+            return containerWidth * (fixedGridWidth / 12) + (windowWidth - containerWidth) / 2 - 10;
           }() || 'inherit' : 'inherit' : 285,
-          'height': windowWidth && windowHeight ? windowWidth >= 1200 ? maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 : null : 1000,
+          'height': windowWidth && windowHeight ? windowWidth >= fixedPositionBreakpoint ? maxHeight || scrollTop >= 40 ? windowHeight - 42 : windowHeight - 82 : null : 1000,
           marginTop: marginTop
         }
       }, !isEmpty ? /*#__PURE__*/React.createElement("ol", {
@@ -814,10 +750,117 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           'listStyleType': listStyleTypes[0],
           'paddingLeft': 0
         }
-      }, contents) : null, includeNextPreviousPages ? /*#__PURE__*/React.createElement(NextPreviousPageSection, {
+      }, contents) : null, includeNextPreviousPages && (context.next || context.previous) ? /*#__PURE__*/React.createElement(NextPreviousPageSection, {
         context: context,
         windowInnerWidth: windowWidth
-      }) : null);
+      }) : /*#__PURE__*/React.createElement("br", null));
+    }
+  }], [{
+    key: "slugify",
+    value:
+    /** Taken from https://gist.github.com/mathewbyrne/1280286 */
+
+    /** @deprecated */
+    function slugify(text) {
+      return text.toString().toLowerCase().replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, ''); // Trim - from end of text
+    }
+    /** @deprecated */
+
+  }, {
+    key: "slugifyReactChildren",
+    value: function slugifyReactChildren(children) {
+      return TableOfContents.slugify(TableOfContents.textFromReactChildren(children));
+    }
+  }, {
+    key: "textFromReactChildren",
+    value: function textFromReactChildren(children) {
+      if (typeof children === 'string') return children;
+      if (children && _typeof(children) === 'object' && children.props && children.props.children) return TableOfContents.textFromReactChildren(children.props.children);
+
+      if (Array.isArray(children) && children.length > 0) {
+        var childrenWithChildren = _.filter(children, function (c) {
+          return typeof c === 'string' || c && c.props && c.props.children;
+        });
+
+        var childPrimaryElemIfAny = _.find(childrenWithChildren, function (c) {
+          return c && _typeof(c) === 'object' && c.props && (c.type === 'code' || c.type === 'strong' || c.type === 'b');
+        });
+
+        if (childPrimaryElemIfAny) {
+          return TableOfContents.textFromReactChildren(childPrimaryElemIfAny);
+        } else {
+          return _.map(children, TableOfContents.textFromReactChildren).join('');
+        }
+      }
+
+      return '';
+    }
+  }, {
+    key: "isHeaderComponent",
+    value: function isHeaderComponent(c) {
+      var maxHeaderDepth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
+      return c && c.props && typeof c.props.type === 'string' && c.props.type.charAt(0).toLowerCase() === 'h' && _.range(1, maxHeaderDepth + 1).indexOf(parseInt(c.props.type.charAt(1))) > -1;
+    }
+  }, {
+    key: "isContentJSX",
+    value: function isContentJSX(content) {
+      if (!content || _typeof(content) !== 'object') return false;
+      return /*#__PURE__*/React.isValidElement(content); // const proto = Object.getPrototypeOf(content);
+      // return proto && proto.isPrototypeOf(React.Component.prototype);
+    }
+  }, {
+    key: "elementIDFromSectionName",
+    value: function elementIDFromSectionName(sectionName) {
+      var sectionParts;
+      var idToUse = sectionName;
+
+      if (sectionName.indexOf('#') > -1) {
+        sectionParts = sectionName.split('#');
+        idToUse = sectionParts[sectionParts.length - 1];
+      } else if (sectionName.indexOf('.') > -1) {
+        sectionParts = sectionName.split('.');
+        idToUse = sectionParts[sectionParts.length - 1];
+      }
+
+      return idToUse;
+    }
+  }, {
+    key: "scrollToLink",
+    value: function scrollToLink(link) {
+      var offsetBeforeTarget = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 72;
+      var navigateFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : navigate;
+      var targetElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      var elementTop;
+
+      if (link === "top") {
+        elementTop = 0;
+      } else if (typeof link === 'string' && link) {
+        if (link.charAt(0) === '/') {
+          navigateFunc(link);
+          return;
+        } else {
+          elementTop = getElementTop(targetElement || document.getElementById(link));
+        }
+      } else {
+        return null;
+      }
+
+      var pageScrollTop = getPageVerticalScrollPosition();
+      animateScrollTo(elementTop, 750, offsetBeforeTarget, function () {
+        if (typeof navigateFunc === 'function') {
+          setTimeout(function () {
+            if (link === 'top' || link === 'bottom') link = '';
+            navigateFunc('#' + link, {
+              'replace': true,
+              'skipRequest': true
+            });
+          }, link === 'top' || typeof pageScrollTop === 'number' && pageScrollTop <= 40 ? 800 : 0);
+        }
+      });
     }
   }]);
 
@@ -890,15 +933,80 @@ NextPreviousPageSection.defaultProps = {
   'previousTitle': 'Previous',
   'nextTitle': 'Next'
 };
+/** @todo We can probably have this work with HTML-type content as well. */
+
 export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(MarkdownHeading, _React$PureComponent);
 
   var _super4 = _createSuper(MarkdownHeading);
 
-  _createClass(MarkdownHeading, null, [{
+  function MarkdownHeading(props) {
+    var _this6;
+
+    _classCallCheck(this, MarkdownHeading);
+
+    _this6 = _super4.call(this, props);
+    _this6.getID = _this6.getID.bind(_assertThisInitialized(_this6));
+    return _this6;
+  }
+
+  _createClass(MarkdownHeading, [{
+    key: "getID",
+    value: function getID() {
+      var set = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      if (typeof this.id === 'string') return this.id;
+      /** slugifyReactChildren is deprecated and should never be called now as we always get props.id passed in (?) */
+
+      var idToSet = id || this.props && this.props.id || TableOfContents.slugifyReactChildren(this.props.children);
+
+      if (set) {
+        this.id = idToSet;
+      }
+
+      return idToSet;
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      delete this.id;
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props6 = this.props,
+          type = _this$props6.type,
+          propChildren = _this$props6.children;
+      var children = Array.isArray(propChildren) ? propChildren : [propChildren];
+      var propsToPass = {
+        'children': children,
+        'id': null,
+        'type': type
+      };
+      var attributes = MarkdownHeading.getAttributes(children);
+
+      if (attributes && attributes.matchedString) {
+        propsToPass.children = _.map(children, function (c) {
+          if (typeof c === 'string') return c.replace(attributes.matchedString, '');
+          return c;
+        });
+
+        if (attributes.id) {
+          propsToPass.id = this.getID(true, attributes.id);
+        }
+
+        if (attributes.className) {
+          propsToPass.className = attributes.className;
+        }
+      }
+
+      if (!propsToPass.id) propsToPass.id = this.getID(true);
+      return /*#__PURE__*/React.createElement(HeaderWithLink, propsToPass); //return React.createElement(type, propsToPass);
+    }
+  }], [{
     key: "getAttributes",
-    value: function getAttributes(children) {
-      children = Array.isArray(children) ? children : [children];
+    value: function getAttributes(childrenParam) {
+      var children = Array.isArray(childrenParam) ? childrenParam : [childrenParam];
       var attr = {
         'id': null,
         'className': null,
@@ -929,71 +1037,6 @@ export var MarkdownHeading = /*#__PURE__*/function (_React$PureComponent) {
     }
   }]);
 
-  function MarkdownHeading(props) {
-    var _this7;
-
-    _classCallCheck(this, MarkdownHeading);
-
-    _this7 = _super4.call(this, props);
-    _this7.getID = _this7.getID.bind(_assertThisInitialized(_this7));
-    return _this7;
-  }
-
-  _createClass(MarkdownHeading, [{
-    key: "getID",
-    value: function getID() {
-      var set = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      if (typeof this.id === 'string') return this.id;
-      /** slugifyReactChildren is deprecated and should never be called now as we always get props.id passed in (?) */
-
-      var idToSet = id || this.props && this.props.id || TableOfContents.slugifyReactChildren(this.props.children);
-
-      if (set) {
-        this.id = idToSet;
-      }
-
-      return idToSet;
-    }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      delete this.id;
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props4 = this.props,
-          type = _this$props4.type,
-          children = _this$props4.children;
-      children = Array.isArray(children) ? children : [children];
-      var propsToPass = {
-        'children': children,
-        'id': null,
-        'type': type
-      };
-      var attributes = MarkdownHeading.getAttributes(children);
-
-      if (attributes && attributes.matchedString) {
-        propsToPass.children = _.map(children, function (c) {
-          if (typeof c === 'string') return c.replace(attributes.matchedString, '');
-          return c;
-        });
-
-        if (attributes.id) {
-          propsToPass.id = this.getID(true, attributes.id);
-        }
-
-        if (attributes.className) {
-          propsToPass.className = attributes.className;
-        }
-      }
-
-      if (!propsToPass.id) propsToPass.id = this.getID(true);
-      return /*#__PURE__*/React.createElement(HeaderWithLink, propsToPass); //return React.createElement(type, propsToPass);
-    }
-  }]);
-
   return MarkdownHeading;
 }(React.PureComponent);
 
@@ -1008,26 +1051,29 @@ export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   var _super5 = _createSuper(HeaderWithLink);
 
   function HeaderWithLink(props) {
-    var _this8;
+    var _this7;
 
     _classCallCheck(this, HeaderWithLink);
 
-    _this8 = _super5.call(this, props);
-    _this8.handleLinkClick = _this8.handleLinkClick.bind(_assertThisInitialized(_this8));
-    return _this8;
+    _this7 = _super5.call(this, props);
+    _this7.handleLinkClick = _this7.handleLinkClick.bind(_assertThisInitialized(_this7));
+    return _this7;
   }
 
   _createClass(HeaderWithLink, [{
     key: "handleLinkClick",
     value: function handleLinkClick() {
+      var _this$props7 = this.props,
+          link = _this$props7.link,
+          propID = _this$props7.id,
+          context = _this$props7.context;
       if (!(!isServerSide() && typeof window !== 'undefined' && document)) return null;
-      var id = this.props.link || this.props.id,
-          itemAtID;
-      if (this.props.context) itemAtID = itemUtil.atId(this.props.context);else itemAtID = window.location.pathname;
+      var id = link || propID;
+      var itemAtID;
+      if (context) itemAtID = itemUtil.atId(context);else itemAtID = window.location.pathname;
 
       if (itemAtID) {
-        var linkToCopy = itemAtID + '#' + id;
-        linkToCopy = window.location.protocol + '//' + window.location.host + linkToCopy;
+        var linkToCopy = window.location.protocol + '//' + window.location.host + itemAtID + '#' + id;
         CopyWrapper.copyToClipboard(linkToCopy);
         TableOfContents.scrollToLink(id);
       }
@@ -1035,8 +1081,17 @@ export var HeaderWithLink = /*#__PURE__*/function (_React$PureComponent2) {
   }, {
     key: "render",
     value: function render() {
-      if (!this.props.id && !this.props.link) throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
-      return /*#__PURE__*/React.createElement(this.props.type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [this.props.children, /*#__PURE__*/React.createElement("i", {
+      var _this$props8 = this.props,
+          link = _this$props8.link,
+          propID = _this$props8.id,
+          type = _this$props8.type,
+          children = _this$props8.children;
+
+      if (!propID && !link) {
+        throw new Error('HeaderWithLink needs a link or ID attribute/prop.');
+      }
+
+      return /*#__PURE__*/React.createElement(type || 'h2', _.omit(this.props, 'type', 'children', 'link', 'context'), [children, /*#__PURE__*/React.createElement("i", {
         key: "icon-link",
         className: "icon icon-fw icon-link fas",
         onClick: this.handleLinkClick,

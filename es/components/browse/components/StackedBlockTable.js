@@ -1,6 +1,6 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -16,11 +16,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -460,64 +460,6 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
 
   var _super5 = _createSuper(StackedBlockTable);
 
-  _createClass(StackedBlockTable, null, [{
-    key: "getOriginalColumnWidthArray",
-    value: function getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth) {
-      return _.map(columnHeaders, function (c) {
-        return c.initialWidth || defaultInitialColumnWidth;
-      });
-    }
-  }, {
-    key: "totalColumnsMinWidth",
-    value: function totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth) {
-      return StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth).reduce(function (m, v) {
-        return m + v;
-      }, 0);
-    }
-  }, {
-    key: "colWidthStyles",
-    value: function colWidthStyles(columnHeaders, defaultInitialColumnWidth) {
-      // { 'experiment' : { width } , 'biosample' : { width }, ... }
-      var orderedMapList = columnHeaders.map(function (col) {
-        var field = col.field,
-            title = col.title,
-            columnClass = col.columnClass,
-            initialWidth = col.initialWidth;
-        var width = initialWidth || defaultInitialColumnWidth;
-        var key;
-
-        if (columnClass === 'file-detail') {
-          key = field || title || 'file-detail';
-        } else {
-          key = columnClass;
-        }
-
-        return [key, {
-          flex: "1 0 " + width + "px",
-          minWidth: width
-        }];
-      });
-
-      var retObj = _.object(orderedMapList);
-
-      columnHeaders.slice().reverse().reduce(function (m, col, idx) {
-        var columnClass = col.columnClass,
-            initialWidth = col.initialWidth;
-
-        if (columnClass !== 'file-detail' && columnClass !== 'file') {
-          retObj["list:" + columnClass] = {
-            flex: "".concat(idx, " 0 ").concat(m, "px"),
-            minWidth: m
-          };
-        }
-
-        m += initialWidth || defaultInitialColumnWidth;
-        return m;
-      }, 0);
-      return retObj;
-    }
-  }]);
-
   function StackedBlockTable(props) {
     var _this5;
 
@@ -603,6 +545,62 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
       }, /*#__PURE__*/React.createElement(TableHeaders, tableHeaderProps), /*#__PURE__*/React.createElement("div", {
         className: "body clearfix"
       }, this.adjustedChildren()));
+    }
+  }], [{
+    key: "getOriginalColumnWidthArray",
+    value: function getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth) {
+      return _.map(columnHeaders, function (c) {
+        return c.initialWidth || defaultInitialColumnWidth;
+      });
+    }
+  }, {
+    key: "totalColumnsMinWidth",
+    value: function totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth) {
+      return StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth).reduce(function (m, v) {
+        return m + v;
+      }, 0);
+    }
+  }, {
+    key: "colWidthStyles",
+    value: function colWidthStyles(columnHeaders, defaultInitialColumnWidth) {
+      // { 'experiment' : { width } , 'biosample' : { width }, ... }
+      var orderedMapList = columnHeaders.map(function (col) {
+        var field = col.field,
+            title = col.title,
+            columnClass = col.columnClass,
+            initialWidth = col.initialWidth;
+        var width = initialWidth || defaultInitialColumnWidth;
+        var key;
+
+        if (columnClass === 'file-detail') {
+          key = field || title || 'file-detail';
+        } else {
+          key = columnClass;
+        }
+
+        return [key, {
+          flex: "1 0 " + width + "px",
+          minWidth: width
+        }];
+      });
+
+      var retObj = _.object(orderedMapList);
+
+      columnHeaders.slice().reverse().reduce(function (m, col, idx) {
+        var columnClass = col.columnClass,
+            initialWidth = col.initialWidth;
+
+        if (columnClass !== 'file-detail' && columnClass !== 'file') {
+          retObj["list:" + columnClass] = {
+            flex: "".concat(idx, " 0 ").concat(m, "px"),
+            minWidth: m
+          };
+        }
+
+        m += initialWidth || defaultInitialColumnWidth;
+        return m;
+      }, 0);
+      return retObj;
     }
   }]);
 

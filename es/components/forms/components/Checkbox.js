@@ -1,3 +1,5 @@
+var _excluded = ["className", "children", "labelClassName", "title", "inputClassName", "indeterminate"];
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
@@ -18,7 +20,7 @@ export var Checkbox = /*#__PURE__*/React.memo(function (props) {
       inputClassName = _props$inputClassName === void 0 ? "mr-08 align-middle" : _props$inputClassName,
       _props$indeterminate = props.indeterminate,
       indeterminate = _props$indeterminate === void 0 ? false : _props$indeterminate,
-      passProps = _objectWithoutProperties(props, ["className", "children", "labelClassName", "title", "inputClassName", "indeterminate"]);
+      passProps = _objectWithoutProperties(props, _excluded);
 
   var disabled = passProps.disabled;
   var cls = "checkbox checkbox-with-label" + (disabled ? " disabled" : "") + (className ? " " + className : "");

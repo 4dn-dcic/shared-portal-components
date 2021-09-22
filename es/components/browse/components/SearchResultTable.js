@@ -1,11 +1,11 @@
 'use strict';
 /* @flow */
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -19,11 +19,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -38,7 +38,7 @@ import _ from 'underscore';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import Infinite from 'react-infinite';
+import Infinite from '@4dn-dcic/react-infinite/build/react-infinite';
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
 import * as logger from '../../util/logger';
@@ -264,31 +264,6 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
 
   var _super2 = _createSuper(ResultRow);
 
-  _createClass(ResultRow, null, [{
-    key: "areWidthsEqual",
-    value: function areWidthsEqual(arr1, arr2) {
-      if (arr1.length !== arr2.length) return false;
-
-      for (var i = 0; i < arr1.length; i++) {
-        if (arr1[i] !== arr2[i]) return false;
-      }
-
-      return true;
-    }
-  }, {
-    key: "getStyles",
-    value: function getStyles(rowWidth) {
-      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 47;
-      arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-      return {
-        /* inner: { minHeight: rowHeight - rowBottomPadding }, */
-        outer: {
-          minWidth: rowWidth
-        }
-      };
-    }
-  }]);
-
   function ResultRow(props) {
     var _this2;
 
@@ -436,6 +411,29 @@ var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
         setDetailHeight: this.setDetailHeight
       })));
     }
+  }], [{
+    key: "areWidthsEqual",
+    value: function areWidthsEqual(arr1, arr2) {
+      if (arr1.length !== arr2.length) return false;
+
+      for (var i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) return false;
+      }
+
+      return true;
+    }
+  }, {
+    key: "getStyles",
+    value: function getStyles(rowWidth) {
+      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 47;
+      arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+      return {
+        /* inner: { minHeight: rowHeight - rowBottomPadding }, */
+        outer: {
+          minWidth: rowWidth
+        }
+      };
+    }
   }]);
 
   return ResultRow;
@@ -467,51 +465,6 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
   _inherits(LoadMoreAsYouScroll, _React$Component);
 
   var _super3 = _createSuper(LoadMoreAsYouScroll);
-
-  _createClass(LoadMoreAsYouScroll, null, [{
-    key: "canLoadMore",
-    value: function canLoadMore(totalExpected, results) {
-      return totalExpected > results.length;
-    }
-    /**
-     * Used for memoization of styles that dont frequently change (prevent needless PureComponent updates).
-     * `scrollableStyle` is applied to Infinite's outermost div element/container.
-     */
-
-  }, {
-    key: "getStyles",
-    value: function getStyles(maxHeight) {
-      var styles = {};
-      styles.scrollableStyle = {
-        maxHeight: maxHeight,
-        height: null,
-        // Unset, let maxHeight take over.
-        overflow: "auto" // Override "hidden scroll" default.
-
-      };
-      return styles;
-    }
-  }, {
-    key: "getElementHeight",
-    value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeightToUse) {
-      var openDetailPaneResultIDs = Object.keys(openDetailPanes);
-
-      if (openDetailPaneResultIDs.length === 0) {
-        return rowHeight; // Use same value for all rows.
-      }
-
-      return React.Children.map(children, function (c) {
-        // openRowHeight + openDetailPane height, if detail pane open for this result.
-        var savedDetailPaneHeight = openDetailPanes[c.props.id];
-
-        if (savedDetailPaneHeight && typeof savedDetailPaneHeight === 'number') {
-          return savedDetailPaneHeight + openRowHeightToUse;
-        }
-
-        return rowHeight;
-      });
-    }
-  }]);
 
   function LoadMoreAsYouScroll(props) {
     var _this4;
@@ -696,6 +649,49 @@ var LoadMoreAsYouScroll = /*#__PURE__*/function (_React$Component) {
         styles: isOwnPage ? null : this.memoized.getStyles(maxHeight)
       }, children);
     }
+  }], [{
+    key: "canLoadMore",
+    value: function canLoadMore(totalExpected, results) {
+      return totalExpected > results.length;
+    }
+    /**
+     * Used for memoization of styles that dont frequently change (prevent needless PureComponent updates).
+     * `scrollableStyle` is applied to Infinite's outermost div element/container.
+     */
+
+  }, {
+    key: "getStyles",
+    value: function getStyles(maxHeight) {
+      var styles = {};
+      styles.scrollableStyle = {
+        maxHeight: maxHeight,
+        height: null,
+        // Unset, let maxHeight take over.
+        overflow: "auto" // Override "hidden scroll" default.
+
+      };
+      return styles;
+    }
+  }, {
+    key: "getElementHeight",
+    value: function getElementHeight(openDetailPanes, rowHeight, children, openRowHeightToUse) {
+      var openDetailPaneResultIDs = Object.keys(openDetailPanes);
+
+      if (openDetailPaneResultIDs.length === 0) {
+        return rowHeight; // Use same value for all rows.
+      }
+
+      return React.Children.map(children, function (c) {
+        // openRowHeight + openDetailPane height, if detail pane open for this result.
+        var savedDetailPaneHeight = openDetailPanes[c.props.id];
+
+        if (savedDetailPaneHeight && typeof savedDetailPaneHeight === 'number') {
+          return savedDetailPaneHeight + openRowHeightToUse;
+        }
+
+        return rowHeight;
+      });
+    }
   }]);
 
   return LoadMoreAsYouScroll;
@@ -759,38 +755,6 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
   _inherits(ShadowBorderLayer, _React$Component2);
 
   var _super4 = _createSuper(ShadowBorderLayer);
-
-  _createClass(ShadowBorderLayer, null, [{
-    key: "shadowStateClass",
-    value: function shadowStateClass() {
-      var hiddenLeftEdgeContentWidth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-      var hiddenRightEdgeContentWidth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      var shadowBorderClassName = "";
-      if (hiddenLeftEdgeContentWidth > 0) shadowBorderClassName += ' shadow-left';
-      if (hiddenRightEdgeContentWidth > 0) shadowBorderClassName += ' shadow-right';
-      return shadowBorderClassName;
-    }
-  }, {
-    key: "edgeHiddenContentWidths",
-    value: function edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth) {
-      var edges = {
-        'left': 0,
-        'right': 0
-      };
-
-      if (fullRowWidth > tableContainerWidth) {
-        if (tableContainerScrollLeft > 5) {
-          edges.left = tableContainerScrollLeft;
-        }
-
-        if (tableContainerScrollLeft + tableContainerWidth <= fullRowWidth - 5) {
-          edges.right = fullRowWidth - tableContainerWidth - tableContainerScrollLeft;
-        }
-      }
-
-      return edges;
-    }
-  }]);
 
   function ShadowBorderLayer(props) {
     var _this6;
@@ -909,6 +873,36 @@ var ShadowBorderLayer = /*#__PURE__*/function (_React$Component2) {
         className: "icon icon-caret-right fas"
       })));
     }
+  }], [{
+    key: "shadowStateClass",
+    value: function shadowStateClass() {
+      var hiddenLeftEdgeContentWidth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      var hiddenRightEdgeContentWidth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var shadowBorderClassName = "";
+      if (hiddenLeftEdgeContentWidth > 0) shadowBorderClassName += ' shadow-left';
+      if (hiddenRightEdgeContentWidth > 0) shadowBorderClassName += ' shadow-right';
+      return shadowBorderClassName;
+    }
+  }, {
+    key: "edgeHiddenContentWidths",
+    value: function edgeHiddenContentWidths(fullRowWidth, tableContainerScrollLeft, tableContainerWidth) {
+      var edges = {
+        'left': 0,
+        'right': 0
+      };
+
+      if (fullRowWidth > tableContainerWidth) {
+        if (tableContainerScrollLeft > 5) {
+          edges.left = tableContainerScrollLeft;
+        }
+
+        if (tableContainerScrollLeft + tableContainerWidth <= fullRowWidth - 5) {
+          edges.right = fullRowWidth - tableContainerWidth - tableContainerScrollLeft;
+        }
+      }
+
+      return edges;
+    }
   }]);
 
   return ShadowBorderLayer;
@@ -922,88 +916,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(DimensioningContainer, _React$PureComponent3);
 
   var _super5 = _createSuper(DimensioningContainer);
-
-  _createClass(DimensioningContainer, null, [{
-    key: "setDetailPanesLeftOffset",
-    value: function setDetailPanesLeftOffset(detailPanes) {
-      var leftOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      var cb = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-      if (detailPanes && detailPanes.length > 0) {
-        var transformStyle = vizStyle.translate3d(leftOffset);
-
-        _.forEach(detailPanes, function (d) {
-          d.style.transform = transformStyle;
-        });
-      }
-
-      if (typeof cb === 'function') cb();
-    }
-  }, {
-    key: "findDetailPaneElements",
-    value: function findDetailPaneElements() {
-      if (document && document.querySelectorAll) {
-        return Array.from(document.querySelectorAll('.result-table-detail'));
-      }
-
-      return null;
-    }
-  }, {
-    key: "fullRowWidth",
-    value: function fullRowWidth(visibleColumnDefinitions) {
-      var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-      var dynamicWidths = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var windowWidth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-      return _.reduce(visibleColumnDefinitions, function (fw, colDef) {
-        var w;
-
-        if (dynamicWidths && typeof dynamicWidths[colDef.field] === "number") {
-          w = dynamicWidths[colDef.field];
-        } else {
-          w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
-        }
-
-        if (isNaN(w)) {
-          throw new Error("Could not get row/col width");
-        }
-
-        return fw + w;
-      }, 0);
-    }
-  }, {
-    key: "getTableDims",
-    value: function getTableDims(scrollContainer, windowWidth) {
-      if (!SearchResultTable.isDesktopClientside(windowWidth)) {
-        return {
-          'tableContainerWidth': scrollContainer && scrollContainer.offsetWidth || null,
-          'tableContainerScrollLeft': null
-        };
-      }
-
-      return {
-        'tableContainerWidth': scrollContainer && scrollContainer.offsetWidth || null,
-        'tableContainerScrollLeft': scrollContainer && typeof scrollContainer.scrollLeft === 'number' ? scrollContainer.scrollLeft : null
-      };
-    }
-  }, {
-    key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(_ref4, _ref5) {
-      var _ref4$results = _ref4.results,
-          ctxResults = _ref4$results === void 0 ? [] : _ref4$results;
-      var originalResults = _ref5.originalResults;
-
-      if (ctxResults !== originalResults) {
-        // `context` has changed upstream, reset results and detail panes.
-        return {
-          'results': ctxResults.slice(0),
-          'openDetailPanes': {},
-          'originalResults': ctxResults
-        };
-      }
-
-      return null;
-    }
-  }]);
 
   function DimensioningContainer(props) {
     var _this8;
@@ -1092,9 +1004,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       // and element might change width independent of window (e.g. open/hide
       // facetlist in future, expand table to fullscreen, etc.)
       this.outerContainerSizeInterval = setInterval(function () {
-        _this9.setState(function (_ref6, _ref7) {
-          var pastWidth = _ref6.tableContainerWidth;
-          var windowWidth = _ref7.windowWidth;
+        _this9.setState(function (_ref4, _ref5) {
+          var pastWidth = _ref4.tableContainerWidth;
+          var windowWidth = _ref5.windowWidth;
           var currDims = DimensioningContainer.getTableDims(_this9.getScrollContainer(), windowWidth);
 
           if (pastWidth !== currDims.tableContainerWidth) {
@@ -1157,8 +1069,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
     key: "toggleDetailPaneOpen",
     value: function toggleDetailPaneOpen(rowKey) {
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref8) {
-        var openDetailPanes = _ref8.openDetailPanes;
+      this.setState(function (_ref6) {
+        var openDetailPanes = _ref6.openDetailPanes;
         openDetailPanes = _.clone(openDetailPanes);
 
         if (openDetailPanes[rowKey]) {
@@ -1175,8 +1087,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
   }, {
     key: "setDetailHeight",
     value: function setDetailHeight(rowKey, height, cb) {
-      this.setState(function (_ref9) {
-        var openDetailPanes = _ref9.openDetailPanes;
+      this.setState(function (_ref7) {
+        var openDetailPanes = _ref7.openDetailPanes;
         openDetailPanes = _.clone(openDetailPanes);
 
         if (typeof openDetailPanes[rowKey] === 'undefined') {
@@ -1335,15 +1247,14 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
 
       if (anyResults) {
         headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
-        shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, _extends({
+        shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, {
           tableContainerScrollLeft: tableContainerScrollLeft,
           tableContainerWidth: tableContainerWidth,
-          fullRowWidth: fullRowWidth
-        }, {
+          fullRowWidth: fullRowWidth,
           setContainerScrollLeft: this.setContainerScrollLeft,
           fixedPositionArrows: isOwnPage,
           getScrollContainer: this.getScrollContainer
-        }));
+        });
         childrenToShow = results.map(function (result, idx) {
           var id = itemUtil.atId(result);
           var detailOpen = openDetailPanes[id] || false; // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
@@ -1353,8 +1264,7 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           return /*#__PURE__*/React.createElement(ResultRow, _extends({}, resultRowCommonProps, {
             result: result,
             id: id,
-            detailOpen: detailOpen
-          }, {
+            detailOpen: detailOpen,
             rowNumber: idx,
             key: id,
             tableContainerScrollLeft: detailOpen ? tableContainerScrollLeft : 0
@@ -1392,6 +1302,86 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       }, /*#__PURE__*/React.createElement("div", {
         className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
       }, headersRow, /*#__PURE__*/React.createElement(LoadMoreAsYouScroll, loadMoreAsYouScrollProps, childrenToShow), shadowBorderLayer));
+    }
+  }], [{
+    key: "setDetailPanesLeftOffset",
+    value: function setDetailPanesLeftOffset(detailPanes) {
+      var leftOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var cb = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      if (detailPanes && detailPanes.length > 0) {
+        var transformStyle = vizStyle.translate3d(leftOffset);
+
+        _.forEach(detailPanes, function (d) {
+          d.style.transform = transformStyle;
+        });
+      }
+
+      if (typeof cb === 'function') cb();
+    }
+  }, {
+    key: "findDetailPaneElements",
+    value: function findDetailPaneElements() {
+      if (document && document.querySelectorAll) {
+        return Array.from(document.querySelectorAll('.result-table-detail'));
+      }
+
+      return null;
+    }
+  }, {
+    key: "fullRowWidth",
+    value: function fullRowWidth(visibleColumnDefinitions) {
+      var mounted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      var dynamicWidths = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var windowWidth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      return _.reduce(visibleColumnDefinitions, function (fw, colDef) {
+        var w;
+
+        if (dynamicWidths && typeof dynamicWidths[colDef.field] === "number") {
+          w = dynamicWidths[colDef.field];
+        } else {
+          w = getColumnWidthFromDefinition(colDef, mounted, windowWidth);
+        }
+
+        if (isNaN(w)) {
+          throw new Error("Could not get row/col width");
+        }
+
+        return fw + w;
+      }, 0);
+    }
+  }, {
+    key: "getTableDims",
+    value: function getTableDims(scrollContainer, windowWidth) {
+      if (!SearchResultTable.isDesktopClientside(windowWidth)) {
+        return {
+          'tableContainerWidth': scrollContainer && scrollContainer.offsetWidth || null,
+          'tableContainerScrollLeft': null
+        };
+      }
+
+      return {
+        'tableContainerWidth': scrollContainer && scrollContainer.offsetWidth || null,
+        'tableContainerScrollLeft': scrollContainer && typeof scrollContainer.scrollLeft === 'number' ? scrollContainer.scrollLeft : null
+      };
+    }
+  }, {
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(_ref8, _ref9) {
+      var _ref8$results = _ref8.results,
+          ctxResults = _ref8$results === void 0 ? [] : _ref8$results;
+      var originalResults = _ref9.originalResults;
+
+      if (ctxResults !== originalResults) {
+        // `context` has changed upstream, reset results and detail panes.
+        return {
+          'results': ctxResults.slice(0),
+          'openDetailPanes': {},
+          'originalResults': ctxResults
+        };
+      }
+
+      return null;
     }
   }]);
 

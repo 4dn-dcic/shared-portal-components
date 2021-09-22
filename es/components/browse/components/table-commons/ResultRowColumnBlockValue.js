@@ -1,6 +1,6 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -8,7 +8,7 @@ function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread n
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
@@ -26,11 +26,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -50,76 +50,6 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
   _inherits(ResultRowColumnBlockValue, _React$Component);
 
   var _super = _createSuper(ResultRowColumnBlockValue);
-
-  _createClass(ResultRowColumnBlockValue, null, [{
-    key: "transformIfNeeded",
-
-    /**
-     * Default value rendering function. Fallback when no `render` func defined in columnDefinition.
-     * Uses columnDefinition field (column key) to get nested property value from result and display it.
-     *
-     * @todo Maybe use Sets if more performant.
-     * @param {Item} result - JSON object representing row data.
-     * @param {string} field - Field for which this value is for.
-     * @param {function} termTransformFxn - Transform value(s)
-     * @returns {string|null} String value or null. Your function may return a React element, as well.
-     */
-    value: function transformIfNeeded(result, field, termTransformFxn) {
-      function flattenSet(valArr) {
-        var uniqSet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-        uniqSet = uniqSet || new Set();
-
-        if (Array.isArray(valArr)) {
-          for (var i = 0; i < valArr.length; i++) {
-            flattenSet(valArr[i], uniqSet);
-          }
-
-          return uniqSet;
-        } // Else is single value (not array) -
-
-
-        if (valArr !== null && typeof valArr !== 'undefined') {
-          uniqSet.add(valArr);
-        }
-
-        return uniqSet;
-      }
-
-      var uniquedValues = _toConsumableArray(flattenSet(getNestedProperty(result, field, true)));
-
-      var uniquedValuesLen = uniquedValues.length; // No value found - let it default to 'null' and be handled as such
-
-      if (uniquedValuesLen === 0) {
-        // All null or undefined.
-        return null;
-      }
-
-      if (_typeof(uniquedValues[0]) === "object" && uniquedValues[0]["@id"] && typeof termTransformFxn === "function") {
-        // If LinkTo Item(s), return array of JSX elements (spans) which wrap links (assuming is output from termTransformFxn).
-        var uniquedLinkToItems = _.uniq(uniquedValues, false, "@id");
-
-        return uniquedLinkToItems.map(function (v, i) {
-          var transformedValue = termTransformFxn(field, v, true); // `allowJSXOutput=true` == likely a link element.
-
-          if (i === 0 && uniquedLinkToItems.length === 1) {
-            return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
-          }
-
-          return /*#__PURE__*/React.createElement("span", {
-            key: i,
-            className: "link-wrapper"
-          }, i > 0 ? ", " : null, transformedValue);
-        });
-      } else if (typeof termTransformFxn === "function") {
-        return uniquedValues.map(function (v) {
-          return termTransformFxn(field, v, false); // `allowJSXOutput=false` == don't allow JSX element/component(s) because joining w. ", ".
-        }).join(', '); // Most often will be just 1 value in set/array.
-      } else {
-        console.warn("No termTransformFxn supplied.");
-        return uniquedValues.join(', ');
-      }
-    }
-  }]);
 
   function ResultRowColumnBlockValue(props) {
     var _this;
@@ -207,6 +137,74 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
         className: cls,
         "data-tip": tooltip
       }, value);
+    }
+  }], [{
+    key: "transformIfNeeded",
+    value:
+    /**
+     * Default value rendering function. Fallback when no `render` func defined in columnDefinition.
+     * Uses columnDefinition field (column key) to get nested property value from result and display it.
+     *
+     * @todo Maybe use Sets if more performant.
+     * @param {Item} result - JSON object representing row data.
+     * @param {string} field - Field for which this value is for.
+     * @param {function} termTransformFxn - Transform value(s)
+     * @returns {string|null} String value or null. Your function may return a React element, as well.
+     */
+    function transformIfNeeded(result, field, termTransformFxn) {
+      function flattenSet(valArr) {
+        var uniqSet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        uniqSet = uniqSet || new Set();
+
+        if (Array.isArray(valArr)) {
+          for (var i = 0; i < valArr.length; i++) {
+            flattenSet(valArr[i], uniqSet);
+          }
+
+          return uniqSet;
+        } // Else is single value (not array) -
+
+
+        if (valArr !== null && typeof valArr !== 'undefined') {
+          uniqSet.add(valArr);
+        }
+
+        return uniqSet;
+      }
+
+      var uniquedValues = _toConsumableArray(flattenSet(getNestedProperty(result, field, true)));
+
+      var uniquedValuesLen = uniquedValues.length; // No value found - let it default to 'null' and be handled as such
+
+      if (uniquedValuesLen === 0) {
+        // All null or undefined.
+        return null;
+      }
+
+      if (_typeof(uniquedValues[0]) === "object" && uniquedValues[0]["@id"] && typeof termTransformFxn === "function") {
+        // If LinkTo Item(s), return array of JSX elements (spans) which wrap links (assuming is output from termTransformFxn).
+        var uniquedLinkToItems = _.uniq(uniquedValues, false, "@id");
+
+        return uniquedLinkToItems.map(function (v, i) {
+          var transformedValue = termTransformFxn(field, v, true); // `allowJSXOutput=true` == likely a link element.
+
+          if (i === 0 && uniquedLinkToItems.length === 1) {
+            return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
+          }
+
+          return /*#__PURE__*/React.createElement("span", {
+            key: i,
+            className: "link-wrapper"
+          }, i > 0 ? ", " : null, transformedValue);
+        });
+      } else if (typeof termTransformFxn === "function") {
+        return uniquedValues.map(function (v) {
+          return termTransformFxn(field, v, false); // `allowJSXOutput=false` == don't allow JSX element/component(s) because joining w. ", ".
+        }).join(', '); // Most often will be just 1 value in set/array.
+      } else {
+        console.warn("No termTransformFxn supplied.");
+        return uniquedValues.join(', ');
+      }
     }
   }]);
 

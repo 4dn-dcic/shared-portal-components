@@ -1,8 +1,8 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+var _excluded = ["alerts", "children"];
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
@@ -20,11 +20,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -50,11 +50,75 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
 
   var _super = _createSuper(Alerts);
 
-  _createClass(Alerts, null, [{
-    key: "setStore",
+  /** @ignore */
+  function Alerts(props) {
+    var _this;
 
+    _classCallCheck(this, Alerts);
+
+    _this = _super.call(this, props);
+    _this.setDismissing = _this.setDismissing.bind(_assertThisInitialized(_this));
+    /**
+     * State object for component.
+     *
+     * @type {Object}
+     * @private
+     * @property {AlertObj[]} state.dismissing - List of alerts currently being faded out.
+     */
+
+    _this.state = {
+      'dismissing': []
+    };
+    return _this;
+  }
+  /**
+   * Called when 'fade out' of an alert is initialized.
+   * @private
+   */
+
+
+  _createClass(Alerts, [{
+    key: "setDismissing",
+    value: function setDismissing(dismissing) {
+      this.setState({
+        dismissing: dismissing
+      });
+    }
+    /**
+     * Renders out Bootstrap Alerts for any queued alerts.
+     *
+     * @private
+     * @returns {JSX.Element} A `<div>` element containing AlertItems as children.
+     */
+
+  }, {
+    key: "render",
+    value: function render() {
+      var _this2 = this;
+
+      var _this$props = this.props,
+          alerts = _this$props.alerts,
+          children = _this$props.children,
+          passProps = _objectWithoutProperties(_this$props, _excluded);
+
+      var dismissing = this.state.dismissing;
+      if (alerts.length === 0) return null;
+      return /*#__PURE__*/React.createElement("div", passProps, _.map(alerts, function (alert, index, alerts) {
+        return /*#__PURE__*/React.createElement(AlertItem, {
+          alert: alert,
+          index: index,
+          alerts: alerts,
+          setDismissing: _this2.setDismissing,
+          dismissing: dismissing,
+          key: index
+        });
+      }));
+    }
+  }], [{
+    key: "setStore",
+    value:
     /** This must be called with the current Redux store for the app before Alerts can be used. */
-    value: function setStore(useStore) {
+    function setStore(useStore) {
       store = useStore;
     }
     /**
@@ -177,73 +241,6 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
           Alerts.deQueue(a, currentAlerts);
         }
       });
-    }
-  }]);
-
-  /** @ignore */
-  function Alerts(props) {
-    var _this;
-
-    _classCallCheck(this, Alerts);
-
-    _this = _super.call(this, props);
-    _this.setDismissing = _this.setDismissing.bind(_assertThisInitialized(_this));
-    /**
-     * State object for component.
-     *
-     * @type {Object}
-     * @private
-     * @property {AlertObj[]} state.dismissing - List of alerts currently being faded out.
-     */
-
-    _this.state = {
-      'dismissing': []
-    };
-    return _this;
-  }
-  /**
-   * Called when 'fade out' of an alert is initialized.
-   * @private
-   */
-
-
-  _createClass(Alerts, [{
-    key: "setDismissing",
-    value: function setDismissing(dismissing) {
-      this.setState({
-        dismissing: dismissing
-      });
-    }
-    /**
-     * Renders out Bootstrap Alerts for any queued alerts.
-     *
-     * @private
-     * @returns {JSX.Element} A `<div>` element containing AlertItems as children.
-     */
-
-  }, {
-    key: "render",
-    value: function render() {
-      var _this2 = this;
-
-      var _this$props = this.props,
-          alerts = _this$props.alerts,
-          children = _this$props.children,
-          passProps = _objectWithoutProperties(_this$props, ["alerts", "children"]);
-
-      var dismissing = this.state.dismissing;
-      if (alerts.length === 0) return null;
-      return /*#__PURE__*/React.createElement("div", passProps, _.map(alerts, function (alert, index, alerts) {
-        return /*#__PURE__*/React.createElement(AlertItem, _extends({
-          alert: alert,
-          index: index,
-          alerts: alerts
-        }, {
-          setDismissing: _this2.setDismissing,
-          dismissing: dismissing,
-          key: index
-        }));
-      }));
     }
   }]);
 
