@@ -1,5 +1,7 @@
 'use strict';
 
+var _excluded = ["content", "children", "filetype", "element", "markdownCompilerOptions", "placeholderReplacementFxn"];
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -16,7 +18,7 @@ export var BasicStaticSectionBody = /*#__PURE__*/React.memo(function (props) {
       element = props.element,
       markdownCompilerOptions = props.markdownCompilerOptions,
       placeholderReplacementFxn = props.placeholderReplacementFxn,
-      passProps = _objectWithoutProperties(props, ["content", "children", "filetype", "element", "markdownCompilerOptions", "placeholderReplacementFxn"]);
+      passProps = _objectWithoutProperties(props, _excluded);
 
   if (filetype === 'md' && typeof content === 'string') {
     return /*#__PURE__*/React.createElement(element, passProps, compiler(content, markdownCompilerOptions || undefined));

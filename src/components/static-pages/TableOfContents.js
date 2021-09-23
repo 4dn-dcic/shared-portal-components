@@ -620,7 +620,7 @@ export class TableOfContents extends React.Component {
         }
 
         const renderedSections = sectionEntries();
-        const [ { props: { link: firstSectionLink = null } = {} } ] = renderedSections;
+        const [ { props: { link: firstSectionLink = null } = {} } = {} ] = renderedSections;
 
         contents.push(
             <TableEntry link="top"

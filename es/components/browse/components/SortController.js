@@ -2,6 +2,9 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+var _excluded = ["query"],
+    _excluded2 = ["children", "context"];
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -112,7 +115,7 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
       }, function () {
         var _url$parse = url.parse(hrefSourceWithSort, true),
             query = _url$parse.query,
-            urlParts = _objectWithoutProperties(_url$parse, ["query"]);
+            urlParts = _objectWithoutProperties(_url$parse, _excluded);
 
         var useSortPairs = sortingPairs.slice();
         var sortingPairsLen = sortingPairs.length; // Exclude last empty column (null column)
@@ -157,7 +160,7 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props2 = this.props,
           children = _this$props2.children,
           context = _this$props2.context,
-          passProps = _objectWithoutProperties(_this$props2, ["children", "context"]);
+          passProps = _objectWithoutProperties(_this$props2, _excluded2);
 
       var _ref2$sort = (context || {}).sort,
           sort = _ref2$sort === void 0 ? {} : _ref2$sort;
@@ -197,37 +200,6 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
   _inherits(MultiColumnSortSelector, _React$PureComponent2);
 
   var _super2 = _createSuper(MultiColumnSortSelector);
-
-  _createClass(MultiColumnSortSelector, null, [{
-    key: "getSortColumnAndOrderPairs",
-
-    /**
-     * @param {Object.<string, { order: string }>} sortColumns The "sort" property of search response or `context`, keyed by field.
-     * @returns {[ string, "desc" | "asc"][]} Array of [field_name, direction ("asc"/"desc")] tuples
-     */
-    value: function getSortColumnAndOrderPairs(sortColumns) {
-      var appendDefault = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-      var colNames = Object.keys(sortColumns).filter(function (sortKey) {
-        return sortKey !== 'label' && sortKey !== '_score';
-      });
-      var columns = colNames.map(function (colName) {
-        // N.B.: "order" is returned from context / search response; we rename it to "direction" here
-        return {
-          'column': colName,
-          'direction': sortColumns[colName].order || "desc"
-        };
-      });
-
-      if (appendDefault) {
-        columns.push({
-          'column': null,
-          'direction': 'asc'
-        });
-      }
-
-      return columns;
-    }
-  }]);
 
   function MultiColumnSortSelector(props) {
     var _this3;
@@ -364,8 +336,7 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
         return /*#__PURE__*/React.createElement(MultiColumnSortOption, _extends({}, pair, {
           index: index,
           allSortFields: allSortFields,
-          allSortFieldsMap: allSortFieldsMap
-        }, {
+          allSortFieldsMap: allSortFieldsMap,
           key: index,
           rowCount: all.length,
           handleSortColumnSelection: _this4.handleSortColumnSelection,
@@ -374,6 +345,35 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
           handleSettingsApply: _this4.handleSettingsApply
         }));
       }));
+    }
+  }], [{
+    key: "getSortColumnAndOrderPairs",
+    value:
+    /**
+     * @param {Object.<string, { order: string }>} sortColumns The "sort" property of search response or `context`, keyed by field.
+     * @returns {[ string, "desc" | "asc"][]} Array of [field_name, direction ("asc"/"desc")] tuples
+     */
+    function getSortColumnAndOrderPairs(sortColumns) {
+      var appendDefault = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      var colNames = Object.keys(sortColumns).filter(function (sortKey) {
+        return sortKey !== 'label' && sortKey !== '_score';
+      });
+      var columns = colNames.map(function (colName) {
+        // N.B.: "order" is returned from context / search response; we rename it to "direction" here
+        return {
+          'column': colName,
+          'direction': sortColumns[colName].order || "desc"
+        };
+      });
+
+      if (appendDefault) {
+        columns.push({
+          'column': null,
+          'direction': 'asc'
+        });
+      }
+
+      return columns;
     }
   }]);
 

@@ -2,8 +2,6 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -128,16 +126,15 @@ export var ActiveFiltersBar = /*#__PURE__*/function (_React$PureComponent) {
           try {
             for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
               var term = _step2.value;
-              renderedNodes.push( /*#__PURE__*/React.createElement(RegularCrumb, _extends({
+              renderedNodes.push( /*#__PURE__*/React.createElement(RegularCrumb, {
                 filters: filters,
                 field: field,
                 term: term,
-                termTransformFxn: termTransformFxn
-              }, {
+                termTransformFxn: termTransformFxn,
                 key: term,
                 onClick: onTermClick,
                 className: termClassName
-              })));
+              }));
             }
           } catch (err) {
             _iterator2.e(err);

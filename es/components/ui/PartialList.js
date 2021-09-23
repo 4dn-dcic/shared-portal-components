@@ -93,31 +93,6 @@ export var PartialList = /*#__PURE__*/function (_React$PureComponent) {
 
   var _super = _createSuper(PartialList);
 
-  _createClass(PartialList, null, [{
-    key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(props, state) {
-      var lastOpen = props.open;
-
-      if (lastOpen) {
-        return {
-          closing: false,
-          lastOpen: lastOpen
-        };
-      }
-
-      if (!lastOpen && state.lastOpen) {
-        return {
-          closing: true,
-          lastOpen: lastOpen
-        };
-      }
-
-      return {
-        lastOpen: lastOpen
-      };
-    }
-  }]);
-
   function PartialList(props) {
     var _this;
 
@@ -184,6 +159,29 @@ export var PartialList = /*#__PURE__*/function (_React$PureComponent) {
         'className': containerCollapseClassName || containerClassName,
         'key': "c"
       }, open || closing ? collapsible : null)) : null);
+    }
+  }], [{
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(props, state) {
+      var lastOpen = props.open;
+
+      if (lastOpen) {
+        return {
+          closing: false,
+          lastOpen: lastOpen
+        };
+      }
+
+      if (!lastOpen && state.lastOpen) {
+        return {
+          closing: true,
+          lastOpen: lastOpen
+        };
+      }
+
+      return {
+        lastOpen: lastOpen
+      };
     }
   }]);
 
