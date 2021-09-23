@@ -700,7 +700,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
             skipDepth: skipDepth
           });
         }).flatten(false).value();
-      }();
+      }() || [];
 
       var _renderedSections = _slicedToArray(renderedSections, 1),
           _renderedSections$ = _renderedSections[0];
