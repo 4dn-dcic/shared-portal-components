@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import Collapse from 'react-bootstrap/esm/Collapse';
+import ReactTooltip from 'react-tooltip';
 
 import { object, typedefs } from './../../util';
 
@@ -192,6 +193,12 @@ export class StackedBlockList extends React.PureComponent {
         this.setState(function(){
             return { 'incrementalExpandVisibleCount' : count };
         });
+    }
+
+    componentDidUpdate(pastProps, pastState){
+        if (this.state.collapsed === false && pastState.collapsed === true) {
+            ReactTooltip.rebuild();
+        }
     }
 
     render(){

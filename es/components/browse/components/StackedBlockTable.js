@@ -31,6 +31,7 @@ import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import Collapse from 'react-bootstrap/esm/Collapse';
+import ReactTooltip from 'react-tooltip';
 import { object, typedefs } from './../../util'; // eslint-disable-next-line no-unused-vars
 
 var Item = typedefs.Item;
@@ -253,6 +254,13 @@ export var StackedBlockList = /*#__PURE__*/function (_React$PureComponent3) {
       });
     }
   }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(pastProps, pastState) {
+      if (this.state.collapsed === false && pastState.collapsed === true) {
+        ReactTooltip.rebuild();
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$props4 = this.props,
@@ -460,6 +468,64 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
 
   var _super5 = _createSuper(StackedBlockTable);
 
+  _createClass(StackedBlockTable, null, [{
+    key: "getOriginalColumnWidthArray",
+    value: function getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth) {
+      return _.map(columnHeaders, function (c) {
+        return c.initialWidth || defaultInitialColumnWidth;
+      });
+    }
+  }, {
+    key: "totalColumnsMinWidth",
+    value: function totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth) {
+      return StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth).reduce(function (m, v) {
+        return m + v;
+      }, 0);
+    }
+  }, {
+    key: "colWidthStyles",
+    value: function colWidthStyles(columnHeaders, defaultInitialColumnWidth) {
+      // { 'experiment' : { width } , 'biosample' : { width }, ... }
+      var orderedMapList = columnHeaders.map(function (col) {
+        var field = col.field,
+            title = col.title,
+            columnClass = col.columnClass,
+            initialWidth = col.initialWidth;
+        var width = initialWidth || defaultInitialColumnWidth;
+        var key;
+
+        if (columnClass === 'file-detail') {
+          key = field || title || 'file-detail';
+        } else {
+          key = columnClass;
+        }
+
+        return [key, {
+          flex: "1 0 " + width + "px",
+          minWidth: width
+        }];
+      });
+
+      var retObj = _.object(orderedMapList);
+
+      columnHeaders.slice().reverse().reduce(function (m, col, idx) {
+        var columnClass = col.columnClass,
+            initialWidth = col.initialWidth;
+
+        if (columnClass !== 'file-detail' && columnClass !== 'file') {
+          retObj["list:" + columnClass] = {
+            flex: "".concat(idx, " 0 ").concat(m, "px"),
+            minWidth: m
+          };
+        }
+
+        m += initialWidth || defaultInitialColumnWidth;
+        return m;
+      }, 0);
+      return retObj;
+    }
+  }]);
+
   function StackedBlockTable(props) {
     var _this5;
 
@@ -545,62 +611,6 @@ export var StackedBlockTable = /*#__PURE__*/function (_React$PureComponent5) {
       }, /*#__PURE__*/React.createElement(TableHeaders, tableHeaderProps), /*#__PURE__*/React.createElement("div", {
         className: "body clearfix"
       }, this.adjustedChildren()));
-    }
-  }], [{
-    key: "getOriginalColumnWidthArray",
-    value: function getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth) {
-      return _.map(columnHeaders, function (c) {
-        return c.initialWidth || defaultInitialColumnWidth;
-      });
-    }
-  }, {
-    key: "totalColumnsMinWidth",
-    value: function totalColumnsMinWidth(columnHeaders, defaultInitialColumnWidth) {
-      return StackedBlockTable.getOriginalColumnWidthArray(columnHeaders, defaultInitialColumnWidth).reduce(function (m, v) {
-        return m + v;
-      }, 0);
-    }
-  }, {
-    key: "colWidthStyles",
-    value: function colWidthStyles(columnHeaders, defaultInitialColumnWidth) {
-      // { 'experiment' : { width } , 'biosample' : { width }, ... }
-      var orderedMapList = columnHeaders.map(function (col) {
-        var field = col.field,
-            title = col.title,
-            columnClass = col.columnClass,
-            initialWidth = col.initialWidth;
-        var width = initialWidth || defaultInitialColumnWidth;
-        var key;
-
-        if (columnClass === 'file-detail') {
-          key = field || title || 'file-detail';
-        } else {
-          key = columnClass;
-        }
-
-        return [key, {
-          flex: "1 0 " + width + "px",
-          minWidth: width
-        }];
-      });
-
-      var retObj = _.object(orderedMapList);
-
-      columnHeaders.slice().reverse().reduce(function (m, col, idx) {
-        var columnClass = col.columnClass,
-            initialWidth = col.initialWidth;
-
-        if (columnClass !== 'file-detail' && columnClass !== 'file') {
-          retObj["list:" + columnClass] = {
-            flex: "".concat(idx, " 0 ").concat(m, "px"),
-            minWidth: m
-          };
-        }
-
-        m += initialWidth || defaultInitialColumnWidth;
-        return m;
-      }, 0);
-      return retObj;
     }
   }]);
 
