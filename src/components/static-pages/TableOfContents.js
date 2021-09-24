@@ -575,43 +575,42 @@ export class TableOfContents extends React.Component {
         const contents = [];
         let skipDepth = 0;
 
-        const sectionEntries = () => {
-            let lastSection = null;
-            // Don't make top-level section entries if not all sections have a section title.
-            const excludeSectionsFromTOC = _.filter(context.content, function(section){ return section.title || section['toc-title']; }).length < 2;
-            return _(context.content).chain()
-                .sortBy(function(s){
-                    return s.order || 99;
-                })
-                .map((s, i, all)=>{
-                    s.link = TableOfContents.elementIDFromSectionName(s.name);
-                    if (lastSection) lastSection.nextHeader = s.link;
-                    lastSection = s;
-                    if (all.length - 1 === i) s.nextHeader = 'bottom';
-                    return s;
-                })
-                .map((s, i, all) => {
-                    if (excludeSectionsFromTOC){
-                        skipDepth = 1;
-                        const { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(s.content, maxHeaderDepth, 1);
-                        const opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth }, {
-                            'mounted' : mounted,
-                            'pageScrollTop' : scrollTop,
-                            'nextHeader' : s.nextHeader
-                        });
-                        return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, s.content, opts);
-                    }
-                    return (
-                        <TableEntry link={s.link}
-                            title={s['toc-title'] || s.title || _.map(s.link.split('-'), function(w){ return w.charAt(0).toUpperCase() + w.slice(1); } ).join(' ') }
-                            key={s.link} depth={1} content={s.content} listStyleTypes={listStyleTypes}
-                            pageScrollTop={scrollTop} mounted={mounted} nextHeader={s.nextHeader}
-                            navigate={propNavigate} maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth} />
-                    );
-                })
-                .flatten(false)
-                .value();
-        };
+        let previousEncounteredSection = null;
+        // Don't make top-level section entries if not all sections have a section title.
+        const excludeSectionsFromTOC = context.content.filter(function(section){ return section.title || section['toc-title']; }).length < 2;
+        const renderedSections = _.sortBy(context.content, function(s){ return s.order || 99; })
+            .map(function(section, i, all){
+                const { name } = section;
+                const link = TableOfContents.elementIDFromSectionName(name);
+                if (previousEncounteredSection){
+                    previousEncounteredSection.nextHeader = link;
+                }
+                previousEncounteredSection = section;
+                const sectionCopy = { ...section, link };
+                if (all.length - 1 === i){
+                    sectionCopy.nextHeader = 'bottom';
+                }
+                return sectionCopy;
+            })
+            .map(function(section, i, all){
+                const { content, link, nextHeader, 'toc-title': tocTitle, title } = section;
+                if (excludeSectionsFromTOC){
+                    skipDepth = 1;
+                    const { childHeaders, childDepth } = TableEntryChildren.getHeadersFromContent(content, maxHeaderDepth, 1);
+                    const opts = _.extend({ childHeaders, maxHeaderDepth, listStyleTypes, skipDepth }, {
+                        mounted, nextHeader, 'pageScrollTop' : scrollTop
+                    });
+                    return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
+                }
+                return (
+                    <TableEntry {...{ link, content, listStyleTypes, mounted, nextHeader, skipDepth, maxHeaderDepth }}
+                        title={tocTitle || title || _.map(link.split('-'), function(w){ return w.charAt(0).toUpperCase() + w.slice(1); } ).join(' ') }
+                        key={link} depth={1} pageScrollTop={scrollTop} navigate={propNavigate} />
+                );
+            });
+
+        // Might have `null` or 2 in there from `renderChildrenElements`.
+        const renderedSectionsFlattened = _.flatten(renderedSections).filter(function(rs){ return !!rs; });
 
         if (context && context.parent && context.parent['@id']){
             contents.push(
@@ -619,8 +618,7 @@ export class TableOfContents extends React.Component {
             );
         }
 
-        const renderedSections = sectionEntries() || [];
-        const [ { props: { link: firstSectionLink = null } = {} } = {} ] = renderedSections;
+        const [ { props: { link: firstSectionLink = null } = {} } = {} ] = renderedSectionsFlattened;
 
         contents.push(
             <TableEntry link="top"
@@ -629,7 +627,7 @@ export class TableOfContents extends React.Component {
                 pageScrollTop={scrollTop} mounted={mounted} navigate={propNavigate}
                 nextHeader={firstSectionLink || null}
                 maxHeaderDepth={maxHeaderDepth} skipDepth={skipDepth || 0}>
-                { renderedSections }
+                { renderedSectionsFlattened }
             </TableEntry>
         );
 

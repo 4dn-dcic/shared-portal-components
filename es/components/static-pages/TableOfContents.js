@@ -14,6 +14,10 @@ function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Sy
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -642,74 +646,96 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           widthBound = _this$state.widthBound;
       var contents = [];
       var skipDepth = 0;
+      var previousEncounteredSection = null; // Don't make top-level section entries if not all sections have a section title.
+
+      var excludeSectionsFromTOC = context.content.filter(function (section) {
+        return section.title || section['toc-title'];
+      }).length < 2;
+
+      var renderedSections = _.sortBy(context.content, function (s) {
+        return s.order || 99;
+      }).map(function (section, i, all) {
+        var name = section.name;
+        var link = TableOfContents.elementIDFromSectionName(name);
+
+        if (previousEncounteredSection) {
+          previousEncounteredSection.nextHeader = link;
+        }
+
+        previousEncounteredSection = section;
+
+        var sectionCopy = _objectSpread(_objectSpread({}, section), {}, {
+          link: link
+        });
+
+        if (all.length - 1 === i) {
+          sectionCopy.nextHeader = 'bottom';
+        }
+
+        return sectionCopy;
+      }).map(function (section) {
+        var content = section.content,
+            link = section.link,
+            nextHeader = section.nextHeader,
+            tocTitle = section['toc-title'],
+            title = section.title;
+
+        if (excludeSectionsFromTOC) {
+          skipDepth = 1;
+
+          var _TableEntryChildren$g = TableEntryChildren.getHeadersFromContent(content, maxHeaderDepth, 1),
+              childHeaders = _TableEntryChildren$g.childHeaders,
+              childDepth = _TableEntryChildren$g.childDepth;
+
+          var opts = _.extend({
+            childHeaders: childHeaders,
+            maxHeaderDepth: maxHeaderDepth,
+            listStyleTypes: listStyleTypes,
+            skipDepth: skipDepth
+          }, {
+            mounted: mounted,
+            nextHeader: nextHeader,
+            'pageScrollTop': scrollTop
+          });
+
+          return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
+        }
+
+        return /*#__PURE__*/React.createElement(TableEntry, {
+          link: link,
+          content: content,
+          listStyleTypes: listStyleTypes,
+          mounted: mounted,
+          nextHeader: nextHeader,
+          skipDepth: skipDepth,
+          maxHeaderDepth: maxHeaderDepth,
+          title: tocTitle || title || _.map(link.split('-'), function (w) {
+            return w.charAt(0).toUpperCase() + w.slice(1);
+          }).join(' '),
+          key: link,
+          depth: 1,
+          pageScrollTop: scrollTop,
+          navigate: propNavigate
+        });
+      }); // Might have `null` or 2 in there from `renderChildrenElements`.
+
+
+      var renderedSectionsFlattened = _.flatten(renderedSections).filter(function (rs) {
+        return !!rs;
+      });
 
       if (context && context.parent && context.parent['@id']) {
         contents.push(this.parentLink(windowWidth));
       }
 
-      var renderedSections = function sectionEntries() {
-        var lastSection = null; // Don't make top-level section entries if not all sections have a section title.
+      var _renderedSectionsFlat = _slicedToArray(renderedSectionsFlattened, 1),
+          _renderedSectionsFlat2 = _renderedSectionsFlat[0];
 
-        var excludeSectionsFromTOC = _.filter(context.content, function (section) {
-          return section.title || section['toc-title'];
-        }).length < 2;
-        return _(context.content).chain().sortBy(function (s) {
-          return s.order || 99;
-        }).map(function (s, i, all) {
-          s.link = TableOfContents.elementIDFromSectionName(s.name);
-          if (lastSection) lastSection.nextHeader = s.link;
-          lastSection = s;
-          if (all.length - 1 === i) s.nextHeader = 'bottom';
-          return s;
-        }).map(function (s) {
-          if (excludeSectionsFromTOC) {
-            skipDepth = 1;
-
-            var _TableEntryChildren$g = TableEntryChildren.getHeadersFromContent(s.content, maxHeaderDepth, 1),
-                childHeaders = _TableEntryChildren$g.childHeaders,
-                childDepth = _TableEntryChildren$g.childDepth;
-
-            var opts = _.extend({
-              childHeaders: childHeaders,
-              maxHeaderDepth: maxHeaderDepth,
-              listStyleTypes: listStyleTypes,
-              skipDepth: skipDepth
-            }, {
-              'mounted': mounted,
-              'pageScrollTop': scrollTop,
-              'nextHeader': s.nextHeader
-            });
-
-            return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, s.content, opts);
-          }
-
-          return /*#__PURE__*/React.createElement(TableEntry, {
-            link: s.link,
-            title: s['toc-title'] || s.title || _.map(s.link.split('-'), function (w) {
-              return w.charAt(0).toUpperCase() + w.slice(1);
-            }).join(' '),
-            key: s.link,
-            depth: 1,
-            content: s.content,
-            listStyleTypes: listStyleTypes,
-            pageScrollTop: scrollTop,
-            mounted: mounted,
-            nextHeader: s.nextHeader,
-            navigate: propNavigate,
-            maxHeaderDepth: maxHeaderDepth,
-            skipDepth: skipDepth
-          });
-        }).flatten(false).value();
-      }() || [];
-
-      var _renderedSections = _slicedToArray(renderedSections, 1),
-          _renderedSections$ = _renderedSections[0];
-
-      _renderedSections$ = _renderedSections$ === void 0 ? {} : _renderedSections$;
-      var _renderedSections$$pr = _renderedSections$.props;
-      _renderedSections$$pr = _renderedSections$$pr === void 0 ? {} : _renderedSections$$pr;
-      var _renderedSections$$pr2 = _renderedSections$$pr.link,
-          firstSectionLink = _renderedSections$$pr2 === void 0 ? null : _renderedSections$$pr2;
+      _renderedSectionsFlat2 = _renderedSectionsFlat2 === void 0 ? {} : _renderedSectionsFlat2;
+      var _renderedSectionsFlat3 = _renderedSectionsFlat2.props;
+      _renderedSectionsFlat3 = _renderedSectionsFlat3 === void 0 ? {} : _renderedSectionsFlat3;
+      var _renderedSectionsFlat4 = _renderedSectionsFlat3.link,
+          firstSectionLink = _renderedSectionsFlat4 === void 0 ? null : _renderedSectionsFlat4;
       contents.push( /*#__PURE__*/React.createElement(TableEntry, {
         link: "top",
         title: context.display_title || 'Top of Page' || null,
@@ -722,7 +748,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
         nextHeader: firstSectionLink || null,
         maxHeaderDepth: maxHeaderDepth,
         skipDepth: skipDepth || 0
-      }, renderedSections));
+      }, renderedSectionsFlattened));
       var marginTop = 0; // Account for test warning
 
       if (windowWidth) {
