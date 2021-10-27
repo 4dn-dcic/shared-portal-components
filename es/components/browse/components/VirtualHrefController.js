@@ -283,6 +283,11 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       });
       return scopedRequest;
     }
+    /**
+     * Can only be called when there's a single filter block, since depends on a
+     * single virtualHref (which === virtualContextID w. 1 single filter block).
+     */
+
   }, {
     key: "onFilter",
     value: function onFilter(facet, term, callback) {
@@ -310,11 +315,17 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       }, typeof callback === "function" ? callback : null);
     }
     /**
-     * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term, callback)}) and generates a composite href before navigating
+     * Works in much the same way as onFilter, except takes in an array of filter
+     * objects ({facet, term, callback)}) and generates a composite href before navigating.
+     *
+     * Can only be called when there's a single filter block, since depends on a
+     * single virtualHref (which === virtualContextID w. 1 single filter block).
+     *
+     * @todo
+     * Possibly eventually merge with/use to replace onFilter for DRYness -- will have to track down
+     * and edit in some places though.
      *
      * @param {Array} filterObjs An object containing {facet, term, callback}
-     * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
-     * desired functionality.
      */
 
   }, {
