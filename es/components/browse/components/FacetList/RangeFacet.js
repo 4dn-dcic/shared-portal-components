@@ -863,7 +863,6 @@ export var RangeTerm = /*#__PURE__*/function (_React$PureComponent2) {
     value: function render() {
       var _this$props9 = this.props,
           range = _this$props9.range,
-          facet = _this$props9.facet,
           status = _this$props9.status,
           _this$props9$isFilter = _this$props9.isFiltering,
           isFiltering = _this$props9$isFilter === void 0 ? false : _this$props9$isFilter,
@@ -938,7 +937,11 @@ RangeTerm.propTypes = {
     'label': PropTypes.string,
     'doc_count': PropTypes.number
   }).isRequired,
-  'onClick': PropTypes.func
+  'selectRange': PropTypes.func,
+  'isFiltering': PropTypes.bool,
+  'status': PropTypes.string,
+  // TODO Since only 3 (?) values for this, should make into integer/enum.
+  'hideDocCounts': PropTypes.bool
 };
 export function FormattedToFromRangeValue(props) {
   var termTransformFxn = props.termTransformFxn,

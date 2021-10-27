@@ -244,13 +244,15 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
     return function (evt) {
       var _ref2$target = (evt || {}).target,
           target = _ref2$target === void 0 ? null : _ref2$target;
+      var linkElement;
       var targetUrl;
 
       if (target && target.href) {
-        targetUrl = target.href;
+        linkElement = target;
+        targetUrl = linkElement.href;
       } else if (target && !target.href) {
         // Check parent for hrefs if none found on current evt.target
-        var linkElement = elementIsChildOfLink(target);
+        linkElement = elementIsChildOfLink(target);
 
         var _ref3 = linkElement || {},
             _ref3$href = _ref3.href,

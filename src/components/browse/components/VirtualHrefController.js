@@ -286,16 +286,26 @@ export class VirtualHrefController extends React.PureComponent {
 
     /**
      * Works in much the same way as onFilter, except takes in an array of filter objects ({facet, term, callback)}) and generates a composite href before navigating
+     *
      * @param {Array} filterObjs An object containing {facet, term, callback}
      * Note: may eventually merge with/use to replace onFilter -- will have to track down and edit in a LOT of places, though. So waiting to confirm this is
      * desired functionality.
      */
     onFilterMultiple(filterObjs = [], callback = null) {
-        const { virtualHref, virtualContext : { filters: virtualContextFilters } } = this.state;
+        const {
+            virtualHref,
+            virtualContext: {
+                filters: virtualContextFilters,
+                "@id": virtualContextID
+            }
+        } = this.state;
 
-        if (filterObjs.length === 0) { console.log("Attempted multi-filter, but no objects passed in!"); return null; }
+        if (filterObjs.length === 0) {
+            console.log("Attempted multi-filter, but no objects passed in!");
+            return null;
+        }
 
-        let newHref = virtualHref; // initialize to href
+        let newHref = virtualHref || virtualContextID; // initialize to href
 
         // Update href to include facet/term query pairs for each new item
         filterObjs.forEach((obj, i) => {

@@ -188,15 +188,19 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
     const onClick = useMemo(function(){
         return function handleClick(evt){
             const { target = null } = evt || {};
+            let linkElement;
             let targetUrl;
 
             if (target && target.href) {
-                targetUrl = target.href;
+                linkElement = target;
+                targetUrl = linkElement.href;
             } else if (target && !target.href) {
                 // Check parent for hrefs if none found on current evt.target
-                const linkElement = elementIsChildOfLink(target);
+                linkElement = elementIsChildOfLink(target);
                 const { href = null } = linkElement || {};
-                if (href) { targetUrl = href; }
+                if (href) {
+                    targetUrl = href;
+                }
             }
 
             const navTarget = targetUrl || link; // Fallback to atId if no href found

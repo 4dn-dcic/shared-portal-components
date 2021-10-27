@@ -684,7 +684,7 @@ export class RangeTerm extends React.PureComponent {
     }
 
     render() {
-        const { range, facet, status, isFiltering = false, hideDocCounts = false } = this.props;
+        const { range, status, isFiltering = false, hideDocCounts = false } = this.props;
         const { doc_count, from, to, label } = range;
         const selected = (status !== 'none');
         let icon = null;
@@ -729,16 +729,19 @@ export class RangeTerm extends React.PureComponent {
 
 }
 RangeTerm.propTypes = {
-    'facet'             : PropTypes.shape({
-        'field'             : PropTypes.string.isRequired
+    'facet': PropTypes.shape({
+        'field': PropTypes.string.isRequired
     }).isRequired,
-    'range'              : PropTypes.shape({
-        'from'              : PropTypes.number,
-        'to'                : PropTypes.number,
-        'label'             : PropTypes.string,
-        'doc_count'         : PropTypes.number
+    'range': PropTypes.shape({
+        'from': PropTypes.number,
+        'to': PropTypes.number,
+        'label': PropTypes.string,
+        'doc_count': PropTypes.number
     }).isRequired,
-    'onClick'           : PropTypes.func
+    'selectRange': PropTypes.func,
+    'isFiltering': PropTypes.bool,
+    'status': PropTypes.string, // TODO Since only 3 (?) values for this, should make into integer/enum.
+    'hideDocCounts': PropTypes.bool
 };
 
 
