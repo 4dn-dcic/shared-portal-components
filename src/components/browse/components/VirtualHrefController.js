@@ -105,8 +105,8 @@ export class VirtualHrefController extends React.PureComponent {
             virtualContext: existingContext
         } = this.state;
 
-        let nextHrefFull = null;
-        let virtualCompoundFilterSet = null;
+        let nextHrefFull = null; // Will become string if navigationTarget is string, else null
+        let virtualCompoundFilterSet = null; // Will become object if navigationTarget is object, else null
 
         if (typeof navigationTarget === "string") {
             // There is (very large) chance that `nextHref` does not have domain name, path, etc.
@@ -198,10 +198,9 @@ export class VirtualHrefController extends React.PureComponent {
 
                 // Get correct URL from XHR, in case we hit a redirect during the request.
                 // (Only for requests with single href, as cannot treat real compound_search multi-filter-block request as href)
-                const responseHref = !nextHrefFull ? null : (
-                    !virtualCompoundFilterSet ? ((scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL) || nextHrefFull)
-                        : nextHrefFull
-                );
+                const responseHref =
+                    virtualCompoundFilterSet ? null
+                        : ((scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL) || nextHrefFull || null);
 
                 if (typeof existingContext === "undefined"){
                     // First time we've loaded response context. Register analytics event.
@@ -256,43 +255,18 @@ export class VirtualHrefController extends React.PureComponent {
     }
 
     /**
-     * Can only be called when there's a single filter block, since depends on a
+     * Can only be called when there's a single filter block  (or searchHref), since depends on a
      * single virtualHref (which === virtualContextID w. 1 single filter block).
      */
     onFilter(facet, term, callback){
-        const {
-            virtualHref,
-            virtualContext: {
-                filters: virtualContextFilters,
-                "@id": virtualContextID
-            }
-        } = this.state;
-
-        // There are is a scenario or 2 in which case we might get facets visible after
-        // a compound search request, if using only 1 filter block.
-        // In most cases it'd be after using a `href` to navigate which was translated
-        // to a POST, so we'd be using a virtual href, but at times might be from a literal
-        // filter set request with only 1 filter block, such as selecting filterset block in FilterSetUI.
-        // In this case we grab the effectively-searched href from context["@id"] since `state.virtualHref`
-        // may not be present.
-        const useHref = virtualHref || virtualContextID;
-        if (!useHref) {
-            throw new Error("Cannot filter on a compound filter block search response. Prevent this from being possible in UX.");
-        }
-        const targetHref = generateNextHref(useHref, virtualContextFilters, facet, term);
-
-        return this.virtualNavigate(
-            targetHref,
-            { 'dontScrollToTop' : true },
-            typeof callback === "function" ? callback : null
-        );
+        this.onFilterMultiple([{ facet, term }], callback);
     }
 
     /**
      * Works in much the same way as onFilter, except takes in an array of filter
      * objects ({facet, term, callback)}) and generates a composite href before navigating.
      *
-     * Can only be called when there's a single filter block, since depends on a
+     * Can only be called when there's a single filter block (or searchHref), since depends on a
      * single virtualHref (which === virtualContextID w. 1 single filter block).
      *
      * @todo
@@ -310,12 +284,19 @@ export class VirtualHrefController extends React.PureComponent {
             }
         } = this.state;
 
+        if (!virtualHref && !virtualContextID) {
+            throw new Error("Cannot filter on a compound filter block search response. Prevent this from being possible in UX.");
+        }
+
         if (filterObjs.length === 0) {
             console.log("Attempted multi-filter, but no objects passed in!");
             return null;
         }
 
-        let newHref = virtualHref || virtualContextID; // initialize to href
+        // We have a virtualContextID present if and only if we have a Compound search request
+        // that has only one filter block. In such cases we render the FacetList to allow filtering.
+        // It is interchangeable with search URL.
+        let newHref = virtualHref || virtualContextID;
 
         // Update href to include facet/term query pairs for each new item
         filterObjs.forEach((obj, i) => {

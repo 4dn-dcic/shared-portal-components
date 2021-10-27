@@ -142,8 +142,9 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           _this$state2$virtualH = _this$state2.virtualHref,
           currentHref = _this$state2$virtualH === void 0 ? null : _this$state2$virtualH,
           existingContext = _this$state2.virtualContext;
-      var nextHrefFull = null;
-      var virtualCompoundFilterSet = null;
+      var nextHrefFull = null; // Will become string if navigationTarget is string, else null
+
+      var virtualCompoundFilterSet = null; // Will become object if navigationTarget is object, else null
 
       if (typeof navigationTarget === "string") {
         // There is (very large) chance that `nextHref` does not have domain name, path, etc.
@@ -240,7 +241,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           // (Only for requests with single href, as cannot treat real compound_search multi-filter-block request as href)
 
 
-          var responseHref = !nextHrefFull ? null : !virtualCompoundFilterSet ? scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL || nextHrefFull : nextHrefFull;
+          var responseHref = virtualCompoundFilterSet ? null : scopedRequest && scopedRequest.xhr && scopedRequest.xhr.responseURL || nextHrefFull || null;
 
           if (typeof existingContext === "undefined") {
             // First time we've loaded response context. Register analytics event.
@@ -284,41 +285,23 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
       return scopedRequest;
     }
     /**
-     * Can only be called when there's a single filter block, since depends on a
+     * Can only be called when there's a single filter block  (or searchHref), since depends on a
      * single virtualHref (which === virtualContextID w. 1 single filter block).
      */
 
   }, {
     key: "onFilter",
     value: function onFilter(facet, term, callback) {
-      var _this$state3 = this.state,
-          virtualHref = _this$state3.virtualHref,
-          _this$state3$virtualC = _this$state3.virtualContext,
-          virtualContextFilters = _this$state3$virtualC.filters,
-          virtualContextID = _this$state3$virtualC["@id"]; // There are is a scenario or 2 in which case we might get facets visible after
-      // a compound search request, if using only 1 filter block.
-      // In most cases it'd be after using a `href` to navigate which was translated
-      // to a POST, so we'd be using a virtual href, but at times might be from a literal
-      // filter set request with only 1 filter block, such as selecting filterset block in FilterSetUI.
-      // In this case we grab the effectively-searched href from context["@id"] since `state.virtualHref`
-      // may not be present.
-
-      var useHref = virtualHref || virtualContextID;
-
-      if (!useHref) {
-        throw new Error("Cannot filter on a compound filter block search response. Prevent this from being possible in UX.");
-      }
-
-      var targetHref = generateNextHref(useHref, virtualContextFilters, facet, term);
-      return this.virtualNavigate(targetHref, {
-        'dontScrollToTop': true
-      }, typeof callback === "function" ? callback : null);
+      this.onFilterMultiple([{
+        facet: facet,
+        term: term
+      }], callback);
     }
     /**
      * Works in much the same way as onFilter, except takes in an array of filter
      * objects ({facet, term, callback)}) and generates a composite href before navigating.
      *
-     * Can only be called when there's a single filter block, since depends on a
+     * Can only be called when there's a single filter block (or searchHref), since depends on a
      * single virtualHref (which === virtualContextID w. 1 single filter block).
      *
      * @todo
@@ -333,19 +316,25 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
     value: function onFilterMultiple() {
       var filterObjs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var _this$state4 = this.state,
-          virtualHref = _this$state4.virtualHref,
-          _this$state4$virtualC = _this$state4.virtualContext,
-          virtualContextFilters = _this$state4$virtualC.filters,
-          virtualContextID = _this$state4$virtualC["@id"];
+      var _this$state3 = this.state,
+          virtualHref = _this$state3.virtualHref,
+          _this$state3$virtualC = _this$state3.virtualContext,
+          virtualContextFilters = _this$state3$virtualC.filters,
+          virtualContextID = _this$state3$virtualC["@id"];
+
+      if (!virtualHref && !virtualContextID) {
+        throw new Error("Cannot filter on a compound filter block search response. Prevent this from being possible in UX.");
+      }
 
       if (filterObjs.length === 0) {
         console.log("Attempted multi-filter, but no objects passed in!");
         return null;
-      }
+      } // We have a virtualContextID present if and only if we have a Compound search request
+      // that has only one filter block. In such cases we render the FacetList to allow filtering.
+      // It is interchangeable with search URL.
 
-      var newHref = virtualHref || virtualContextID; // initialize to href
-      // Update href to include facet/term query pairs for each new item
+
+      var newHref = virtualHref || virtualContextID; // Update href to include facet/term query pairs for each new item
 
       filterObjs.forEach(function (obj) {
         var facet = obj.facet,
@@ -394,11 +383,11 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           originalSearchHref = _this$props3.searchHref,
           passProps = _objectWithoutProperties(_this$props3, _excluded);
 
-      var _this$state5 = this.state,
-          href = _this$state5.virtualHref,
-          context = _this$state5.virtualContext,
-          requestedCompoundFilterSet = _this$state5.virtualCompoundFilterSet,
-          isContextLoading = _this$state5.isContextLoading; // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
+      var _this$state4 = this.state,
+          href = _this$state4.virtualHref,
+          context = _this$state4.virtualContext,
+          requestedCompoundFilterSet = _this$state4.virtualCompoundFilterSet,
+          isContextLoading = _this$state4.isContextLoading; // Allow facets=null to mean no facets shown. facets=undefined means to default to context.facets.
 
       var facets = propFacets === null ? null : this.memoized.transformedFacets(propFacets || context && context.facets || null, filterFacetFxn);
       var showClearFiltersButton = this.memoized.isClearFiltersBtnVisible(href);
