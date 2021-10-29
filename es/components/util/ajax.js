@@ -445,7 +445,7 @@ export var FetchedItem = /*#__PURE__*/function (_React$Component) {
           propOnFail(res);
         }
 
-        console.error("FetchedItem - CONNECTION ERROR", err);
+        console.error("FetchedItem - CONNECTION ERROR", res);
         analyticsException("ajax.FetchedItem - failed; " + (res && res.code || "unknown"));
 
         _this4.setState({
