@@ -43,8 +43,10 @@ jobs:
           automatic_release_tag: "latest"
           prerelease: true
           title: "Development Build"
-          files: |
-            es/*
-            scss/*
-            package.json
+          # Defining 'files' seems to move them up into "assets"
+          # which is not desired.
+          #files: |
+          #  es/*
+          #  scss/*
+          #  package.json
         id: "automatic_releases"
