@@ -45,8 +45,6 @@ jobs:
           title: "Development Build"
           # Defining 'files' seems to move them up into "assets"
           # which is not desired.
-          #files: |
-          #  es/*
-          #  scss/*
-          #  package.json
+          files: |
+            es
         id: "automatic_releases"
