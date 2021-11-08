@@ -37,6 +37,15 @@ jobs:
       - name: "Build ES Modules (ESM) into es dir"
         run: "npm run build"
 
+      - uses: papeloto/action-zip@v1
+        with:
+          files: |
+            es/
+            package.json
+            README.md
+            babel.config.js
+          dest: release.zip
+
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -46,5 +55,5 @@ jobs:
           # Defining 'files' seems to move them up into "assets"
           # which is not desired.
           files: |
-            es
+            release.zip
         id: "automatic_releases"
