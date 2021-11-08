@@ -32,22 +32,27 @@ export class EmbeddedSearchView extends React.PureComponent {
      */
     static propTypes = {
         // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
-        'searchHref'    : PropTypes.string,
-        // From Redux store; is NOT passed down. Overriden instead.
-        'context'       : PropTypes.object,
+        'searchHref' : PropTypes.string,
+        // From Redux store; context, href, & navigate are NOT passed down. Overriden instead.
+        'context' : PropTypes.object,
+        'href': PropTypes.string,
+        'navigate' : PropTypes.func,
+        'currentAction' : PropTypes.string,
         // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
         // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
-        'columns'       : PropTypes.object,
+        'columns' : PropTypes.object,
         'columnExtensionMap' : PropTypes.object,
-        'session'       : PropTypes.bool.isRequired,
-        'schemas'       : PropTypes.object,
-        'facets'        : PropTypes.array,
+        'session' : PropTypes.bool.isRequired,
+        'schemas' : PropTypes.object,
+        'windowWidth' : PropTypes.number,
+        'renderSearchResultTable' : PropTypes.bool,
+        'facets' : PropTypes.array,
         'separateSingleTermFacets' : PropTypes.bool.isRequired,
         'renderDetailPane' : PropTypes.func,
-        'detailPane'    : PropTypes.element,
-        'onLoad'        : PropTypes.func,
-        'hideFacets'    : PropTypes.arrayOf(PropTypes.string),
-        'hideColumns'    : PropTypes.arrayOf(PropTypes.string),
+        'detailPane' : PropTypes.element,
+        'onLoad' : PropTypes.func,
+        'hideFacets' : PropTypes.arrayOf(PropTypes.string),
+        'hideColumns' : PropTypes.arrayOf(PropTypes.string),
         'filterFacetFxn' : PropTypes.func,
         'filterColumnFxn': PropTypes.func,
         'onClearFiltersVirtual' : PropTypes.func,
@@ -109,17 +114,26 @@ export class EmbeddedSearchView extends React.PureComponent {
      */
     render() {
         const {
-            href,                   // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
-            context,                // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
-            currentAction = null,   // From App.js; is NOT passed down. Always should be null for embedded search views.
-            searchHref,             // Initial search href; if blank, then no initial request is made.
-            // schemas = null,       // Passed down in passProps
-            navigate: propNavigate,  // From Redux store; is NOT passed down. Overriden instead in VirtualHrefController.
+            /**
+             * `href`, `context`, and `navigate` from Redux store or App.js
+             * These are NOT passed down. Overriden instead in VirtualHrefController.
+             */
+            href,
+            context,
+            navigate: propNavigate,
+            /* From App.js; is NOT passed down. Always should be null for embedded search views. */
+            currentAction = null,
+            /* Initial search href; if blank, then no initial request is made. */
+            searchHref,
+            /* `schemas` passed down in passProps */
+            // schemas = null,
+            /* Potentially passed in by parent component if want to preserve state but skip rendering search results into DOM. */
+            renderSearchResultTable = true,
             columns = null,
             hideColumns,
             facets,
-            aboveTableComponent = null,         // Override default default to be null.
-            aboveFacetListComponent = null,     // Override default default to be null.
+            aboveTableComponent = null,         // Supersede SearchResultTable's default.
+            aboveFacetListComponent = null,     // Supersede SearchResultTable's default.
             facetListComponent,                 // Preserve/use default value (DefaultFaceetListComponent) set by ControlsAndResults unless overriden by parent UI requirements.
             columnExtensionMap = basicColumnExtensionMap,
             onLoad = null,
@@ -155,7 +169,7 @@ export class EmbeddedSearchView extends React.PureComponent {
                         <CustomColumnController {...{ windowWidth, filterColumnFxn }} hiddenColumns={hideColumns}>
                             <SortController>
                                 { embeddedTableHeader }
-                                <ControlsAndResults {...viewProps} isOwnPage={false} />
+                                { renderSearchResultTable ? <ControlsAndResults {...viewProps} isOwnPage={false} /> : null }
                                 { embeddedTableFooter }
                             </SortController>
                         </CustomColumnController>

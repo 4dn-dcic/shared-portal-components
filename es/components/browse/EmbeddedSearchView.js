@@ -2,7 +2,7 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var _excluded = ["href", "context", "currentAction", "searchHref", "navigate", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"];
+var _excluded = ["href", "context", "navigate", "currentAction", "searchHref", "renderSearchResultTable", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"];
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -101,10 +101,12 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
       var _this$props = this.props,
           href = _this$props.href,
           context = _this$props.context,
+          propNavigate = _this$props.navigate,
           _this$props$currentAc = _this$props.currentAction,
           currentAction = _this$props$currentAc === void 0 ? null : _this$props$currentAc,
           searchHref = _this$props.searchHref,
-          propNavigate = _this$props.navigate,
+          _this$props$renderSea = _this$props.renderSearchResultTable,
+          renderSearchResultTable = _this$props$renderSea === void 0 ? true : _this$props$renderSea,
           _this$props$columns = _this$props.columns,
           columns = _this$props$columns === void 0 ? null : _this$props$columns,
           hideColumns = _this$props.hideColumns,
@@ -164,9 +166,9 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
         windowWidth: windowWidth,
         filterColumnFxn: filterColumnFxn,
         hiddenColumns: hideColumns
-      }, /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
+      }, /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, renderSearchResultTable ? /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
-      })), embeddedTableFooter)))));
+      })) : null, embeddedTableFooter)))));
     }
   }], [{
     key: "listToObj",
@@ -191,14 +193,19 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
 _defineProperty(EmbeddedSearchView, "propTypes", {
   // May not be present which prevents VirtualHrefController from navigating upon mount. Useful if want to init with filterSet search or in other place.
   'searchHref': PropTypes.string,
-  // From Redux store; is NOT passed down. Overriden instead.
+  // From Redux store; context, href, & navigate are NOT passed down. Overriden instead.
   'context': PropTypes.object,
+  'href': PropTypes.string,
+  'navigate': PropTypes.func,
+  'currentAction': PropTypes.string,
   // `props.context.columns` is used in place of `props.columns` if `props.columns` is falsy.
   // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
   'columns': PropTypes.object,
   'columnExtensionMap': PropTypes.object,
   'session': PropTypes.bool.isRequired,
   'schemas': PropTypes.object,
+  'windowWidth': PropTypes.number,
+  'renderSearchResultTable': PropTypes.bool,
   'facets': PropTypes.array,
   'separateSingleTermFacets': PropTypes.bool.isRequired,
   'renderDetailPane': PropTypes.func,

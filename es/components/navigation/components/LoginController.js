@@ -519,6 +519,7 @@ export var LogoutController = /*#__PURE__*/function (_React$PureComponent2) {
           setUserID(null); // Attempt to preserve hash, if any, but don't scroll to it.
 
           var windowHash = window && window.location && window.location.hash || '';
+          console.info("Re-loading context");
           navigate(windowHash, {
             "inPlace": true,
             "dontScrollToTop": !!windowHash
