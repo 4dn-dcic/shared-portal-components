@@ -37,14 +37,8 @@ jobs:
       - name: "Build ES Modules (ESM) into es dir"
         run: "npm run build"
 
-      - uses: papeloto/action-zip@v1
-        with:
-          files: |
-            es/
-            package.json
-            README.md
-            babel.config.js
-          dest: release.zip
+      - name: "Zip Folder"
+        run: "zip -r release.zip . -x \".git/*\" \".github/*\" \"node_modules/*\""
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
