@@ -1,0 +1,47 @@
+---
+# Generate a "latest" pre-release upon push to master.
+# TODO: Add some unit testing to here later, perhaps.
+# Workflow file based on demos from https://github.com/marketplace/actions/automatic-releases
+# and CGAP main.yml
+name: "pre-release"
+
+on:
+  push:
+    branches:
+      - "master"
+    tags-ignore:
+      - "*"
+
+jobs:
+  gh_pre_release:
+    runs-on: "ubuntu-latest"
+    env:
+      JEST_VERBOSE: ${{ secrets.JEST_VERBOSE }}
+
+    steps:
+
+      - name: "Checkout source code"
+        uses: "actions/checkout@v2.3.4"
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+          check-latest: false
+
+      - name: "Build ES Modules (ESM) into es dir"
+        run: "npm run build"
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            es/*
+            scss/*
+            package.json
+        id: "automatic_releases"
