@@ -30,6 +30,8 @@ jobs:
       - name: "Switch to build branch & pull in master"
         run: |
           git fetch origin build && git checkout build
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git pull origin master --no-rebase
 
       - uses: actions/setup-node@v2
@@ -45,8 +47,6 @@ jobs:
 
       - name: Commit files
         run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
           git add "./es/*" -f
           git commit -m "Add changes"
 
