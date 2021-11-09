@@ -37,8 +37,8 @@ jobs:
       - name: "Build ES Modules (ESM) into es dir"
         run: "npm run build"
 
-      # - name: "Switch to Build Branch"
-      #   run: "git fetch origin build && git checkout build"
+      - name: "Switch to Build Branch"
+        run: "git fetch origin build && git checkout build"
 
       # - name: "Commit and Push Build Branch"
       #   run: "git "
@@ -56,7 +56,8 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git commit -m "Add changes" -a
+          git add "./es/*" -f
+          git commit -m "Add changes"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
