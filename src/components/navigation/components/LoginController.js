@@ -398,7 +398,7 @@ export class LogoutController extends React.PureComponent {
 
                 // Attempt to preserve hash, if any, but don't scroll to it.
                 const windowHash = (window && window.location && window.location.hash) || '';
-                console.info("Re-loading context");
+                console.info("Logged out; re-loading context");
                 navigate(windowHash, { "inPlace" : true, "dontScrollToTop" : !!(windowHash) });
 
                 if (typeof document !== 'undefined'){
