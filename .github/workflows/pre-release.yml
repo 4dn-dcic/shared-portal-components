@@ -46,6 +46,7 @@ jobs:
         run: "npm run build"
 
       - name: Commit files
+        continue-on-error: true
         run: |
           git add "./es/*" -f
           git commit -m "Add changes"
