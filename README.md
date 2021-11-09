@@ -31,10 +31,12 @@ First, if not already the case, clone both parent/portal repo as well as this re
 
 ### ESM (ECMAScript Module) Compilation of shared-portal-components
 
-.. should handled entirely by parent repo such as cgap-portal or fourfront. The `npm run dev-quick` command in each respective portal repo will determine if `shared-portal-components` is sym-linked, and if so, will compile the "es" directory of shared-portal-components' working directory. Contents from "es" directory are then imported and used in portal(s). Alternatively, if not running `npm run dev-quick`, can build from working dir of `shared-portal-components` using command `npm run build`.
+For development and testing purposes, compilation of this repository should be performed by parent repo such as cgap-portal or fourfront. The built /es/ directory is excluded from git repository by default. For production, when development of /src/ is complete, then whenever master branch is pushed to GitHub, it is built by a GitHub Action and the output built files are pushed to the `build` directory, from which tagged releases can be made.
+
+For development purposes, the `npm run dev-quick` command in each respective portal repo will determine if `shared-portal-components` is sym-linked, and if so, will compile the "es" directory of shared-portal-components' working directory. Contents from "es" directory are then imported and used in portal(s). Alternatively, if not running `npm run dev-quick`, can build from working dir of `shared-portal-components` using command `npm run build`.
 
 #### Future
-If we ever decide to publish this on NPM (maybe as private org/package), we can add `/es/` stuff to `.gitignore` and `/src/` stuff to `.npmignore` to no longer clutter our PRs as much.
+If we ever decide to publish this on NPM (maybe as private org/package), we can add ~~`/es/` stuff to `.gitignore` and~~ `/src/` stuff to `.npmignore` to no longer clutter our PRs as much.
 
 # Important Notes
 
