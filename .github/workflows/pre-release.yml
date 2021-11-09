@@ -37,15 +37,32 @@ jobs:
       - name: "Build ES Modules (ESM) into es dir"
         run: "npm run build"
 
-      - name: "Push to build branch"
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: build
-          FOLDER: "."
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "Build: ({sha}) {msg}"
-          
+      # - name: "Switch to Build Branch"
+      #   run: "git fetch origin build && git checkout build"
+
+      # - name: "Commit and Push Build Branch"
+      #   run: "git "
+
+      # - name: "Push to build branch"
+      #   uses: s0/git-publish-subdir-action@develop
+      #   env:
+      #     REPO: self
+      #     BRANCH: build
+      #     FOLDER: "."
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     MESSAGE: "Build: ({sha}) {msg}"
+
+      - name: Commit files
+        run: |
+          git commit -m "Add changes" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "build"
+          force: true
+
 
       # - name: "Zip Folder"
       #   run: "zip -r release.zip . -x \".git/*\" \".github/*\" \"node_modules/*\""
