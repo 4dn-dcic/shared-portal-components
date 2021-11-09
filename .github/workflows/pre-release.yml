@@ -30,7 +30,7 @@ jobs:
       - name: "Switch to build branch & pull in master"
         run: |
           git fetch origin build && git checkout build
-          git pull origin master --ff-only
+          git pull origin master --no-rebase
 
       - uses: actions/setup-node@v2
         with:
