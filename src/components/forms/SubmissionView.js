@@ -9,7 +9,8 @@ import Modal from 'react-bootstrap/esm/Modal';
 import Collapse from 'react-bootstrap/esm/Collapse';
 
 import { ajax, console, JWT, object, layout, schemaTransforms, memoizedUrlParse, logger } from './../util';
-import { DropdownButton, DropdownItem } from './components/DropdownButton';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import { Alerts } from './../ui/Alerts';
 
 // We will cull util/file to only have some/minor fxns, and leave rest in 4DN repo.
