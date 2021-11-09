@@ -1,8 +1,11 @@
 {
     "name": "@hms-dbmi-bgm/shared-portal-components",
-    "version": "0.0.2",
-    "description": "Shared components for DBMI/BGM portal(s)",
-    "repository": "https://github.com/4dn-dcic/shared-portal-components",
+    "version": "0.1.27",
+    "description": "Shared components used for DBMI/BGM portal(s).",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/4dn-dcic/shared-portal-components"
+    },
     "main": "src/index.js",
     "module": "./es",
     "scripts": {
@@ -10,6 +13,7 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "HMS DBMI/BGM",
+    "license": "MIT",
     "devDependencies": {
         "@babel/cli": "^7.11.5",
         "@babel/core": "^7.11.5",
