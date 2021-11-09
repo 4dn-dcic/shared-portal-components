@@ -5,6 +5,7 @@
 # and CGAP main.yml
 name: "pre-release"
 
+
 on:
   push:
     branches:
@@ -29,7 +30,9 @@ jobs:
       - name: "Switch to build branch & pull in master"
         run: |
           git fetch origin build && git checkout build
-          git pull origin master --ff-only
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git pull origin master --no-rebase
 
       - uses: actions/setup-node@v2
         with:
@@ -44,8 +47,6 @@ jobs:
 
       - name: Commit files
         run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
           git add "./es/*" -f
           git commit -m "Add changes"
 
