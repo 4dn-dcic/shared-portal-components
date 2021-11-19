@@ -93,6 +93,7 @@
         "react-bootstrap": "*",
         "react-tooltip": ">=3.11.6",
         "react-transition-group": ">=4.4.1",
-        "underscore": ">=1.9.1"
+        "underscore": ">=1.9.1",
+        "url": ">=0.11.0"
     }
 }
