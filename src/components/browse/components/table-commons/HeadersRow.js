@@ -565,7 +565,11 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({
             " d-flex align-items-center justify-content-between" +
             (isActive ? " active" : "")
         );
-        const onClick = sortByField.bind(sortByField, field);
+        const onClick = function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            sortByField(field);
+        };
         return (
             <a href="#" className={cls} key={field} onClick={onClick}>
                 { title || field }

@@ -829,12 +829,15 @@ var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref15) {
     // TODO grab title from schemas if not provided.
     var isActive = currentSortColumn === field;
     var cls = "dropdown-item" + " clickable no-highlight no-user-select" + " d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
-    var onClick = sortByField.bind(sortByField, field);
     return /*#__PURE__*/React.createElement("a", {
       href: "#",
       className: cls,
       key: field,
-      onClick: onClick
+      onClick: function onClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        sortByField(field);
+      }
     }, title || field, !isActive ? null : /*#__PURE__*/React.createElement("i", {
       className: "small icon fas ml-12 icon-arrow-".concat(descend ? "down" : "up")
     }));
