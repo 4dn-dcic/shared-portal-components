@@ -139,7 +139,8 @@ export class FacetList extends React.PureComponent {
         'onFilter' : PropTypes.func,        // What happens when Term is clicked.
         'onFilterMultiple': PropTypes.func, // Same as onFilter, but processes multiple filter changes in one go
         'separateSingleTermFacets' : PropTypes.bool,
-        'maxBodyHeight' : PropTypes.number
+        'maxBodyHeight' : PropTypes.number,
+        'termIconStyle': PropTypes.oneOf(['check','radio'])
     };
 
     static defaultProps = {
@@ -182,7 +183,8 @@ export class FacetList extends React.PureComponent {
         // 'itemTypeForSchemas': 'ExperimentSetReplicate', - let PropType check catch lack of presence of this
         'termTransformFxn' : function(field, term, allowJSXOutput = false, addDescriptionTipForLinkTos = true){
             return term;
-        }
+        },
+        'termIconStyle': 'check'
     };
 
     /** Remove any duplicates, merge in filters without selections as terms */
@@ -633,7 +635,8 @@ export class FacetList extends React.PureComponent {
             facets = null,
             separateSingleTermFacets = false,
             context,
-            href, schemas, itemTypeForSchemas, termTransformFxn, persistentCount
+            href, schemas, itemTypeForSchemas, termTransformFxn, persistentCount,
+            termIconStyle
         } = this.props;
         const { filters } = context;
         const { openFacets, openPopover, filteringFieldTerm } = this.state;
@@ -641,6 +644,7 @@ export class FacetList extends React.PureComponent {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
             openPopover,
             filteringFieldTerm,
+            termIconStyle,
             onFilter:       this.onFilterExtended,
             onFilterMultiple: this.onFilterMultipleExtended,
             getTermStatus:  this.getTermStatus,

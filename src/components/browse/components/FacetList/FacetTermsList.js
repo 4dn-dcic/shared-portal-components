@@ -117,18 +117,20 @@ export class Term extends React.PureComponent {
     }
 
     render() {
-        const { term, facet, status, termTransformFxn, isFiltering } = this.props;
+        const { term, facet, status, termTransformFxn, isFiltering, termIconStyle } = this.props;
+        
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
+        const isRadio = termIconStyle === 'radio'; 
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
 
         if (isFiltering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
-            icon = <i className="icon icon-check-square icon-fw fas" />;
+            icon = <i className={"icon icon-fw fas " + (!isRadio ? "icon-check-square" : "icon-dot-circle")} />;
         } else {
-            icon = <i className="icon icon-square icon-fw unselected far" />;
+            icon = <i className={"icon icon-fw unselected far " + (!isRadio ? "icon-square" : "icon-circle")} />;
         }
 
         if (!title || title === 'null' || title === 'undefined'){
@@ -161,7 +163,11 @@ Term.propTypes = {
     'getTermStatus'     : PropTypes.func.isRequired,
     'onClick'           : PropTypes.func.isRequired,
     'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
-    'termTransformFxn'  : PropTypes.func
+    'termTransformFxn'  : PropTypes.func,
+    'termIconStyle'     : PropTypes.oneOf(['check', 'radio'])
+};
+Term.defaultProps = {
+    'termIconStyle': 'check'
 };
 
 /**
@@ -231,7 +237,7 @@ export class FacetTermsList extends React.PureComponent {
             anyTermsSelected: anySelected,
             termsSelectedCount,
             persistentCount,
-            defaultBasicSearchAutoDisplayThreshold,
+            basicSearchAutoDisplayLimit,
             onTermClick,
             getTermStatus,
             termTransformFxn,
@@ -239,6 +245,7 @@ export class FacetTermsList extends React.PureComponent {
             openPopover,
             filteringFieldTerm,
             setOpenPopover,
+            termIconStyle,
             context,
             schemas,
         } = this.props;
@@ -287,7 +294,7 @@ export class FacetTermsList extends React.PureComponent {
                     { indicator }
                 </h5>
                 <ListOfTerms
-                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold, filteringFieldTerm }}
+                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, basicSearchAutoDisplayLimit, termIconStyle, filteringFieldTerm }}
                     onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
@@ -295,7 +302,7 @@ export class FacetTermsList extends React.PureComponent {
 }
 FacetTermsList.defaultProps = {
     'persistentCount' : 10,
-    'defaultBasicSearchAutoDisplayThreshold': 15
+    'basicSearchAutoDisplayLimit': 15
 };
 
 const ListOfTerms = React.memo(function ListOfTerms(props){
@@ -306,15 +313,15 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         getTermStatus,
         termTransformFxn,
         searchText, onBasicTermSearch, onSaytTermSearch,
-        defaultBasicSearchAutoDisplayThreshold
+        basicSearchAutoDisplayLimit, termIconStyle
     } = props;
     let { search_type: searchType = 'none' } = facet;
 
     /**
      * even if search type is not defined, display basic search option when terms count
-     * is greater than defaultBasicSearchAutoDisplayThreshold
+     * is greater than basicSearchAutoDisplayLimit
      */
-    if (searchType === 'none' && terms.length >= defaultBasicSearchAutoDisplayThreshold) {
+    if (searchType === 'none' && terms.length >= basicSearchAutoDisplayLimit) {
         searchType = 'basic';
     }
     /** Create term components and sort by status (selected->omitted->unselected) */
@@ -331,7 +338,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         const segments = segmentComponentsByStatus(terms.map(function(term){
             const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
             const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-            return <Term {...{ facet, term, termTransformFxn, isFiltering }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            return <Term {...{ facet, term, termTransformFxn, isFiltering, termIconStyle }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         }));
 
         const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;

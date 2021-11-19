@@ -2,33 +2,33 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -171,6 +171,293 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(FacetList, _React$PureComponent);
 
   var _super = _createSuper(FacetList);
+
+  _createClass(FacetList, null, [{
+    key: "sortedFinalFacetObjects",
+
+    /** Remove any duplicates, merge in filters without selections as terms */
+    value: function sortedFinalFacetObjects(facets, filters) {
+      return _.sortBy(_.map(_.uniq(facets, false, function (f) {
+        return f.field;
+      }), // Ensure facets are unique, field-wise.
+      function (f) {
+        var newFacet = _objectSpread(_objectSpread({}, f), {}, {
+          order: f.order || 0
+        });
+
+        if (f.aggregation_type === "terms") {
+          // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL or something.
+          newFacet.terms = mergeTerms(f, filters);
+        }
+
+        return newFacet;
+      }), 'order');
+    }
+  }, {
+    key: "getInitialOpenFacetsAfterMount",
+    value: function getInitialOpenFacetsAfterMount(facetComponents, persistentCount, windowHeight) {
+      var filteredFlattenedComponents = facetComponents.reduce(function (m, v) {
+        if (v.props.facet) {
+          // Actual facet, include.
+          m.push(v);
+        } else {
+          // A group; flatten its children upward
+          m = m.concat(v.props.children);
+        }
+
+        return m;
+      }, []);
+      var facetLen = filteredFlattenedComponents.length; // We try to initially open some Facets depending on available screen size or props.
+      // We might get rid of this feature at some point as the amount of Facets are likely to increase.
+      // Or we could just set defaultFacetOpen = false if # facets > 10 or something.
+      // Basically seems like should adjust `maxTermsToShow` based on total # of facets...
+
+      var maxTermsToShow = (typeof windowHeight === 'number' && !isNaN(windowHeight) ? Math.floor(windowHeight / 60) : 15) - Math.floor(facetLen / 4);
+      var facetIndexWherePastXTerms;
+      var currTermCount = 0;
+
+      for (facetIndexWherePastXTerms = 0; facetIndexWherePastXTerms < facetLen; facetIndexWherePastXTerms++) {
+        if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") {
+          // Range facet with stats aggregation Facet (shows 2 'terms' or fields)
+          currTermCount += 2;
+        } else if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "range") {
+          // Range facet with range list (see comment for Terms in else)
+          currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.ranges.length, persistentCount);
+        } else {
+          // Terms; Take into account 'view more' button
+          // Slightly deprecated as doesn;t take into account 'mergeTerms'.
+          // Maybe could move mergeTerms stuff up into here.
+          currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.terms.length, persistentCount);
+        }
+
+        if (currTermCount > maxTermsToShow) {
+          break;
+        }
+      }
+
+      var openFacets = {};
+
+      for (var i = 0; i < facetIndexWherePastXTerms; i++) {
+        //console.log("XX", facetIndexWherePastXTerms, filteredFlattenedComponents[i], filteredFlattenedComponents, filteredFlattenedComponents[i].props.facet.grouping)
+        openFacets[filteredFlattenedComponents[i].props.facet.field] = true;
+
+        if (filteredFlattenedComponents[i].props.facet.grouping) {
+          // Set group to be open as well
+          openFacets["group:" + filteredFlattenedComponents[i].props.facet.grouping] = true;
+        }
+      }
+
+      return openFacets;
+    }
+    /**
+     * We use a function instead of functional/memoized components because we want literal list of JSX components.
+     * First param (props) is memoized by its keys' values.
+     * These JSX components might later be segmented or something.
+     *
+     * @param {{ href: string, schemas: Object<string, Object>, itemTypeForSchemas: string, termTransformFxn: function, onFilter: function, getTermStatus: function }} props - Passed to all facet components.
+     */
+
+  }, {
+    key: "createFacetComponents",
+    value: function createFacetComponents(props, useFacets, activeTermCountByField, rangeValuesByField) {
+      // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
+      // until is rendered by some other component's render method.
+      // We can sort/manipulate/transform these still according to their `props.` values and such.
+      var renderedFacets = useFacets.map(function (facet) {
+        var _facet$grouping = facet.grouping,
+            grouping = _facet$grouping === void 0 ? null : _facet$grouping,
+            facetField = facet.field,
+            _facet$aggregation_ty2 = facet.aggregation_type,
+            aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
+
+        if (aggregation_type === "stats" || aggregation_type === "range") {
+          var _ref = rangeValuesByField[facetField] || {},
+              _ref$fromVal = _ref.fromVal,
+              fromVal = _ref$fromVal === void 0 ? null : _ref$fromVal,
+              _ref$toVal = _ref.toVal,
+              toVal = _ref$toVal === void 0 ? null : _ref$toVal;
+
+          var isStatic = facet.min === facet.max; // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+          // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
+
+          return /*#__PURE__*/React.createElement(RangeFacet, _extends({}, props, {
+            isStatic: isStatic,
+            grouping: grouping,
+            fromVal: fromVal,
+            toVal: toVal,
+            facet: facet
+          }, {
+            key: facetField,
+            anyTermsSelected: fromVal !== null || toVal !== null
+          }));
+        }
+
+        if (aggregation_type === "terms") {
+          var termsSelectedCount = activeTermCountByField[facetField] || 0; // countTermsSelected(facet.terms, facet, filters);
+
+          var _anySelected = termsSelectedCount !== 0;
+
+          var _isStatic = !_anySelected && facet.terms.length === 1;
+
+          return /*#__PURE__*/React.createElement(TermsFacet, _extends({}, props, {
+            isStatic: _isStatic,
+            grouping: grouping,
+            termsSelectedCount: termsSelectedCount,
+            facet: facet
+          }, {
+            key: facetField,
+            anyTermsSelected: _anySelected
+          }));
+        }
+
+        throw new Error("Unknown aggregation_type");
+      });
+      var componentsToReturn = []; // first populated with ungrouped facets, then facet groups are spliced in
+
+      var groups = new Map(); // { groupTitle: { index: 0, facets: [facet1, facet2, facet3, ...] } }; Map() to preserve order.
+      // Separate out facets with .grouping into groups.
+
+      renderedFacets.forEach(function (renderedFacet) {
+        var grouping = renderedFacet.props.grouping;
+
+        if (!grouping) {
+          // add ungrouped facets straight to componentsToReturn
+          componentsToReturn.push(renderedFacet);
+          return;
+        } // Get existing or create new.
+
+
+        var existingGroup = groups.get(grouping) || {
+          index: componentsToReturn.length,
+          children: [],
+          facetOpen: false
+        };
+        existingGroup.children.push(renderedFacet);
+        groups.set(grouping, existingGroup);
+      });
+
+      var groupsArr = _toConsumableArray(groups); // Check, render, and add groups into `componentsToReturn`
+
+
+      groupsArr.forEach(function (_ref2, groupIndex) {
+        var _ref3 = _slicedToArray(_ref2, 2),
+            groupTitle = _ref3[0],
+            facetGroup = _ref3[1];
+
+        var facetsInGroup = facetGroup.children,
+            index = facetGroup.index;
+
+        if (facetsInGroup.length === 1) {
+          // Doesn't need to be in group, put back into `componentsToReturn`
+          componentsToReturn.splice(index, 0, facetsInGroup[0]);
+        } else {
+          componentsToReturn.splice(index, 0,
+          /*#__PURE__*/
+          // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
+          React.createElement(FacetOfFacets, _extends({}, props, facetGroup, {
+            title: groupTitle,
+            key: groupTitle
+          })));
+        } // Increment remaining group indices to match new length of `componentsToReturn`.
+        // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
+        // so `fromIdx` / `groupIndex` should always stay stable.
+        // We increment facetGroup.index which is the index in `componentsToReturn`.
+
+
+        groupsArr.slice(groupIndex).forEach(function (_ref4) {
+          var _ref5 = _slicedToArray(_ref4, 2),
+              subsequentFacetGroup = _ref5[1];
+
+          subsequentFacetGroup.index++;
+        });
+      });
+      return componentsToReturn;
+    }
+  }, {
+    key: "segmentOutCommonProperties",
+    value: function segmentOutCommonProperties(facetComponents, separateSingleTermFacets) {
+      var staticFacetElements = [];
+      var selectableFacetElements = [];
+
+      if (separateSingleTermFacets) {
+        facetComponents.forEach(function (renderedFacet) {
+          if (renderedFacet.props.isStatic) {
+            staticFacetElements.push(renderedFacet);
+          } else {
+            selectableFacetElements.push(renderedFacet);
+          }
+        });
+      } else {
+        selectableFacetElements = facetComponents;
+      }
+
+      return {
+        selectableFacetElements: selectableFacetElements,
+        staticFacetElements: staticFacetElements
+      };
+    }
+  }, {
+    key: "extendComponentsWithFacetOpen",
+    value: function extendComponentsWithFacetOpen(facetComponents, openFacets) {
+      return facetComponents.map(function (facetElem) {
+        // Finally, add in `facetOpen` state.
+        // Avoid doing this in `createFacetComponents` since is memoized and does other more expensive ops.
+        var _facetElem$props = facetElem.props,
+            _facetElem$props$face = _facetElem$props.facet;
+        _facetElem$props$face = _facetElem$props$face === void 0 ? {} : _facetElem$props$face;
+        var _facetElem$props$face2 = _facetElem$props$face.field,
+            field = _facetElem$props$face2 === void 0 ? null : _facetElem$props$face2,
+            _facetElem$props$titl = _facetElem$props.title,
+            groupTitle = _facetElem$props$titl === void 0 ? null : _facetElem$props$titl;
+        var facetOpen = false;
+
+        if (typeof field === "string") {
+          // Facet Elem
+          facetOpen = openFacets[field];
+
+          if (facetOpen) {
+            // Don't clone if don't need to; don't pass openFacets to avoid extraneous re-renders.
+            return /*#__PURE__*/React.cloneElement(facetElem, {
+              facetOpen: facetOpen
+            });
+          }
+
+          return facetElem;
+        } else if (typeof groupTitle === "string") {
+          // Group Elem; pass in openFacets always as well to add facetOpen to group children
+          facetOpen = openFacets["group:" + groupTitle];
+          return /*#__PURE__*/React.cloneElement(facetElem, {
+            facetOpen: facetOpen,
+            openFacets: openFacets
+          });
+        } else {
+          throw new Error("Unexpected Facet Component");
+        }
+      });
+    }
+    /**
+     * Used by this.onFilterExtended and this.onFilterMultipleExtended to send google analytics on a selected facet before filtering
+     */
+
+  }, {
+    key: "sendAnalyticsPreFilter",
+    value: function sendAnalyticsPreFilter(facet, term, contextFilters) {
+      var field = facet.field;
+      var termKey = term.key;
+      var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
+      var isUnselecting = !!statusAndHref.href;
+      return analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
+        field: field,
+        'term': termKey,
+        'eventLabel': analytics.eventLabelFromChartNode({
+          field: field,
+          'term': termKey
+        }),
+        'currentFilters': analytics.getStringifiedCurrentFilters(contextFiltersToExpSetFilters(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
+
+      });
+    }
+  }]);
 
   function FacetList(props) {
     var _this;
@@ -361,8 +648,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       if (facetFieldNames.size === 1) {
         // 2 values being set of same field
         // (this is only use-case currently for onFilterMultipleExtended, via RangeFacet, but could change in future)
-        var _ref = _toConsumableArray(facetFieldNames),
-            facetFieldName = _ref[0];
+        var _ref6 = _toConsumableArray(facetFieldNames),
+            facetFieldName = _ref6[0];
 
         if (facetFieldName !== null) {
           this.setState({
@@ -389,8 +676,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     key: "handleToggleFacetOpen",
     value: function handleToggleFacetOpen(facetField) {
       var nextOpen = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref2) {
-        var prevOpenFacets = _ref2.openFacets;
+      this.setState(function (_ref7) {
+        var prevOpenFacets = _ref7.openFacets;
 
         var openFacets = _.clone(prevOpenFacets);
 
@@ -414,9 +701,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
     value: function setOpenPopover() {
       var nextPopover = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.setState(function (_ref3) {
-        var _ref3$openPopover = _ref3.openPopover,
-            openPopover = _ref3$openPopover === void 0 ? null : _ref3$openPopover;
+      this.setState(function (_ref8) {
+        var _ref8$openPopover = _ref8.openPopover,
+            openPopover = _ref8$openPopover === void 0 ? null : _ref8$openPopover;
 
         if (!openPopover) {
           if (!nextPopover) return null;
@@ -467,7 +754,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           schemas = _this$props5.schemas,
           itemTypeForSchemas = _this$props5.itemTypeForSchemas,
           termTransformFxn = _this$props5.termTransformFxn,
-          persistentCount = _this$props5.persistentCount;
+          persistentCount = _this$props5.persistentCount,
+          termIconStyle = _this$props5.termIconStyle;
       var filters = context.filters;
       var _this$state2 = this.state,
           openFacets = _this$state2.openFacets,
@@ -483,6 +771,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         separateSingleTermFacets: separateSingleTermFacets,
         openPopover: openPopover,
         filteringFieldTerm: filteringFieldTerm,
+        termIconStyle: termIconStyle,
         onFilter: this.onFilterExtended,
         onFilterMultiple: this.onFilterMultipleExtended,
         getTermStatus: this.getTermStatus,
@@ -520,9 +809,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           openFacets = _this$state3.openFacets,
           openPopover = _this$state3.openPopover;
 
-      var _ref4 = openPopover || {},
-          popoverJSX = _ref4.popover,
-          popoverTargetRef = _ref4.ref;
+      var _ref9 = openPopover || {},
+          popoverJSX = _ref9.popover,
+          popoverTargetRef = _ref9.ref;
 
       if (!facets || !Array.isArray(facets) || facets.length === 0) {
         return /*#__PURE__*/React.createElement("div", {
@@ -547,13 +836,14 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: "facets-container facets with-header-bg",
         "data-context-loading": isContextLoading
-      }, /*#__PURE__*/React.createElement(FacetListHeader, {
+      }, /*#__PURE__*/React.createElement(FacetListHeader, _extends({
         openFacets: openFacets,
         title: title,
         onClearFilters: onClearFilters,
-        showClearFiltersButton: showClearFiltersButton,
+        showClearFiltersButton: showClearFiltersButton
+      }, {
         onCollapseFacets: this.handleCollapseAllFacets
-      }), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
         className: "row facet-list-separator"
       }, /*#__PURE__*/React.createElement("div", {
         className: "col-12"
@@ -569,289 +859,6 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         rootClose: true,
         rootCloseDisabled: false
       }, popoverJSX) : null);
-    }
-  }], [{
-    key: "sortedFinalFacetObjects",
-    value:
-    /** Remove any duplicates, merge in filters without selections as terms */
-    function sortedFinalFacetObjects(facets, filters) {
-      return _.sortBy(_.map(_.uniq(facets, false, function (f) {
-        return f.field;
-      }), // Ensure facets are unique, field-wise.
-      function (f) {
-        var newFacet = _objectSpread(_objectSpread({}, f), {}, {
-          order: f.order || 0
-        });
-
-        if (f.aggregation_type === "terms") {
-          // Add in any terms specified in `filters` but not in `facet.terms` - in case someone hand-put that into URL or something.
-          newFacet.terms = mergeTerms(f, filters);
-        }
-
-        return newFacet;
-      }), 'order');
-    }
-  }, {
-    key: "getInitialOpenFacetsAfterMount",
-    value: function getInitialOpenFacetsAfterMount(facetComponents, persistentCount, windowHeight) {
-      var filteredFlattenedComponents = facetComponents.reduce(function (m, v) {
-        if (v.props.facet) {
-          // Actual facet, include.
-          m.push(v);
-        } else {
-          // A group; flatten its children upward
-          m = m.concat(v.props.children);
-        }
-
-        return m;
-      }, []);
-      var facetLen = filteredFlattenedComponents.length; // We try to initially open some Facets depending on available screen size or props.
-      // We might get rid of this feature at some point as the amount of Facets are likely to increase.
-      // Or we could just set defaultFacetOpen = false if # facets > 10 or something.
-      // Basically seems like should adjust `maxTermsToShow` based on total # of facets...
-
-      var maxTermsToShow = (typeof windowHeight === 'number' && !isNaN(windowHeight) ? Math.floor(windowHeight / 60) : 15) - Math.floor(facetLen / 4);
-      var facetIndexWherePastXTerms;
-      var currTermCount = 0;
-
-      for (facetIndexWherePastXTerms = 0; facetIndexWherePastXTerms < facetLen; facetIndexWherePastXTerms++) {
-        if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "stats") {
-          // Range facet with stats aggregation Facet (shows 2 'terms' or fields)
-          currTermCount += 2;
-        } else if (filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.aggregation_type === "range") {
-          // Range facet with range list (see comment for Terms in else)
-          currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.ranges.length, persistentCount);
-        } else {
-          // Terms; Take into account 'view more' button
-          // Slightly deprecated as doesn;t take into account 'mergeTerms'.
-          // Maybe could move mergeTerms stuff up into here.
-          currTermCount += Math.min(filteredFlattenedComponents[facetIndexWherePastXTerms].props.facet.terms.length, persistentCount);
-        }
-
-        if (currTermCount > maxTermsToShow) {
-          break;
-        }
-      }
-
-      var openFacets = {};
-
-      for (var i = 0; i < facetIndexWherePastXTerms; i++) {
-        //console.log("XX", facetIndexWherePastXTerms, filteredFlattenedComponents[i], filteredFlattenedComponents, filteredFlattenedComponents[i].props.facet.grouping)
-        openFacets[filteredFlattenedComponents[i].props.facet.field] = true;
-
-        if (filteredFlattenedComponents[i].props.facet.grouping) {
-          // Set group to be open as well
-          openFacets["group:" + filteredFlattenedComponents[i].props.facet.grouping] = true;
-        }
-      }
-
-      return openFacets;
-    }
-    /**
-     * We use a function instead of functional/memoized components because we want literal list of JSX components.
-     * First param (props) is memoized by its keys' values.
-     * These JSX components might later be segmented or something.
-     *
-     * @param {{ href: string, schemas: Object<string, Object>, itemTypeForSchemas: string, termTransformFxn: function, onFilter: function, getTermStatus: function }} props - Passed to all facet components.
-     */
-
-  }, {
-    key: "createFacetComponents",
-    value: function createFacetComponents(props, useFacets, activeTermCountByField, rangeValuesByField) {
-      // The logic within `Facet` `render`, `componentDidMount`, etc. isn't executed
-      // until is rendered by some other component's render method.
-      // We can sort/manipulate/transform these still according to their `props.` values and such.
-      var renderedFacets = useFacets.map(function (facet) {
-        var _facet$grouping = facet.grouping,
-            grouping = _facet$grouping === void 0 ? null : _facet$grouping,
-            facetField = facet.field,
-            _facet$aggregation_ty2 = facet.aggregation_type,
-            aggregation_type = _facet$aggregation_ty2 === void 0 ? "terms" : _facet$aggregation_ty2;
-
-        if (aggregation_type === "stats" || aggregation_type === "range") {
-          var _ref5 = rangeValuesByField[facetField] || {},
-              _ref5$fromVal = _ref5.fromVal,
-              fromVal = _ref5$fromVal === void 0 ? null : _ref5$fromVal,
-              _ref5$toVal = _ref5.toVal,
-              toVal = _ref5$toVal === void 0 ? null : _ref5$toVal;
-
-          var isStatic = facet.min === facet.max; // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
-          // This approach used for resetting state.fromVal and state.toVal within RangeFacet.
-
-          return /*#__PURE__*/React.createElement(RangeFacet, _extends({}, props, {
-            isStatic: isStatic,
-            grouping: grouping,
-            fromVal: fromVal,
-            toVal: toVal,
-            facet: facet,
-            key: facetField,
-            anyTermsSelected: fromVal !== null || toVal !== null
-          }));
-        }
-
-        if (aggregation_type === "terms") {
-          var termsSelectedCount = activeTermCountByField[facetField] || 0; // countTermsSelected(facet.terms, facet, filters);
-
-          var _anySelected = termsSelectedCount !== 0;
-
-          var _isStatic = !_anySelected && facet.terms.length === 1;
-
-          return /*#__PURE__*/React.createElement(TermsFacet, _extends({}, props, {
-            isStatic: _isStatic,
-            grouping: grouping,
-            termsSelectedCount: termsSelectedCount,
-            facet: facet,
-            key: facetField,
-            anyTermsSelected: _anySelected
-          }));
-        }
-
-        throw new Error("Unknown aggregation_type");
-      });
-      var componentsToReturn = []; // first populated with ungrouped facets, then facet groups are spliced in
-
-      var groups = new Map(); // { groupTitle: { index: 0, facets: [facet1, facet2, facet3, ...] } }; Map() to preserve order.
-      // Separate out facets with .grouping into groups.
-
-      renderedFacets.forEach(function (renderedFacet) {
-        var grouping = renderedFacet.props.grouping;
-
-        if (!grouping) {
-          // add ungrouped facets straight to componentsToReturn
-          componentsToReturn.push(renderedFacet);
-          return;
-        } // Get existing or create new.
-
-
-        var existingGroup = groups.get(grouping) || {
-          index: componentsToReturn.length,
-          children: [],
-          facetOpen: false
-        };
-        existingGroup.children.push(renderedFacet);
-        groups.set(grouping, existingGroup);
-      });
-
-      var groupsArr = _toConsumableArray(groups); // Check, render, and add groups into `componentsToReturn`
-
-
-      groupsArr.forEach(function (_ref6, groupIndex) {
-        var _ref7 = _slicedToArray(_ref6, 2),
-            groupTitle = _ref7[0],
-            facetGroup = _ref7[1];
-
-        var facetsInGroup = facetGroup.children,
-            index = facetGroup.index;
-
-        if (facetsInGroup.length === 1) {
-          // Doesn't need to be in group, put back into `componentsToReturn`
-          componentsToReturn.splice(index, 0, facetsInGroup[0]);
-        } else {
-          componentsToReturn.splice(index, 0,
-          /*#__PURE__*/
-          // `facetGroup` contains `defaultGroupOpen`, `index`, `facets`.
-          React.createElement(FacetOfFacets, _extends({}, props, facetGroup, {
-            title: groupTitle,
-            key: groupTitle
-          })));
-        } // Increment remaining group indices to match new length of `componentsToReturn`.
-        // We're not modifying the actual `groupsArr` list itself ever (e.g. removing/adding)
-        // so `fromIdx` / `groupIndex` should always stay stable.
-        // We increment facetGroup.index which is the index in `componentsToReturn`.
-
-
-        groupsArr.slice(groupIndex).forEach(function (_ref8) {
-          var _ref9 = _slicedToArray(_ref8, 2),
-              subsequentFacetGroup = _ref9[1];
-
-          subsequentFacetGroup.index++;
-        });
-      });
-      return componentsToReturn;
-    }
-  }, {
-    key: "segmentOutCommonProperties",
-    value: function segmentOutCommonProperties(facetComponents, separateSingleTermFacets) {
-      var staticFacetElements = [];
-      var selectableFacetElements = [];
-
-      if (separateSingleTermFacets) {
-        facetComponents.forEach(function (renderedFacet) {
-          if (renderedFacet.props.isStatic) {
-            staticFacetElements.push(renderedFacet);
-          } else {
-            selectableFacetElements.push(renderedFacet);
-          }
-        });
-      } else {
-        selectableFacetElements = facetComponents;
-      }
-
-      return {
-        selectableFacetElements: selectableFacetElements,
-        staticFacetElements: staticFacetElements
-      };
-    }
-  }, {
-    key: "extendComponentsWithFacetOpen",
-    value: function extendComponentsWithFacetOpen(facetComponents, openFacets) {
-      return facetComponents.map(function (facetElem) {
-        // Finally, add in `facetOpen` state.
-        // Avoid doing this in `createFacetComponents` since is memoized and does other more expensive ops.
-        var _facetElem$props = facetElem.props,
-            _facetElem$props$face = _facetElem$props.facet;
-        _facetElem$props$face = _facetElem$props$face === void 0 ? {} : _facetElem$props$face;
-        var _facetElem$props$face2 = _facetElem$props$face.field,
-            field = _facetElem$props$face2 === void 0 ? null : _facetElem$props$face2,
-            _facetElem$props$titl = _facetElem$props.title,
-            groupTitle = _facetElem$props$titl === void 0 ? null : _facetElem$props$titl;
-        var facetOpen = false;
-
-        if (typeof field === "string") {
-          // Facet Elem
-          facetOpen = openFacets[field];
-
-          if (facetOpen) {
-            // Don't clone if don't need to; don't pass openFacets to avoid extraneous re-renders.
-            return /*#__PURE__*/React.cloneElement(facetElem, {
-              facetOpen: facetOpen
-            });
-          }
-
-          return facetElem;
-        } else if (typeof groupTitle === "string") {
-          // Group Elem; pass in openFacets always as well to add facetOpen to group children
-          facetOpen = openFacets["group:" + groupTitle];
-          return /*#__PURE__*/React.cloneElement(facetElem, {
-            facetOpen: facetOpen,
-            openFacets: openFacets
-          });
-        } else {
-          throw new Error("Unexpected Facet Component");
-        }
-      });
-    }
-    /**
-     * Used by this.onFilterExtended and this.onFilterMultipleExtended to send google analytics on a selected facet before filtering
-     */
-
-  }, {
-    key: "sendAnalyticsPreFilter",
-    value: function sendAnalyticsPreFilter(facet, term, contextFilters) {
-      var field = facet.field;
-      var termKey = term.key;
-      var statusAndHref = getStatusAndUnselectHrefIfSelectedOrOmittedFromResponseFilters(term, facet, contextFilters);
-      var isUnselecting = !!statusAndHref.href;
-      return analytics.event('FacetList', isUnselecting ? 'Unset Filter' : 'Set Filter', {
-        field: field,
-        'term': termKey,
-        'eventLabel': analytics.eventLabelFromChartNode({
-          field: field,
-          'term': termKey
-        }),
-        'currentFilters': analytics.getStringifiedCurrentFilters(contextFiltersToExpSetFilters(contextFilters || null)) // 'Existing' filters, or filters at time of action, go here.
-
-      });
     }
   }]);
 
@@ -898,7 +905,8 @@ _defineProperty(FacetList, "propTypes", {
   'onFilterMultiple': PropTypes.func,
   // Same as onFilter, but processes multiple filter changes in one go
   'separateSingleTermFacets': PropTypes.bool,
-  'maxBodyHeight': PropTypes.number
+  'maxBodyHeight': PropTypes.number,
+  'termIconStyle': PropTypes.oneOf(['check', 'radio'])
 });
 
 _defineProperty(FacetList, "defaultProps", {
@@ -951,7 +959,8 @@ _defineProperty(FacetList, "defaultProps", {
     arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     return term;
-  }
+  },
+  'termIconStyle': 'check'
 });
 
 export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {

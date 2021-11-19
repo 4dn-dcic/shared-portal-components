@@ -2,10 +2,6 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var _excluded = ["count", "countActive", "height", "width", "ltr", "className"];
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -21,6 +17,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -187,8 +185,10 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           facet = _this$props2.facet,
           status = _this$props2.status,
           termTransformFxn = _this$props2.termTransformFxn,
-          isFiltering = _this$props2.isFiltering;
+          isFiltering = _this$props2.isFiltering,
+          termIconStyle = _this$props2.termIconStyle;
       var count = term && term.doc_count || 0;
+      var isRadio = termIconStyle === 'radio';
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
 
@@ -198,11 +198,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         });
       } else if (status === 'selected' || status === 'omitted') {
         icon = /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-check-square icon-fw fas"
+          className: "icon icon-fw fas " + (!isRadio ? "icon-check-square" : "icon-dot-circle")
         });
       } else {
         icon = /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-square icon-fw unselected far"
+          className: "icon icon-fw unselected far " + (!isRadio ? "icon-square" : "icon-circle")
         });
       }
 
@@ -250,7 +250,11 @@ Term.propTypes = {
   'getTermStatus': PropTypes.func.isRequired,
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
-  'termTransformFxn': PropTypes.func
+  'termTransformFxn': PropTypes.func,
+  'termIconStyle': PropTypes.oneOf(['check', 'radio'])
+};
+Term.defaultProps = {
+  'termIconStyle': 'check'
 };
 /**
  * @param {*} facetTerms : facet's terms array
@@ -355,7 +359,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           anySelected = _this$props5.anyTermsSelected,
           termsSelectedCount = _this$props5.termsSelectedCount,
           persistentCount = _this$props5.persistentCount,
-          defaultBasicSearchAutoDisplayThreshold = _this$props5.defaultBasicSearchAutoDisplayThreshold,
+          basicSearchAutoDisplayLimit = _this$props5.basicSearchAutoDisplayLimit,
           onTermClick = _this$props5.onTermClick,
           getTermStatus = _this$props5.getTermStatus,
           termTransformFxn = _this$props5.termTransformFxn,
@@ -363,6 +367,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           openPopover = _this$props5.openPopover,
           filteringFieldTerm = _this$props5.filteringFieldTerm,
           setOpenPopover = _this$props5.setOpenPopover,
+          termIconStyle = _this$props5.termIconStyle,
           context = _this$props5.context,
           schemas = _this$props5.schemas;
       var _facet$description = facet.description,
@@ -438,7 +443,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         facet: facet,
         openPopover: openPopover,
         setOpenPopover: setOpenPopover
-      })), indicator), /*#__PURE__*/React.createElement(ListOfTerms, {
+      })), indicator), /*#__PURE__*/React.createElement(ListOfTerms, _extends({
         facet: facet,
         facetOpen: facetOpen,
         terms: terms,
@@ -449,12 +454,14 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         searchText: searchText,
         schemas: schemas,
         persistentCount: persistentCount,
-        defaultBasicSearchAutoDisplayThreshold: defaultBasicSearchAutoDisplayThreshold,
-        filteringFieldTerm: filteringFieldTerm,
+        basicSearchAutoDisplayLimit: basicSearchAutoDisplayLimit,
+        termIconStyle: termIconStyle,
+        filteringFieldTerm: filteringFieldTerm
+      }, {
         onSaytTermSearch: this.handleSaytTermSearch,
         onBasicTermSearch: this.handleBasicTermSearch,
         onToggleExpanded: this.handleExpandListToggleClick
-      }));
+      })));
     }
   }]);
 
@@ -462,7 +469,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
 }(React.PureComponent);
 FacetTermsList.defaultProps = {
   'persistentCount': 10,
-  'defaultBasicSearchAutoDisplayThreshold': 15
+  'basicSearchAutoDisplayLimit': 15
 };
 var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var facet = props.facet,
@@ -478,15 +485,16 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       searchText = props.searchText,
       onBasicTermSearch = props.onBasicTermSearch,
       onSaytTermSearch = props.onSaytTermSearch,
-      defaultBasicSearchAutoDisplayThreshold = props.defaultBasicSearchAutoDisplayThreshold;
+      basicSearchAutoDisplayLimit = props.basicSearchAutoDisplayLimit,
+      termIconStyle = props.termIconStyle;
   var _facet$search_type = facet.search_type,
       searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
   /**
    * even if search type is not defined, display basic search option when terms count
-   * is greater than defaultBasicSearchAutoDisplayThreshold
+   * is greater than basicSearchAutoDisplayLimit
    */
 
-  if (searchType === 'none' && terms.length >= defaultBasicSearchAutoDisplayThreshold) {
+  if (searchType === 'none' && terms.length >= basicSearchAutoDisplayLimit) {
     searchType = 'basic';
   }
   /** Create term components and sort by status (selected->omitted->unselected) */
@@ -500,15 +508,17 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
           currFilteringTerm = _ref6.term;
 
       var isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-      return /*#__PURE__*/React.createElement(Term, {
+      return /*#__PURE__*/React.createElement(Term, _extends({
         facet: facet,
         term: term,
         termTransformFxn: termTransformFxn,
         isFiltering: isFiltering,
+        termIconStyle: termIconStyle
+      }, {
         onClick: onTermClick,
         key: term.key,
         status: getTermStatus(term, facet)
-      });
+      }));
     }));
     var _segments$selected = segments.selected,
         selectedTermComponents = _segments$selected === void 0 ? [] : _segments$selected,
@@ -517,7 +527,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     var _segments$none = segments.none,
         unselectedTermComponents = _segments$none === void 0 ? [] : _segments$none; //filter unselected terms
 
-    //filter unselected terms
     if (searchType === 'basic' && searchText && typeof searchText === 'string' && searchText.length > 0) {
       var dict = getFilteredTerms(terms, searchText);
       unselectedTermComponents = _.filter(unselectedTermComponents, function (term) {
@@ -549,7 +558,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
 
     retObj.persistentTerms = []; //termComponents.slice(0, unselectedStartIdx);
 
-    //termComponents.slice(0, unselectedStartIdx);
     var i;
 
     for (i = selectedLen + omittedLen; i < persistentCount; i++) {
@@ -670,7 +678,7 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
       ltr = _props$ltr === void 0 ? false : _props$ltr,
       _props$className = props.className,
       className = _props$className === void 0 ? null : _props$className,
-      passProps = _objectWithoutProperties(props, _excluded);
+      passProps = _objectWithoutProperties(props, ["count", "countActive", "height", "width", "ltr", "className"]);
 
   var dotCountToShow = Math.min(count, 21);
   var dotCoords = stackDotsInContainer(dotCountToShow, height, 4, 2, false);
@@ -685,9 +693,10 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
 
     var cx = ltr ? x + 1 : width - x + 1;
     var cy = ltr ? y + 1 : height - y + 1;
-    return /*#__PURE__*/React.createElement("circle", {
+    return /*#__PURE__*/React.createElement("circle", _extends({
       cx: cx,
-      cy: cy,
+      cy: cy
+    }, {
       r: 2,
       key: idx,
       "data-original-index": idx,
@@ -695,7 +704,7 @@ export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
         opacity: 1 - colIdx * .125
       },
       className: dotCountToShow - idx <= countActive ? "active" : null
-    });
+    }));
   });
   var cls = "svg-count-indicator" + (className ? " " + className : "");
   return /*#__PURE__*/React.createElement("svg", _extends({}, passProps, {

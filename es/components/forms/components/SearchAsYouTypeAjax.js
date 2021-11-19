@@ -1,7 +1,5 @@
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var _excluded = ["optionsHeader", "value", "keyComplete"];
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -233,7 +231,7 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
           value = _this$props3.value,
           _this$props3$keyCompl = _this$props3.keyComplete,
           keyComplete = _this$props3$keyCompl === void 0 ? {} : _this$props3$keyCompl,
-          leftoverProps = _objectWithoutProperties(_this$props3, _excluded);
+          leftoverProps = _objectWithoutProperties(_this$props3, ["optionsHeader", "value", "keyComplete"]);
 
       var _this$state = this.state,
           currentTextValue = _this$state.currentTextValue,
@@ -274,7 +272,8 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       var hideButton = value && !isNaN(value) && !keyComplete[intKey];
       return hideButton ? null : /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
-        currentTextValue: currentTextValue,
+        currentTextValue: currentTextValue
+      }, {
         alignRight: true,
         options: results,
         onToggleOpen: this.onToggleOpen,
@@ -359,7 +358,8 @@ export function SubmissionViewSearchAsYouTypeAjax(props) {
   return /*#__PURE__*/React.createElement("div", {
     className: "d-flex flex-wrap"
   }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, _extends({
-    showTips: true,
+    showTips: true
+  }, {
     value: value,
     onChange: onChange,
     baseHref: baseHref,
@@ -544,6 +544,35 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(LinkedObj, _React$PureComponent2);
 
   var _super2 = _createSuper(LinkedObj);
+
+  _createClass(LinkedObj, null, [{
+    key: "isInSelectionField",
+
+    /**
+     * @param {string} props.nestedField - Field of LinkedObj
+     * @param {number[]|null} props.arrayIdx - Array index (if any) of this item, if any.
+     * @param {string} props.fieldBeingSelected - Field currently selected for linkedTo item selection.
+     * @param {number[]|null} props.fieldBeingSelectedArrayIdx - Array index (if any) of currently selected for linkedTo item selection.
+     * @returns {boolean} Whether is currently selected field/item or not.
+     */
+    value: function isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx) {
+      if (!fieldBeingSelected || fieldBeingSelected !== nestedField) {
+        return false;
+      }
+
+      if (arrayIdx === null && fieldBeingSelectedArrayIdx === null) {
+        return true;
+      }
+
+      if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
+        return _.every(arrayIdx, function (arrIdx, arrIdxIdx) {
+          return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
+        });
+      }
+
+      return false;
+    }
+  }]);
 
   function LinkedObj(props) {
     var _this3;
@@ -731,15 +760,16 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
         }
       }
 
-      return /*#__PURE__*/React.createElement(LinkToSelector, {
+      return /*#__PURE__*/React.createElement(LinkToSelector, _extends({
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
         onCloseChildWindow: selectCancel,
-        childWindowAlert: this.childWindowAlert,
+        childWindowAlert: this.childWindowAlert
+      }, {
         value: value,
         dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
         searchURL: searchURL
-      });
+      }));
     }
   }, {
     key: "renderButtons",
@@ -816,33 +846,6 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
         // nothing chosen/created yet
         return this.renderButtons();
       }
-    }
-  }], [{
-    key: "isInSelectionField",
-    value:
-    /**
-     * @param {string} props.nestedField - Field of LinkedObj
-     * @param {number[]|null} props.arrayIdx - Array index (if any) of this item, if any.
-     * @param {string} props.fieldBeingSelected - Field currently selected for linkedTo item selection.
-     * @param {number[]|null} props.fieldBeingSelectedArrayIdx - Array index (if any) of currently selected for linkedTo item selection.
-     * @returns {boolean} Whether is currently selected field/item or not.
-     */
-    function isInSelectionField(fieldBeingSelected, nestedField, arrayIdx, fieldBeingSelectedArrayIdx) {
-      if (!fieldBeingSelected || fieldBeingSelected !== nestedField) {
-        return false;
-      }
-
-      if (arrayIdx === null && fieldBeingSelectedArrayIdx === null) {
-        return true;
-      }
-
-      if (Array.isArray(arrayIdx) && Array.isArray(fieldBeingSelectedArrayIdx)) {
-        return _.every(arrayIdx, function (arrIdx, arrIdxIdx) {
-          return arrIdx === fieldBeingSelectedArrayIdx[arrIdxIdx];
-        });
-      }
-
-      return false;
     }
   }]);
 

@@ -1,7 +1,5 @@
 'use strict';
 
-var _excluded = ["keyIdx"];
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -72,7 +70,7 @@ export var SubmissionTree = /*#__PURE__*/function (_React$PureComponent) {
     value: function render() {
       var _this$props = this.props,
           keyIdx = _this$props.keyIdx,
-          others = _objectWithoutProperties(_this$props, _excluded);
+          others = _objectWithoutProperties(_this$props, ["keyIdx"]);
 
       return /*#__PURE__*/React.createElement("div", {
         className: "submission-view-navigation-tree"
