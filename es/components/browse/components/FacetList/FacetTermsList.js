@@ -251,12 +251,10 @@ Term.propTypes = {
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
   'termTransformFxn': PropTypes.func,
-  'termIconStyle': PropTypes.oneOf(['check', 'radio']),
-  'persistSelectedTerms': PropTypes.bool.isRequired
+  'termIconStyle': PropTypes.oneOf(['check', 'radio'])
 };
 Term.defaultProps = {
-  'termIconStyle': 'check',
-  'persistSelectedTerms': true
+  'termIconStyle': 'check'
 };
 /**
  * @param {*} facetTerms : facet's terms array
