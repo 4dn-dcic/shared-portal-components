@@ -164,10 +164,12 @@ Term.propTypes = {
     'onClick'           : PropTypes.func.isRequired,
     'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
     'termTransformFxn'  : PropTypes.func,
-    'termIconStyle'     : PropTypes.oneOf(['check', 'radio'])
+    'termIconStyle'     : PropTypes.oneOf(['check', 'radio']),
+    'persistSelectedTerms' : PropTypes.bool.isRequired
 };
 Term.defaultProps = {
-    'termIconStyle': 'check'
+    'termIconStyle': 'check',
+    'persistSelectedTerms': true
 };
 
 /**
@@ -246,6 +248,7 @@ export class FacetTermsList extends React.PureComponent {
             filteringFieldTerm,
             setOpenPopover,
             termIconStyle,
+            persistSelectedTerms,
             context,
             schemas,
         } = this.props;
@@ -294,7 +297,7 @@ export class FacetTermsList extends React.PureComponent {
                     { indicator }
                 </h5>
                 <ListOfTerms
-                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, basicSearchAutoDisplayLimit, termIconStyle, filteringFieldTerm }}
+                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, basicSearchAutoDisplayLimit, termIconStyle, persistSelectedTerms, filteringFieldTerm }}
                     onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
@@ -313,15 +316,17 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         getTermStatus,
         termTransformFxn,
         searchText, onBasicTermSearch, onSaytTermSearch,
-        basicSearchAutoDisplayLimit, termIconStyle
+        basicSearchAutoDisplayLimit, termIconStyle, persistSelectedTerms = true
     } = props;
     let { search_type: searchType = 'none' } = facet;
 
     /**
      * even if search type is not defined, display basic search option when terms count
-     * is greater than basicSearchAutoDisplayLimit
+     * is greater than basicSearchAutoDisplayLimit (for persistSelectedTerms is true)
      */
-    if (searchType === 'none' && terms.length >= basicSearchAutoDisplayLimit) {
+    if (!persistSelectedTerms) {
+        searchType = 'none'; //override
+    } else if (searchType === 'none' && terms.length >= basicSearchAutoDisplayLimit) {
         searchType = 'basic';
     }
     /** Create term components and sort by status (selected->omitted->unselected) */
@@ -335,11 +340,12 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     } = useMemo(function(){
         const { field } = facet;
 
-        const segments = segmentComponentsByStatus(terms.map(function(term){
+        const allTermComponents = terms.map(function(term){
             const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
             const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
             return <Term {...{ facet, term, termTransformFxn, isFiltering, termIconStyle }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
-        }));
+        });
+        const segments = segmentComponentsByStatus(allTermComponents);
 
         const { selected: selectedTermComponents = [], omitted : omittedTermComponents = [] } = segments;
         let { none : unselectedTermComponents  = [] } = segments;
@@ -356,6 +362,11 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         const omittedLen = omittedTermComponents.length;
         const unselectedLen = unselectedTermComponents.length;
         const totalLen = selectedLen + omittedLen + unselectedLen;
+        
+        if (!persistSelectedTerms) {
+            return { termComponents: allTermComponents, selectedLen, omittedLen, unselectedLen, totalLen };
+        }
+        
         const termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
         const activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
 
@@ -381,7 +392,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
 
         return retObj;
 
-    }, [ facet, terms, persistentCount, searchText, filteringFieldTerm ]);
+    }, [ facet, terms, persistentCount, searchText, filteringFieldTerm, persistSelectedTerms ]);
 
     const commonProps = {
         "data-any-active" : !!(selectedLen || omittedLen),
@@ -391,67 +402,79 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         "key" : "facetlist"
     };
 
-    // show simple text input for basic search (search within returned values)
-    // or show SAYT control if item search is available
-    let facetSearch = null;
-    if (searchType === 'basic') {
-        facetSearch = (
-            <div className="text-small p-2">
-                <input className="form-control" autoComplete="off" type="search" placeholder="Search"
-                    name="q" onChange={onBasicTermSearch} key="facet-search-input" />
-            </div>);
-    } else if ((searchType === 'sayt') || (searchType === 'sayt_without_terms')) {
-        let { sayt_item_type: itemType = '' } = facet || {};
-        itemType = typeof itemType === 'string' && (itemType.length > 0) ? itemType : 'Item';
-        const baseHref = "/search/?type=" + itemType;
-        facetSearch = (
-            <div className="d-flex flex-wrap text-small p-2">
-                <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
-            </div>);
-    }
-
-    if (Array.isArray(collapsibleTerms)) {
-        let expandButtonTitle;
-
-        if (expanded){
-            expandButtonTitle = (
-                <span>
-                    <i className="icon icon-fw icon-minus fas"/> Collapse
-                </span>
-            );
-        } else {
-            expandButtonTitle = (
-                <span>
-                    <i className="icon icon-fw icon-plus fas"/> View { collapsibleTermsCount } More
-                    <span className="pull-right">{ collapsibleTermsItemCount }</span>
-                </span>
-            );
-        }
-
+    if (!persistSelectedTerms) {
         return (
             <div {...commonProps}>
-                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={[]} collapsible={
                     <React.Fragment>
-                        {facetSearch}
-                        <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
-                        <div className="pt-08 pb-0">
-                            <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
-                        </div>
+                        {termComponents}
                     </React.Fragment>
                 } />
             </div>
         );
     } else {
-        return (
-            <div {...commonProps}>
-                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
-                    <React.Fragment>
-                        {facetSearch}
-                        {unselectedTermComponents}
-                    </React.Fragment>
-                } />
-            </div>
-        );
+        // show simple text input for basic search (search within returned values)
+        // or show SAYT control if item search is available
+        let facetSearch = null;
+        if (searchType === 'basic') {
+            facetSearch = (
+                <div className="text-small p-2">
+                    <input className="form-control" autoComplete="off" type="search" placeholder="Search"
+                        name="q" onChange={onBasicTermSearch} key="facet-search-input" />
+                </div>);
+        } else if ((searchType === 'sayt') || (searchType === 'sayt_without_terms')) {
+            let { sayt_item_type: itemType = '' } = facet || {};
+            itemType = typeof itemType === 'string' && (itemType.length > 0) ? itemType : 'Item';
+            const baseHref = "/search/?type=" + itemType;
+            facetSearch = (
+                <div className="d-flex flex-wrap text-small p-2">
+                    <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
+                </div>);
+        }
+
+        if (Array.isArray(collapsibleTerms)) {
+            let expandButtonTitle;
+
+            if (expanded) {
+                expandButtonTitle = (
+                    <span>
+                        <i className="icon icon-fw icon-minus fas" /> Collapse
+                    </span>
+                );
+            } else {
+                expandButtonTitle = (
+                    <span>
+                        <i className="icon icon-fw icon-plus fas" /> View {collapsibleTermsCount} More
+                        <span className="pull-right">{collapsibleTermsItemCount}</span>
+                    </span>
+                );
+            }
+
+            return (
+                <div {...commonProps}>
+                    <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
+                        <React.Fragment>
+                            {facetSearch}
+                            <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
+                            <div className="pt-08 pb-0">
+                                <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
+                            </div>
+                        </React.Fragment>
+                    } />
+                </div>
+            );
+        } else {
+            return (
+                <div {...commonProps}>
+                    <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
+                        <React.Fragment>
+                            {facetSearch}
+                            {unselectedTermComponents}
+                        </React.Fragment>
+                    } />
+                </div>
+            );
+        }
     }
 });
 

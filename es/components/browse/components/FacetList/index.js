@@ -755,7 +755,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           itemTypeForSchemas = _this$props5.itemTypeForSchemas,
           termTransformFxn = _this$props5.termTransformFxn,
           persistentCount = _this$props5.persistentCount,
-          termIconStyle = _this$props5.termIconStyle;
+          termIconStyle = _this$props5.termIconStyle,
+          persistSelectedTerms = _this$props5.persistSelectedTerms;
       var filters = context.filters;
       var _this$state2 = this.state,
           openFacets = _this$state2.openFacets,
@@ -772,6 +773,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         openPopover: openPopover,
         filteringFieldTerm: filteringFieldTerm,
         termIconStyle: termIconStyle,
+        persistSelectedTerms: persistSelectedTerms,
         onFilter: this.onFilterExtended,
         onFilterMultiple: this.onFilterMultipleExtended,
         getTermStatus: this.getTermStatus,
@@ -906,7 +908,10 @@ _defineProperty(FacetList, "propTypes", {
   // Same as onFilter, but processes multiple filter changes in one go
   'separateSingleTermFacets': PropTypes.bool,
   'maxBodyHeight': PropTypes.number,
-  'termIconStyle': PropTypes.oneOf(['check', 'radio'])
+  'termIconStyle': PropTypes.oneOf(['check', 'radio']),
+  // Show either checkbox or radio icon for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
+  'persistSelectedTerms': PropTypes.bool.isRequired // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
+
 });
 
 _defineProperty(FacetList, "defaultProps", {
@@ -960,7 +965,8 @@ _defineProperty(FacetList, "defaultProps", {
     arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     return term;
   },
-  'termIconStyle': 'check'
+  'termIconStyle': 'check',
+  'persistSelectedTerms': true
 });
 
 export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {

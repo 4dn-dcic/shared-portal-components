@@ -251,10 +251,12 @@ Term.propTypes = {
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
   'termTransformFxn': PropTypes.func,
-  'termIconStyle': PropTypes.oneOf(['check', 'radio'])
+  'termIconStyle': PropTypes.oneOf(['check', 'radio']),
+  'persistSelectedTerms': PropTypes.bool.isRequired
 };
 Term.defaultProps = {
-  'termIconStyle': 'check'
+  'termIconStyle': 'check',
+  'persistSelectedTerms': true
 };
 /**
  * @param {*} facetTerms : facet's terms array
@@ -368,6 +370,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           filteringFieldTerm = _this$props5.filteringFieldTerm,
           setOpenPopover = _this$props5.setOpenPopover,
           termIconStyle = _this$props5.termIconStyle,
+          persistSelectedTerms = _this$props5.persistSelectedTerms,
           context = _this$props5.context,
           schemas = _this$props5.schemas;
       var _facet$description = facet.description,
@@ -456,6 +459,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         persistentCount: persistentCount,
         basicSearchAutoDisplayLimit: basicSearchAutoDisplayLimit,
         termIconStyle: termIconStyle,
+        persistSelectedTerms: persistSelectedTerms,
         filteringFieldTerm: filteringFieldTerm
       }, {
         onSaytTermSearch: this.handleSaytTermSearch,
@@ -486,15 +490,19 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       onBasicTermSearch = props.onBasicTermSearch,
       onSaytTermSearch = props.onSaytTermSearch,
       basicSearchAutoDisplayLimit = props.basicSearchAutoDisplayLimit,
-      termIconStyle = props.termIconStyle;
+      termIconStyle = props.termIconStyle,
+      _props$persistSelecte = props.persistSelectedTerms,
+      persistSelectedTerms = _props$persistSelecte === void 0 ? true : _props$persistSelecte;
   var _facet$search_type = facet.search_type,
       searchType = _facet$search_type === void 0 ? 'none' : _facet$search_type;
   /**
    * even if search type is not defined, display basic search option when terms count
-   * is greater than basicSearchAutoDisplayLimit
+   * is greater than basicSearchAutoDisplayLimit (for persistSelectedTerms is true)
    */
 
-  if (searchType === 'none' && terms.length >= basicSearchAutoDisplayLimit) {
+  if (!persistSelectedTerms) {
+    searchType = 'none'; //override
+  } else if (searchType === 'none' && terms.length >= basicSearchAutoDisplayLimit) {
     searchType = 'basic';
   }
   /** Create term components and sort by status (selected->omitted->unselected) */
@@ -502,7 +510,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
 
   var _useMemo = useMemo(function () {
     var field = facet.field;
-    var segments = segmentComponentsByStatus(terms.map(function (term) {
+    var allTermComponents = terms.map(function (term) {
       var _ref6 = filteringFieldTerm || {},
           currFilteringField = _ref6.field,
           currFilteringTerm = _ref6.term;
@@ -519,7 +527,8 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         key: term.key,
         status: getTermStatus(term, facet)
       }));
-    }));
+    });
+    var segments = segmentComponentsByStatus(allTermComponents);
     var _segments$selected = segments.selected,
         selectedTermComponents = _segments$selected === void 0 ? [] : _segments$selected,
         _segments$omitted = segments.omitted,
@@ -540,6 +549,17 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     var omittedLen = omittedTermComponents.length;
     var unselectedLen = unselectedTermComponents.length;
     var totalLen = selectedLen + omittedLen + unselectedLen;
+
+    if (!persistSelectedTerms) {
+      return {
+        termComponents: allTermComponents,
+        selectedLen: selectedLen,
+        omittedLen: omittedLen,
+        unselectedLen: unselectedLen,
+        totalLen: totalLen
+      };
+    }
+
     var termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
     var activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
     var retObj = {
@@ -570,7 +590,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       return m + (termComponent.props.term.doc_count || 0);
     }, 0);
     return retObj;
-  }, [facet, terms, persistentCount, searchText, filteringFieldTerm]),
+  }, [facet, terms, persistentCount, searchText, filteringFieldTerm, persistSelectedTerms]),
       termComponents = _useMemo.termComponents,
       activeTermComponents = _useMemo.activeTermComponents,
       unselectedTermComponents = _useMemo.unselectedTermComponents,
@@ -593,76 +613,86 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     "data-open": facetOpen,
     "className": "facet-list",
     "key": "facetlist"
-  }; // show simple text input for basic search (search within returned values)
-  // or show SAYT control if item search is available
+  };
 
-  var facetSearch = null;
-
-  if (searchType === 'basic') {
-    facetSearch = /*#__PURE__*/React.createElement("div", {
-      className: "text-small p-2"
-    }, /*#__PURE__*/React.createElement("input", {
-      className: "form-control",
-      autoComplete: "off",
-      type: "search",
-      placeholder: "Search",
-      name: "q",
-      onChange: onBasicTermSearch,
-      key: "facet-search-input"
-    }));
-  } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
-    var _ref7$sayt_item_type = (facet || {}).sayt_item_type,
-        itemType = _ref7$sayt_item_type === void 0 ? '' : _ref7$sayt_item_type;
-    itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
-    var baseHref = "/search/?type=" + itemType;
-    facetSearch = /*#__PURE__*/React.createElement("div", {
-      className: "d-flex flex-wrap text-small p-2"
-    }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
-      baseHref: baseHref,
-      showTips: true,
-      onChange: onSaytTermSearch,
-      key: itemType
-    }));
-  }
-
-  if (Array.isArray(collapsibleTerms)) {
-    var expandButtonTitle;
-
-    if (expanded) {
-      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-minus fas"
-      }), " Collapse");
-    } else {
-      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-plus fas"
-      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/React.createElement("span", {
-        className: "pull-right"
-      }, collapsibleTermsItemCount));
-    }
-
+  if (!persistSelectedTerms) {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
-      persistent: activeTermComponents,
-      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, facetSearch, /*#__PURE__*/React.createElement(PartialList, {
-        className: "mb-0",
-        open: expanded,
-        persistent: persistentTerms,
-        collapsible: collapsibleTerms
-      }), /*#__PURE__*/React.createElement("div", {
-        className: "pt-08 pb-0"
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "view-more-button",
-        onClick: onToggleExpanded
-      }, expandButtonTitle)))
+      persistent: [],
+      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, termComponents)
     }));
   } else {
-    return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
-      className: "mb-0 active-terms-pl",
-      open: facetOpen,
-      persistent: activeTermComponents,
-      collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, facetSearch, unselectedTermComponents)
-    }));
+    // show simple text input for basic search (search within returned values)
+    // or show SAYT control if item search is available
+    var facetSearch = null;
+
+    if (searchType === 'basic') {
+      facetSearch = /*#__PURE__*/React.createElement("div", {
+        className: "text-small p-2"
+      }, /*#__PURE__*/React.createElement("input", {
+        className: "form-control",
+        autoComplete: "off",
+        type: "search",
+        placeholder: "Search",
+        name: "q",
+        onChange: onBasicTermSearch,
+        key: "facet-search-input"
+      }));
+    } else if (searchType === 'sayt' || searchType === 'sayt_without_terms') {
+      var _ref7$sayt_item_type = (facet || {}).sayt_item_type,
+          itemType = _ref7$sayt_item_type === void 0 ? '' : _ref7$sayt_item_type;
+      itemType = typeof itemType === 'string' && itemType.length > 0 ? itemType : 'Item';
+      var baseHref = "/search/?type=" + itemType;
+      facetSearch = /*#__PURE__*/React.createElement("div", {
+        className: "d-flex flex-wrap text-small p-2"
+      }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, {
+        baseHref: baseHref,
+        showTips: true,
+        onChange: onSaytTermSearch,
+        key: itemType
+      }));
+    }
+
+    if (Array.isArray(collapsibleTerms)) {
+      var expandButtonTitle;
+
+      if (expanded) {
+        expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
+          className: "icon icon-fw icon-minus fas"
+        }), " Collapse");
+      } else {
+        expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
+          className: "icon icon-fw icon-plus fas"
+        }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/React.createElement("span", {
+          className: "pull-right"
+        }, collapsibleTermsItemCount));
+      }
+
+      return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
+        className: "mb-0 active-terms-pl",
+        open: facetOpen,
+        persistent: activeTermComponents,
+        collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, facetSearch, /*#__PURE__*/React.createElement(PartialList, {
+          className: "mb-0",
+          open: expanded,
+          persistent: persistentTerms,
+          collapsible: collapsibleTerms
+        }), /*#__PURE__*/React.createElement("div", {
+          className: "pt-08 pb-0"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "view-more-button",
+          onClick: onToggleExpanded
+        }, expandButtonTitle)))
+      }));
+    } else {
+      return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
+        className: "mb-0 active-terms-pl",
+        open: facetOpen,
+        persistent: activeTermComponents,
+        collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, facetSearch, unselectedTermComponents)
+      }));
+    }
   }
 });
 export var CountIndicator = /*#__PURE__*/React.memo(function (props) {

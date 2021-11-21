@@ -140,7 +140,8 @@ export class FacetList extends React.PureComponent {
         'onFilterMultiple': PropTypes.func, // Same as onFilter, but processes multiple filter changes in one go
         'separateSingleTermFacets' : PropTypes.bool,
         'maxBodyHeight' : PropTypes.number,
-        'termIconStyle': PropTypes.oneOf(['check','radio'])
+        'termIconStyle': PropTypes.oneOf(['check','radio']), // Show either checkbox or radio icon for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
+        'persistSelectedTerms': PropTypes.bool.isRequired // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
     };
 
     static defaultProps = {
@@ -184,7 +185,8 @@ export class FacetList extends React.PureComponent {
         'termTransformFxn' : function(field, term, allowJSXOutput = false, addDescriptionTipForLinkTos = true){
             return term;
         },
-        'termIconStyle': 'check'
+        'termIconStyle': 'check',
+        'persistSelectedTerms': true
     };
 
     /** Remove any duplicates, merge in filters without selections as terms */
@@ -636,7 +638,7 @@ export class FacetList extends React.PureComponent {
             separateSingleTermFacets = false,
             context,
             href, schemas, itemTypeForSchemas, termTransformFxn, persistentCount,
-            termIconStyle
+            termIconStyle, persistSelectedTerms
         } = this.props;
         const { filters } = context;
         const { openFacets, openPopover, filteringFieldTerm } = this.state;
@@ -644,7 +646,7 @@ export class FacetList extends React.PureComponent {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
             openPopover,
             filteringFieldTerm,
-            termIconStyle,
+            termIconStyle, persistSelectedTerms,
             onFilter:       this.onFilterExtended,
             onFilterMultiple: this.onFilterMultipleExtended,
             getTermStatus:  this.getTermStatus,
