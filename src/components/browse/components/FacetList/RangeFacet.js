@@ -465,11 +465,11 @@ export class RangeFacet extends React.PureComponent {
 
         return (
             <div className={"facet range-facet" + (facetOpen ? ' open' : ' closed')} data-field={facet.field}>
-                <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
+                <button type="button" className="btn facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
                         <i className={"icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")}/>
                     </span>
-                    <div className="col px-0 line-height-1">
+                    <div className="col px-0 text-left">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-place="right">{ title }</span>
                         <ExtendedDescriptionPopoverIcon {...{ fieldSchema, facet, openPopover, setOpenPopover }} />
                     </div>
@@ -481,7 +481,7 @@ export class RangeFacet extends React.PureComponent {
                                 : <i className="icon icon-fw icon-greater-than-equal fas" /> }
                         </span>
                     </Fade>
-                </h5>
+                </button>
                 <div className="facet-list" data-open={facetOpen} data-any-active={(savedFromVal || savedToVal) ? true : false}>
                     <PartialList className="inner-panel" open={facetOpen}
                         persistent={[

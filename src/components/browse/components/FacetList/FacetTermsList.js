@@ -276,16 +276,16 @@ export class FacetTermsList extends React.PureComponent {
         // List of terms
         return (
             <div className={"facet" + (facetOpen || allTermsSelected ? ' open' : ' closed')} data-field={facet.field}>
-                <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
+                <button type="button" className="btn facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
                         <i className={"icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")}/>
                     </span>
-                    <div className="col px-0 line-height-1">
+                    <div className="col px-0 text-left">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-html data-place="right">{ title }</span>
                         <ExtendedDescriptionPopoverIcon {...{ fieldSchema, facet, openPopover, setOpenPopover }} />
                     </div>
                     { indicator }
-                </h5>
+                </button>
                 <ListOfTerms
                     {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold, filteringFieldTerm }}
                     onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />

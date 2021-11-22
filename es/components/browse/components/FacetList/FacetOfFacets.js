@@ -92,15 +92,16 @@ export var FacetOfFacets = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/React.createElement("div", {
         className: "facet" + (facetOpen || anySelections ? ' open' : ' closed'),
         "data-group": title
-      }, /*#__PURE__*/React.createElement("h5", {
-        className: "facet-title",
+      }, /*#__PURE__*/React.createElement("button", {
+        type: "button",
+        className: "btn facet-title",
         onClick: this.handleOpenToggleClick
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (anySelections ? "dot-circle far" : facetOpen ? "minus fas" : "plus fas")
       })), /*#__PURE__*/React.createElement("div", {
-        className: "col px-0 line-height-1"
+        className: "col px-0 text-left"
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": tooltip,
         "data-place": "right"

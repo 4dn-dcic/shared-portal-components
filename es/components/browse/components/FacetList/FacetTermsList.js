@@ -420,15 +420,16 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       return /*#__PURE__*/React.createElement("div", {
         className: "facet" + (facetOpen || allTermsSelected ? ' open' : ' closed'),
         "data-field": facet.field
-      }, /*#__PURE__*/React.createElement("h5", {
-        className: "facet-title",
+      }, /*#__PURE__*/React.createElement("button", {
+        type: "button",
+        className: "btn facet-title",
         onClick: this.handleOpenToggleClick
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
       })), /*#__PURE__*/React.createElement("div", {
-        className: "col px-0 line-height-1"
+        className: "col px-0 text-left"
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-html": true,
