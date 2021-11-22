@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
@@ -495,9 +495,9 @@ class ColumnSorterIcon extends React.PureComponent {
             tooltip = "" + sort_fields.length + " sort options";
         }
         return (
-            <span className={cls} onClick={this.onIconClick} data-tip={tooltip} data-html>
+            <button type="button" className={cls} onClick={this.onIconClick} data-tip={tooltip} data-html>
                 <ColumnSorterIconElement {...{ showingSortOptionsMenu, hasMultipleSortOptions, isLoading, sequence }} descend={!sortMap || descend} />
-            </span>
+            </button>
         );
     }
 }
@@ -565,17 +565,28 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({
             " d-flex align-items-center justify-content-between" +
             (isActive ? " active" : "")
         );
-        const onClick = sortByField.bind(sortByField, field);
+        const onClick = function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            sortByField(field);
+        };
         return (
-            <div className={cls} key={field} onClick={onClick}>
+            <a href="#" className={cls} key={field} onClick={onClick}>
                 { title || field }
                 { !isActive ? null : <i className={`small icon fas ml-12 icon-arrow-${descend ? "down" : "up"}`}/> }
-            </div>
+            </a>
         );
     });
 
+    const menuRef = useRef(null);
+
+    useEffect(function(){
+        const firstLinkElement = menuRef.current.querySelector("a");
+        firstLinkElement && firstLinkElement.focus();
+    }, []); // Empty array 2nd arg == performed only on mount.
+
     return (
-        <div className="dropdown-menu show" style={style}>
+        <div className="dropdown-menu show" style={style} ref={menuRef}>
             { header }
             { options }
         </div>
@@ -585,7 +596,7 @@ const SortOptionsMenu = React.memo(function SortOptionsMenu({
 const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ descend, showingSortOptionsMenu, isLoading = false, sequence : propSequence }){
 
     if (isLoading) {
-        return <i className="icon icon-fw icon-circle-notch icon-spin fas"/>;
+        return <i className="icon icon-fw icon-circle-notch icon-spin fas" />;
     }
     if (showingSortOptionsMenu) {
         return <i className="icon icon-fw icon-times fas"/>;
@@ -599,14 +610,14 @@ const ColumnSorterIconElement = React.memo(function ColumnSorterIconElement({ de
     if (descend){
         return (
             <React.Fragment>
-                <i className="sort-icon icon icon-fw icon-sort-down fas align-top" />
-                {sequence}
+                <i className="sort-icon icon icon-fw icon-sort-down fas align-text-top" />
+                { sequence }
             </React.Fragment>);
     } else {
         return (
             <React.Fragment>
-                <i className="sort-icon icon icon-fw icon-sort-up fas align-bottom" />
-                {sequence}
+                <i className="sort-icon icon icon-fw icon-sort-up fas align-text-bottom" />
+                { sequence }
             </React.Fragment>);
     }
 });

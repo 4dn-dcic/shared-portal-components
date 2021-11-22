@@ -40,7 +40,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-import React, { memo, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
@@ -714,7 +714,8 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
         tooltip = "" + sort_fields.length + " sort options";
       }
 
-      return /*#__PURE__*/React.createElement("span", {
+      return /*#__PURE__*/React.createElement("button", {
+        type: "button",
         className: cls,
         onClick: this.onIconClick,
         "data-tip": tooltip,
@@ -828,18 +829,29 @@ var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref15) {
     // TODO grab title from schemas if not provided.
     var isActive = currentSortColumn === field;
     var cls = "dropdown-item" + " clickable no-highlight no-user-select" + " d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
-    var onClick = sortByField.bind(sortByField, field);
-    return /*#__PURE__*/React.createElement("div", {
+    return /*#__PURE__*/React.createElement("a", {
+      href: "#",
       className: cls,
       key: field,
-      onClick: onClick
+      onClick: function onClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        sortByField(field);
+      }
     }, title || field, !isActive ? null : /*#__PURE__*/React.createElement("i", {
       className: "small icon fas ml-12 icon-arrow-".concat(descend ? "down" : "up")
     }));
   });
+  var menuRef = useRef(null);
+  useEffect(function () {
+    var firstLinkElement = menuRef.current.querySelector("a");
+    firstLinkElement && firstLinkElement.focus();
+  }, []); // Empty array 2nd arg == performed only on mount.
+
   return /*#__PURE__*/React.createElement("div", {
     className: "dropdown-menu show",
-    style: style
+    style: style,
+    ref: menuRef
   }, header, options);
 });
 var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref17) {
@@ -869,11 +881,11 @@ var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref17) {
 
   if (descend) {
     return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
-      className: "sort-icon icon icon-fw icon-sort-down fas align-top"
+      className: "sort-icon icon icon-fw icon-sort-down fas align-text-top"
     }), sequence);
   } else {
     return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
-      className: "sort-icon icon icon-fw icon-sort-up fas align-bottom"
+      className: "sort-icon icon icon-fw icon-sort-up fas align-text-bottom"
     }), sequence);
   }
 });
