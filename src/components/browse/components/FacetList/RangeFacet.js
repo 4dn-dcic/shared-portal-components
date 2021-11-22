@@ -14,7 +14,7 @@ import { PartialList } from './../../../ui/PartialList';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { segmentComponentsByStatus } from './FacetTermsList';
+import { segmentComponentsByStatus, ViewMoreExpandButton } from './FacetTermsList';
 
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 
@@ -620,31 +620,13 @@ const ListOfRanges = React.memo(function ListOfRanges(props){
     };
 
     if (Array.isArray(collapsibleTerms) && collapsibleTerms.length > 0){
-
-        let expandButtonTitle;
-
-        if (expanded){
-            expandButtonTitle = (
-                <span>
-                    <i className="icon icon-fw icon-minus fas"/> Collapse
-                </span>
-            );
-        } else {
-            expandButtonTitle = (
-                <span>
-                    <i className="icon icon-fw icon-plus fas"/> View { collapsibleTermsCount } More
-                    <span className="pull-right">{ collapsibleTermsItemCount }</span>
-                </span>
-            );
-        }
-
         return (
             <div {...commonProps}>
                 <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
                     <React.Fragment>
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
                         <div className="pt-08 pb-0">
-                            <div className="view-more-button" onClick={onToggleExpanded}>{ expandButtonTitle }</div>
+                            <ViewMoreExpandButton {...{ expanded, collapsibleTermsCount, collapsibleTermsItemCount }} onToggle={onToggleExpanded} />
                         </div>
                     </React.Fragment>
                 } />

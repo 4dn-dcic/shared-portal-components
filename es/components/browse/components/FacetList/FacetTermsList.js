@@ -618,20 +618,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   }
 
   if (Array.isArray(collapsibleTerms)) {
-    var expandButtonTitle;
-
-    if (expanded) {
-      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-minus fas"
-      }), " Collapse");
-    } else {
-      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-plus fas"
-      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/React.createElement("span", {
-        className: "pull-right"
-      }, collapsibleTermsItemCount));
-    }
-
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
@@ -643,10 +629,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         collapsible: collapsibleTerms
       }), /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "view-more-button",
-        onClick: onToggleExpanded
-      }, expandButtonTitle)))
+      }, /*#__PURE__*/React.createElement(ViewMoreExpandButton, {
+        expanded: expanded,
+        collapsibleTermsCount: collapsibleTermsCount,
+        collapsibleTermsItemCount: collapsibleTermsItemCount,
+        onToggle: onToggleExpanded
+      })))
     }));
   } else {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
@@ -657,6 +645,36 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     }));
   }
 });
+export function ViewMoreExpandButton(props) {
+  var _props$expanded = props.expanded,
+      expanded = _props$expanded === void 0 ? false : _props$expanded,
+      onToggle = props.onToggle,
+      collapsibleTermsCount = props.collapsibleTermsCount,
+      collapsibleTermsItemCount = props.collapsibleTermsItemCount;
+  var expandButtonTitle;
+
+  if (expanded) {
+    expandButtonTitle = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-fw icon-minus fas mr-06"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "flex-grow-1 text-left"
+    }, "Collapse"));
+  } else {
+    expandButtonTitle = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-fw icon-plus fas mr-06"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "flex-grow-1 text-left"
+    }, "View ", collapsibleTermsCount, " More"), /*#__PURE__*/React.createElement("span", {
+      className: "pull-right"
+    }, collapsibleTermsItemCount));
+  }
+
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn view-more-button d-flex align-items-center",
+    onClick: onToggle
+  }, expandButtonTitle);
+}
 export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
   var _props$count = props.count,
       count = _props$count === void 0 ? 1 : _props$count,

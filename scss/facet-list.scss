@@ -616,6 +616,10 @@ $facetlist-term-block-height: default !default;
                 padding: 2px 6px 1px;
                 line-height: 20px;
                 border-radius: 2px;
+                background: transparent;
+                width: 100%;
+                font-weight: 400;
+
                 &:hover {
                     border-color: #000;
                 }
@@ -623,7 +627,7 @@ $facetlist-term-block-height: default !default;
                 i.icon {
                     font-size: 0.8rem;
                     position: relative;
-                    left: -2px;
+                    line-height: inherit;
                 }
             }
 

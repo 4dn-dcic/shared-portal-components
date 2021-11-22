@@ -22,29 +22,31 @@ export const RightButtonsSection = React.memo(function RightButtonsSection(props
 
 
 export const ConfigureVisibleColumnsButton = React.memo(function ConfigureVisibleColumnsButton({ open, onClick, className }){
+    const cls = (className ? " " + className : "") + (open ? " active" : "");
     return (
         <button type="button" key="toggle-visible-columns" data-tip="Configure visible columns" data-event-off="click"
-            active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
+            active={!!open} onClick={onClick} className={cls}>
             <i className="icon icon-fw icon-table fas" />
             <i className="icon icon-fw icon-angle-down ml-03 fas"/>
         </button>
     );
 });
 ConfigureVisibleColumnsButton.defaultProps = {
-    "className" : "btn btn-outline-primary"
+    "className" : "btn btn-outline-primary fixed-height"
 };
 
 export const MultiColumnSortButton = React.memo(function MultiColumnSortButton({ open, onClick, className }){
+    const cls = (className ? " " + className : "") + (open ? " active" : "");
     return (
         <button type="button" key="toggle-visible-columns" data-tip="Sort multiple columns" data-event-off="click"
-            active={open.toString()} onClick={onClick} className={(className || "") + (open ? " active" : "")}>
+            active={!!open} onClick={onClick} className={cls}>
             <i className="icon icon-fw icon-sort fas" />
             <i className="icon icon-fw icon-angle-down ml-03 fas"/>
         </button>
     );
 });
 MultiColumnSortButton.defaultProps = {
-    "className" : "btn btn-outline-primary"
+    "className" : "btn btn-outline-primary fixed-height"
 };
 
 /** Toggles between regular & full screen views */

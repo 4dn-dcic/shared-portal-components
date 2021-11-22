@@ -737,12 +737,12 @@ export const FacetListHeader = React.memo(function FacetListHeader(props){
             <div className="col-auto">
                 <div className="btn-group btn-group-sm properties-controls" role="group" aria-label="Properties Controls">
                     { anyFacetsOpen ?
-                        <button type="button" className="btn btn-outline-light" onClick={onCollapseFacets} data-tip="Collapse all facets below">
+                        <button type="button" className="btn btn-outline-light fixed-height" onClick={onCollapseFacets} data-tip="Collapse all facets below">
                             <i className="icon icon-fw icon-minus fas"/>
                         </button>
                         : null }
                     { showClearFiltersButton && typeof onClearFilters === "function" ?
-                        <button type="button" className="btn btn-outline-light" onClick={onClearFilters} data-tip="Clear all filters">
+                        <button type="button" className="btn btn-outline-light fixed-height" onClick={onClearFilters} data-tip="Clear all filters">
                             <i className="icon icon-fw icon-times fas"/>
                         </button>
                         : null }

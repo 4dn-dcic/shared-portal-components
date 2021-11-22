@@ -981,14 +981,14 @@ export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {
     "aria-label": "Properties Controls"
   }, anyFacetsOpen ? /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-outline-light",
+    className: "btn btn-outline-light fixed-height",
     onClick: onCollapseFacets,
     "data-tip": "Collapse all facets below"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-minus fas"
   })) : null, showClearFiltersButton && typeof onClearFilters === "function" ? /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-outline-light",
+    className: "btn btn-outline-light fixed-height",
     onClick: onClearFilters,
     "data-tip": "Clear all filters"
   }, /*#__PURE__*/React.createElement("i", {
