@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import url from 'url';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
-import _, { all } from 'underscore';
+import _ from 'underscore';
 import { navigate } from './../../util/navigate';
 import { flattenColumnsDefinitionsSortFields } from './table-commons';
 
@@ -229,7 +229,7 @@ export class MultiColumnSortSelector extends React.PureComponent {
         const commonProps = {
             allSortFields, allSortFieldsMap,
             size, variant,
-            "rowCount": all.length,
+            "rowCount": sortingPairs.length,
             "handleSortColumnSelection": this.handleSortColumnSelection,
             "handleSortOrderSelection": this.handleSortOrderSelection,
             "handleSortRowDelete": this.handleSortRowDelete,

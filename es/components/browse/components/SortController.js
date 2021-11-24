@@ -56,7 +56,7 @@ import PropTypes from 'prop-types';
 import url from 'url';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
-import _, { all } from 'underscore';
+import _ from 'underscore';
 import { navigate as _navigate } from './../../util/navigate';
 import { flattenColumnsDefinitionsSortFields } from './table-commons';
 export var SortController = /*#__PURE__*/function (_React$PureComponent) {
@@ -336,7 +336,7 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
         allSortFieldsMap: allSortFieldsMap,
         size: size,
         variant: variant,
-        "rowCount": all.length,
+        "rowCount": sortingPairs.length,
         "handleSortColumnSelection": this.handleSortColumnSelection,
         "handleSortOrderSelection": this.handleSortOrderSelection,
         "handleSortRowDelete": this.handleSortRowDelete,
