@@ -21,9 +21,8 @@ export class AboveTableControlsBase extends React.PureComponent {
     // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
     static getCustomColumnSelectorPanelMapDefinition(props){
         const {
-            context : { sort = {} } = {},
             hiddenColumns, addHiddenColumn, removeHiddenColumn, columnDefinitions,
-            navigate, sortBy
+            navigate, sortBy, sortColumns
         } = props;
         return {
             "customColumns" : {
@@ -42,7 +41,7 @@ export class AboveTableControlsBase extends React.PureComponent {
                         <span className="title-contents">Sort Multiple Columns</span>
                     </React.Fragment>
                 ),
-                "body" : <MultiColumnSortSelector {...{ navigate, columnDefinitions, sortBy }} sortColumns={sort} />
+                "body" : <MultiColumnSortSelector {...{ navigate, columnDefinitions, sortBy, sortColumns }} />
             }
         };
     }

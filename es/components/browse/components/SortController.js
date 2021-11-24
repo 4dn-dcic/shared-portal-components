@@ -11,13 +11,21 @@ function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArra
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
@@ -58,7 +66,7 @@ import queryString from 'querystring';
 import memoize from 'memoize-one';
 import _ from 'underscore';
 import { navigate as _navigate } from './../../util/navigate';
-import { flattenColumnsDefinitionsSortFields } from './table-commons';
+import { flattenColumnsDefinitionsSortFields, HeadersRow } from './table-commons';
 export var SortController = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SortController, _React$PureComponent);
 
@@ -212,14 +220,16 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
     _this3.handleSortRowDelete = _this3.handleSortRowDelete.bind(_assertThisInitialized(_this3));
     _this3.handleSettingsApply = _this3.handleSettingsApply.bind(_assertThisInitialized(_this3));
     _this3.memoized = {
-      getSortColumnAndOrderPairs: memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs),
       flattenColumnsDefinitionsSortFields: memoize(flattenColumnsDefinitionsSortFields)
     };
     var _props$sortColumns = props.sortColumns,
-        sortColumns = _props$sortColumns === void 0 ? {} : _props$sortColumns;
+        sortColumns = _props$sortColumns === void 0 ? [] : _props$sortColumns;
     _this3.state = {
       /** @type {{ column: string, direction: "asc"|"desc" }[]} */
-      'sortingPairs': _this3.memoized.getSortColumnAndOrderPairs(sortColumns, true)
+      'sortingPairs': [].concat(_toConsumableArray(sortColumns), [{
+        'column': null,
+        'direction': 'asc'
+      }])
     };
     return _this3;
   }
@@ -228,19 +238,17 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
     key: "componentDidUpdate",
     value: function componentDidUpdate(pastProps) {
       var _pastProps$sortColumn = pastProps.sortColumns,
-          pastSortColumns = _pastProps$sortColumn === void 0 ? {} : _pastProps$sortColumn;
+          pastSortColumns = _pastProps$sortColumn === void 0 ? [] : _pastProps$sortColumn;
       var _this$props$sortColum = this.props.sortColumns,
-          sortColumns = _this$props$sortColum === void 0 ? {} : _this$props$sortColum;
+          sortColumns = _this$props$sortColum === void 0 ? [] : _this$props$sortColum;
 
       if (sortColumns !== pastSortColumns) {
-        var sortingPairs = this.state.sortingPairs;
-        var updatedPairs = this.memoized.getSortColumnAndOrderPairs(sortColumns, true);
-
-        if (!_.isEqual(sortingPairs, updatedPairs)) {
-          this.setState({
-            'sortingPairs': updatedPairs
-          });
-        }
+        this.setState({
+          'sortingPairs': [].concat(_toConsumableArray(sortColumns), [{
+            'column': null,
+            'direction': 'asc'
+          }])
+        });
       }
     }
   }, {
@@ -359,7 +367,6 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
      * @returns {[ string, "desc" | "asc"][]} Array of [field_name, direction ("asc"/"desc")] tuples
      */
     function getSortColumnAndOrderPairs(sortColumns) {
-      var appendDefault = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var colNames = Object.keys(sortColumns).filter(function (sortKey) {
         return sortKey !== 'label' && sortKey !== '_score';
       });
@@ -370,14 +377,6 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
           'direction': sortColumns[colName].order || "desc"
         };
       });
-
-      if (appendDefault) {
-        columns.push({
-          'column': null,
-          'direction': 'asc'
-        });
-      }
-
       return columns;
     }
   }]);
@@ -386,7 +385,7 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
 }(React.PureComponent);
 MultiColumnSortSelector.propTypes = {
   'columnDefinitions': PropTypes.arrayOf(PropTypes.object).isRequired,
-  'sortColumns': PropTypes.object,
+  'sortColumns': PropTypes.object.isRequired,
   'onClose': PropTypes.func.isRequired,
   'sortBy': PropTypes.func.isRequired,
   'size': PropTypes.string,
@@ -407,7 +406,24 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
       variant = _props$variant === void 0 ? "outline-secondary" : _props$variant,
       _props$size = props.size,
       size = _props$size === void 0 ? "sm" : _props$size;
-  var titleColumn = column && (allSortFieldsMap[column] || column.endsWith('.display_title') && allSortFieldsMap[column.substring(0, column.length - 14)]);
+  var title = null;
+
+  if (column === null) {
+    title = "Select a column to sort";
+  } else {
+    var useCol = HeadersRow.getTrimmedColumn(column);
+    var foundSortDefinition = allSortFieldsMap[useCol];
+
+    if (foundSortDefinition) {
+      // eslint-disable-next-line prefer-destructuring
+      title = foundSortDefinition.title;
+    } else {
+      title = /*#__PURE__*/React.createElement("span", {
+        className: "text-monospace small"
+      }, useCol);
+    }
+  }
+
   var sortOrderTitle = direction !== 'desc' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
     className: "d-lg-none"
   }, "ASC"), /*#__PURE__*/React.createElement("span", {
@@ -423,14 +439,13 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
     handleSortRowDelete(index);
   }, [index, handleSortRowDelete]);
   return /*#__PURE__*/React.createElement("div", {
-    className: "row mt-1 multi-column-sort",
-    key: column
+    className: "row mt-1 multi-column-sort"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-8"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
-    title: titleColumn ? titleColumn.title : "Select a column to sort",
-    variant: (variant ? variant + " " : "") + "btn-block text-left",
+    title: title,
     size: size,
+    variant: (variant ? variant + " " : "") + "btn-block text-left",
     onSelect: handleSortColumnSelection
   }, allSortFields.map(function (col, idx) {
     var field = col.field,

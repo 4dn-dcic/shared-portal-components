@@ -83,7 +83,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     _this.memoized = {
       alignedWidths: memoize(HeadersRow.alignedWidths),
       getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
-      getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
+      getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
+      flattenColumnsDefinitionsSortFields: memoize(flattenColumnsDefinitionsSortFields),
+      getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
     };
     return _this;
   }
@@ -133,7 +135,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           pastDirection = _ref4$$direction === void 0 ? null : _ref4$$direction;
 
       if (loadingField !== null && (sortColumn !== pastSortColumn || direction !== pastDirection)) {
-        if (sortColumn === loadingField || HeadersRow.getTrimmedColumn(sortColumn) === loadingField) {
+        if (sortColumn === loadingField || this.memoized.getTrimmedColumn(sortColumn) === loadingField) {
           nextState.loadingField = null;
         }
       } // Unset dropdown menu if start scrolling horizontally
@@ -197,7 +199,20 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           direction = _ref6$$direction === void 0 ? "desc" : _ref6$$direction;
       var trimmedColumn = HeadersRow.getTrimmedColumn(column);
       var isActive = column === field || trimmedColumn && trimmedColumn === field;
-      var initialSort = HeadersRow.getInitialSort(columnDefinitions, field);
+      var initialSort = null;
+
+      if (columnDefinitions) {
+        var _this$memoized$flatte = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions),
+            allSortFields = _this$memoized$flatte.allSortFields,
+            allSortFieldsMap = _this$memoized$flatte.allSortFieldsMap;
+
+        var def = (allSortFieldsMap || {})[field];
+
+        if (def) {
+          initialSort = def.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(def.type) || null;
+        }
+      }
+
       var sortDirection;
 
       if (!isActive && initialSort) {
@@ -240,9 +255,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     key: "onAdjusterDrag",
     value: function onAdjusterDrag(columnDefinition, evt, r) {
       var field = columnDefinition.field;
-      this.setState(function (_ref7, _ref8) {
-        var widths = _ref7.widths;
-        var defaultMinColumnWidth = _ref8.defaultMinColumnWidth;
+      this.setState(function (_ref8, _ref9) {
+        var widths = _ref8.widths;
+        var defaultMinColumnWidth = _ref9.defaultMinColumnWidth;
         return {
           'widths': _objectSpread(_objectSpread({}, widths), {}, _defineProperty({}, field, Math.max(columnDefinition.minColumnWidth || defaultMinColumnWidth || 55, r.x)))
         };
@@ -348,17 +363,17 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
     key: "getSortColumnMap",
     value: function getSortColumnMap(columnDefinitions, sortColumns) {
       var retObj = {};
-      columnDefinitions.forEach(function (_ref9) {
-        var field = _ref9.field,
-            _ref9$sort_fields = _ref9.sort_fields,
-            sort_fields = _ref9$sort_fields === void 0 ? [] : _ref9$sort_fields;
+      columnDefinitions.forEach(function (_ref10) {
+        var field = _ref10.field,
+            _ref10$sort_fields = _ref10.sort_fields,
+            sort_fields = _ref10$sort_fields === void 0 ? [] : _ref10$sort_fields;
 
         if (sort_fields.length < 2) {
           var useField = sort_fields[0] && sort_fields[0].field || field;
           var total = sortColumns.length;
-          sortColumns.forEach(function (_ref10, index) {
-            var column = _ref10.column,
-                direction = _ref10.direction;
+          sortColumns.forEach(function (_ref11, index) {
+            var column = _ref11.column,
+                direction = _ref11.direction;
             var trimmedColumn = HeadersRow.getTrimmedColumn(column);
 
             if (useField === column || trimmedColumn && useField === trimmedColumn) {
@@ -371,12 +386,12 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           });
         } else {
           /** @todo optimize the loops */
-          sortColumns.forEach(function (_ref11, index) {
-            var column = _ref11.column,
-                direction = _ref11.direction;
+          sortColumns.forEach(function (_ref12, index) {
+            var column = _ref12.column,
+                direction = _ref12.direction;
             var total = sortColumns.length;
-            sort_fields.forEach(function (_ref12) {
-              var sField = _ref12.field;
+            sort_fields.forEach(function (_ref13) {
+              var sField = _ref13.field;
 
               if (column === sField) {
                 retObj[field] = _objectSpread({}, {
@@ -424,6 +439,15 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
      * linkTo fields are appended by .display_title by backend so we trim it to find a match
      */
 
+  }, {
+    key: "getTrimmedColumn",
+    value: function getTrimmedColumn(column) {
+      if (!column || typeof column !== 'string' || column.length <= 14 || !column.endsWith('.display_title')) {
+        return column;
+      }
+
+      return column.substring(0, column.length - 14);
+    }
   }, {
     key: "getSortDirectionBySchemaFieldType",
     value: function getSortDirectionBySchemaFieldType(fieldType) {
@@ -473,32 +497,6 @@ _defineProperty(HeadersRow, "defaultProps", {
   'defaultMinColumnWidth': 55,
   'tableContainerScrollLeft': 0
 });
-
-_defineProperty(HeadersRow, "getTrimmedColumn", memoize(function (column) {
-  if (!column || typeof column !== 'string' || column.length <= 14 || !column.endsWith('.display_title')) {
-    return column;
-  }
-
-  return column.substring(0, column.length - 14);
-}));
-
-_defineProperty(HeadersRow, "getInitialSort", memoize(function (columnDefinitions, field) {
-  if (columnDefinitions) {
-    var _HeadersRow$flattenCo = HeadersRow.flattenColumnsDefinitionsSortFields(columnDefinitions),
-        allSortFields = _HeadersRow$flattenCo.allSortFields,
-        allSortFieldsMap = _HeadersRow$flattenCo.allSortFieldsMap;
-
-    var def = allSortFieldsMap && allSortFieldsMap[field];
-
-    if (def) {
-      return def.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(def.type);
-    }
-  }
-
-  return null;
-}));
-
-_defineProperty(HeadersRow, "flattenColumnsDefinitionsSortFields", memoize(flattenColumnsDefinitionsSortFields));
 
 var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
   _inherits(HeadersRowColumn, _React$PureComponent2);
@@ -690,13 +688,13 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
 
       var hasMultipleSortOptions = sort_fields.length >= 2;
 
-      var _ref13 = sortMap || {},
-          _ref13$direction = _ref13.direction,
-          sortDirection = _ref13$direction === void 0 ? 'asc' : _ref13$direction,
-          _ref13$index = _ref13.index,
-          sortIndex = _ref13$index === void 0 ? 0 : _ref13$index,
-          _ref13$total = _ref13.total,
-          sortTotal = _ref13$total === void 0 ? 1 : _ref13$total;
+      var _ref14 = sortMap || {},
+          _ref14$direction = _ref14.direction,
+          sortDirection = _ref14$direction === void 0 ? 'asc' : _ref14$direction,
+          _ref14$index = _ref14.index,
+          sortIndex = _ref14$index === void 0 ? 0 : _ref14$index,
+          _ref14$total = _ref14.total,
+          sortTotal = _ref14$total === void 0 ? 1 : _ref14$total;
 
       var sequence = sortMap && sortTotal > 1 ? sortIndex + 1 : null;
       var cls = (sortMap ? 'active ' : '') + (hasMultipleSortOptions ? 'multiple-sort-options ' : '') + 'column-sort-icon';
@@ -705,8 +703,8 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
       if (showingSortOptionsMenu) {
         tooltip = "Close sort options";
       } else if (hasMultipleSortOptions && sortMap) {
-        var found = sort_fields.find(function (_ref14) {
-          var field = _ref14.field;
+        var found = sort_fields.find(function (_ref15) {
+          var field = _ref15.field;
           return field === sortMap.field;
         });
         tooltip = found ? "Sorted by <span class=\"text-600\">".concat(found.title || found.field, "</span>") : null;
@@ -809,22 +807,22 @@ function SortOptionsMenuContainer(props) {
   }));
 }
 
-var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref15) {
-  var _ref15$header = _ref15.header,
-      header = _ref15$header === void 0 ? /*#__PURE__*/React.createElement("h5", {
+var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref16) {
+  var _ref16$header = _ref16.header,
+      header = _ref16$header === void 0 ? /*#__PURE__*/React.createElement("h5", {
     className: "dropdown-header mt-0 px-3 pt-03 text-600"
-  }, "Sort by") : _ref15$header,
-      currentSortColumn = _ref15.currentSortColumn,
-      sort_fields = _ref15.sort_fields,
-      sortByField = _ref15.sortByField,
-      _ref15$descend = _ref15.descend,
-      descend = _ref15$descend === void 0 ? false : _ref15$descend,
-      _ref15$style = _ref15.style,
-      style = _ref15$style === void 0 ? null : _ref15$style;
-  var options = sort_fields.map(function (_ref16) {
-    var field = _ref16.field,
-        _ref16$title = _ref16.title,
-        title = _ref16$title === void 0 ? null : _ref16$title;
+  }, "Sort by") : _ref16$header,
+      currentSortColumn = _ref16.currentSortColumn,
+      sort_fields = _ref16.sort_fields,
+      sortByField = _ref16.sortByField,
+      _ref16$descend = _ref16.descend,
+      descend = _ref16$descend === void 0 ? false : _ref16$descend,
+      _ref16$style = _ref16.style,
+      style = _ref16$style === void 0 ? null : _ref16$style;
+  var options = sort_fields.map(function (_ref17) {
+    var field = _ref17.field,
+        _ref17$title = _ref17.title,
+        title = _ref17$title === void 0 ? null : _ref17$title;
     // TODO grab title from schemas if not provided.
     var isActive = currentSortColumn === field;
     var cls = "dropdown-item" + " clickable no-highlight no-user-select" + " d-flex align-items-center justify-content-between" + (isActive ? " active" : "");
@@ -842,12 +840,12 @@ var SortOptionsMenu = /*#__PURE__*/React.memo(function (_ref15) {
     style: style
   }, header, options);
 });
-var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref17) {
-  var descend = _ref17.descend,
-      showingSortOptionsMenu = _ref17.showingSortOptionsMenu,
-      _ref17$isLoading = _ref17.isLoading,
-      isLoading = _ref17$isLoading === void 0 ? false : _ref17$isLoading,
-      propSequence = _ref17.sequence;
+var ColumnSorterIconElement = /*#__PURE__*/React.memo(function (_ref18) {
+  var descend = _ref18.descend,
+      showingSortOptionsMenu = _ref18.showingSortOptionsMenu,
+      _ref18$isLoading = _ref18.isLoading,
+      isLoading = _ref18$isLoading === void 0 ? false : _ref18$isLoading,
+      propSequence = _ref18.sequence;
 
   if (isLoading) {
     return /*#__PURE__*/React.createElement("i", {
@@ -890,11 +888,11 @@ export function flattenColumnsDefinitionsSortFields(columnDefinitions) {
     var hasSubFields = sort_fields && Array.isArray(sort_fields) && sort_fields.length > 0;
 
     if (hasSubFields) {
-      sort_fields.forEach(function (_ref18, idx) {
-        var subFieldTitle = _ref18.title,
-            subField = _ref18.field,
-            subInitialSort = _ref18.initial_sort,
-            subType = _ref18.type;
+      sort_fields.forEach(function (_ref19, idx) {
+        var subFieldTitle = _ref19.title,
+            subField = _ref19.field,
+            subInitialSort = _ref19.initial_sort,
+            subType = _ref19.type;
         m.push({
           'title': /*#__PURE__*/React.createElement(React.Fragment, null, title, " \xA0/\xA0 ", subFieldTitle),
           'field': subField,
