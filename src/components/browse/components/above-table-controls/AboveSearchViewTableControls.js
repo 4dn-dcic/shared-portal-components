@@ -40,7 +40,7 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
 
     return (
         // TODO refactor out panelMap stuff.
-        <AboveTableControlsBase {...{ isFullscreen, windowWidth,toggleFullScreen, sortBy }}
+        <AboveTableControlsBase {...{ isFullscreen, windowWidth, toggleFullScreen, sortBy }}
             panelMap={AboveTableControlsBase.getCustomColumnSelectorPanelMapDefinition(props)}>
             <LeftSectionControls {...{ total, addButton, topLeftChildren }} />
         </AboveTableControlsBase>
@@ -50,7 +50,7 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
 function LeftSectionControls({ total, addButton, topLeftChildren, panelToggleFxns, onClosePanel, currentOpenPanel }) {
     if (!total && !addButton && !topLeftChildren) return null;
     return (
-        <div className="col box results-count d-flex align-items-end">
+        <div className="col box results-count flex-grow-1 d-flex align-items-end">
             { total }{ topLeftChildren || addButton }
         </div>
     );

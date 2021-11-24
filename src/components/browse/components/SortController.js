@@ -1,13 +1,13 @@
 'use strict';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import PropTypes from 'prop-types';
 import url from 'url';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
-import _ from 'underscore';
+import _, { all } from 'underscore';
 import { navigate } from './../../util/navigate';
 import { flattenColumnsDefinitionsSortFields } from './table-commons';
 
@@ -217,7 +217,7 @@ export class MultiColumnSortSelector extends React.PureComponent {
     }
 
     render(){
-        const { columnDefinitions } = this.props;
+        const { columnDefinitions, size, variant } = this.props;
         const { sortingPairs } = this.state;
 
         // columnDefinitions are passed as empty arrays when table displays "No Results", so we hide dropdowns
@@ -226,16 +226,20 @@ export class MultiColumnSortSelector extends React.PureComponent {
         }
 
         const { allSortFields, allSortFieldsMap } = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions);
+        const commonProps = {
+            allSortFields, allSortFieldsMap,
+            size, variant,
+            "rowCount": all.length,
+            "handleSortColumnSelection": this.handleSortColumnSelection,
+            "handleSortOrderSelection": this.handleSortOrderSelection,
+            "handleSortRowDelete": this.handleSortRowDelete,
+            "handleSettingsApply": this.handleSettingsApply,
+        };
         return (
-            <div className="row mb-1 clearfix">
-                { sortingPairs.map((pair, index, all) =>
-                    <MultiColumnSortOption {...pair} {...{ index, allSortFields, allSortFieldsMap }} key={index}
-                        rowCount={all.length}
-                        handleSortColumnSelection={this.handleSortColumnSelection}
-                        handleSortOrderSelection={this.handleSortOrderSelection}
-                        handleSortRowDelete={this.handleSortRowDelete}
-                        handleSettingsApply={this.handleSettingsApply} />
-                ) }
+            <div className="mb-1">
+                { sortingPairs.map(function(pair, index){
+                    return <MultiColumnSortOption {...commonProps} {...pair} index={index} key={index} />;
+                }) }
             </div>
         );
     }
@@ -245,22 +249,39 @@ MultiColumnSortSelector.propTypes = {
     'columnDefinitions'     : PropTypes.arrayOf(PropTypes.object).isRequired,
     'sortColumns'           : PropTypes.object,
     'onClose'               : PropTypes.func.isRequired,
-    'sortBy'                : PropTypes.func.isRequired
+    'sortBy'                : PropTypes.func.isRequired,
+    'size'                  : PropTypes.string,
+    'variant'               : PropTypes.string
 };
 
 const MultiColumnSortOption = React.memo(function MultiColumnSortOption(props){
-    const { allSortFields, allSortFieldsMap, rowCount, column, direction, index, handleSortColumnSelection, handleSortOrderSelection, handleSortRowDelete, handleSettingsApply } = props;
+    const {
+        allSortFields, allSortFieldsMap, rowCount,
+        column, direction, index,
+        handleSortColumnSelection, handleSortOrderSelection,
+        handleSortRowDelete, handleSettingsApply,
+        variant = "outline-secondary",
+        size = "sm"
+    } = props;
     const titleColumn = column && (allSortFieldsMap[column] || (column.endsWith('.display_title') && allSortFieldsMap[column.substring(0, column.length - 14)] ));
     const isLastRow = (rowCount - 1 === index);
+
     const sortOrderTitle = direction !== 'desc' ?
         (<React.Fragment><span className="d-lg-none">ASC</span><span className="d-none d-lg-inline">Ascending</span></React.Fragment>) :
         (<React.Fragment><span className="d-lg-none">DESC</span><span className="d-none d-lg-inline">Descending</span></React.Fragment>);
 
+    const onRemoveClick = useCallback(function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        handleSortRowDelete(index);
+    }, [ index, handleSortRowDelete ]);
+
     return (
-        <div className="row col-12 mt-1 multi-column-sort clearfix" key={column} data-tip={""} data-html>
+        <div className="row mt-1 multi-column-sort" key={column}>
             <div className="col-8">
-                <DropdownButton title={titleColumn ? titleColumn.title : "Select a column to sort"} variant="outline-secondary btn-block text-left"
-                    size="sm" onSelect={handleSortColumnSelection}>
+                <DropdownButton title={titleColumn ? titleColumn.title : "Select a column to sort"}
+                    variant={(variant ? variant + " " : "") + "btn-block text-left"}
+                    size={size} onSelect={handleSortColumnSelection}>
                     {
                         allSortFields.map(function (col, idx) {
                             const { field, title, hasSubFields, noSort } = col;
@@ -275,19 +296,20 @@ const MultiColumnSortOption = React.memo(function MultiColumnSortOption(props){
                     }
                 </DropdownButton>
             </div>
-            <div className="col-3">
-                <DropdownButton title={sortOrderTitle} variant="outline-secondary btn-block text-left" size="sm" onSelect={handleSortOrderSelection}>
+            <div className="col-3 pl-0">
+                <DropdownButton title={sortOrderTitle} variant={(variant ? variant + " " : "") + "btn-block text-left"}
+                    size={size} onSelect={handleSortOrderSelection}>
                     <DropdownItem key="sort-direction-asc" eventKey={index + "|asc"}>Ascending</DropdownItem>
                     <DropdownItem key="sort-direction-desc" eventKey={index + "|desc"}>Descending</DropdownItem>
                 </DropdownButton>
             </div>
-            <div className="col-1 pl-0 pr-0">
+            <div className="col-1 pl-0">
                 {!isLastRow ?
-                    <button type="button" className="btn btn-outline-secondary btn-sm w-100" onClick={() => handleSortRowDelete(index)} data-tip="Remove sort column">
-                        <i className={"icon icon-fw fas icon-minus w-100"} />
+                    <button type="button" className={`btn btn-${variant} btn-${size} btn-block`} onClick={onRemoveClick} data-tip="Remove sort column">
+                        <i className="icon icon-fw fas icon-minus w-100" />
                     </button> :
-                    <button type="button" className="btn btn-primary btn-sm w-100" onClick={handleSettingsApply} data-tip="Re-sort columns">
-                        <i className={"icon icon-fw fas icon-check w-100"} />
+                    <button type="button" className={`btn btn-primary btn-${size} btn-block`} onClick={handleSettingsApply} data-tip="Re-sort columns">
+                        <i className="icon icon-fw fas icon-check w-100" />
                     </button>}
             </div>
         </div>
