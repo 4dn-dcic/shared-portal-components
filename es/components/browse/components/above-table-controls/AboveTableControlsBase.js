@@ -147,8 +147,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
 
       var _ref2 = panelDefinition || {},
           panelTitle = _ref2.title,
-          panelBody = _ref2.body,
-          panelCls = _ref2.className;
+          panelBody = _ref2.body;
 
       return /*#__PURE__*/React.createElement("div", {
         className: "above-results-table-row"
@@ -162,7 +161,6 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
         "in": !!open,
         appear: true
       }, /*#__PURE__*/React.createElement(AboveTablePanelWrapper, {
-        className: panelCls,
         onClose: this.handleClose,
         title: panelTitle
       }, panelBody)) : null);
@@ -193,8 +191,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
             addHiddenColumn: addHiddenColumn,
             removeHiddenColumn: removeHiddenColumn,
             columnDefinitions: columnDefinitions
-          }),
-          "className": "visible-columns-selector-panel"
+          })
         },
         "multiColumnSort": {
           "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
@@ -207,8 +204,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
             columnDefinitions: columnDefinitions,
             sortBy: sortBy,
             sortColumns: sort
-          }),
-          "className": "visible-columns-selector-panel"
+          })
         }
       };
     }

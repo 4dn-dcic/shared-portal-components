@@ -33,8 +33,7 @@ export class AboveTableControlsBase extends React.PureComponent {
                         <span className="title-contents">Configure Visible Columns</span>
                     </React.Fragment>
                 ),
-                "body" : <CustomColumnSelector {...{ hiddenColumns, addHiddenColumn, removeHiddenColumn, columnDefinitions }} />,
-                "className" : "visible-columns-selector-panel"
+                "body" : <CustomColumnSelector {...{ hiddenColumns, addHiddenColumn, removeHiddenColumn, columnDefinitions }} />
             },
             "multiColumnSort" : {
                 "title" : (
@@ -43,8 +42,7 @@ export class AboveTableControlsBase extends React.PureComponent {
                         <span className="title-contents">Sort Multiple Columns</span>
                     </React.Fragment>
                 ),
-                "body" : <MultiColumnSortSelector {...{ navigate, columnDefinitions, sortBy }} sortColumns={sort} />,
-                "className" : "visible-columns-selector-panel"
+                "body" : <MultiColumnSortSelector {...{ navigate, columnDefinitions, sortBy }} sortColumns={sort} />
             }
         };
     }
@@ -133,7 +131,7 @@ export class AboveTableControlsBase extends React.PureComponent {
         });
 
         const panelDefinition = panelMap[open] || panelMap[reallyOpen] || null;
-        const { title: panelTitle, body: panelBody, className: panelCls } = panelDefinition || {};
+        const { title: panelTitle, body: panelBody } = panelDefinition || {};
 
         return (
             <div className="above-results-table-row">
@@ -144,7 +142,7 @@ export class AboveTableControlsBase extends React.PureComponent {
                 </div>
                 { panelDefinition ?
                     <Collapse in={!!(open)} appear>
-                        <AboveTablePanelWrapper className={panelCls} onClose={this.handleClose} title={panelTitle}>
+                        <AboveTablePanelWrapper onClose={this.handleClose} title={panelTitle}>
                             { panelBody }
                         </AboveTablePanelWrapper>
                     </Collapse>

@@ -49,14 +49,14 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import PropTypes from 'prop-types';
 import url from 'url';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
-import _ from 'underscore';
+import _, { all } from 'underscore';
 import { navigate as _navigate } from './../../util/navigate';
 import { flattenColumnsDefinitionsSortFields } from './table-commons';
 export var SortController = /*#__PURE__*/function (_React$PureComponent) {
@@ -317,9 +317,10 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
   }, {
     key: "render",
     value: function render() {
-      var _this4 = this;
-
-      var columnDefinitions = this.props.columnDefinitions;
+      var _this$props4 = this.props,
+          columnDefinitions = _this$props4.columnDefinitions,
+          size = _this$props4.size,
+          variant = _this$props4.variant;
       var sortingPairs = this.state.sortingPairs; // columnDefinitions are passed as empty arrays when table displays "No Results", so we hide dropdowns
 
       if (!Array.isArray(columnDefinitions) || !columnDefinitions.length) {
@@ -330,19 +331,23 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
           allSortFields = _this$memoized$flatte.allSortFields,
           allSortFieldsMap = _this$memoized$flatte.allSortFieldsMap;
 
+      var commonProps = {
+        allSortFields: allSortFields,
+        allSortFieldsMap: allSortFieldsMap,
+        size: size,
+        variant: variant,
+        "rowCount": all.length,
+        "handleSortColumnSelection": this.handleSortColumnSelection,
+        "handleSortOrderSelection": this.handleSortOrderSelection,
+        "handleSortRowDelete": this.handleSortRowDelete,
+        "handleSettingsApply": this.handleSettingsApply
+      };
       return /*#__PURE__*/React.createElement("div", {
-        className: "row mb-1 clearfix"
-      }, sortingPairs.map(function (pair, index, all) {
-        return /*#__PURE__*/React.createElement(MultiColumnSortOption, _extends({}, pair, {
+        className: "mb-1"
+      }, sortingPairs.map(function (pair, index) {
+        return /*#__PURE__*/React.createElement(MultiColumnSortOption, _extends({}, commonProps, pair, {
           index: index,
-          allSortFields: allSortFields,
-          allSortFieldsMap: allSortFieldsMap,
-          key: index,
-          rowCount: all.length,
-          handleSortColumnSelection: _this4.handleSortColumnSelection,
-          handleSortOrderSelection: _this4.handleSortOrderSelection,
-          handleSortRowDelete: _this4.handleSortRowDelete,
-          handleSettingsApply: _this4.handleSettingsApply
+          key: index
         }));
       }));
     }
@@ -383,7 +388,9 @@ MultiColumnSortSelector.propTypes = {
   'columnDefinitions': PropTypes.arrayOf(PropTypes.object).isRequired,
   'sortColumns': PropTypes.object,
   'onClose': PropTypes.func.isRequired,
-  'sortBy': PropTypes.func.isRequired
+  'sortBy': PropTypes.func.isRequired,
+  'size': PropTypes.string,
+  'variant': PropTypes.string
 };
 var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
   var allSortFields = props.allSortFields,
@@ -395,7 +402,11 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
       handleSortColumnSelection = props.handleSortColumnSelection,
       handleSortOrderSelection = props.handleSortOrderSelection,
       handleSortRowDelete = props.handleSortRowDelete,
-      handleSettingsApply = props.handleSettingsApply;
+      handleSettingsApply = props.handleSettingsApply,
+      _props$variant = props.variant,
+      variant = _props$variant === void 0 ? "outline-secondary" : _props$variant,
+      _props$size = props.size,
+      size = _props$size === void 0 ? "sm" : _props$size;
   var titleColumn = column && (allSortFieldsMap[column] || column.endsWith('.display_title') && allSortFieldsMap[column.substring(0, column.length - 14)]);
   var sortOrderTitle = direction !== 'desc' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
     className: "d-lg-none"
@@ -406,17 +417,20 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
   }, "DESC"), /*#__PURE__*/React.createElement("span", {
     className: "d-none d-lg-inline"
   }, "Descending"));
+  var onRemoveClick = useCallback(function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    handleSortRowDelete(index);
+  }, [index, handleSortRowDelete]);
   return /*#__PURE__*/React.createElement("div", {
-    className: "row col-12 mt-1 multi-column-sort clearfix",
-    key: column,
-    "data-tip": "",
-    "data-html": true
+    className: "row mt-1 multi-column-sort",
+    key: column
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-8"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
     title: titleColumn ? titleColumn.title : "Select a column to sort",
-    variant: "outline-secondary btn-block text-left",
-    size: "sm",
+    variant: (variant ? variant + " " : "") + "btn-block text-left",
+    size: size,
     onSelect: handleSortColumnSelection
   }, allSortFields.map(function (col, idx) {
     var field = col.field,
@@ -430,11 +444,11 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
       disabled: !!noSort
     }, title) : null;
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "col-3"
+    className: "col-3 pl-0"
   }, /*#__PURE__*/React.createElement(DropdownButton, {
     title: sortOrderTitle,
-    variant: "outline-secondary btn-block text-left",
-    size: "sm",
+    variant: (variant ? variant + " " : "") + "btn-block text-left",
+    size: size,
     onSelect: handleSortOrderSelection
   }, /*#__PURE__*/React.createElement(DropdownItem, {
     key: "sort-direction-asc",
@@ -443,19 +457,17 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
     key: "sort-direction-desc",
     eventKey: index + "|desc"
   }, "Descending"))), /*#__PURE__*/React.createElement("div", {
-    className: "col-1 pl-0 pr-0"
+    className: "col-1 pl-0"
   }, !(rowCount - 1 === index) ? /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-outline-secondary btn-sm w-100",
-    onClick: function onClick() {
-      return handleSortRowDelete(index);
-    },
+    className: "btn btn-".concat(variant, " btn-").concat(size, " btn-block"),
+    onClick: onRemoveClick,
     "data-tip": "Remove sort column"
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw fas icon-minus w-100"
   })) : /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn btn-primary btn-sm w-100",
+    className: "btn btn-primary btn-".concat(size, " btn-block"),
     onClick: handleSettingsApply,
     "data-tip": "Re-sort columns"
   }, /*#__PURE__*/React.createElement("i", {
