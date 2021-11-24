@@ -160,7 +160,8 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
           termTransformFxn = _this$props2.termTransformFxn;
       var field = columnDefinition.field,
           _columnDefinition$ren = columnDefinition.render,
-          renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren;
+          renderFxn = _columnDefinition$ren === void 0 ? null : _columnDefinition$ren,
+          colDefTooltip = columnDefinition.tooltip;
       var value = renderFxn ? renderFxn(result, _.omit(this.props, 'result')) : this.memoized.transformIfNeeded(result, field, termTransformFxn); // Simple fallback transformation to unique arrays
       // Wrap `value` in a span (provides ellipsis, etc) if is primitive (not custom render fxn output)
       // Could prly make this less verbose later.. we _do_ want to wrap primitive values output from custom render fxn.
@@ -172,7 +173,7 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
           className: "value"
         }, value);
       } else if (typeof value === 'string') {
-        if (propTooltip === true && value.length > 25) tooltip = value;
+        if ((propTooltip === true || colDefTooltip === true) && value.length > 25) tooltip = value;
         value = /*#__PURE__*/React.createElement("span", {
           className: "value text-center"
         }, value);
