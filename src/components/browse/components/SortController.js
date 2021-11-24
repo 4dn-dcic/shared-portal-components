@@ -7,9 +7,9 @@ import PropTypes from 'prop-types';
 import url from 'url';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
-import _, { all } from 'underscore';
+import _ from 'underscore';
 import { navigate } from './../../util/navigate';
-import { flattenColumnsDefinitionsSortFields } from './table-commons';
+import { flattenColumnsDefinitionsSortFields, HeadersRow } from './table-commons';
 
 
 export class SortController extends React.PureComponent {
@@ -125,17 +125,12 @@ export class MultiColumnSortSelector extends React.PureComponent {
      * @param {Object.<string, { order: string }>} sortColumns The "sort" property of search response or `context`, keyed by field.
      * @returns {[ string, "desc" | "asc"][]} Array of [field_name, direction ("asc"/"desc")] tuples
      */
-    static getSortColumnAndOrderPairs(sortColumns, appendDefault = false) {
+    static getSortColumnAndOrderPairs(sortColumns) {
         const colNames = Object.keys(sortColumns).filter(function(sortKey){ return (sortKey !== 'label') && (sortKey !== '_score'); });
         const columns = colNames.map(function(colName){
             // N.B.: "order" is returned from context / search response; we rename it to "direction" here
             return { 'column': colName, 'direction': sortColumns[colName].order || "desc" };
         });
-
-        if (appendDefault) {
-            columns.push({ 'column': null, 'direction': 'asc' });
-        }
-
         return columns;
     }
 
@@ -147,28 +142,23 @@ export class MultiColumnSortSelector extends React.PureComponent {
         this.handleSortRowDelete = this.handleSortRowDelete.bind(this);
         this.handleSettingsApply = this.handleSettingsApply.bind(this);
         this.memoized = {
-            getSortColumnAndOrderPairs : memoize(MultiColumnSortSelector.getSortColumnAndOrderPairs),
             flattenColumnsDefinitionsSortFields : memoize(flattenColumnsDefinitionsSortFields)
         };
 
-        const { sortColumns = {} } = props;
+        const { sortColumns = [] } = props;
 
         this.state = {
             /** @type {{ column: string, direction: "asc"|"desc" }[]} */
-            'sortingPairs': this.memoized.getSortColumnAndOrderPairs(sortColumns, true)
+            'sortingPairs': [ ...sortColumns, { 'column': null, 'direction': 'asc' } ]
         };
     }
 
     componentDidUpdate(pastProps, pastState) {
-        const { sortColumns : pastSortColumns = {} } = pastProps;
-        const { sortColumns = {} } = this.props;
+        const { sortColumns: pastSortColumns = [] } = pastProps;
+        const { sortColumns = [] } = this.props;
 
         if (sortColumns !== pastSortColumns) {
-            const { sortingPairs } = this.state;
-            const updatedPairs = this.memoized.getSortColumnAndOrderPairs(sortColumns, true);
-            if (!_.isEqual(sortingPairs, updatedPairs)) {
-                this.setState({ 'sortingPairs': updatedPairs });
-            }
+            this.setState({ 'sortingPairs': [ ...sortColumns, { 'column': null, 'direction': 'asc' } ] });
         }
     }
 
@@ -229,7 +219,7 @@ export class MultiColumnSortSelector extends React.PureComponent {
         const commonProps = {
             allSortFields, allSortFieldsMap,
             size, variant,
-            "rowCount": all.length,
+            "rowCount": sortingPairs.length,
             "handleSortColumnSelection": this.handleSortColumnSelection,
             "handleSortOrderSelection": this.handleSortOrderSelection,
             "handleSortRowDelete": this.handleSortRowDelete,
@@ -247,7 +237,7 @@ export class MultiColumnSortSelector extends React.PureComponent {
 }
 MultiColumnSortSelector.propTypes = {
     'columnDefinitions'     : PropTypes.arrayOf(PropTypes.object).isRequired,
-    'sortColumns'           : PropTypes.object,
+    'sortColumns'           : PropTypes.object.isRequired,
     'onClose'               : PropTypes.func.isRequired,
     'sortBy'                : PropTypes.func.isRequired,
     'size'                  : PropTypes.string,
@@ -263,7 +253,22 @@ const MultiColumnSortOption = React.memo(function MultiColumnSortOption(props){
         variant = "outline-secondary",
         size = "sm"
     } = props;
-    const titleColumn = column && (allSortFieldsMap[column] || (column.endsWith('.display_title') && allSortFieldsMap[column.substring(0, column.length - 14)] ));
+
+    let title = null;
+
+    if (column === null) {
+        title = "Select a column to sort";
+    } else {
+        const useCol = HeadersRow.getTrimmedColumn(column);
+        const foundSortDefinition = allSortFieldsMap[useCol];
+        if (foundSortDefinition) {
+            // eslint-disable-next-line prefer-destructuring
+            title = foundSortDefinition.title;
+        } else {
+            title = <span className="text-monospace small">{ useCol }</span>;
+        }
+    }
+
     const isLastRow = (rowCount - 1 === index);
 
     const sortOrderTitle = direction !== 'desc' ?
@@ -277,11 +282,10 @@ const MultiColumnSortOption = React.memo(function MultiColumnSortOption(props){
     }, [ index, handleSortRowDelete ]);
 
     return (
-        <div className="row mt-1 multi-column-sort" key={column}>
+        <div className="row mt-1 multi-column-sort">
             <div className="col-8">
-                <DropdownButton title={titleColumn ? titleColumn.title : "Select a column to sort"}
-                    variant={(variant ? variant + " " : "") + "btn-block text-left"}
-                    size={size} onSelect={handleSortColumnSelection}>
+                <DropdownButton {...{ title, size }} variant={(variant ? variant + " " : "") + "btn-block text-left"}
+                    onSelect={handleSortColumnSelection}>
                     {
                         allSortFields.map(function (col, idx) {
                             const { field, title, hasSubFields, noSort } = col;

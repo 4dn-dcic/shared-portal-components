@@ -169,16 +169,13 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
     key: "getCustomColumnSelectorPanelMapDefinition",
     value: // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
     function getCustomColumnSelectorPanelMapDefinition(props) {
-      var _props$context = props.context;
-      _props$context = _props$context === void 0 ? {} : _props$context;
-      var _props$context$sort = _props$context.sort,
-          sort = _props$context$sort === void 0 ? {} : _props$context$sort,
-          hiddenColumns = props.hiddenColumns,
+      var hiddenColumns = props.hiddenColumns,
           addHiddenColumn = props.addHiddenColumn,
           removeHiddenColumn = props.removeHiddenColumn,
           columnDefinitions = props.columnDefinitions,
           navigate = props.navigate,
-          sortBy = props.sortBy;
+          sortBy = props.sortBy,
+          sortColumns = props.sortColumns;
       return {
         "customColumns": {
           "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
@@ -203,7 +200,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
             navigate: navigate,
             columnDefinitions: columnDefinitions,
             sortBy: sortBy,
-            sortColumns: sort
+            sortColumns: sortColumns
           })
         }
       };
