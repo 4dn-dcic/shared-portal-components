@@ -589,53 +589,6 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
 
   var _super = _createSuper(CopyWrapper);
 
-  _createClass(CopyWrapper, null, [{
-    key: "copyToClipboard",
-    value: function copyToClipboard(value) {
-      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var failCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var textArea = document.createElement('textarea');
-      textArea.style.top = '-100px';
-      textArea.style.left = '-100px';
-      textArea.style.position = 'absolute';
-      textArea.style.width = '5px';
-      textArea.style.height = '5px';
-      textArea.style.padding = 0;
-      textArea.style.border = 'none';
-      textArea.style.outline = 'none';
-      textArea.style.boxShadow = 'none'; // Avoid flash of white box if rendered for any reason.
-
-      textArea.style.background = 'transparent';
-      textArea.value = value;
-      document.body.appendChild(textArea);
-      textArea.select();
-
-      try {
-        var successful = document.execCommand('copy');
-        var msg = successful ? 'successful' : 'unsuccessful';
-        console.log('Copying text command was ' + msg);
-        setTimeout(function () {
-          // Cleanup
-          textArea.remove();
-        }, 50);
-
-        if (typeof successCallback === 'function') {
-          return successCallback(value);
-        }
-
-        return true;
-      } catch (err) {
-        console.error('Oops, unable to copy', err);
-
-        if (typeof failCallback === 'function') {
-          return failCallback(value);
-        }
-
-        return false;
-      }
-    }
-  }]);
-
   function CopyWrapper(props) {
     var _this;
 
@@ -750,6 +703,51 @@ export var CopyWrapper = /*#__PURE__*/function (_React$PureComponent) {
       }, _.omit.apply(_, [this.props, 'children', 'style', 'value', 'onCopy', 'mounted'].concat(_toConsumableArray(_.keys(CopyWrapper.defaultProps)))));
 
       return /*#__PURE__*/React.createElement(wrapperElement, wrapperProps, elemsToWrap);
+    }
+  }], [{
+    key: "copyToClipboard",
+    value: function copyToClipboard(value) {
+      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var failCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var textArea = document.createElement('textarea');
+      textArea.style.top = '-100px';
+      textArea.style.left = '-100px';
+      textArea.style.position = 'absolute';
+      textArea.style.width = '5px';
+      textArea.style.height = '5px';
+      textArea.style.padding = 0;
+      textArea.style.border = 'none';
+      textArea.style.outline = 'none';
+      textArea.style.boxShadow = 'none'; // Avoid flash of white box if rendered for any reason.
+
+      textArea.style.background = 'transparent';
+      textArea.value = value;
+      document.body.appendChild(textArea);
+      textArea.select();
+
+      try {
+        var successful = document.execCommand('copy');
+        var msg = successful ? 'successful' : 'unsuccessful';
+        console.log('Copying text command was ' + msg);
+        setTimeout(function () {
+          // Cleanup
+          textArea.remove();
+        }, 50);
+
+        if (typeof successCallback === 'function') {
+          return successCallback(value);
+        }
+
+        return true;
+      } catch (err) {
+        console.error('Oops, unable to copy', err);
+
+        if (typeof failCallback === 'function') {
+          return failCallback(value);
+        }
+
+        return false;
+      }
     }
   }]);
 

@@ -2,6 +2,8 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+var _excluded = ["href", "context", "navigate", "currentAction", "searchHref", "renderSearchResultTable", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"];
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
@@ -54,23 +56,6 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(EmbeddedSearchView, _React$PureComponent);
 
   var _super = _createSuper(EmbeddedSearchView);
-
-  _createClass(EmbeddedSearchView, null, [{
-    key: "listToObj",
-
-    /**
-     * @property {string} searchHref - Base URI to search on.
-     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
-     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
-     * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
-     * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
-     */
-    value: function listToObj(hideFacetStrs) {
-      return _listToObj(hideFacetStrs.concat(hideFacetStrs.map(function (facetStr) {
-        return facetStr + "!";
-      })));
-    }
-  }]);
 
   function EmbeddedSearchView(props) {
     var _this;
@@ -149,7 +134,7 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
           propTableColumnClassName = _this$props.tableColumnClassName,
           _this$props$allowPost = _this$props.allowPostRequest,
           allowPostRequest = _this$props$allowPost === void 0 ? false : _this$props$allowPost,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "navigate", "currentAction", "searchHref", "renderSearchResultTable", "columns", "hideColumns", "facets", "aboveTableComponent", "aboveFacetListComponent", "facetListComponent", "columnExtensionMap", "onLoad", "filterFacetFxn", "filterColumnFxn", "windowWidth", "embeddedTableHeader", "embeddedTableFooter", "onClearFiltersVirtual", "isClearFiltersBtnVisible", "facetColumnClassName", "tableColumnClassName", "allowPostRequest"]); // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
+          passProps = _objectWithoutProperties(_this$props, _excluded); // If facets are null (hidden/excluded) and no props.tableColumnClassName set table col to be full width of container instead of the default set by ControlsAndResults.
 
 
       var tableColumnClassName = propTableColumnClassName || (facets === null ? "col-12" : undefined); // Includes pass-through props like `maxHeight`, `hideFacets`, etc.
@@ -165,27 +150,40 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
       var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
       return /*#__PURE__*/React.createElement("div", {
         className: "embedded-search-container"
-      }, /*#__PURE__*/React.createElement(VirtualHrefController, _extends({
+      }, /*#__PURE__*/React.createElement(VirtualHrefController, {
         searchHref: searchHref,
         facets: facets,
         onLoad: onLoad,
         filterFacetFxn: filterFacetFxn,
         onClearFiltersVirtual: onClearFiltersVirtual,
         isClearFiltersBtnVisible: isClearFiltersBtnVisible,
-        allowPostRequest: allowPostRequest
-      }, {
+        allowPostRequest: allowPostRequest,
         key: searchHref || 1
-      }), /*#__PURE__*/React.createElement(ColumnCombiner, {
+      }, /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, /*#__PURE__*/React.createElement(CustomColumnController, _extends({
+      }, /*#__PURE__*/React.createElement(CustomColumnController, {
         windowWidth: windowWidth,
-        filterColumnFxn: filterColumnFxn
-      }, {
+        filterColumnFxn: filterColumnFxn,
         hiddenColumns: hideColumns
-      }), /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, renderSearchResultTable ? /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
+      }, /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, renderSearchResultTable ? /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
       })) : null, embeddedTableFooter)))));
+    }
+  }], [{
+    key: "listToObj",
+    value:
+    /**
+     * @property {string} searchHref - Base URI to search on.
+     * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
+     * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
+     * @property {string[]} hideFacets - If `filterFacetFxn` is falsy, and `facets` are undefined, then will be used to filter facets shown.
+     * @property {string[]} hideColumns - If `filterColumnFxn` is falsy, and `columns` are undefined, then will be used to filter columns shown.
+     */
+    function listToObj(hideFacetStrs) {
+      return _listToObj(hideFacetStrs.concat(hideFacetStrs.map(function (facetStr) {
+        return facetStr + "!";
+      })));
     }
   }]);
 

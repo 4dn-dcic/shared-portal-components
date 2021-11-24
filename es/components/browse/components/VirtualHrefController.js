@@ -2,6 +2,8 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+var _excluded = ["children", "facets", "filterFacetFxn", "columns", "searchHref"];
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -68,43 +70,6 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
   _inherits(VirtualHrefController, _React$PureComponent);
 
   var _super = _createSuper(VirtualHrefController);
-
-  _createClass(VirtualHrefController, null, [{
-    key: "transformedFacets",
-
-    /**
-     * @param {String[]} facets - facets array
-     * @param {function} filterFacetFxn - filtering function
-     */
-    value: function transformedFacets(facets, filterFacetFxn) {
-      if (typeof filterFacetFxn !== "function") {
-        return facets;
-      }
-
-      if (!Array.isArray(facets)) {
-        return []; // ? probably to-do if no facets: add placeholder saying no facets ?
-      }
-
-      return facets.filter(filterFacetFxn);
-    }
-  }, {
-    key: "isClearFiltersBtnVisible",
-    value: function isClearFiltersBtnVisible() {
-      var virtualHref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var originalSearchHref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-      if (virtualHref === null) {
-        // Case if state.virtualCompoundFilterSet is not null.
-        // Is moot since in such case, FacetList will be invisible or at least
-        // non-functioning anyways.
-        return false;
-      }
-
-      var virtualHrefPartsQuery = url.parse(virtualHref || "", true).query || {};
-      var origHrefQuery = url.parse(originalSearchHref || "", true).query || {};
-      return !_.isEqual(origHrefQuery, virtualHrefPartsQuery);
-    }
-  }]);
 
   function VirtualHrefController(props) {
     var _this;
@@ -416,7 +381,7 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
           _this$props3$columns = _this$props3.columns,
           propColumns = _this$props3$columns === void 0 ? null : _this$props3$columns,
           originalSearchHref = _this$props3.searchHref,
-          passProps = _objectWithoutProperties(_this$props3, ["children", "facets", "filterFacetFxn", "columns", "searchHref"]);
+          passProps = _objectWithoutProperties(_this$props3, _excluded);
 
       var _this$state4 = this.state,
           href = _this$state4.virtualHref,
@@ -445,6 +410,41 @@ export var VirtualHrefController = /*#__PURE__*/function (_React$PureComponent) 
         if (! /*#__PURE__*/React.isValidElement(child)) return child;
         return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
+    }
+  }], [{
+    key: "transformedFacets",
+    value:
+    /**
+     * @param {String[]} facets - facets array
+     * @param {function} filterFacetFxn - filtering function
+     */
+    function transformedFacets(facets, filterFacetFxn) {
+      if (typeof filterFacetFxn !== "function") {
+        return facets;
+      }
+
+      if (!Array.isArray(facets)) {
+        return []; // ? probably to-do if no facets: add placeholder saying no facets ?
+      }
+
+      return facets.filter(filterFacetFxn);
+    }
+  }, {
+    key: "isClearFiltersBtnVisible",
+    value: function isClearFiltersBtnVisible() {
+      var virtualHref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var originalSearchHref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      if (virtualHref === null) {
+        // Case if state.virtualCompoundFilterSet is not null.
+        // Is moot since in such case, FacetList will be invisible or at least
+        // non-functioning anyways.
+        return false;
+      }
+
+      var virtualHrefPartsQuery = url.parse(virtualHref || "", true).query || {};
+      var origHrefQuery = url.parse(originalSearchHref || "", true).query || {};
+      return !_.isEqual(origHrefQuery, virtualHrefPartsQuery);
     }
   }]);
 

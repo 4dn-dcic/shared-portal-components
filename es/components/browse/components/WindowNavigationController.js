@@ -2,6 +2,8 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+var _excluded = ["children", "showClearFiltersButton"];
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -55,16 +57,6 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
   _inherits(WindowNavigationController, _React$PureComponent);
 
   var _super = _createSuper(WindowNavigationController);
-
-  _createClass(WindowNavigationController, null, [{
-    key: "isClearFiltersBtnVisible",
-    value: function isClearFiltersBtnVisible(href, context) {
-      var urlPartsQuery = url.parse(href, true).query || {};
-      var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
-      var clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
-      return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
-    }
-  }]);
 
   function WindowNavigationController(props) {
     var _this;
@@ -168,7 +160,7 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
       var _this$props4 = this.props,
           children = _this$props4.children,
           propShowClearFiltersBtn = _this$props4.showClearFiltersButton,
-          passProps = _objectWithoutProperties(_this$props4, ["children", "showClearFiltersButton"]);
+          passProps = _objectWithoutProperties(_this$props4, _excluded);
 
       var href = passProps.href,
           context = passProps.context;
@@ -185,6 +177,14 @@ export var WindowNavigationController = /*#__PURE__*/function (_React$PureCompon
       return React.Children.map(children, function (child) {
         return /*#__PURE__*/React.cloneElement(child, propsToPass);
       });
+    }
+  }], [{
+    key: "isClearFiltersBtnVisible",
+    value: function isClearFiltersBtnVisible(href, context) {
+      var urlPartsQuery = url.parse(href, true).query || {};
+      var clearFiltersURL = typeof context.clear_filters === 'string' && context.clear_filters || null;
+      var clearFiltersURLQuery = clearFiltersURL && url.parse(clearFiltersURL, true).query;
+      return !!(clearFiltersURLQuery && !_.isEqual(clearFiltersURLQuery, urlPartsQuery));
     }
   }]);
 

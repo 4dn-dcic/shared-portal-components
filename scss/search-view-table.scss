@@ -682,9 +682,6 @@ $search-results-above-results-row-bottom-padding: 5px !default;
     margin-top: 7px;
     
     > .row {
-        > div:first-child {
-            flex: 1;
-        }
         > .right-buttons {
             > button:not(:first-child) {
                 margin-left: 7px;

@@ -43,71 +43,6 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
 
   var _super = _createSuper(AboveTableControlsBase);
 
-  _createClass(AboveTableControlsBase, null, [{
-    key: "getCustomColumnSelectorPanelMapDefinition",
-    // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
-    value: function getCustomColumnSelectorPanelMapDefinition(props) {
-      var _props$context = props.context;
-      _props$context = _props$context === void 0 ? {} : _props$context;
-      var _props$context$sort = _props$context.sort,
-          sort = _props$context$sort === void 0 ? {} : _props$context$sort,
-          hiddenColumns = props.hiddenColumns,
-          addHiddenColumn = props.addHiddenColumn,
-          removeHiddenColumn = props.removeHiddenColumn,
-          columnDefinitions = props.columnDefinitions,
-          navigate = props.navigate,
-          sortBy = props.sortBy;
-      return {
-        "customColumns": {
-          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
-            className: "icon icon-fw icon-cog fas"
-          }), /*#__PURE__*/React.createElement("span", {
-            className: "title-contents"
-          }, "Configure Visible Columns")),
-          "body": /*#__PURE__*/React.createElement(CustomColumnSelector, {
-            hiddenColumns: hiddenColumns,
-            addHiddenColumn: addHiddenColumn,
-            removeHiddenColumn: removeHiddenColumn,
-            columnDefinitions: columnDefinitions
-          }),
-          "className": "visible-columns-selector-panel"
-        },
-        "multiColumnSort": {
-          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
-            className: "icon icon-fw icon-cog fas"
-          }), /*#__PURE__*/React.createElement("span", {
-            className: "title-contents"
-          }, "Sort Multiple Columns")),
-          "body": /*#__PURE__*/React.createElement(MultiColumnSortSelector, _extends({
-            navigate: navigate,
-            columnDefinitions: columnDefinitions,
-            sortBy: sortBy
-          }, {
-            sortColumns: sort
-          })),
-          "className": "visible-columns-selector-panel"
-        }
-      };
-    }
-  }, {
-    key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(props, state) {
-      // Close panel if needed (as told by panelMap 'close' bool field)
-      if (state.open && typeof state.open === 'string') {
-        var currPanelDefinition = props.panelMap[state.open];
-
-        if (currPanelDefinition && currPanelDefinition.close) {
-          return {
-            "open": false,
-            "reallyOpen": false
-          };
-        }
-      }
-
-      return null;
-    }
-  }]);
-
   function AboveTableControlsBase(props) {
     var _this;
 
@@ -212,8 +147,7 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
 
       var _ref2 = panelDefinition || {},
           panelTitle = _ref2.title,
-          panelBody = _ref2.body,
-          panelCls = _ref2.className;
+          panelBody = _ref2.body;
 
       return /*#__PURE__*/React.createElement("div", {
         className: "above-results-table-row"
@@ -227,10 +161,69 @@ export var AboveTableControlsBase = /*#__PURE__*/function (_React$PureComponent)
         "in": !!open,
         appear: true
       }, /*#__PURE__*/React.createElement(AboveTablePanelWrapper, {
-        className: panelCls,
         onClose: this.handleClose,
         title: panelTitle
       }, panelBody)) : null);
+    }
+  }], [{
+    key: "getCustomColumnSelectorPanelMapDefinition",
+    value: // TODO: Refactor out this panelMap stuff, leave as just hardcoded col selection maybe.
+    function getCustomColumnSelectorPanelMapDefinition(props) {
+      var _props$context = props.context;
+      _props$context = _props$context === void 0 ? {} : _props$context;
+      var _props$context$sort = _props$context.sort,
+          sort = _props$context$sort === void 0 ? {} : _props$context$sort,
+          hiddenColumns = props.hiddenColumns,
+          addHiddenColumn = props.addHiddenColumn,
+          removeHiddenColumn = props.removeHiddenColumn,
+          columnDefinitions = props.columnDefinitions,
+          navigate = props.navigate,
+          sortBy = props.sortBy;
+      return {
+        "customColumns": {
+          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+            className: "icon icon-fw icon-cog fas"
+          }), /*#__PURE__*/React.createElement("span", {
+            className: "title-contents"
+          }, "Configure Visible Columns")),
+          "body": /*#__PURE__*/React.createElement(CustomColumnSelector, {
+            hiddenColumns: hiddenColumns,
+            addHiddenColumn: addHiddenColumn,
+            removeHiddenColumn: removeHiddenColumn,
+            columnDefinitions: columnDefinitions
+          })
+        },
+        "multiColumnSort": {
+          "title": /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+            className: "icon icon-fw icon-cog fas"
+          }), /*#__PURE__*/React.createElement("span", {
+            className: "title-contents"
+          }, "Sort Multiple Columns")),
+          "body": /*#__PURE__*/React.createElement(MultiColumnSortSelector, {
+            navigate: navigate,
+            columnDefinitions: columnDefinitions,
+            sortBy: sortBy,
+            sortColumns: sort
+          })
+        }
+      };
+    }
+  }, {
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(props, state) {
+      // Close panel if needed (as told by panelMap 'close' bool field)
+      if (state.open && typeof state.open === 'string') {
+        var currPanelDefinition = props.panelMap[state.open];
+
+        if (currPanelDefinition && currPanelDefinition.close) {
+          return {
+            "open": false,
+            "reallyOpen": false
+          };
+        }
+      }
+
+      return null;
     }
   }]);
 
