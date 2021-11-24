@@ -140,7 +140,7 @@ export class FacetList extends React.PureComponent {
         'onFilterMultiple': PropTypes.func, // Same as onFilter, but processes multiple filter changes in one go
         'separateSingleTermFacets' : PropTypes.bool,
         'maxBodyHeight' : PropTypes.number,
-        'termIconStyle': PropTypes.oneOf(['check','radio']), // Show either checkbox or radio icon for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
+        'useRadioIcon': PropTypes.bool.isRequired, // Show either checkbox (False) or radio icon (True) for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
         'persistSelectedTerms': PropTypes.bool.isRequired // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
     };
 
@@ -185,7 +185,7 @@ export class FacetList extends React.PureComponent {
         'termTransformFxn' : function(field, term, allowJSXOutput = false, addDescriptionTipForLinkTos = true){
             return term;
         },
-        'termIconStyle': 'check',
+        'useRadioIcon': false,
         'persistSelectedTerms': true
     };
 
@@ -638,7 +638,7 @@ export class FacetList extends React.PureComponent {
             separateSingleTermFacets = false,
             context,
             href, schemas, itemTypeForSchemas, termTransformFxn, persistentCount,
-            termIconStyle, persistSelectedTerms
+            useRadioIcon, persistSelectedTerms
         } = this.props;
         const { filters } = context;
         const { openFacets, openPopover, filteringFieldTerm } = this.state;
@@ -646,7 +646,7 @@ export class FacetList extends React.PureComponent {
             href, schemas, context, itemTypeForSchemas, termTransformFxn, persistentCount, separateSingleTermFacets,
             openPopover,
             filteringFieldTerm,
-            termIconStyle, persistSelectedTerms,
+            useRadioIcon, persistSelectedTerms,
             onFilter:       this.onFilterExtended,
             onFilterMultiple: this.onFilterMultipleExtended,
             getTermStatus:  this.getTermStatus,

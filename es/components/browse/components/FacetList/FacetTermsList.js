@@ -188,9 +188,9 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
           status = _this$props2.status,
           termTransformFxn = _this$props2.termTransformFxn,
           isFiltering = _this$props2.isFiltering,
-          termIconStyle = _this$props2.termIconStyle;
+          _this$props2$useRadio = _this$props2.useRadioIcon,
+          useRadioIcon = _this$props2$useRadio === void 0 ? false : _this$props2$useRadio;
       var count = term && term.doc_count || 0;
-      var isRadio = termIconStyle === 'radio';
       var title = termTransformFxn(facet.field, term.key) || term.key;
       var icon = null;
 
@@ -200,11 +200,11 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
         });
       } else if (status === 'selected' || status === 'omitted') {
         icon = /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw fas " + (!isRadio ? "icon-check-square" : "icon-dot-circle")
+          className: "icon icon-fw fas " + (!useRadioIcon ? "icon-check-square" : "icon-dot-circle")
         });
       } else {
         icon = /*#__PURE__*/React.createElement("i", {
-          className: "icon icon-fw unselected far " + (!isRadio ? "icon-square" : "icon-circle")
+          className: "icon icon-fw unselected far " + (!useRadioIcon ? "icon-square" : "icon-circle")
         });
       }
 
@@ -253,10 +253,10 @@ Term.propTypes = {
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
   'termTransformFxn': PropTypes.func,
-  'termIconStyle': PropTypes.oneOf(['check', 'radio'])
+  'useRadioIcon': PropTypes.bool.isRequired
 };
 Term.defaultProps = {
-  'termIconStyle': 'check'
+  'useRadioIcon': false
 };
 /**
  * @param {*} facetTerms : facet's terms array
@@ -369,7 +369,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
           openPopover = _this$props5.openPopover,
           filteringFieldTerm = _this$props5.filteringFieldTerm,
           setOpenPopover = _this$props5.setOpenPopover,
-          termIconStyle = _this$props5.termIconStyle,
+          useRadioIcon = _this$props5.useRadioIcon,
           persistSelectedTerms = _this$props5.persistSelectedTerms,
           context = _this$props5.context,
           schemas = _this$props5.schemas;
@@ -458,7 +458,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
         schemas: schemas,
         persistentCount: persistentCount,
         basicSearchAutoDisplayLimit: basicSearchAutoDisplayLimit,
-        termIconStyle: termIconStyle,
+        useRadioIcon: useRadioIcon,
         persistSelectedTerms: persistSelectedTerms,
         filteringFieldTerm: filteringFieldTerm
       }, {
@@ -490,7 +490,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
       onBasicTermSearch = props.onBasicTermSearch,
       onSaytTermSearch = props.onSaytTermSearch,
       basicSearchAutoDisplayLimit = props.basicSearchAutoDisplayLimit,
-      termIconStyle = props.termIconStyle,
+      useRadioIcon = props.useRadioIcon,
       _props$persistSelecte = props.persistSelectedTerms,
       persistSelectedTerms = _props$persistSelecte === void 0 ? true : _props$persistSelecte;
   var _facet$search_type = facet.search_type,
@@ -521,7 +521,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         term: term,
         termTransformFxn: termTransformFxn,
         isFiltering: isFiltering,
-        termIconStyle: termIconStyle
+        useRadioIcon: useRadioIcon
       }, {
         onClick: onTermClick,
         key: term.key,

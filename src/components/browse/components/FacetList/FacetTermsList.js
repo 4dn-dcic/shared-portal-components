@@ -117,20 +117,19 @@ export class Term extends React.PureComponent {
     }
 
     render() {
-        const { term, facet, status, termTransformFxn, isFiltering, termIconStyle } = this.props;
+        const { term, facet, status, termTransformFxn, isFiltering, useRadioIcon = false } = this.props;
         
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
-        const isRadio = termIconStyle === 'radio'; 
         let title = termTransformFxn(facet.field, term.key) || term.key;
         let icon = null;
 
         if (isFiltering) {
             icon = <i className="icon fas icon-circle-notch icon-spin icon-fw" />;
         } else if (status === 'selected' || status === 'omitted') {
-            icon = <i className={"icon icon-fw fas " + (!isRadio ? "icon-check-square" : "icon-dot-circle")} />;
+            icon = <i className={"icon icon-fw fas " + (!useRadioIcon ? "icon-check-square" : "icon-dot-circle")} />;
         } else {
-            icon = <i className={"icon icon-fw unselected far " + (!isRadio ? "icon-square" : "icon-circle")} />;
+            icon = <i className={"icon icon-fw unselected far " + (!useRadioIcon ? "icon-square" : "icon-circle")} />;
         }
 
         if (!title || title === 'null' || title === 'undefined'){
@@ -164,10 +163,10 @@ Term.propTypes = {
     'onClick'           : PropTypes.func.isRequired,
     'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
     'termTransformFxn'  : PropTypes.func,
-    'termIconStyle'     : PropTypes.oneOf(['check', 'radio'])
+    'useRadioIcon'     : PropTypes.bool.isRequired
 };
 Term.defaultProps = {
-    'termIconStyle': 'check'
+    'useRadioIcon': false
 };
 
 /**
@@ -245,7 +244,7 @@ export class FacetTermsList extends React.PureComponent {
             openPopover,
             filteringFieldTerm,
             setOpenPopover,
-            termIconStyle,
+            useRadioIcon,
             persistSelectedTerms,
             context,
             schemas,
@@ -295,7 +294,7 @@ export class FacetTermsList extends React.PureComponent {
                     { indicator }
                 </h5>
                 <ListOfTerms
-                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, basicSearchAutoDisplayLimit, termIconStyle, persistSelectedTerms, filteringFieldTerm }}
+                    {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms, filteringFieldTerm }}
                     onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
             </div>
         );
@@ -314,7 +313,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         getTermStatus,
         termTransformFxn,
         searchText, onBasicTermSearch, onSaytTermSearch,
-        basicSearchAutoDisplayLimit, termIconStyle, persistSelectedTerms = true
+        basicSearchAutoDisplayLimit, useRadioIcon, persistSelectedTerms = true
     } = props;
     let { search_type: searchType = 'none' } = facet;
 
@@ -341,7 +340,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         const allTermComponents = terms.map(function(term){
             const { field: currFilteringField, term: currFilteringTerm } = filteringFieldTerm || {};
             const isFiltering = field === currFilteringField && term.key === currFilteringTerm;
-            return <Term {...{ facet, term, termTransformFxn, isFiltering, termIconStyle }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
+            return <Term {...{ facet, term, termTransformFxn, isFiltering, useRadioIcon }} onClick={onTermClick} key={term.key} status={getTermStatus(term, facet)} />;
         });
         const segments = segmentComponentsByStatus(allTermComponents);
 

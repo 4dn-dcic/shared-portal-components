@@ -468,7 +468,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           itemTypeForSchemas = _this$props5.itemTypeForSchemas,
           termTransformFxn = _this$props5.termTransformFxn,
           persistentCount = _this$props5.persistentCount,
-          termIconStyle = _this$props5.termIconStyle,
+          useRadioIcon = _this$props5.useRadioIcon,
           persistSelectedTerms = _this$props5.persistSelectedTerms;
       var filters = context.filters;
       var _this$state2 = this.state,
@@ -485,7 +485,7 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         separateSingleTermFacets: separateSingleTermFacets,
         openPopover: openPopover,
         filteringFieldTerm: filteringFieldTerm,
-        termIconStyle: termIconStyle,
+        useRadioIcon: useRadioIcon,
         persistSelectedTerms: persistSelectedTerms,
         onFilter: this.onFilterExtended,
         onFilterMultiple: this.onFilterMultipleExtended,
@@ -906,8 +906,8 @@ _defineProperty(FacetList, "propTypes", {
   // Same as onFilter, but processes multiple filter changes in one go
   'separateSingleTermFacets': PropTypes.bool,
   'maxBodyHeight': PropTypes.number,
-  'termIconStyle': PropTypes.oneOf(['check', 'radio']),
-  // Show either checkbox or radio icon for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
+  'useRadioIcon': PropTypes.bool.isRequired,
+  // Show either checkbox (False) or radio icon (True) for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
   'persistSelectedTerms': PropTypes.bool.isRequired // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
 
 });
@@ -963,7 +963,7 @@ _defineProperty(FacetList, "defaultProps", {
     arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     return term;
   },
-  'termIconStyle': 'check',
+  'useRadioIcon': false,
   'persistSelectedTerms': true
 });
 
