@@ -1,5 +1,8 @@
 'use strict';
 
+var _excluded = ["initialContext", "initialHref"],
+    _excluded2 = ["step", "option"];
+
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
@@ -152,7 +155,7 @@ export function initializeGoogleAnalytics() {
       initialContext = _appOptions$initialCo === void 0 ? null : _appOptions$initialCo,
       _appOptions$initialHr = appOptions.initialHref,
       initialHref = _appOptions$initialHr === void 0 ? null : _appOptions$initialHr,
-      appOpts = _objectWithoutProperties(appOptions, ["initialContext", "initialHref"]);
+      appOpts = _objectWithoutProperties(appOptions, _excluded);
 
   var options = _objectSpread(_objectSpread({}, defaultOptions), appOpts); // TODO: Check for user-scoped 'do not track' flag, set state.enabled=false
 
@@ -584,7 +587,7 @@ export function productsCheckout(items) {
       step = _ref8$step === void 0 ? 1 : _ref8$step,
       _ref8$option = _ref8.option,
       option = _ref8$option === void 0 ? null : _ref8$option,
-      extData = _objectWithoutProperties(_ref8, ["step", "option"]);
+      extData = _objectWithoutProperties(_ref8, _excluded2);
 
   var count = addProductsEE(items, extData);
   ga2('ec:setAction', 'checkout', {

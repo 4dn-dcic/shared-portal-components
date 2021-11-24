@@ -143,314 +143,6 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
 
   var _super = _createSuper(SubItemTable);
 
-  _createClass(SubItemTable, null, [{
-    key: "shouldUseTable",
-
-    /**
-     * This code could look better.
-     * Essentially, checks each property in first object of param 'list' and if no values fail a rough validation wherein there must be no too-deeply nested objects or lists, returns true.
-     *
-     * @param {Object[]} list - List of objects
-     * @returns {boolean} True if a table would be good for showing these items.
-     */
-    value: function shouldUseTable(list, schemas) {
-      if (!Array.isArray(list)) return false;
-      if (list.length < 1) return false;
-      var schemaForType;
-      if (_.any(list, function (x) {
-        return typeof x === 'undefined';
-      })) return false;
-      if (!_.all(list, function (x) {
-        return _typeof(x) === 'object' && x;
-      })) return false;
-      if (_.all(list, function (x) {
-        return Array.isArray(x);
-      })) return false; //multi-dim array??
-
-      if (_.any(list, function (x) {
-        if (!Array.isArray(x['@type'])) {
-          {
-            /* return true; // No @type so we can't get 'columns' from schemas. */
-          }
-        } else {
-          schemaForType = getSchemaForItemType(x['@type'][0], schemas);
-          if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
-        }
-      })) return false;
-
-      var objectWithAllItemKeys = _.reduce(list, function (m, v) {
-        var v2 = _.clone(v);
-
-        var valKeys = _.keys(v2); // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
-
-
-        for (var i = 0; i < valKeys.length; i++) {
-          if (Array.isArray(v2[valKeys[i]])) {
-            m[valKeys[i]] = (m[valKeys[i]] || []).concat(v2[valKeys[i]]);
-            delete v2[valKeys[i]];
-          } else if (v2[valKeys[i]] && _typeof(v2[valKeys[i]]) === 'object') {
-            m[valKeys[i]] = _.extend(m[valKeys[i]] || {}, v2[valKeys[i]]);
-            delete v2[valKeys[i]];
-          }
-        }
-
-        return _.extend(m, v2);
-      }, {});
-
-      var rootKeys = _.keys(objectWithAllItemKeys);
-
-      var embeddedKeys, i, j, k, embeddedListItem, embeddedListItemKeys;
-
-      for (i = 0; i < rootKeys.length; i++) {
-        if (Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
-          var listObjects = _.filter(objectWithAllItemKeys[rootKeys[i]], function (v) {
-            if (!v || v && _typeof(v) === 'object') return true;
-            return false;
-          });
-
-          if (listObjects.length === 0) continue; // List of strings or values only. Continue.
-
-          var listNotItems = _.filter(listObjects, function (v) {
-            return !isAnItem(v);
-          });
-
-          if (listNotItems.length === 0) continue; // List of Items that can be rendered as links. Continue.
-          // Else, we have list of Objects. Assert that each sub-object has only strings, numbers, or Item (object with link), or list of such -- no other sub-objects.
-
-          for (k = 0; k < listNotItems.length; k++) {
-            embeddedListItem = listNotItems[k];
-            embeddedListItemKeys = _.keys(embeddedListItem);
-
-            for (j = 0; j < embeddedListItemKeys.length; j++) {
-              if (typeof embeddedListItem[embeddedListItemKeys[j]] === 'string' || typeof embeddedListItem[embeddedListItemKeys[j]] === 'number') {
-                continue;
-              }
-
-              if (isAnItem(embeddedListItem[embeddedListItemKeys[j]])) {
-                continue;
-              }
-
-              if (Array.isArray(embeddedListItem[embeddedListItemKeys[j]]) && _.filter(embeddedListItem[embeddedListItemKeys[j]], function (v) {
-                if (typeof v === 'string' || typeof v === 'number') return false;
-                return true;
-              }).length === 0) {
-                continue;
-              }
-
-              return false;
-            }
-          }
-        }
-
-        if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]] && _typeof(objectWithAllItemKeys[rootKeys[i]]) === 'object') {
-          // Embedded object 1 level deep. Will flatten upwards if passes checks:
-          // example: (sub-object) {..., 'stringProp' : 'stringVal', 'meta' : {'argument_name' : 'x', 'argument_type' : 'y'}, ...} ===> (columns) 'stringProp', 'meta.argument_name', 'meta.argument_type'
-          if (isAnItem(objectWithAllItemKeys[rootKeys[i]])) {
-            // This embedded object is an.... ITEM! Skip rest of checks for this property, we're ok with just drawing link to Item.
-            continue;
-          }
-
-          embeddedKeys = _.keys(objectWithAllItemKeys[rootKeys[i]]);
-          if (embeddedKeys.length > 5) return false; // 5 properties to flatten up feels like a good limit. Lets render objects with more than that as lists or own table (not flattened up to another 1).
-          // Run some checks against the embedded object's properties. Ensure all nested lists contain plain strings or numbers, as will flatten to simple comma-delimited list.
-
-          for (j = 0; j < embeddedKeys.length; j++) {
-            if (typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'number') continue; // Ensure if property on embedded object's is an array, that is a simple array of strings or numbers - no objects. Will be converted to comma-delimited list.
-
-            if (Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) {
-              if (objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length < 4 && _.filter(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]], function (v) {
-                if (typeof v === 'string' || typeof v === 'number') {
-                  return false;
-                } else if (v && _typeof(v) === 'object' && _.keys(v).length < 2) {
-                  return false;
-                } else {
-                  return true;
-                }
-              }).length === 0 //(typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]][0] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]][0] === 'number')
-              ) {
-                continue;
-              } else {
-                return false;
-              }
-            } // Ensure that if is not an array, it is a simple string or number (not another embedded object).
-
-
-            if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) && objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] && _typeof(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) === 'object') {
-              // Embedded object 2 levels deep. No thx we don't want any 'meta.argument_mapping.argument_type' -length column names. Unless it's an Item for which we can just render link for.
-              if (isAnItem(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) continue;
-              return false;
-            }
-          }
-        }
-      }
-
-      var reminderKeys = _.difference(_.keys(objectWithAllItemKeys), ['principals_allowed', '@type', 'uuid']);
-
-      if (reminderKeys.length <= 2) {
-        return false;
-      }
-
-      return true;
-    }
-    /**
-     * check whether the list is a multi dimensional array
-     * @param {*} list - array to be checked
-     * @param {*} validationFunc - function to validate items in the array, if any fails then return false
-     * @returns boolean
-     */
-
-  }, {
-    key: "isMultiDimArray",
-    value: function isMultiDimArray(list, validationFunc) {
-      if (!Array.isArray(list)) return false;
-      if (list.length < 1) return false;
-      if (!_.all(list, function (x) {
-        return Array.isArray(x) && x.length > 0;
-      })) return false;
-      if (!_.all(list, function (x) {
-        return x.length === list[0].length;
-      })) return false;
-
-      if (validationFunc && typeof validationFunc === 'function') {
-        if (_.any(list, function (x) {
-          if (_.any(x, function (item) {
-            return !validationFunc(item);
-          })) {
-            return true;
-          }
-        })) return false;
-      }
-
-      return true;
-    }
-  }, {
-    key: "getColumnKeys",
-    value: function getColumnKeys(items, columnDefinitions, schemas) {
-      var objectWithAllItemKeys = _.reduce(items, function (m, v) {
-        return _.extend(m, v);
-      }, {}); //var schemas = this.props.schemas || Schemas.get();
-      //var tips = schemas ? tipsFromSchema(schemas, context) : {};
-      //if (typeof this.props.keyTitleDescriptionMap === 'object' && this.props.keyTitleDescriptionMap){
-      //    _.extend(tips, this.props.keyTitleDescriptionMap);
-      //}
-      // Property columns to push to front (common across all objects)
-
-
-      var rootKeys = _.keys(objectWithAllItemKeys);
-
-      var columnKeys = []; // Use schema columns
-
-      if (typeof objectWithAllItemKeys.display_title === 'string' && Array.isArray(objectWithAllItemKeys['@type'])) {
-        var columnKeysFromSchema = _.keys(getSchemaForItemType(getItemType(objectWithAllItemKeys), schemas).columns);
-
-        columnKeys = rootKeys.filter(function (k) {
-          if (k === 'display_title' || k === '@id' || k === 'accession') return true;
-          if (columnKeysFromSchema.indexOf(k) > -1) return true;
-          return false;
-        }).map(function (k) {
-          return {
-            'key': k
-          };
-        });
-      } else {
-        // Gather, flatten up from Object.
-        for (var i = 0; i < rootKeys.length; i++) {
-          if (typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
-            if (Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]][0] && _typeof(objectWithAllItemKeys[rootKeys[i]][0]) === 'object' && typeof objectWithAllItemKeys[rootKeys[i]][0].display_title !== 'string') {
-              columnKeys.push({
-                'key': rootKeys[i],
-                'childKeys': _.keys(_.reduce(items, function (m1, v1) {
-                  return _.extend(m1, _.reduce(v1[rootKeys[i]], function (m2, v2) {
-                    return _.extend(m2, v2);
-                  }, {}));
-                }, {}))
-              });
-            } else {
-              columnKeys.push({
-                'key': rootKeys[i]
-              });
-            }
-          } else if (objectWithAllItemKeys[rootKeys[i]] && _typeof(objectWithAllItemKeys[rootKeys[i]]) === 'object') {
-            var itemAtID = typeof objectWithAllItemKeys[rootKeys[i]].display_title === 'string' && itemUtil.atId(objectWithAllItemKeys[rootKeys[i]]);
-
-            if (itemAtID) {
-              columnKeys.push({
-                'key': rootKeys[i]
-              }); // Keep single key if is an Item, we'll make it into a link.
-            } else {
-              // Flatten up, otherwise.
-              columnKeys = columnKeys.concat(_.keys(objectWithAllItemKeys[rootKeys[i]]).map(function (embeddedKey) {
-                return {
-                  'key': rootKeys[i] + '.' + embeddedKey
-                };
-              }));
-            }
-          }
-        }
-      }
-
-      return columnKeys.filter(function (k) {
-        if (columnDefinitions) {
-          if (columnDefinitions[k.key]) {
-            if (typeof columnDefinitions[k.key].hide === 'boolean' && columnDefinitions[k.key].hide) return false;
-
-            if (typeof columnDefinitions[k.key].hide === 'function') {
-              return !columnDefinitions[k.key].hide(objectWithAllItemKeys);
-            }
-          }
-        }
-
-        return true;
-      }).sort(function (a, b) {
-        if (['title', 'display_title', 'accession'].indexOf(a.key) > -1) return -5;
-        if (['title', 'display_title', 'accession'].indexOf(b.key) > -1) return 5;
-        if (['name', 'workflow_argument_name'].indexOf(a.key) > -1) return -4;
-        if (['name', 'workflow_argument_name'].indexOf(b.key) > -1) return 4;
-        if (['step', 'step_argument_name'].indexOf(a.key) > -1) return -3;
-        if (['step', 'step_argument_name'].indexOf(b.key) > -1) return 3;
-        if (['value'].indexOf(a.key) > -1) return -2;
-        if (['value'].indexOf(b.key) > -1) return 2;
-        return 0;
-      }).sort(function (a, b) {
-        // Push columns with child/embedded object lists to the end.
-        if (Array.isArray(a.childKeys)) return 1;
-        if (Array.isArray(b.childKeys)) return -1;
-        return 0;
-      });
-    }
-  }, {
-    key: "jsonify",
-    value: function jsonify(val, key) {
-      var newVal;
-
-      try {
-        newVal = JSON.stringify(val);
-
-        if (_.keys(val).length > 1) {
-          console.error("ERROR: Value for table cell is not a string, number, or JSX element.\nKey: " + key + '; Value: ' + newVal);
-        }
-
-        newVal = /*#__PURE__*/React.createElement("code", null, newVal.length <= 25 ? newVal : newVal.slice(0, 25) + '...');
-      } catch (e) {
-        console.error(e, val);
-        newVal = /*#__PURE__*/React.createElement("em", null, '{obj}');
-      }
-
-      return newVal;
-    }
-  }, {
-    key: "getAttachmentTitle",
-    value: function getAttachmentTitle(val, fallbackTitle) {
-      if (typeof val === 'string') {
-        var split_item = val.split('/');
-        var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
-        return attach_title || fallbackTitle;
-      }
-
-      return fallbackTitle;
-    }
-  }]);
-
   function SubItemTable(props) {
     var _this;
 
@@ -768,6 +460,312 @@ var SubItemTable = /*#__PURE__*/function (_React$Component) {
         })));
       }))));
     }
+  }], [{
+    key: "shouldUseTable",
+    value:
+    /**
+     * This code could look better.
+     * Essentially, checks each property in first object of param 'list' and if no values fail a rough validation wherein there must be no too-deeply nested objects or lists, returns true.
+     *
+     * @param {Object[]} list - List of objects
+     * @returns {boolean} True if a table would be good for showing these items.
+     */
+    function shouldUseTable(list, schemas) {
+      if (!Array.isArray(list)) return false;
+      if (list.length < 1) return false;
+      var schemaForType;
+      if (_.any(list, function (x) {
+        return typeof x === 'undefined';
+      })) return false;
+      if (!_.all(list, function (x) {
+        return _typeof(x) === 'object' && x;
+      })) return false;
+      if (_.all(list, function (x) {
+        return Array.isArray(x);
+      })) return false; //multi-dim array??
+
+      if (_.any(list, function (x) {
+        if (!Array.isArray(x['@type'])) {
+          {
+            /* return true; // No @type so we can't get 'columns' from schemas. */
+          }
+        } else {
+          schemaForType = getSchemaForItemType(x['@type'][0], schemas);
+          if (!schemaForType || !schemaForType.columns) return true; // No columns on this Item type's schema. Skip.
+        }
+      })) return false;
+
+      var objectWithAllItemKeys = _.reduce(list, function (m, v) {
+        var v2 = _.clone(v);
+
+        var valKeys = _.keys(v2); // Exclude empty arrays from copied-from object, add them into memo property instead of overwrite.
+
+
+        for (var i = 0; i < valKeys.length; i++) {
+          if (Array.isArray(v2[valKeys[i]])) {
+            m[valKeys[i]] = (m[valKeys[i]] || []).concat(v2[valKeys[i]]);
+            delete v2[valKeys[i]];
+          } else if (v2[valKeys[i]] && _typeof(v2[valKeys[i]]) === 'object') {
+            m[valKeys[i]] = _.extend(m[valKeys[i]] || {}, v2[valKeys[i]]);
+            delete v2[valKeys[i]];
+          }
+        }
+
+        return _.extend(m, v2);
+      }, {});
+
+      var rootKeys = _.keys(objectWithAllItemKeys);
+
+      var embeddedKeys, i, j, k, embeddedListItem, embeddedListItemKeys;
+
+      for (i = 0; i < rootKeys.length; i++) {
+        if (Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
+          var listObjects = _.filter(objectWithAllItemKeys[rootKeys[i]], function (v) {
+            if (!v || v && _typeof(v) === 'object') return true;
+            return false;
+          });
+
+          if (listObjects.length === 0) continue; // List of strings or values only. Continue.
+
+          var listNotItems = _.filter(listObjects, function (v) {
+            return !isAnItem(v);
+          });
+
+          if (listNotItems.length === 0) continue; // List of Items that can be rendered as links. Continue.
+          // Else, we have list of Objects. Assert that each sub-object has only strings, numbers, or Item (object with link), or list of such -- no other sub-objects.
+
+          for (k = 0; k < listNotItems.length; k++) {
+            embeddedListItem = listNotItems[k];
+            embeddedListItemKeys = _.keys(embeddedListItem);
+
+            for (j = 0; j < embeddedListItemKeys.length; j++) {
+              if (typeof embeddedListItem[embeddedListItemKeys[j]] === 'string' || typeof embeddedListItem[embeddedListItemKeys[j]] === 'number') {
+                continue;
+              }
+
+              if (isAnItem(embeddedListItem[embeddedListItemKeys[j]])) {
+                continue;
+              }
+
+              if (Array.isArray(embeddedListItem[embeddedListItemKeys[j]]) && _.filter(embeddedListItem[embeddedListItemKeys[j]], function (v) {
+                if (typeof v === 'string' || typeof v === 'number') return false;
+                return true;
+              }).length === 0) {
+                continue;
+              }
+
+              return false;
+            }
+          }
+        }
+
+        if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]] && _typeof(objectWithAllItemKeys[rootKeys[i]]) === 'object') {
+          // Embedded object 1 level deep. Will flatten upwards if passes checks:
+          // example: (sub-object) {..., 'stringProp' : 'stringVal', 'meta' : {'argument_name' : 'x', 'argument_type' : 'y'}, ...} ===> (columns) 'stringProp', 'meta.argument_name', 'meta.argument_type'
+          if (isAnItem(objectWithAllItemKeys[rootKeys[i]])) {
+            // This embedded object is an.... ITEM! Skip rest of checks for this property, we're ok with just drawing link to Item.
+            continue;
+          }
+
+          embeddedKeys = _.keys(objectWithAllItemKeys[rootKeys[i]]);
+          if (embeddedKeys.length > 5) return false; // 5 properties to flatten up feels like a good limit. Lets render objects with more than that as lists or own table (not flattened up to another 1).
+          // Run some checks against the embedded object's properties. Ensure all nested lists contain plain strings or numbers, as will flatten to simple comma-delimited list.
+
+          for (j = 0; j < embeddedKeys.length; j++) {
+            if (typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] === 'number') continue; // Ensure if property on embedded object's is an array, that is a simple array of strings or numbers - no objects. Will be converted to comma-delimited list.
+
+            if (Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) {
+              if (objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]].length < 4 && _.filter(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]], function (v) {
+                if (typeof v === 'string' || typeof v === 'number') {
+                  return false;
+                } else if (v && _typeof(v) === 'object' && _.keys(v).length < 2) {
+                  return false;
+                } else {
+                  return true;
+                }
+              }).length === 0 //(typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]][0] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]][0] === 'number')
+              ) {
+                continue;
+              } else {
+                return false;
+              }
+            } // Ensure that if is not an array, it is a simple string or number (not another embedded object).
+
+
+            if (!Array.isArray(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) && objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]] && _typeof(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]]) === 'object') {
+              // Embedded object 2 levels deep. No thx we don't want any 'meta.argument_mapping.argument_type' -length column names. Unless it's an Item for which we can just render link for.
+              if (isAnItem(objectWithAllItemKeys[rootKeys[i]][embeddedKeys[j]])) continue;
+              return false;
+            }
+          }
+        }
+      }
+
+      var reminderKeys = _.difference(_.keys(objectWithAllItemKeys), ['principals_allowed', '@type', 'uuid']);
+
+      if (reminderKeys.length <= 2) {
+        return false;
+      }
+
+      return true;
+    }
+    /**
+     * check whether the list is a multi dimensional array
+     * @param {*} list - array to be checked
+     * @param {*} validationFunc - function to validate items in the array, if any fails then return false
+     * @returns boolean
+     */
+
+  }, {
+    key: "isMultiDimArray",
+    value: function isMultiDimArray(list, validationFunc) {
+      if (!Array.isArray(list)) return false;
+      if (list.length < 1) return false;
+      if (!_.all(list, function (x) {
+        return Array.isArray(x) && x.length > 0;
+      })) return false;
+      if (!_.all(list, function (x) {
+        return x.length === list[0].length;
+      })) return false;
+
+      if (validationFunc && typeof validationFunc === 'function') {
+        if (_.any(list, function (x) {
+          if (_.any(x, function (item) {
+            return !validationFunc(item);
+          })) {
+            return true;
+          }
+        })) return false;
+      }
+
+      return true;
+    }
+  }, {
+    key: "getColumnKeys",
+    value: function getColumnKeys(items, columnDefinitions, schemas) {
+      var objectWithAllItemKeys = _.reduce(items, function (m, v) {
+        return _.extend(m, v);
+      }, {}); //var schemas = this.props.schemas || Schemas.get();
+      //var tips = schemas ? tipsFromSchema(schemas, context) : {};
+      //if (typeof this.props.keyTitleDescriptionMap === 'object' && this.props.keyTitleDescriptionMap){
+      //    _.extend(tips, this.props.keyTitleDescriptionMap);
+      //}
+      // Property columns to push to front (common across all objects)
+
+
+      var rootKeys = _.keys(objectWithAllItemKeys);
+
+      var columnKeys = []; // Use schema columns
+
+      if (typeof objectWithAllItemKeys.display_title === 'string' && Array.isArray(objectWithAllItemKeys['@type'])) {
+        var columnKeysFromSchema = _.keys(getSchemaForItemType(getItemType(objectWithAllItemKeys), schemas).columns);
+
+        columnKeys = rootKeys.filter(function (k) {
+          if (k === 'display_title' || k === '@id' || k === 'accession') return true;
+          if (columnKeysFromSchema.indexOf(k) > -1) return true;
+          return false;
+        }).map(function (k) {
+          return {
+            'key': k
+          };
+        });
+      } else {
+        // Gather, flatten up from Object.
+        for (var i = 0; i < rootKeys.length; i++) {
+          if (typeof objectWithAllItemKeys[rootKeys[i]] === 'string' || typeof objectWithAllItemKeys[rootKeys[i]] === 'number' || Array.isArray(objectWithAllItemKeys[rootKeys[i]])) {
+            if (Array.isArray(objectWithAllItemKeys[rootKeys[i]]) && objectWithAllItemKeys[rootKeys[i]][0] && _typeof(objectWithAllItemKeys[rootKeys[i]][0]) === 'object' && typeof objectWithAllItemKeys[rootKeys[i]][0].display_title !== 'string') {
+              columnKeys.push({
+                'key': rootKeys[i],
+                'childKeys': _.keys(_.reduce(items, function (m1, v1) {
+                  return _.extend(m1, _.reduce(v1[rootKeys[i]], function (m2, v2) {
+                    return _.extend(m2, v2);
+                  }, {}));
+                }, {}))
+              });
+            } else {
+              columnKeys.push({
+                'key': rootKeys[i]
+              });
+            }
+          } else if (objectWithAllItemKeys[rootKeys[i]] && _typeof(objectWithAllItemKeys[rootKeys[i]]) === 'object') {
+            var itemAtID = typeof objectWithAllItemKeys[rootKeys[i]].display_title === 'string' && itemUtil.atId(objectWithAllItemKeys[rootKeys[i]]);
+
+            if (itemAtID) {
+              columnKeys.push({
+                'key': rootKeys[i]
+              }); // Keep single key if is an Item, we'll make it into a link.
+            } else {
+              // Flatten up, otherwise.
+              columnKeys = columnKeys.concat(_.keys(objectWithAllItemKeys[rootKeys[i]]).map(function (embeddedKey) {
+                return {
+                  'key': rootKeys[i] + '.' + embeddedKey
+                };
+              }));
+            }
+          }
+        }
+      }
+
+      return columnKeys.filter(function (k) {
+        if (columnDefinitions) {
+          if (columnDefinitions[k.key]) {
+            if (typeof columnDefinitions[k.key].hide === 'boolean' && columnDefinitions[k.key].hide) return false;
+
+            if (typeof columnDefinitions[k.key].hide === 'function') {
+              return !columnDefinitions[k.key].hide(objectWithAllItemKeys);
+            }
+          }
+        }
+
+        return true;
+      }).sort(function (a, b) {
+        if (['title', 'display_title', 'accession'].indexOf(a.key) > -1) return -5;
+        if (['title', 'display_title', 'accession'].indexOf(b.key) > -1) return 5;
+        if (['name', 'workflow_argument_name'].indexOf(a.key) > -1) return -4;
+        if (['name', 'workflow_argument_name'].indexOf(b.key) > -1) return 4;
+        if (['step', 'step_argument_name'].indexOf(a.key) > -1) return -3;
+        if (['step', 'step_argument_name'].indexOf(b.key) > -1) return 3;
+        if (['value'].indexOf(a.key) > -1) return -2;
+        if (['value'].indexOf(b.key) > -1) return 2;
+        return 0;
+      }).sort(function (a, b) {
+        // Push columns with child/embedded object lists to the end.
+        if (Array.isArray(a.childKeys)) return 1;
+        if (Array.isArray(b.childKeys)) return -1;
+        return 0;
+      });
+    }
+  }, {
+    key: "jsonify",
+    value: function jsonify(val, key) {
+      var newVal;
+
+      try {
+        newVal = JSON.stringify(val);
+
+        if (_.keys(val).length > 1) {
+          console.error("ERROR: Value for table cell is not a string, number, or JSX element.\nKey: " + key + '; Value: ' + newVal);
+        }
+
+        newVal = /*#__PURE__*/React.createElement("code", null, newVal.length <= 25 ? newVal : newVal.slice(0, 25) + '...');
+      } catch (e) {
+        console.error(e, val);
+        newVal = /*#__PURE__*/React.createElement("em", null, '{obj}');
+      }
+
+      return newVal;
+    }
+  }, {
+    key: "getAttachmentTitle",
+    value: function getAttachmentTitle(val, fallbackTitle) {
+      if (typeof val === 'string') {
+        var split_item = val.split('/');
+        var attach_title = decodeURIComponent(split_item[split_item.length - 1]);
+        return attach_title || fallbackTitle;
+      }
+
+      return fallbackTitle;
+    }
   }]);
 
   return SubItemTable;
@@ -847,16 +845,15 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
           field: key,
           label: labelToShow,
           className: (className || '') + (isOpen ? ' open' : '')
-        }, value), /*#__PURE__*/React.createElement(SubItemListView, _extends({
+        }, value), /*#__PURE__*/React.createElement(SubItemListView, {
           popLink: popLink,
           schemas: schemas,
           isOpen: isOpen,
-          termTransformFxn: termTransformFxn
-        }, {
+          termTransformFxn: termTransformFxn,
           content: item,
           columnDefinitions: value.props.columnDefinitions || columnDefinitions // Recursively pass these down
 
-        })));
+        }));
       }
 
       if (value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" && value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
@@ -901,9 +898,67 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
 
   var _super3 = _createSuper(Detail);
 
-  _createClass(Detail, null, [{
-    key: "formKey",
+  function Detail(props) {
+    var _this4;
 
+    _classCallCheck(this, Detail);
+
+    _this4 = _super3.call(this, props);
+    _this4.renderDetailRow = _this4.renderDetailRow.bind(_assertThisInitialized(_this4));
+    _this4.memoized = {
+      columnDefinitions: memoize(Detail.columnDefinitions),
+      generatedKeysLists: memoize(Detail.generatedKeysLists)
+    };
+    return _this4;
+  }
+
+  _createClass(Detail, [{
+    key: "renderDetailRow",
+    value: function renderDetailRow(key) {
+      var _this$props3 = this.props,
+          context = _this$props3.context,
+          popLink = _this$props3.popLink,
+          schemas = _this$props3.schemas,
+          columnDefinitions = _this$props3.columnDefinitions,
+          termTransformFxn = _this$props3.termTransformFxn;
+      var colDefs = this.memoized.columnDefinitions(context, schemas, columnDefinitions);
+      return /*#__PURE__*/React.createElement(DetailRow, {
+        key: key,
+        label: Detail.formKey(colDefs, key),
+        item: context[key],
+        popLink: popLink,
+        "data-key": key,
+        itemType: context['@type'] && context['@type'][0],
+        columnDefinitions: colDefs,
+        termTransformFxn: termTransformFxn,
+        schemas: schemas
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this$props4 = this.props,
+          context = _this$props4.context,
+          excludedKeys = _this$props4.excludedKeys,
+          stickyKeys = _this$props4.stickyKeys,
+          alwaysCollapsibleKeys = _this$props4.alwaysCollapsibleKeys,
+          open = _this$props4.open;
+
+      var _this$memoized$genera = this.memoized.generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys),
+          persistentKeys = _this$memoized$genera.persistentKeys,
+          collapsibleKeys = _this$memoized$genera.collapsibleKeys;
+
+      return /*#__PURE__*/React.createElement("div", {
+        className: "overflow-hidden"
+      }, /*#__PURE__*/React.createElement(PartialList, {
+        persistent: _.map(persistentKeys, this.renderDetailRow),
+        collapsible: _.map(collapsibleKeys, this.renderDetailRow),
+        open: open
+      }));
+    }
+  }], [{
+    key: "formKey",
+    value:
     /**
      * Formats the correct display for each metadata field.
      *
@@ -912,7 +967,7 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
      * @param {boolean} [includeTooltip=false] - If false, skips adding tooltip to output JSX.
      * @returns {JSX.Element} <div> element with a tooltip and info-circle icon.
      */
-    value: function formKey(tips, key) {
+    function formKey(tips, key) {
       var includeTooltip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
       var tooltip = null,
           title = null;
@@ -961,16 +1016,15 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
         return /*#__PURE__*/React.createElement("span", null, "No Value");
       } else if (Array.isArray(item)) {
         if (SubItemTable.shouldUseTable(item, schemas)) {
-          return /*#__PURE__*/React.createElement(SubItemTable, _extends({
+          return /*#__PURE__*/React.createElement(SubItemTable, {
             popLink: popLink,
             columnDefinitions: columnDefinitions,
             schemas: schemas,
             atType: atType,
-            termTransformFxn: termTransformFxn
-          }, {
+            termTransformFxn: termTransformFxn,
             items: item,
             parentKey: keyPrefix
-          }));
+          });
         } else if (SubItemTable.isMultiDimArray(item, isPrimitive)) {
           item = _.zip.apply(_, _toConsumableArray(item));
           return /*#__PURE__*/React.createElement("ol", null, item.map(function (it, i) {
@@ -1101,66 +1155,6 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
     }
   }]);
 
-  function Detail(props) {
-    var _this4;
-
-    _classCallCheck(this, Detail);
-
-    _this4 = _super3.call(this, props);
-    _this4.renderDetailRow = _this4.renderDetailRow.bind(_assertThisInitialized(_this4));
-    _this4.memoized = {
-      columnDefinitions: memoize(Detail.columnDefinitions),
-      generatedKeysLists: memoize(Detail.generatedKeysLists)
-    };
-    return _this4;
-  }
-
-  _createClass(Detail, [{
-    key: "renderDetailRow",
-    value: function renderDetailRow(key) {
-      var _this$props3 = this.props,
-          context = _this$props3.context,
-          popLink = _this$props3.popLink,
-          schemas = _this$props3.schemas,
-          columnDefinitions = _this$props3.columnDefinitions,
-          termTransformFxn = _this$props3.termTransformFxn;
-      var colDefs = this.memoized.columnDefinitions(context, schemas, columnDefinitions);
-      return /*#__PURE__*/React.createElement(DetailRow, {
-        key: key,
-        label: Detail.formKey(colDefs, key),
-        item: context[key],
-        popLink: popLink,
-        "data-key": key,
-        itemType: context['@type'] && context['@type'][0],
-        columnDefinitions: colDefs,
-        termTransformFxn: termTransformFxn,
-        schemas: schemas
-      });
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props4 = this.props,
-          context = _this$props4.context,
-          excludedKeys = _this$props4.excludedKeys,
-          stickyKeys = _this$props4.stickyKeys,
-          alwaysCollapsibleKeys = _this$props4.alwaysCollapsibleKeys,
-          open = _this$props4.open;
-
-      var _this$memoized$genera = this.memoized.generatedKeysLists(context, excludedKeys, stickyKeys, alwaysCollapsibleKeys),
-          persistentKeys = _this$memoized$genera.persistentKeys,
-          collapsibleKeys = _this$memoized$genera.collapsibleKeys;
-
-      return /*#__PURE__*/React.createElement("div", {
-        className: "overflow-hidden"
-      }, /*#__PURE__*/React.createElement(PartialList, {
-        persistent: _.map(persistentKeys, this.renderDetailRow),
-        collapsible: _.map(collapsibleKeys, this.renderDetailRow),
-        open: open
-      }));
-    }
-  }]);
-
   return Detail;
 }(React.PureComponent);
 
@@ -1272,23 +1266,6 @@ export var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
   _inherits(ItemDetailList, _React$PureComponent3);
 
   var _super4 = _createSuper(ItemDetailList);
-
-  _createClass(ItemDetailList, null, [{
-    key: "getTabObject",
-    value: function getTabObject(props) {
-      return {
-        tab: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-          className: "icon fas icon-list icon-fw"
-        }), " Details"),
-        key: 'details',
-        content: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-          className: "tab-section-title"
-        }, /*#__PURE__*/React.createElement("span", null, "Details")), /*#__PURE__*/React.createElement("hr", {
-          className: "tab-section-title-horiz-divider mb-05"
-        }), /*#__PURE__*/React.createElement(ItemDetailList, props))
-      };
-    }
-  }]);
 
   function ItemDetailList(props) {
     var _this5;
@@ -1412,6 +1389,21 @@ export var ItemDetailList = /*#__PURE__*/function (_React$PureComponent3) {
           minHeight: minHeight
         } : null
       }, body);
+    }
+  }], [{
+    key: "getTabObject",
+    value: function getTabObject(props) {
+      return {
+        tab: /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
+          className: "icon fas icon-list icon-fw"
+        }), " Details"),
+        key: 'details',
+        content: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+          className: "tab-section-title"
+        }, /*#__PURE__*/React.createElement("span", null, "Details")), /*#__PURE__*/React.createElement("hr", {
+          className: "tab-section-title-horiz-divider mb-05"
+        }), /*#__PURE__*/React.createElement(ItemDetailList, props))
+      };
     }
   }]);
 

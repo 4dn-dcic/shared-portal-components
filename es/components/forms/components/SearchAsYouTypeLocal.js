@@ -1,5 +1,7 @@
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+var _excluded = ["searchList", "filterMethod", "optionsHeader", "allowCustomValue"];
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
@@ -35,31 +37,6 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
   _inherits(SearchAsYouTypeLocal, _React$PureComponent);
 
   var _super = _createSuper(SearchAsYouTypeLocal);
-
-  _createClass(SearchAsYouTypeLocal, null, [{
-    key: "getRegexQuery",
-    value: function getRegexQuery(value, filterMethod) {
-      switch (filterMethod) {
-        case "includes":
-          return valueTransforms.escapeRegExp(value.toLowerCase());
-
-        case "startsWith":
-        default:
-          return "^" + valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)?$";
-      }
-    }
-  }, {
-    key: "filterOptions",
-    value: function filterOptions(currTextValue) {
-      var allResults = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-      var filterMethod = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "startsWith";
-      var regexQuery = SearchAsYouTypeLocal.getRegexQuery(currTextValue, filterMethod);
-      return allResults.filter(function (optStr) {
-        // toString added in case of integer enums/suggested_enums
-        return !!optStr.toString().toLowerCase().match(regexQuery);
-      });
-    }
-  }]);
 
   function SearchAsYouTypeLocal(props) {
     var _this;
@@ -112,7 +89,7 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
           filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
           propOptionsHeader = _this$props2.optionsHeader,
           allowCustomValue = _this$props2.allowCustomValue,
-          passProps = _objectWithoutProperties(_this$props2, ["searchList", "filterMethod", "optionsHeader", "allowCustomValue"]);
+          passProps = _objectWithoutProperties(_this$props2, _excluded);
 
       var currentTextValue = this.state.currentTextValue;
       var filteredOptions;
@@ -139,12 +116,34 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue,
-        allowCustomValue: allowCustomValue
-      }, {
+        allowCustomValue: allowCustomValue,
         options: filteredOptions,
         onTextInputChange: this.onTextInputChange,
         onDropdownSelect: this.onDropdownSelect
       }));
+    }
+  }], [{
+    key: "getRegexQuery",
+    value: function getRegexQuery(value, filterMethod) {
+      switch (filterMethod) {
+        case "includes":
+          return valueTransforms.escapeRegExp(value.toLowerCase());
+
+        case "startsWith":
+        default:
+          return "^" + valueTransforms.escapeRegExp(value.toLowerCase()) + "(.+)?$";
+      }
+    }
+  }, {
+    key: "filterOptions",
+    value: function filterOptions(currTextValue) {
+      var allResults = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      var filterMethod = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "startsWith";
+      var regexQuery = SearchAsYouTypeLocal.getRegexQuery(currTextValue, filterMethod);
+      return allResults.filter(function (optStr) {
+        // toString added in case of integer enums/suggested_enums
+        return !!optStr.toString().toLowerCase().match(regexQuery);
+      });
     }
   }]);
 

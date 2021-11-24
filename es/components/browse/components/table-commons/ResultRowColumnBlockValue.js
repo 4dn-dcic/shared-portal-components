@@ -51,76 +51,6 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
 
   var _super = _createSuper(ResultRowColumnBlockValue);
 
-  _createClass(ResultRowColumnBlockValue, null, [{
-    key: "transformIfNeeded",
-
-    /**
-     * Default value rendering function. Fallback when no `render` func defined in columnDefinition.
-     * Uses columnDefinition field (column key) to get nested property value from result and display it.
-     *
-     * @todo Maybe use Sets if more performant.
-     * @param {Item} result - JSON object representing row data.
-     * @param {string} field - Field for which this value is for.
-     * @param {function} termTransformFxn - Transform value(s)
-     * @returns {string|null} String value or null. Your function may return a React element, as well.
-     */
-    value: function transformIfNeeded(result, field, termTransformFxn) {
-      function flattenSet(valArr) {
-        var uniqSet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-        uniqSet = uniqSet || new Set();
-
-        if (Array.isArray(valArr)) {
-          for (var i = 0; i < valArr.length; i++) {
-            flattenSet(valArr[i], uniqSet);
-          }
-
-          return uniqSet;
-        } // Else is single value (not array) -
-
-
-        if (valArr !== null && typeof valArr !== 'undefined') {
-          uniqSet.add(valArr);
-        }
-
-        return uniqSet;
-      }
-
-      var uniquedValues = _toConsumableArray(flattenSet(getNestedProperty(result, field, true)));
-
-      var uniquedValuesLen = uniquedValues.length; // No value found - let it default to 'null' and be handled as such
-
-      if (uniquedValuesLen === 0) {
-        // All null or undefined.
-        return null;
-      }
-
-      if (_typeof(uniquedValues[0]) === "object" && uniquedValues[0]["@id"] && typeof termTransformFxn === "function") {
-        // If LinkTo Item(s), return array of JSX elements (spans) which wrap links (assuming is output from termTransformFxn).
-        var uniquedLinkToItems = _.uniq(uniquedValues, false, "@id");
-
-        return uniquedLinkToItems.map(function (v, i) {
-          var transformedValue = termTransformFxn(field, v, true); // `allowJSXOutput=true` == likely a link element.
-
-          if (i === 0 && uniquedLinkToItems.length === 1) {
-            return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
-          }
-
-          return /*#__PURE__*/React.createElement("span", {
-            key: i,
-            className: "link-wrapper"
-          }, i > 0 ? ", " : null, transformedValue);
-        });
-      } else if (typeof termTransformFxn === "function") {
-        return uniquedValues.map(function (v) {
-          return termTransformFxn(field, v, false); // `allowJSXOutput=false` == don't allow JSX element/component(s) because joining w. ", ".
-        }).join(', '); // Most often will be just 1 value in set/array.
-      } else {
-        console.warn("No termTransformFxn supplied.");
-        return uniquedValues.join(', ');
-      }
-    }
-  }]);
-
   function ResultRowColumnBlockValue(props) {
     var _this;
 
@@ -208,6 +138,74 @@ export var ResultRowColumnBlockValue = /*#__PURE__*/function (_React$Component) 
         className: cls,
         "data-tip": tooltip
       }, value);
+    }
+  }], [{
+    key: "transformIfNeeded",
+    value:
+    /**
+     * Default value rendering function. Fallback when no `render` func defined in columnDefinition.
+     * Uses columnDefinition field (column key) to get nested property value from result and display it.
+     *
+     * @todo Maybe use Sets if more performant.
+     * @param {Item} result - JSON object representing row data.
+     * @param {string} field - Field for which this value is for.
+     * @param {function} termTransformFxn - Transform value(s)
+     * @returns {string|null} String value or null. Your function may return a React element, as well.
+     */
+    function transformIfNeeded(result, field, termTransformFxn) {
+      function flattenSet(valArr) {
+        var uniqSet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        uniqSet = uniqSet || new Set();
+
+        if (Array.isArray(valArr)) {
+          for (var i = 0; i < valArr.length; i++) {
+            flattenSet(valArr[i], uniqSet);
+          }
+
+          return uniqSet;
+        } // Else is single value (not array) -
+
+
+        if (valArr !== null && typeof valArr !== 'undefined') {
+          uniqSet.add(valArr);
+        }
+
+        return uniqSet;
+      }
+
+      var uniquedValues = _toConsumableArray(flattenSet(getNestedProperty(result, field, true)));
+
+      var uniquedValuesLen = uniquedValues.length; // No value found - let it default to 'null' and be handled as such
+
+      if (uniquedValuesLen === 0) {
+        // All null or undefined.
+        return null;
+      }
+
+      if (_typeof(uniquedValues[0]) === "object" && uniquedValues[0]["@id"] && typeof termTransformFxn === "function") {
+        // If LinkTo Item(s), return array of JSX elements (spans) which wrap links (assuming is output from termTransformFxn).
+        var uniquedLinkToItems = _.uniq(uniquedValues, false, "@id");
+
+        return uniquedLinkToItems.map(function (v, i) {
+          var transformedValue = termTransformFxn(field, v, true); // `allowJSXOutput=true` == likely a link element.
+
+          if (i === 0 && uniquedLinkToItems.length === 1) {
+            return transformedValue; // Only 1 value, no need to wrap in <span>, {value}</span> to provide comma(s).
+          }
+
+          return /*#__PURE__*/React.createElement("span", {
+            key: i,
+            className: "link-wrapper"
+          }, i > 0 ? ", " : null, transformedValue);
+        });
+      } else if (typeof termTransformFxn === "function") {
+        return uniquedValues.map(function (v) {
+          return termTransformFxn(field, v, false); // `allowJSXOutput=false` == don't allow JSX element/component(s) because joining w. ", ".
+        }).join(', '); // Most often will be just 1 value in set/array.
+      } else {
+        console.warn("No termTransformFxn supplied.");
+        return uniquedValues.join(', ');
+      }
     }
   }]);
 

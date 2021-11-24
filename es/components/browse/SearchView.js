@@ -2,7 +2,7 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+var _excluded = ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "windowWidth"];
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
@@ -64,14 +64,14 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
 
   _createClass(SearchView, [{
     key: "componentDidMount",
-
+    value:
     /**
      * @property {string} href - Current URI.
      * @property {!string} [currentAction=null] - Current action, if any.
      * @property {Object.<ColumnDefinition>} columnExtensionMap - Object keyed by field name with overrides for column definition.
      * @property {boolean} separateSingleTermFacets - If true, will push facets w/ only 1 term available to bottom of FacetList.
      */
-    value: function componentDidMount() {
+    function componentDidMount() {
       ReactTooltip.rebuild();
     }
     /**
@@ -99,7 +99,7 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
           columnExtensionMap = _this$props$columnExt === void 0 ? basicColumnExtensionMap : _this$props$columnExt,
           placeholderReplacementFxn = _this$props.placeholderReplacementFxn,
           windowWidth = _this$props.windowWidth,
-          passProps = _objectWithoutProperties(_this$props, ["href", "context", "showClearFiltersButton", "schemas", "currentAction", "facets", "navigate", "columns", "columnExtensionMap", "placeholderReplacementFxn", "windowWidth"]);
+          passProps = _objectWithoutProperties(_this$props, _excluded);
 
       var contextFacets = context.facets; // All these controllers pass props down to their children.
       // So we don't need to be repetitive here; i.e. may assume 'context' is available
@@ -116,13 +116,12 @@ export var SearchView = /*#__PURE__*/function (_React$PureComponent) {
         facets: propFacets || contextFacets
       });
 
-      var controllersAndView = /*#__PURE__*/React.createElement(WindowNavigationController, _extends({
+      var controllersAndView = /*#__PURE__*/React.createElement(WindowNavigationController, {
         href: href,
         context: context,
-        showClearFiltersButton: showClearFiltersButton
-      }, {
+        showClearFiltersButton: showClearFiltersButton,
         navigate: propNavigate
-      }), /*#__PURE__*/React.createElement(ColumnCombiner, {
+      }, /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
       }, /*#__PURE__*/React.createElement(CustomColumnController, null, /*#__PURE__*/React.createElement(SortController, null, /*#__PURE__*/React.createElement(ControlsAndResults, childViewProps)))));
