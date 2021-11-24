@@ -53,14 +53,15 @@ export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_re
   var open = _ref.open,
       onClick = _ref.onClick,
       className = _ref.className;
+  var cls = (className ? " " + className : "") + (open ? " active" : "");
   return /*#__PURE__*/React.createElement("button", {
     type: "button",
     key: "toggle-visible-columns",
     "data-tip": "Configure visible columns",
     "data-event-off": "click",
-    active: open.toString(),
+    active: !!open,
     onClick: onClick,
-    className: (className || "") + (open ? " active" : "")
+    className: cls
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-table fas"
   }), /*#__PURE__*/React.createElement("i", {
@@ -68,20 +69,21 @@ export var ConfigureVisibleColumnsButton = /*#__PURE__*/React.memo(function (_re
   }));
 });
 ConfigureVisibleColumnsButton.defaultProps = {
-  "className": "btn btn-outline-primary"
+  "className": "btn btn-outline-primary fixed-height"
 };
 export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
   var open = _ref2.open,
       onClick = _ref2.onClick,
       className = _ref2.className;
+  var cls = (className ? " " + className : "") + (open ? " active" : "");
   return /*#__PURE__*/React.createElement("button", {
     type: "button",
     key: "toggle-visible-columns",
     "data-tip": "Sort multiple columns",
     "data-event-off": "click",
-    active: open.toString(),
+    active: !!open,
     onClick: onClick,
-    className: (className || "") + (open ? " active" : "")
+    className: cls
   }, /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-sort fas"
   }), /*#__PURE__*/React.createElement("i", {
@@ -89,7 +91,7 @@ export var MultiColumnSortButton = /*#__PURE__*/React.memo(function (_ref2) {
   }));
 });
 MultiColumnSortButton.defaultProps = {
-  "className": "btn btn-outline-primary"
+  "className": "btn btn-outline-primary fixed-height"
 };
 /** Toggles between regular & full screen views */
 

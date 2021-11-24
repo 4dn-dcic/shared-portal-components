@@ -55,11 +55,11 @@ export class FacetOfFacets extends React.PureComponent {
 
         return (
             <div className={"facet" + (facetOpen || anySelections ? ' open' : ' closed')} data-group={title}>
-                <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
+                <button type="button" className="btn facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
                         <i className={"icon icon-fw icon-" + (anySelections ? "dot-circle far" : (facetOpen ? "minus fas" : "plus fas"))}/>
                     </span>
-                    <div className="col px-0 line-height-1">
+                    <div className="col px-0 text-left">
                         <span data-tip={tooltip} data-place="right">{ title }</span>
                     </div>
                     <Fade in={!facetOpen && !anySelections}>
@@ -68,7 +68,7 @@ export class FacetOfFacets extends React.PureComponent {
                             <i className="icon fas icon-layer-group" />
                         </span>
                     </Fade>
-                </h5>
+                </button>
                 <Collapse in={facetOpen || anySelections}>
                     <div className="facet-group-list-container">
                         { extendedFacets }

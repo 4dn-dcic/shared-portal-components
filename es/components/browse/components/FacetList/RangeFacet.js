@@ -54,7 +54,7 @@ import { PartialList } from './../../../ui/PartialList';
 import { decorateNumberWithCommas } from './../../../util/value-transforms';
 import { getSchemaProperty } from './../../../util/schema-transforms';
 import { patchedConsoleInstance as console } from './../../../util/patched-console';
-import { segmentComponentsByStatus } from './FacetTermsList';
+import { segmentComponentsByStatus, ViewMoreExpandButton } from './FacetTermsList';
 import { ExtendedDescriptionPopoverIcon } from './ExtendedDescriptionPopoverIcon';
 
 function getRangeStatus(range, toVal, fromVal) {
@@ -457,15 +457,16 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/React.createElement("div", {
         className: "facet range-facet" + (facetOpen ? ' open' : ' closed'),
         "data-field": facet.field
-      }, /*#__PURE__*/React.createElement("h5", {
-        className: "facet-title",
+      }, /*#__PURE__*/React.createElement("button", {
+        type: "button",
+        className: "btn facet-title",
         onClick: this.handleOpenToggleClick
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (facetOpen ? "minus fas" : "plus fas")
       })), /*#__PURE__*/React.createElement("div", {
-        className: "col px-0 line-height-1"
+        className: "col px-0 text-left"
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-place": "right"
@@ -784,20 +785,6 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
   };
 
   if (Array.isArray(collapsibleTerms) && collapsibleTerms.length > 0) {
-    var expandButtonTitle;
-
-    if (expanded) {
-      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-minus fas"
-      }), " Collapse");
-    } else {
-      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-plus fas"
-      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/React.createElement("span", {
-        className: "pull-right"
-      }, collapsibleTermsItemCount));
-    }
-
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
@@ -809,10 +796,12 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
         collapsible: collapsibleTerms
       }), /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "view-more-button",
-        onClick: onToggleExpanded
-      }, expandButtonTitle)))
+      }, /*#__PURE__*/React.createElement(ViewMoreExpandButton, {
+        expanded: expanded,
+        collapsibleTermsCount: collapsibleTermsCount,
+        collapsibleTermsItemCount: collapsibleTermsItemCount,
+        onToggle: onToggleExpanded
+      })))
     }));
   } else {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {

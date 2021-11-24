@@ -29,10 +29,9 @@ export const AboveSearchViewTableControls = React.memo(function AboveSearchViewT
         const addAction = _.findWhere(context.actions, { 'name' : 'add' });
         if (addAction && typeof addAction.href === 'string'){
             addButton = (
-                <a className={"btn btn-primary btn-xs" + (total ? " ml-1" : "")} href={addAction.href} data-skiprequest="true">
+                <a className={"btn btn-primary btn-xs d-flex align-items-center" + (total ? " ml-1" : "")} href={addAction.href} data-skiprequest="true">
                     <i className="icon icon-fw icon-plus fas mr-03 fas"/>
-                    Create New
-                    &nbsp;
+                    <span>Create New&nbsp;</span>
                 </a>
             );
         }

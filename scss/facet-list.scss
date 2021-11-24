@@ -252,11 +252,17 @@ $facetlist-term-block-height: default !default;
             }
         }
 
-        h5.facet-title {
+        button.facet-title {
             margin: 0 0 3px;
             font-weight: 500;
             line-height: inherit;
             height: 40px;
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 0;
+            display: flex;
+            align-items: center;
             @include font-size($facetlist-facet-font-size);
 
             > i.icon-info-circle {
@@ -281,7 +287,7 @@ $facetlist-term-block-height: default !default;
         &:not(.static) {
             transition: padding-bottom .35s ease, background-color .35s ease;
             background-color: transparent;
-            h5.facet-title {
+            button.facet-title {
                 
                 margin : 0;
                 border-top: 1px solid transparent;
@@ -289,11 +295,11 @@ $facetlist-term-block-height: default !default;
                 border-bottom: 1px solid #f8f8f8;
                 
                 cursor: pointer;
-                display: flex;
-                align-items: center;
+                
                 > span.expand-toggle > i.icon {
                     font-size: 0.7rem;
                     margin-right: 7px;
+                    transition: color .35s ease-out;
                 }
 
                 .closed-terms-count {
@@ -349,7 +355,14 @@ $facetlist-term-block-height: default !default;
                     }
                 }
 
-                &:hover {
+                &:hover, &:focus {
+                    box-shadow: none; // Unset default .btn focus styling
+
+                    > span.expand-toggle > i.icon {
+                        color: #000;
+                        text-shadow: 0 0;
+                    }
+
                     .closed-terms-count {
 
                         &.show {
@@ -616,6 +629,10 @@ $facetlist-term-block-height: default !default;
                 padding: 2px 6px 1px;
                 line-height: 20px;
                 border-radius: 2px;
+                background: transparent;
+                width: 100%;
+                font-weight: 400;
+
                 &:hover {
                     border-color: #000;
                 }
@@ -623,7 +640,7 @@ $facetlist-term-block-height: default !default;
                 i.icon {
                     font-size: 0.8rem;
                     position: relative;
-                    left: -2px;
+                    line-height: inherit;
                 }
             }
 

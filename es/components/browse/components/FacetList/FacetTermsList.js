@@ -420,15 +420,16 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       return /*#__PURE__*/React.createElement("div", {
         className: "facet" + (facetOpen || allTermsSelected ? ' open' : ' closed'),
         "data-field": facet.field
-      }, /*#__PURE__*/React.createElement("h5", {
-        className: "facet-title",
+      }, /*#__PURE__*/React.createElement("button", {
+        type: "button",
+        className: "btn facet-title",
         onClick: this.handleOpenToggleClick
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
       })), /*#__PURE__*/React.createElement("div", {
-        className: "col px-0 line-height-1"
+        className: "col px-0 text-left"
       }, /*#__PURE__*/React.createElement("span", {
         "data-tip": facetSchemaDescription || fieldSchemaDescription,
         "data-html": true,
@@ -618,20 +619,6 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   }
 
   if (Array.isArray(collapsibleTerms)) {
-    var expandButtonTitle;
-
-    if (expanded) {
-      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-minus fas"
-      }), " Collapse");
-    } else {
-      expandButtonTitle = /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-plus fas"
-      }), " View ", collapsibleTermsCount, " More", /*#__PURE__*/React.createElement("span", {
-        className: "pull-right"
-      }, collapsibleTermsItemCount));
-    }
-
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
@@ -643,10 +630,12 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         collapsible: collapsibleTerms
       }), /*#__PURE__*/React.createElement("div", {
         className: "pt-08 pb-0"
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "view-more-button",
-        onClick: onToggleExpanded
-      }, expandButtonTitle)))
+      }, /*#__PURE__*/React.createElement(ViewMoreExpandButton, {
+        expanded: expanded,
+        collapsibleTermsCount: collapsibleTermsCount,
+        collapsibleTermsItemCount: collapsibleTermsItemCount,
+        onToggle: onToggleExpanded
+      })))
     }));
   } else {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
@@ -657,6 +646,36 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     }));
   }
 });
+export function ViewMoreExpandButton(props) {
+  var _props$expanded = props.expanded,
+      expanded = _props$expanded === void 0 ? false : _props$expanded,
+      onToggle = props.onToggle,
+      collapsibleTermsCount = props.collapsibleTermsCount,
+      collapsibleTermsItemCount = props.collapsibleTermsItemCount;
+  var expandButtonTitle;
+
+  if (expanded) {
+    expandButtonTitle = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-fw icon-minus fas mr-06"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "flex-grow-1 text-left"
+    }, "Collapse"));
+  } else {
+    expandButtonTitle = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("i", {
+      className: "icon icon-fw icon-plus fas mr-06"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "flex-grow-1 text-left"
+    }, "View ", collapsibleTermsCount, " More"), /*#__PURE__*/React.createElement("span", {
+      className: "pull-right"
+    }, collapsibleTermsItemCount));
+  }
+
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn view-more-button d-flex align-items-center",
+    onClick: onToggle
+  }, expandButtonTitle);
+}
 export var CountIndicator = /*#__PURE__*/React.memo(function (props) {
   var _props$count = props.count,
       count = _props$count === void 0 ? 1 : _props$count,

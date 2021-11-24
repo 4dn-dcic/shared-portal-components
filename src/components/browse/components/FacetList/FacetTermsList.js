@@ -276,16 +276,16 @@ export class FacetTermsList extends React.PureComponent {
         // List of terms
         return (
             <div className={"facet" + (facetOpen || allTermsSelected ? ' open' : ' closed')} data-field={facet.field}>
-                <h5 className="facet-title" onClick={this.handleOpenToggleClick}>
+                <button type="button" className="btn facet-title" onClick={this.handleOpenToggleClick}>
                     <span className="expand-toggle col-auto px-0">
                         <i className={"icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")}/>
                     </span>
-                    <div className="col px-0 line-height-1">
+                    <div className="col px-0 text-left">
                         <span data-tip={facetSchemaDescription || fieldSchemaDescription} data-html data-place="right">{ title }</span>
                         <ExtendedDescriptionPopoverIcon {...{ fieldSchema, facet, openPopover, setOpenPopover }} />
                     </div>
                     { indicator }
-                </h5>
+                </button>
                 <ListOfTerms
                     {...{ facet, facetOpen, terms, onTermClick, expanded, getTermStatus, termTransformFxn, searchText, schemas, persistentCount, defaultBasicSearchAutoDisplayThreshold, filteringFieldTerm }}
                     onSaytTermSearch={this.handleSaytTermSearch} onBasicTermSearch={this.handleBasicTermSearch} onToggleExpanded={this.handleExpandListToggleClick} />
@@ -404,23 +404,6 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     }
 
     if (Array.isArray(collapsibleTerms)) {
-        let expandButtonTitle;
-
-        if (expanded){
-            expandButtonTitle = (
-                <span>
-                    <i className="icon icon-fw icon-minus fas"/> Collapse
-                </span>
-            );
-        } else {
-            expandButtonTitle = (
-                <span>
-                    <i className="icon icon-fw icon-plus fas"/> View { collapsibleTermsCount } More
-                    <span className="pull-right">{ collapsibleTermsItemCount }</span>
-                </span>
-            );
-        }
-
         return (
             <div {...commonProps}>
                 <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
@@ -428,7 +411,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                         {facetSearch}
                         <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
                         <div className="pt-08 pb-0">
-                            <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
+                            <ViewMoreExpandButton {...{ expanded, collapsibleTermsCount, collapsibleTermsItemCount }} onToggle={onToggleExpanded} />
                         </div>
                     </React.Fragment>
                 } />
@@ -447,6 +430,32 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         );
     }
 });
+
+export function ViewMoreExpandButton (props) {
+    const { expanded = false, onToggle, collapsibleTermsCount, collapsibleTermsItemCount } = props;
+    let expandButtonTitle;
+    if (expanded){
+        expandButtonTitle = (
+            <React.Fragment>
+                <i className="icon icon-fw icon-minus fas mr-06"/>
+                <span className="flex-grow-1 text-left">Collapse</span>
+            </React.Fragment>
+        );
+    } else {
+        expandButtonTitle = (
+            <React.Fragment>
+                <i className="icon icon-fw icon-plus fas mr-06"/>
+                <span className="flex-grow-1 text-left">View { collapsibleTermsCount } More</span>
+                <span className="pull-right">{ collapsibleTermsItemCount }</span>
+            </React.Fragment>
+        );
+    }
+    return (
+        <button type="button" className="btn view-more-button d-flex align-items-center" onClick={onToggle}>
+            { expandButtonTitle }
+        </button>
+    );
+}
 
 
 export const CountIndicator = React.memo(function CountIndicator(props){
