@@ -112,26 +112,12 @@ export class HeadersRow extends React.PureComponent {
     /**
      * linkTo fields are appended by .display_title by backend so we trim it to find a match
      */
-    static getTrimmedColumn = memoize(function getTrimmedColumn(column) {
+    static getTrimmedColumn(column) {
         if (!column || typeof column !== 'string' || column.length <= 14 || !column.endsWith('.display_title')) {
             return column;
         }
-
         return column.substring(0, column.length - 14);
-    });
-
-    static getInitialSort = memoize(function getInitialSort(columnDefinitions, field) {
-        if (columnDefinitions) {
-            const { allSortFields, allSortFieldsMap } = HeadersRow.flattenColumnsDefinitionsSortFields(columnDefinitions);
-            const def = allSortFieldsMap && allSortFieldsMap[field];
-            if (def) {
-                return def.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(def.type);
-            }
-        }
-        return null;
-    });
-
-    static flattenColumnsDefinitionsSortFields = memoize(flattenColumnsDefinitionsSortFields);
+    }
 
     static getSortDirectionBySchemaFieldType(fieldType) {
         const directionsByFieldType = {
@@ -158,7 +144,9 @@ export class HeadersRow extends React.PureComponent {
         this.memoized = {
             alignedWidths: memoize(HeadersRow.alignedWidths),
             getSortColumnMap: memoize(HeadersRow.getSortColumnMap),
-            getRootLoadingField: memoize(HeadersRow.getRootLoadingField)
+            getRootLoadingField: memoize(HeadersRow.getRootLoadingField),
+            flattenColumnsDefinitionsSortFields: memoize(flattenColumnsDefinitionsSortFields),
+            getTrimmedColumn: memoize(HeadersRow.getTrimmedColumn)
         };
     }
 
@@ -183,7 +171,7 @@ export class HeadersRow extends React.PureComponent {
         const [{ column: sortColumn = null, direction = null } = {}] = sortColumns || [];
         const [{ column: pastSortColumn = null, direction: pastDirection = null } = {}] = pastSortColumns || [];
         if (loadingField !== null && (sortColumn !== pastSortColumn || direction !== pastDirection)) {
-            if (sortColumn === loadingField || HeadersRow.getTrimmedColumn(sortColumn) === loadingField) {
+            if (sortColumn === loadingField || this.memoized.getTrimmedColumn(sortColumn) === loadingField) {
                 nextState.loadingField = null;
             }
         }
@@ -226,7 +214,15 @@ export class HeadersRow extends React.PureComponent {
 
         const trimmedColumn = HeadersRow.getTrimmedColumn(column);
         const isActive = column === field || (trimmedColumn && trimmedColumn === field);
-        const initialSort = HeadersRow.getInitialSort(columnDefinitions, field);
+
+        let initialSort = null;
+        if (columnDefinitions) {
+            const { allSortFields, allSortFieldsMap } = this.memoized.flattenColumnsDefinitionsSortFields(columnDefinitions);
+            const { [field]: def } = allSortFieldsMap || {};
+            if (def) {
+                initialSort = def.initial_sort || HeadersRow.getSortDirectionBySchemaFieldType(def.type) || null;
+            }
+        }
 
         let sortDirection;
         if (!isActive && initialSort) {
