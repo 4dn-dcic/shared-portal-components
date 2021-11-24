@@ -274,7 +274,8 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
       var hideButton = value && !isNaN(value) && !keyComplete[intKey];
       return hideButton ? null : /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
-        currentTextValue: currentTextValue,
+        currentTextValue: currentTextValue
+      }, {
         alignRight: true,
         options: results,
         onToggleOpen: this.onToggleOpen,
@@ -359,7 +360,8 @@ export function SubmissionViewSearchAsYouTypeAjax(props) {
   return /*#__PURE__*/React.createElement("div", {
     className: "d-flex flex-wrap"
   }, /*#__PURE__*/React.createElement(SearchAsYouTypeAjax, _extends({
-    showTips: true,
+    showTips: true
+  }, {
     value: value,
     onChange: onChange,
     baseHref: baseHref,
@@ -731,15 +733,16 @@ export var LinkedObj = /*#__PURE__*/function (_React$PureComponent2) {
         }
       }
 
-      return /*#__PURE__*/React.createElement(LinkToSelector, {
+      return /*#__PURE__*/React.createElement(LinkToSelector, _extends({
         isSelecting: true,
         onSelect: this.handleFinishSelectItem,
         onCloseChildWindow: selectCancel,
-        childWindowAlert: this.childWindowAlert,
+        childWindowAlert: this.childWindowAlert
+      }, {
         value: value,
         dropMessage: "Drop " + (itemType || "Item") + " for field '" + (prettyTitle || nestedField) + "'",
         searchURL: searchURL
-      });
+      }));
     }
   }, {
     key: "renderButtons",

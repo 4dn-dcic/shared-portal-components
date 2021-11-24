@@ -322,10 +322,11 @@ var ColumnOption = /*#__PURE__*/React.memo(function (props) {
     key: field,
     "data-tip": showDescription,
     "data-html": true
-  }, /*#__PURE__*/React.createElement(Checkbox, {
+  }, /*#__PURE__*/React.createElement(Checkbox, _extends({
     className: className,
-    checked: checked,
+    checked: checked
+  }, {
     value: field,
     onChange: handleOptionVisibilityChange
-  }, title));
+  }), title));
 });

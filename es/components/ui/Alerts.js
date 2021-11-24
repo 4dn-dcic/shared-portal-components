@@ -4,6 +4,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
 var _excluded = ["alerts", "children"];
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -104,14 +106,15 @@ export var Alerts = /*#__PURE__*/function (_React$Component) {
       var dismissing = this.state.dismissing;
       if (alerts.length === 0) return null;
       return /*#__PURE__*/React.createElement("div", passProps, _.map(alerts, function (alert, index, alerts) {
-        return /*#__PURE__*/React.createElement(AlertItem, {
+        return /*#__PURE__*/React.createElement(AlertItem, _extends({
           alert: alert,
           index: index,
-          alerts: alerts,
+          alerts: alerts
+        }, {
           setDismissing: _this2.setDismissing,
           dismissing: dismissing,
           key: index
-        });
+        }));
       }));
     }
   }], [{
