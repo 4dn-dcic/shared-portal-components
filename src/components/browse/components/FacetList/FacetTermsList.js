@@ -118,7 +118,7 @@ export class Term extends React.PureComponent {
 
     render() {
         const { term, facet, status, termTransformFxn, isFiltering, useRadioIcon = false } = this.props;
-        
+
         const selected = (status !== 'none');
         const count = (term && term.doc_count) || 0;
         let title = termTransformFxn(facet.field, term.key) || term.key;
@@ -359,11 +359,11 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
         const omittedLen = omittedTermComponents.length;
         const unselectedLen = unselectedTermComponents.length;
         const totalLen = selectedLen + omittedLen + unselectedLen;
-        
+
         if (!persistSelectedTerms) {
             return { termComponents: allTermComponents, selectedLen, omittedLen, unselectedLen, totalLen };
         }
-        
+
         const termComponents = selectedTermComponents.concat(omittedTermComponents).concat(unselectedTermComponents);
         const activeTermComponents = termComponents.slice(0, selectedLen + omittedLen);
 
@@ -394,6 +394,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     const commonProps = {
         "data-any-active" : !!(selectedLen || omittedLen),
         "data-all-active" : totalLen === (selectedLen + omittedLen),
+        "data-persist-terms": persistSelectedTerms,
         "data-open" : facetOpen,
         "className" : "facet-list",
         "key" : "facetlist"
@@ -402,7 +403,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
     if (!persistSelectedTerms) {
         return (
             <div {...commonProps}>
-                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={[]} collapsible={
+                <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={null} collapsible={
                     <React.Fragment>
                         {termComponents}
                     </React.Fragment>

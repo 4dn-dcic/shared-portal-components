@@ -612,6 +612,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
   var commonProps = {
     "data-any-active": !!(selectedLen || omittedLen),
     "data-all-active": totalLen === selectedLen + omittedLen,
+    "data-persist-terms": persistSelectedTerms,
     "data-open": facetOpen,
     "className": "facet-list",
     "key": "facetlist"
@@ -621,7 +622,7 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
     return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
       className: "mb-0 active-terms-pl",
       open: facetOpen,
-      persistent: [],
+      persistent: null,
       collapsible: /*#__PURE__*/React.createElement(React.Fragment, null, termComponents)
     }));
   } else {
