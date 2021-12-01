@@ -6,11 +6,11 @@ function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArra
 
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -467,7 +467,9 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           schemas = _this$props5.schemas,
           itemTypeForSchemas = _this$props5.itemTypeForSchemas,
           termTransformFxn = _this$props5.termTransformFxn,
-          persistentCount = _this$props5.persistentCount;
+          persistentCount = _this$props5.persistentCount,
+          useRadioIcon = _this$props5.useRadioIcon,
+          persistSelectedTerms = _this$props5.persistSelectedTerms;
       var filters = context.filters;
       var _this$state2 = this.state,
           openFacets = _this$state2.openFacets,
@@ -483,6 +485,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
         separateSingleTermFacets: separateSingleTermFacets,
         openPopover: openPopover,
         filteringFieldTerm: filteringFieldTerm,
+        useRadioIcon: useRadioIcon,
+        persistSelectedTerms: persistSelectedTerms,
         onFilter: this.onFilterExtended,
         onFilterMultiple: this.onFilterMultipleExtended,
         getTermStatus: this.getTermStatus,
@@ -547,13 +551,14 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: "facets-container facets with-header-bg",
         "data-context-loading": isContextLoading
-      }, /*#__PURE__*/React.createElement(FacetListHeader, {
+      }, /*#__PURE__*/React.createElement(FacetListHeader, _extends({
         openFacets: openFacets,
         title: title,
         onClearFilters: onClearFilters,
-        showClearFiltersButton: showClearFiltersButton,
+        showClearFiltersButton: showClearFiltersButton
+      }, {
         onCollapseFacets: this.handleCollapseAllFacets
-      }), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
+      })), /*#__PURE__*/React.createElement("div", bodyProps, selectableFacetElements, staticFacetElements.length > 0 ? /*#__PURE__*/React.createElement("div", {
         className: "row facet-list-separator"
       }, /*#__PURE__*/React.createElement("div", {
         className: "col-12"
@@ -683,7 +688,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             grouping: grouping,
             fromVal: fromVal,
             toVal: toVal,
-            facet: facet,
+            facet: facet
+          }, {
             key: facetField,
             anyTermsSelected: fromVal !== null || toVal !== null
           }));
@@ -700,7 +706,8 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
             isStatic: _isStatic,
             grouping: grouping,
             termsSelectedCount: termsSelectedCount,
-            facet: facet,
+            facet: facet
+          }, {
             key: facetField,
             anyTermsSelected: _anySelected
           }));
@@ -898,7 +905,11 @@ _defineProperty(FacetList, "propTypes", {
   'onFilterMultiple': PropTypes.func,
   // Same as onFilter, but processes multiple filter changes in one go
   'separateSingleTermFacets': PropTypes.bool,
-  'maxBodyHeight': PropTypes.number
+  'maxBodyHeight': PropTypes.number,
+  'useRadioIcon': PropTypes.bool.isRequired,
+  // Show either checkbox (False) or radio icon (True) for term component - it is only for styling, not intended to implement single selection (radio) or multiple selection (checkbox)
+  'persistSelectedTerms': PropTypes.bool.isRequired // if True selected/omitted terms are escalated to top, otherwise each term is rendered in regular order. Moreover, inline search options are not displayed if it is False.
+
 });
 
 _defineProperty(FacetList, "defaultProps", {
@@ -951,7 +962,9 @@ _defineProperty(FacetList, "defaultProps", {
     arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     return term;
-  }
+  },
+  'useRadioIcon': false,
+  'persistSelectedTerms': true
 });
 
 export var FacetListHeader = /*#__PURE__*/React.memo(function (props) {

@@ -116,7 +116,8 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
       return /*#__PURE__*/React.createElement(SearchSelectionMenu, _extends({}, passProps, {
         optionsHeader: optionsHeader,
         currentTextValue: currentTextValue,
-        allowCustomValue: allowCustomValue,
+        allowCustomValue: allowCustomValue
+      }, {
         options: filteredOptions,
         onTextInputChange: this.onTextInputChange,
         onDropdownSelect: this.onDropdownSelect

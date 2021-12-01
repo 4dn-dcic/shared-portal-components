@@ -1247,14 +1247,15 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
 
       if (anyResults) {
         headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
-        shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, {
+        shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, _extends({
           tableContainerScrollLeft: tableContainerScrollLeft,
           tableContainerWidth: tableContainerWidth,
-          fullRowWidth: fullRowWidth,
+          fullRowWidth: fullRowWidth
+        }, {
           setContainerScrollLeft: this.setContainerScrollLeft,
           fixedPositionArrows: isOwnPage,
           getScrollContainer: this.getScrollContainer
-        });
+        }));
         childrenToShow = results.map(function (result, idx) {
           var id = itemUtil.atId(result);
           var detailOpen = openDetailPanes[id] || false; // We can skip passing tableContainerScrollLeft unless detail pane open to improve performance
@@ -1264,7 +1265,8 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           return /*#__PURE__*/React.createElement(ResultRow, _extends({}, resultRowCommonProps, {
             result: result,
             id: id,
-            detailOpen: detailOpen,
+            detailOpen: detailOpen
+          }, {
             rowNumber: idx,
             key: id,
             tableContainerScrollLeft: detailOpen ? tableContainerScrollLeft : 0

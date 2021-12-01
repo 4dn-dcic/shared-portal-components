@@ -2,6 +2,8 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -248,13 +250,14 @@ export var LinkToDropdown = /*#__PURE__*/function (_React$PureComponent) {
       }
 
       var className = "linkto-dropdown" + (propClsName ? " " + propClsName : "");
-      return /*#__PURE__*/React.createElement(DropdownButton, {
+      return /*#__PURE__*/React.createElement(DropdownButton, _extends({
         variant: variant,
         title: title,
         disabled: disabled,
-        className: className,
+        className: className
+      }, {
         onSelect: this.handleSelect
-      }, searchAsYouType ? /*#__PURE__*/React.createElement("div", {
+      }), searchAsYouType ? /*#__PURE__*/React.createElement("div", {
         className: "search-as-you-type-container"
       }, /*#__PURE__*/React.createElement("input", {
         type: "text",

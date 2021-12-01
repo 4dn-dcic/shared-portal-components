@@ -442,12 +442,13 @@ var MultiColumnSortOption = /*#__PURE__*/React.memo(function (props) {
     className: "row mt-1 multi-column-sort"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-8"
-  }, /*#__PURE__*/React.createElement(DropdownButton, {
+  }, /*#__PURE__*/React.createElement(DropdownButton, _extends({
     title: title,
-    size: size,
+    size: size
+  }, {
     variant: (variant ? variant + " " : "") + "btn-block text-left",
     onSelect: handleSortColumnSelection
-  }, allSortFields.map(function (col, idx) {
+  }), allSortFields.map(function (col, idx) {
     var field = col.field,
         title = col.title,
         hasSubFields = col.hasSubFields,

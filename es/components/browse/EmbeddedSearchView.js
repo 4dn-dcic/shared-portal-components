@@ -150,23 +150,25 @@ export var EmbeddedSearchView = /*#__PURE__*/function (_React$PureComponent) {
       var filterFacetFxn = propFacetFilterFxn || this.filterFacetFxn;
       return /*#__PURE__*/React.createElement("div", {
         className: "embedded-search-container"
-      }, /*#__PURE__*/React.createElement(VirtualHrefController, {
+      }, /*#__PURE__*/React.createElement(VirtualHrefController, _extends({
         searchHref: searchHref,
         facets: facets,
         onLoad: onLoad,
         filterFacetFxn: filterFacetFxn,
         onClearFiltersVirtual: onClearFiltersVirtual,
         isClearFiltersBtnVisible: isClearFiltersBtnVisible,
-        allowPostRequest: allowPostRequest,
+        allowPostRequest: allowPostRequest
+      }, {
         key: searchHref || 1
-      }, /*#__PURE__*/React.createElement(ColumnCombiner, {
+      }), /*#__PURE__*/React.createElement(ColumnCombiner, {
         columns: columns,
         columnExtensionMap: columnExtensionMap
-      }, /*#__PURE__*/React.createElement(CustomColumnController, {
+      }, /*#__PURE__*/React.createElement(CustomColumnController, _extends({
         windowWidth: windowWidth,
-        filterColumnFxn: filterColumnFxn,
+        filterColumnFxn: filterColumnFxn
+      }, {
         hiddenColumns: hideColumns
-      }, /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, renderSearchResultTable ? /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
+      }), /*#__PURE__*/React.createElement(SortController, null, embeddedTableHeader, renderSearchResultTable ? /*#__PURE__*/React.createElement(ControlsAndResults, _extends({}, viewProps, {
         isOwnPage: false
       })) : null, embeddedTableFooter)))));
     }

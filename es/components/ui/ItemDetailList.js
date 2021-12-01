@@ -845,15 +845,16 @@ var DetailRow = /*#__PURE__*/function (_React$PureComponent) {
           field: key,
           label: labelToShow,
           className: (className || '') + (isOpen ? ' open' : '')
-        }, value), /*#__PURE__*/React.createElement(SubItemListView, {
+        }, value), /*#__PURE__*/React.createElement(SubItemListView, _extends({
           popLink: popLink,
           schemas: schemas,
           isOpen: isOpen,
-          termTransformFxn: termTransformFxn,
+          termTransformFxn: termTransformFxn
+        }, {
           content: item,
           columnDefinitions: value.props.columnDefinitions || columnDefinitions // Recursively pass these down
 
-        }));
+        })));
       }
 
       if (value.type === "ol" && value.props.children[0] && value.props.children[0].type === "li" && value.props.children[0].props.children && value.props.children[0].props.children.type === SubItemTitle) {
@@ -1016,15 +1017,16 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
         return /*#__PURE__*/React.createElement("span", null, "No Value");
       } else if (Array.isArray(item)) {
         if (SubItemTable.shouldUseTable(item, schemas)) {
-          return /*#__PURE__*/React.createElement(SubItemTable, {
+          return /*#__PURE__*/React.createElement(SubItemTable, _extends({
             popLink: popLink,
             columnDefinitions: columnDefinitions,
             schemas: schemas,
             atType: atType,
-            termTransformFxn: termTransformFxn,
+            termTransformFxn: termTransformFxn
+          }, {
             items: item,
             parentKey: keyPrefix
-          });
+          }));
         } else if (SubItemTable.isMultiDimArray(item, isPrimitive)) {
           item = _.zip.apply(_, _toConsumableArray(item));
           return /*#__PURE__*/React.createElement("ol", null, item.map(function (it, i) {

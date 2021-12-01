@@ -10,9 +10,9 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -36,13 +36,14 @@ export function FileDownloadButton(props) {
       tooltip = props.tooltip,
       onClick = props.onClick;
   var cls = "btn download-button" + (disabled ? ' disabled' : '') + (size ? ' btn-' + size : '') + (className ? " " + className : '');
-  var button = /*#__PURE__*/React.createElement("a", {
+  var button = /*#__PURE__*/React.createElement("a", _extends({
     href: href,
-    onClick: onClick,
+    onClick: onClick
+  }, {
     className: cls,
     download: true,
     "data-tip": tooltip || filename || null
-  }, /*#__PURE__*/React.createElement("i", {
+  }), /*#__PURE__*/React.createElement("i", {
     className: "icon icon-fw icon-cloud-download-alt fas"
   }), title ? /*#__PURE__*/React.createElement("span", null, "\xA0 ", title) : null);
   return disabled && tooltip ? /*#__PURE__*/React.createElement("span", {

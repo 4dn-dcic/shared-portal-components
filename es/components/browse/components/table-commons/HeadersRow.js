@@ -335,21 +335,23 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
             columnDefinition: columnDefinition,
             index: index,
             showingSortOptionsMenu: showingSortFieldsForColumn && showingSortFieldsForColumn === field,
-            isLoading: rootLoadingField && rootLoadingField === field,
+            isLoading: rootLoadingField && rootLoadingField === field
+          }, {
             width: alignedWidths[index],
             key: field,
             sortMap: sortColumnMap[field]
           }))
         );
-      }))), showingSortFieldsForColumn !== null ? /*#__PURE__*/React.createElement(SortOptionsMenuContainer, {
+      }))), showingSortFieldsForColumn !== null ? /*#__PURE__*/React.createElement(SortOptionsMenuContainer, _extends({
         showingSortFieldsForColumn: showingSortFieldsForColumn,
         columnDefinitions: columnDefinitions,
         sortColumn: sortColumn,
         sortReverse: sortReverse,
         alignedWidths: alignedWidths,
-        leftOffset: leftOffset,
+        leftOffset: leftOffset
+      }, {
         sortByField: this.sortByField
-      }) : null);
+      })) : null);
     }
   }], [{
     key: "alignedWidths",
@@ -717,13 +719,14 @@ var ColumnSorterIcon = /*#__PURE__*/function (_React$PureComponent3) {
         onClick: this.onIconClick,
         "data-tip": tooltip,
         "data-html": true
-      }, /*#__PURE__*/React.createElement(ColumnSorterIconElement, {
+      }, /*#__PURE__*/React.createElement(ColumnSorterIconElement, _extends({
         showingSortOptionsMenu: showingSortOptionsMenu,
         hasMultipleSortOptions: hasMultipleSortOptions,
         isLoading: isLoading,
-        sequence: sequence,
+        sequence: sequence
+      }, {
         descend: !sortMap || sortMap && sortDirection === 'desc' || false
-      }));
+      })));
     }
   }], [{
     key: "getDescend",

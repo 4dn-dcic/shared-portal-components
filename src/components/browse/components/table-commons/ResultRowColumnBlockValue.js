@@ -108,8 +108,10 @@ export class ResultRowColumnBlockValue extends React.Component {
         const {
             field,
             render: renderFxn = null,
+            tooltip: colDefTooltip
         } = columnDefinition;
 
+        const showTooltip = propTooltip === true || colDefTooltip === true;
 
         let value = renderFxn ?
             renderFxn(result, _.omit(this.props, 'result'))
@@ -122,7 +124,7 @@ export class ResultRowColumnBlockValue extends React.Component {
         if (typeof value === 'number'){
             value = <span className="value">{ value }</span>;
         } else if (typeof value === 'string') {
-            if (propTooltip === true && value.length > 25) tooltip = value;
+            if (showTooltip && value.length > 25) tooltip = value;
             value = <span className="value text-center">{ value }</span>;
         } else if (value === null){
             value = <small className="value text-center">-</small>;

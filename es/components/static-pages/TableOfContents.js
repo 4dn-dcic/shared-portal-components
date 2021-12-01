@@ -18,6 +18,8 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -255,9 +257,10 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         "data-recursion-depth": recurDepth
       }, title, /*#__PURE__*/React.createElement(Collapse, {
         "in": !this.state || open && mounted
-      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(TableEntryChildren, {
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(TableEntryChildren, _extends({
         navigate: propNavigate,
-        parentClosed: this.state && !open,
+        parentClosed: this.state && !open
+      }, {
         active: active,
         content: content,
         childHeaders: childHeaders,
@@ -271,7 +274,7 @@ var TableEntry = /*#__PURE__*/function (_React$Component) {
         maxHeaderDepth: maxHeaderDepth,
         skipDepth: skipDepth,
         recurDepth: recurDepth
-      }))));
+      })))));
     }
   }]);
 
@@ -701,14 +704,15 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           return TableEntryChildren.renderChildrenElements(childHeaders, childDepth, content, opts);
         }
 
-        return /*#__PURE__*/React.createElement(TableEntry, {
+        return /*#__PURE__*/React.createElement(TableEntry, _extends({
           link: link,
           content: content,
           listStyleTypes: listStyleTypes,
           mounted: mounted,
           nextHeader: nextHeader,
           skipDepth: skipDepth,
-          maxHeaderDepth: maxHeaderDepth,
+          maxHeaderDepth: maxHeaderDepth
+        }, {
           title: tocTitle || title || _.map(link.split('-'), function (w) {
             return w.charAt(0).toUpperCase() + w.slice(1);
           }).join(' '),
@@ -716,7 +720,7 @@ export var TableOfContents = /*#__PURE__*/function (_React$Component3) {
           depth: 1,
           pageScrollTop: scrollTop,
           navigate: propNavigate
-        });
+        }));
       }); // Might have `null` or 2 in there from `renderChildrenElements`.
 
 

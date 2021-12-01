@@ -597,7 +597,8 @@ $facetlist-term-block-height: default !default;
                 }
             }
 
-            &[data-all-active="true"] {
+            &[data-all-active="true"],
+            &[data-persist-terms="false"] {
                 li.selected:last-child:after,
                 li.omitted:last-child:after {
                     content: none;
