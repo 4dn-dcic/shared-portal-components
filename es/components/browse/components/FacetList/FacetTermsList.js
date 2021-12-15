@@ -434,7 +434,7 @@ export var FacetTermsList = /*#__PURE__*/function (_React$PureComponent2) {
       }, /*#__PURE__*/React.createElement("span", {
         className: "expand-toggle col-auto px-0"
       }, /*#__PURE__*/React.createElement("i", {
-        className: "icon icon-fw icon-" + (allTermsSelected ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
+        className: "icon icon-fw icon-" + (allTermsSelected && useRadioIcon === false ? "dot-circle far" : (facetOpen ? "minus" : "plus") + " fas")
       })), /*#__PURE__*/React.createElement("div", {
         className: "col px-0 line-height-1"
       }, /*#__PURE__*/React.createElement("span", {

@@ -463,12 +463,24 @@ export class FacetList extends React.PureComponent {
     }
 
     componentDidMount(){
-        const { windowHeight, windowWidth, facets, persistentCount = 10 } = this.props;
+        const { windowHeight, windowWidth, facets, persistentCount = 10, persistSelectedTerms = true, context: { filters } = {} } = this.props;
         const rgs = responsiveGridState(windowWidth || null);
         const { selectableFacetElements } = this.renderFacetComponents(); // Internally memoized - should be performant.
 
         if (rgs === "xs") {
             ReactTooltip.rebuild();
+            return;
+        }
+
+        //default open facets for selected terms are not persistent case
+        if (persistSelectedTerms === false && filters && filters.length > 0) {
+            const openFacets = filters.reduce(function (m, v) {
+                if (v && v.field) {
+                    m[v.field] = true;
+                }
+                return m;
+            }, {});
+            this.setState({ openFacets: openFacets });
             return;
         }
 
