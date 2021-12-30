@@ -241,7 +241,12 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
           windowWidth = _this$props.windowWidth,
           facets = _this$props.facets,
           _this$props$persisten = _this$props.persistentCount,
-          persistentCount = _this$props$persisten === void 0 ? 10 : _this$props$persisten;
+          persistentCount = _this$props$persisten === void 0 ? 10 : _this$props$persisten,
+          _this$props$persistSe = _this$props.persistSelectedTerms,
+          persistSelectedTerms = _this$props$persistSe === void 0 ? true : _this$props$persistSe,
+          _this$props$context = _this$props.context;
+      _this$props$context = _this$props$context === void 0 ? {} : _this$props$context;
+      var filters = _this$props$context.filters;
       var rgs = responsiveGridState(windowWidth || null);
 
       var _this$renderFacetComp = this.renderFacetComponents(),
@@ -250,6 +255,21 @@ export var FacetList = /*#__PURE__*/function (_React$PureComponent) {
 
       if (rgs === "xs") {
         ReactTooltip.rebuild();
+        return;
+      } //default open facets for selected terms are not persistent case
+
+
+      if (persistSelectedTerms === false && filters && filters.length > 0) {
+        var openFacets = filters.reduce(function (m, v) {
+          if (v && v.field) {
+            m[v.field] = true;
+          }
+
+          return m;
+        }, {});
+        this.setState({
+          openFacets: openFacets
+        });
         return;
       } // Skip if we have many facets. We're simply reusing persistentCount variable here
       // but could really be any number/value (8 ? windowHeight // 100 ?)
