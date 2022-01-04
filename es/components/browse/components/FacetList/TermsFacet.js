@@ -129,17 +129,16 @@ export var TermsFacet = /*#__PURE__*/function (_React$PureComponent) {
 
       if (separateSingleTermFacets && isStatic) {
         // Only one term exists.
-        return /*#__PURE__*/React.createElement(StaticSingleTerm, _extends({
+        return /*#__PURE__*/React.createElement(StaticSingleTerm, {
           fieldSchema: fieldSchema,
           facet: facet,
           filtering: filtering,
           getTermStatus: getTermStatus,
           extraClassname: extraClassname,
-          termTransformFxn: termTransformFxn
-        }, {
+          termTransformFxn: termTransformFxn,
           term: terms[0],
           onClick: this.handleStaticClick
-        }));
+        });
       } else {
         return /*#__PURE__*/React.createElement(FacetTermsList, _extends({}, this.props, {
           fieldSchema: fieldSchema,

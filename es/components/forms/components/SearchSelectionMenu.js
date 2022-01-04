@@ -1,7 +1,5 @@
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -124,6 +122,8 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "render",
     value: function render() {
+      var _React$createElement;
+
       var _this$props2 = this.props,
           _this$props2$currentT = _this$props2.currentTextValue,
           currentTextValue = _this$props2$currentT === void 0 ? "" : _this$props2$currentT,
@@ -155,26 +155,19 @@ export var SearchSelectionMenu = /*#__PURE__*/function (_React$PureComponent) {
         onToggle: this.onToggleOpen,
         show: dropOpen,
         className: cls
-      }, /*#__PURE__*/React.createElement(Dropdown.Toggle, _extends({
-        variant: variant
-      }, {
+      }, /*#__PURE__*/React.createElement(Dropdown.Toggle, {
+        variant: variant,
         "data-tip": showTips ? value : null
-      }), showValue), /*#__PURE__*/React.createElement(Dropdown.Menu, _extends({
+      }, showValue), /*#__PURE__*/React.createElement(Dropdown.Menu, (_React$createElement = {
         key: refreshKey,
-        as: SearchSelectionMenuBody
-      }, {
+        as: SearchSelectionMenuBody,
         onTextInputChange: onTextInputChange,
         optionsHeader: optionsHeader,
         optionsFooter: optionsFooter,
-        currentTextValue: currentTextValue
-      }, {
+        currentTextValue: currentTextValue,
         flip: true,
-        show: dropOpen,
-        onTextInputChange: onTextInputChange,
-        toggleOpen: this.onToggleOpen,
-        ref: this.dropdown,
-        onKeyDown: this.onKeyDown
-      }), options.map(function (option, idx) {
+        show: dropOpen
+      }, _defineProperty(_React$createElement, "onTextInputChange", onTextInputChange), _defineProperty(_React$createElement, "toggleOpen", this.onToggleOpen), _defineProperty(_React$createElement, "ref", this.dropdown), _defineProperty(_React$createElement, "onKeyDown", this.onKeyDown), _React$createElement), options.map(function (option, idx) {
         var renderedOption = typeof optionRenderFunction === "function" ? optionRenderFunction(option) : option;
         return /*#__PURE__*/React.createElement(Dropdown.Item, {
           "data-index": idx,

@@ -142,8 +142,7 @@ export var BuildField = /*#__PURE__*/function (_React$PureComponent) {
         if (filetype === 'md' || filetype === 'html') {
           return /*#__PURE__*/React.createElement(PreviewField, _extends({}, this.props, {
             filetype: filetype,
-            fieldType: fieldType
-          }, {
+            fieldType: fieldType,
             onChange: this.handleChange
           }));
         }
@@ -991,8 +990,7 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
           fieldTip: fieldTip,
           enumValues: enumValues,
           nestedField: propNestedField + '.' + field,
-          title: title
-        }, {
+          title: title,
           value: fieldValue,
           key: field,
           schema: fieldSchema,

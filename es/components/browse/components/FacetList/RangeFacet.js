@@ -492,19 +492,18 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
       }, /*#__PURE__*/React.createElement(PartialList, {
         className: "inner-panel",
         open: facetOpen,
-        persistent: [/*#__PURE__*/React.createElement(RangeClear, _extends({
+        persistent: [/*#__PURE__*/React.createElement(RangeClear, {
           savedFromVal: savedFromVal,
           savedToVal: savedToVal,
           facet: facet,
           fieldSchema: fieldSchema,
           termTransformFxn: termTransformFxn,
-          filteringFieldTerm: filteringFieldTerm
-        }, {
+          filteringFieldTerm: filteringFieldTerm,
           resetAll: this.resetAll,
           resetFrom: fromVal !== null ? this.resetFrom : null,
           resetTo: toVal !== null ? this.resetTo : null,
           key: 0
-        }))],
+        })],
         collapsible: [/*#__PURE__*/React.createElement("div", {
           className: "range-drop-group row",
           key: 0
@@ -546,8 +545,7 @@ export var RangeFacet = /*#__PURE__*/function (_React$PureComponent) {
           key: 1
         }, this.props, {
           expanded: expanded,
-          hideDocCounts: hideDocCounts
-        }, {
+          hideDocCounts: hideDocCounts,
           onToggleExpanded: this.handleExpandListToggleClick,
           selectRange: this.selectRange
         })) : null]
@@ -707,17 +705,16 @@ var ListOfRanges = /*#__PURE__*/React.memo(function (props) {
           _range$to = range.to,
           rangeTo = _range$to === void 0 ? null : _range$to;
       var isFiltering = currFilteringField === facetField && (Array.isArray(currFilteringTerm) && rangeFrom === currFilteringTerm[0] && rangeTo === currFilteringTerm[1] || currFilteringTerm === rangeTo && currFilteringTerm === rangeFrom);
-      return /*#__PURE__*/React.createElement(RangeTerm, _extends({
+      return /*#__PURE__*/React.createElement(RangeTerm, {
         facet: facet,
         range: range,
         termTransformFxn: termTransformFxn,
         selectRange: selectRange,
         isFiltering: isFiltering,
-        hideDocCounts: hideDocCounts
-      }, {
+        hideDocCounts: hideDocCounts,
         key: "".concat(rangeFrom, "-").concat(rangeTo),
         status: getRangeStatus(range, toVal, fromVal)
-      }));
+      });
     })),
         _segmentComponentsByS2 = _segmentComponentsByS.selected,
         selectedTermComponents = _segmentComponentsByS2 === void 0 ? [] : _segmentComponentsByS2,
@@ -1033,14 +1030,13 @@ var RangeClear = /*#__PURE__*/React.memo(function (props) {
     style: {
       marginLeft: "-5px"
     }
-  }, /*#__PURE__*/React.createElement(FormattedToFromRangeValue, _extends({
+  }, /*#__PURE__*/React.createElement(FormattedToFromRangeValue, {
     termTransformFxn: termTransformFxn,
-    facet: facet
-  }, {
+    facet: facet,
     from: savedFromVal,
     to: savedToVal,
     title: abbreviatedTitle
-  })))));
+  }))));
 });
 
 var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
@@ -1193,13 +1189,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
       }, value !== null ? title : emptyValue));
 
       if (field_type === "date") {
-        return /*#__PURE__*/React.createElement(DropdownButton, _extends({
+        return /*#__PURE__*/React.createElement(DropdownButton, {
           variant: variant,
           disabled: disabled,
           className: className,
           size: size,
-          id: id
-        }, {
+          id: id,
           alignRight: true,
           title: showTitle,
           show: showMenu,
@@ -1207,7 +1202,7 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
-        }), /*#__PURE__*/React.createElement("form", {
+        }, /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container pb-0 mb-0 border-0",
           onSubmit: this.onTextInputFormSubmit
         }, /*#__PURE__*/React.createElement("div", {
@@ -1254,13 +1249,12 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           }, optTitle, increment === min ? /*#__PURE__*/React.createElement("small", null, " (min)") : null, increment === max ? /*#__PURE__*/React.createElement("small", null, " (max)") : null);
         });
 
-        return /*#__PURE__*/React.createElement(DropdownButton, _extends({
+        return /*#__PURE__*/React.createElement(DropdownButton, {
           variant: variant,
           disabled: disabled,
           className: className,
           size: size,
-          id: id
-        }, {
+          id: id,
           alignRight: true,
           onSelect: this.onDropdownSelect,
           title: showTitle,
@@ -1269,22 +1263,20 @@ var RangeDropdown = /*#__PURE__*/function (_React$PureComponent3) {
           onBlur: this.onBlur,
           "data-tip": tooltip,
           "data-html": true
-        }), /*#__PURE__*/React.createElement("form", {
+        }, /*#__PURE__*/React.createElement("form", {
           className: "inline-input-container" + (menuOptions.length > 0 ? " has-options" : ""),
           onSubmit: this.onTextInputFormSubmit
         }, /*#__PURE__*/React.createElement("div", {
           className: "input-element-container"
-        }, /*#__PURE__*/React.createElement("input", _extends({
+        }, /*#__PURE__*/React.createElement("input", {
           type: "number",
-          className: "form-control"
-        }, {
+          className: "form-control",
           value: value,
           placeholder: placeholder,
-          step: step
-        }, {
+          step: step,
           onKeyDown: this.onTextInputKeyDown,
           onChange: this.onTextInputChange
-        }))), /*#__PURE__*/React.createElement("button", {
+        })), /*#__PURE__*/React.createElement("button", {
           type: "submit",
           disabled: !updateAble,
           className: "btn"

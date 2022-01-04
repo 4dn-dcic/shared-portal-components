@@ -179,7 +179,8 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
         //columnDefinition, termTransformFxn, width,
         href = null,
         context,
-        rowNumber, detailOpen, toggleDetailOpen
+        rowNumber, detailOpen, toggleDetailOpen,
+        onClick: propOnClick = null
     } = props;
 
     const link = itemUtil.atId(result);
@@ -187,6 +188,10 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
     /** Registers a list click event for Google Analytics then performs navigation. */
     const onClick = useMemo(function(){
         return function handleClick(evt){
+            if (propOnClick) {
+                propOnClick(evt);
+                return;
+            }
             const { target = null } = evt || {};
             let linkElement;
             let targetUrl;
@@ -219,7 +224,7 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
             );
             return false;
         };
-    }, [ link, rowNumber ]);
+    }, [ propOnClick, result, rowNumber ]);
 
     const renderChildren = React.Children.map(children, function(child){
         if (!React.isValidElement(child) || typeof child.type === "string") {

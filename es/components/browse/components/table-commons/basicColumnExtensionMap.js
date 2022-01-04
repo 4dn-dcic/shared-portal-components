@@ -236,12 +236,19 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
       context = props.context,
       rowNumber = props.rowNumber,
       detailOpen = props.detailOpen,
-      toggleDetailOpen = props.toggleDetailOpen;
+      toggleDetailOpen = props.toggleDetailOpen,
+      _props$onClick = props.onClick,
+      propOnClick = _props$onClick === void 0 ? null : _props$onClick;
   var link = itemUtil.atId(result);
   /** Registers a list click event for Google Analytics then performs navigation. */
 
   var onClick = useMemo(function () {
     return function (evt) {
+      if (propOnClick) {
+        propOnClick(evt);
+        return;
+      }
+
       var _ref2$target = (evt || {}).target,
           target = _ref2$target === void 0 ? null : _ref2$target;
       var linkElement;
@@ -278,7 +285,7 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
       }, context);
       return false;
     };
-  }, [link, rowNumber]);
+  }, [propOnClick, result, rowNumber]);
   var renderChildren = React.Children.map(children, function (child) {
     if (! /*#__PURE__*/React.isValidElement(child) || typeof child.type === "string") {
       return child;
