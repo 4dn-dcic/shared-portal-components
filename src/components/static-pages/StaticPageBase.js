@@ -255,7 +255,16 @@ export class StaticPageBase extends React.PureComponent {
             parsedContent = contentParseFxn(context);
         } catch (e) {
             console.dir(e);
-            parsedContent = _.extend({}, context, { 'content' : [ { 'content' : '<h4>Error - ' + e.message + '</h4>Check Page content/sections.', 'name' : 'error' } ] });
+            parsedContent = { ...context, "content": [{
+                "content": (
+                    <React.Fragment>
+                        <h4 className="mb-02">Error</h4>
+                        <p className="my-0">{ e.message }</p>
+                        <p>Check Page content/sections.</p>
+                    </React.Fragment>
+                ),
+                "name": 'error'
+            }] };
         }
         const tableOfContents = (parsedContent && parsedContent['table-of-contents'] && parsedContent['table-of-contents'].enabled) ? parsedContent['table-of-contents'] : false;
         return (
