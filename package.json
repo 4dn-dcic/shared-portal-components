@@ -62,7 +62,7 @@
         "react-bootstrap": "*",
         "react-tooltip": ">=3.11.6",
         "react-transition-group": ">=4.4.1",
-        "underscore": ">=1.9.1"
+        "underscore": ">=1.13.0"
     },
     "dependencies": {
         "@sentry/react": "^6.8.0",
@@ -93,6 +93,6 @@
         "react-bootstrap": "*",
         "react-tooltip": ">=3.11.6",
         "react-transition-group": ">=4.4.1",
-        "underscore": ">=1.9.1"
+        "underscore": ">=1.13.0"
     }
 }
