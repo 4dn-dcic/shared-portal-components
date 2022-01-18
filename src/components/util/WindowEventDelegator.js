@@ -43,6 +43,12 @@ export const WindowEventDelegator = new (function(){
 
     // Exposed Methods
 
+    /**
+     * Should only be called after mount (avoid calling server-side).
+     *
+     * @param {string} eventName - Window event name to listen to
+     * @param {function} eventHandlerFxn - Listener function
+     */
     this.addHandler = function(eventName, eventHandlerFxn){
 
         if (isServerSide()){

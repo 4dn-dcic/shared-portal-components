@@ -351,6 +351,42 @@ export function htmlToJSX(htmlString){
 
 
 
+
+/**
+ * Calls _.isEqual, but sorts arrays so that order doesn't invalidate equality.
+ *
+ * @param {{ [string]: string|string[] }} objA
+ * @param {{ [string]: string|string[] }} objB
+ */
+export function compareQueries(objA, objB){
+    if (objA === objB) return true;
+
+    function cloneObjWithSortedArrays(useObj){
+        const nextObj = {};
+        let anyArrsFound = false;
+        Object.keys(useObj).forEach(function(k){
+            const v = useObj[k];
+            if (Array.isArray(v)) {
+                nextObj[k] = v.sort();
+                anyArrsFound = true;
+            } else {
+                nextObj[k] = v;
+            }
+        });
+        if (!anyArrsFound) {
+            return useObj;
+        }
+        return nextObj;
+    }
+
+    return _.isEqual(
+        cloneObjWithSortedArrays(objA),
+        cloneObjWithSortedArrays(objB)
+    );
+}
+
+
+
 /**
  * Check if param is in form of an @id. Doesn't validate whether proper collection, etc. just URL format.
  *
