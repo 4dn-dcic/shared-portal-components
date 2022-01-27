@@ -33,24 +33,23 @@ import { basicColumnExtensionMap } from './table-commons/basicColumnExtensionMap
 
 
 const ResultRowColumnBlock = React.memo(function ResultRowColumnBlock(props){
-    const { columnDefinition, columnNumber, mounted, columnWidths, schemas, windowWidth } = props;
+    const { columnDefinition, columnNumber, width } = props;
     const { field } = columnDefinition;
-    let blockWidth;
-
-    if (mounted){
-        blockWidth = columnWidths[field] || getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
-    } else {
-        blockWidth = getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
-    }
-
     return ( // props includes result
-        <div className="search-result-column-block" style={{ "width" : blockWidth }}
+        <div className="search-result-column-block" style={{ width }}
             data-field={field} data-first-visible-column={columnNumber === 0 ? true : undefined}
             data-column-even={columnNumber % 2 === 0}>
-            <ResultRowColumnBlockValue {...props} width={blockWidth} schemas={schemas} />
+            <ResultRowColumnBlockValue {...props} />
         </div>
     );
 });
+ResultRowColumnBlock.propTypes = {
+    "result": PropTypes.object.isRequired,
+    "width": PropTypes.number.isRequired,
+    "schemas": PropTypes.object,
+    "columnDefinition": PropTypes.object.isRequired,
+    "columnNumber": PropTypes.number.isRequired
+};
 
 
 /** Not used anywhere (?) */
@@ -81,7 +80,6 @@ class ResultDetail extends React.PureComponent{
         'toggleDetailOpen' : PropTypes.func.isRequired,
         'setDetailHeight' : PropTypes.func.isRequired,
         'tableContainerWidth' : PropTypes.number,
-        'tableContainerScrollLeft' : PropTypes.number,
         'id' : PropTypes.string,
         'detailPaneHeight' : PropTypes.number
     };
@@ -145,7 +143,7 @@ class ResultDetail extends React.PureComponent{
     render(){
         const {
             open, rowNumber, result, isOwnPage = true,
-            tableContainerWidth, tableContainerScrollLeft,
+            tableContainerWidth,
             detailPane: propDetailPane,
             renderDetailPane, toggleDetailOpen, setDetailHeight, detailPaneHeight
         } = this.props;
@@ -155,7 +153,7 @@ class ResultDetail extends React.PureComponent{
         const containerWidth = isOwnPage ? tableContainerWidth : tableContainerWidth - 30;
 
         const propsFromTable = {
-            open, toggleDetailOpen, tableContainerScrollLeft,
+            open, toggleDetailOpen,
             setDetailHeight, detailPaneHeight, setDetailHeightFromPane : this.setDetailHeightFromPane
         };
 
@@ -165,12 +163,9 @@ class ResultDetail extends React.PureComponent{
 
 
         return (
-            <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} style={{ minHeight: detailPaneHeight }}>
+            <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} style={{ "minHeight": detailPaneHeight }}>
                 { open ?
-                    <div className="result-table-detail" ref={this.detailRef} style={{
-                        width : containerWidth,
-                        transform : vizStyle.translate3d(tableContainerScrollLeft)
-                    }}>
+                    <div className="result-table-detail" ref={this.detailRef} style={{ "width": containerWidth }}>
                         { detailPane }
                         <div className="close-button-container text-center" onClick={toggleDetailOpen} data-tip="Collapse Details">
                             <i className="icon icon-angle-up fas"/>
@@ -292,17 +287,27 @@ class ResultRow extends React.PureComponent {
 
     renderColumns(){
         // TODO (?) prop func to do this to control which columns get which props.
-        const { columnDefinitions } = this.props;
-        // Contains required 'result', 'rowNumber', 'href', 'columnWidths', 'mounted', 'windowWidth', 'schemas', 'currentAction', 'detailOpen'
-        const commonProps = _.omit(this.props, 'tableContainerWidth', 'tableContainerScrollLeft', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
+        const { columnDefinitions, mounted, columnWidths, windowWidth, ...remainingProps } = this.props;
+        // Contains required 'result', 'rowNumber', 'href', 'schemas', 'currentAction', 'detailOpen'
+        const commonProps = _.omit(remainingProps, 'tableContainerWidth', 'renderDetailPane', 'detailPane', 'id', 'toggleDetailPaneOpen');
         return columnDefinitions.map((columnDefinition, columnNumber) => { // todo: rename columnNumber to columnIndex
             const { field } = columnDefinition;
             const passedProps = {
-                ...commonProps, columnDefinition, columnNumber,
+                ...commonProps,
+                columnDefinition,
+                columnNumber,
                 // Only needed on first column (contains title, checkbox)
                 'toggleDetailOpen' : columnNumber === 0 ? this.toggleDetailOpen : null
             };
-            return <ResultRowColumnBlock {...passedProps} key={field} />;
+
+            let width;
+            if (mounted){
+                width = columnWidths[field] || getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
+            } else {
+                width = getColumnWidthFromDefinition(columnDefinition, mounted, windowWidth);
+            }
+
+            return <ResultRowColumnBlock {...passedProps} width={width} key={field} />;
         });
     }
 
@@ -313,7 +318,7 @@ class ResultRow extends React.PureComponent {
 
         /**
          * Props passed to ResultDetail include:
-         * `result`, `renderDetailPane`, `rowNumber`, `tableContainerWidth`, `tableContainerScrollLeft`.
+         * `result`, `renderDetailPane`, `rowNumber`, `tableContainerWidth`.
          */
         const detailProps = _.omit(this.props,
             'mounted', 'columnDefinitions',
@@ -987,7 +992,7 @@ class DimensioningContainer extends React.PureComponent {
             const resultRowCommonProps = {
                 ..._.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'),
                 context, rowHeight, navigate, isOwnPage, columnWidths,
-                columnDefinitions, tableContainerWidth, tableContainerScrollLeft, windowWidth,
+                columnDefinitions, tableContainerWidth, windowWidth,
                 'mounted' : mounted || false,
                 'rowWidth' : fullRowWidth,
                 'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
@@ -1006,22 +1011,11 @@ class DimensioningContainer extends React.PureComponent {
                 // else all rows get re-rendered (in virtual DOM atleast) on horizontal scroll due to prop value
                 // changing. Alternatively could've made a shouldComponentUpdate in ResultRow (but need to keep track of more).
                 return (
-                    <ResultRow {...resultRowCommonProps} {...{ result, id, detailOpen }} rowNumber={idx} key={id}
-                        tableContainerScrollLeft={detailOpen ? tableContainerScrollLeft : 0}/>
+                    <ResultRow {...resultRowCommonProps} {...{ result, id, detailOpen }} rowNumber={idx} key={id} />
                 );
             });
             if (!canLoadMore) {
-                childrenToShow.push(
-                    <div className="fin search-result-row" key="fin-last-item" style={{
-                        // Account for vertical scrollbar decreasing width of container.
-                        "width": tableContainerWidth - (isOwnPage ? 0 : 30),
-                        "transform": vizStyle.translate3d(tableContainerScrollLeft)
-                    }}>
-                        <div className="inner">
-                            - <span>fin</span> -
-                        </div>
-                    </div>
-                );
+                childrenToShow.push(<EndOfListItem {...{ tableContainerWidth, fullRowWidth, isOwnPage }} key="end" />);
             }
         } else {
             childrenToShow = (
@@ -1053,6 +1047,17 @@ class DimensioningContainer extends React.PureComponent {
     }
 
 }
+
+const EndOfListItem = React.memo(function EndOfListItem ({ tableContainerWidth, fullRowWidth, isOwnPage }) {
+    return (
+        // Account for vertical scrollbar decreasing width of container (-30).
+        <div className="fin search-result-row" style={{ "minWidth": fullRowWidth }}>
+            <div className="inner" style={{ "width": isOwnPage ? tableContainerWidth : tableContainerWidth - 30 }}>
+                - <span>fin</span> -
+            </div>
+        </div>
+    );
+});
 
 
 /**

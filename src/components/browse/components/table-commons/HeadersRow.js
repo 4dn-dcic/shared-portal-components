@@ -324,7 +324,7 @@ export class HeadersRow extends React.PureComponent {
                                 // First column in header will have position:fixed,
                                 // so add an offeset equal to its width.
                                 return (
-                                    <React.Fragment>
+                                    <React.Fragment key={field}>
                                         <div className="placeholder-column" style={{ width }}/>
                                         { headerColumn }
                                     </React.Fragment>

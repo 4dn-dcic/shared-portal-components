@@ -416,6 +416,8 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					display: none;
 				}
 				.result-table-detail {
+					position: sticky;
+					left: 0px;
 					padding-left: 47px;
 					padding-right: 0px;
 
@@ -453,15 +455,15 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				line-height: $search-results-result-row-height;
 				height: $search-results-result-row-height + 1px;
 				font-style: italic;
-				position: relative;
 				transition: transform .3s ease;
-				width: 100%; // overriden by px value after mount. Should visually remain same.
 
 				box-shadow: none !important;
 				border: none !important;
 				> .inner {
-					// position: fixed;
-					width: inherit;
+					position: sticky;
+					left: 0px;
+					// overriden by px value after mount. Should visually remain same.
+					width: 100%;
 					height: inherit;
 					> span {
 						font-family: serif;
@@ -506,17 +508,13 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				}
 			}
 
-			> .react-infinite-container {
-				/* Reset sticky/fixed position axis */
-				/* transform: translate3d(0,0,0); -- nevermind, rely on position:sticky instead */
-				> div > .search-result-row > .columns > .search-result-column-block[data-first-visible-column] {
-					position: sticky;
-					left: 0;
-					background-color: #fff;
-					z-index: 2;
-					box-shadow: 3px 0px 0px -5px transparent;
-					transition: box-shadow .2s ease-in, border-right-color .2s ease-in;
-				}
+			> .react-infinite-container > div > .search-result-row > .columns > .search-result-column-block[data-first-visible-column] {
+				position: sticky;
+				left: 0;
+				background-color: #fff;
+				z-index: 2;
+				box-shadow: 3px 0px 0px -5px transparent;
+				transition: box-shadow .2s ease-in, border-right-color .2s ease-in;
 			}
 
 			&[data-scrolled-to-right] {

@@ -347,7 +347,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
         if (index === 0 && stickyFirstColumn) {
           // First column in header will have position:fixed,
           // so add an offeset equal to its width.
-          return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+          return /*#__PURE__*/React.createElement(React.Fragment, {
+            key: field
+          }, /*#__PURE__*/React.createElement("div", {
             className: "placeholder-column",
             style: {
               width: width
