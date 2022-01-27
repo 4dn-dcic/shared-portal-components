@@ -956,32 +956,14 @@ class DimensioningContainer extends React.PureComponent {
             maxHeight = 500, // Only used if not isOwnPage
             isContextLoading = false,
             setColumnWidths,
-            columnWidths
+            columnWidths,
+            stickyFirstColumn = false
         } = this.props;
         const { results, tableContainerWidth, tableContainerScrollLeft, mounted, openDetailPanes } = this.state;
 
         const fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, columnWidths, windowWidth);
         const canLoadMore = this.canLoadMore();
         const anyResults = results.length > 0;
-
-        const headerRowCommonProps = {
-            ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse',
-                'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth'),
-            mounted, results, rowHeight, setColumnWidths, columnWidths,
-            tableContainerScrollLeft
-        };
-
-        const resultRowCommonProps = _.extend(
-            _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'),
-            {
-                context, rowHeight, navigate, isOwnPage, columnWidths,
-                columnDefinitions, tableContainerWidth, tableContainerScrollLeft, windowWidth,
-                'mounted' : mounted || false,
-                'rowWidth' : fullRowWidth,
-                'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
-                'setDetailHeight' : this.setDetailHeight,
-            }
-        );
 
         const loadMoreAsYouScrollProps = {
             ..._.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet'),
@@ -996,6 +978,21 @@ class DimensioningContainer extends React.PureComponent {
         let childrenToShow = null;
 
         if (anyResults) {
+            const headerRowCommonProps = {
+                ..._.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse',
+                    'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth'),
+                mounted, results, rowHeight, setColumnWidths, columnWidths,
+                tableContainerScrollLeft, stickyFirstColumn
+            };
+            const resultRowCommonProps = {
+                ..._.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'),
+                context, rowHeight, navigate, isOwnPage, columnWidths,
+                columnDefinitions, tableContainerWidth, tableContainerScrollLeft, windowWidth,
+                'mounted' : mounted || false,
+                'rowWidth' : fullRowWidth,
+                'toggleDetailPaneOpen' : this.toggleDetailPaneOpen,
+                'setDetailHeight' : this.setDetailHeight
+            };
             headersRow = <HeadersRow {...headerRowCommonProps} />;
             shadowBorderLayer = (
                 <ShadowBorderLayer {...{ tableContainerScrollLeft, tableContainerWidth, fullRowWidth }}
@@ -1035,10 +1032,16 @@ class DimensioningContainer extends React.PureComponent {
             );
         }
 
+        const cls = (
+            "search-results-outer-container"
+            + (isOwnPage ? " is-own-page" : " is-within-page")
+            + (stickyFirstColumn ? " sticky-first-column" : "")
+        );
+
         return (
-            <div className={"search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page")}
-                ref={this.outerRef} data-context-loading={isContextLoading}>
-                <div className={"search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')}>
+            <div className={cls} ref={this.outerRef} data-context-loading={isContextLoading}>
+                <div className={"search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')}
+                    data-scrolled-to-right={tableContainerScrollLeft > 0 ? true : undefined}>
                     { headersRow }
                     <LoadMoreAsYouScroll {...loadMoreAsYouScrollProps}>
                         { childrenToShow }

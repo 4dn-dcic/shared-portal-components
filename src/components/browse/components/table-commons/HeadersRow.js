@@ -38,12 +38,13 @@ export class HeadersRow extends React.PureComponent {
         'defaultMinColumnWidth' : PropTypes.number,
         'tableContainerScrollLeft' : PropTypes.number,
         'windowWidth' : PropTypes.number,
+        'stickyFirstColumn': PropTypes.bool,
         // Passed down from CustomColumnController (if used)
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'setColumnWidths' : PropTypes.func,
         // Passed down from SortController (if used)
         'sortColumns' : PropTypes.object,
-        'sortBy' : PropTypes.func
+        'sortBy' : PropTypes.func,
     };
 
     static defaultProps = {
@@ -267,7 +268,8 @@ export class HeadersRow extends React.PureComponent {
             setColumnWidths,
             width,
             tableContainerScrollLeft,
-            windowWidth
+            windowWidth,
+            stickyFirstColumn = false
         } = this.props;
         const { showingSortFieldsForColumn, widths, loadingField } = this.state;
         const sortColumnMap = this.memoized.getSortColumnMap(columnDefinitions, sortColumns);
@@ -312,11 +314,23 @@ export class HeadersRow extends React.PureComponent {
                             const { field } = columnDefinition;
                             const showingSortOptionsMenu = showingSortFieldsForColumn && showingSortFieldsForColumn === field;
                             const isLoading = (rootLoadingField && rootLoadingField === field);
-                            return (
+                            const width = alignedWidths[index];
+                            const headerColumn = (
                                 // `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
-                                <HeadersRowColumn {...commonProps} {...{ columnDefinition, index, showingSortOptionsMenu, isLoading }}
-                                    width={alignedWidths[index]} key={field} sortMap={sortColumnMap[field]} />
+                                <HeadersRowColumn {...commonProps} {...{ columnDefinition, index, showingSortOptionsMenu, isLoading, width }}
+                                    key={field} sortMap={sortColumnMap[field]} />
                             );
+                            if (index === 0 && stickyFirstColumn) {
+                                // First column in header will have position:fixed,
+                                // so add an offeset equal to its width.
+                                return (
+                                    <React.Fragment>
+                                        <div className="placeholder-column" style={{ width }}/>
+                                        { headerColumn }
+                                    </React.Fragment>
+                                );
+                            }
+                            return headerColumn;
                         }) }
                     </div>
                 </div>
@@ -362,7 +376,8 @@ class HeadersRowColumn extends React.PureComponent {
             showingSortOptionsMenu,
             setShowingSortFieldsFor,
             sortMap,
-            isLoading = false
+            isLoading = false,
+            index
         } = this.props;
         const { noSort, colTitle, title, field, description = null } = columnDefinition;
         const showTitle = colTitle || title;
@@ -378,7 +393,7 @@ class HeadersRowColumn extends React.PureComponent {
             + (showingSortOptionsMenu ? " showing-sort-field-options" : "")
         );
         return (
-            <div data-field={field} data-column-key={field} key={field} className={cls} style={{ width }}>
+            <div data-field={field} data-column-key={field} key={field} className={cls} style={{ width }} data-first-visible-column={index === 0 ? true : undefined}>
                 <div className="inner">
                     <div className="column-title">
                         <span data-tip={tooltip} data-html>{ showTitle }</span>

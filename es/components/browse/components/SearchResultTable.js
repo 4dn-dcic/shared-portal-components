@@ -1186,7 +1186,9 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
           _this$props13$isConte = _this$props13.isContextLoading,
           isContextLoading = _this$props13$isConte === void 0 ? false : _this$props13$isConte,
           setColumnWidths = _this$props13.setColumnWidths,
-          columnWidths = _this$props13.columnWidths;
+          columnWidths = _this$props13.columnWidths,
+          _this$props13$stickyF = _this$props13.stickyFirstColumn,
+          stickyFirstColumn = _this$props13$stickyF === void 0 ? false : _this$props13$stickyF;
       var _this$state3 = this.state,
           results = _this$state3.results,
           tableContainerWidth = _this$state3.tableContainerWidth,
@@ -1196,31 +1198,6 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var fullRowWidth = this.memoized.fullRowWidth(columnDefinitions, mounted, columnWidths, windowWidth);
       var canLoadMore = this.canLoadMore();
       var anyResults = results.length > 0;
-
-      var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
-        mounted: mounted,
-        results: results,
-        rowHeight: rowHeight,
-        setColumnWidths: setColumnWidths,
-        columnWidths: columnWidths,
-        tableContainerScrollLeft: tableContainerScrollLeft
-      });
-
-      var resultRowCommonProps = _.extend(_.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey'), {
-        context: context,
-        rowHeight: rowHeight,
-        navigate: navigate,
-        isOwnPage: isOwnPage,
-        columnWidths: columnWidths,
-        columnDefinitions: columnDefinitions,
-        tableContainerWidth: tableContainerWidth,
-        tableContainerScrollLeft: tableContainerScrollLeft,
-        windowWidth: windowWidth,
-        'mounted': mounted || false,
-        'rowWidth': fullRowWidth,
-        'toggleDetailPaneOpen': this.toggleDetailPaneOpen,
-        'setDetailHeight': this.setDetailHeight
-      });
 
       var loadMoreAsYouScrollProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'href', 'onDuplicateResultsFoundCallback', 'schemas', 'requestedCompoundFilterSet')), {}, {
         context: context,
@@ -1246,6 +1223,32 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
       var childrenToShow = null;
 
       if (anyResults) {
+        var headerRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'columnDefinitions', 'sortBy', 'sortColumns', 'sortColumn', 'sortReverse', 'defaultMinColumnWidth', 'renderDetailPane', 'detailPane', 'windowWidth')), {}, {
+          mounted: mounted,
+          results: results,
+          rowHeight: rowHeight,
+          setColumnWidths: setColumnWidths,
+          columnWidths: columnWidths,
+          tableContainerScrollLeft: tableContainerScrollLeft,
+          stickyFirstColumn: stickyFirstColumn
+        });
+
+        var resultRowCommonProps = _objectSpread(_objectSpread({}, _.pick(this.props, 'renderDetailPane', 'detailPane', 'href', 'currentAction', 'schemas', 'termTransformFxn', 'targetTabKey')), {}, {
+          context: context,
+          rowHeight: rowHeight,
+          navigate: navigate,
+          isOwnPage: isOwnPage,
+          columnWidths: columnWidths,
+          columnDefinitions: columnDefinitions,
+          tableContainerWidth: tableContainerWidth,
+          tableContainerScrollLeft: tableContainerScrollLeft,
+          windowWidth: windowWidth,
+          'mounted': mounted || false,
+          'rowWidth': fullRowWidth,
+          'toggleDetailPaneOpen': this.toggleDetailPaneOpen,
+          'setDetailHeight': this.setDetailHeight
+        });
+
         headersRow = /*#__PURE__*/React.createElement(HeadersRow, headerRowCommonProps);
         shadowBorderLayer = /*#__PURE__*/React.createElement(ShadowBorderLayer, {
           tableContainerScrollLeft: tableContainerScrollLeft,
@@ -1295,12 +1298,14 @@ var DimensioningContainer = /*#__PURE__*/function (_React$PureComponent3) {
         }, context ? "No Results" : "Initializing..."));
       }
 
+      var cls = "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page") + (stickyFirstColumn ? " sticky-first-column" : "");
       return /*#__PURE__*/React.createElement("div", {
-        className: "search-results-outer-container" + (isOwnPage ? " is-own-page" : " is-within-page"),
+        className: cls,
         ref: this.outerRef,
         "data-context-loading": isContextLoading
       }, /*#__PURE__*/React.createElement("div", {
-        className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : '')
+        className: "search-results-container" + (canLoadMore === false ? ' fully-loaded' : ''),
+        "data-scrolled-to-right": tableContainerScrollLeft > 0 ? true : undefined
       }, headersRow, /*#__PURE__*/React.createElement(LoadMoreAsYouScroll, loadMoreAsYouScrollProps, childrenToShow), shadowBorderLayer));
     }
   }], [{

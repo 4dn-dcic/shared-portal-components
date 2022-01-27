@@ -67,6 +67,7 @@ export class ControlsAndResults extends React.PureComponent {
             facetListComponent = <DefaultFacetListComponent />,
             defaultOpenIndices = null,
             detailPane = null,
+            stickyFirstColumn = false,
 
             // From WindowNavigationController or VirtualHrefController (or similar) (possibly from Redux store re: href)
             context, href, requestedCompoundFilterSet,
@@ -97,7 +98,7 @@ export class ControlsAndResults extends React.PureComponent {
         const searchResultTableProps = {
             context, href, requestedCompoundFilterSet, navigate, currentAction, schemas, results,
             columnDefinitions, visibleColumnDefinitions,
-            setColumnWidths, columnWidths, detailPane,
+            setColumnWidths, columnWidths, detailPane, stickyFirstColumn,
             isOwnPage, sortBy, sortColumns, termTransformFxn, windowWidth, registerWindowOnScrollHandler, rowHeight,
             defaultOpenIndices, maxHeight, targetTabKey,
             isContextLoading // <- Only applicable for EmbeddedSearchView, else is false always
