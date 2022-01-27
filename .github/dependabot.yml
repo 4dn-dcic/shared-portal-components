@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "05:00"
+    reviewers:
+      - "Biance-Morris"
+      - "alexkb0009"
+      - "utku-ozturk"
+      - "ugur-camoglu"
+    open-pull-requests-limit: 5
