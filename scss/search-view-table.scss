@@ -514,7 +514,8 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					left: 0;
 					background-color: #fff;
 					z-index: 2;
-					transition: border-right-color .25s;
+					box-shadow: 3px 0px 0px -5px transparent;
+					transition: box-shadow .2s ease-in, border-right-color .2s ease-in;
 				}
 			}
 
@@ -523,7 +524,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					box-shadow: 2px 0px 3px -3px #000d;
 				}
 				> .react-infinite-container > div > .search-result-row > .columns > .search-result-column-block[data-first-visible-column] {
-					box-shadow: 2px 0px 3px -3px #000d;
+					box-shadow: 3px 0px 5px -5px #000d;
 					border-right-color: #c2c2c2 !important;
 				}
 			}
@@ -549,7 +550,13 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 	background-color: $primary-dark;
 	z-index: 50;
 	position: relative;
+	/**
+	 * This transform -- either translate3d(..) or transform-style: preserve-3d -- is necessary to reset coords
+	 * for position:fixed header column element in .search-results-outer-container.sticky-first-column.
+	 * @see https://drafts.csswg.org/css-transforms-2/#3d-rendering-contexts
+	 */
 	transform: translate3d(0,0,0) !important;
+	transform-style: preserve-3d;
 
 	> .headers-columns-overflow-container {
 
