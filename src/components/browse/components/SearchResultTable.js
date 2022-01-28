@@ -81,7 +81,10 @@ class ResultDetail extends React.PureComponent{
         'setDetailHeight' : PropTypes.func.isRequired,
         'tableContainerWidth' : PropTypes.number,
         'id' : PropTypes.string,
-        'detailPaneHeight' : PropTypes.number
+        'detailPaneHeight' : PropTypes.number,
+        'isOwnPage' : PropTypes.bool,
+        'href': PropTypes.string, // For analytics
+        'context': PropTypes.object // For analyitics
     };
 
     constructor(props){
@@ -166,10 +169,10 @@ class ResultDetail extends React.PureComponent{
             <div className={"result-table-detail-container detail-" + (open || closing ? 'open' : 'closed')} style={{ "minHeight": detailPaneHeight }}>
                 { open ?
                     <div className="result-table-detail" ref={this.detailRef} style={{ "width": containerWidth }}>
-                        { detailPane }
                         <div className="close-button-container text-center" onClick={toggleDetailOpen} data-tip="Collapse Details">
                             <i className="icon icon-angle-up fas"/>
                         </div>
+                        { detailPane }
                     </div>
                     : <div/> }
             </div>

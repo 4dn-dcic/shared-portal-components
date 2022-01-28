@@ -229,13 +229,13 @@ var ResultDetail = /*#__PURE__*/function (_React$PureComponent) {
         style: {
           "width": containerWidth
         }
-      }, detailPane, /*#__PURE__*/React.createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "close-button-container text-center",
         onClick: toggleDetailOpen,
         "data-tip": "Collapse Details"
       }, /*#__PURE__*/React.createElement("i", {
         className: "icon icon-angle-up fas"
-      }))) : /*#__PURE__*/React.createElement("div", null));
+      })), detailPane) : /*#__PURE__*/React.createElement("div", null));
     }
   }]);
 
@@ -251,7 +251,12 @@ _defineProperty(ResultDetail, "propTypes", {
   'setDetailHeight': PropTypes.func.isRequired,
   'tableContainerWidth': PropTypes.number,
   'id': PropTypes.string,
-  'detailPaneHeight': PropTypes.number
+  'detailPaneHeight': PropTypes.number,
+  'isOwnPage': PropTypes.bool,
+  'href': PropTypes.string,
+  // For analytics
+  'context': PropTypes.object // For analyitics
+
 });
 
 var ResultRow = /*#__PURE__*/function (_React$PureComponent2) {
