@@ -420,7 +420,6 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					position: sticky;
 					display: flex;
 					left: 0px;
-					padding-right: 0px;
 
 					background-color: #fff;
 					transition: transform .3s ease-out;
@@ -506,13 +505,17 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				}
 			}
 
-			> .react-infinite-container > div > .search-result-row > .columns > .search-result-column-block[data-first-visible-column] {
-				position: sticky;
-				left: 0;
-				background-color: #fff;
-				z-index: 2;
-				box-shadow: 3px 0px 0px -5px transparent;
-				transition: box-shadow .2s ease-in, border-right-color .2s ease-in;
+			> .react-infinite-container > div > .search-result-row {
+			
+				> .columns > .search-result-column-block[data-first-visible-column] {
+					position: sticky;
+					left: 0;
+					background-color: #fff;
+					z-index: 2;
+					box-shadow: 3px 0px 0px -5px transparent;
+					transition: box-shadow .2s ease-in, border-right-color .2s ease-in;
+				}
+
 			}
 
 			&[data-scrolled-to-right] {
