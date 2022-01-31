@@ -491,42 +491,49 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 
 	&.sticky-first-column {
 
-		.search-results-container {
+		/* Take effect only @ larger screen sizes */
 
-			> .search-headers-row .columns {
-				> div.placeholder-column {
-					flex-shrink: 0;
+		@include media-breakpoint-up(lg) {
+
+			.search-results-container {
+
+				> .search-headers-row .columns {
+					> div.placeholder-column {
+						/* When not 0, including at smaller screen sizes, this will shrink to 0 */
+						flex-shrink: 0;
+					}
+					> .search-headers-column-block[data-first-visible-column] {
+						position: fixed;
+						left: 0;
+						background-color: $primary-dark;
+						z-index: 15;
+					}
 				}
-				> .search-headers-column-block[data-first-visible-column] {
-					position: fixed;
-					left: 0;
-					background-color: $primary-dark;
-					z-index: 15;
+
+				> .react-infinite-container > div > .search-result-row {
+				
+					> .columns > .search-result-column-block[data-first-visible-column] {
+						position: sticky;
+						left: 0;
+						background-color: #fff;
+						z-index: 2;
+						box-shadow: 3px 0px 0px -5px transparent;
+						transition: box-shadow .2s ease-in, border-right-color .2s ease-in;
+					}
+
+				}
+
+				&[data-scrolled-to-right] {
+					> .search-headers-row .columns > .search-headers-column-block[data-first-visible-column] {
+						box-shadow: 2px 0px 3px -3px #000d;
+					}
+					> .react-infinite-container > div > .search-result-row > .columns > .search-result-column-block[data-first-visible-column] {
+						box-shadow: 3px 0px 5px -5px #000d;
+						border-right-color: #c2c2c2 !important;
+					}
 				}
 			}
 
-			> .react-infinite-container > div > .search-result-row {
-			
-				> .columns > .search-result-column-block[data-first-visible-column] {
-					position: sticky;
-					left: 0;
-					background-color: #fff;
-					z-index: 2;
-					box-shadow: 3px 0px 0px -5px transparent;
-					transition: box-shadow .2s ease-in, border-right-color .2s ease-in;
-				}
-
-			}
-
-			&[data-scrolled-to-right] {
-				> .search-headers-row .columns > .search-headers-column-block[data-first-visible-column] {
-					box-shadow: 2px 0px 3px -3px #000d;
-				}
-				> .react-infinite-container > div > .search-result-row > .columns > .search-result-column-block[data-first-visible-column] {
-					box-shadow: 3px 0px 5px -5px #000d;
-					border-right-color: #c2c2c2 !important;
-				}
-			}
 		}
 
 	}

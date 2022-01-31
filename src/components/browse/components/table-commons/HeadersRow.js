@@ -325,7 +325,7 @@ export class HeadersRow extends React.PureComponent {
                                 // so add an offeset equal to its width.
                                 return (
                                     <React.Fragment key={field}>
-                                        <div className="placeholder-column" style={{ width }}/>
+                                        <div className="placeholder-column d-none d-lg-block" style={{ width }}/>
                                         { headerColumn }
                                     </React.Fragment>
                                 );

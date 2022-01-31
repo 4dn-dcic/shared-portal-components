@@ -350,7 +350,7 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           return /*#__PURE__*/React.createElement(React.Fragment, {
             key: field
           }, /*#__PURE__*/React.createElement("div", {
-            className: "placeholder-column",
+            className: "placeholder-column d-none d-lg-block",
             style: {
               width: width
             }
