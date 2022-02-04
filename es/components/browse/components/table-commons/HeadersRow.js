@@ -277,7 +277,9 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
           setColumnWidths = _this$props3.setColumnWidths,
           width = _this$props3.width,
           tableContainerScrollLeft = _this$props3.tableContainerScrollLeft,
-          windowWidth = _this$props3.windowWidth;
+          windowWidth = _this$props3.windowWidth,
+          _this$props3$stickyFi = _this$props3.stickyFirstColumn,
+          stickyFirstColumn = _this$props3$stickyFi === void 0 ? false : _this$props3$stickyFi;
       var _this$state2 = this.state,
           showingSortFieldsForColumn = _this$state2.showingSortFieldsForColumn,
           widths = _this$state2.widths,
@@ -328,19 +330,34 @@ export var HeadersRow = /*#__PURE__*/function (_React$PureComponent) {
         }
       }, columnDefinitions.map(function (columnDefinition, index) {
         var field = columnDefinition.field;
-        return (
-          /*#__PURE__*/
-          // `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
-          React.createElement(HeadersRowColumn, _extends({}, commonProps, {
-            columnDefinition: columnDefinition,
-            index: index,
-            showingSortOptionsMenu: showingSortFieldsForColumn && showingSortFieldsForColumn === field,
-            isLoading: rootLoadingField && rootLoadingField === field,
-            width: alignedWidths[index],
-            key: field,
-            sortMap: sortColumnMap[field]
-          }))
-        );
+        var width = alignedWidths[index];
+        var headerColumn =
+        /*#__PURE__*/
+        // `props.active` may be undefined, object with more fields, or array where first item is `descending` flag (bool).
+        React.createElement(HeadersRowColumn, _extends({}, commonProps, {
+          columnDefinition: columnDefinition,
+          index: index,
+          showingSortOptionsMenu: showingSortFieldsForColumn && showingSortFieldsForColumn === field,
+          isLoading: rootLoadingField && rootLoadingField === field,
+          width: width,
+          key: field,
+          sortMap: sortColumnMap[field]
+        }));
+
+        if (index === 0 && stickyFirstColumn) {
+          // First column in header will have position:fixed,
+          // so add an offeset equal to its width.
+          return /*#__PURE__*/React.createElement(React.Fragment, {
+            key: field
+          }, /*#__PURE__*/React.createElement("div", {
+            className: "placeholder-column d-none d-lg-block",
+            style: {
+              width: width
+            }
+          }), headerColumn);
+        }
+
+        return headerColumn;
       }))), showingSortFieldsForColumn !== null ? /*#__PURE__*/React.createElement(SortOptionsMenuContainer, {
         showingSortFieldsForColumn: showingSortFieldsForColumn,
         columnDefinitions: columnDefinitions,
@@ -485,6 +502,7 @@ _defineProperty(HeadersRow, "propTypes", {
   'defaultMinColumnWidth': PropTypes.number,
   'tableContainerScrollLeft': PropTypes.number,
   'windowWidth': PropTypes.number,
+  'stickyFirstColumn': PropTypes.bool,
   // Passed down from CustomColumnController (if used)
   'columnWidths': PropTypes.objectOf(PropTypes.number),
   'setColumnWidths': PropTypes.func,
@@ -549,7 +567,8 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
           setShowingSortFieldsFor = _this$props5.setShowingSortFieldsFor,
           sortMap = _this$props5.sortMap,
           _this$props5$isLoadin = _this$props5.isLoading,
-          isLoading = _this$props5$isLoadin === void 0 ? false : _this$props5$isLoadin;
+          isLoading = _this$props5$isLoadin === void 0 ? false : _this$props5$isLoadin,
+          index = _this$props5.index;
       var noSort = columnDefinition.noSort,
           colTitle = columnDefinition.colTitle,
           title = columnDefinition.title,
@@ -579,7 +598,8 @@ var HeadersRowColumn = /*#__PURE__*/function (_React$PureComponent2) {
         className: cls,
         style: {
           width: width
-        }
+        },
+        "data-first-visible-column": index === 0 ? true : undefined
       }, /*#__PURE__*/React.createElement("div", {
         className: "inner"
       }, /*#__PURE__*/React.createElement("div", {

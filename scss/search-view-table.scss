@@ -1,4 +1,5 @@
-
+@charset "UTF-8";
+@use "sass:math";
 @import 'mixins';
 
 /*** In Parent Portal CSS, must define "postition: sticky" for HeadersRow + top offset, depending on usage/placement ***/
@@ -265,7 +266,7 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				> .search-result-column-block {
 					@include search-result-column-block;
 					&:not(:last-child) {
-						border-right: 1px dotted rgba(0,0,0,0.075);
+						border-right: 1px solid rgba(0,0,0,0.05);
 					}
 					&.no-value {
 						> .inner {
@@ -416,8 +417,9 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					display: none;
 				}
 				.result-table-detail {
-					padding-left: 47px;
-					padding-right: 0px;
+					position: sticky;
+					display: flex;
+					left: 0px;
 
 					background-color: #fff;
 					transition: transform .3s ease-out;
@@ -426,12 +428,9 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 					@include font-size(0.85rem);
 
 					> .close-button-container {
-						position: absolute;
-						left: 8px;
-						top: 7px;
-						bottom: 7px;
-						width: 27px;
-						margin-left: 1px;
+						flex-shrink: 0;
+						margin: 7px (math.div($grid-gutter-width, 2)) 7px 7px;
+						width: 29px;
 						line-height: 30px;
 						font-size: 1rem;
 						cursor: pointer;
@@ -453,15 +452,15 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 				line-height: $search-results-result-row-height;
 				height: $search-results-result-row-height + 1px;
 				font-style: italic;
-				position: relative;
 				transition: transform .3s ease;
-				width: 100%; // overriden by px value after mount. Should visually remain same.
 
 				box-shadow: none !important;
 				border: none !important;
 				> .inner {
-					// position: fixed;
-					width: inherit;
+					position: sticky;
+					left: 0px;
+					// overriden by px value after mount. Should visually remain same.
+					width: 100%;
 					height: inherit;
 					> span {
 						font-family: serif;
@@ -490,6 +489,55 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 		}
 	}
 
+	&.sticky-first-column {
+
+		/* Take effect only @ larger screen sizes */
+
+		@include media-breakpoint-up(lg) {
+
+			.search-results-container {
+
+				> .search-headers-row .columns {
+					> div.placeholder-column {
+						/* When not 0, including at smaller screen sizes, this will shrink to 0 */
+						flex-shrink: 0;
+					}
+					> .search-headers-column-block[data-first-visible-column] {
+						position: fixed;
+						left: 0;
+						background-color: $primary-dark;
+						z-index: 15;
+					}
+				}
+
+				> .react-infinite-container > div > .search-result-row {
+				
+					> .columns > .search-result-column-block[data-first-visible-column] {
+						position: sticky;
+						left: 0;
+						background-color: #fff;
+						z-index: 2;
+						box-shadow: 3px 0px 0px -5px transparent;
+						transition: box-shadow .2s ease-in, border-right-color .2s ease-in;
+					}
+
+				}
+
+				&[data-scrolled-to-right] {
+					> .search-headers-row .columns > .search-headers-column-block[data-first-visible-column] {
+						box-shadow: 2px 0px 3px -3px #000d;
+					}
+					> .react-infinite-container > div > .search-result-row > .columns > .search-result-column-block[data-first-visible-column] {
+						box-shadow: 3px 0px 5px -5px #000d;
+						border-right-color: #c2c2c2 !important;
+					}
+				}
+			}
+
+		}
+
+	}
+
 	// + .search-results-is-loading-container[data-context-loaded="true"] {
 	// 	position: absolute;
 	// 	left: 0;
@@ -501,11 +549,20 @@ $search-results-above-results-row-bottom-padding: 5px !default;
 
 
 
+
+
+
 .search-headers-row {
 	background-color: $primary-dark;
 	z-index: 50;
 	position: relative;
+	/**
+	 * This transform -- either translate3d(..) or transform-style: preserve-3d -- is necessary to reset coords
+	 * for position:fixed header column element in .search-results-outer-container.sticky-first-column.
+	 * @see https://drafts.csswg.org/css-transforms-2/#3d-rendering-contexts
+	 */
 	transform: translate3d(0,0,0) !important;
+	transform-style: preserve-3d;
 
 	> .headers-columns-overflow-container {
 
