@@ -658,7 +658,7 @@ class ObjectField extends React.PureComponent {
             const nestedField = propNestedField + '.' + field;
             return (
                 <BuildField { ...passProps} { ...{ field, fieldType, fieldTip, enumValues, nestedField, title } }
-                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={false} isArray={false} isMultiSelect={isMultiSelect || false} />
+                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={_.contains(objectSchema.required, field)} isArray={false} isMultiSelect={isMultiSelect || false} />
             );
         });
 

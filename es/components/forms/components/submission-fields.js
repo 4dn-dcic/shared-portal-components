@@ -995,7 +995,7 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
           key: field,
           schema: fieldSchema,
           disabled: false,
-          required: false,
+          required: _.contains(objectSchema.required, field),
           isArray: false,
           isMultiSelect: isMultiSelect || false
         }));
