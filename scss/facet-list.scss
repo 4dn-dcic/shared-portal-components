@@ -645,7 +645,7 @@ $facetlist-term-block-height: default !default;
 
         /* .facet */
         /* Capitalize facet terms belonging to certain 'safe-to-capitalize' facets */
-        &[data-field="experiments_in_set.biosample.biosource.individual.organism.name"] .term,
+        &[data-field="experiments_in_set.biosample.biosource.organism.name"] .term,
         &[data-field="experiments_in_set.biosample.biosource.biosource_type"] .term,
         &[data-field="experiments_in_set.biosample.biosource_summary"] .term {
             text-transform: capitalize;
