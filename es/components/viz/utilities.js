@@ -223,7 +223,7 @@ export var style = {
 };
 
 var highlightTermFxn = _.debounce(function () {
-  var field = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'experiments_in_set.biosample.biosource.individual.organism.name';
+  var field = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'experiments_in_set.biosample.biosource.organism.name';
   var term = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'human';
   var color = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
   if (isServerSide()) return false;
@@ -296,7 +296,7 @@ var highlightTermFxn = _.debounce(function () {
 
 
 export function highlightTerm() {
-  arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'experiments_in_set.biosample.biosource.individual.organism.name';
+  arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'experiments_in_set.biosample.biosource.organism.name';
   arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'human';
   arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
   return highlightTermFxn.apply(void 0, arguments);
