@@ -1457,7 +1457,7 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
       var onAliasChange = this.props.onAliasChange; // Also check to see if need to add first or second part, e.g. if original value passed in was '' or null.
 
       if (!aliasParts[0] || aliasParts[0] === '') {
-        aliasParts[0] = this.getInitialSubmitsForPart();
+        aliasParts[0] = ''; //this.getInitialSubmitsForPart();
       }
 
       if (aliasParts.length === 1) {
@@ -1503,8 +1503,7 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
           showErrorMsg = _this$props22.showErrorMsg;
       var parts = AliasInputField.splitInTwo(value);
       var submits_for_list = currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for || null;
-      var initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
-      var currFirstPartValue = parts.length > 1 && parts[0] || initialDefaultFirstPartValue; // const userEmailAsPrefix = AliasInputField.emailToString(currentSubmittingUser.email); // TODO - maybe have as dropdown option
+      var currFirstPartValue = parts.length > 1 && parts[0]; // const userEmailAsPrefix = AliasInputField.emailToString(currentSubmittingUser.email); // TODO - maybe have as dropdown option
 
       var firstPartSelect;
 
@@ -1515,7 +1514,7 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
           inputMode: "latin",
           id: "firstPartSelect",
           value: currFirstPartValue || '',
-          placeholder: "Lab (default: " + initialDefaultFirstPartValue + ")",
+          placeholder: "No value",
           onChange: this.onAliasFirstPartChangeTyped,
           style: {
             'paddingRight': 8,
