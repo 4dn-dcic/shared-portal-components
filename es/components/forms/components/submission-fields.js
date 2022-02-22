@@ -1502,7 +1502,8 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
           isValid = _this$props22.isValid,
           showErrorMsg = _this$props22.showErrorMsg;
       var parts = AliasInputField.splitInTwo(value);
-      var submits_for_list = currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for || null;
+      var submits_for_list = currentSubmittingUser && Array.isArray(currentSubmittingUser.submits_for) && currentSubmittingUser.submits_for.length > 0 && currentSubmittingUser.submits_for || null; //const initialDefaultFirstPartValue = this.getInitialSubmitsForPart();
+
       var currFirstPartValue = parts.length > 1 && parts[0]; // const userEmailAsPrefix = AliasInputField.emailToString(currentSubmittingUser.email); // TODO - maybe have as dropdown option
 
       var firstPartSelect;
