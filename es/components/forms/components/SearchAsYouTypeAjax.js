@@ -287,15 +287,15 @@ export var SearchAsYouTypeAjax = /*#__PURE__*/function (_React$PureComponent) {
   return SearchAsYouTypeAjax;
 }(React.PureComponent);
 SearchAsYouTypeAjax.propTypes = {
-  value: PropTypes.any,
-  onChange: PropTypes.func,
-  baseHref: function baseHref(props, propName, componentName) {
-    if (props[propName] && !props[propName].match("^/search/?type=(.+)?$")) {
-      return new Error("Invalid prop '".concat(propName, "' supplied to ").concat(componentName, ". Validation failed."));
+  "value": PropTypes.any,
+  "onChange": PropTypes.func,
+  "baseHref": function baseHref(props, propName, componentName) {
+    if (props[propName] && !props[propName].match(/^\/search\/\?type=(.+)?$/)) {
+      return new Error("Invalid prop '".concat(propName, "' supplied to ").concat(componentName, " --> ").concat(props[propName], ". Validation failed."));
     }
   },
-  fieldsToRequest: PropTypes.arrayOf(PropTypes.string),
-  titleRenderFunction: PropTypes.func
+  "fieldsToRequest": PropTypes.arrayOf(PropTypes.string),
+  "titleRenderFunction": PropTypes.func
 };
 SearchAsYouTypeAjax.defaultProps = {
   "optionRenderFunction": function optionRenderFunction(result) {

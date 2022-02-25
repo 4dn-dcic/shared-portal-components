@@ -191,8 +191,10 @@ export var SortController = /*#__PURE__*/function (_React$PureComponent) {
 }(React.PureComponent);
 
 _defineProperty(SortController, "propTypes", {
-  'href': PropTypes.string.isRequired,
-  'context': PropTypes.object.isRequired,
+  /** One of 'href' or 'requestedCompoundFilterSet' is required */
+  'href': PropTypes.string,
+  'requestedCompoundFilterSet': PropTypes.object,
+  'context': PropTypes.object,
   'navigate': PropTypes.func,
   'children': PropTypes.node.isRequired
 });
@@ -385,8 +387,8 @@ export var MultiColumnSortSelector = /*#__PURE__*/function (_React$PureComponent
 }(React.PureComponent);
 MultiColumnSortSelector.propTypes = {
   'columnDefinitions': PropTypes.arrayOf(PropTypes.object).isRequired,
-  'sortColumns': PropTypes.object.isRequired,
-  'onClose': PropTypes.func.isRequired,
+  'sortColumns': PropTypes.array.isRequired,
+  'onClose': PropTypes.func,
   'sortBy': PropTypes.func.isRequired,
   'size': PropTypes.string,
   'variant': PropTypes.string

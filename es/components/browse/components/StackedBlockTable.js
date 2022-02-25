@@ -714,5 +714,5 @@ TableHeaders.propTypes = {
   /** Below needed to feed into visibleTitle func for e.g. checkbox in column title. */
   'allFiles': PropTypes.arrayOf(PropTypes.object),
   'selectedFiles': PropTypes.objectOf(PropTypes.oneOfType([PropTypes.object, PropTypes.bool])),
-  'handleFileCheckboxChange': PropTypes.func.isRequired
+  'handleFileCheckboxChange': PropTypes.func
 };

@@ -36,11 +36,11 @@ export class CustomColumnController extends React.Component {
     }
 
     static propTypes = {
-        "children" : PropTypes.instanceOf(React.Component),
+        "children" : PropTypes.element,
         "columnDefinitions" : PropTypes.arrayOf(PropTypes.shape({
             'field' : PropTypes.string
         })),
-        "defaultHiddenColumns" : PropTypes.array
+        "defaultHiddenColumns" : PropTypes.object
     };
 
     constructor(props){

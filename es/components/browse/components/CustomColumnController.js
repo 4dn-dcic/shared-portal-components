@@ -203,11 +203,11 @@ export var CustomColumnController = /*#__PURE__*/function (_React$Component) {
 }(React.Component);
 
 _defineProperty(CustomColumnController, "propTypes", {
-  "children": PropTypes.instanceOf(React.Component),
+  "children": PropTypes.element,
   "columnDefinitions": PropTypes.arrayOf(PropTypes.shape({
     'field': PropTypes.string
   })),
-  "defaultHiddenColumns": PropTypes.array
+  "defaultHiddenColumns": PropTypes.object
 });
 
 export var CustomColumnSelector = /*#__PURE__*/function (_React$PureComponent) {

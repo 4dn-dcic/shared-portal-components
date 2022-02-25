@@ -105,6 +105,9 @@ TermsFacet.propTypes = {
     'extraClassname'        : PropTypes.string,
     'schemas'               : PropTypes.object,
     'getTermStatus'         : PropTypes.func.isRequired,
-    'href'                  : PropTypes.string.isRequired,
-    'windowWidth'           : PropTypes.number
+    'windowWidth'           : PropTypes.number,
+    'termTransformFxn'      : PropTypes.func,
+    'separateSingleTermFacets': PropTypes.bool,
+    'isStatic'              : PropTypes.bool,
+    'itemTypeForSchemas'    : PropTypes.string
 };
