@@ -57,7 +57,7 @@
         "commonjs": true,
         "cypress/globals" : true
     },
-    "parser" : "babel-eslint",
+    "parser" : "@babel/eslint-parser",
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended"

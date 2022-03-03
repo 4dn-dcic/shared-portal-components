@@ -41,7 +41,7 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import JSONTree from 'react-json-tree';
+import { JSONTree } from 'react-json-tree';
 import { isAnItem, itemUtil, isAnAttachment, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
 import { isPrimitive } from './../util/misc';
 import { patchedConsoleInstance as console } from './../util/patched-console';

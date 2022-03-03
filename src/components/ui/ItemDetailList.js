@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import JSONTree from 'react-json-tree';
+import { JSONTree } from 'react-json-tree';
 
 import { isAnItem, itemUtil, isAnAttachment, tipsFromSchema, TooltipInfoIconContainer, getNestedProperty } from './../util/object';
 import { isPrimitive } from './../util/misc';
@@ -795,7 +795,7 @@ export class Detail extends React.PureComponent {
         } else if (typeof item === 'string'){
 
             if (keyPrefix === '@id'){
-                return <a key={item} href={item} target={popLink ? "_blank" : null}>{item}</a>;
+                return <a key={item} href={item} target={popLink ? "_blank" : null} rel="noreferrer noopener">{item}</a>;
             }
 
             if(item.charAt(0) === '/' && item.indexOf('@@download') > -1){
