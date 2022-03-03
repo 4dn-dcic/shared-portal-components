@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { useMemo, useState, useRef } from 'react';
 import memoize from 'memoize-one';
 import PropTypes from 'prop-types';

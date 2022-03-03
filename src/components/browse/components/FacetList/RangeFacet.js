@@ -1,6 +1,3 @@
-
-'use strict';
-
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';

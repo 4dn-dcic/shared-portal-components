@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import _ from 'underscore';
 import { randomId } from './../../util/object';

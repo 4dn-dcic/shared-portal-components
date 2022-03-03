@@ -1,4 +1,3 @@
-'use strict';
 
 import memoize from 'memoize-one';
 import url from 'url';

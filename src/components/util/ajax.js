@@ -1,4 +1,3 @@
-'use strict';
 
 import React, { useState, useEffect } from 'react';
 import { Alerts } from './../ui/Alerts';

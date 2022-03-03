@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { useCallback } from 'react';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';

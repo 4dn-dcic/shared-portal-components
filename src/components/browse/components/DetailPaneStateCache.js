@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { useMemo } from 'react';
 
 /**

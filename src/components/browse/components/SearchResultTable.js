@@ -1,7 +1,3 @@
-'use strict';
-
-/* @flow */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';

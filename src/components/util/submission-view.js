@@ -1,4 +1,3 @@
-'use strict';
 
 /*
 This file contains utilities specific to the SubmissionView component. Many of these are helpers for
