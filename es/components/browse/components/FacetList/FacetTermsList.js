@@ -42,6 +42,8 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function (o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -236,7 +238,12 @@ export var Term = /*#__PURE__*/function (_React$PureComponent) {
 
   return Term;
 }(React.PureComponent);
-Term.propTypes = {
+/**
+ * @param {*} facetTerms : facet's terms array
+ * @param {*} searchText : search text from basic search input
+ */
+
+_defineProperty(Term, "propTypes", {
   'facet': PropTypes.shape({
     'field': PropTypes.string.isRequired
   }).isRequired,
@@ -249,19 +256,15 @@ Term.propTypes = {
     field: PropTypes.string,
     term: PropTypes.string
   }),
-  'getTermStatus': PropTypes.func.isRequired,
   'onClick': PropTypes.func.isRequired,
   'status': PropTypes.oneOf(["none", "selected", "omitted"]),
   'termTransformFxn': PropTypes.func,
   'useRadioIcon': PropTypes.bool.isRequired
-};
-Term.defaultProps = {
+});
+
+_defineProperty(Term, "defaultProps", {
   'useRadioIcon': false
-};
-/**
- * @param {*} facetTerms : facet's terms array
- * @param {*} searchText : search text from basic search input
- */
+});
 
 export function getFilteredTerms(facetTerms, searchText) {
   var retDict = {};
@@ -687,6 +690,15 @@ var ListOfTerms = /*#__PURE__*/React.memo(function (props) {
         }, expandButtonTitle)))
       }));
     } else {
+      // TODO: Finish later maybe, or remove
+      // if (!facetSearch && termComponents.length === 0) {
+      //     // No options/terms available; usually only case where no results found.
+      //     return (
+      //         <div {...commonProps}>
+      //             <em className="text-secondary small">No options.</em>
+      //         </div>
+      //     );
+      // }
       return /*#__PURE__*/React.createElement("div", commonProps, /*#__PURE__*/React.createElement(PartialList, {
         className: "mb-0 active-terms-pl",
         open: facetOpen,

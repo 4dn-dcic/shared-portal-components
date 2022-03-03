@@ -105,6 +105,26 @@ export function segmentComponentsByStatus(termComponents){
  */
 export class Term extends React.PureComponent {
 
+    static propTypes = {
+        'facet'             : PropTypes.shape({
+            'field'             : PropTypes.string.isRequired
+        }).isRequired,
+        'term'              : PropTypes.shape({
+            'key'               : PropTypes.string.isRequired,
+            'doc_count'         : PropTypes.number
+        }).isRequired,
+        'isFiltering'       : PropTypes.bool,
+        'filteringFieldTerm': PropTypes.shape({ field: PropTypes.string, term: PropTypes.string }),
+        'onClick'           : PropTypes.func.isRequired,
+        'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
+        'termTransformFxn'  : PropTypes.func,
+        'useRadioIcon'     : PropTypes.bool.isRequired
+    }
+
+    static defaultProps = {
+        'useRadioIcon': false
+    };
+
     constructor(props){
         super(props);
         this.handleClick = this.handleClick.bind(this);
@@ -149,25 +169,7 @@ export class Term extends React.PureComponent {
     }
 
 }
-Term.propTypes = {
-    'facet'             : PropTypes.shape({
-        'field'             : PropTypes.string.isRequired
-    }).isRequired,
-    'term'              : PropTypes.shape({
-        'key'               : PropTypes.string.isRequired,
-        'doc_count'         : PropTypes.number
-    }).isRequired,
-    'isFiltering'       : PropTypes.bool,
-    'filteringFieldTerm': PropTypes.shape({ field: PropTypes.string, term: PropTypes.string }),
-    'getTermStatus'     : PropTypes.func.isRequired,
-    'onClick'           : PropTypes.func.isRequired,
-    'status'            : PropTypes.oneOf(["none", "selected", "omitted"]),
-    'termTransformFxn'  : PropTypes.func,
-    'useRadioIcon'     : PropTypes.bool.isRequired
-};
-Term.defaultProps = {
-    'useRadioIcon': false
-};
+
 
 /**
  * @param {*} facetTerms : facet's terms array
@@ -427,7 +429,8 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
             facetSearch = (
                 <div className="d-flex flex-wrap text-small p-2">
                     <SearchAsYouTypeAjax baseHref={baseHref} showTips={true} onChange={onSaytTermSearch} key={itemType} />
-                </div>);
+                </div>
+            );
         }
 
         if (Array.isArray(collapsibleTerms)) {
@@ -452,7 +455,7 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 <div {...commonProps}>
                     <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
                         <React.Fragment>
-                            {facetSearch}
+                            { facetSearch }
                             <PartialList className="mb-0" open={expanded} persistent={persistentTerms} collapsible={collapsibleTerms} />
                             <div className="pt-08 pb-0">
                                 <div className="view-more-button" onClick={onToggleExpanded}>{expandButtonTitle}</div>
@@ -462,12 +465,21 @@ const ListOfTerms = React.memo(function ListOfTerms(props){
                 </div>
             );
         } else {
+            // TODO: Finish later maybe, or remove
+            // if (!facetSearch && termComponents.length === 0) {
+            //     // No options/terms available; usually only case where no results found.
+            //     return (
+            //         <div {...commonProps}>
+            //             <em className="text-secondary small">No options.</em>
+            //         </div>
+            //     );
+            // }
             return (
                 <div {...commonProps}>
                     <PartialList className="mb-0 active-terms-pl" open={facetOpen} persistent={activeTermComponents} collapsible={
                         <React.Fragment>
-                            {facetSearch}
-                            {unselectedTermComponents}
+                            { facetSearch }
+                            { unselectedTermComponents }
                         </React.Fragment>
                     } />
                 </div>
