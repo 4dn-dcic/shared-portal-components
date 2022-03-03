@@ -1,5 +1,3 @@
-'use strict';
-
 import url from 'url';
 import queryString from 'query-string';
 import _ from 'underscore';

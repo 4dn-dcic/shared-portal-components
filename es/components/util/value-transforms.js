@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'underscore';
 export function capitalize(word) {
   if (typeof word !== 'string') return word;

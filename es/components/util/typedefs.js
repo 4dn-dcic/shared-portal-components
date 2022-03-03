@@ -1,4 +1,3 @@
-'use strict';
 /**
  * Various type definitions used throughout documentation.
  *
@@ -15,7 +14,6 @@
  * @property {string[]} @type - List of `@type` strings for Item, endpoint, etc.
  * @property {string} [display_title] - Title for Item or page.
  */
-
 export var JSONContentResponse;
 /**
  * @typedef {JSONContentResponse} Item
