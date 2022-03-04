@@ -4,6 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import moment from 'moment';
+import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
 
 /**
@@ -183,13 +184,11 @@ export function formatPublicationDate(utcDate, includeMonth = true, includeDay =
     if (includeMonth && utcDate.length >= 7){
         monthString = utcDate.slice(5,7);
         monthIndex = parseInt(monthString) - 1; // 0-based.
-        // @see https://momentjs.com/docs/#/i18n/listing-months-weekdays/
-        monthString = moment.months()[monthIndex];
+        monthString = enUS.localize.month[monthIndex];
         if (includeDay && utcDate.length >= 10){
             dayString = utcDate.slice(8, 10);
             dayInteger = parseInt(dayString);
-            // @see https://momentjs.com/docs/#/i18n/locale-data/
-            dayString = moment.localeData().ordinal(dayInteger);
+            dayString = enUS.localize.ordinalNumber(dayInteger);
             return monthString + ' ' + dayString + ', ' + yearString;
         }
         return monthString + ' ' + yearString;
