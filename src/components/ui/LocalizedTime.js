@@ -3,27 +3,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
-import moment, { locale } from 'moment';
-import { parseISO, format } from "date-fns";
+import { parseISO, format, isValid } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
 
-/**
- * @deprecated
- * This is deprecated and should be used lightly.
- * We should consider alternatives.
- * @see https://momentjs.com/docs/#/-project-status/
- */
 export class LocalizedTime extends React.Component {
 
     constructor(props){
         super(props);
         this.memoized = {
-            getMoment: memoize(function(momentDate, timestamp) {
+            getMoment: memoize(function(dateFnsDate, timestamp) {
                 const parsedTime = parseISO(timestamp);
-                if (momentDate) return momentDate;
+                if (dateFnsDate) return dateFnsDate;
                 if (timestamp) return parsedTime;
-                return moment.utc();
+                return new Date();
             })
         };
         this.state = { 'mounted' : false };
@@ -40,11 +33,11 @@ export class LocalizedTime extends React.Component {
             localize,
             customOutputFormat,
             className,
-            momentDate,
+            dateFnsDate,
             timestamp
         } = this.props;
         const { mounted } = this.state;
-        const selfMoment = this.memoized.getMoment(momentDate, timestamp);
+        const selfMoment = this.memoized.getMoment(dateFnsDate, timestamp);
         if (!mounted || isServerSide()) {
             return (
                 <span className={className + ' utc'}>
@@ -61,9 +54,9 @@ export class LocalizedTime extends React.Component {
     }
 }
 LocalizedTime.propTypes = {
-    momentDate : function(props, propName, componentName){
-        if (props[propName] && !moment.isMoment(props[propName])){
-            return new Error("momentDate must be an instance of Moment.");
+    dateFnsDate : function(props, propName, componentName){
+        if (props[propName] && !isValid(props[propName])){
+            return new Error("date-fns must be an instance of Moment.");
         }
     },
     timestamp : PropTypes.string,
@@ -75,7 +68,7 @@ LocalizedTime.propTypes = {
     className : PropTypes.string
 };
 LocalizedTime.defaultProps = {
-    momentDate : null,
+    dateFnsDate : null,
     timestamp : null,
     formatType : 'date-md',
     dateTimeSeparator : ' ',
@@ -161,7 +154,7 @@ export function display(dateObj, formatType = 'date-md', dateTimeSeparator = " "
         outputFormat = preset(formatType, dateTimeSeparator);
     }
     if (localize){
-        format(dateObj, outputFormat, { locale: locale.enUS });
+        format(dateObj, outputFormat, { locale: enUS });
     }
 
     return format(dateObj,outputFormat);
