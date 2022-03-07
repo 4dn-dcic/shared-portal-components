@@ -3,7 +3,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
-import moment from 'moment';
+import moment, { locale } from 'moment';
+import { parseISO, format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
 
@@ -19,8 +20,9 @@ export class LocalizedTime extends React.Component {
         super(props);
         this.memoized = {
             getMoment: memoize(function(momentDate, timestamp) {
+                const parsedTime = parseISO(timestamp);
                 if (momentDate) return momentDate;
-                if (timestamp) return moment.utc(timestamp);
+                if (timestamp) return parsedTime;
                 return moment.utc();
             })
         };
@@ -88,25 +90,25 @@ export function preset(formatType = 'date-md', dateTimeSeparator = " "){
     function date(ft){
         switch(ft){
             case 'date-file':
-                return "YYYY-MM-DD";
+                return "yyyy-MM-DD";
             case 'date-xs':
                 // 11/03/2016 (for USA, localized for other places)
                 return "L";
             case 'date-sm':
                 // Nov 3rd, 2016
-                return "MMM Do, YYYY";
+                return "MMM do, yyyy";
             case 'date-md':
                 // November 3rd, 2016   (default)
-                return "MMMM Do, YYYY";
+                return "MMMM do, yyyy";
             case 'date-lg':
                 // Thursday, November 3rd, 2016
-                return "dddd, MMMM Do, YYYY";
+                return "dddd, MMMM do, yyyy";
             case 'date-month':
                 // November 2016
-                return "MMMM YYYY";
+                return "MMMM yyyy";
             case 'date-year':
                 // November 2016
-                return "YYYY";
+                return "yyyy";
         }
     }
 
@@ -116,19 +118,19 @@ export function preset(formatType = 'date-md', dateTimeSeparator = " "){
                 return "HH[h]-mm[m]";
             case 'time-xs':
                 // 12pm
-                return "ha";
+                return "haaa";
             case 'time-sm':
             case 'time-md':
                 // 12:27pm
-                return "h:mma";
+                return "h:mmaaa";
             case 'time-lg':
                 // 12:27:34 pm
-                return "h:mm:ss a";
+                return "h:mm:ss aaa";
         }
     }
 
     if (formatType.indexOf('date-time-') > -1){
-        return date(formatType.replace('time-','')) + '[' + dateTimeSeparator + ']' + time(formatType.replace('date-',''));
+        return date(formatType.replace('time-','')) + '' + dateTimeSeparator + '' + time(formatType.replace('date-',''));
     } else if (formatType.indexOf('date-') > -1){
         return date(formatType);
     } else if (formatType.indexOf('time-') > -1){
@@ -147,11 +149,11 @@ export function preset(formatType = 'date-md', dateTimeSeparator = " "){
  * @param {string} [formatType] - Key for date/time format to display. Defaults to 'date-md'.
  * @param {string} [dateTimeSeparator] - Separator between date and time if formatting a date-time. Defaults to ' '.
  */
-export function format(timestamp, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
-    return display(moment.utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
-}
+// export function format(timestamp, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
+//     return display(moment.utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
+// }
 
-export function display(momentObj, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
+export function display(dateObj, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
     var outputFormat;
     if (customOutputFormat) {
         outputFormat = customOutputFormat;
@@ -159,10 +161,10 @@ export function display(momentObj, formatType = 'date-md', dateTimeSeparator = "
         outputFormat = preset(formatType, dateTimeSeparator);
     }
     if (localize){
-        return momentObj.local().format(outputFormat);
+        format(dateObj, outputFormat, { locale: locale.enUS });
     }
 
-    return momentObj.format(outputFormat);
+    return format(dateObj,outputFormat);
 }
 
 /**
