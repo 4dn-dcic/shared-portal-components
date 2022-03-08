@@ -12,7 +12,7 @@ export class LocalizedTime extends React.Component {
     constructor(props){
         super(props);
         this.memoized = {
-            getMoment: memoize(function(dateFnsDate, timestamp) {
+            getDateFns: memoize(function(dateFnsDate, timestamp) {
                 const parsedTime = parseISO(timestamp);
                 if (dateFnsDate) return dateFnsDate;
                 if (timestamp) return parsedTime;
@@ -37,17 +37,17 @@ export class LocalizedTime extends React.Component {
             timestamp
         } = this.props;
         const { mounted } = this.state;
-        const selfMoment = this.memoized.getMoment(dateFnsDate, timestamp);
+        const selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp);
         if (!mounted || isServerSide()) {
             return (
                 <span className={className + ' utc'}>
-                    { display(selfMoment, formatType, dateTimeSeparator, false, customOutputFormat) }
+                    { display(selfDateFns, formatType, dateTimeSeparator, false, customOutputFormat) }
                 </span>
             );
         } else {
             return (
                 <span className={className + (localize ? ' local' : ' utc')}>
-                    { display(selfMoment, formatType, dateTimeSeparator, localize, customOutputFormat) }
+                    { display(selfDateFns, formatType, dateTimeSeparator, localize, customOutputFormat) }
                 </span>
             );
         }

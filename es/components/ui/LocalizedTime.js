@@ -40,7 +40,7 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
 
     _this = _super.call(this, props);
     _this.memoized = {
-      getMoment: memoize(function (dateFnsDate, timestamp) {
+      getDateFns: memoize(function (dateFnsDate, timestamp) {
         var parsedTime = parseISO(timestamp);
         if (dateFnsDate) return dateFnsDate;
         if (timestamp) return parsedTime;
@@ -72,16 +72,16 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
           dateFnsDate = _this$props.dateFnsDate,
           timestamp = _this$props.timestamp;
       var mounted = this.state.mounted;
-      var selfMoment = this.memoized.getMoment(dateFnsDate, timestamp);
+      var selfDateFns = this.memoized.getDateFns(dateFnsDate, timestamp);
 
       if (!mounted || isServerSide()) {
         return /*#__PURE__*/React.createElement("span", {
           className: className + ' utc'
-        }, display(selfMoment, formatType, dateTimeSeparator, false, customOutputFormat));
+        }, display(selfDateFns, formatType, dateTimeSeparator, false, customOutputFormat));
       } else {
         return /*#__PURE__*/React.createElement("span", {
           className: className + (localize ? ' local' : ' utc')
-        }, display(selfMoment, formatType, dateTimeSeparator, localize, customOutputFormat));
+        }, display(selfDateFns, formatType, dateTimeSeparator, localize, customOutputFormat));
       }
     }
   }]);
