@@ -168,7 +168,7 @@ export function preset() {
   }
 
   if (formatType.indexOf('date-time-') > -1) {
-    return date(formatType.replace('time-', '')) + '' + dateTimeSeparator + '' + time(formatType.replace('date-', ''));
+    return date(formatType.replace('time-', '')) + "'" + dateTimeSeparator.concat() + "'" + time(formatType.replace('date-', ''));
   } else if (formatType.indexOf('date-') > -1) {
     return date(formatType);
   } else if (formatType.indexOf('time-') > -1) {
