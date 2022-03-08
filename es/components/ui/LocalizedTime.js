@@ -238,7 +238,7 @@ export function formatPublicationDate(utcDate) {
     monthString = utcDate.slice(5, 7);
     monthIndex = parseInt(monthString) - 1; // 0-based.
 
-    monthString = enUS.localize.month[monthIndex];
+    monthString = enUS.localize.month(monthIndex);
 
     if (includeDay && utcDate.length >= 10) {
       dayString = utcDate.slice(8, 10);
