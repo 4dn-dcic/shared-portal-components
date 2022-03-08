@@ -119,7 +119,7 @@ export function preset() {
   function date(ft) {
     switch (ft) {
       case 'date-file':
-        return "yyyy-MM-DD";
+        return "yyyy-MM-dd";
 
       case 'date-xs':
         // 11/03/2016 (for USA, localized for other places)
@@ -150,7 +150,7 @@ export function preset() {
   function time(ft) {
     switch (ft) {
       case 'time-file':
-        return "HH[h]-mm[m]";
+        return "HH'h'-mm'm'";
 
       case 'time-xs':
         // 12pm
