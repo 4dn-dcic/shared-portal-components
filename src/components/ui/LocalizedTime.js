@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
-import { parseISO, format, isValid } from "date-fns";
+import { parseISO, format as formatDate, isValid } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
 
@@ -142,9 +142,9 @@ export function preset(formatType = 'date-md', dateTimeSeparator = " "){
  * @param {string} [formatType] - Key for date/time format to display. Defaults to 'date-md'.
  * @param {string} [dateTimeSeparator] - Separator between date and time if formatting a date-time. Defaults to ' '.
  */
-// export function format(timestamp, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
-//     return display(moment.utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
-// }
+export function format(timestamp, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
+    return display(parseISO(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
+}
 
 export function display(dateObj, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
     var outputFormat;
@@ -154,10 +154,10 @@ export function display(dateObj, formatType = 'date-md', dateTimeSeparator = " "
         outputFormat = preset(formatType, dateTimeSeparator);
     }
     if (localize){
-        format(dateObj, outputFormat, { locale: enUS });
+        formatDate(dateObj, outputFormat, { locale: enUS });
     }
 
-    return format(dateObj,outputFormat);
+    return formatDate(dateObj,outputFormat);
 }
 
 /**

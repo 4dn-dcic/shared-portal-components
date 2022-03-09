@@ -25,7 +25,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
-import { parseISO, format, isValid } from "date-fns";
+import { parseISO, format as formatDate, isValid } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
 export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
@@ -187,10 +187,14 @@ export function preset() {
  * @param {string} [formatType] - Key for date/time format to display. Defaults to 'date-md'.
  * @param {string} [dateTimeSeparator] - Separator between date and time if formatting a date-time. Defaults to ' '.
  */
-// export function format(timestamp, formatType = 'date-md', dateTimeSeparator = " ", localize = false, customOutputFormat = null){
-//     return display(moment.utc(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
-// }
 
+export function format(timestamp) {
+  var formatType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'date-md';
+  var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
+  var localize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+  var customOutputFormat = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+  return display(parseISO(timestamp), formatType, dateTimeSeparator, localize, customOutputFormat);
+}
 export function display(dateObj) {
   var formatType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'date-md';
   var dateTimeSeparator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : " ";
@@ -205,12 +209,12 @@ export function display(dateObj) {
   }
 
   if (localize) {
-    format(dateObj, outputFormat, {
+    formatDate(dateObj, outputFormat, {
       locale: enUS
     });
   }
 
-  return format(dateObj, outputFormat);
+  return formatDate(dateObj, outputFormat);
 }
 /**
  * This function is meant to accept a UTC/GMT date string
