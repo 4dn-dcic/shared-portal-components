@@ -28,8 +28,7 @@ var Alerts = null; //require('./../alerts');
 
 import _ from 'underscore';
 import url from 'url';
-import queryString from 'query-string'; // import moment from 'moment';
-
+import queryString from 'query-string';
 import { navigate } from './navigate';
 import { isServerSide } from './misc';
 /**

@@ -91,7 +91,7 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
 LocalizedTime.propTypes = {
   dateFnsDate: function dateFnsDate(props, propName) {
     if (props[propName] && !isValid(props[propName])) {
-      return new Error("date-fns must be an instance of Moment.");
+      return new Error("dateFnsDate must be an instance of date-fns.");
     }
   },
   timestamp: PropTypes.string,

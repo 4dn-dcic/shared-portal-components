@@ -56,7 +56,7 @@ export class LocalizedTime extends React.Component {
 LocalizedTime.propTypes = {
     dateFnsDate : function(props, propName, componentName){
         if (props[propName] && !isValid(props[propName])){
-            return new Error("date-fns must be an instance of Moment.");
+            return new Error("dateFnsDate must be an instance of date-fns.");
         }
     },
     timestamp : PropTypes.string,
