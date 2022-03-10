@@ -1067,7 +1067,8 @@ export var Detail = /*#__PURE__*/function (_React$PureComponent2) {
           return /*#__PURE__*/React.createElement("a", {
             key: item,
             href: item,
-            target: popLink ? "_blank" : null
+            target: popLink ? "_blank" : null,
+            rel: "noreferrer noopener"
           }, item);
         }
 

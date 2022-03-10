@@ -1,4 +1,5 @@
-var CryptoJS = require('crypto-js');
+import { lib as cryptoCoreLib } from 'crypto-js/core';
+import MD5 from 'crypto-js/md5';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import { itemUtil } from './object';
@@ -262,7 +263,7 @@ function arrayBufferToWordArray(ab) {
         a.push(i8a[i] << 24 | i8a[i + 1] << 16 | i8a[i + 2] << 8 | i8a[i + 3]);
     }
     // WordArrays are UTF8 by default
-    var result = CryptoJS.lib.WordArray.create(a, i8a.length);
+    const result = cryptoCoreLib.WordArray.create(a, i8a.length);
     return [result, i8a.length];
 }
 
@@ -310,7 +311,7 @@ function readChunked(file, chunkCallback, endCallback) {
 export function getLargeMD5(file, cbProgress) {
     return new Promise((resolve, reject) => {
         // create algorithm for progressive hashing
-        var md5 = CryptoJS.algo.MD5.create();
+        const md5 = MD5.create();
         readChunked(
             file,
             function(chunk, offs, total){
@@ -323,8 +324,8 @@ export function getLargeMD5(file, cbProgress) {
                 if (err) {
                     reject(err);
                 } else {
-                    var hash = md5.finalize();
-                    var hashHex = hash.toString(CryptoJS.enc.Hex);
+                    const hash = md5.finalize();
+                    const hashHex = hash.toString(CryptoJS.enc.Hex);
                     resolve(hashHex);
                 }
             }
