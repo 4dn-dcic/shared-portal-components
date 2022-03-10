@@ -1,6 +1,6 @@
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var _excluded = ["searchList", "filterMethod", "optionsHeader", "allowCustomValue"];
+var _excluded = ["searchList", "filterMethod", "optionsHeader", "allowCustomValue", "customFilterFunction"];
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -89,6 +89,7 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
           filterMethod = _this$props2$filterMe === void 0 ? "startsWith" : _this$props2$filterMe,
           propOptionsHeader = _this$props2.optionsHeader,
           allowCustomValue = _this$props2.allowCustomValue,
+          customFilterFunction = _this$props2.customFilterFunction,
           passProps = _objectWithoutProperties(_this$props2, _excluded);
 
       var currentTextValue = this.state.currentTextValue;
@@ -104,7 +105,11 @@ export var SearchAsYouTypeLocal = /*#__PURE__*/function (_React$PureComponent) {
           className: "icon icon-spin icon-circle-notch fas"
         }));
       } else {
-        filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
+        if (customFilterFunction) {
+          filteredOptions = customFilterFunction(currentTextValue, searchList, filterMethod);
+        } else {
+          filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
+        }
 
         if (filteredOptions.length === 0) {
           optionsHeader = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("em", {
@@ -156,5 +161,8 @@ SearchAsYouTypeLocal.propTypes = {
   filterMethod: PropTypes.string,
   // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
   allowCustomValue: PropTypes.bool,
-  initializeWithValue: PropTypes.bool
+  initializeWithValue: PropTypes.bool,
+  optionRenderFunction: PropTypes.func,
+  titleRenderFunction: PropTypes.func,
+  customFilterFunction: PropTypes.func
 };
