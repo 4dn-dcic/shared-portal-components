@@ -980,6 +980,14 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
           enumValues = fieldSchema["enum"] || [];
         } else if (fieldType === "suggested_enum") {
           enumValues = fieldSchema.suggested_enum || [];
+        }
+
+        var nestedObjectRequired = fieldType === 'linked object' ? false : _.contains(objectSchema.required, field);
+
+        var values = _.values(parentObject);
+
+        if (values.length < 1) {
+          nestedObjectRequired = false;
         } // format field as <this_field>.<next_field> so top level modification
         // happens correctly
 
@@ -995,7 +1003,7 @@ var ObjectField = /*#__PURE__*/function (_React$PureComponent2) {
           key: field,
           schema: fieldSchema,
           disabled: false,
-          required: _.contains(objectSchema.required, field),
+          required: nestedObjectRequired,
           isArray: false,
           isMultiSelect: isMultiSelect || false
         }));

@@ -653,12 +653,15 @@ class ObjectField extends React.PureComponent {
             } else if (fieldType === "suggested_enum") {
                 enumValues = fieldSchema.suggested_enum || [];
             }
+            let nestedObjectRequired = fieldType === 'linked object' ? false : _.contains(objectSchema.required, field);
+            const values = _.values(parentObject);
+            if (values.length < 1) { nestedObjectRequired = false; }
             // format field as <this_field>.<next_field> so top level modification
             // happens correctly
             const nestedField = propNestedField + '.' + field;
             return (
                 <BuildField { ...passProps} { ...{ field, fieldType, fieldTip, enumValues, nestedField, title } }
-                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={_.contains(objectSchema.required, field)} isArray={false} isMultiSelect={isMultiSelect || false} />
+                    value={fieldValue} key={field} schema={fieldSchema} disabled={false} required={nestedObjectRequired} isArray={false} isMultiSelect={isMultiSelect || false} />
             );
         });
 
