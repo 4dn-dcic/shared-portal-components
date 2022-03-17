@@ -26,6 +26,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import { parseISO, format as formatDate, isValid } from "date-fns";
+import { format as localFormat, zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
 import { enUS } from "date-fns/locale";
 import { isServerSide } from './../util/misc';
 export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
@@ -41,7 +42,7 @@ export var LocalizedTime = /*#__PURE__*/function (_React$Component) {
     _this = _super.call(this, props);
     _this.memoized = {
       getDateFns: memoize(function (dateFnsDate, timestamp) {
-        var parsedTime = parseISO(timestamp);
+        var parsedTime = zonedTimeToUtc(timestamp);
         if (dateFnsDate) return dateFnsDate;
         if (timestamp) return parsedTime;
         return new Date();
@@ -209,9 +210,7 @@ export function display(dateObj) {
   }
 
   if (localize) {
-    formatDate(dateObj, outputFormat, {
-      locale: enUS
-    });
+    return localFormat(utcToZonedTime(dateObj), outputFormat);
   }
 
   return formatDate(dateObj, outputFormat);
