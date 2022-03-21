@@ -12,8 +12,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
-var CryptoJS = require('crypto-js');
-
+import { lib as cryptoCoreLib } from 'crypto-js/core';
+import MD5 from 'crypto-js/md5';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 import { itemUtil } from './object';
@@ -282,7 +282,7 @@ function arrayBufferToWordArray(ab) {
   } // WordArrays are UTF8 by default
 
 
-  var result = CryptoJS.lib.WordArray.create(a, i8a.length);
+  var result = cryptoCoreLib.WordArray.create(a, i8a.length);
   return [result, i8a.length];
 }
 
@@ -335,7 +335,7 @@ function readChunked(file, chunkCallback, endCallback) {
 export function getLargeMD5(file, cbProgress) {
   return new Promise(function (resolve, reject) {
     // create algorithm for progressive hashing
-    var md5 = CryptoJS.algo.MD5.create();
+    var md5 = MD5.create();
     readChunked(file, function (chunk, offs, total) {
       md5.update(chunk);
 
