@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { useCallback } from 'react';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
@@ -15,8 +13,10 @@ import { flattenColumnsDefinitionsSortFields, HeadersRow } from './table-commons
 export class SortController extends React.PureComponent {
 
     static propTypes = {
-        'href'          : PropTypes.string.isRequired,
-        'context'       : PropTypes.object.isRequired,
+        /** One of 'href' or 'requestedCompoundFilterSet' is required */
+        'href'          : PropTypes.string,
+        'requestedCompoundFilterSet': PropTypes.object,
+        'context'       : PropTypes.object,
         'navigate'      : PropTypes.func,
         'children'      : PropTypes.node.isRequired
     };
@@ -237,8 +237,8 @@ export class MultiColumnSortSelector extends React.PureComponent {
 }
 MultiColumnSortSelector.propTypes = {
     'columnDefinitions'     : PropTypes.arrayOf(PropTypes.object).isRequired,
-    'sortColumns'           : PropTypes.object.isRequired,
-    'onClose'               : PropTypes.func.isRequired,
+    'sortColumns'           : PropTypes.array.isRequired,
+    'onClose'               : PropTypes.func,
     'sortBy'                : PropTypes.func.isRequired,
     'size'                  : PropTypes.string,
     'variant'               : PropTypes.string

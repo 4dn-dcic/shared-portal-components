@@ -1,15 +1,12 @@
-'use strict';
-/* @flow */
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var _excluded = ["columnDefinitions", "mounted", "columnWidths", "windowWidth"];
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
@@ -19,9 +16,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function (o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
@@ -44,7 +41,7 @@ import _ from 'underscore';
 import queryString from 'querystring';
 import memoize from 'memoize-one';
 import ReactTooltip from 'react-tooltip';
-import Infinite from '@4dn-dcic/react-infinite/build/react-infinite';
+import Infinite from '@4dn-dcic/react-infinite/es/react-infinite';
 import { Detail } from './../../ui/ItemDetailList';
 import * as analytics from './../../util/analytics';
 import * as logger from '../../util/logger';
@@ -722,20 +719,20 @@ _defineProperty(LoadMoreAsYouScroll, "propTypes", {
   'maxHeight': PropTypes.number,
   'tableContainerScrollLeft': PropTypes.number.isRequired,
   // From parent
-  'tableContainerWidth': PropTypes.number.isRequired,
-  // From parent
+  'tableContainerWidth': PropTypes.number,
+  // From parent; required but may be null if table not visible/displayed in DOM.
   'setResults': PropTypes.func.isRequired,
   // From parent
   'openDetailPanes': PropTypes.objectOf(PropTypes.oneOfType([PropTypes.number, PropTypes.bool])).isRequired,
   // From parent
   'canLoadMore': PropTypes.bool.isRequired,
   // From parent
-  'children': PropTypes.arrayOf(PropTypes.element).isRequired,
+  'children': PropTypes.any,
   // From parent
   'mounted': PropTypes.bool,
   'onDuplicateResultsFoundCallback': PropTypes.func,
   'navigate': PropTypes.func,
-  'openRowHeight': PropTypes.number.isRequired
+  'openRowHeight': PropTypes.number
 });
 
 _defineProperty(LoadMoreAsYouScroll, "defaultProps", {
@@ -1492,7 +1489,7 @@ export var SearchResultTable = /*#__PURE__*/function (_React$Component3) {
 }(React.Component);
 
 _defineProperty(SearchResultTable, "propTypes", {
-  'results': PropTypes.arrayOf(ResultRow.propTypes.result).isRequired,
+  'results': PropTypes.arrayOf(ResultRow.propTypes.result),
   // Either href or requestedCompoundFilterSet should be present:
   'href': PropTypes.string,
   'requestedCompoundFilterSet': PropTypes.object,
@@ -1501,16 +1498,18 @@ _defineProperty(SearchResultTable, "propTypes", {
     'lg': PropTypes.number.isRequired,
     'md': PropTypes.number.isRequired,
     'sm': PropTypes.number.isRequired
-  }).isRequired,
+  }),
   'hiddenColumns': PropTypes.objectOf(PropTypes.bool),
   // One of the following 2 is recommended for custom detail panes:
   'renderDetailPane': PropTypes.func,
   'detailPane': PropTypes.element,
   'context': PropTypes.shape({
     'total': PropTypes.number.isRequired
-  }).isRequired,
-  'windowWidth': PropTypes.number.isRequired,
-  'registerWindowOnScrollHandler': PropTypes.func.isRequired,
+  }),
+  // Required when is on own page
+  'windowWidth': PropTypes.number,
+  // Required when is on own page
+  'registerWindowOnScrollHandler': PropTypes.func,
   'columnExtensionMap': PropTypes.objectOf(PropTypes.shape({
     "title": PropTypes.string.isRequired,
     "widthMap": PropTypes.shape({

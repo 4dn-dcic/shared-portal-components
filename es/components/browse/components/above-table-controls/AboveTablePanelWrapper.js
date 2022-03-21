@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 export var AboveTablePanelWrapper = /*#__PURE__*/React.memo(function (props) {
   var children = props.children,

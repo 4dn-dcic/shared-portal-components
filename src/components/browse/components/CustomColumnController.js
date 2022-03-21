@@ -1,6 +1,3 @@
-'use strict';
-// @flow
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
@@ -36,11 +33,11 @@ export class CustomColumnController extends React.Component {
     }
 
     static propTypes = {
-        "children" : PropTypes.instanceOf(React.Component),
+        "children" : PropTypes.element,
         "columnDefinitions" : PropTypes.arrayOf(PropTypes.shape({
             'field' : PropTypes.string
         })),
-        "defaultHiddenColumns" : PropTypes.array
+        "defaultHiddenColumns" : PropTypes.object
     };
 
     constructor(props){

@@ -177,7 +177,7 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
         result,
         children,
         //columnDefinition, termTransformFxn, width,
-        href = null,
+        //href = null,
         context,
         rowNumber, detailOpen, toggleDetailOpen,
         onClick: propOnClick = null
@@ -202,16 +202,16 @@ export const DisplayTitleColumnWrapper = React.memo(function(props){
             } else if (target && !target.href) {
                 // Check parent for hrefs if none found on current evt.target
                 linkElement = elementIsChildOfLink(target);
-                const { href = null } = linkElement || {};
-                if (href) {
-                    targetUrl = href;
+                const { href: childLinkHref = null } = linkElement || {};
+                if (childLinkHref) {
+                    targetUrl = childLinkHref;
                 }
             }
 
             const navTarget = targetUrl || link; // Fallback to atId if no href found
             evt.preventDefault();
             evt.stopPropagation();
-            const useHref = href || (window && window.location.href) || null;
+            const useHref = (window && window.location.href) || null;
             trackProductClick(
                 result,
                 { list : hrefToListName(useHref), position: rowNumber + 1 },

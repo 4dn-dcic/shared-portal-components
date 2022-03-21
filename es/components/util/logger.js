@@ -1,5 +1,3 @@
-'use strict';
-
 import { isServerSide } from './misc';
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";

@@ -1,4 +1,3 @@
-'use strict';
 
 import _ from 'underscore';
 import React from 'react';

@@ -1,6 +1,6 @@
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -231,8 +231,6 @@ export var DisplayTitleColumnDefault = /*#__PURE__*/React.memo(function (props) 
 export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) {
   var result = props.result,
       children = props.children,
-      _props$href2 = props.href,
-      href = _props$href2 === void 0 ? null : _props$href2,
       context = props.context,
       rowNumber = props.rowNumber,
       detailOpen = props.detailOpen,
@@ -263,10 +261,10 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
 
         var _ref3 = linkElement || {},
             _ref3$href = _ref3.href,
-            _href = _ref3$href === void 0 ? null : _ref3$href;
+            childLinkHref = _ref3$href === void 0 ? null : _ref3$href;
 
-        if (_href) {
-          targetUrl = _href;
+        if (childLinkHref) {
+          targetUrl = childLinkHref;
         }
       }
 
@@ -274,7 +272,7 @@ export var DisplayTitleColumnWrapper = /*#__PURE__*/React.memo(function (props) 
 
       evt.preventDefault();
       evt.stopPropagation();
-      var useHref = href || window && window.location.href || null;
+      var useHref = window && window.location.href || null;
       trackProductClick(result, {
         list: hrefToListName(useHref),
         position: rowNumber + 1

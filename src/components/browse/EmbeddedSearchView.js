@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
@@ -42,7 +40,7 @@ export class EmbeddedSearchView extends React.PureComponent {
         // Or, `props.columns` provides opportunity to override `props.context.columns`. Depends how look at it.
         'columns' : PropTypes.object,
         'columnExtensionMap' : PropTypes.object,
-        'session' : PropTypes.bool.isRequired,
+        'session' : PropTypes.bool,
         'schemas' : PropTypes.object,
         'windowWidth' : PropTypes.number,
         'renderSearchResultTable' : PropTypes.bool,

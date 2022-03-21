@@ -1,11 +1,9 @@
-'use strict';
 /**
  * A directory of methods and maybe a mini-component or two for common use.
  *
  * @module util
  */
 // Misc functions are top-level
-
 export { isServerSide, isSelectAction, memoizedUrlParse } from './misc'; // Transforms, manipulations, parsers, etc. re: objects.
 
 import * as objectMethods from './object';

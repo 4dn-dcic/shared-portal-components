@@ -43,7 +43,7 @@ export class HeadersRow extends React.PureComponent {
         'columnWidths' : PropTypes.objectOf(PropTypes.number),
         'setColumnWidths' : PropTypes.func,
         // Passed down from SortController (if used)
-        'sortColumns' : PropTypes.object,
+        'sortColumns' : PropTypes.arrayOf(PropTypes.shape({ 'column': PropTypes.string, 'direction': PropTypes.string })),
         'sortBy' : PropTypes.func,
     };
 
