@@ -61,6 +61,7 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
             filterMethod = "startsWith",
             optionsHeader: propOptionsHeader,
             allowCustomValue,
+            customFilterFunction,
             ...passProps
         } = this.props;
         const { currentTextValue } = this.state;
@@ -76,7 +77,12 @@ export class SearchAsYouTypeLocal extends React.PureComponent {
                 </div>
             );
         } else {
-            filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
+            if (customFilterFunction) {
+                filteredOptions = customFilterFunction(currentTextValue, searchList, filterMethod)
+            } else {
+                filteredOptions = this.memoized.filterOptions(currentTextValue, searchList, filterMethod);
+            }
+            
             if (filteredOptions.length === 0) {
                 optionsHeader = (
                     <React.Fragment>
@@ -103,7 +109,10 @@ SearchAsYouTypeLocal.propTypes = {
     onChange : PropTypes.func.isRequired,
     filterMethod : PropTypes.string, // "startsWith", "includes" (can add more in future if necessary) -- defaults to startsWith
     allowCustomValue: PropTypes.bool,
-    initializeWithValue: PropTypes.bool
+    initializeWithValue: PropTypes.bool,
+    optionRenderFunction: PropTypes.func,
+    titleRenderFunction: PropTypes.func,
+    customFilterFunction: PropTypes.func
 };
 
 
