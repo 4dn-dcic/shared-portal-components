@@ -38,7 +38,7 @@
         "source-map-support": "^0.5.19",
         "string-replace-loader": "^2.3.0",
         "terser-webpack-plugin": "^1.4.5",
-        "webpack": "4.28.4",
+        "webpack": "^4.46.0",
         "webpack-bundle-analyzer": "^3.8.0",
         "webpack-deadcode-plugin": "^0.1.12",
         "auth0-lock": ">=11.26.3",
@@ -58,7 +58,7 @@
     "dependencies": {
         "@sentry/react": "^6.18.1",
         "@sentry/tracing": "^6.18.1",
-        "aws-sdk": "^2.745.0",
+        "aws-sdk": "^2.1096.0",
         "crypto-js": "^3.3.0",
         "dom-helpers": "^3.4.0",
         "dompurify": "^2.3.6",
@@ -66,7 +66,6 @@
         "js-md5": "^0.7.3",
         "jsdom": "^19.0.0",
         "jsonwebtoken": ">=7.4.0",
-        "rc-progress": "^2.6.1",
         "react-draggable": ">=4.4.4",
         "@4dn-dcic/react-infinite": "github:4dn-dcic/react-infinite#1.1.9",
         "react-json-tree": "^0.16.1"

@@ -40,15 +40,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import ReactTooltip from 'react-tooltip';
-import InputGroup from 'react-bootstrap/esm/InputGroup';
 import FormControl from 'react-bootstrap/esm/FormControl';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
+import ProgressBar from 'react-bootstrap/esm/ProgressBar';
 import Fade from 'react-bootstrap/esm/Fade';
 import { Checkbox } from './Checkbox';
 import { ajax, console, object, valueTransforms } from './../../util';
 import { BasicStaticSectionBody } from './../../static-pages/BasicStaticSectionBody';
-import { Line as ProgressBar } from 'rc-progress';
 import { SearchAsYouTypeLocal } from './SearchAsYouTypeLocal';
 import { SubmissionViewSearchAsYouTypeAjax, SquareButton, LinkedObj } from './SearchAsYouTypeAjax';
 import { Alerts } from './../../ui/Alerts';
@@ -1408,9 +1407,8 @@ var S3FileInput = /*#__PURE__*/function (_React$Component3) {
       }, percentDone + "% complete"), /*#__PURE__*/React.createElement("div", {
         className: "pull-right"
       }, "Total size: " + sizeUploaded)), /*#__PURE__*/React.createElement(ProgressBar, {
-        percent: percentDone,
-        strokeWidth: "1",
-        strokeColor: "#388a92"
+        now: percentDone,
+        animated: true
       }))) : null);
     }
   }]);
@@ -1546,8 +1544,8 @@ export var AliasInputField = /*#__PURE__*/function (_React$Component4) {
         }));
       } else {
         // Only 1 submits_for lab or 0 submits_for -- fallback to staticy thingy
-        firstPartSelect = /*#__PURE__*/React.createElement(InputGroup.Prepend, {
-          className: "alias-lab-single-option"
+        firstPartSelect = /*#__PURE__*/React.createElement("div", {
+          className: "input-group-prepend"
         }, /*#__PURE__*/React.createElement("span", {
           className: "input-group-text"
         }, currFirstPartValue));
