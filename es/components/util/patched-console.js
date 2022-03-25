@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { isServerSide } from './misc';
 /**
  * Custom patched console instance for debugging. Only print out statements if debugging/development environment.
